@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="vscode-resource:${path}/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="vscode-resource:${path}/css/all.min.css" />
+        <link rel="stylesheet" href="vscode-resource:${path}/login/login.css" />
+    </head>
+
+    <body>
+        <div class="container shadow">
+            <div class="row">
+                <div class="col-sm-1">
+                    <img class="center img-responsive" src="vscode-resource:${path}/../images/qore_logo.png" />
+                </div>
+                <h4 class="col-sm-10 text-center">
+                    Login to Qorus instance <span id="qorus-name" class="text-primary font-weight-bold">${name}</span> at
+                </h4>
+            </div>
+            <div class="row">
+                <h4 class="col-sm-12 text-center">
+                    <span id="qorus-url" class="text-primary font-weight-bold">${url}</span>
+                </h4>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-sm-10 offset-sm-1">
+                    <form id="login">
+                        <div class="form-group row">
+                            <label for="username" class="col-sm-3 col-form-label">Username:</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control submit_on_enter" id="username" name="username" autofocus />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="password" class="col-sm-3 col-form-label">Password:</label>
+                            <div class="col-sm-6">
+                                <input type="password" class="form-control submit_on_enter" id="password" name="password" />
+                            </div>
+                        </div>
+                        <div class="form-group row" style="margin-top:36px;">
+                            <div class="col-sm-6 offset-sm-3 btn-group">
+                                <button id="cancel" class="btn btn-danger w-100">
+                                    <i class="fas fa-times"></i> &nbsp; Cancel
+                                </button>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-sign-in-alt"></i> &nbsp; OK
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="vscode-resource:${path}/js/jquery.min.js"></script>
+        <script src="vscode-resource:${path}/js/bootstrap.min.js"></script>
+        <script src="vscode-resource:${path}/js/all.min.js"></script>
+        <script src="vscode-resource:${path}/login/login.js"></script>
+    </body>
+</html>

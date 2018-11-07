@@ -1,0 +1,60 @@
+{
+    "definitions": {
+        "qorus_config": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "wiki": {
+                    "type": "string"
+                },
+                "issue_tracker": {
+                    "type": "string"
+                },
+                "qorus_instances": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/qorus_instance"
+                        }
+                    }
+                }
+            }
+        },
+        "qorus_instance": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "custom_urls": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/custom_url"
+                    }
+                }
+            },
+            "required": ["name", "url"]
+        },
+        "custom_url": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            },
+            "required": ["name", "url"]
+        }
+    }
+}

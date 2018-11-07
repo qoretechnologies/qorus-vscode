@@ -1,0 +1,185 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+"Plural-Forms: nplurals = 2; plural = (n !== 1);\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+msgid "usingLocaleSettings ${ locale }"
+msgstr "Using locale settings '${ locale }'"
+
+msgid "usingDefaultLocale ${ locale }"
+msgstr "Using default locale '${ locale }'"
+
+msgid "swaggerValidatorError ${ error }"
+msgstr "Swagger validator error: ${ error }"
+
+msgid "qorusProjectNotSet"
+msgstr "Qorus project has not been set"
+
+msgid "qorusProjectNotFound"
+msgstr "Qorus project definition not found"
+
+msgid "unableToDetermineProjectPath"
+msgstr "Unable to determine project configuration file location"
+
+msgid "openingUrlInExternalBrowser ${ name } ${ url }"
+msgstr "Opening ${ name } (${ url }) in an external browser"
+
+msgid "openUrlInExternalBrowserError ${ error }"
+msgstr "Error in opening URL in an external browser: ${ error }"
+
+msgid "noQorusWithGivenUrlFound { url }"
+msgstr "No Qorus instance with URL ${ url } found"
+
+msgid "loginSuccessful"
+msgstr "Login successful"
+
+msgid "loginCancelled"
+msgstr "Login cancelled"
+
+msgid "loginError"
+msgstr "Login failed"
+
+msgid "qorusLoginTitle"
+msgstr "Qorus Login"
+
+msgid "logoutSuccessful"
+msgstr "Logout successful"
+
+msgid "logoutError"
+msgstr "Logout failed"
+
+msgid "sendingLoginRequest"
+msgstr "Sending login request ..."
+
+msgid "unableOpenLoginPage"
+msgstr "Unable to open the login page"
+
+msgid "noTokenForUrl ${ url }"
+msgstr "No authentication token for URL ${ url }"
+
+msgid "unauthorizedOperationAtUrl ${ url }"
+msgstr "Unauthorized operation at ${ url }"
+
+msgid "unableGetUrlFromTreeItem ${ data }"
+msgstr "Unable to obtain URL from tree item data: ${ data }"
+
+msgid "nothingToDeploy"
+msgstr "Nothing to deploy"
+
+msgid "notDeployableFile ${ path }";
+msgstr "Not a deployable file: ${ path }";
+
+msgid "cannotLoadFileOutsideWorkspaceFolder ${ path }"
+msgstr "Cannot load a file that is not contained in a workspace folder ${ path }"
+
+msgid "deployingDirectory ${ dir }"
+msgstr "Deploying directory: ${ dir }"
+
+msgid "hostUnreachable ${ url }"
+msgstr "Host unreachable: ${ url }"
+
+msgid "authNeeded ${ url }"
+msgstr "Authentication needed for ${ url }"
+
+msgid "authNotNeeded ${ url }"
+msgstr "Authentication not needed for ${ url }"
+
+msgid "gettingInfoError"
+msgstr "Error in getting info"
+
+msgid "setActiveQorusInstanceError"
+msgstr "Error in setting a Qorus instance active"
+
+msgid "setInactiveQorusInstanceError"
+msgstr "Error in setting a Qorus instance inactive"
+
+msgid "attemptToSetInactiveNotActiveInstance ${ url }"
+msgstr "Attempt to set inactive a Qorus instance that is not active: ${ url }"
+
+msgid "noActiveQorusInstance"
+msgstr "Active Qorus instance has not been set"
+
+msgid "unableGetActiveQorusInstanceData"
+msgstr "Unable to obtain active Qorus instance data"
+
+msgid "filesToDeploy"
+msgstr "Files to deploy:"
+
+msgid "deploymentHasStarted ${ name } ${ url }"
+msgstr "Deployment to ${ name } - ${ url } has started ..."
+
+msgid "deploymentResponse ${ response }"
+msgstr "  ... response: ${ response }"
+
+msgid "responseIdUndefined"
+msgstr "Response ID is undefined"
+
+msgid "error401"
+msgstr "Error 401 - Unauthorized"
+
+msgid "deploymentError { error }"
+msgstr "Error during deployment: { error }"
+
+msgid "fileDoesNotExist ${ path }"
+msgstr "file ${ path } does not exist"
+
+msgid "deploymentRunning ${ deployment_id }"
+msgstr "Qorus code deployment is running (ID: ${ deployment_id })"
+
+msgid "cancellingDeployment ${ deployment_id }"
+msgstr "Cancelling deployment (ID: ${ deployment_id })"
+
+msgid "deploymentCancellationFailed ${ deployment_id })"
+msgstr "Deployment cancellation failed (ID: ${ deployment_id })"
+
+msgid "cancellationRequestSent ${ deployment_id }"
+msgstr "Cancellation request sent (id: ${ deployment_id })"
+
+msgid "checkingDeploymentProgress ${ deployment_id } ${ sec }";
+msgstr "${ sec }s   checking deployment progress (id: ${ deployment_id }) ... ";
+
+msgid "deploymentResponse ${ response } ${ status }"
+msgstr "    ... ${ response }, status: ${ status }";
+
+msgid "deploymentFinishedSuccessfully ${ deployment_id }"
+msgstr "Deployment finished successfully (ID: ${ deployment_id })"
+
+msgid "deploymentCancelled ${ deployment_id }"
+msgstr "Deployment cancelled (ID: ${ deployment_id })"
+
+msgid "deploymentFailed ${ deployment_id }"
+msgstr "Deployment failed (ID: ${ deployment_id })"
+
+msgid "subdirectory ${ subdir }"
+msgstr "Subdirectory: ${ subdir }"
+
+msgid "qorusInstanceLabel ${ name } ${ url }"
+msgstr "Qorus instance '${ name }'\n${ url }"
+
+msgid "nowActiveLabel"
+msgstr ">>   now active   <<"
+
+msgid "version3Label"
+msgstr "(version 3)"
+
+msgid "environmentLabel ${ env_id }"
+msgstr "Environment ${ env_id }"
+
+msgid "mainUrlLabel"
+msgstr "main URL"
+
+msgid "openUrlLabel"
+msgstr "Open URL"
+
+msgid "setActiveInstance"
+msgstr "Set as active Qorus instance"
+
+msgid "gettingInfo ${ url }"
+msgstr "Getting info from ${ url } ..."
+
+msgid "gettingInfoTimedOut ${ url }"
+msgstr "Getting info from ${ url } timed out"

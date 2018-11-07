@@ -1,0 +1,10 @@
+body {
+    background-image: url("../../images/bg.jpg");
+}
+.container {
+    max-width: 800px;
+    background-color: #fff;
+    margin-top: 40px;
+    padding: 40px 50px 30px 50px;
+    border-radius: 12px;
+}

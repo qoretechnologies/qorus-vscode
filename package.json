@@ -1,0 +1,210 @@
+{
+    "name": "qorus-vscode",
+    "displayName": "qorus-vscode",
+    "description": "Qorus Integration Engine tools",
+    "version": "0.0.1",
+    "publisher": "qoretechnologies",
+    "author": {
+        "name": "Qore Technologies",
+        "email": "vscode@qoretechnologies.com"
+    },
+    "engines": {
+        "vscode": "^1.25.0"
+    },
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "homepage": "https://github.com/qoretechnologies/qorus-vscode",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/qoretechnologies/qorus-vscode"
+    },
+    "bugs": {
+        "url": "https://github.com/qoretechnologies/qorus-vscode/issues"
+    },
+    "categories": [
+        "Other",
+        "Snippets"
+    ],
+    "icon": "images/qore_logo.png",
+    "galleryBanner": {
+        "color": "#333333",
+        "theme": "dark"
+    },
+    "keywords": [
+        "qore",
+        "qorus",
+        "ide",
+        "integration",
+        "engine"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "main": "out/extension",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "qorusInstances",
+                    "title": "Qorus Instances",
+                    "icon": "images/qore_icon.png"
+                }
+            ]
+        },
+        "views": {
+            "qorusInstances": [
+                {
+                    "id": "qorusInstancesExplorer",
+                    "name": "Explorer"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "qorus.setActiveInstance",
+                "title": "Qorus: Set as active Qorus instance"
+            },
+            {
+                "command": "qorus.setInactiveInstanceStayLoggedIn",
+                "title": "Qorus: Set as inactive Qorus instance, stay logged in"
+            },
+            {
+                "command": "qorus.setInactiveInstance",
+                "title": "Qorus: Set as inactive Qorus instance"
+            },
+            {
+                "command": "qorus.logout",
+                "title": "Qorus: Logout"
+            },
+            {
+                "command": "qorus.loginAndSetActiveInstance",
+                "title": "Qorus: Login, set as active Qorus instance"
+            },
+            {
+                "command": "qorus.loginAndStayInactiveInstance",
+                "title": "Qorus: Login, stay inactive Qorus instance"
+            },
+            {
+                "command": "qorus.editProjectConfig",
+                "title": "Qorus: Edit project configuration file"
+            },
+            {
+                "command": "qorus.deployCurrentFile",
+                "title": "Qorus: Deploy current file"
+            },
+            {
+                "command": "qorus.deployFile",
+                "title": "Qorus: Deploy file"
+            },
+            {
+                "command": "qorus.deployDir",
+                "title": "Qorus: Deploy directory"
+            },
+            {
+                "command": "qorus.openUrlInExternalBrowser",
+                "title": "Qorus: Open URL in an external tool"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "qorus.deployCurrentFile",
+                "key": "ctrl+alt+o",
+                "mac": "cmd+alt+r",
+                "when": "editorTextFocus"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "when": "resourceScheme == file && !explorerResourceIsFolder",
+                    "command": "qorus.deployFile",
+                    "group": "2_workspace"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.deployDir",
+                    "group": "2_workspace"
+                },
+                {
+                    "command": "qorus.editProjectConfig",
+                    "group": "2_workspace"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "qorus.setActiveInstance",
+                    "when": "viewItem =~ /^qorus:inactive:(loggedIn|noAuth|unknown)$/"
+                },
+                {
+                    "command": "qorus.setInactiveInstanceStayLoggedIn",
+                    "when": "viewItem == qorus:active:loggedIn"
+                },
+                {
+                    "command": "qorus.setInactiveInstance",
+                    "when": "viewItem =~ /^qorus:active:(noAuth|unknown)$/"
+                },
+                {
+                    "command": "qorus.logout",
+                    "when": "viewItem =~ /^qorus:(active|inactive):loggedIn$/"
+                },
+                {
+                    "command": "qorus.loginAndSetActiveInstance",
+                    "when": "viewItem == qorus:inactive:loggedOut"
+                },
+                {
+                    "command": "qorus.loginAndStayInactiveInstance",
+                    "when": "viewItem == qorus:inactive:loggedOut"
+                }
+            ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "Qorus Extension Configuration",
+            "properties": {
+                "qorus.openUrlInExternalBrowser.mac": {
+                    "type": "string",
+                    "description": "a default tool to use with custom URLs on Mac/OSX",
+                    "scope": "window",
+                    "default": "open"
+                },
+                "qorus.openUrlInExternalBrowser.windows": {
+                    "type": "string",
+                    "description": "a default tool to use with custom URLs on MS Windows",
+                    "scope": "window",
+                    "default": "start"
+                },
+                "qorus.openUrlInExternalBrowser.linux": {
+                    "type": "string",
+                    "description": "a default tool to use with custom URLs on Linux",
+                    "scope": "window",
+                    "default": "xdg-open"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/glob": "^5.0.35",
+        "@types/mocha": "^2.2.43",
+        "@types/node": "^7.0.71",
+        "@types/prop-types": "^15.5.6",
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6",
+        "vsce": "^1.52.0"
+    },
+    "dependencies": {
+        "@types/request-promise": "^4.1.42",
+        "gettext-parser": "^2.0.0",
+        "babel-plugin-ttag": "^1.4.0",
+        "request": "^2.88.0",
+        "request-promise": "^4.2.2",
+        "swagger-object-validator": "^1.1.7",
+        "ttag": "^1.4.0"
+    }
+}
