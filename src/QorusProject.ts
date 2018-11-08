@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as path from 'path';
 import { project_template } from './qorus_project_template';
 
 
@@ -64,4 +65,4 @@ class QorusProject {
 export const project = new QorusProject();
 export const config_filename = 'qorusproject.json';
 import { Handler } from 'swagger-object-validator';
-export const validator = new Handler('./config/qorus_project_definition.json');
+export const validator = new Handler(path.join(__dirname, '..', 'config/qorus_project_definition.json'));

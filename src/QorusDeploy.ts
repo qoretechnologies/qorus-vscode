@@ -58,40 +58,7 @@ class QorusDeploy extends QorusLogin {
     }
 
     setActiveInstance(tree_item: string | vscode.TreeItem) {
-        if (typeof tree_item === 'string') {
-            const url = tree_item;
-            if (this.isAuthorized(url)) {
-                this.setActive(url);
-                tree.refresh();
-                return;
-            }
-            QorusLogin.checkNoAuth(url).then(
-                (no_auth: boolean) => {
-                    if (no_auth) {
-                        this.addNoAuth(url);
-                        tree.refresh();
-                        msg.info(t`authNotNeeded ${url}`);
-                    }
-                    else {
-                        msg.info(t`authNeeded ${url}`);
-                        this.login(url);
-                    }
-                },
-                (error: any) => {
-                    if (error.message && error.message.indexOf('EHOSTUNREACH') > -1) {
-                        msg.error(t`hostUnreachable ${url}`);
-                    }
-                    else if (error.message && error.message.indexOf('ETIMEDOUT') > -1) {
-                        msg.error(t`gettingInfoTimedOut ${url}`);
-                    }
-                    else {
-                        msg.error(t`gettingInfoError`);
-                        msg.log(JSON.stringify(error));
-                    }
-                }
-            );
-        }
-        else {
+        if (typeof tree_item !== 'string') {
             const url: string | undefined = (<QorusTreeInstanceNode>tree_item).getUrl();
             if (url) {
                 this.setActiveInstance(url);
@@ -99,7 +66,42 @@ class QorusDeploy extends QorusLogin {
             else {
                 msg.error(t`setActiveQorusInstanceError`);
             }
+            return;
         }
+
+
+
+        const url = tree_item;
+        if (this.isAuthorized(url)) {
+            this.setActive(url);
+            tree.refresh();
+            return;
+        }
+        QorusLogin.checkNoAuth(url).then(
+            (no_auth: boolean) => {
+                if (no_auth) {
+                    this.addNoAuth(url);
+                    tree.refresh();
+                    msg.info(t`authNotNeeded ${url}`);
+                }
+                else {
+                    msg.info(t`authNeeded ${url}`);
+                    this.login(url);
+                }
+            },
+            (error: any) => {
+                if (error.message && error.message.indexOf('EHOSTUNREACH') > -1) {
+                    msg.error(t`hostUnreachable ${url}`);
+                }
+                else if (error.message && error.message.indexOf('ETIMEDOUT') > -1) {
+                    msg.error(t`gettingInfoTimedOut ${url}`);
+                }
+                else {
+                    msg.error(t`gettingInfoError`);
+                    msg.log(JSON.stringify(error));
+                }
+            }
+        );
     }
 
     unsetActiveInstance(tree_item?: vscode.TreeItem) {
