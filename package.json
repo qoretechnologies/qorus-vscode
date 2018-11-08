@@ -24,7 +24,7 @@
         "Other",
         "Snippets"
     ],
-    "icon": "images/qore_logo.png",
+    "icon": "images/qorus_logo_256.png",
     "galleryBanner": {
         "color": "#333333",
         "theme": "dark"
@@ -46,7 +46,7 @@
                 {
                     "id": "qorusInstances",
                     "title": "Qorus Instances",
-                    "icon": "images/qore_icon.png"
+                    "icon": "images/qorus_logo_28.png"
                 }
             ]
         },
