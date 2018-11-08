@@ -96,6 +96,9 @@ class QorusDeploy extends QorusLogin {
                 else if (error.message && error.message.indexOf('ETIMEDOUT') > -1) {
                     msg.error(t`gettingInfoTimedOut ${url}`);
                 }
+                else if (error.message && error.message.indexOf('ECONNREFUSED') > -1) {
+                    msg.error(t`connectionRefused ${url}`);
+                }
                 else {
                     msg.error(t`gettingInfoError`);
                     msg.log(JSON.stringify(error));
