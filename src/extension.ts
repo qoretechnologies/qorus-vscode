@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import * as child_process from 'child_process';
 import { project, config_filename, validator } from './QorusProject';
 import { deployer } from './QorusDeploy';
 import { tree } from './QorusTree';
-import { extension } from './qorus_extension';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
 import * as fs from 'fs';
@@ -12,7 +12,6 @@ import * as gettext_parser from 'gettext-parser';
 setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
-    extension.context = context;
 
     let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
                                                                () => deployer.deployCurrentFile());
@@ -106,7 +105,7 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
             }
         },
         error => {
-            msg.error(t`swaggerValidatorError: ${JSON.stringify(error)}`);
+            msg.error(t`swaggerValidatorError ${JSON.stringify(error)}`);
         }
     );
 }
@@ -162,7 +161,7 @@ function setLocale() {
         if (use_default_locale) {
             locale = default_locale;
         }
-        po_file = `./lang/${locale}.po`;
+        po_file = path.join(__dirname, '..', 'lang', `${locale}.po`);
         if (!fs.existsSync(po_file)) {
             po_file = undefined;
         }

@@ -195,11 +195,11 @@
         "@types/prop-types": "^15.5.6",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
         "vsce": "^1.52.0"
     },
     "dependencies": {
         "@types/request-promise": "^4.1.42",
+        "vscode": "^1.1.6",
         "gettext-parser": "^2.0.0",
         "babel-plugin-ttag": "^1.4.0",
         "request": "^2.88.0",

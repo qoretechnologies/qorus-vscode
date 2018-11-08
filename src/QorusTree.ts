@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { AuthNeeded } from './QorusAuth';
-import { extension } from './qorus_extension';
 import { deployer as auth } from './QorusDeploy';
 import { isVersion3 } from './qorus_utils';
 import * as msg from './qorus_message';
@@ -102,8 +102,8 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
         this.contextValue = 'qorus';
         this.contextValue += is_active ? ':active' : ':inactive';
 
-        if (is_active && extension.context) {
-            this.iconPath = extension.context.asAbsolutePath('./images/green_circle.png');
+        if (is_active) {
+            this.iconPath = path.join(__dirname, '..', 'images', 'green_circle.png');
         }
 
         if (auth.isLoggedIn(instance.url)) {
@@ -149,7 +149,7 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
 }
 
 class QorusTreeUrlNode extends QorusTreeNode {
-    constructor(url: any, is_instance_url = false) {
+    constructor(url: any, is_instance_url: boolean = false) {
         const label = is_instance_url ? t`mainUrlLabel` + `: ${url.url}` : `${url.name} (${url.url})`;
         super(label, vscode.TreeItemCollapsibleState.None);
 

@@ -183,3 +183,6 @@ msgstr "Getting info from ${ url } ..."
 
 msgid "gettingInfoTimedOut ${ url }"
 msgstr "Getting info from ${ url } timed out"
+
+msgid "connectionRefused ${ url }"
+msgstr "Connection to ${ url } refused"
