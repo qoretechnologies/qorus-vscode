@@ -63,7 +63,7 @@ The configuration file data structure is explained by the following example:
 The interpretation of the data is depicted by a tree with three levels:
 - development **environments** (here '*local*' and '*dev*')
 - - **Qorus instances** (here both environments have two Qorus instances)
-- - - **URLs**: the Qorus instance "main" URL at the first position and then the custom URLs, if any (here only the '*dev 1*' Qorus instance in the '*dev*' environment has any custom URLs)
+- - - **URLs**: the Qorus instance "main" URL at the first position and then the custom URLs, if any (here only the '*dev 1*' Qorus instance in the '*dev*' environment has any custom URLs). Custom URLs are supposed to serve as shortcuts for opening project related sites - simply by clicking (the opening tool depends on the operating system).
 
 The corresponding tree looks as follows:
 
