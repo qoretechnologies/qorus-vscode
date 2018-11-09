@@ -69,8 +69,6 @@ class QorusDeploy extends QorusLogin {
             return;
         }
 
-
-
         const url = tree_item;
         if (this.isAuthorized(url)) {
             this.setActive(url);
