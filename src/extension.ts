@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as child_process from 'child_process';
-import { project, config_filename, validator } from './QorusProject';
+import { QorusProject, project, config_filename, validator } from './QorusProject';
 import { deployer } from './QorusDeploy';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
@@ -25,12 +25,17 @@ export async function activate(context: vscode.ExtensionContext) {
                                                  (uri: vscode.Uri) => deployer.deployDir(uri));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.editProjectConfig', editProjectConfig);
+    disposable = vscode.commands.registerCommand('qorus.createProjectConfig',
+                                                 (uri: vscode.Uri) => QorusProject.createProjectConfig(uri));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.editProjectConfig',
+                                                 (uri: vscode.Uri) => QorusProject.editProjectConfig(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
-                                                 (data: string | vscode.TreeItem) =>
-                                                        deployer.setActiveInstance(data));
+                                                 (tree_item: string | vscode.TreeItem) =>
+                                                        deployer.setActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance',
@@ -85,18 +90,16 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
         return;
     }
 
-    const config_file: string | undefined = project.getConfigFilePath(uri);
-    if (!config_file) {
+    const config_file_data: object | undefined = QorusProject.getConfigFileData(uri);
+    if (!config_file_data) {
         msg.log(t`qorusProjectNotFound`);
         return;
     }
 
-    const file_data = project.getConfigFileData(config_file);
-
-    validator.validateModel(file_data, 'qorus_config').then(
+    validator.validateModel(config_file_data, 'qorus_config').then(
         result => {
             if (result.errors == undefined || result.errors.length == 0) {
-                tree.reset(file_data);
+                tree.reset(config_file_data);
                 deployer.unsetActiveInstance();
             }
             else {
@@ -108,16 +111,6 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
             msg.error(t`swaggerValidatorError ${JSON.stringify(error)}`);
         }
     );
-}
-
-function editProjectConfig(uri: vscode.Uri) {
-    const config_file: string | undefined = project.getConfigFilePath(uri);
-    if (!config_file) {
-        msg.warning(t`unableToDetermineProjectPath`);
-        return;
-    }
-
-    vscode.workspace.openTextDocument(config_file).then(doc => vscode.window.showTextDocument(doc));
 }
 
 function openUrlInExternalBrowser(url: string, name: string) {
@@ -189,9 +182,9 @@ function setLocale() {
     useLocale(locale);
 
     if (use_default_locale) {
-        msg.info(t`usingDefaultLocale ${locale}`);
+        msg.log(t`usingDefaultLocale ${locale}`);
     }
     else {
-        msg.info(t`usingLocaleSettings ${locale}`);
+        msg.log(t`usingLocaleSettings ${locale}`);
     }
 }
