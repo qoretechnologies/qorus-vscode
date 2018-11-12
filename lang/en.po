@@ -186,3 +186,21 @@ msgstr "Getting info from ${ url } timed out"
 
 msgid "connectionRefused ${ url }"
 msgstr "Connection to ${ url } refused"
+
+msgid "buttonOk"
+msgstr "OK"
+
+msgid "buttonCancel"
+msgstr "Cancel"
+
+msgid "aboutToCreateProjectConfigFile ${ config_file_path }"
+msgstr "Project configuration file ${ config_file_path } will be created"
+
+msgid "projectConfigFileAlreadyExists ${ config_file_path }"
+msgstr "Project configuration file ${ config_file_path } already exists. Do you want to edit it?"
+
+msgid "projectConfigFileHasBeenCreated"
+msgstr "Project configuration file has been created"
+
+msgid "projectConfigFileDoesNotExist"
+msgstr "Project configuration file does not exist. Do you want it to be created?"

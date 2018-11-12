@@ -14,9 +14,7 @@ The extension makes possible remote deployment of edited Qorus source files dire
 
 In order to work with the extension a project must be open in the VSCode editor. By project we mean the root directory of a project (the root of a git repository, for a typical example).
 
-Next, in the root directory there needs to be a project configuration file named **qorusproject.json** defining development environments and Qorus instances used during the project development. If the configuration file **qorusproject.json** is not there it will be generated from a template so that the user can simply edit its contents seeing the required structure.
-
-The configuration file can be opened for editing either normally from the file explorer or using the context menu over each file and each folder within the project.
+Next, in the root directory there needs to be a project configuration file named **qorusproject.json** defining development environments and Qorus instances used during the project development. If the configuration file **qorusproject.json** is not there it can be generated from a template so that the user can simply edit its contents seeing the required structure. Creation of the file is offered in the context menu over each file and each folder within the project.
 
 Based on the configuration file contents a *Qorus instances tree view* is provided in the explorer pane. Switching to the *Qorus instances tree view* is done by clicking the hexagon [Q] icon in the activity bar.
 

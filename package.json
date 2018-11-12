@@ -84,6 +84,10 @@
                 "title": "Qorus: Login, stay inactive Qorus instance"
             },
             {
+                "command": "qorus.createProjectConfig",
+                "title": "Qorus: Create project configuration file"
+            },
+            {
                 "command": "qorus.editProjectConfig",
                 "title": "Qorus: Edit project configuration file"
             },
@@ -122,6 +126,10 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.deployDir",
+                    "group": "2_workspace"
+                },
+                {
+                    "command": "qorus.createProjectConfig",
                     "group": "2_workspace"
                 },
                 {
