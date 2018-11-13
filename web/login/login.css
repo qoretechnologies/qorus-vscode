@@ -1,4 +1,5 @@
 body {
+    background-color: var(--vscode-editor-background);
     background-image: url("../../images/bg.jpg");
 }
 .container {
