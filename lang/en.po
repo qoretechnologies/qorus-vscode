@@ -207,3 +207,15 @@ msgstr "Project configuration file does not exist. Do you want it to be created?
 
 msgid "openUi"
 msgstr "Open UI"
+
+msgid "labelUsername"
+msgstr "Username:"
+
+msgid "labelPassword"
+msgstr "Password:"
+
+msgid "loginHeader"
+msgstr "Login to Qorus instance"
+
+msgid "at"
+msgstr "at"

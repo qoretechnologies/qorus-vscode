@@ -41,9 +41,15 @@ export class QorusLogin extends QorusAuth {
         vscode.workspace.openTextDocument(path.join(web_path, 'login', 'login.html')).then(
             doc => {
                 panel.webview.html = doc.getText()
-                                        .replace(/\${path}/g, web_path)
-                                        .replace(/\${name}/g, qorus_instance.name)
-                                        .replace(/\${url}/g, url);
+                                        .replace(/{{ path }}/g, web_path)
+                                        .replace(/{{ loginHeader1 }}/g, t`loginHeader`)
+                                        .replace(/{{ loginHeader2 }}/g, t`at`)
+                                        .replace(/{{ name }}/g, qorus_instance.name)
+                                        .replace(/{{ url }}/g, url)
+                                        .replace(/{{ labelUsername }}/g, t`labelUsername`)
+                                        .replace(/{{ labelPassword }}/g, t`labelPassword`)
+                                        .replace(/{{ buttonOk }}/g, t`buttonOk`)
+                                        .replace(/{{ buttonCancel }}/g, t`buttonCancel`)
 
                 panel.webview.onDidReceiveMessage(message => {
                     if (message.command != 'ok') {
