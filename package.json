@@ -170,19 +170,19 @@
             "properties": {
                 "qorus.openUrlInExternalBrowser.mac": {
                     "type": "string",
-                    "description": "a default tool to use with custom URLs on Mac/OSX",
+                    "description": "a default tool to use with custom URLs on Mac/OSX. By default 'open' is the standard tool on OSX",
                     "scope": "window",
                     "default": "open"
                 },
                 "qorus.openUrlInExternalBrowser.windows": {
                     "type": "string",
-                    "description": "a default tool to use with custom URLs on MS Windows",
+                    "description": "a default tool to use with custom URLs on MS Windows. By default we are using 'start <empty comment> <url>' for windows. As it seems better solution than 'explorer' for now. But you can try 'explorer' if you are facing issues with 'start'",
                     "scope": "window",
-                    "default": "start"
+                    "default": "start \"\""
                 },
                 "qorus.openUrlInExternalBrowser.linux": {
                     "type": "string",
-                    "description": "a default tool to use with custom URLs on Linux",
+                    "description": "a default tool to use with custom URLs on Linux. By default 'xdg-open' is the standard tool in Linux ecosystems",
                     "scope": "window",
                     "default": "xdg-open"
                 }
