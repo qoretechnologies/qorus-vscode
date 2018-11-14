@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.4
+
+* fixed re-login after server restart
+* changed qorus instance tree display
+* fixed opening URLs in external browser on Windows
+* create qorus project file on demand only
+* fixed qorus instance tree content after removal of the project file
+
 ## 0.0.3
 
 * basic documentation
