@@ -149,8 +149,8 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
         return children;
     }
 
-    getUrl(): string | undefined {
-        return this.instance.url;
+    getUrl(): string {
+        return this.instance.url || '';
     }
 }
 

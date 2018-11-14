@@ -6,18 +6,13 @@ import * as path from 'path';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
+
 export class QorusLogin extends QorusAuth {
 
     login(tree_item: string | vscode.TreeItem, set_active: boolean = true) {
 
         if (typeof tree_item !== 'string') {
-            const url: string | undefined = (<QorusTreeInstanceNode>tree_item).getUrl();
-            if (url) {
-                this.login(url, set_active);
-            }
-            else {
-                msg.error(t`loginError`);
-            }
+            this.login((<QorusTreeInstanceNode>tree_item).getUrl(), set_active);
             return;
         }
 
@@ -74,19 +69,7 @@ export class QorusLogin extends QorusAuth {
                             panel.dispose();
                         },
                         error => {
-                            if (error.name == 'StatusCodeError') {
-                                const err_msg_prefix = `${error.statusCode} - `;
-                                if (error.message.indexOf(err_msg_prefix) == 0) {
-                                    const err_msg = JSON.parse(JSON.parse(error.message.substr(err_msg_prefix.length)));
-                                    msg.error(`${err_msg.err} - ${err_msg.desc} `);
-                                } else {
-                                    msg.error(t`loginError`);
-                                    msg.log(error);
-                                }
-                            } else {
-                                msg.error(t`loginError`);
-                                msg.log(error);
-                            }
+                            msg.requestError(error, t`loginError`)
                             panel.dispose();
                         }
                     );
@@ -100,37 +83,36 @@ export class QorusLogin extends QorusAuth {
     }
 
     logout(tree_item: vscode.TreeItem) {
-        const url: string | undefined = (<QorusTreeInstanceNode>tree_item).getUrl();
+        const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
 
-        if (url) {
-            const token = this.getToken(url);
-            if (!token) {
-                msg.error(t`unauthorizedOperationAtUrl ${url}`);
-                msg.log(t`noTokenForUrl ${url}`);
-                return;
-            }
-
-            request({
-                method: 'POST',
-                uri: `${url}/api/latest/logout`,
-                strictSSL: false,
-                headers: {
-                    'qorus-token': token
-                }
-            }).then(
-                () => {
-                    this.deleteToken(url);
-                    tree.refresh();
-                    msg.info(t`logoutSuccessful`);
-                },
-                (error: any) => {
-                    msg.error(t`logoutError`);
-                    msg.log(JSON.stringify(error));
-                }
-            );
+        const token = this.getToken(url);
+        if (!token) {
+            msg.log(t`noTokenForUrl ${url}`);
+            this.doLogout(url, true);
+            return;
         }
-        else {
-            msg.error(t`logoutError`);
+
+        request({
+            method: 'POST',
+            uri: `${url}/api/latest/logout`,
+            strictSSL: false,
+            headers: {
+                'qorus-token': token
+            }
+        }).then(
+            () => this.doLogout(url),
+            (error: any) => {
+                msg.log(JSON.stringify(error));
+                this.doLogout(url, true);
+            }
+        );
+    }
+
+    protected doLogout(url: string, is_error: boolean = false, do_message: boolean = true) {
+    is_error ? this.forgetAllInfo(url) : this.deleteToken(url);
+        tree.refresh();
+        if (do_message) {
+            msg.info(t`loggedOut`);
         }
     }
 

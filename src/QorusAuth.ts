@@ -32,6 +32,11 @@ export class QorusAuth {
         }
     }
 
+    forgetAllInfo(url: string) {
+        this.deleteToken(url);
+        delete this.auth_needed[url];
+    }
+
     setActive(url: string) {
         this.active_url = url;
     }
