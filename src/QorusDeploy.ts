@@ -59,13 +59,7 @@ class QorusDeploy extends QorusLogin {
 
     setActiveInstance(tree_item: string | vscode.TreeItem) {
         if (typeof tree_item !== 'string') {
-            const url: string | undefined = (<QorusTreeInstanceNode>tree_item).getUrl();
-            if (url) {
-                this.setActiveInstance(url);
-            }
-            else {
-                msg.error(t`setActiveQorusInstanceError`);
-            }
+            this.setActiveInstance((<QorusTreeInstanceNode>tree_item).getUrl());
             return;
         }
 
@@ -88,30 +82,14 @@ class QorusDeploy extends QorusLogin {
                 }
             },
             (error: any) => {
-                if (error.message && error.message.indexOf('EHOSTUNREACH') > -1) {
-                    msg.error(t`hostUnreachable ${url}`);
-                }
-                else if (error.message && error.message.indexOf('ETIMEDOUT') > -1) {
-                    msg.error(t`gettingInfoTimedOut ${url}`);
-                }
-                else if (error.message && error.message.indexOf('ECONNREFUSED') > -1) {
-                    msg.error(t`connectionRefused ${url}`);
-                }
-                else {
-                    msg.error(t`gettingInfoError`);
-                    msg.log(JSON.stringify(error));
-                }
+                msg.requestError(error, t`gettingInfoError`);
             }
         );
     }
 
     unsetActiveInstance(tree_item?: vscode.TreeItem) {
         if (tree_item) {
-            const url: string | undefined = (<QorusTreeInstanceNode>tree_item).getUrl();
-            if (!url) {
-                msg.error(t`setInactiveQorusInstanceError`);
-                return;
-            }
+            const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
             if (!this.isActive(url)) {
                 msg.log(t`attemptToSetInactiveNotActiveInstance ${url}`);
             }
@@ -162,21 +140,17 @@ class QorusDeploy extends QorusLogin {
             json: true
         };
         request(options).then(
-            response => {
+            (response: any) => {
                 msg.log(t`deploymentResponse ${JSON.stringify(response)}`);
                 if (response.id === undefined) {
                     msg.error(t`responseIdUndefined`);
                     return;
                 }
-                QorusDeploy.checkDeploymentResult(url_base, response.id, token);
+                this.checkDeploymentResult(url_base, active_instance.url, response.id, token);
             },
-            error => {
-                if (error.statusCode == 401) {
-                    msg.error(t`error401`);
-                }
-                else {
-                    msg.error(t`deploymentError ${JSON.stringify(error)}`);
-                }
+            (error: any) => {
+                msg.requestError(error, t`deploymentStartFailed`);
+                this.doLogout(active_instance.url, true, false);
             }
         );
     }
@@ -206,7 +180,7 @@ class QorusDeploy extends QorusLogin {
         }
     }
 
-    private static checkDeploymentResult(url_base: string, deployment_id: string, request_token?: string) {
+    private checkDeploymentResult(request_url_base: string, instance_url: string, deployment_id: string, request_token?: string) {
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
@@ -219,7 +193,7 @@ class QorusDeploy extends QorusLogin {
 
                     const options = {
                         method: 'PUT',
-                        uri: `${url_base}/cancel/${deployment_id}`,
+                        uri: `${request_url_base}/cancel/${deployment_id}`,
                         strictSSL: false,
                         headers: {
                             'qorus-token': request_token
@@ -241,7 +215,7 @@ class QorusDeploy extends QorusLogin {
 
                 const options = {
                     method: 'GET',
-                    uri: `${url_base}/status/${deployment_id}`,
+                    uri: `${request_url_base}/status/${deployment_id}`,
                     strictSSL: false,
                     headers: {
                         'qorus-token': request_token
@@ -254,7 +228,7 @@ class QorusDeploy extends QorusLogin {
                     msg.log(t`checkingDeploymentProgress ${deployment_id} ${++sec}`);
 
                     await request(options).then(
-                        response => {
+                        (response: any) => {
                             let status: string = response.status;
                             if (response.stdout) {
                                 msg.log(t`deploymentResponse ${response.stdout} ${status}`);
@@ -279,9 +253,9 @@ class QorusDeploy extends QorusLogin {
                                 default:
                             }
                         },
-                        error => {
-                            msg.error(t`deploymentFailed ${deployment_id}`);
-                            msg.log(JSON.stringify(error));
+                        (error: any) => {
+                            msg.requestError(error, t`checkingDeploymentStatusFailed ${deployment_id}`);
+                            this.doLogout(instance_url, true, false);
                             quit = true;
                         }
                     );

@@ -52,6 +52,9 @@ msgstr "Logout successful"
 msgid "logoutError"
 msgstr "Logout failed"
 
+msgid "loggedOut"
+msgstr "Logged out"
+
 msgid "sendingLoginRequest"
 msgstr "Sending login request ..."
 
@@ -118,11 +121,14 @@ msgstr "  ... response: ${ response }"
 msgid "responseIdUndefined"
 msgstr "Response ID is undefined"
 
-msgid "error401"
-msgstr "Error 401 - Unauthorized"
+msgid "error401 ${ url }"
+msgstr "Error 401 - Unauthorized (${ url })"
 
-msgid "deploymentError { error }"
-msgstr "Error during deployment: { error }"
+msgid "deploymentStartFailed"
+msgstr "Deployment failed"
+
+msgid "deploymentFailed { deployment_id }"
+msgstr "Deployment failed { deployment_id }"
 
 msgid "fileDoesNotExist ${ path }"
 msgstr "file ${ path } does not exist"
@@ -151,8 +157,8 @@ msgstr "Deployment finished successfully (ID: ${ deployment_id })"
 msgid "deploymentCancelled ${ deployment_id }"
 msgstr "Deployment cancelled (ID: ${ deployment_id })"
 
-msgid "deploymentFailed ${ deployment_id }"
-msgstr "Deployment failed (ID: ${ deployment_id })"
+msgid "checkingDeploymentStatusFailed ${ deployment_id }"
+msgstr "Checking deployment status failed (ID: ${ deployment_id })"
 
 msgid "subdirectory ${ subdir }"
 msgstr "Subdirectory: ${ subdir }"
