@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as request from 'request-promise';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as glob from 'glob';
 import { QorusLogin } from './QorusLogin';
 import { AuthNeeded } from './QorusAuth';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
@@ -120,6 +119,7 @@ class QorusDeploy extends QorusLogin {
             }
         }
 
+        msg.log(t`filesToDeploy`);
         let data: Array<object> = [];
         QorusDeploy.prepareDataToDeploy(file_paths, data);
 
@@ -156,7 +156,6 @@ class QorusDeploy extends QorusLogin {
     }
 
     private static prepareDataToDeploy(files: Array<string>, data: Array<object>) {
-        msg.log(t`filesToDeploy`);
         for (let file_path of files) {
             const file_relative_path = vscode.workspace.asRelativePath(file_path, false);
             msg.log(`    ${file_relative_path}`);
@@ -168,7 +167,7 @@ class QorusDeploy extends QorusLogin {
             const file_content = fs.readFileSync(file_path);
             let buffer: Buffer = Buffer.from(file_content);
             data.push({
-                'file_name': file_relative_path,
+                'file_name': file_relative_path.replace(/\\/g, '/'),
                 'file_content': buffer.toString('base64')
             });
 
@@ -271,12 +270,7 @@ class QorusDeploy extends QorusLogin {
                 resources = resources.concat(RegExp.$1.split(/\s+/));
             }
         }
-        if (resources.length) {
-            resources = resources.map(basename => path.join(dir_path, basename));
-            let pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
-            return glob.sync(pattern, {nodir: true});
-        }
-        return [];
+        return resources.map(basename => path.join(dir_path, basename));
     }
 
     // returns (in the referenced array) all deployable files from the directory 'dir'and its subdirectories
