@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as request from 'request-promise';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as glob from 'glob';
 import { QorusLogin } from './QorusLogin';
 import { AuthNeeded } from './QorusAuth';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
@@ -270,7 +271,12 @@ class QorusDeploy extends QorusLogin {
                 resources = resources.concat(RegExp.$1.split(/\s+/));
             }
         }
-        return resources.map(basename => path.join(dir_path, basename));
+        if (resources.length) {
+            resources = resources.map(basename => path.join(dir_path, basename));
+            let pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
+            return glob.sync(pattern, {nodir: true});
+        }
+        return [];
     }
 
     // returns (in the referenced array) all deployable files from the directory 'dir'and its subdirectories
