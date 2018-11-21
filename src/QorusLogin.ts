@@ -44,7 +44,7 @@ export class QorusLogin extends QorusAuth {
                                         .replace(/{{ labelUsername }}/g, t`labelUsername`)
                                         .replace(/{{ labelPassword }}/g, t`labelPassword`)
                                         .replace(/{{ buttonOk }}/g, t`buttonOk`)
-                                        .replace(/{{ buttonCancel }}/g, t`buttonCancel`)
+                                        .replace(/{{ buttonCancel }}/g, t`buttonCancel`);
 
                 panel.webview.onDidReceiveMessage(message => {
                     if (message.command != 'ok') {
@@ -69,7 +69,7 @@ export class QorusLogin extends QorusAuth {
                             panel.dispose();
                         },
                         error => {
-                            msg.requestError(error, t`loginError`)
+                            msg.requestError(error, t`loginError`);
                             panel.dispose();
                         }
                     );
@@ -124,7 +124,7 @@ export class QorusLogin extends QorusAuth {
                 cancellable: false
             },
             async (progress): Promise<boolean> => {
-                progress.report({ increment: -1});
+                progress.report({increment: -1});
 
                 const options = {
                     method: 'GET',
