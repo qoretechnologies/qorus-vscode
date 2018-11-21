@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5
+
+* fixed service resources are not deployed with services on Windows
+
 ## 0.0.4
 
 * fixed re-login after server restart
