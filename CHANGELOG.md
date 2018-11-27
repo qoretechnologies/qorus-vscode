@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.6
+
+* fixed indirect event-stream package security issue:
+  https://code.visualstudio.com/blogs/2018/11/26/event-stream
+
 ## 0.0.5
 
 * fixed service resources are not deployed with services on Windows
