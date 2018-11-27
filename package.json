@@ -208,6 +208,7 @@
     "dependencies": {
         "@types/request-promise": "^4.1.42",
         "vscode": "^1.1.6",
+        "event-stream": "3.3.4",
         "gettext-parser": "^2.0.0",
         "babel-plugin-ttag": "^1.4.0",
         "request": "^2.88.0",
