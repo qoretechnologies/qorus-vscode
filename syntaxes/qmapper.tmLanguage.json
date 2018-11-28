@@ -1,0 +1,19 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Qore",
+    "patterns": [
+        { "include": "source.qore" },
+        { "include": "#qmapper_tokens" }
+    ],
+    "repository": {
+        "qmapper_tokens": {
+            "patterns": [
+                {
+                    "match": "^OPTION:|^FIELD:",
+                    "name": "constant.language.types.qore"
+                }
+            ]
+        }
+    },
+    "scopeName": "source.qmapper"
+}

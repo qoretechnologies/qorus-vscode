@@ -41,6 +41,25 @@
     ],
     "main": "out/extension",
     "contributes": {
+        "languages": [
+            {
+                "id": "qmapper",
+                "aliases": [
+                    "Qorus Mapper"
+                ],
+                "extensions": [
+                    ".qmapper"
+                ],
+                "configuration": "./syntaxes/qmapper.configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "qmapper",
+                "scopeName": "source.qmapper",
+                "path": "./syntaxes/qmapper.tmLanguage.json"
+            }
+        ],
         "viewsContainers": {
             "activitybar": [
                 {
