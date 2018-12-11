@@ -223,6 +223,9 @@ msgstr "Project configuration file has been created"
 msgid "projectConfigFileDoesNotExist"
 msgstr "Project configuration file does not exist. Do you want it to be created?"
 
+msgid "projectConfigHasBeenInitialized"
+msgstr "Project configuration has now been initialized from a template"
+
 msgid "openUi"
 msgstr "Open UI"
 

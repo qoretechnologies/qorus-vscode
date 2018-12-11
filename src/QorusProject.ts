@@ -46,53 +46,11 @@ class QorusProject {
         }
     }
 
-    createProjectConfig() {
-        if (fs.existsSync(this.config_file)) {
-            vscode.window.showWarningMessage(
-                    t`projectConfigFileAlreadyExists ${this.config_file}`,
-                    {title: t`buttonOk`, is_ok: true},
-                    {title: t`buttonCancel`, isCloseAffordance: true})
-            .then((button: any) => {
-                if (button.is_ok) {
-                    this.editProjectConfig();
-                }
-            });
-            return;
-        }
-
-        vscode.window.showInformationMessage(
-                t`aboutToCreateProjectConfigFile ${this.config_file}`,
-                {title: t`buttonOk`, is_ok: true},
-                {title: t`buttonCancel`, isCloseAffordance: true})
-        .then((button: any) => {
-            if (button.is_ok) {
-                fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
-                this.editProjectConfig();
-                msg.info(t`projectConfigFileHasBeenCreated`);
-            }
-        });
-    }
-
-    editProjectConfig() {
-        if (!fs.existsSync(this.config_file)) {
-            vscode.window.showWarningMessage(
-                    t`projectConfigFileDoesNotExist`,
-                    {title: t`buttonOk`, is_ok: true},
-                    {title: t`buttonCancel`, isCloseAffordance: true})
-            .then((button: any) => {
-                if (button.is_ok) {
-                    fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
-                    this.editProjectConfig();
-                    msg.info(t`projectConfigFileHasBeenCreated`);
-                }
-            });
-            return;
-        }
-
-        vscode.workspace.openTextDocument(this.config_file).then(doc => vscode.window.showTextDocument(doc));
-    }
-
     manageProjectConfig() {
+        if (!fs.existsSync(this.config_file)) {
+            fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
+            msg.info(t`projectConfigHasBeenInitialized`);
+        }
         this.validateConfigFileAndDo(this.manageProjectConfigImpl.bind(this));
     }
 
@@ -246,16 +204,6 @@ export class QorusProjects {
     validateConfigFileAndDo(onSuccess: Function, onError?: Function, uri?: vscode.Uri) {
         const project = this.getQorusProject(uri);
         project && project.validateConfigFileAndDo(onSuccess, onError);
-    }
-
-    createProjectConfig(uri: vscode.Uri) {
-        const project = this.getQorusProject(uri);
-        project && project.createProjectConfig();
-    }
-
-    editProjectConfig(uri: vscode.Uri) {
-        const project = this.getQorusProject(uri);
-        project && project.editProjectConfig();
     }
 
     manageProjectConfig(uri: vscode.Uri) {

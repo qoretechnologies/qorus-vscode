@@ -25,14 +25,6 @@ export async function activate(context: vscode.ExtensionContext) {
                                                  (uri: vscode.Uri) => deployer.deployDir(uri));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.createProjectConfig',
-                                                 (uri: vscode.Uri) => projects.createProjectConfig(uri));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.editProjectConfig',
-                                                 (uri: vscode.Uri) => projects.editProjectConfig(uri));
-    context.subscriptions.push(disposable);
-
     disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
                                                  (uri: vscode.Uri) => projects.manageProjectConfig(uri));
     context.subscriptions.push(disposable);
