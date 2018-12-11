@@ -11,6 +11,7 @@ export const config_filename = 'qorusproject.json';
 
 class QorusProject {
     private config_file: string;
+    private config_panel: vscode.WebviewPanel | undefined = undefined;
 
     constructor(project_folder: string) {
         this.config_file = path.join(project_folder, config_filename);
@@ -47,6 +48,10 @@ class QorusProject {
     }
 
     manageProjectConfig() {
+        if(this.config_panel) {
+            this.config_panel.reveal(vscode.ViewColumn.One);
+            return;
+        }
         if (!fs.existsSync(this.config_file)) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
             msg.info(t`projectConfigHasBeenInitialized`);
@@ -56,29 +61,30 @@ class QorusProject {
 
     private manageProjectConfigImpl(file_data: any) {
         const web_path = path.join(__dirname, '..', 'web');
-        const panel = vscode.window.createWebviewPanel(
-            'qorusConfig',
-            t`qorusConfigTitle`,
-            vscode.ViewColumn.One,
-            {
-                enableScripts: true
-            }
-        );
         vscode.workspace.openTextDocument(path.join(web_path, 'qorus_project_config', 'project_config.html')).then(
             html => {
-                panel.webview.html = html.getText().replace(/{{ path }}/g, web_path)
-                                                   .replace(/{{ environments }}/g, t`labelEnvironments`)
-                                                   .replace(/{{ qorusInstances }}/g, t`labelQorusInstances`)
-                                                   .replace(/{{ name }}/g, t`labelName`)
-                                                   .replace(/{{ url }}/g, t`labelUrl`)
-                                                   .replace(/{{ urls }}/g, t`labelUrls`)
-                                                   .replace(/{{ buttonOk }}/g, t`buttonOk`)
-                                                   .replace(/{{ buttonCancel }}/g, t`buttonCancel`)
+                this.config_panel = vscode.window.createWebviewPanel(
+                    'qorusConfig',
+                    t`qorusConfigTitle`,
+                    vscode.ViewColumn.One,
+                    {
+                        enableScripts: true
+                    }
+                );
 
-                panel.webview.onDidReceiveMessage(message => {
+                this.config_panel.webview.html = html.getText().replace(/{{ path }}/g, web_path)
+                                                               .replace(/{{ environments }}/g, t`labelEnvironments`)
+                                                               .replace(/{{ qorusInstances }}/g, t`labelQorusInstances`)
+                                                               .replace(/{{ name }}/g, t`labelName`)
+                                                               .replace(/{{ url }}/g, t`labelUrl`)
+                                                               .replace(/{{ urls }}/g, t`labelUrls`)
+                                                               .replace(/{{ buttonOk }}/g, t`buttonOk`)
+                                                               .replace(/{{ buttonCancel }}/g, t`buttonCancel`)
+
+                this.config_panel.webview.onDidReceiveMessage(message => {
                     switch (message.action) {
                         case 'get-data':
-                            panel.webview.postMessage({
+                            (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
                                 action: 'set-data',
                                 data: QorusProject.file2web(file_data),
                                 texts: {
@@ -108,6 +114,10 @@ class QorusProject {
                             fs.writeFileSync(this.config_file, JSON.stringify(data, null, 4) + '\n');
                             break;
                     }
+                });
+
+                this.config_panel.onDidDispose(() => {
+                    this.config_panel = undefined;
                 });
             },
             error => {
