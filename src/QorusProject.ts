@@ -62,7 +62,43 @@ class QorusProject {
     private manageProjectConfigImpl(file_data: any) {
         const web_path = path.join(__dirname, '..', 'web');
         vscode.workspace.openTextDocument(path.join(web_path, 'qorus_project_config', 'project_config.html')).then(
-            html => {
+            doc => {
+                const texts = {
+                    html: {
+                        environments: t`labelEnvironments`,
+                        qorusInstances: t`labelQorusInstances`,
+                        name: t`labelName`,
+                        url: t`labelUrl`,
+                        urls: t`labelUrls`,
+                        buttonOk: t`buttonOk`,
+                        buttonCancel: t`buttonCancel`
+                    },
+                    js: {
+                        addEnvironment: t`labelAddEnvironment`,
+                        qorusInstancesIn: t`labelQorusInstancesIn`,
+                        addUrl: t`labelAddUrl`,
+                        editUrl: t`labelEditUrl`,
+                        editMainUrl: t`labelEditMainUrl`,
+                        mainUrl: t`labelMainUrl`,
+                        urls: t`labelUrls`,
+                        urlsOf: t`labelUrlsOf`,
+                        customUrls: t`labelCustomUrls`,
+                        remove: t`labelRemove`,
+                        edit: t`labelEdit`,
+                        addQorus: t`labelAddQorus`,
+                        editQorus: t`labelEditQorus`,
+                        editEnvironment: t`labelEditEnvironment`,
+                        confirmRemoveEnv: t`confirmRemoveEnv`,
+                        confirmRemoveQorus: t`confirmRemoveQorus`,
+                        confirmRemoveUrl: t`confirmRemoveUrl`
+                    }
+                }
+
+                let html_src: string =  doc.getText().replace(/{{ path }}/g, web_path);
+                Object.keys(texts.html).map(k => {
+                    html_src = html_src.replace(new RegExp(`{{ ${k} }}`, 'g'), texts.html[k]);
+                });
+
                 this.config_panel = vscode.window.createWebviewPanel(
                     'qorusConfig',
                     t`qorusConfigTitle`,
@@ -71,15 +107,7 @@ class QorusProject {
                         enableScripts: true
                     }
                 );
-
-                this.config_panel.webview.html = html.getText().replace(/{{ path }}/g, web_path)
-                                                               .replace(/{{ environments }}/g, t`labelEnvironments`)
-                                                               .replace(/{{ qorusInstances }}/g, t`labelQorusInstances`)
-                                                               .replace(/{{ name }}/g, t`labelName`)
-                                                               .replace(/{{ url }}/g, t`labelUrl`)
-                                                               .replace(/{{ urls }}/g, t`labelUrls`)
-                                                               .replace(/{{ buttonOk }}/g, t`buttonOk`)
-                                                               .replace(/{{ buttonCancel }}/g, t`buttonCancel`)
+                this.config_panel.webview.html = html_src;
 
                 this.config_panel.webview.onDidReceiveMessage(message => {
                     switch (message.action) {
@@ -87,25 +115,7 @@ class QorusProject {
                             (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
                                 action: 'set-data',
                                 data: QorusProject.file2web(file_data),
-                                texts: {
-                                    addEnvironment: t`labelAddEnvironment`,
-                                    qorusInstancesIn: t`labelQorusInstancesIn`,
-                                    addUrl: t`labelAddUrl`,
-                                    editUrl: t`labelEditUrl`,
-                                    editMainUrl: t`labelEditMainUrl`,
-                                    mainUrl: t`labelMainUrl`,
-                                    urls: t`labelUrls`,
-                                    urlsOf: t`labelUrlsOf`,
-                                    customUrls: t`labelCustomUrls`,
-                                    remove: t`labelRemove`,
-                                    edit: t`labelEdit`,
-                                    addQorus: t`labelAddQorus`,
-                                    editQorus: t`labelEditQorus`,
-                                    editEnvironment: t`labelEditEnvironment`,
-                                    confirmRemoveEnv: t`confirmRemoveEnv`,
-                                    confirmRemoveQorus: t`confirmRemoveQorus`,
-                                    confirmRemoveUrl: t`confirmRemoveUrl`
-                                }
+                                texts: texts.js
                             });
                             break;
                         case 'update-data':

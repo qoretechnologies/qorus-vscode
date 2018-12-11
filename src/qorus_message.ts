@@ -21,7 +21,7 @@ export function error(text: string, log_too: boolean = true) {
 }
 
 function messageImpl(text: string, kind: string, log_too: boolean) {
-    (<any>window)['show' + kind + 'Message'](text);
+    window['show' + kind + 'Message'](text);
     if (log_too) {
         log(text);
     }
