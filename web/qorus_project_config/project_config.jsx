@@ -1,27 +1,51 @@
 const vscode = acquireVsCodeApi();
 
-let texts = null;
+let texts = undefined;
 
 class Root extends React.Component {
     constructor() {
         super();
-        this.state = {
-            data: null,
-            selected_env_id: null,
-            selected_qorus_id: null
-        };
+
+        let state = vscode.getState();
+        if (state) {
+            texts = state.texts;
+            delete state.texts;
+            this.state = state;
+        }
+        else {
+            state = {
+                data: null,
+                selected_env_id: undefined,
+                selected_qorus_id: undefined
+            };
+            this.state = state;
+            vscode.setState(state);
+        }
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'set-data':
-                    texts = event.data.texts;
-                    this.setState({data: event.data.data});
+                    texts = event.data.texts,
+                    this.changeState({
+                        texts: texts,
+                        data: event.data.data
+                    });
                     break;
             }
         });
     }
 
+    changeState(state) {
+        let vsc_state = vscode.getState() || {};
+        vscode.setState(Object.assign(vsc_state, state));
+        delete state.texts;
+        this.setState(state);
+    }
+
     componentWillMount() {
+        if (this.state.data) {
+            return;
+        }
         vscode.postMessage({
             action: 'get-data'
         });
@@ -45,9 +69,9 @@ class Root extends React.Component {
     }
 
     selectEnv(env_id) {
-        this.setState({
+        this.changeState({
             selected_env_id: env_id,
-            selected_qorus_id: null
+            selected_qorus_id: undefined
         });
         $('#label_qoruses').html(
             texts.qorusInstancesIn + '&nbsp;' +
@@ -59,7 +83,7 @@ class Root extends React.Component {
     }
 
     selectQorus(qorus_id) {
-        this.setState({selected_qorus_id: qorus_id});
+        this.changeState({selected_qorus_id: qorus_id});
         $('#label_urls').html(
             texts.urlsOf + '&nbsp;' +
             '<span class="text-warning font-weight-bold text-center">' +
@@ -85,10 +109,10 @@ class Root extends React.Component {
             return null;
         }
 
-        let selected_env = (this.state.selected_env_id !== null)
+        let selected_env = (this.state.selected_env_id !== undefined)
             ? this.state.data[this.state.selected_env_id]
             : null;
-        let selected_qorus = (this.state.selected_qorus_id !== null)
+        let selected_qorus = (this.state.selected_qorus_id !== undefined)
             ? this.state.data[this.state.selected_env_id].qoruses[this.state.selected_qorus_id]
             : null;
 
@@ -135,10 +159,10 @@ class Root extends React.Component {
                 index = values.env_id;
                 data.splice(index, 1);
                 if (this.state.selected_env_id == index) {
-                    this.setState({selected_env_id: null});
+                    this.changeState({selected_env_id: undefined});
                 }
                 else if (this.state.selected_env_id > index) {
-                    this.setState({selected_env_id: this.state.selected_env_id - 1});
+                    this.changeState({selected_env_id: this.state.selected_env_id - 1});
                 }
                 resetIds(data, index);
                 break;
@@ -146,10 +170,10 @@ class Root extends React.Component {
                 index = values.env_id;
                 data[index-1] = data.splice(index, 1, data[index-1])[0]
                 if (this.state.selected_env_id == index) {
-                    this.setState({selected_env_id: index - 1})
+                    this.changeState({selected_env_id: index - 1})
                 }
                 else if (this.state.selected_env_id == index - 1) {
-                    this.setState({selected_env_id: index})
+                    this.changeState({selected_env_id: index})
                 }
                 resetIds(data, index - 1);
                 break;
@@ -171,10 +195,10 @@ class Root extends React.Component {
                 index = values.qorus_id;
                 qoruses.splice(index, 1);
                 if (this.state.selected_qorus_id == index) {
-                    this.setState({selected_qorus_id: null});
+                    this.changeState({selected_qorus_id: undefined});
                 }
                 else if (this.state.selected_qorus_id > index) {
-                    this.setState({selected_qorus_id: this.state.selected_qorus_id - 1});
+                    this.changeState({selected_qorus_id: this.state.selected_qorus_id - 1});
                 }
                 resetIds(qoruses, index);
                 break;
@@ -183,10 +207,10 @@ class Root extends React.Component {
                 index = values.qorus_id;
                 qoruses[index-1] = qoruses.splice(index, 1, qoruses[index-1])[0]
                 if (this.state.selected_qorus_id == index) {
-                    this.setState({selected_qorus_id: index - 1})
+                    this.changeState({selected_qorus_id: index - 1})
                 }
                 else if (this.state.selected_qorus_id == index - 1) {
-                    this.setState({selected_qorus_id: index})
+                    this.changeState({selected_qorus_id: index})
                 }
                 resetIds(qoruses, index - 1);
                 break;
@@ -223,7 +247,7 @@ class Root extends React.Component {
 
         $('.config_modal').modal('hide');
 
-        this.setState({data: data});
+        this.changeState({data: data});
 
         vscode.postMessage({
             action: 'update-data',
