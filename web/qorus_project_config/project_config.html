@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="vscode-resource:{{ path }}/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="vscode-resource:{{ path }}/css/all.min.css" />
+        <link rel="stylesheet" href="vscode-resource:{{ path }}/qorus_project_config/project_config.css" />
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row" style="margin-bottom: 24px; vertical-align: middle;">
+                <div class="col-sm-3"><h4>{{ environments }}</h4></div>
+                <div class="col-sm-3"><h4 id="label_qoruses">{{ qorusInstances }}</h4></div>
+                <div class="offset-sm-1 col-sm-4"><h4 id="label_urls">{{ urls }}</h4></div>
+                <div class="col-sm-1">
+                    <img class="center img-responsive" style="max-width: 54px;" src="vscode-resource:{{ path }}/../images/qorus_logo_256.png" />
+                </div>
+            </div>
+            <div id="react_root" />
+        </div>
+
+        <div id="edit_config_modal" class="modal config_modal fade" aria-hidden="true" aria-labelledby="edit_config_text" role="dialog" tabindex="-1">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form class="change_config">
+                        <div class="modal-header text-center"><h4 id="edit_config_text"></h4></div>
+                        <div class="modal-body">
+                            <input type="hidden" name="action" id="action" />
+                            <input type="hidden" name="env_id" id="env_id" />
+                            <input type="hidden" name="qorus_id" id="qorus_id" />
+                            <input type="hidden" name="url_id" id="url_id" />
+                            <div class="form-group row" id="form_group_name">
+                                <label for="name" class="col-sm-2 col-form-label">{{ name }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control autofocus" id="name" name="name" />
+                                </div>
+                            </div>
+                            <div class="form-group row" id="form_group_url">
+                                <label for="url" class="col-sm-2 col-form-label">{{ url }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="url" name="url" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn" data-dismiss="modal" aria-hidden="true">{{ buttonCancel }}</button>
+                            <button type="submit" class="btn btn-primary">{{ buttonOk }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="remove_config_modal" class="modal config_modal fade bd-example-modal-sm" aria-hidden="true" role="dialog" tabindex="-1">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <form class="change_config">
+                        <input type="hidden" name="action" id="action" />
+                        <input type="hidden" name="env_id" id="env_id" />
+                        <input type="hidden" name="qorus_id" id="qorus_id" />
+                        <input type="hidden" name="url_id" id="url_id" />
+                        <div class="modal-body" id="confirm_remove"></div>
+                        <div class="modal-footer">
+                            <button class="btn" data-dismiss="modal" aria-hidden="true">{{ buttonCancel }}</button>
+                            <button type="submit" class="btn btn-primary">{{ buttonOk }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="vscode-resource:{{ path }}/js/jquery.min.js"></script>
+        <script src="vscode-resource:{{ path }}/js/bootstrap.min.js"></script>
+        <script src="vscode-resource:{{ path }}/js/all.min.js"></script>
+        <script src="vscode-resource:{{ path }}/js/react.production.min.js" crossorigin></script>
+        <script src="vscode-resource:{{ path }}/js/react-dom.production.min.js" crossorigin></script>
+        <script src="vscode-resource:{{ path }}/js/babel.min.js"></script>
+        <script src="vscode-resource:{{ path }}/qorus_project_config/project_config.jsx" type="text/babel"></script>
+    </body>
+</html>

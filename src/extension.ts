@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as child_process from 'child_process';
-import { QorusProject, project, config_filename, validator } from './QorusProject';
+import { projects, config_filename } from './QorusProject';
 import { deployer } from './QorusDeploy';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
@@ -26,11 +26,15 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.createProjectConfig',
-                                                 (uri: vscode.Uri) => QorusProject.createProjectConfig(uri));
+                                                 (uri: vscode.Uri) => projects.createProjectConfig(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.editProjectConfig',
-                                                 (uri: vscode.Uri) => QorusProject.editProjectConfig(uri));
+                                                 (uri: vscode.Uri) => projects.editProjectConfig(uri));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
+                                                 (uri: vscode.Uri) => projects.manageProjectConfig(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
@@ -86,30 +90,14 @@ export function deactivate() {
 
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
-    if (!project.updateCurrentWorkspaceFolder(uri) && !forceTreeReset) {
+    if (!projects.updateCurrentWorkspaceFolder(uri) && !forceTreeReset) {
         return;
     }
 
-    const config_file_data: object | undefined = QorusProject.getConfigFileData(uri);
-    if (!config_file_data) {
-        msg.log(t`qorusProjectNotFound`);
-        return;
-    }
-
-    validator.validateModel(config_file_data, 'qorus_config').then(
-        result => {
-            if (result.errors == undefined || result.errors.length == 0) {
-                tree.reset(config_file_data);
-                deployer.unsetActiveInstance();
-            }
-            else {
-                msg.error(result.humanReadable().toString());
-                tree.reset({});
-            }
-        },
-        error => {
-            msg.error(t`swaggerValidatorError ${JSON.stringify(error)}`);
-        }
+    projects.validateConfigFileAndDo(
+        (file_data: any) => tree.reset(file_data),
+        () => tree.reset({}),
+        uri
     );
 }
 
