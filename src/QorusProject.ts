@@ -88,9 +88,12 @@ class QorusProject {
                         addQorus: t`labelAddQorus`,
                         editQorus: t`labelEditQorus`,
                         editEnvironment: t`labelEditEnvironment`,
-                        confirmRemoveEnv: t`confirmRemoveEnv`,
-                        confirmRemoveQorus: t`confirmRemoveQorus`,
-                        confirmRemoveUrl: t`confirmRemoveUrl`
+                        confirmRemoveEnv1: t`confirmRemoveEnv1`,
+                        confirmRemoveEnv2: t`confirmRemoveEnv2`,
+                        confirmRemoveQorus1: t`confirmRemoveQorus1`,
+                        confirmRemoveQorus2: t`confirmRemoveQorus2`,
+                        confirmRemoveUrl1: t`confirmRemoveUrl1`,
+                        confirmRemoveUrl2: t`confirmRemoveUrl2`
                     }
                 }
 

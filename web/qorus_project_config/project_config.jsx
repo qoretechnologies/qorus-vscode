@@ -349,9 +349,9 @@ class EnvEdit extends React.Component {
                     <i className='fas fa-pencil-alt'></i>
                 </button>
                 <button className='btn btn-danger' title={texts.remove}
-                            role='button' data-target='#remove_config_modal'
-                            data-toggle='modal' data-text={texts.confirmRemoveEnv}
-                            data-action='remove-env' data-env-id={env.id}>
+                            role='button' data-target='#remove_config_modal' data-toggle='modal'
+                            data-text-1={texts.confirmRemoveEnv1} data-text-2={texts.confirmRemoveEnv2}
+                            data-action='remove-env' data-env-id={env.id} data-name={env.name} >
                     <i className='fas fa-times'></i>
                 </button>
                 {this.props.onMoveUp ?
@@ -408,10 +408,10 @@ class QorusEdit extends React.Component {
                     <i className='fas fa-pencil-alt'></i>
                 </button>
                 <button className='btn btn-danger' title={texts.remove}
-                            role='button' data-target='#remove_config_modal'
-                            data-toggle='modal' data-text={texts.confirmRemoveQorus}
+                            role='button' data-target='#remove_config_modal' data-toggle='modal'
+                            data-text-1={texts.confirmRemoveQorus1} data-text-2={texts.confirmRemoveQorus2}
                             data-action='remove-qorus' data-env-id={this.props.env_id}
-                            data-qorus-id={qorus.id}>
+                            data-qorus-id={qorus.id} data-name={qorus.name} >
                     <i className='fas fa-times'></i>
                 </button>
                 {this.props.onMoveUp ?
@@ -484,9 +484,9 @@ class CustomUrl extends React.Component {
                             </button>
                             <button className='btn btn-danger' title={texts.remove} role='button'
                                     data-target='#remove_config_modal' data-toggle='modal'
-                                    data-text={texts.confirmRemoveUrl} data-action='remove-url'
-                                    data-env-id={this.props.env_id} data-qorus-id={this.props.qorus_id}
-                                    data-url-id={url.id} >
+                                    data-text-1={texts.confirmRemoveUrl1} data-text-2={texts.confirmRemoveUrl2}
+                                    data-action='remove-url' data-env-id={this.props.env_id}
+                                    data-qorus-id={this.props.qorus_id} data-url-id={url.id} data-name={url.name} >
                                 <i className='fas fa-times'></i>
                             </button>
                             {this.props.onMoveUp ?
@@ -534,7 +534,9 @@ $('#edit_config_modal').on('shown.bs.modal', function(event) {
 
 $('#remove_config_modal').on('shown.bs.modal', function(event) {
     var caller = $(event.relatedTarget);
-    $('#confirm_remove').html(caller.data('text'));
+    $('#confirm_remove_text_1').html(caller.data('text-1'));
+    $('#confirm_remove_name').html(caller.data('name'));
+    $('#confirm_remove_text_2').html(caller.data('text-2'));
     $('#action').val(caller.data('action'));
     $('#env_id').val(caller.data('env-id'));
     $('#qorus_id').val(caller.data('qorus-id'));

@@ -304,8 +304,26 @@ msgstr "Add URL"
 msgid "confirmRemoveUrl"
 msgstr "Really remove URL?"
 
+msgid "confirmRemoveUrl1"
+msgstr "Really remove URL"
+
+msgid "confirmRemoveUrl2"
+msgstr "?"
+
 msgid "confirmRemoveQorus"
-msgstr "Really remove Qorus instance?"
+msgstr "Really remove Qorus instance with all its data?"
+
+msgid "confirmRemoveQorus1"
+msgstr "Really remove Qorus instance"
+
+msgid "confirmRemoveQorus2"
+msgstr "with all its data?"
 
 msgid "confirmRemoveEnv"
 msgstr "Really remove environment with all its Qorus instances?"
+
+msgid "confirmRemoveEnv1"
+msgstr "Really remove environment"
+
+msgid "confirmRemoveEnv2"
+msgstr "with all its Qorus instances?"

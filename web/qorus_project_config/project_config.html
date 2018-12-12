@@ -60,7 +60,11 @@
                         <input type="hidden" name="env_id" id="env_id" />
                         <input type="hidden" name="qorus_id" id="qorus_id" />
                         <input type="hidden" name="url_id" id="url_id" />
-                        <div class="modal-body" id="confirm_remove"></div>
+                        <div class="modal-body">
+                            <span id="confirm_remove_text_1"></span>
+                            <span id="confirm_remove_name" class="font-weight-bold"></span>
+                            <span id="confirm_remove_text_2"></span>
+                        </div>
                         <div class="modal-footer">
                             <button class="btn" data-dismiss="modal" aria-hidden="true">{{ buttonCancel }}</button>
                             <button type="submit" class="btn btn-primary">{{ buttonOk }}</button>
