@@ -9,7 +9,6 @@ class Root extends React.Component {
         let state = vscode.getState();
         if (state) {
             texts = state.texts;
-            delete state.texts;
             this.state = state;
         }
         else {
@@ -36,10 +35,12 @@ class Root extends React.Component {
     }
 
     changeState(state) {
-        let vsc_state = vscode.getState() || {};
-        vscode.setState(Object.assign(vsc_state, state));
-        delete state.texts;
-        this.setState(state);
+        // 1. vscode setState(): does not merge like react's setState(), so we need assign() to merge
+        vscode.setState(Object.assign(vscode.getState() || {}, state));
+        // 2. react setState(): we need state without 'texts'
+        let state_clone = Object.assign({}, state);
+        delete state_clone.texts;
+        this.setState(state_clone);
     }
 
     componentWillMount() {
@@ -134,7 +135,7 @@ class Root extends React.Component {
     }
 
     updateData(action, values) {
-        let data = JSON.parse(JSON.stringify(this.state.data));
+        let data = Object.assign({}, this.state.data);
         let index, env, qorus, qoruses, url, urls;
 
         let resetIds = ((array, index) => {
