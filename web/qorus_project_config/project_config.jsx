@@ -135,7 +135,7 @@ class Root extends React.Component {
     }
 
     updateData(action, values) {
-        let data = Object.assign({}, this.state.data);
+        let data = JSON.parse(JSON.stringify(this.state.data));
         let index, env, qorus, qoruses, url, urls;
 
         let resetIds = ((array, index) => {
@@ -270,7 +270,7 @@ class SelectButton extends React.Component {
 }
 
 class AddButton extends React.Component {
-    render () {
+    render() {
         return (
             <div className='row'>
                 <div className={this.props.positionClass}>
@@ -278,7 +278,8 @@ class AddButton extends React.Component {
                         <button className='btn btn-success' title={this.props.label} role='button'
                                 href='#edit_config_modal' data-toggle='modal' data-target='#edit_config_modal'
                                 data-text={this.props.label} data-action={this.props.action}
-                                data-env-id={this.props.env_id} data-qorus-id={this.props.qorus_id}>
+                                data-env-id={this.props.env_id} data-qorus-id={this.props.qorus_id}
+                                onClick={setInputs.bind(this, undefined)} >
                             <i className='fas fa-plus'></i>
                         </button>
                     </div>
@@ -340,18 +341,20 @@ class Envs extends React.Component {
 class EnvEdit extends React.Component {
     render() {
         let env = this.props.env;
+
         return (
             <div className='btn-group btn-group-sm' role='group' style={{margin: '8px 0'}}>
                 <button className='btn btn-primary' title={texts.edit} role='button'
                             data-target='#edit_config_modal' data-toggle='modal'
                             data-text={texts.editEnvironment} data-action='edit-env'
-                            data-env-id={env.id} data-name={env.name}>
+                            data-env-id={env.id} data-name={env.name} onClick={setInputs.bind(this, env.name)} >
                     <i className='fas fa-pencil-alt'></i>
                 </button>
                 <button className='btn btn-danger' title={texts.remove}
                             role='button' data-target='#remove_config_modal' data-toggle='modal'
                             data-text-1={texts.confirmRemoveEnv1} data-text-2={texts.confirmRemoveEnv2}
-                            data-action='remove-env' data-env-id={env.id} data-name={env.name} >
+                            data-action='remove-env' data-env-id={env.id} data-name={env.name}
+                            onClick={setRemovedName.bind(this, env.name) } >
                     <i className='fas fa-times'></i>
                 </button>
                 {this.props.onMoveUp ?
@@ -398,20 +401,22 @@ class Qoruses extends React.Component {
 class QorusEdit extends React.Component {
     render() {
         let qorus = this.props.qorus;
+
         return (
             <div className='btn-group btn-group-sm' role='group' style={{margin: '8px 0'}}>
                 <button className='btn btn-primary' title={texts.edit} role='button'
                             data-target='#edit_config_modal' data-toggle='modal'
                             data-text={texts.editQorus} data-action='edit-qorus'
                             data-env-id={this.props.env_id} data-qorus-id={qorus.id}
-                            data-name={qorus.name}>
+                            data-name={qorus.name} onClick={setInputs.bind(this, qorus.name, qorus.url)} >
                     <i className='fas fa-pencil-alt'></i>
                 </button>
                 <button className='btn btn-danger' title={texts.remove}
                             role='button' data-target='#remove_config_modal' data-toggle='modal'
                             data-text-1={texts.confirmRemoveQorus1} data-text-2={texts.confirmRemoveQorus2}
                             data-action='remove-qorus' data-env-id={this.props.env_id}
-                            data-qorus-id={qorus.id} data-name={qorus.name} >
+                            data-qorus-id={qorus.id} data-name={qorus.name}
+                            onClick={setRemovedName.bind(this, qorus.name)} >
                     <i className='fas fa-times'></i>
                 </button>
                 {this.props.onMoveUp ?
@@ -450,7 +455,8 @@ class Urls extends React.Component {
                             <button className='btn btn-primary' title={texts.edit} role='button'
                                     data-target='#edit_config_modal' data-toggle='modal'
                                     data-text={texts.editMainUrl} data-action='edit-main-url'
-                                    data-env-id={env_id} data-qorus-id={qorus.id} data-url={qorus.url}>
+                                    data-env-id={env_id} data-qorus-id={qorus.id} data-url={qorus.url}
+                                    onClick={setInputs.bind(this, qorus.name, qorus.url)} >
                                <i className='fas fa-pencil-alt'></i>
                             </button>
                         </div>
@@ -467,8 +473,9 @@ class Urls extends React.Component {
 }
 
 class CustomUrl extends React.Component {
-    render () {
+    render() {
         let url = this.props.url;
+
         return (
             <div style={{paddingBottom: '12px'}}>
                 <div className='row'>
@@ -479,14 +486,16 @@ class CustomUrl extends React.Component {
                                     data-target='#edit_config_modal' data-toggle='modal' data-text={texts.editUrl}
                                     data-action='edit-url' data-env-id={this.props.env_id}
                                     data-qorus-id={this.props.qorus_id} data-url-id={url.id}
-                                    data-name={url.name} data-url={url.url} >
+                                    data-name={url.name} data-url={url.url}
+                                    onClick={setInputs.bind(this, url.name, url.url)} >
                                 <i className='fas fa-pencil-alt'></i>
                             </button>
                             <button className='btn btn-danger' title={texts.remove} role='button'
                                     data-target='#remove_config_modal' data-toggle='modal'
                                     data-text-1={texts.confirmRemoveUrl1} data-text-2={texts.confirmRemoveUrl2}
                                     data-action='remove-url' data-env-id={this.props.env_id}
-                                    data-qorus-id={this.props.qorus_id} data-url-id={url.id} data-name={url.name} >
+                                    data-qorus-id={this.props.qorus_id} data-url-id={url.id} data-name={url.name}
+                                    onClick={setRemovedName.bind(this, url.name)} >
                                 <i className='fas fa-times'></i>
                             </button>
                             {this.props.onMoveUp ?
@@ -512,6 +521,7 @@ $('#edit_config_modal').on('shown.bs.modal', function(event) {
     var action = caller.data('action');
     if (['add-env', 'edit-env', 'edit-qorus'].includes(action)) {
         $('#form_group_url').hide();
+        $('#url').trigger('focus');
     }
     else {
         $('#form_group_url').show();
@@ -521,27 +531,33 @@ $('#edit_config_modal').on('shown.bs.modal', function(event) {
     }
     else {
         $('#form_group_name').show();
+        $('#name').trigger('focus');
     }
     $('#action').val(action);
     $('#edit_config_text').html(caller.data('text'));
     $('#env_id').val(caller.data('env-id'));
     $('#qorus_id').val(caller.data('qorus-id'));
     $('#url_id').val(caller.data('url-id'));
-    $('#name').val(caller.data('name'));
-    $('#url').val(caller.data('url'));
-    $('#name').trigger('focus');
 });
 
 $('#remove_config_modal').on('shown.bs.modal', function(event) {
     var caller = $(event.relatedTarget);
     $('#confirm_remove_text_1').html(caller.data('text-1'));
-    $('#confirm_remove_name').html(caller.data('name'));
     $('#confirm_remove_text_2').html(caller.data('text-2'));
     $('#action').val(caller.data('action'));
     $('#env_id').val(caller.data('env-id'));
     $('#qorus_id').val(caller.data('qorus-id'));
     $('#url_id').val(caller.data('url-id'));
 });
+
+function setInputs(name, url = undefined) {
+    $('#name').val(name);
+    $('#url').val(url);
+}
+
+function setRemovedName(name) {
+    $('#confirm_remove_name').html(name);
+}
 
 ReactDOM.render(
     <Root />,
