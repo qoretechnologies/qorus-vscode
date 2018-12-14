@@ -9,38 +9,45 @@ class Root extends React.Component {
         let state = vscode.getState();
         if (state) {
             texts = state.texts;
-            this.state = state;
+            this.state = {
+                data: state.data,
+                selected_env_id: state.selected_env_id,
+                selected_qorus_id: state.selected_qorus_id
+            };
         }
         else {
-            state = {
+            this.state = {
                 data: null,
                 selected_env_id: undefined,
                 selected_qorus_id: undefined
             };
-            this.state = state;
-            vscode.setState(state);
         }
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
-                case 'set-data':
+                case 'get-data':
                     texts = event.data.texts,
-                    this.changeState({
-                        texts: texts,
-                        data: event.data.data
+                    this.setVscodeState({texts: texts});
+                    this.setStates({
+                        data: event.data.data,
+                        selected_env_id: undefined,
+                        selected_qorus_id: undefined
                     });
+                    break;
+                case 'config-changed-on-disk':
+                    $('#config_changed_on_disk').modal({show: true});
                     break;
             }
         });
     }
 
-    changeState(state) {
-        // 1. vscode setState(): does not merge like react's setState(), so we need assign() to merge
+    setVscodeState(state) {
         vscode.setState(Object.assign(vscode.getState() || {}, state));
-        // 2. react setState(): we need state without 'texts'
-        let state_clone = Object.assign({}, state);
-        delete state_clone.texts;
-        this.setState(state_clone);
+    }
+
+    setStates(state) {
+        this.setVscodeState(state);
+        this.setState(state);
     }
 
     componentWillMount() {
@@ -67,30 +74,28 @@ class Root extends React.Component {
                 }
             );
         });
+        $('#reload').click(() => {
+            vscode.postMessage({
+                action: 'get-data'
+            });
+        });
+        $('#overwrite').click(() => {
+            vscode.postMessage({
+                action: 'update-data',
+                data: me.state.data
+            });
+        });
     }
 
     selectEnv(env_id) {
-        this.changeState({
+        this.setStates({
             selected_env_id: env_id,
             selected_qorus_id: undefined
         });
-        $('#label_qoruses').html(
-            texts.qorusInstancesIn + '&nbsp;' +
-            '<span class="text-info font-weight-bold text-center">' +
-                this.state.data[env_id].name +
-            '</span>'
-        );
-        $('#label_urls').html(texts.urls);
     }
 
     selectQorus(qorus_id) {
-        this.changeState({selected_qorus_id: qorus_id});
-        $('#label_urls').html(
-            texts.urlsOf + '&nbsp;' +
-            '<span class="text-warning font-weight-bold text-center">' +
-                this.state.data[this.state.selected_env_id].qoruses[qorus_id].name +
-            '</span>'
-        );
+        this.setStates({selected_qorus_id: qorus_id});
     }
 
     moveEnvUp(env_id) {
@@ -110,26 +115,45 @@ class Root extends React.Component {
             return null;
         }
 
-        let selected_env = (this.state.selected_env_id !== undefined)
-            ? this.state.data[this.state.selected_env_id]
-            : null;
-        let selected_qorus = (this.state.selected_qorus_id !== undefined)
-            ? this.state.data[this.state.selected_env_id].qoruses[this.state.selected_qorus_id]
-            : null;
+        let selected_env, selected_qorus;
+
+        if (this.state.selected_env_id !== undefined) {
+            selected_env = this.state.data[this.state.selected_env_id];
+            $('#label_qoruses').html(
+                texts.qorusInstancesIn + '&nbsp;' +
+                '<span class="text-info font-weight-bold">' + selected_env.name + '</span>'
+            );
+        }
+        else {
+            selected_env = null;
+            $('#label_qoruses').html(texts.qorusInstances);
+        }
+
+        if (this.state.selected_qorus_id !== undefined) {
+            selected_qorus = this.state.data[this.state.selected_env_id].qoruses[this.state.selected_qorus_id];
+            $('#label_urls').html(
+                texts.urlsOf + '&nbsp;' +
+                '<span class="text-info font-weight-bold">' + selected_qorus.name + '</span>'
+            );
+        }
+        else {
+            selected_qorus = null;
+            $('#label_urls').html(texts.urls);
+        }
 
         return (
             <div className='row'>
                 <Envs data={this.state.data}
-                      selected_env_id={this.state.selected_env_id}
-                      onSelect={this.selectEnv.bind(this)}
-                      onMoveUp={this.moveEnvUp.bind(this)} />
+                        selected_env_id={this.state.selected_env_id}
+                        onSelect={this.selectEnv.bind(this)}
+                        onMoveUp={this.moveEnvUp.bind(this)} />
                 <Qoruses env={selected_env}
-                         selected_qorus_id={this.state.selected_qorus_id}
-                         onSelect={this.selectQorus.bind(this)}
-                         onMoveUp={this.moveQorusUp.bind(this)} />
+                        selected_qorus_id={this.state.selected_qorus_id}
+                        onSelect={this.selectQorus.bind(this)}
+                        onMoveUp={this.moveQorusUp.bind(this)} />
                 <Urls env_id={this.state.selected_env_id}
-                      qorus={selected_qorus}
-                      onMoveUp={this.moveUrlUp.bind(this)} />
+                        qorus={selected_qorus}
+                        onMoveUp={this.moveUrlUp.bind(this)} />
             </div>
         );
     }
@@ -160,10 +184,10 @@ class Root extends React.Component {
                 index = values.env_id;
                 data.splice(index, 1);
                 if (this.state.selected_env_id == index) {
-                    this.changeState({selected_env_id: undefined});
+                    this.setStates({selected_env_id: undefined, selected_qorus_id: undefined});
                 }
                 else if (this.state.selected_env_id > index) {
-                    this.changeState({selected_env_id: this.state.selected_env_id - 1});
+                    this.setStates({selected_env_id: this.state.selected_env_id - 1});
                 }
                 resetIds(data, index);
                 break;
@@ -171,10 +195,10 @@ class Root extends React.Component {
                 index = values.env_id;
                 data[index-1] = data.splice(index, 1, data[index-1])[0]
                 if (this.state.selected_env_id == index) {
-                    this.changeState({selected_env_id: index - 1})
+                    this.setStates({selected_env_id: index - 1})
                 }
                 else if (this.state.selected_env_id == index - 1) {
-                    this.changeState({selected_env_id: index})
+                    this.setStates({selected_env_id: index})
                 }
                 resetIds(data, index - 1);
                 break;
@@ -196,10 +220,10 @@ class Root extends React.Component {
                 index = values.qorus_id;
                 qoruses.splice(index, 1);
                 if (this.state.selected_qorus_id == index) {
-                    this.changeState({selected_qorus_id: undefined});
+                    this.setStates({selected_qorus_id: undefined});
                 }
                 else if (this.state.selected_qorus_id > index) {
-                    this.changeState({selected_qorus_id: this.state.selected_qorus_id - 1});
+                    this.setStates({selected_qorus_id: this.state.selected_qorus_id - 1});
                 }
                 resetIds(qoruses, index);
                 break;
@@ -208,10 +232,10 @@ class Root extends React.Component {
                 index = values.qorus_id;
                 qoruses[index-1] = qoruses.splice(index, 1, qoruses[index-1])[0]
                 if (this.state.selected_qorus_id == index) {
-                    this.changeState({selected_qorus_id: index - 1})
+                    this.setStates({selected_qorus_id: index - 1})
                 }
                 else if (this.state.selected_qorus_id == index - 1) {
-                    this.changeState({selected_qorus_id: index})
+                    this.setStates({selected_qorus_id: index})
                 }
                 resetIds(qoruses, index - 1);
                 break;
@@ -248,7 +272,7 @@ class Root extends React.Component {
 
         $('.config_modal').modal('hide');
 
-        this.changeState({data: data});
+        this.setStates({data: data});
 
         vscode.postMessage({
             action: 'update-data',
@@ -274,8 +298,8 @@ class AddButton extends React.Component {
         return (
             <div className='row'>
                 <div className={this.props.positionClass}>
-                    <div className='btn-group btn-group-sm' role='group' style={{margin: '18px 0'}}>
-                        <button className='btn btn-success' title={this.props.label} role='button'
+                    <div className='btn-group btn-group-sm d-flex mt-4' role='group'>
+                        <button className='btn btn-outline-success w-25' title={this.props.label} role='button'
                                 href='#edit_config_modal' data-toggle='modal' data-target='#edit_config_modal'
                                 data-text={this.props.label} data-action={this.props.action}
                                 data-env-id={this.props.env_id} data-qorus-id={this.props.qorus_id}
@@ -343,14 +367,14 @@ class EnvEdit extends React.Component {
         let env = this.props.env;
 
         return (
-            <div className='btn-group btn-group-sm' role='group' style={{margin: '8px 0'}}>
-                <button className='btn btn-primary' title={texts.edit} role='button'
+            <div className='btn-group btn-group-sm d-flex my-2' role='group'>
+                <button className='btn btn-outline-primary w-25' title={texts.edit} role='button'
                             data-target='#edit_config_modal' data-toggle='modal'
                             data-text={texts.editEnvironment} data-action='edit-env'
                             data-env-id={env.id} data-name={env.name} onClick={setInputs.bind(this, env.name)} >
                     <i className='fas fa-pencil-alt'></i>
                 </button>
-                <button className='btn btn-danger' title={texts.remove}
+                <button className='btn btn-outline-danger w-25' title={texts.remove}
                             role='button' data-target='#remove_config_modal' data-toggle='modal'
                             data-text-1={texts.confirmRemoveEnv1} data-text-2={texts.confirmRemoveEnv2}
                             data-action='remove-env' data-env-id={env.id} data-name={env.name}
@@ -358,7 +382,7 @@ class EnvEdit extends React.Component {
                     <i className='fas fa-times'></i>
                 </button>
                 {this.props.onMoveUp ?
-                    <button className='btn btn-warning' title={texts.moveUp}
+                    <button className='btn btn-outline-warning w-25' title={texts.moveUp}
                                 role='button' onClick={this.props.onMoveUp.bind(this, env.id)}>
                         <i className='fas fa-arrow-up'></i>
                     </button> : null}
@@ -381,7 +405,7 @@ class Qoruses extends React.Component {
             buttonRows.push(<ButtonRow env_id={env.id}
                                        kind={'qorus'}
                                        data={qorus}
-                                       selectBtnClass={'btn-outline-warning'}
+                                       selectBtnClass={'btn-outline-info'}
                                        active={qorus_id == this.props.selected_qorus_id}
                                        onSelect={this.props.onSelect.bind(this)}
                                        onMoveUp={is_first ? null : this.props.onMoveUp.bind(this)} />);
@@ -403,15 +427,15 @@ class QorusEdit extends React.Component {
         let qorus = this.props.qorus;
 
         return (
-            <div className='btn-group btn-group-sm' role='group' style={{margin: '8px 0'}}>
-                <button className='btn btn-primary' title={texts.edit} role='button'
+            <div className='btn-group btn-group-sm d-flex my-2' role='group'>
+                <button className='btn btn-outline-primary w-25' title={texts.edit} role='button'
                             data-target='#edit_config_modal' data-toggle='modal'
                             data-text={texts.editQorus} data-action='edit-qorus'
                             data-env-id={this.props.env_id} data-qorus-id={qorus.id}
                             data-name={qorus.name} onClick={setInputs.bind(this, qorus.name, qorus.url)} >
                     <i className='fas fa-pencil-alt'></i>
                 </button>
-                <button className='btn btn-danger' title={texts.remove}
+                <button className='btn btn-outline-danger w-25' title={texts.remove}
                             role='button' data-target='#remove_config_modal' data-toggle='modal'
                             data-text-1={texts.confirmRemoveQorus1} data-text-2={texts.confirmRemoveQorus2}
                             data-action='remove-qorus' data-env-id={this.props.env_id}
@@ -420,7 +444,7 @@ class QorusEdit extends React.Component {
                     <i className='fas fa-times'></i>
                 </button>
                 {this.props.onMoveUp ?
-                    <button className='btn btn-warning' title={texts.moveUp}
+                    <button className='btn btn-outline-warning w-25' title={texts.moveUp}
                             role='button' onClick={this.props.onMoveUp.bind(this, this.props.env_id, qorus.id)}>
                         <i className='fas fa-arrow-up'></i>
                     </button> : null}
@@ -451,8 +475,8 @@ class Urls extends React.Component {
                 <div className='row'>
                     <div className='col-sm-9'>{qorus.url}</div>
                     <div className='col-sm-3'>
-                        <div className='btn-group btn-group-sm' role='group'>
-                            <button className='btn btn-primary' title={texts.edit} role='button'
+                        <div className='btn-group btn-group-sm d-flex' role='group'>
+                            <button className='btn btn-outline-primary w-25' title={texts.edit} role='button'
                                     data-target='#edit_config_modal' data-toggle='modal'
                                     data-text={texts.editMainUrl} data-action='edit-main-url'
                                     data-env-id={env_id} data-qorus-id={qorus.id} data-url={qorus.url}
@@ -477,12 +501,12 @@ class CustomUrl extends React.Component {
         let url = this.props.url;
 
         return (
-            <div style={{paddingBottom: '12px'}}>
+            <div className='mt-3'>
                 <div className='row'>
                     <div className='font-weight-bold col-sm-9'>{url.name}</div>
                     <div className='col-sm-3'>
-                        <div className='btn-group btn-group-sm' role='group'>
-                            <button className='btn btn-primary' title={texts.edit} role='button'
+                        <div className='btn-group btn-group-sm d-flex' role='group'>
+                            <button className='btn btn-outline-primary w-25' title={texts.edit} role='button'
                                     data-target='#edit_config_modal' data-toggle='modal' data-text={texts.editUrl}
                                     data-action='edit-url' data-env-id={this.props.env_id}
                                     data-qorus-id={this.props.qorus_id} data-url-id={url.id}
@@ -490,7 +514,7 @@ class CustomUrl extends React.Component {
                                     onClick={setInputs.bind(this, url.name, url.url)} >
                                 <i className='fas fa-pencil-alt'></i>
                             </button>
-                            <button className='btn btn-danger' title={texts.remove} role='button'
+                            <button className='btn btn-outline-danger w-25' title={texts.remove} role='button'
                                     data-target='#remove_config_modal' data-toggle='modal'
                                     data-text-1={texts.confirmRemoveUrl1} data-text-2={texts.confirmRemoveUrl2}
                                     data-action='remove-url' data-env-id={this.props.env_id}
@@ -499,7 +523,7 @@ class CustomUrl extends React.Component {
                                 <i className='fas fa-times'></i>
                             </button>
                             {this.props.onMoveUp ?
-                                <button className='btn btn-warning' title={texts.moveUp} role='button'
+                                <button className='btn btn-outline-warning w-25' title={texts.moveUp} role='button'
                                         onClick={this.props.onMoveUp.bind(this, this.props.env_id,
                                                                                 this.props.qorus_id,
                                                                                 url.id)}>

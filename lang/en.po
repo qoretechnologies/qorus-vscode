@@ -211,6 +211,12 @@ msgstr "OK"
 msgid "buttonCancel"
 msgstr "Cancel"
 
+msgid "buttonReload"
+msgstr "Reload"
+
+msgid "buttonOverwrite"
+msgstr "Overwrite"
+
 msgid "aboutToCreateProjectConfigFile ${ config_file_path }"
 msgstr "Project configuration file ${ config_file_path } will be created"
 
@@ -225,6 +231,12 @@ msgstr "Project configuration file does not exist. Do you want it to be created?
 
 msgid "projectConfigHasBeenInitialized"
 msgstr "Project configuration has now been initialized from a template"
+
+msgid "projectConfigFileHasChangedOnDisk"
+msgstr "Project configuration file has changed on disk"
+
+msgid "configChangedOnDiskDialog"
+msgstr "Project configuration file has changed on disk. Do you want to reload or overwrite it?"
 
 msgid "openUi"
 msgstr "Open UI"

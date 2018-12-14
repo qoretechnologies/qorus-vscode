@@ -59,7 +59,7 @@ class QorusProject {
         this.validateConfigFileAndDo(this.manageProjectConfigImpl.bind(this));
     }
 
-    private manageProjectConfigImpl(file_data: any) {
+    private manageProjectConfigImpl() {
         const web_path = path.join(__dirname, '..', 'web');
         vscode.workspace.openTextDocument(path.join(web_path, 'qorus_project_config', 'project_config.html')).then(
             doc => {
@@ -71,10 +71,14 @@ class QorusProject {
                         url: t`labelUrl`,
                         urls: t`labelUrls`,
                         buttonOk: t`buttonOk`,
-                        buttonCancel: t`buttonCancel`
+                        buttonCancel: t`buttonCancel`,
+                        buttonReload: t`buttonReload`,
+                        buttonOverwrite: t`buttonOverwrite`,
+                        configChangedOnDiskQuestion: t`configChangedOnDiskDialog`
                     },
                     js: {
                         addEnvironment: t`labelAddEnvironment`,
+                        qorusInstances: t`labelQorusInstances`,
                         qorusInstancesIn: t`labelQorusInstancesIn`,
                         addUrl: t`labelAddUrl`,
                         editUrl: t`labelEditUrl`,
@@ -112,18 +116,34 @@ class QorusProject {
                 );
                 this.config_panel.webview.html = html_src;
 
+                const config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
+                let message_on_config_file_change: boolean = true;
+                config_file_watcher.onDidChange(() => {
+                    if (!message_on_config_file_change) {
+                        message_on_config_file_change = true;
+                        return;
+                    }
+                    msg.warning(t`projectConfigFileHasChangedOnDisk`);
+                    (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
+                        action: 'config-changed-on-disk'
+                    });
+                });
+
                 this.config_panel.webview.onDidReceiveMessage(message => {
                     switch (message.action) {
                         case 'get-data':
-                            (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
-                                action: 'set-data',
-                                data: QorusProject.file2web(file_data),
-                                texts: texts.js
+                            this.validateConfigFileAndDo(file_data => {
+                                (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
+                                    action: 'get-data',
+                                    data: QorusProject.file2web(file_data),
+                                    texts: texts.js
+                                });
                             });
                             break;
                         case 'update-data':
                             const data = QorusProject.web2file(message.data);
                             tree.reset(data);
+                            message_on_config_file_change = false;
                             fs.writeFileSync(this.config_file, JSON.stringify(data, null, 4) + '\n');
                             break;
                     }
@@ -131,6 +151,7 @@ class QorusProject {
 
                 this.config_panel.onDidDispose(() => {
                     this.config_panel = undefined;
+                    config_file_watcher.dispose();
                 });
             },
             error => {

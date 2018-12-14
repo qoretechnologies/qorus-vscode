@@ -74,6 +74,20 @@
             </div>
         </div>
 
+        <div id="config_changed_on_disk" class="modal fade bd-example-modal-sm" aria-hidden="true" role="dialog" tabindex="-1">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <form class="change_config">
+                        <div class="modal-body">{{ configChangedOnDiskQuestion }}</div>
+                        <div class="modal-footer">
+                            <button class="btn btn-warning" data-dismiss="modal" aria-hidden="true" id="reload">{{ buttonReload }}</button>
+                            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" id="overwrite">{{ buttonOverwrite }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <script src="vscode-resource:{{ path }}/js/jquery.min.js"></script>
         <script src="vscode-resource:{{ path }}/js/bootstrap.min.js"></script>
         <script src="vscode-resource:{{ path }}/js/all.min.js"></script>
