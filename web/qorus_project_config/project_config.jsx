@@ -168,15 +168,25 @@ class Root extends React.Component {
             }
         });
 
+        let can_close = true;
+        let checkNonempty = ((key, value) => {
+            value = value.trim();
+            if (!value) {
+                can_close = false;
+                $('#' + key).addClass('bg-danger');
+            }
+            return value;
+        });
+
         switch (action) {
             case 'edit-env':
                 env = data[values.env_id];
-                env.name = values.name;
+                env.name = checkNonempty('name', values.name);
                 break;
             case 'add-env':
                 data.push({
                     id: data.length,
-                    name: values.name,
+                    name: checkNonempty('name', values.name),
                     qoruses: []
                 });
                 break;
@@ -204,14 +214,14 @@ class Root extends React.Component {
                 break;
             case 'edit-qorus':
                 qorus = data[values.env_id].qoruses[values.qorus_id];
-                qorus.name = values.name;
+                qorus.name = checkNonempty('name', values.name);
                 break;
             case 'add-qorus':
                 qoruses = data[values.env_id].qoruses;
                 qoruses.push({
                     id: qoruses.length,
-                    name: values.name,
-                    url: values.url,
+                    name: checkNonempty('name', values.name),
+                    url: checkNonempty('url', values.url),
                     urls: []
                 });
                 break;
@@ -241,19 +251,19 @@ class Root extends React.Component {
                 break;
             case 'edit-main-url':
                 qorus = data[values.env_id].qoruses[values.qorus_id];
-                qorus.url = values.url;
+                qorus.url = checkNonempty('url', values.url);
                 break;
             case 'edit-url':
                 url = data[values.env_id].qoruses[values.qorus_id].urls[values.url_id];
-                url.name = values.name;
-                url.url = values.url;
+                url.name = checkNonempty('name', values.name);
+                url.url = checkNonempty('url', values.url);
                 break;
             case 'add-url':
                 urls = data[values.env_id].qoruses[values.qorus_id].urls;
                 urls.push({
                     id: urls.length,
                     name: values.name,
-                    url: values.url
+                    url: checkNonempty('url', values.url)
                 });
                 break;
             case 'remove-url':
@@ -270,6 +280,10 @@ class Root extends React.Component {
                 break;
         }
 
+        if (!can_close) {
+            return;
+        }
+
         $('.config_modal').modal('hide');
 
         this.setStates({data: data});
@@ -278,6 +292,8 @@ class Root extends React.Component {
             action: 'update-data',
             data: data
         });
+
+        $('.form-control').removeClass('bg-danger');
     }
 }
 
@@ -303,7 +319,7 @@ class AddButton extends React.Component {
                                 href='#edit_config_modal' data-toggle='modal' data-target='#edit_config_modal'
                                 data-text={this.props.label} data-action={this.props.action}
                                 data-env-id={this.props.env_id} data-qorus-id={this.props.qorus_id}
-                                onClick={setInputs.bind(this, undefined)} >
+                                onClick={setInputs.bind(this, undefined, undefined)} >
                             <i className='fas fa-plus'></i>
                         </button>
                     </div>
@@ -572,6 +588,10 @@ $('#remove_config_modal').on('shown.bs.modal', function(event) {
     $('#env_id').val(caller.data('env-id'));
     $('#qorus_id').val(caller.data('qorus-id'));
     $('#url_id').val(caller.data('url-id'));
+});
+
+$('.form-control').focus(function() {
+    $(this).removeClass('bg-danger');
 });
 
 function setInputs(name, url = undefined) {
