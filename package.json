@@ -196,6 +196,31 @@
                     "description": "a default tool to use with custom URLs on Linux. By default 'xdg-open' is the standard tool in Linux ecosystems",
                     "scope": "window",
                     "default": "xdg-open"
+                },
+                "qorusDeployment.allow-redef": {
+                    "type": "boolean",
+                    "description": "Allows dangerous workflow redefinitions",
+                    "default": false
+                },
+                "qorusDeployment.force": {
+                    "type": "boolean",
+                    "description": "Force schema verification/downgrade with user schemas",
+                    "default": false
+                },
+                "qorusDeployment.validate": {
+                    "type": "boolean",
+                    "description": "Validate all functions recursively",
+                    "default": true
+                },
+                "qorusDeployment.reload": {
+                    "type": "boolean",
+                    "description": "Reload interfaces in the server",
+                    "default": true
+                },
+                "qorusDeployment.verbosity-level": {
+                    "type": "integer",
+                    "description": "Sets verbosity level (greater value = more info)",
+                    "default": 1
                 }
             }
         }
