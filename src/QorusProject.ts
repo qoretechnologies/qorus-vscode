@@ -61,7 +61,7 @@ class QorusProject {
 
     private manageProjectConfigImpl() {
         const web_path = path.join(__dirname, '..', 'web');
-        vscode.workspace.openTextDocument(path.join(web_path, 'qorus_project_config', 'project_config.html')).then(
+        vscode.workspace.openTextDocument(path.join(web_path, 'qorus_project_config', 'index.html')).then(
             doc => {
                 const texts = {
                     html: {
@@ -89,9 +89,10 @@ class QorusProject {
                         customUrls: t`labelCustomUrls`,
                         remove: t`labelRemove`,
                         edit: t`labelEdit`,
+                        moveUp: t`labelMoveUp`,
                         addQorus: t`labelAddQorus`,
                         editQorus: t`labelEditQorus`,
-                        editEnvironment: t`labelEditEnvironment`,
+                        editEnv: t`labelEditEnvironment`,
                         confirmRemoveEnv1: t`confirmRemoveEnv1`,
                         confirmRemoveEnv2: t`confirmRemoveEnv2`,
                         confirmRemoveQorus1: t`confirmRemoveQorus1`,

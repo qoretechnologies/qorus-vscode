@@ -205,17 +205,28 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+        "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "start": "webpack-dev-server --open --mode development",
+        "build": "webpack --mode production"
     },
     "devDependencies": {
+        "@babel/core": "^7.2.2",
+        "@babel/preset-env": "^7.2.0",
+        "@babel/preset-react": "^7.0.0",
         "@types/glob": "^5.0.35",
         "@types/mocha": "^2.2.43",
         "@types/node": "^7.0.71",
         "@types/prop-types": "^15.5.6",
+        "babel-loader": "^8.0.4",
+        "react": "^16.6.3",
+        "react-dom": "^16.6.3",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.52.0",
-        "vscode": "^1.1.22"
+        "vscode": "^1.1.22",
+        "webpack": "^4.27.1",
+        "webpack-cli": "^3.1.2",
+        "webpack-dev-server": "^3.1.10"
     },
     "dependencies": {
         "@types/request-promise": "^4.1.42",

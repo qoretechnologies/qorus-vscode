@@ -1,6 +1,5 @@
 out
 node_modules
-.vscode-test/
 package-lock.json
-*.vsix
+web/qorus_project_config/bundle.js
 *.swp

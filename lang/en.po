@@ -298,6 +298,9 @@ msgstr "Remove"
 msgid "labelEdit"
 msgstr "Edit"
 
+msgid "labelMoveUp"
+msgstr "Move up one position"
+
 msgid "labelEditQorus"
 msgstr "Edit Qorus instance"
 
