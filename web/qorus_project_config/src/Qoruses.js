@@ -7,7 +7,11 @@ import { texts } from './global';
 export class Qoruses extends Component {
     render() {
         if (!this.props.env) {
-            return null;
+            return (
+                <div className='col-sm-3'>
+                    <h4>{global.texts.qorusInstances}</h4>
+                </div>
+            );
         }
 
         let buttonRows = [];
@@ -27,6 +31,10 @@ export class Qoruses extends Component {
 
         return (
             <div className='col-sm-3'>
+                <h4 className='config-header'>
+                    {global.texts.qorusInstancesIn}&nbsp;
+                    <span className='text-info font-weight-bold'>{env.name}</span>
+                </h4>
                 {buttonRows}
                 <AddButton label={global.texts.addQorus} action={'add-qorus'} env_id={env.id}
                            positionClass={'offset-sm-7 col-sm-5 text-left'} />

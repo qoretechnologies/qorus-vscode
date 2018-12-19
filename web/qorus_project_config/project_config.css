@@ -4,3 +4,7 @@
     padding-top: 36px;
     max-width: 1800px;
 }
+
+.config-header {
+    min-height: 72px;
+}

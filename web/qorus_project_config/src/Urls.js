@@ -2,11 +2,19 @@ import React, { Component } from 'react';
 import { AddButton } from './AddButton';
 import { EditBtnGroup } from './EditBtnGroup';
 import { texts, setInputs } from './global';
+import logo from '../../../images/qorus_logo_256.png';
 
 export class Urls extends Component {
     render() {
         if (!this.props.qorus) {
-            return null;
+            return (
+                <div className='offset-sm-1 col-sm-5'>
+                    <h4>
+                        {global.texts.urls}
+                        <img className='center img-responsive float-right' style={{ maxWidth: '54px'}} src={logo} />
+                    </h4>
+                </div>
+            );
         }
 
         let customUrls = [];
@@ -21,7 +29,14 @@ export class Urls extends Component {
 
         return (
             <div className='offset-sm-1 col-sm-5'>
-                <h4>{global.texts.mainUrl}</h4>
+                <h4 className='config-header'>
+                    {global.texts.urlsOf}&nbsp;
+                    <span className='text-info font-weight-bold'>{qorus.name}</span>
+                    <img className='center img-responsive float-right' style={{ maxWidth: '54px'}} src={logo} />
+                </h4>
+                <h4>
+                    {global.texts.mainUrl}
+                </h4>
                 <div className='row'>
                     <div className='col-sm-9'>{qorus.url}</div>
                     <div className='col-sm-3'>

@@ -120,43 +120,22 @@ class Main extends Component {
             return null;
         }
 
-        let selected_env, selected_qorus;
-
-        if (this.state.selected_env_id !== undefined) {
-            selected_env = this.state.data[this.state.selected_env_id];
-            $('#label_qoruses').html(
-                global.texts.qorusInstancesIn + '&nbsp;' +
-                '<span class="text-info font-weight-bold">' + selected_env.name + '</span>'
-            );
-        }
-        else {
-            selected_env = null;
-            $('#label_qoruses').html(global.texts.qorusInstances);
-        }
-
-        if (this.state.selected_qorus_id !== undefined) {
-            selected_qorus = this.state.data[this.state.selected_env_id].qoruses[this.state.selected_qorus_id];
-            $('#label_urls').html(
-                global.texts.urlsOf + '&nbsp;' +
-                '<span class="text-info font-weight-bold">' + selected_qorus.name + '</span>'
-            );
-        }
-        else {
-            selected_qorus = null;
-            $('#label_urls').html(global.texts.urls);
-        }
+        let selected_env_id = this.state.selected_env_id;
+        let selected_qorus_id = this.state.selected_qorus_id;
+        let selected_env = (selected_env_id !== undefined) ? this.state.data[selected_env_id] : undefined;
+        let selected_qorus = (selected_qorus_id !== undefined) ? selected_env.qoruses[selected_qorus_id] : undefined;
 
         return (
             <div className='row'>
                 <Envs data={this.state.data}
-                        selected_env_id={this.state.selected_env_id}
+                        selected_env_id={selected_env_id}
                         onSelect={this.selectEnv.bind(this)}
                         onMoveUp={this.moveEnvUp.bind(this)} />
                 <Qoruses env={selected_env}
                         selected_qorus_id={this.state.selected_qorus_id}
                         onSelect={this.selectQorus.bind(this)}
                         onMoveUp={this.moveQorusUp.bind(this)} />
-                <Urls env_id={this.state.selected_env_id}
+                <Urls env_id={selected_env_id}
                         qorus={selected_qorus}
                         onMoveUp={this.moveUrlUp.bind(this)} />
             </div>

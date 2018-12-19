@@ -8,17 +8,7 @@
     </head>
 
     <body>
-        <div class="container">
-            <div class="row" style="margin-bottom: 24px; vertical-align: middle;">
-                <div class="col-sm-3"><h4>{{ environments }}</h4></div>
-                <div class="col-sm-3"><h4 id="label_qoruses">{{ qorusInstances }}</h4></div>
-                <div class="offset-sm-1 col-sm-4"><h4 id="label_urls">{{ urls }}</h4></div>
-                <div class="col-sm-1">
-                    <img class="center img-responsive" style="max-width: 54px;" src="vscode-resource:{{ path }}/../images/qorus_logo_256.png" />
-                </div>
-            </div>
-            <div id="react_root" />
-        </div>
+        <div class="container" id="react_root" />
 
         <div id="edit_config_modal" class="modal config_modal fade" aria-hidden="true" aria-labelledby="edit_config_text" role="dialog" tabindex="-1">
             <div class="modal-dialog" role="document">

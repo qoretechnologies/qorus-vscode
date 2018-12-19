@@ -222,6 +222,7 @@
         "react-dom": "^16.6.3",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
+        "url-loader": "^1.1.2",
         "vsce": "^1.52.0",
         "vscode": "^1.1.22",
         "webpack": "^4.27.1",

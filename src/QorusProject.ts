@@ -65,8 +65,6 @@ class QorusProject {
             doc => {
                 const texts = {
                     html: {
-                        environments: t`labelEnvironments`,
-                        qorusInstances: t`labelQorusInstances`,
                         name: t`labelName`,
                         url: t`labelUrl`,
                         urls: t`labelUrls`,
@@ -77,6 +75,7 @@ class QorusProject {
                         configChangedOnDiskQuestion: t`configChangedOnDiskDialog`
                     },
                     js: {
+                        environments: t`labelEnvironments`,
                         addEnvironment: t`labelAddEnvironment`,
                         qorusInstances: t`labelQorusInstances`,
                         qorusInstancesIn: t`labelQorusInstancesIn`,
