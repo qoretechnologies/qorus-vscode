@@ -1,5 +1,4 @@
 out
 node_modules
-package-lock.json
 web/qorus_project_config/bundle.js
 *.swp

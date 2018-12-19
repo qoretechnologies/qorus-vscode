@@ -3,7 +3,10 @@
 out/test/**
 out/**/*.map
 src/**
+web/**/src/**
 .gitignore
 tsconfig.json
 vsc-extension-quickstart.md
 tslint.json
+webpack.config.js
+.babelrc

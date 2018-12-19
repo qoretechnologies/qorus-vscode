@@ -1,6 +1,6 @@
 module.exports = {
     entry: {
-        qorus_project_config: './web/qorus_project_config/Main.js',
+        qorus_project_config: './web/qorus_project_config/src/Main.js',
     },
     output: {
         path: __dirname,
