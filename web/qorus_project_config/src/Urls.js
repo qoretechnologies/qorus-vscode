@@ -2,19 +2,12 @@ import React, { Component } from 'react';
 import { AddButton } from './AddButton';
 import { EditBtnGroup } from './EditBtnGroup';
 import { texts, setInputs } from './global';
-import logo from '../../../images/qorus_logo_256.png';
+
 
 export class Urls extends Component {
     render() {
         if (!this.props.qorus) {
-            return (
-                <div className='offset-sm-1 col-sm-5'>
-                    <h4>
-                        {global.texts.urls}
-                        <img className='center img-responsive float-right' style={{ maxWidth: '54px'}} src={logo} />
-                    </h4>
-                </div>
-            );
+            return null;
         }
 
         let customUrls = [];
@@ -28,20 +21,19 @@ export class Urls extends Component {
         }
 
         return (
-            <div className='offset-sm-1 col-sm-5'>
+            <div className='col-sm-8 col-lg-4'>
                 <h4 className='config-header'>
                     {global.texts.urlsOf}&nbsp;
                     <span className='text-info font-weight-bold'>{qorus.name}</span>
-                    <img className='center img-responsive float-right' style={{ maxWidth: '54px'}} src={logo} />
                 </h4>
                 <h4>
                     {global.texts.mainUrl}
                 </h4>
                 <div className='row'>
-                    <div className='col-sm-9'>{qorus.url}</div>
-                    <div className='col-sm-3'>
+                    <div className='col-7'>{qorus.url}</div>
+                    <div className='col-5'>
                         <div className='btn-group btn-group-sm d-flex' role='group'>
-                            <button className='btn btn-outline-primary w-25' title={global.texts.edit}
+                            <button className='btn btn-outline-primary w-25 float-right' title={global.texts.edit}
                                     role='button' data-target='#edit_config_modal' data-toggle='modal'
                                     data-text={global.texts.editMainUrl} data-action='edit-main-url'
                                     data-env-id={env_id} data-qorus-id={qorus.id} data-url={qorus.url}
@@ -54,8 +46,7 @@ export class Urls extends Component {
                 <br />
                 <h4>{global.texts.customUrls}</h4>
                 {customUrls}
-                <AddButton label={global.texts.addUrl} action={'add-url'} env_id={env_id} qorus_id={qorus.id}
-                           positionClass={'offset-sm-9 col-sm-3 text-left'} />
+                <AddButton label={global.texts.addUrl} action={'add-url'} env_id={env_id} qorus_id={qorus.id} />
             </div>
         );
     }
@@ -66,10 +57,10 @@ class CustomUrl extends Component {
         let url = this.props.url;
 
         return (
-            <div className='mt-3'>
-                <div className='row'>
-                    <div className='font-weight-bold col-sm-9'>{url.name}</div>
-                    <div className='col-sm-3'>
+            <span>
+                <div className='row mt-5'>
+                    <div className='font-weight-bold col-7'>{url.name}</div>
+                    <div className='col-5'>
                         <EditBtnGroup env_id={this.props.env_id}
                                       qorus_id={this.props.qorus_id}
                                       url_id={url.id}
@@ -78,9 +69,9 @@ class CustomUrl extends Component {
                     </div>
                 </div>
                 <div className='row'>
-                    <div className='col-sm-12'>{url.url}</div>
+                    <div className='col-12'>{url.url}</div>
                 </div>
-            </div>
+            </span>
         );
     }
 }

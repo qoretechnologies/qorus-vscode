@@ -24,7 +24,7 @@ export class EditBtnGroup extends Component {
             data_action_remove = 'remove-' + entity.toLowerCase();
 
         return (
-            <div className='btn-group btn-group-sm d-flex my-2' role='group'>
+            <div className='btn-group btn-group-sm d-flex my-2' role='group' style={{marginLeft: '-20px'}}>
                 <button className='btn btn-outline-primary w-25' title={global.texts.edit} role='button'
                             data-target='#edit_config_modal' data-toggle='modal'
                             data-text={data_text} data-action={data_action_edit}

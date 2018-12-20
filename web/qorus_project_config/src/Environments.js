@@ -20,11 +20,10 @@ export class Envs extends Component {
         }
 
         return (
-            <div className='col-sm-3'>
+            <div className='col-12 col-sm-6 col-lg-4 mb-5'>
                 <h4 className='config-header'>{global.texts.environments}</h4>
                 {buttonRows}
-                <AddButton label={global.texts.addEnvironment} action={'add-env'}
-                           positionClass={'offset-sm-7 col-sm-5 text-left'} />
+                <AddButton label={global.texts.addEnvironment} action={'add-env'} />
             </div>
         );
     }

@@ -1,10 +1,10 @@
 .container {
     background-color: #fff;
     height: 100%;
-    padding-top: 36px;
+    padding-top: 18px;
     max-width: 1800px;
 }
 
 .config-header {
-    min-height: 72px;
+    min-height: 54px;
 }

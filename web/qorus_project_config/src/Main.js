@@ -4,6 +4,7 @@ import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
 import { texts } from './global';
+import logo from '../../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
 
@@ -126,18 +127,26 @@ class Main extends Component {
         let selected_qorus = (selected_qorus_id !== undefined) ? selected_env.qoruses[selected_qorus_id] : undefined;
 
         return (
-            <div className='row'>
-                <Envs data={this.state.data}
-                        selected_env_id={selected_env_id}
-                        onSelect={this.selectEnv.bind(this)}
-                        onMoveUp={this.moveEnvUp.bind(this)} />
-                <Qoruses env={selected_env}
-                        selected_qorus_id={this.state.selected_qorus_id}
-                        onSelect={this.selectQorus.bind(this)}
-                        onMoveUp={this.moveQorusUp.bind(this)} />
-                <Urls env_id={selected_env_id}
-                        qorus={selected_qorus}
-                        onMoveUp={this.moveUrlUp.bind(this)} />
+            <div>
+                <div className='row'>
+                    <div className='col-sm-1'>
+                        <img className='float-left' style={{ maxWidth: '36px', maxHeight: '36px'}} src={logo} />
+                    </div>
+                </div>
+                <br />
+                <div className='row'>
+                    <Envs data={this.state.data}
+                            selected_env_id={selected_env_id}
+                            onSelect={this.selectEnv.bind(this)}
+                            onMoveUp={this.moveEnvUp.bind(this)} />
+                    <Qoruses env={selected_env}
+                            selected_qorus_id={this.state.selected_qorus_id}
+                            onSelect={this.selectQorus.bind(this)}
+                            onMoveUp={this.moveQorusUp.bind(this)} />
+                    <Urls env_id={selected_env_id}
+                            qorus={selected_qorus}
+                            onMoveUp={this.moveUrlUp.bind(this)} />
+                </div>
             </div>
         );
     }

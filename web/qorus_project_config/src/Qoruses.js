@@ -8,7 +8,7 @@ export class Qoruses extends Component {
     render() {
         if (!this.props.env) {
             return (
-                <div className='col-sm-3'>
+                <div className='col-12 col-sm-6 col-lg-4'>
                     <h4>{global.texts.qorusInstances}</h4>
                 </div>
             );
@@ -30,14 +30,13 @@ export class Qoruses extends Component {
         }
 
         return (
-            <div className='col-sm-3'>
+            <div className='col-12 col-sm-6 col-lg-4 mb-5'>
                 <h4 className='config-header'>
                     {global.texts.qorusInstancesIn}&nbsp;
                     <span className='text-info font-weight-bold'>{env.name}</span>
                 </h4>
                 {buttonRows}
-                <AddButton label={global.texts.addQorus} action={'add-qorus'} env_id={env.id}
-                           positionClass={'offset-sm-7 col-sm-5 text-left'} />
+                <AddButton label={global.texts.addQorus} action={'add-qorus'} env_id={env.id} />
             </div>
         );
     }
