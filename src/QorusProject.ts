@@ -97,7 +97,8 @@ class QorusProject {
                         confirmRemoveQorus1: t`confirmRemoveQorus1`,
                         confirmRemoveQorus2: t`confirmRemoveQorus2`,
                         confirmRemoveUrl1: t`confirmRemoveUrl1`,
-                        confirmRemoveUrl2: t`confirmRemoveUrl2`
+                        confirmRemoveUrl2: t`confirmRemoveUrl2`,
+                        mandatoryInput: t`mandatoryInput`
                     }
                 }
 

@@ -15,7 +15,10 @@ export class Urls extends Component {
         let qorus = this.props.qorus;
         let is_first = true;
         for (let url_id in qorus.urls) {
-            customUrls.push(<CustomUrl env_id={env_id} qorus_id={qorus.id} url={qorus.urls[url_id]}
+            customUrls.push(<CustomUrl key={url_id}
+                                       env_id={env_id}
+                                       qorus_id={qorus.id}
+                                       url={qorus.urls[url_id]}
                                        onMoveUp={is_first ? null : this.props.onMoveUp.bind(this)} />);
             is_first = false;
         }

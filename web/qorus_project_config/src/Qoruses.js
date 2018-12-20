@@ -18,10 +18,10 @@ export class Qoruses extends Component {
         let env = this.props.env;
         let is_first = true;
         for (let qorus_id in env.qoruses) {
-            let qorus = env.qoruses[qorus_id];
-            buttonRows.push(<ButtonRow env_id={env.id}
+            buttonRows.push(<ButtonRow key={qorus_id}
+                                       env_id={env.id}
                                        qorus_id={qorus_id}
-                                       data={qorus}
+                                       data={env.qoruses[qorus_id]}
                                        selectBtnClass={'btn-outline-info'}
                                        active={qorus_id == this.props.selected_qorus_id}
                                        onSelect={this.props.onSelect.bind(this)}

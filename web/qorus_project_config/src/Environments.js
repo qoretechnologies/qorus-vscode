@@ -9,9 +9,9 @@ export class Envs extends Component {
         let buttonRows = [];
         let is_first = true;
         for (let env_id in this.props.data) {
-            let env = this.props.data[env_id];
-            buttonRows.push(<ButtonRow env_id={env_id}
-                                       data={env}
+            buttonRows.push(<ButtonRow key={env_id}
+                                       env_id={env_id}
+                                       data={this.props.data[env_id]}
                                        selectBtnClass={'btn-outline-info'}
                                        active={env_id == this.props.selected_env_id}
                                        onSelect={this.props.onSelect.bind(this)}

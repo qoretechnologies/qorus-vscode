@@ -1,7 +1,6 @@
 export let texts = {};
 
 export function setInputs(name, url = undefined) {
-    console.log('setInputs ' + name + ' ' + url);
     $('#name').val(name);
     $('#url').val(url);
 }
@@ -15,13 +14,13 @@ $('#edit_config_modal').on('shown.bs.modal', function(event) {
     var action = caller.data('action');
     if (['add-env', 'edit-env', 'edit-qorus'].includes(action)) {
         $('#form_group_url').hide();
-        $('#url').trigger('focus');
     }
     else {
         $('#form_group_url').show();
     }
     if (['edit-main-url'].includes(action)) {
         $('#form_group_name').hide();
+        $('#url').trigger('focus');
     }
     else {
         $('#form_group_name').show();
@@ -45,5 +44,5 @@ $('#remove_config_modal').on('shown.bs.modal', function(event) {
 });
 
 $('.form-control').focus(function() {
-    $(this).removeClass('bg-danger');
+    $(this).removeClass('bg-warning').removeAttr('placeholder');
 });

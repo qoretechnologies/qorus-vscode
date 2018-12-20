@@ -152,8 +152,6 @@ class Main extends Component {
     }
 
     updateData(action, values) {
-        console.log('updateData ' + action);
-
         let data = JSON.parse(JSON.stringify(this.state.data));
         let index, env, qorus, qoruses, url, urls;
 
@@ -168,7 +166,7 @@ class Main extends Component {
             value = value.trim();
             if (!value) {
                 can_close = false;
-                $('#' + key).addClass('bg-danger');
+                $('#' + key).addClass('bg-warning').attr('placeholder', global.texts.mandatoryInput);
             }
             return value;
         });
@@ -288,7 +286,7 @@ class Main extends Component {
             data: data
         });
 
-        $('.form-control').removeClass('bg-danger');
+        $('.form-control').removeClass('bg-warning').removeAttr('placeholder');
     }
 }
 

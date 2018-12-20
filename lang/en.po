@@ -342,3 +342,6 @@ msgstr "Really remove environment"
 
 msgid "confirmRemoveEnv2"
 msgstr "with all its Qorus instances?"
+
+msgid "mandatoryInput"
+msgstr "Mandatory input"
