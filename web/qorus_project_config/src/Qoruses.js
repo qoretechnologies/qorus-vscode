@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { HTMLTable } from "@blueprintjs/core";
 import { AddButton } from './AddButton';
 import { ButtonRow } from './ButtonRow';
 import { texts } from './global';
@@ -8,8 +9,18 @@ export class Qoruses extends Component {
     render() {
         if (!this.props.env) {
             return (
-                <div className='col-12 col-sm-6 col-lg-4'>
-                    <h4>{global.texts.qorusInstances}</h4>
+                <div className='config-item'>
+                    <HTMLTable condensed={true}>
+                        <thead>
+                            <tr>
+                                <th>
+                                    <h5 className='config-color'>
+                                        {global.texts.qorusInstances}
+                                    </h5>
+                                </th>
+                            </tr>
+                        </thead>
+                    </HTMLTable>
                 </div>
             );
         }
@@ -22,7 +33,6 @@ export class Qoruses extends Component {
                                        env_id={env.id}
                                        qorus_id={qorus_id}
                                        data={env.qoruses[qorus_id]}
-                                       selectBtnClass={'btn-outline-info'}
                                        active={qorus_id == this.props.selected_qorus_id}
                                        onSelect={this.props.onSelect.bind(this)}
                                        onMoveUp={is_first ? null : this.props.onMoveUp.bind(this)} />);
@@ -30,13 +40,23 @@ export class Qoruses extends Component {
         }
 
         return (
-            <div className='col-12 col-sm-6 col-lg-4 mb-5'>
-                <h4 className='config-header'>
-                    {global.texts.qorusInstancesIn}&nbsp;
-                    <span className='text-info font-weight-bold'>{env.name}</span>
-                </h4>
-                {buttonRows}
-                <AddButton label={global.texts.addQorus} action={'add-qorus'} env_id={env.id} />
+            <div className='config-item column-qoruses'>
+                <HTMLTable condensed={true}>
+                    <thead>
+                        <tr>
+                            <th colspan='2'>
+                                <h5 className='config-color'>
+                                    {global.texts.qorusInstancesIn}&nbsp;
+                                    <span style={{ fontWeight: 'bold' }}>{env.name}</span>
+                                </h5>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {buttonRows}
+                        <AddButton label={global.texts.addQorus} action={'add-qorus'} env_id={env.id} />
+                    </tbody>
+                </HTMLTable>
             </div>
         );
     }

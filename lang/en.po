@@ -286,6 +286,9 @@ msgstr "URLs"
 msgid "labelUrlsOf"
 msgstr "URLs of Qorus instance"
 
+msgid "labelPropertiesOfQorusInstance"
+msgstr "Properties of Qorus instance"
+
 msgid "labelCustomUrls"
 msgstr "Other links"
 

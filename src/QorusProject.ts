@@ -84,7 +84,7 @@ class QorusProject {
                         editMainUrl: t`labelEditMainUrl`,
                         mainUrl: t`labelMainUrl`,
                         urls: t`labelUrls`,
-                        urlsOf: t`labelUrlsOf`,
+                        propertiesOfQorus: t`labelPropertiesOfQorusInstance`,
                         customUrls: t`labelCustomUrls`,
                         remove: t`labelRemove`,
                         edit: t`labelEdit`,

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { HTMLTable } from "@blueprintjs/core";
 import { AddButton } from './AddButton';
 import { ButtonRow } from './ButtonRow';
 import { texts } from './global';
@@ -12,7 +13,6 @@ export class Envs extends Component {
             buttonRows.push(<ButtonRow key={env_id}
                                        env_id={env_id}
                                        data={this.props.data[env_id]}
-                                       selectBtnClass={'btn-outline-info'}
                                        active={env_id == this.props.selected_env_id}
                                        onSelect={this.props.onSelect.bind(this)}
                                        onMoveUp={is_first ? null : this.props.onMoveUp.bind(this)} />);
@@ -20,10 +20,20 @@ export class Envs extends Component {
         }
 
         return (
-            <div className='col-12 col-sm-6 col-lg-4 mb-5'>
-                <h4 className='config-header'>{global.texts.environments}</h4>
-                {buttonRows}
-                <AddButton label={global.texts.addEnvironment} action={'add-env'} />
+            <div className='config-item column-envs'>
+                <HTMLTable condensed={true}>
+                    <thead>
+                        <tr>
+                            <th colspan='2'>
+                                <h5 className='config-color'>{global.texts.environments}</h5>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {buttonRows}
+                        <AddButton label={global.texts.addEnvironment} action={'add-env'} />
+                    </tbody>
+                </HTMLTable>
             </div>
         );
     }

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
@@ -8,7 +7,7 @@ import logo from '../../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
 
-class Main extends Component {
+export class Root extends Component {
     constructor() {
         super();
 
@@ -128,13 +127,10 @@ class Main extends Component {
 
         return (
             <div>
-                <div className='row'>
-                    <div className='col-sm-1'>
-                        <img className='float-left' style={{ maxWidth: '36px', maxHeight: '36px'}} src={logo} />
-                    </div>
+                <div className='config-container'>
+                    <img style={{ maxWidth: '36px', maxHeight: '36px'}} src={logo} />
                 </div>
-                <br />
-                <div className='row'>
+                <div className='config-container'>
                     <Envs data={this.state.data}
                             selected_env_id={selected_env_id}
                             onSelect={this.selectEnv.bind(this)}
@@ -289,8 +285,3 @@ class Main extends Component {
         $('.form-control').removeClass('bg-warning').removeAttr('placeholder');
     }
 }
-
-ReactDOM.render(
-    <Main />,
-    document.querySelector('#react_root')
-);

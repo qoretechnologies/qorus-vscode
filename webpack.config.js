@@ -1,6 +1,6 @@
 module.exports = {
     entry: {
-        qorus_project_config: './web/qorus_project_config/src/Main.js',
+        qorus_project_config: './web/qorus_project_config/src/main.js',
     },
     output: {
         path: __dirname,
@@ -14,6 +14,10 @@ module.exports = {
                 use: {
                     loader: "babel-loader"
                 }
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
             },
             {
                 test: /\.(jpg|png|svg)$/,
