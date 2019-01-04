@@ -8,21 +8,7 @@ import { texts } from './global';
 export class Qoruses extends Component {
     render() {
         if (!this.props.selected_env) {
-            return (
-                <div className='config-item'>
-                    <HTMLTable condensed={true}>
-                        <thead>
-                            <tr>
-                                <th>
-                                    <h5 className='config-color'>
-                                        {global.texts.qorusInstances}
-                                    </h5>
-                                </th>
-                            </tr>
-                        </thead>
-                    </HTMLTable>
-                </div>
-            );
+            return null;
         }
 
         let buttonRows = [];

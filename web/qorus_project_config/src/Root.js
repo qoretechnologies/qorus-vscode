@@ -66,24 +66,13 @@ export class Root extends Component {
 
     componentDidMount() {
         let me = this;
-        $('form.change_config').submit(function(event) {
-            event.preventDefault();
-            me.updateData(
-                $('#action').val(),
-                {
-                    env_id: $('#env_id').val(),
-                    qorus_id: $('#qorus_id').val(),
-                    url_id: $('#url_id').val(),
-                    name: $('#name').val(),
-                    url: $('#url').val()
-                }
-            );
-        });
+
         $('#reload').click(() => {
             vscode.postMessage({
                 action: 'get-data'
             });
         });
+
         $('#overwrite').click(() => {
             vscode.postMessage({
                 action: 'update-data',
@@ -268,15 +257,11 @@ export class Root extends Component {
             return;
         }
 
-        $('.config_modal').modal('hide');
-
         this.setStates({data: data});
 
         vscode.postMessage({
             action: 'update-data',
             data: data
         });
-
-        $('.form-control').removeClass('bg-warning').removeAttr('placeholder');
     }
 }
