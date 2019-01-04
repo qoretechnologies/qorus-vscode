@@ -1,26 +1,30 @@
 import React, { Component } from 'react';
 import { HTMLTable, Button } from "@blueprintjs/core";
-import { AddButton } from './AddButton';
 import { EditBtnGroup } from './EditBtnGroup';
+import { EditPopover } from './EditPopover';
+import { AddButton } from './AddButton';
 import { texts, setInputs } from './global';
 
 
 export class Urls extends Component {
     render() {
-        if (!this.props.qorus) {
+        if (!this.props.selected_qorus) {
             return null;
         }
 
+        const env_id = this.props.env_id;
+        const qorus = this.props.selected_qorus;
         let customUrls = [];
-        let env_id = this.props.env_id;
-        let qorus = this.props.qorus;
         let is_first = true;
+
         for (let url_id in qorus.urls) {
             customUrls.push(<CustomUrl key={url_id}
                                        env_id={env_id}
                                        qorus_id={qorus.id}
                                        url={qorus.urls[url_id]}
-                                       onMoveUp={is_first ? null : this.props.onMoveUp.bind(this)} />);
+                                       onEdit={this.props.onEdit}
+                                       onRemove={this.props.onRemove}
+                                       onMoveUp={is_first ? null : this.props.onMoveUp} />);
             is_first = false;
         }
 
@@ -50,12 +54,10 @@ export class Urls extends Component {
                                 <span className='config-color'>{qorus.url}</span>
                             </td>
                             <td>
-                                <Button icon='edit' title={global.texts.edit}
-                                    role='button' data-target='#edit_config_modal' data-toggle='modal'
-                                    data-text={global.texts.editMainUrl} data-action='edit-main-url'
-                                    data-env-id={env_id} data-qorus-id={qorus.id} data-url={qorus.url}
-                                    onClick={setInputs.bind(this, qorus.name, qorus.url)} >
-                                </Button>
+                                <EditPopover kind='edit' entity='Url'
+                                             env_id={env_id} qorus_id={qorus.id}
+                                             action='edit-main-url' data={qorus}
+                                             onEdit={this.props.onEdit} />
                             </td>
                         </tr>
                     </tbody>
@@ -68,7 +70,7 @@ export class Urls extends Component {
                     </thead>
                     <tbody>
                         {customUrls}
-                        <AddButton label={global.texts.addUrl} action={'add-url'} env_id={env_id} qorus_id={qorus.id} />
+                        <AddButton env_id={env_id} qorus_id={qorus.id} onEdit={this.props.onEdit} />
                     </tbody>
                 </HTMLTable>
             </div>
@@ -78,8 +80,7 @@ export class Urls extends Component {
 
 class CustomUrl extends Component {
     render() {
-        let url = this.props.url;
-
+        const {url, ...other_props}  = this.props;
         return (
             <tr>
                 <td>
@@ -90,11 +91,7 @@ class CustomUrl extends Component {
                     </span>
                 </td>
                 <td>
-                    <EditBtnGroup env_id={this.props.env_id}
-                                  qorus_id={this.props.qorus_id}
-                                  url_id={url.id}
-                                  data={url}
-                                  onMoveUp={this.props.onMoveUp ? this.props.onMoveUp.bind(this) : null} />
+                    <EditBtnGroup url_id={url.id} data={url} {...other_props} />
                 </td>
             </tr>
         );

@@ -103,18 +103,6 @@ export class Root extends Component {
         this.setStates({selected_qorus_id: qorus_id});
     }
 
-    moveEnvUp(env_id) {
-        this.updateData('move-env-up', {env_id: env_id});
-    }
-
-    moveQorusUp(env_id, qorus_id) {
-        this.updateData('move-qorus-up', {env_id: env_id, qorus_id: qorus_id});
-    }
-
-    moveUrlUp(env_id, qorus_id, url_id) {
-        this.updateData('move-url-up', {env_id: env_id, qorus_id: qorus_id, url_id: url_id});
-    }
-
     render() {
         if (!this.state.data) {
             return null;
@@ -134,14 +122,20 @@ export class Root extends Component {
                     <Envs data={this.state.data}
                             selected_env_id={selected_env_id}
                             onSelect={this.selectEnv.bind(this)}
-                            onMoveUp={this.moveEnvUp.bind(this)} />
-                    <Qoruses env={selected_env}
-                            selected_qorus_id={this.state.selected_qorus_id}
+                            onEdit={this.updateData.bind(this)}
+                            onRemove={this.updateData.bind(this, 'remove-env')}
+                            onMoveUp={this.updateData.bind(this, 'move-env-up')} />
+                    <Qoruses selected_env={selected_env}
+                            selected_qorus_id={selected_qorus_id}
                             onSelect={this.selectQorus.bind(this)}
-                            onMoveUp={this.moveQorusUp.bind(this)} />
+                            onEdit={this.updateData.bind(this)}
+                            onRemove={this.updateData.bind(this, 'remove-qorus')}
+                            onMoveUp={this.updateData.bind(this, 'move-qorus-up')} />
                     <Urls env_id={selected_env_id}
-                            qorus={selected_qorus}
-                            onMoveUp={this.moveUrlUp.bind(this)} />
+                            selected_qorus={selected_qorus}
+                            onEdit={this.updateData.bind(this)}
+                            onRemove={this.updateData.bind(this, 'remove-url')}
+                            onMoveUp={this.updateData.bind(this, 'move-url-up')} />
                 </div>
             </div>
         );
@@ -204,6 +198,7 @@ export class Root extends Component {
             case 'edit-qorus':
                 qorus = data[values.env_id].qoruses[values.qorus_id];
                 qorus.name = checkNonempty('name', values.name);
+                qorus.url = checkNonempty('name', values.url);
                 break;
             case 'add-qorus':
                 qoruses = data[values.env_id].qoruses;

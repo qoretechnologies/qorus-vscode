@@ -14,8 +14,10 @@ export class Envs extends Component {
                                        env_id={env_id}
                                        data={this.props.data[env_id]}
                                        active={env_id == this.props.selected_env_id}
-                                       onSelect={this.props.onSelect.bind(this)}
-                                       onMoveUp={is_first ? null : this.props.onMoveUp.bind(this)} />);
+                                       onSelect={this.props.onSelect}
+                                       onEdit={this.props.onEdit}
+                                       onRemove={this.props.onRemove}
+                                       onMoveUp={is_first ? null : this.props.onMoveUp} />);
             is_first = false;
         }
 
@@ -31,7 +33,7 @@ export class Envs extends Component {
                     </thead>
                     <tbody>
                         {buttonRows}
-                        <AddButton label={global.texts.addEnvironment} action={'add-env'} />
+                        <AddButton onEdit={this.props.onEdit} />
                     </tbody>
                 </HTMLTable>
             </div>

@@ -1,21 +1,27 @@
 import React, { Component } from 'react';
 import { Button } from "@blueprintjs/core";
+import { EditPopover } from './EditPopover';
 import { setInputs } from './global';
 
 
 export class AddButton extends Component {
     render() {
+        let entity;
+        if (this.props.qorus_id !== undefined) {
+            entity = 'Url';
+        }
+        else if (this.props.env_id !== undefined) {
+            entity = 'Qorus';
+        }
+        else {
+            entity = 'Env';
+        }
+
         return (
             <tr>
                 <td />
                 <td>
-                    <Button icon='plus'
-                            title={this.props.label} role='button'
-                            href='#edit_config_modal' data-toggle='modal' data-target='#edit_config_modal'
-                            data-text={this.props.label} data-action={this.props.action}
-                            data-env-id={this.props.env_id} data-qorus-id={this.props.qorus_id}
-                            onClick={setInputs.bind(this, undefined, undefined)} >
-                    </Button>
+                    <EditPopover kind='add' entity={entity} {...this.props} />
                 </td>
             </tr>
         );

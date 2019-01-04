@@ -211,8 +211,14 @@ msgstr "OK"
 msgid "buttonCancel"
 msgstr "Cancel"
 
+msgid "buttonDelete"
+msgstr "Delete"
+
 msgid "buttonReload"
 msgstr "Reload"
+
+msgid "buttonSave"
+msgstr "Save"
 
 msgid "buttonOverwrite"
 msgstr "Overwrite"
@@ -298,6 +304,9 @@ msgstr "Environment"
 msgid "labelRemove"
 msgstr "Remove"
 
+msgid "labelAdd"
+msgstr "Add new"
+
 msgid "labelEdit"
 msgstr "Edit"
 
@@ -319,32 +328,26 @@ msgstr "Add Qorus instance"
 msgid "labelAddUrl"
 msgstr "Add URL"
 
-msgid "confirmRemoveUrl"
-msgstr "Really remove URL?"
+msgid "labelConfirmDeletion"
+msgstr "Confirm deletion"
 
-msgid "confirmRemoveUrl1"
-msgstr "Really remove URL"
+msgid "confirmRemoveEnvPre"
+msgstr "Do you really want to remove environment "
 
-msgid "confirmRemoveUrl2"
+msgid "confirmRemoveEnvPost"
+msgstr " with all its Qorus instances?"
+
+msgid "confirmRemoveQorusPre"
+msgstr "Do you really want to remove Qorus instance "
+
+msgid "confirmRemoveQorusPost"
+msgstr " with all its data?"
+
+msgid "confirmRemoveUrlPre"
+msgstr "Do you really want to remove URL "
+
+msgid "confirmRemoveUrlPost"
 msgstr "?"
-
-msgid "confirmRemoveQorus"
-msgstr "Really remove Qorus instance with all its data?"
-
-msgid "confirmRemoveQorus1"
-msgstr "Really remove Qorus instance"
-
-msgid "confirmRemoveQorus2"
-msgstr "with all its data?"
-
-msgid "confirmRemoveEnv"
-msgstr "Really remove environment with all its Qorus instances?"
-
-msgid "confirmRemoveEnv1"
-msgstr "Really remove environment"
-
-msgid "confirmRemoveEnv2"
-msgstr "with all its Qorus instances?"
 
 msgid "mandatoryInput"
 msgstr "Mandatory input"

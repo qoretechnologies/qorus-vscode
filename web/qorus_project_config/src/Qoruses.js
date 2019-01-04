@@ -7,7 +7,7 @@ import { texts } from './global';
 
 export class Qoruses extends Component {
     render() {
-        if (!this.props.env) {
+        if (!this.props.selected_env) {
             return (
                 <div className='config-item'>
                     <HTMLTable condensed={true}>
@@ -26,7 +26,7 @@ export class Qoruses extends Component {
         }
 
         let buttonRows = [];
-        let env = this.props.env;
+        let env = this.props.selected_env;
         let is_first = true;
         for (let qorus_id in env.qoruses) {
             buttonRows.push(<ButtonRow key={qorus_id}
@@ -34,8 +34,10 @@ export class Qoruses extends Component {
                                        qorus_id={qorus_id}
                                        data={env.qoruses[qorus_id]}
                                        active={qorus_id == this.props.selected_qorus_id}
-                                       onSelect={this.props.onSelect.bind(this)}
-                                       onMoveUp={is_first ? null : this.props.onMoveUp.bind(this)} />);
+                                       onSelect={this.props.onSelect}
+                                       onEdit={this.props.onEdit}
+                                       onRemove={this.props.onRemove}
+                                       onMoveUp={is_first ? null : this.props.onMoveUp} />);
             is_first = false;
         }
 
@@ -54,7 +56,7 @@ export class Qoruses extends Component {
                     </thead>
                     <tbody>
                         {buttonRows}
-                        <AddButton label={global.texts.addQorus} action={'add-qorus'} env_id={env.id} />
+                        <AddButton env_id={env.id} onEdit={this.props.onEdit} />
                     </tbody>
                 </HTMLTable>
             </div>
