@@ -63,57 +63,6 @@ class QorusProject {
         const web_path = path.join(__dirname, '..', 'web');
         vscode.workspace.openTextDocument(path.join(web_path, 'qorus_project_config', 'index.html')).then(
             doc => {
-                const texts = {
-                    html: {
-                        name: t`labelName`,
-                        url: t`labelUrl`,
-                        urls: t`labelUrls`,
-                        buttonOk: t`buttonOk`,
-                        buttonCancel: t`buttonCancel`,
-                        buttonReload: t`buttonReload`,
-                        buttonOverwrite: t`buttonOverwrite`,
-                        configChangedOnDiskQuestion: t`configChangedOnDiskDialog`
-                    },
-                    js: {
-                        environments: t`labelEnvironments`,
-                        addEnv: t`labelAddEnvironment`,
-                        qorusInstances: t`labelQorusInstances`,
-                        qorusInstancesIn: t`labelQorusInstancesIn`,
-                        addUrl: t`labelAddUrl`,
-                        editUrl: t`labelEditUrl`,
-                        editMainUrl: t`labelEditMainUrl`,
-                        mainUrl: t`labelMainUrl`,
-                        name: t`labelName`,
-                        url: t`labelUrl`,
-                        urls: t`labelUrls`,
-                        propertiesOfQorus: t`labelPropertiesOfQorusInstance`,
-                        customUrls: t`labelCustomUrls`,
-                        remove: t`labelRemove`,
-                        add: t`labelAdd`,
-                        edit: t`labelEdit`,
-                        moveUp: t`labelMoveUp`,
-                        addQorus: t`labelAddQorus`,
-                        editQorus: t`labelEditQorus`,
-                        editEnv: t`labelEditEnvironment`,
-                        confirmDeletion: t`labelConfirmDeletion`,
-                        confirmRemoveEnvPre: t`confirmRemoveEnvPre`,
-                        confirmRemoveEnvPost: t`confirmRemoveEnvPost`,
-                        confirmRemoveQorusPre: t`confirmRemoveQorusPre`,
-                        confirmRemoveQorusPost: t`confirmRemoveQorusPost`,
-                        confirmRemoveUrlPre: t`confirmRemoveUrlPre`,
-                        confirmRemoveUrlPost: t`confirmRemoveUrlPost`,
-                        buttonCancel: t`buttonCancel`,
-                        buttonDelete: t`buttonDelete`,
-                        buttonSave: t`buttonSave`,
-                        mandatoryInput: t`mandatoryInput`
-                    }
-                }
-
-                let html_src: string =  doc.getText().replace(/{{ path }}/g, web_path);
-                Object.keys(texts.html).map(k => {
-                    html_src = html_src.replace(new RegExp(`{{ ${k} }}`, 'g'), texts.html[k]);
-                });
-
                 this.config_panel = vscode.window.createWebviewPanel(
                     'qorusConfig',
                     t`qorusConfigTitle`,
@@ -122,7 +71,7 @@ class QorusProject {
                         enableScripts: true
                     }
                 );
-                this.config_panel.webview.html = html_src;
+                this.config_panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
 
                 const config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
                 let message_on_config_file_change: boolean = true;
@@ -144,7 +93,7 @@ class QorusProject {
                                 (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
                                     action: 'get-data',
                                     data: QorusProject.file2web(file_data),
-                                    texts: texts.js
+                                    texts: QorusProject.pageTexts()
                                 });
                             });
                             break;
@@ -167,6 +116,45 @@ class QorusProject {
                 msg.log(JSON.stringify(error));
             }
         );
+    }
+
+    private static pageTexts(): any {
+        return {
+            environments: t`labelEnvironments`,
+            addEnv: t`labelAddEnvironment`,
+            qorusInstances: t`labelQorusInstances`,
+            qorusInstancesIn: t`labelQorusInstancesIn`,
+            addUrl: t`labelAddUrl`,
+            editUrl: t`labelEditUrl`,
+            editMainUrl: t`labelEditMainUrl`,
+            mainUrl: t`labelMainUrl`,
+            name: t`labelName`,
+            url: t`labelUrl`,
+            urls: t`labelUrls`,
+            propertiesOfQorus: t`labelPropertiesOfQorusInstance`,
+            customUrls: t`labelCustomUrls`,
+            remove: t`labelRemove`,
+            add: t`labelAdd`,
+            edit: t`labelEdit`,
+            moveUp: t`labelMoveUp`,
+            addQorus: t`labelAddQorus`,
+            editQorus: t`labelEditQorus`,
+            editEnv: t`labelEditEnvironment`,
+            confirmDeletion: t`labelConfirmDeletion`,
+            confirmRemoveEnvPre: t`confirmRemoveEnvPre`,
+            confirmRemoveEnvPost: t`confirmRemoveEnvPost`,
+            confirmRemoveQorusPre: t`confirmRemoveQorusPre`,
+            confirmRemoveQorusPost: t`confirmRemoveQorusPost`,
+            confirmRemoveUrlPre: t`confirmRemoveUrlPre`,
+            confirmRemoveUrlPost: t`confirmRemoveUrlPost`,
+            buttonCancel: t`buttonCancel`,
+            buttonDelete: t`buttonDelete`,
+            buttonSave: t`buttonSave`,
+            buttonReload: t`buttonReload`,
+            buttonOverwrite: t`buttonOverwrite`,
+            mandatoryInput: t`mandatoryInput`,
+            configChangedOnDisk: t`configChangedOnDiskDialogQuestion`
+        };
     }
 
     private static file2web(file_data?: any): Array<any> {

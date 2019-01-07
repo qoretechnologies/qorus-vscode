@@ -46,8 +46,7 @@ class DeletePopover extends Component {
                     <b>{this.props.data.name}</b>
                     {global.texts['confirmRemove' + this.props.entity + 'Post']}
 
-                    <hr />
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 27 }}>
                         <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                             {global.texts.buttonCancel}
                         </Button>

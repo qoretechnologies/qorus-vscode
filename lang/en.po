@@ -241,7 +241,7 @@ msgstr "Project configuration has now been initialized from a template"
 msgid "projectConfigFileHasChangedOnDisk"
 msgstr "Project configuration file has changed on disk"
 
-msgid "configChangedOnDiskDialog"
+msgid "configChangedOnDiskDialogQuestion"
 msgstr "Project configuration file has changed on disk. Do you want to reload or overwrite it?"
 
 msgid "openUi"

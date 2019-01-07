@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { Intent } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
+import { MessageDialog } from './MessageDialog';
 import { texts } from './global';
 import logo from '../../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
@@ -17,15 +19,21 @@ export class Root extends Component {
             this.state = {
                 data: state.data,
                 selected_env_id: state.selected_env_id,
-                selected_qorus_id: state.selected_qorus_id
+                selected_qorus_id: state.selected_qorus_id,
+                isMessageDialogOpen: false
             };
         }
         else {
             this.state = {
                 data: null,
-                selected_env_id: undefined,
-                selected_qorus_id: undefined
+                selected_env_id: null,
+                selected_qorus_id: null
             };
+        }
+
+        this.message_params = {
+            text: null,
+            buttons: null
         }
 
         window.addEventListener('message', event => {
@@ -35,15 +43,45 @@ export class Root extends Component {
                     this.setVscodeState({texts: global.texts});
                     this.setStates({
                         data: event.data.data,
-                        selected_env_id: undefined,
-                        selected_qorus_id: undefined
+                        selected_env_id: null,
+                        selected_qorus_id: null
                     });
                     break;
                 case 'config-changed-on-disk':
-                    $('#config_changed_on_disk').modal({show: true});
+                    this.setMessage({
+                        text: global.texts.configChangedOnDisk,
+                        buttons: [
+                            {
+                                title: global.texts.buttonReload,
+                                intent: Intent.WARNING,
+                                onClick: () => {
+                                    vscode.postMessage({
+                                        action: 'get-data',
+                                    });
+                                    this.setState({isMessageDialogOpen: false});
+                                }
+                            },
+                            {
+                                title: global.texts.buttonOverwrite,
+                                intent: Intent.PRIMARY,
+                                onClick: () => {
+                                    vscode.postMessage({
+                                        action: 'update-data',
+                                        data: this.state.data
+                                    });
+                                    this.setState({isMessageDialogOpen: false});
+                                }
+                            }
+                        ]
+                    });
                     break;
             }
         });
+    }
+
+    setMessage = (params) => {
+        this.message_params = params;
+        this.setState({isMessageDialogOpen: true});
     }
 
     setVscodeState(state) {
@@ -64,32 +102,19 @@ export class Root extends Component {
         });
     }
 
-    componentDidMount() {
-        let me = this;
-
-        $('#reload').click(() => {
-            vscode.postMessage({
-                action: 'get-data'
-            });
-        });
-
-        $('#overwrite').click(() => {
-            vscode.postMessage({
-                action: 'update-data',
-                data: me.state.data
-            });
-        });
-    }
-
-    selectEnv(env_id) {
+    selectEnv = (env_id) => {
         this.setStates({
             selected_env_id: env_id,
-            selected_qorus_id: undefined
+            selected_qorus_id: null
         });
     }
 
-    selectQorus(qorus_id) {
+    selectQorus = (qorus_id) => {
         this.setStates({selected_qorus_id: qorus_id});
+    }
+
+    handleMessageDialogClose = () => {
+        this.setState({isMessageDialogOpen: false, messageKey: null});
     }
 
     render() {
@@ -99,24 +124,29 @@ export class Root extends Component {
 
         let selected_env_id = this.state.selected_env_id;
         let selected_qorus_id = this.state.selected_qorus_id;
-        let selected_env = (selected_env_id !== undefined) ? this.state.data[selected_env_id] : undefined;
-        let selected_qorus = (selected_qorus_id !== undefined) ? selected_env.qoruses[selected_qorus_id] : undefined;
+        let selected_env = (selected_env_id !== null) ? this.state.data[selected_env_id] : null;
+        let selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
 
         return (
             <div>
+                <MessageDialog isOpen={this.state.isMessageDialogOpen}
+                               params={this.message_params}
+                               onClose={this.handleMessageDialogClose} />
+
                 <div className='config-container'>
                     <img style={{ maxWidth: '36px', maxHeight: '36px'}} src={logo} />
                 </div>
+
                 <div className='config-container'>
                     <Envs data={this.state.data}
                             selected_env_id={selected_env_id}
-                            onSelect={this.selectEnv.bind(this)}
+                            onSelect={this.selectEnv}
                             onEdit={this.updateData.bind(this)}
                             onRemove={this.updateData.bind(this, 'remove-env')}
                             onMoveUp={this.updateData.bind(this, 'move-env-up')} />
                     <Qoruses selected_env={selected_env}
                             selected_qorus_id={selected_qorus_id}
-                            onSelect={this.selectQorus.bind(this)}
+                            onSelect={this.selectQorus}
                             onEdit={this.updateData.bind(this)}
                             onRemove={this.updateData.bind(this, 'remove-qorus')}
                             onMoveUp={this.updateData.bind(this, 'move-qorus-up')} />
@@ -166,7 +196,7 @@ export class Root extends Component {
                 index = values.env_id;
                 data.splice(index, 1);
                 if (this.state.selected_env_id == index) {
-                    this.setStates({selected_env_id: undefined, selected_qorus_id: undefined});
+                    this.setStates({selected_env_id: null, selected_qorus_id: null});
                 }
                 else if (this.state.selected_env_id > index) {
                     this.setStates({selected_env_id: this.state.selected_env_id - 1});
@@ -203,7 +233,7 @@ export class Root extends Component {
                 index = values.qorus_id;
                 qoruses.splice(index, 1);
                 if (this.state.selected_qorus_id == index) {
-                    this.setStates({selected_qorus_id: undefined});
+                    this.setStates({selected_qorus_id: null});
                 }
                 else if (this.state.selected_qorus_id > index) {
                     this.setStates({selected_qorus_id: this.state.selected_qorus_id - 1});
