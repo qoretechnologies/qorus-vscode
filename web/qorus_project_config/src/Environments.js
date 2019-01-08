@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { HTMLTable } from "@blueprintjs/core";
+import { HTMLTable, H4 } from "@blueprintjs/core";
 import { AddButton } from './AddButton';
 import { ButtonRow } from './ButtonRow';
 import { texts } from './global';
@@ -27,7 +27,7 @@ export class Envs extends Component {
                     <thead>
                         <tr>
                             <th colspan='2'>
-                                <h5 className='config-color'>{global.texts.environments}</h5>
+                                <H4 className='config-color'>{global.texts.environments}</H4>
                             </th>
                         </tr>
                     </thead>

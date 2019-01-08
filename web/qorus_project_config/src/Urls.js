@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { HTMLTable, Button } from "@blueprintjs/core";
+import { HTMLTable, H4, Button } from "@blueprintjs/core";
 import { EditBtnGroup } from './EditBtnGroup';
 import { EditPopover } from './EditPopover';
 import { AddButton } from './AddButton';
-import { texts, setInputs } from './global';
+import { texts } from './global';
 
 
 export class Urls extends Component {
@@ -34,10 +34,10 @@ export class Urls extends Component {
                     <thead>
                         <tr>
                             <th colspan='2'>
-                                <h5 className='config-color'>
+                                <H4 className='config-color'>
                                     {global.texts.propertiesOfQorus}&nbsp;
                                     <span style={{ fontWeight: 'bold' }}>{qorus.name}</span>
-                                </h5>
+                                </H4>
                             </th>
                         </tr>
                     </thead>

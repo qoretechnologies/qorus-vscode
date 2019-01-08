@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Button } from "@blueprintjs/core";
 import { EditPopover } from './EditPopover';
-import { setInputs } from './global';
 
 
 export class AddButton extends Component {

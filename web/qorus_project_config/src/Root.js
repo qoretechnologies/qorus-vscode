@@ -114,7 +114,7 @@ export class Root extends Component {
     }
 
     handleMessageDialogClose = () => {
-        this.setState({isMessageDialogOpen: false, messageKey: null});
+        this.setState({isMessageDialogOpen: false});
     }
 
     render() {
@@ -170,25 +170,15 @@ export class Root extends Component {
             }
         });
 
-        let can_close = true;
-        let checkNonempty = ((key, value) => {
-            value = value.trim();
-            if (!value) {
-                can_close = false;
-                $('#' + key).addClass('bg-warning').attr('placeholder', global.texts.mandatoryInput);
-            }
-            return value;
-        });
-
         switch (action) {
             case 'edit-env':
                 env = data[values.env_id];
-                env.name = checkNonempty('name', values.name);
+                env.name = values.name;
                 break;
             case 'add-env':
                 data.push({
                     id: data.length,
-                    name: checkNonempty('name', values.name),
+                    name: values.name,
                     qoruses: []
                 });
                 break;
@@ -216,15 +206,15 @@ export class Root extends Component {
                 break;
             case 'edit-qorus':
                 qorus = data[values.env_id].qoruses[values.qorus_id];
-                qorus.name = checkNonempty('name', values.name);
-                qorus.url = checkNonempty('name', values.url);
+                qorus.name = values.name;
+                qorus.url = values.url;
                 break;
             case 'add-qorus':
                 qoruses = data[values.env_id].qoruses;
                 qoruses.push({
                     id: qoruses.length,
-                    name: checkNonempty('name', values.name),
-                    url: checkNonempty('url', values.url),
+                    name: values.name,
+                    url: values.url,
                     urls: []
                 });
                 break;
@@ -254,19 +244,19 @@ export class Root extends Component {
                 break;
             case 'edit-main-url':
                 qorus = data[values.env_id].qoruses[values.qorus_id];
-                qorus.url = checkNonempty('url', values.url);
+                qorus.url = values.url;
                 break;
             case 'edit-url':
                 url = data[values.env_id].qoruses[values.qorus_id].urls[values.url_id];
-                url.name = checkNonempty('name', values.name);
-                url.url = checkNonempty('url', values.url);
+                url.name = values.name;
+                url.url = values.url;
                 break;
             case 'add-url':
                 urls = data[values.env_id].qoruses[values.qorus_id].urls;
                 urls.push({
                     id: urls.length,
                     name: values.name,
-                    url: checkNonempty('url', values.url)
+                    url: values.url
                 });
                 break;
             case 'remove-url':
@@ -281,10 +271,6 @@ export class Root extends Component {
                 urls[index-1] = urls.splice(index, 1, urls[index-1])[0]
                 resetIds(urls, index - 1);
                 break;
-        }
-
-        if (!can_close) {
-            return;
         }
 
         this.setStates({data: data});
