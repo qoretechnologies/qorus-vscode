@@ -31,14 +31,6 @@ export class EditPopover extends Component {
         }
     }
 
-    nameHidden = () => {
-        return ['edit-main-url'].includes(this.action);
-    }
-
-    urlHidden = () => {
-        return ['add-env', 'edit-env'].includes(this.action);
-    }
-
     onNameChange = (ev) => {
         this.name_input.setAttribute('style', null);
         this.name = ev.target.value.trim();

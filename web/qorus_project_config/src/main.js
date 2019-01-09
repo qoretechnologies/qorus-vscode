@@ -6,5 +6,5 @@ import { Root } from './Root';
 
 ReactDOM.render(
     <Root />,
-    document.querySelector('#react_root')
+    document.querySelector('#root')
 );
