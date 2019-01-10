@@ -18,8 +18,8 @@ class QorusTree implements vscode.TreeDataProvider<QorusTreeNode> {
             return;
         }
         this.qorus_instances = {};
-        for (let env_id in this.data.qorus_instances) {
-            for (let instance of this.data.qorus_instances[env_id]) {
+        for (let env_name in this.data.qorus_instances) {
+            for (let instance of this.data.qorus_instances[env_name]) {
                 this.qorus_instances[instance.url] = instance;
             }
         }
@@ -55,8 +55,8 @@ class QorusTree implements vscode.TreeDataProvider<QorusTreeNode> {
                 return [];
             }
             let children: QorusTreeNode[] = [];
-            for (let env_id in this.data.qorus_instances) {
-                children.push(new QorusTreeEnvNode(env_id));
+            for (let env_name in this.data.qorus_instances) {
+                children.push(new QorusTreeEnvNode(env_name));
             }
             return children;
         }
@@ -76,17 +76,17 @@ abstract class QorusTreeNode extends vscode.TreeItem {
 }
 
 class QorusTreeEnvNode extends QorusTreeNode {
-    env_id: string;
+    env_name: string;
 
-    constructor(env_id: string) {
-        super(env_id, vscode.TreeItemCollapsibleState.Expanded);
-        this.env_id = env_id;
-        this.tooltip = t`environmentLabel ${env_id}`;
+    constructor(env_name: string) {
+        super(env_name, vscode.TreeItemCollapsibleState.Expanded);
+        this.env_name = env_name;
+        this.tooltip = t`labelEnvironment ${env_name}`;
     }
 
     getChildren(data: any): QorusTreeNode[] {
         let children: QorusTreeNode[] = [];
-        for (let instance of data.qorus_instances[this.env_id]) {
+        for (let instance of data.qorus_instances[this.env_name]) {
             children.push(new QorusTreeInstanceNode(instance));
         }
         return children;
@@ -120,12 +120,12 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
             }
         }
 
-        this.tooltip = t`qorusInstanceLabel ${instance.name} ${instance.url}`;
+        this.tooltip = t`labelQorusInstance ${instance.name} ${instance.url}`;
         if (this.is_active) {
-            this.tooltip += '\n' + t`nowActiveLabel`;
+            this.tooltip += '\n' + t`labelNowActive`;
         }
         if (isVersion3(instance.version)) {
-            this.tooltip += '\n' + t`version3Label`;
+            this.tooltip += '\n' + t`labelVersion3`;
         }
 
         this.command = {

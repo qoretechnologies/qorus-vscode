@@ -1,0 +1,23 @@
+body {
+    background-color: var(--vscode-editor-background);
+}
+.container {
+    height: 100%;
+    padding-top: 18px;
+    max-width: 1800px;
+}
+.container th *, .config-color {
+    color: var(--vscode-editor-foreground);
+}
+.config-header {
+    min-height: 54px;
+}
+.config-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    padding: -24px;
+}
+.config-item {
+    margin: 24px;
+}

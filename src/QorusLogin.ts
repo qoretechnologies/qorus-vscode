@@ -33,9 +33,9 @@ export class QorusLogin extends QorusAuth {
                 enableScripts: true
             }
         );
-        vscode.workspace.openTextDocument(path.join(web_path, 'login', 'login.html')).then(
-            doc => {
-                panel.webview.html = doc.getText()
+        vscode.workspace.openTextDocument(path.join(web_path, 'qorus_login', 'login.html')).then(
+            html => {
+                panel.webview.html = html.getText()
                                         .replace(/{{ path }}/g, web_path)
                                         .replace(/{{ loginHeader1 }}/g, t`loginHeader`)
                                         .replace(/{{ loginHeader2 }}/g, t`at`)

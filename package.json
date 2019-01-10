@@ -103,12 +103,8 @@
                 "title": "Qorus: Login, stay inactive Qorus instance"
             },
             {
-                "command": "qorus.createProjectConfig",
-                "title": "Qorus: Create project configuration file"
-            },
-            {
-                "command": "qorus.editProjectConfig",
-                "title": "Qorus: Edit project configuration file"
+                "command": "qorus.manageProjectConfig",
+                "title": "Qorus: Manage project configuration"
             },
             {
                 "command": "qorus.deployCurrentFile",
@@ -148,11 +144,7 @@
                     "group": "2_workspace"
                 },
                 {
-                    "command": "qorus.createProjectConfig",
-                    "group": "2_workspace"
-                },
-                {
-                    "command": "qorus.editProjectConfig",
+                    "command": "qorus.manageProjectConfig",
                     "group": "2_workspace"
                 }
             ],
@@ -209,21 +201,37 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
+        "vscode:prepublish": "npm run compile && npm run build",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+        "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "start": "webpack-dev-server --open --mode development",
+        "build": "webpack --mode production"
     },
     "devDependencies": {
+        "@babel/core": "^7.2.2",
+        "@babel/plugin-proposal-class-properties": "^7.2.3",
+        "@babel/preset-env": "^7.2.0",
+        "@babel/preset-react": "^7.0.0",
+        "@blueprintjs/core": "^3.10.0",
         "@types/glob": "^5.0.35",
         "@types/mocha": "^2.2.43",
         "@types/node": "^7.0.71",
         "@types/prop-types": "^15.5.6",
+        "babel-loader": "^8.0.4",
+        "css-loader": "^2.1.0",
+        "react": "^16.6.3",
+        "react-dom": "^16.6.3",
+        "style-loader": "^0.23.1",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
+        "url-loader": "^1.1.2",
         "vsce": "^1.52.0",
-        "vscode": "^1.1.22"
+        "vscode": "^1.1.22",
+        "webpack": "^4.27.1",
+        "webpack-cli": "^3.1.2",
+        "webpack-dev-server": "^3.1.14"
     },
     "dependencies": {
         "@types/request-promise": "^4.1.42",

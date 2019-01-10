@@ -25,6 +25,9 @@ msgstr "Qorus project definition not found"
 msgid "unableToDetermineProjectPath"
 msgstr "Unable to determine project configuration file location"
 
+msgid "labelOpenUrl"
+msgstr "Open URL in an external browser"
+
 msgid "openingUrlInExternalBrowser ${ name } ${ url }"
 msgstr "Opening ${ name } (${ url }) in an external browser"
 
@@ -46,6 +49,9 @@ msgstr "Login failed"
 msgid "qorusLoginTitle"
 msgstr "Qorus Login"
 
+msgid "qorusConfigTitle"
+msgstr "Qorus Project Configuration"
+
 msgid "logoutSuccessful"
 msgstr "Logout successful"
 
@@ -60,6 +66,9 @@ msgstr "Sending login request ..."
 
 msgid "unableOpenLoginPage"
 msgstr "Unable to open the login page"
+
+msgid "unableOpenConfigPage"
+msgstr "Unable to open the project configuration page"
 
 msgid "noTokenForUrl ${ url }"
 msgstr "No authentication token for URL ${ url }"
@@ -163,25 +172,28 @@ msgstr "Checking deployment status failed (ID: ${ deployment_id })"
 msgid "subdirectory ${ subdir }"
 msgstr "Subdirectory: ${ subdir }"
 
-msgid "qorusInstanceLabel ${ name } ${ url }"
+msgid "labelQorusInstance ${ name } ${ url }"
 msgstr "Qorus instance '${ name }'\n${ url }"
 
-msgid "nowActiveLabel"
+msgid "labelNowActive"
 msgstr ">>   now active   <<"
 
-msgid "version3Label"
+msgid "labelVersion3"
 msgstr "(version 3)"
 
-msgid "environmentLabel ${ env_id }"
-msgstr "Environment ${ env_id }"
+msgid "labelEnvironment ${ env_name }"
+msgstr "Environment ${ env_name }"
 
-msgid "mainUrlLabel"
-msgstr "main URL"
+msgid "labelMainUrl"
+msgstr "Main URL"
 
 msgid "openUrlLabel"
 msgstr "Open URL"
 
 msgid "setActiveInstance"
+msgstr "Set as active Qorus instance"
+
+msgid "labelSetActiveInstance"
 msgstr "Set as active Qorus instance"
 
 msgid "gettingInfo ${ url }"
@@ -199,6 +211,18 @@ msgstr "OK"
 msgid "buttonCancel"
 msgstr "Cancel"
 
+msgid "buttonDelete"
+msgstr "Delete"
+
+msgid "buttonReload"
+msgstr "Reload"
+
+msgid "buttonSave"
+msgstr "Save"
+
+msgid "buttonOverwrite"
+msgstr "Overwrite"
+
 msgid "aboutToCreateProjectConfigFile ${ config_file_path }"
 msgstr "Project configuration file ${ config_file_path } will be created"
 
@@ -210,6 +234,15 @@ msgstr "Project configuration file has been created"
 
 msgid "projectConfigFileDoesNotExist"
 msgstr "Project configuration file does not exist. Do you want it to be created?"
+
+msgid "projectConfigHasBeenInitialized"
+msgstr "Project configuration has now been initialized from a template"
+
+msgid "projectConfigFileHasChangedOnDisk"
+msgstr "Project configuration file has changed on disk"
+
+msgid "configChangedOnDiskDialogQuestion"
+msgstr "Project configuration file has changed on disk. Do you want to reload or overwrite it?"
 
 msgid "openUi"
 msgstr "Open UI"
@@ -225,3 +258,96 @@ msgstr "Login to Qorus instance"
 
 msgid "at"
 msgstr "at"
+
+msgid "labelEnvironments"
+msgstr "Environments"
+
+msgid "labelQorusInstancesIn"
+msgstr "Qorus instances in"
+
+msgid "labelQorusInstances"
+msgstr "Qorus instances"
+
+msgid "labelQorusInstance"
+msgstr "Qorus instance"
+
+msgid "labelName"
+msgstr "Name"
+
+msgid "labelUrl"
+msgstr "URL"
+
+msgid "labelEditUrl"
+msgstr "Edit URL"
+
+msgid "labelEditMainUrl"
+msgstr "Edit main URL"
+
+msgid "labelAddUrl"
+msgstr "Add URL"
+
+msgid "labelUrls"
+msgstr "URLs"
+
+msgid "labelUrlsOf"
+msgstr "URLs of Qorus instance"
+
+msgid "labelPropertiesOfQorusInstance"
+msgstr "Properties of Qorus instance"
+
+msgid "labelCustomUrls"
+msgstr "Other links"
+
+msgid "labelEnvironment"
+msgstr "Environment"
+
+msgid "labelRemove"
+msgstr "Remove"
+
+msgid "labelAdd"
+msgstr "Add new"
+
+msgid "labelEdit"
+msgstr "Edit"
+
+msgid "labelMoveUp"
+msgstr "Move up one position"
+
+msgid "labelEditQorus"
+msgstr "Edit Qorus instance"
+
+msgid "labelAddEnvironment"
+msgstr "Add environment"
+
+msgid "labelEditEnvironment"
+msgstr "Edit environment"
+
+msgid "labelAddQorus"
+msgstr "Add Qorus instance"
+
+msgid "labelAddUrl"
+msgstr "Add URL"
+
+msgid "labelConfirmDeletion"
+msgstr "Confirm deletion"
+
+msgid "confirmRemoveEnvPre"
+msgstr "Do you really want to remove environment "
+
+msgid "confirmRemoveEnvPost"
+msgstr " with all its Qorus instances?"
+
+msgid "confirmRemoveQorusPre"
+msgstr "Do you really want to remove Qorus instance "
+
+msgid "confirmRemoveQorusPost"
+msgstr " with all its data?"
+
+msgid "confirmRemoveUrlPre"
+msgstr "Do you really want to remove URL "
+
+msgid "confirmRemoveUrlPost"
+msgstr "?"
+
+msgid "mandatoryInput"
+msgstr "Mandatory input"
