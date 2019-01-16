@@ -297,7 +297,7 @@ class QorusDeploy extends QorusLogin {
     }
 
     private static urlBase(url: string, version?: string): string {
-        return url + (isVersion3(version) ? '' : '/api/latest/') + '/development/deploy';
+        return url + (isVersion3(version) ? '/deployment' : '/api/latest/development/deploy');
     }
 }
 
