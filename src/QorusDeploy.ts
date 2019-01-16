@@ -128,7 +128,7 @@ class QorusDeploy extends QorusLogin {
 
         const url_base: string = QorusDeploy.urlBase(active_instance.url, active_instance.version);
 
-        msg.log(t`options: ${JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment'))}`);
+        msg.log("options: " + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
 
         const options = {
             method: 'POST',
@@ -240,7 +240,7 @@ class QorusDeploy extends QorusLogin {
                                 msg.log(t`deploymentResponse ${response.stderr} ${status}`);
                             }
                             switch (status) {
-                                case 'DEPLOYED':
+                                case 'FINISHED':
                                     msg.info(t`deploymentFinishedSuccessfully ${deployment_id}`);
                                     quit = true;
                                     break;
