@@ -128,12 +128,15 @@ class QorusDeploy extends QorusLogin {
 
         const url_base: string = QorusDeploy.urlBase(active_instance.url, active_instance.version);
 
+        msg.log("options: " + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
+
         const options = {
             method: 'POST',
-            uri: `${url_base}/create`,
+            uri: `${url_base}`,
             strictSSL: false,
             body: {
-                files: data
+                files: data,
+                options: vscode.workspace.getConfiguration('qorusDeployment'),
             },
             headers: {
                 'qorus-token': token
@@ -192,8 +195,8 @@ class QorusDeploy extends QorusLogin {
                     msg.info(t`cancellingDeployment ${deployment_id}`);
 
                     const options = {
-                        method: 'PUT',
-                        uri: `${request_url_base}/cancel/${deployment_id}`,
+                        method: 'DELETE',
+                        uri: `${request_url_base}/${deployment_id}`,
                         strictSSL: false,
                         headers: {
                             'qorus-token': request_token
@@ -215,7 +218,7 @@ class QorusDeploy extends QorusLogin {
 
                 const options = {
                     method: 'GET',
-                    uri: `${request_url_base}/status/${deployment_id}`,
+                    uri: `${request_url_base}/${deployment_id}`,
                     strictSSL: false,
                     headers: {
                         'qorus-token': request_token
@@ -237,7 +240,7 @@ class QorusDeploy extends QorusLogin {
                                 msg.log(t`deploymentResponse ${response.stderr} ${status}`);
                             }
                             switch (status) {
-                                case 'DEPLOYED':
+                                case 'FINISHED':
                                     msg.info(t`deploymentFinishedSuccessfully ${deployment_id}`);
                                     quit = true;
                                     break;
@@ -294,7 +297,7 @@ class QorusDeploy extends QorusLogin {
     }
 
     private static urlBase(url: string, version?: string): string {
-        return url + (isVersion3(version) ? '' : '/api/latest/') + '/deployment';
+        return url + (isVersion3(version) ? '/deployment' : '/api/latest/development/deploy');
     }
 }
 
