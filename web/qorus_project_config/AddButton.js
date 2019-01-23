@@ -4,6 +4,7 @@ import { EditPopover } from './EditPopover';
 
 export class AddButton extends Component {
     render() {
+        console.log('asdf');
         let entity;
         if (this.props.qorus_id !== undefined) {
             entity = 'Url';

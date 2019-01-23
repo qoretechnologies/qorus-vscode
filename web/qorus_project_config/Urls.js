@@ -29,7 +29,7 @@ export class Urls extends Component {
         }
 
         return (
-            <div className='config-item column-urls'>
+            <div className='config-item'>
                 <HTMLTable condensed={true}>
                     <thead>
                         <tr>

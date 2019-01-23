@@ -231,7 +231,7 @@
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
-        "start": "webpack-dev-server --open --mode development",
+        "start": "webpack-dev-server --mode development",
         "build": "webpack --mode production"
     },
     "devDependencies": {
@@ -246,6 +246,8 @@
         "@types/prop-types": "^15.5.6",
         "babel-loader": "^8.0.4",
         "css-loader": "^2.1.0",
+        "file-loader": "^3.0.1",
+        "mini-css-extract-plugin": "^0.5.0",
         "react": "^16.6.3",
         "react-dom": "^16.6.3",
         "style-loader": "^0.23.1",

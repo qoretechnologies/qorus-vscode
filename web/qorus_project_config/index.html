@@ -2,10 +2,12 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <link rel="stylesheet" href="vscode-resource:{{ path }}/project_config.css" />
+        <link rel="stylesheet" href="vscode-resource:{{ path }}/vendors.css" />
+        <link rel="stylesheet" href="vscode-resource:{{ path }}/base.css" />
     </head>
     <body>
-        <div class="container" id="root"></div>
+        <div id="root"></div>
+        <script src="vscode-resource:{{ path }}/vendors.bundle.js"></script>
         <script src="vscode-resource:{{ path }}/bundle.js"></script>
     </body>
 </html>

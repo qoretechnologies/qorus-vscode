@@ -5,7 +5,7 @@ import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
 import { MessageDialog } from './MessageDialog';
 import { texts } from './global';
-import logo from '../../../images/qorus_logo_256.png';
+import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
 

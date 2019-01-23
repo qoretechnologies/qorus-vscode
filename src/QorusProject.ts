@@ -60,7 +60,7 @@ class QorusProject {
     }
 
     private manageProjectConfigImpl() {
-        const web_path = path.join(__dirname, '..', 'web', 'qorus_project_config');
+        const web_path = path.join(__dirname, '..', 'dist', 'qorus_project_config');
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
             doc => {
                 this.config_panel = vscode.window.createWebviewPanel(
