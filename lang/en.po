@@ -435,3 +435,6 @@ msgstr "Error in activating Git extension"
 
 msgid "UnableDetermineProjectFolder"
 msgstr "Unable to determine project folder in activating Git extension"
+
+msgid "PackageDeploymentNotSupportedForQorus3"
+msgstr "Package deployment is not supported for Qorus version < 4"

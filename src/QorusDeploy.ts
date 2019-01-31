@@ -102,7 +102,7 @@ class QorusDeploy extends QorusLogin {
         tree.refresh();
     }
 
-    private doDeploy(file_paths: Array<string>, is_package: boolean = false) {
+    private doDeploy(file_paths: Array<string>, is_release: boolean = false) {
         if (!this.active_url) {
             msg.error(t`noActiveQorusInstance`);
             vscode.commands.executeCommand('qorusInstancesExplorer.focus');
@@ -113,6 +113,19 @@ class QorusDeploy extends QorusLogin {
         if (!active_instance) {
             msg.error(t`unableGetActiveQorusInstanceData`);
             return;
+        }
+
+        let url_base: string = active_instance.url;
+        if (isVersion3(active_instance.version)) {
+            if (is_release) {
+                msg.error(t`PackageDeploymentNotSupportedForQorus3`);
+                return;
+            }
+            else {
+                url_base += '/deployment';
+            }
+        } else {
+            url_base += '/api/latest/development/' + (is_release ? 'release' : 'deploy');
         }
 
         let token: string | undefined = undefined;
@@ -126,7 +139,7 @@ class QorusDeploy extends QorusLogin {
 
         msg.log(t`filesToDeploy`);
         let data: Array<object> = [];
-        if (is_package) {
+        if (is_release) {
             const file = file_paths[0];
             msg.log(`    ${file}`);
             const file_content = fs.readFileSync(file);
@@ -141,9 +154,6 @@ class QorusDeploy extends QorusLogin {
         }
 
         msg.log(t`deploymentHasStarted ${active_instance.name} ${active_instance.url}`);
-
-        const url_base: string = QorusDeploy.urlBase(active_instance.url, active_instance.version);
-
         msg.log(t`options` + ': ' + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
 
         const options = {
@@ -309,10 +319,6 @@ class QorusDeploy extends QorusLogin {
                 deployable_files.push(entry_path);
             }
         }
-    }
-
-    private static urlBase(url: string, version?: string): string {
-        return url + (isVersion3(version) ? '/deployment' : '/api/latest/development/deploy');
     }
 }
 
