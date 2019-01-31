@@ -18,7 +18,7 @@ class QorusRelease {
     private files: string[] = [];
     private package_file = null;
 
-    createPackage(uri: vscode.Uri) {
+    makeRelease(uri: vscode.Uri) {
         this.project_folder = getProjectFolder(uri);
         if (!this.project_folder) {
             msg.log(t`UnableDetermineProjectFolder`);
@@ -27,7 +27,7 @@ class QorusRelease {
 
         this.repository.init(this.project_folder).then(
             () => {
-                this.createPackageImpl();
+                this.makeReleaseImpl();
             },
             (error: string) => {
                 msg.log(error);
@@ -35,7 +35,7 @@ class QorusRelease {
         );
     }
 
-    private createPackageImpl() {
+    private makeReleaseImpl() {
         if(this.release_panel) {
             this.release_panel.reveal(vscode.ViewColumn.One);
             return;
@@ -65,7 +65,7 @@ class QorusRelease {
         source_dirs.map(dir => getFiles(path.join(this.project_folder, dir)));
     }
 
-    private createArchive(): any {
+    private createReleaseFile(): any {
         const timestamp = moment().format('YYYYMMDDHHmmss');
         const tmp_dir = require('os-tmpdir')();
         const project = path.basename(this.project_folder);
@@ -77,7 +77,9 @@ class QorusRelease {
         const file_qrf = file_name_base + '.qrf';
 
         const [path_tar, path_tarbz2, path_qrf] =
-            [file_tar, file_tarbz2, file_qrf].map(file => path.join(tmp_dir, file)); 
+            [file_tar, file_tarbz2, file_qrf].map(file => path.join(tmp_dir, file));
+
+        this.package_file = path_tarbz2;
 
         const archiver = require('archiver')('tar');
         const tar_output = fs.createWriteStream(path_tar);
@@ -86,6 +88,10 @@ class QorusRelease {
             const input = fs.readFileSync(path_tar);
             const compressed = compressor.compressFile(input);
             fs.writeFileSync(path_tarbz2, compressed);
+            this.release_panel.webview.postMessage({
+                action: 'package-created',
+                tmp_files: {path_qrf, path_tarbz2}
+            });
         });
         archiver.pipe(tar_output);
 
@@ -96,8 +102,6 @@ class QorusRelease {
         archiver.file(path_qrf, {name: file_qrf});
 
         archiver.finalize();
-        this.package_file = path_tarbz2;
-        return {path_qrf, path_tarbz2};
     }
 
     private openWizard() {
@@ -140,6 +144,7 @@ class QorusRelease {
                                     this.files = files;
                                     this.release_panel.webview.postMessage({
                                         action: 'return-diff',
+                                        commit: message.commit,
                                         files: files
                                     });
                                 }
@@ -154,13 +159,10 @@ class QorusRelease {
                             break;
                         case 'create-full-package':
                             this.setAllFiles();
-                            // continue, no 'break' here
+                            this.createReleaseFile();
+                            break;
                         case 'create-package':
-                            const tmp_files = this.createArchive();
-                            this.release_panel.webview.postMessage({
-                                action: 'package-created',
-                                tmp_files: tmp_files
-                            });
+                            this.createReleaseFile();
                             break;
                         case 'send-package':
                             deployer.deployPackage(this.package_file);

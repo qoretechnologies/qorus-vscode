@@ -31,7 +31,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.makeRelease',
-                                                 (uri: vscode.Uri) => releaser.createPackage(uri));
+                                                 (uri: vscode.Uri) => releaser.makeRelease(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',

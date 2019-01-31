@@ -9,41 +9,17 @@ const vscode = acquireVsCodeApi();
 export class Root extends Component {
     constructor() {
         super();
-
-        const state = vscode.getState();
-        if (state) {
-            this.state = {
-                step: state.step,
-                release_type: state.release_type,
-                selected_commit: state.selected_commit,
-                files: state.files,
-                tmp_files: state.tmp_files,
-                texts: state.texts
-            };
-        }
-        else {
-            this.state = {
-                step: 0,
-                release_type: 'full',
-                selected_commit: null,
-                files: [],
-                tmp_files: {},
-                texts: {}
-            };
-        }
-
-        vscode.postMessage({
-            action: 'get-data'
-        });
-
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'return-data':
-                    this.branch = event.data.branch;
-                    this.forceUpdate();
+                    this.setStates({branch: event.data.branch});
                     break;
                 case 'return-diff':
-                    this.setStates({step: 1, files: event.data.files});
+                    this.setStates({
+                        step: 1,
+                        selected_commit: event.data.commit,
+                        files: event.data.files
+                    });
                     break;
                 case 'return-text':
                     this.setStates({texts: Object.assign(this.state.texts || {},
@@ -53,6 +29,34 @@ export class Root extends Component {
                     this.setStates({step: 2, tmp_files: event.data.tmp_files});
                     break;
             }
+        });
+    }
+
+    componentWillMount() {
+        const state = vscode.getState();
+        if (state) {
+            const {step, branch, release_type, selected_commit, files, tmp_files, texts} = state;
+            this.setState({step, branch, release_type, selected_commit, files, tmp_files, texts});
+
+            if (state.branch) {
+                return;
+            }
+        }
+        else {
+            this.state = {
+                step: 0,
+                branch: null,
+                release_type: 'full',
+                selected_commit: null,
+                files: [],
+                tmp_files: {},
+                texts: {}
+            };
+            this.setVscodeState(this.state);
+        }
+
+        vscode.postMessage({
+            action: 'get-data'
         });
     }
 
@@ -79,14 +83,10 @@ export class Root extends Component {
         this.setStates({release_type: ev.target.value});
     }
 
-    onSelectCommit = ev => {
-        this.setStates({selected_commit: ev.target.value, files: null});
-    }
-
-    onConfirmSelectedCommit = () => {
+    selectCommit = commit => {
         vscode.postMessage({
             action: 'get-diff',
-            commit: this.state.selected_commit
+            commit: commit
         });
     }
 
@@ -123,14 +123,14 @@ export class Root extends Component {
         return (
             <div style={{ marginBottom: 24 }}>
                 <H5>{this.t('CurrentBranchInfo')}:</H5>
-                {this.t('branch')}: <strong>{this.branch.name}</strong>
+                {this.t('branch')}: <strong>{this.state.branch.name}</strong>
                 <br />
-                {this.t('commit')}: <strong>{this.branch.commit}</strong>
+                {this.t('commit')}: <strong>{this.state.branch.commit}</strong>
             </div>
         );
     }
 /*
-                {this.branch.up_to_date ||
+                {this.state.branch.up_to_date ||
                     <div>
                         <br />
                         <strong style={{ color: Colors.RED5 }}>{this.t('BranchNotUpToDate')}</strong>
@@ -138,7 +138,7 @@ export class Root extends Component {
                 }
 */
     render() {
-        if (!this.branch) {
+        if (!this.state.branch) {
             return null;
         }
 
@@ -170,9 +170,7 @@ export class Root extends Component {
                             <H3 style={header_style}>{this.t('IncrementalRelease')}</H3>
                             {this.renderBranchInfo()}
                             <SelectCommit
-                                onSelectCommit={this.onSelectCommit}
-                                onOk={this.onConfirmSelectedCommit}
-                                selected_commit={this.state.selected_commit}
+                                selectCommit={this.selectCommit}
                                 vscode={vscode}
                                 t={this.t}
                             />
