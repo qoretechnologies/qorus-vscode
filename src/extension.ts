@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { deployer } from './QorusDeploy';
+import { releaser } from './QorusRelease';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
@@ -27,6 +28,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
                                                  (uri: vscode.Uri) => projects.manageProjectConfig(uri));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.makeRelease',
+                                                 (uri: vscode.Uri) => releaser.createPackage(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',

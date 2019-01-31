@@ -7,6 +7,7 @@ import { t } from 'ttag';
 import { project_template } from './qorus_project_template';
 
 export const config_filename = 'qorusproject.json';
+export const source_dirs = ['src'];
 
 
 class QorusProject {
@@ -226,13 +227,13 @@ class QorusProject {
     }
 }
 
-export class QorusProjects {
+class QorusProjects {
 
     private current_project_folder: string | undefined = undefined;
     private projects: any = {};
 
     updateCurrentWorkspaceFolder(uri?: vscode.Uri): boolean {
-        const project_folder: string | undefined = QorusProjects.getProjectFolder(uri);
+        const project_folder: string | undefined = getProjectFolder(uri);
 
         let has_changed: boolean = this.current_project_folder != project_folder;
         if (has_changed) {
@@ -252,7 +253,7 @@ export class QorusProjects {
     }
 
     private getQorusProject(uri?: vscode.Uri): QorusProject | undefined {
-        const workspace_folder: string | undefined = QorusProjects.getProjectFolder(uri);
+        const workspace_folder: string | undefined = getProjectFolder(uri);
         if (!workspace_folder) {
             return undefined;
         }
@@ -261,26 +262,27 @@ export class QorusProjects {
         }
         return this.projects[workspace_folder];
     }
-
-    private static getProjectFolder(uri?: vscode.Uri): string | undefined {
-        if (!vscode.workspace) {
-            return undefined;
-        }
-
-        if (!uri) {
-            const editor = vscode.window.activeTextEditor;
-            uri = editor ? editor.document.uri : undefined;
-        }
-
-        if (!uri) {
-            return undefined;
-        }
-
-        const workspace_folder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
-        return workspace_folder ? workspace_folder.uri.fsPath : undefined;
-    }
 }
 
-export const projects = new QorusProjects();
+export function getProjectFolder(uri?: vscode.Uri): string | undefined {
+    if (!vscode.workspace) {
+        return undefined;
+    }
+
+    if (!uri) {
+        const editor = vscode.window.activeTextEditor;
+        uri = editor ? editor.document.uri : undefined;
+    }
+
+    if (!uri) {
+        return undefined;
+    }
+
+    const workspace_folder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
+    return workspace_folder ? workspace_folder.uri.fsPath : undefined;
+}
+
 import { Handler } from 'swagger-object-validator';
 export const validator = new Handler(path.join(__dirname, '..', 'config/qorus_project_definition.json'));
+
+export const projects = new QorusProjects();

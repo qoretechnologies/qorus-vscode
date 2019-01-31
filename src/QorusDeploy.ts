@@ -57,6 +57,10 @@ class QorusDeploy extends QorusLogin {
         this.doDeploy(files);
     }
 
+    deployPackage(file: string) {
+        this.doDeploy([file], true);
+    }
+
     setActiveInstance(tree_item: string | vscode.TreeItem) {
         if (typeof tree_item !== 'string') {
             this.setActiveInstance((<QorusTreeInstanceNode>tree_item).getUrl());
@@ -98,7 +102,7 @@ class QorusDeploy extends QorusLogin {
         tree.refresh();
     }
 
-    private doDeploy(file_paths: Array<string>) {
+    private doDeploy(file_paths: Array<string>, is_package: boolean = false) {
         if (!this.active_url) {
             msg.error(t`noActiveQorusInstance`);
             vscode.commands.executeCommand('qorusInstancesExplorer.focus');
@@ -122,13 +126,25 @@ class QorusDeploy extends QorusLogin {
 
         msg.log(t`filesToDeploy`);
         let data: Array<object> = [];
-        QorusDeploy.prepareDataToDeploy(file_paths, data);
+        if (is_package) {
+            const file = file_paths[0];
+            msg.log(`    ${file}`);
+            const file_content = fs.readFileSync(file);
+            let buffer: Buffer = Buffer.from(file_content);
+            data = [{
+                file_name: path.basename(file),
+                file_content: buffer.toString('base64')
+            }];
+        }
+        else {
+            QorusDeploy.prepareDataToDeploy(file_paths, data);
+        }
 
         msg.log(t`deploymentHasStarted ${active_instance.name} ${active_instance.url}`);
 
         const url_base: string = QorusDeploy.urlBase(active_instance.url, active_instance.version);
 
-        msg.log("options: " + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
+        msg.log(t`options` + ': ' + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
 
         const options = {
             method: 'POST',
@@ -288,7 +304,6 @@ class QorusDeploy extends QorusLogin {
         for (let entry of dir_entries) {
             let entry_path: string = path.join(dir, entry);
             if (fs.lstatSync(entry_path).isDirectory()) {
-                msg.log(t`subdirectory ${entry_path}`);
                 QorusDeploy.getDeployableFiles(entry_path, deployable_files);
             } else if (isDeployable(entry_path)) {
                 deployable_files.push(entry_path);

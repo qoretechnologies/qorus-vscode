@@ -25,6 +25,12 @@ msgstr "Qorus project definition not found"
 msgid "unableToDetermineProjectPath"
 msgstr "Unable to determine project configuration file location"
 
+msgid "UnableDetermineRepository"
+msgstr "Unable to determine repository"
+
+msgid "UnableDetermineRepositoryBranch"
+msgstr "Unable to determine repository branch"
+
 msgid "labelOpenUrl"
 msgstr "Open URL in an external browser"
 
@@ -69,6 +75,9 @@ msgstr "Unable to open the login page"
 
 msgid "unableOpenConfigPage"
 msgstr "Unable to open the project configuration page"
+
+msgid "UnableOpenReleasePage"
+msgstr "Unable to open the release package creator page"
 
 msgid "noTokenForUrl ${ url }"
 msgstr "No authentication token for URL ${ url }"
@@ -259,6 +268,9 @@ msgstr "Login to Qorus instance"
 msgid "at"
 msgstr "at"
 
+msgid "options"
+msgstr "options"
+
 msgid "labelEnvironments"
 msgstr "Environments"
 
@@ -351,3 +363,75 @@ msgstr "?"
 
 msgid "mandatoryInput"
 msgstr "Mandatory input"
+
+msgid "ReleaseType"
+msgstr "Release type"
+
+msgid "releaseTypeFull"
+msgstr "full"
+
+msgid "releaseTypeIncremental"
+msgstr "incremental"
+
+msgid "FullRelease"
+msgstr "Full release"
+
+msgid "IncrementalRelease"
+msgstr "Incremental release"
+
+msgid "CurrentBranchInfo"
+msgstr "Your position"
+
+msgid "branch"
+msgstr "branch"
+
+msgid "commit"
+msgstr "commit"
+
+msgid "BranchNotUpToDate"
+msgstr "Your branch is not up-to-date"
+
+msgid "QorusReleaseTitle"
+msgstr "Qorus release"
+
+msgid "filterByTag"
+msgstr "filter by tag"
+
+msgid "filterByBranchName"
+msgstr "filter by branch name"
+
+msgid "filterByCommitHash"
+msgstr "filter by commit hash"
+
+msgid "CreatePackage"
+msgstr "Create package"
+
+msgid "PackageContents"
+msgstr "Package contents"
+
+msgid "SelectedCommit"
+msgstr "Selected commit"
+
+msgid "SendPackage"
+msgstr "Send package"
+
+msgid "FollowingTmpFilesWereCreated"
+msgstr "The following temporary files have been created"
+
+msgid "ReleaseFileWillBeSent"
+msgstr "The release file will be sent to the currently active Qorus instance"
+
+msgid "FollowingReleaseFileWillBeSent"
+msgstr "The following release file have been created and will be sent to the currently active Qorus instance"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "ErrorInInitializingGitExtension"
+msgstr "Error in initializing Git extension"
+
+msgid "ErrorInActivatingGitExtension"
+msgstr "Error in activating Git extension"
+
+msgid "UnableDetermineProjectFolder"
+msgstr "Unable to determine project folder in activating Git extension"
