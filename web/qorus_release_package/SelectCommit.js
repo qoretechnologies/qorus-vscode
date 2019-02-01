@@ -131,7 +131,7 @@ export class SelectCommit extends Component {
                         onClick={() => this.props.selectCommit(this.state.value)}
                         style={{ marginTop: 18 }}
                     >
-                        {this.props.t('buttonOk')}
+                        {this.props.t('ButtonOk')}
                     </Button>
                 </div>
             </>

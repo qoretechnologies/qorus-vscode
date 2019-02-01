@@ -19,19 +19,19 @@ class QorusDeploy extends QorusLogin {
         const code = editor ? editor.document.getText() : '';
 
         if (!file_path || !code) {
-            msg.error(t`nothingToDeploy`);
+            msg.error(t`NothingToDeploy`);
             return;
         }
 
         const file_relative_path = vscode.workspace.asRelativePath(file_path, false);
 
         if (!isDeployable(file_path)) {
-            msg.error(t`notDeployableFile ${file_relative_path}`);
+            msg.error(t`NotDeployableFile ${file_relative_path}`);
             return;
         }
 
         if (file_path === file_relative_path) {
-            msg.error(t`cannotLoadFileOutsideWorkspaceFolder ${file_path}`);
+            msg.error(t`CannotLoadFileOutsideWorkspaceFolder ${file_path}`);
             return;
         }
 
@@ -41,7 +41,7 @@ class QorusDeploy extends QorusLogin {
     deployFile(uri: vscode.Uri) {
         const file_path: string = uri.fsPath;
         if (!isDeployable(file_path)) {
-            msg.error(t`notDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
+            msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
             return;
         }
 
@@ -50,7 +50,7 @@ class QorusDeploy extends QorusLogin {
 
     deployDir(uri: vscode.Uri) {
         const dir: string = uri.fsPath;
-        msg.log(t`deployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
+        msg.log(t`DeployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
         let files: string[] = [];
         QorusDeploy.getDeployableFiles(dir, files);
@@ -78,15 +78,15 @@ class QorusDeploy extends QorusLogin {
                 if (no_auth) {
                     this.addNoAuth(url);
                     tree.refresh();
-                    msg.info(t`authNotNeeded ${url}`);
+                    msg.info(t`AuthNotNeeded ${url}`);
                 }
                 else {
-                    msg.info(t`authNeeded ${url}`);
+                    msg.info(t`AuthNeeded ${url}`);
                     this.login(url);
                 }
             },
             (error: any) => {
-                msg.requestError(error, t`gettingInfoError`);
+                msg.requestError(error, t`GettingInfoError`);
             }
         );
     }
@@ -95,7 +95,7 @@ class QorusDeploy extends QorusLogin {
         if (tree_item) {
             const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
             if (!this.isActive(url)) {
-                msg.log(t`attemptToSetInactiveNotActiveInstance ${url}`);
+                msg.log(t`AttemptToSetInactiveNotActiveInstance ${url}`);
             }
         }
         this.unsetActive();
@@ -106,14 +106,14 @@ class QorusDeploy extends QorusLogin {
     // returns false if the process failed earlier
     private doDeploy(file_paths: string[], is_release: boolean = false): Thenable<boolean> {
         if (!this.active_url) {
-            msg.error(t`noActiveQorusInstance`);
+            msg.error(t`NoActiveQorusInstance`);
             vscode.commands.executeCommand('qorusInstancesExplorer.focus');
             return Promise.resolve(false);
         }
 
         const active_instance = tree.getQorusInstance(this.active_url);
         if (!active_instance) {
-            msg.error(t`unableGetActiveQorusInstanceData`);
+            msg.error(t`UnableGetActiveQorusInstanceData`);
             return Promise.resolve(false);
         }
 
@@ -134,12 +134,12 @@ class QorusDeploy extends QorusLogin {
         if (this.authNeeded(this.active_url) != AuthNeeded.No) {
             token = this.getToken(this.active_url);
             if (!token) {
-                msg.error(t`unauthorizedOperationAtUrl ${this.active_url}`);
+                msg.error(t`UnauthorizedOperationAtUrl ${this.active_url}`);
                 return Promise.resolve(false);
             }
         }
 
-        msg.log(t`filesToDeploy`);
+        msg.log(t`FilesToDeploy`);
         let data: object[] = [];
         if (is_release) {
             const file = file_paths[0];
@@ -155,7 +155,7 @@ class QorusDeploy extends QorusLogin {
             QorusDeploy.prepareDataToDeploy(file_paths, data);
         }
 
-        msg.log(t`deploymentHasStarted ${active_instance.name} ${active_instance.url}`);
+        msg.log(t`DeploymentHasStarted ${active_instance.name} ${active_instance.url}`);
         msg.log(t`options` + ': ' + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
 
         const options = {
@@ -176,14 +176,14 @@ class QorusDeploy extends QorusLogin {
             (response: any) => {
                 msg.log(t`deploymentResponse ${JSON.stringify(response)}`);
                 if (response.id === undefined) {
-                    msg.error(t`responseIdUndefined`);
+                    msg.error(t`ResponseIdUndefined`);
                     return false;
                 }
                 this.checkDeploymentResult(url_base, active_instance.url, response.id, token);
                 return true;
             },
             (error: any) => {
-                msg.requestError(error, t`deploymentStartFailed`);
+                msg.requestError(error, t`DeploymentStartFailed`);
                 this.doLogout(active_instance.url, true, false);         // ???
                 return false;
             }
@@ -222,12 +222,12 @@ class QorusDeploy extends QorusLogin {
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: t`deploymentRunning ${deployment_id}`,
+                title: t`DeploymentRunning ${deployment_id}`,
                 cancellable: true
             },
             async (progress, cancel_token): Promise<void> => {
                 cancel_token.onCancellationRequested(() => {
-                    msg.info(t`cancellingDeployment ${deployment_id}`);
+                    msg.info(t`CancellingDeployment ${deployment_id}`);
 
                     const options = {
                         method: 'DELETE',
@@ -240,11 +240,11 @@ class QorusDeploy extends QorusLogin {
                     };
                     request(options).catch(
                         error => {
-                            msg.error(t`deploymentCancellationFailed ${deployment_id}`);
+                            msg.error(t`DeploymentCancellationFailed ${deployment_id}`);
                             msg.log(JSON.stringify(error));
                         }
                     );
-                    msg.log(t`cancellationRequestSent ${deployment_id}`);
+                    msg.log(t`CancellationRequestSent ${deployment_id}`);
                 });
 
                 progress.report({ increment: -1});
@@ -292,7 +292,7 @@ class QorusDeploy extends QorusLogin {
                             }
                         },
                         (error: any) => {
-                            msg.requestError(error, t`checkingDeploymentStatusFailed ${deployment_id}`);
+                            msg.requestError(error, t`CheckingDeploymentStatusFailed ${deployment_id}`);
                             this.doLogout(instance_url, true, false);
                             quit = true;
                         }

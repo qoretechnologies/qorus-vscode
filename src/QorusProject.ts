@@ -40,7 +40,7 @@ class QorusProject {
                     }
                 },
                 error => {
-                    msg.error(t`swaggerValidatorError ${JSON.stringify(error)}`);
+                    msg.error(t`SwaggerValidatorError ${JSON.stringify(error)}`);
                 }
             );
         } catch (error) {
@@ -55,7 +55,7 @@ class QorusProject {
         }
         if (!fs.existsSync(this.config_file)) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
-            msg.info(t`projectConfigHasBeenInitialized`);
+            msg.info(t`ProjectConfigHasBeenInitialized`);
         }
         this.validateConfigFileAndDo(this.manageProjectConfigImpl.bind(this));
     }
@@ -66,7 +66,7 @@ class QorusProject {
             doc => {
                 this.config_panel = vscode.window.createWebviewPanel(
                     'qorusConfig',
-                    t`qorusConfigTitle`,
+                    t`QorusConfigTitle`,
                     vscode.ViewColumn.One,
                     {
                         enableScripts: true
@@ -81,7 +81,7 @@ class QorusProject {
                         message_on_config_file_change = true;
                         return;
                     }
-                    msg.warning(t`projectConfigFileHasChangedOnDisk`);
+                    msg.warning(t`ProjectConfigFileHasChangedOnDisk`);
                     (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
                         action: 'config-changed-on-disk'
                     });
@@ -113,7 +113,7 @@ class QorusProject {
                 });
             },
             error => {
-                msg.error(t`unableOpenConfigPage`);
+                msg.error(t`UnableOpenConfigPage`);
                 msg.log(JSON.stringify(error));
             }
         );
@@ -121,40 +121,40 @@ class QorusProject {
 
     private static pageTexts(): any {
         return {
-            environments: t`labelEnvironments`,
-            addEnv: t`labelAddEnvironment`,
-            qorusInstances: t`labelQorusInstances`,
-            qorusInstancesIn: t`labelQorusInstancesIn`,
-            addUrl: t`labelAddUrl`,
-            editUrl: t`labelEditUrl`,
-            editMainUrl: t`labelEditMainUrl`,
-            mainUrl: t`labelMainUrl`,
-            name: t`labelName`,
-            url: t`labelUrl`,
-            urls: t`labelUrls`,
-            propertiesOfQorus: t`labelPropertiesOfQorusInstance`,
-            customUrls: t`labelCustomUrls`,
-            remove: t`labelRemove`,
-            add: t`labelAdd`,
-            edit: t`labelEdit`,
-            moveUp: t`labelMoveUp`,
-            addQorus: t`labelAddQorus`,
-            editQorus: t`labelEditQorus`,
-            editEnv: t`labelEditEnvironment`,
-            confirmDeletion: t`labelConfirmDeletion`,
-            confirmRemoveEnvPre: t`confirmRemoveEnvPre`,
-            confirmRemoveEnvPost: t`confirmRemoveEnvPost`,
-            confirmRemoveQorusPre: t`confirmRemoveQorusPre`,
-            confirmRemoveQorusPost: t`confirmRemoveQorusPost`,
-            confirmRemoveUrlPre: t`confirmRemoveUrlPre`,
-            confirmRemoveUrlPost: t`confirmRemoveUrlPost`,
-            buttonCancel: t`buttonCancel`,
-            buttonDelete: t`buttonDelete`,
-            buttonSave: t`buttonSave`,
-            buttonReload: t`buttonReload`,
-            buttonOverwrite: t`buttonOverwrite`,
-            mandatoryInput: t`mandatoryInput`,
-            configChangedOnDisk: t`configChangedOnDiskDialogQuestion`
+            environments: t`Environments`,
+            addEnv: t`AddEnvironment`,
+            qorusInstances: t`QorusInstances`,
+            qorusInstancesIn: t`QorusInstancesIn`,
+            addUrl: t`AddUrl`,
+            editUrl: t`EditUrl`,
+            editMainUrl: t`EditMainUrl`,
+            mainUrl: t`MainUrl`,
+            name: t`Name`,
+            url: t`Url`,
+            urls: t`Urls`,
+            propertiesOfQorus: t`PropertiesOfQorusInstance`,
+            customUrls: t`CustomUrls`,
+            remove: t`Remove`,
+            add: t`AddNew`,
+            edit: t`Edit`,
+            moveUp: t`MoveUp`,
+            addQorus: t`AddQorus`,
+            editQorus: t`EditQorus`,
+            editEnv: t`EditEnvironment`,
+            confirmDeletion: t`ConfirmDeletion`,
+            confirmRemoveEnvPre: t`ConfirmRemoveEnvPre`,
+            confirmRemoveEnvPost: t`ConfirmRemoveEnvPost`,
+            confirmRemoveQorusPre: t`ConfirmRemoveQorusPre`,
+            confirmRemoveQorusPost: t`ConfirmRemoveQorusPost`,
+            confirmRemoveUrlPre: t`ConfirmRemoveUrlPre`,
+            confirmRemoveUrlPost: t`ConfirmRemoveUrlPost`,
+            buttonCancel: t`ButtonCancel`,
+            buttonDelete: t`ButtonDelete`,
+            buttonSave: t`ButtonSave`,
+            buttonReload: t`ButtonReload`,
+            buttonOverwrite: t`ButtonOverwrite`,
+            mandatoryInput: t`MandatoryInput`,
+            configChangedOnDisk: t`ConfigChangedOnDiskDialogQuestion`
         };
     }
 

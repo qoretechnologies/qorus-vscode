@@ -7,22 +7,22 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 
-msgid "usingLocaleSettings ${ locale }"
+msgid "UsingLocaleSettings ${ locale }"
 msgstr "Using locale settings '${ locale }'"
 
-msgid "usingDefaultLocale ${ locale }"
+msgid "UsingDefaultLocale ${ locale }"
 msgstr "Using default locale '${ locale }'"
 
-msgid "swaggerValidatorError ${ error }"
+msgid "SwaggerValidatorError ${ error }"
 msgstr "Swagger validator error: ${ error }"
 
-msgid "qorusProjectNotSet"
+msgid "QorusProjectNotSet"
 msgstr "Qorus project has not been set"
 
-msgid "qorusProjectNotFound"
+msgid "QorusProjectNotFound"
 msgstr "Qorus project definition not found"
 
-msgid "unableToDetermineProjectPath"
+msgid "UnableToDetermineProjectPath"
 msgstr "Unable to determine project configuration file location"
 
 msgid "UnableDetermineRepository"
@@ -31,119 +31,104 @@ msgstr "Unable to determine repository"
 msgid "UnableDetermineRepositoryBranch"
 msgstr "Unable to determine repository branch"
 
-msgid "labelOpenUrl"
+msgid "OpenUrlInBrowser"
 msgstr "Open URL in an external browser"
 
-msgid "openingUrlInExternalBrowser ${ name } ${ url }"
+msgid "OpeningUrlInExternalBrowser ${ name } ${ url }"
 msgstr "Opening ${ name } (${ url }) in an external browser"
 
-msgid "openUrlInExternalBrowserError ${ error }"
+msgid "OpenUrlInExternalBrowserError ${ error }"
 msgstr "Error in opening URL in an external browser: ${ error }"
 
-msgid "noQorusWithGivenUrlFound { url }"
+msgid "NoQorusWithGivenUrlFound { url }"
 msgstr "No Qorus instance with URL ${ url } found"
 
-msgid "loginSuccessful"
+msgid "LoginSuccessful"
 msgstr "Login successful"
 
-msgid "loginCancelled"
+msgid "LoginCancelled"
 msgstr "Login cancelled"
 
-msgid "loginError"
+msgid "LoginError"
 msgstr "Login failed"
 
-msgid "qorusLoginTitle"
+msgid "QorusLoginTitle"
 msgstr "Qorus Login"
 
-msgid "qorusConfigTitle"
+msgid "QorusConfigTitle"
 msgstr "Qorus Project Configuration"
 
-msgid "logoutSuccessful"
-msgstr "Logout successful"
-
-msgid "logoutError"
-msgstr "Logout failed"
-
-msgid "loggedOut"
+msgid "LoggedOut"
 msgstr "Logged out"
 
-msgid "sendingLoginRequest"
+msgid "SendingLoginRequest"
 msgstr "Sending login request ..."
 
-msgid "unableOpenLoginPage"
+msgid "UnableOpenLoginPage"
 msgstr "Unable to open the login page"
 
-msgid "unableOpenConfigPage"
+msgid "UnableOpenConfigPage"
 msgstr "Unable to open the project configuration page"
 
 msgid "UnableOpenReleasePage"
 msgstr "Unable to open the release package creator page"
 
-msgid "noTokenForUrl ${ url }"
+msgid "NoTokenForUrl ${ url }"
 msgstr "No authentication token for URL ${ url }"
 
-msgid "unauthorizedOperationAtUrl ${ url }"
+msgid "UnauthorizedOperationAtUrl ${ url }"
 msgstr "Unauthorized operation at ${ url }"
 
-msgid "unableGetUrlFromTreeItem ${ data }"
-msgstr "Unable to obtain URL from tree item data: ${ data }"
-
-msgid "nothingToDeploy"
+msgid "NothingToDeploy"
 msgstr "Nothing to deploy"
 
-msgid "notDeployableFile ${ path }";
+msgid "NotDeployableFile ${ path }";
 msgstr "Not a deployable file: ${ path }";
 
-msgid "cannotLoadFileOutsideWorkspaceFolder ${ path }"
+msgid "CannotLoadFileOutsideWorkspaceFolder ${ path }"
 msgstr "Cannot load a file that is not contained in a workspace folder ${ path }"
 
-msgid "deployingDirectory ${ dir }"
+msgid "DeployingDirectory ${ dir }"
 msgstr "Deploying directory: ${ dir }"
 
-msgid "hostUnreachable ${ url }"
+msgid "HostUnreachable ${ url }"
 msgstr "Host unreachable: ${ url }"
 
-msgid "authNeeded ${ url }"
+msgid "AuthNeeded ${ url }"
 msgstr "Authentication needed for ${ url }"
 
-msgid "authNotNeeded ${ url }"
+msgid "AuthNotNeeded ${ url }"
 msgstr "Authentication not needed for ${ url }"
 
-msgid "gettingInfoError"
+msgid "GettingInfoError"
 msgstr "Error in getting info"
 
-msgid "setActiveQorusInstanceError"
-msgstr "Error in setting a Qorus instance active"
-
-msgid "setInactiveQorusInstanceError"
-msgstr "Error in setting a Qorus instance inactive"
-
-msgid "attemptToSetInactiveNotActiveInstance ${ url }"
+msgid "AttemptToSetInactiveNotActiveInstance ${ url }"
 msgstr "Attempt to set inactive a Qorus instance that is not active: ${ url }"
 
-msgid "noActiveQorusInstance"
+msgid "NoActiveQorusInstance"
 msgstr "Active Qorus instance has not been set"
 
-msgid "unableGetActiveQorusInstanceData"
+msgid "UnableGetActiveQorusInstanceData"
 msgstr "Unable to obtain active Qorus instance data"
 
-msgid "filesToDeploy"
+msgid "FilesToDeploy"
 msgstr "Files to deploy:"
 
-msgid "deploymentHasStarted ${ name } ${ url }"
+msgid "DeploymentHasStarted ${ name } ${ url }"
 msgstr "Deployment to ${ name } - ${ url } has started ..."
 
 msgid "deploymentResponse ${ response }"
 msgstr "  ... response: ${ response }"
 
-msgid "responseIdUndefined"
+msgid "ResponseIdUndefined"
 msgstr "Response ID is undefined"
 
-msgid "error401 ${ url }"
+msgid "Error401 ${ url }"
 msgstr "Error 401 - Unauthorized (${ url })"
 
-msgid "deploymentStartFailed"
-msgstr "Deployment failed"
+msgid "DeploymentStartFailed"
+msgstr "Deployment failed to start"
 
 msgid "DeploymentFailed ${ deployment_id }"
 msgstr "Deployment failed (ID: ${ deployment_id })"
@@ -151,16 +136,16 @@ msgstr "Deployment failed (ID: ${ deployment_id })"
 msgid "fileDoesNotExist ${ path }"
 msgstr "file ${ path } does not exist"
 
-msgid "deploymentRunning ${ deployment_id }"
+msgid "DeploymentRunning ${ deployment_id }"
 msgstr "Qorus code deployment is running (ID: ${ deployment_id })"
 
-msgid "cancellingDeployment ${ deployment_id }"
+msgid "CancellingDeployment ${ deployment_id }"
 msgstr "Cancelling deployment (ID: ${ deployment_id })"
 
-msgid "deploymentCancellationFailed ${ deployment_id }"
+msgid "DeploymentCancellationFailed ${ deployment_id }"
 msgstr "Deployment cancellation failed (ID: ${ deployment_id })"
 
-msgid "cancellationRequestSent ${ deployment_id }"
+msgid "CancellationRequestSent ${ deployment_id }"
 msgstr "Cancellation request sent (ID: ${ deployment_id })"
 
 msgid "checkingDeploymentProgress ${ deployment_id } ${ sec }";
@@ -175,94 +160,76 @@ msgstr "Deployment finished successfully (ID: ${ deployment_id })"
 msgid "DeploymentCancelled ${ deployment_id }"
 msgstr "Deployment cancelled (ID: ${ deployment_id })"
 
-msgid "checkingDeploymentStatusFailed ${ deployment_id }"
+msgid "CheckingDeploymentStatusFailed ${ deployment_id }"
 msgstr "Checking deployment status failed (ID: ${ deployment_id })"
 
-msgid "subdirectory ${ subdir }"
-msgstr "Subdirectory: ${ subdir }"
-
-msgid "labelQorusInstance ${ name } ${ url }"
+msgid "QorusInstance ${ name } ${ url }"
 msgstr "Qorus instance '${ name }'\n${ url }"
 
-msgid "labelNowActive"
+msgid "nowActive"
 msgstr ">>   now active   <<"
 
-msgid "labelVersion3"
+msgid "version3"
 msgstr "(version 3)"
 
-msgid "labelEnvironment ${ env_name }"
+msgid "Environment ${ env_name }"
 msgstr "Environment ${ env_name }"
 
-msgid "labelMainUrl"
+msgid "MainUrl"
 msgstr "Main URL"
 
-msgid "openUrlLabel"
+msgid "OpenUrl"
 msgstr "Open URL"
 
-msgid "setActiveInstance"
+msgid "SetActiveInstance"
 msgstr "Set as active Qorus instance"
 
-msgid "labelSetActiveInstance"
-msgstr "Set as active Qorus instance"
-
-msgid "gettingInfo ${ url }"
+msgid "GettingInfo ${ url }"
 msgstr "Getting info from ${ url } ..."
 
-msgid "gettingInfoTimedOut ${ url }"
+msgid "GettingInfoTimedOut ${ url }"
 msgstr "Getting info from ${ url } timed out"
 
-msgid "connectionRefused ${ url }"
+msgid "ConnectionRefused ${ url }"
 msgstr "Connection to ${ url } refused"
 
-msgid "buttonOk"
+msgid "ButtonOk"
 msgstr "OK"
 
-msgid "buttonCancel"
+msgid "ButtonCancel"
 msgstr "Cancel"
 
-msgid "buttonDelete"
+msgid "ButtonDelete"
 msgstr "Delete"
 
-msgid "buttonReload"
+msgid "ButtonReload"
 msgstr "Reload"
 
-msgid "buttonSave"
+msgid "ButtonSave"
 msgstr "Save"
 
-msgid "buttonOverwrite"
+msgid "ButtonOverwrite"
 msgstr "Overwrite"
 
-msgid "aboutToCreateProjectConfigFile ${ config_file_path }"
-msgstr "Project configuration file ${ config_file_path } will be created"
-
-msgid "projectConfigFileAlreadyExists ${ config_file_path }"
-msgstr "Project configuration file ${ config_file_path } already exists. Do you want to edit it?"
-
-msgid "projectConfigFileHasBeenCreated"
-msgstr "Project configuration file has been created"
-
-msgid "projectConfigFileDoesNotExist"
-msgstr "Project configuration file does not exist. Do you want it to be created?"
-
-msgid "projectConfigHasBeenInitialized"
+msgid "ProjectConfigHasBeenInitialized"
 msgstr "Project configuration has now been initialized from a template"
 
-msgid "projectConfigFileHasChangedOnDisk"
+msgid "ProjectConfigFileHasChangedOnDisk"
 msgstr "Project configuration file has changed on disk"
 
-msgid "configChangedOnDiskDialogQuestion"
+msgid "ConfigChangedOnDiskDialogQuestion"
 msgstr "Project configuration file has changed on disk. Do you want to reload or overwrite it?"
 
-msgid "openUi"
+msgid "OpenUi"
 msgstr "Open UI"
 
-msgid "labelUsername"
+msgid "LabelUsername"
 msgstr "Username:"
 
-msgid "labelPassword"
+msgid "LabelPassword"
 msgstr "Password:"
 
-msgid "loginHeader"
+msgid "LoginHeader"
 msgstr "Login to Qorus instance"
 
 msgid "at"
@@ -271,97 +238,85 @@ msgstr "at"
 msgid "options"
 msgstr "options"
 
-msgid "labelEnvironments"
+msgid "Environments"
 msgstr "Environments"
 
-msgid "labelQorusInstancesIn"
+msgid "QorusInstancesIn"
 msgstr "Qorus instances in"
 
-msgid "labelQorusInstances"
+msgid "QorusInstances"
 msgstr "Qorus instances"
 
-msgid "labelQorusInstance"
-msgstr "Qorus instance"
-
-msgid "labelName"
+msgid "Name"
 msgstr "Name"
 
-msgid "labelUrl"
+msgid "Url"
 msgstr "URL"
 
-msgid "labelEditUrl"
-msgstr "Edit URL"
-
-msgid "labelEditMainUrl"
-msgstr "Edit main URL"
-
-msgid "labelAddUrl"
-msgstr "Add URL"
-
-msgid "labelUrls"
+msgid "Urls"
 msgstr "URLs"
 
-msgid "labelUrlsOf"
-msgstr "URLs of Qorus instance"
+msgid "EditUrl"
+msgstr "Edit URL"
 
-msgid "labelPropertiesOfQorusInstance"
-msgstr "Properties of Qorus instance"
+msgid "EditMainUrl"
+msgstr "Edit main URL"
 
-msgid "labelCustomUrls"
-msgstr "Other links"
-
-msgid "labelEnvironment"
-msgstr "Environment"
-
-msgid "labelRemove"
-msgstr "Remove"
-
-msgid "labelAdd"
-msgstr "Add new"
-
-msgid "labelEdit"
-msgstr "Edit"
-
-msgid "labelMoveUp"
-msgstr "Move up one position"
-
-msgid "labelEditQorus"
-msgstr "Edit Qorus instance"
-
-msgid "labelAddEnvironment"
-msgstr "Add environment"
-
-msgid "labelEditEnvironment"
-msgstr "Edit environment"
-
-msgid "labelAddQorus"
-msgstr "Add Qorus instance"
-
-msgid "labelAddUrl"
+msgid "AddUrl"
 msgstr "Add URL"
 
-msgid "labelConfirmDeletion"
+msgid "PropertiesOfQorusInstance"
+msgstr "Properties of Qorus instance"
+
+msgid "CustomUrls"
+msgstr "Other links"
+
+msgid "Remove"
+msgstr "Remove"
+
+msgid "AddNew"
+msgstr "Add new"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "MoveUp"
+msgstr "Move up one position"
+
+msgid "EditQorus"
+msgstr "Edit Qorus instance"
+
+msgid "AddEnvironment"
+msgstr "Add environment"
+
+msgid "EditEnvironment"
+msgstr "Edit environment"
+
+msgid "AddQorus"
+msgstr "Add Qorus instance"
+
+msgid "ConfirmDeletion"
 msgstr "Confirm deletion"
 
-msgid "confirmRemoveEnvPre"
+msgid "ConfirmRemoveEnvPre"
 msgstr "Do you really want to remove environment "
 
-msgid "confirmRemoveEnvPost"
+msgid "ConfirmRemoveEnvPost"
 msgstr " with all its Qorus instances?"
 
-msgid "confirmRemoveQorusPre"
+msgid "ConfirmRemoveQorusPre"
 msgstr "Do you really want to remove Qorus instance "
 
-msgid "confirmRemoveQorusPost"
+msgid "ConfirmRemoveQorusPost"
 msgstr " with all its data?"
 
-msgid "confirmRemoveUrlPre"
+msgid "ConfirmRemoveUrlPre"
 msgstr "Do you really want to remove URL "
 
-msgid "confirmRemoveUrlPost"
+msgid "ConfirmRemoveUrlPost"
 msgstr "?"
 
-msgid "mandatoryInput"
+msgid "MandatoryInput"
 msgstr "Mandatory input"
 
 msgid "ReleaseType"
@@ -392,7 +347,7 @@ msgid "BranchNotUpToDate"
 msgstr "Your branch is not up-to-date"
 
 msgid "QorusReleaseTitle"
-msgstr "Qorus release"
+msgstr "Qorus Release"
 
 msgid "filterByTag"
 msgstr "filter by tag"

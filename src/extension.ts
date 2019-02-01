@@ -118,13 +118,13 @@ function openUrlInExternalBrowser(url: string, name: string) {
             cfg_name = '';
     }
     const command: string = vscode.workspace.getConfiguration('qorus').get(cfg_name) + ' "' + url +'"';
-    msg.info(t`openingUrlInExternalBrowser ${name} ${url}`);
+    msg.info(t`OpeningUrlInExternalBrowser ${name} ${url}`);
     msg.log(command);
     try {
         child_process.execSync(command);
     }
     catch (error) {
-        msg.error(t`openUrlInExternalBrowserError`);
+        msg.error(t`OpenUrlInExternalBrowserError`);
     }
 }
 
@@ -167,9 +167,9 @@ function setLocale() {
     useLocale(locale);
 
     if (use_default_locale) {
-        msg.log(t`usingDefaultLocale ${locale}`);
+        msg.log(t`UsingDefaultLocale ${locale}`);
     }
     else {
-        msg.log(t`usingLocaleSettings ${locale}`);
+        msg.log(t`UsingLocaleSettings ${locale}`);
     }
 }
