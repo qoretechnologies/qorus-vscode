@@ -158,12 +158,12 @@ class QorusProject {
         };
     }
 
-    private static file2web(file_data?: any): Array<any> {
+    private static file2web(file_data?: any): any[] {
         if (!file_data) {
             return [];
         }
 
-        let data: Array<any> = [];
+        let data: any[] = [];
         let i: number = 0;
         for (let env_name in file_data.qorus_instances) {
             const env_id = i++;
@@ -201,10 +201,10 @@ class QorusProject {
     private static web2file(data: any): any {
         let file_data: any = {qorus_instances: {}}
         for (let env_id in data) {
-            let env = data[env_id];
+            const env = data[env_id];
             file_data.qorus_instances[env.name] = [];
             for (let qorus_id in env.qoruses) {
-                let qorus: any = env.qoruses[qorus_id];
+                const qorus: any = env.qoruses[qorus_id];
                 let qorus_data: any = {
                     name: qorus.name,
                     url: qorus.url,
@@ -214,7 +214,7 @@ class QorusProject {
                     qorus_data.version = qorus.version;
                 }
                 for (let url_id in qorus.urls) {
-                    let url = qorus.urls[url_id];
+                    const url = qorus.urls[url_id];
                     qorus_data.custom_urls.push({
                         name: url.name,
                         url: url.url
@@ -235,7 +235,7 @@ class QorusProjects {
     updateCurrentWorkspaceFolder(uri?: vscode.Uri): boolean {
         const project_folder: string | undefined = getProjectFolder(uri);
 
-        let has_changed: boolean = this.current_project_folder != project_folder;
+        const has_changed: boolean = this.current_project_folder != project_folder;
         if (has_changed) {
             this.current_project_folder = project_folder;
         }

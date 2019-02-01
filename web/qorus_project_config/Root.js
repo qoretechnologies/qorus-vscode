@@ -13,7 +13,7 @@ export class Root extends Component {
     constructor() {
         super();
 
-        let state = vscode.getState();
+        const state = vscode.getState();
         if (state) {
             global.texts = state.texts;
             this.state = {
@@ -122,10 +122,10 @@ export class Root extends Component {
             return null;
         }
 
-        let selected_env_id = this.state.selected_env_id;
-        let selected_qorus_id = this.state.selected_qorus_id;
-        let selected_env = (selected_env_id !== null) ? this.state.data[selected_env_id] : null;
-        let selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
+        const selected_env_id = this.state.selected_env_id;
+        const selected_qorus_id = this.state.selected_qorus_id;
+        const selected_env = (selected_env_id !== null) ? this.state.data[selected_env_id] : null;
+        const selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
 
         return (
             <div>

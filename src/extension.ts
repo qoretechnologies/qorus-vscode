@@ -117,7 +117,7 @@ function openUrlInExternalBrowser(url: string, name: string) {
         default:
             cfg_name = '';
     }
-    let command: string = vscode.workspace.getConfiguration('qorus').get(cfg_name) + ' "' + url +'"';
+    const command: string = vscode.workspace.getConfiguration('qorus').get(cfg_name) + ' "' + url +'"';
     msg.info(t`openingUrlInExternalBrowser ${name} ${url}`);
     msg.log(command);
     try {

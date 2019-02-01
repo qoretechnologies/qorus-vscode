@@ -13,6 +13,6 @@ export function isVersion3(version?: string): boolean {
     return !!version && version.toString().substr(0, 1) == '3';
 }
 
-let getSuffix = function(file_path: string): string | undefined {
+const getSuffix = function(file_path: string): string | undefined {
     return file_path.split('.').pop();
 };

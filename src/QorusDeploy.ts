@@ -39,7 +39,7 @@ class QorusDeploy extends QorusLogin {
     }
 
     deployFile(uri: vscode.Uri) {
-        let file_path: string = uri.fsPath;
+        const file_path: string = uri.fsPath;
         if (!isDeployable(file_path)) {
             msg.error(t`notDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
             return;
@@ -49,10 +49,10 @@ class QorusDeploy extends QorusLogin {
     }
 
     deployDir(uri: vscode.Uri) {
-        let dir: string = uri.fsPath;
+        const dir: string = uri.fsPath;
         msg.log(t`deployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
-        let files: Array<string> = [];
+        let files: string[] = [];
         QorusDeploy.getDeployableFiles(dir, files);
         this.doDeploy(files);
     }
@@ -104,7 +104,7 @@ class QorusDeploy extends QorusLogin {
 
     // returns true if the process got to the stage of checking the result
     // returns false if the process failed earlier
-    private doDeploy(file_paths: Array<string>, is_release: boolean = false): Thenable<boolean> {
+    private doDeploy(file_paths: string[], is_release: boolean = false): Thenable<boolean> {
         if (!this.active_url) {
             msg.error(t`noActiveQorusInstance`);
             vscode.commands.executeCommand('qorusInstancesExplorer.focus');
@@ -140,12 +140,12 @@ class QorusDeploy extends QorusLogin {
         }
 
         msg.log(t`filesToDeploy`);
-        let data: Array<object> = [];
+        let data: object[] = [];
         if (is_release) {
             const file = file_paths[0];
             msg.log(`    ${file}`);
             const file_content = fs.readFileSync(file);
-            let buffer: Buffer = Buffer.from(file_content);
+            const buffer: Buffer = Buffer.from(file_content);
             data = [{
                 file_name: path.basename(file),
                 file_content: buffer.toString('base64')
@@ -190,7 +190,7 @@ class QorusDeploy extends QorusLogin {
         );
     }
 
-    private static prepareDataToDeploy(files: Array<string>, data: Array<object>) {
+    private static prepareDataToDeploy(files: string[], data: object[]) {
         for (let file_path of files) {
             const file_relative_path = vscode.workspace.asRelativePath(file_path, false);
             msg.log(`    ${file_relative_path}`);
@@ -200,14 +200,14 @@ class QorusDeploy extends QorusLogin {
                 return;
             }
             const file_content = fs.readFileSync(file_path);
-            let buffer: Buffer = Buffer.from(file_content);
+            const buffer: Buffer = Buffer.from(file_content);
             data.push({
                 'file_name': file_relative_path.replace(/\\/g, '/'),
                 'file_content': buffer.toString('base64')
             });
 
             if (isService(file_path)) {
-                let resources: Array<string> =
+                const resources: string[] =
                     QorusDeploy.getResources(file_content.toString(), path.dirname(file_path));
                 QorusDeploy.prepareDataToDeploy(resources, data);
             }
@@ -267,7 +267,7 @@ class QorusDeploy extends QorusLogin {
 
                     await request(options).then(
                         (response: any) => {
-                            let status: string = response.status;
+                            const status: string = response.status;
                             if (response.stdout) {
                                 msg.log(t`deploymentResponse ${response.stdout} ${status}`);
                             }
@@ -302,8 +302,8 @@ class QorusDeploy extends QorusLogin {
         );
     }
 
-    private static getResources(file_content: string, dir_path: string): Array<string> {
-        let resources: Array<string> = [];
+    private static getResources(file_content: string, dir_path: string): string[] {
+        let resources: string[] = [];
         for (let line of file_content.split(/\r?\n/)) {
             if (line.search(/^#\s*resource\s*:\s*(.*\S)\s*$/) > -1) {
                 resources = resources.concat(RegExp.$1.split(/\s+/));
@@ -311,17 +311,17 @@ class QorusDeploy extends QorusLogin {
         }
         if (resources.length) {
             resources = resources.map(basename => path.join(dir_path, basename));
-            let pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
+            const pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
             return glob.sync(pattern, {nodir: true});
         }
         return [];
     }
 
     // returns (in the referenced array) all deployable files from the directory 'dir'and its subdirectories
-    private static getDeployableFiles(dir: string, deployable_files: Array<string>) {
-        let dir_entries: Array<string> = fs.readdirSync(dir);
+    private static getDeployableFiles(dir: string, deployable_files: string[]) {
+        const dir_entries: string[] = fs.readdirSync(dir);
         for (let entry of dir_entries) {
-            let entry_path: string = path.join(dir, entry);
+            const entry_path: string = path.join(dir, entry);
             if (fs.lstatSync(entry_path).isDirectory()) {
                 QorusDeploy.getDeployableFiles(entry_path, deployable_files);
             } else if (isDeployable(entry_path)) {

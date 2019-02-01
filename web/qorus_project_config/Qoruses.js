@@ -12,7 +12,7 @@ export class Qoruses extends Component {
         }
 
         let buttonRows = [];
-        let env = this.props.selected_env;
+        const env = this.props.selected_env;
         let is_first = true;
         for (let qorus_id in env.qoruses) {
             buttonRows.push(<ButtonRow key={qorus_id}
