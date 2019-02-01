@@ -145,8 +145,8 @@ msgstr "Error 401 - Unauthorized (${ url })"
 msgid "deploymentStartFailed"
 msgstr "Deployment failed"
 
-msgid "deploymentFailed { deployment_id }"
-msgstr "Deployment failed { deployment_id }"
+msgid "DeploymentFailed ${ deployment_id }"
+msgstr "Deployment failed (ID: ${ deployment_id })"
 
 msgid "fileDoesNotExist ${ path }"
 msgstr "file ${ path } does not exist"
@@ -157,22 +157,22 @@ msgstr "Qorus code deployment is running (ID: ${ deployment_id })"
 msgid "cancellingDeployment ${ deployment_id }"
 msgstr "Cancelling deployment (ID: ${ deployment_id })"
 
-msgid "deploymentCancellationFailed ${ deployment_id })"
+msgid "deploymentCancellationFailed ${ deployment_id }"
 msgstr "Deployment cancellation failed (ID: ${ deployment_id })"
 
 msgid "cancellationRequestSent ${ deployment_id }"
-msgstr "Cancellation request sent (id: ${ deployment_id })"
+msgstr "Cancellation request sent (ID: ${ deployment_id })"
 
 msgid "checkingDeploymentProgress ${ deployment_id } ${ sec }";
-msgstr "${ sec }s   checking deployment progress (id: ${ deployment_id }) ... ";
+msgstr "${ sec }s   checking deployment progress (ID: ${ deployment_id }) ... ";
 
 msgid "deploymentResponse ${ response } ${ status }"
 msgstr "    ... ${ response }, status: ${ status }";
 
-msgid "deploymentFinishedSuccessfully ${ deployment_id }"
+msgid "DeploymentFinishedSuccessfully ${ deployment_id }"
 msgstr "Deployment finished successfully (ID: ${ deployment_id })"
 
-msgid "deploymentCancelled ${ deployment_id }"
+msgid "DeploymentCancelled ${ deployment_id }"
 msgstr "Deployment cancelled (ID: ${ deployment_id })"
 
 msgid "checkingDeploymentStatusFailed ${ deployment_id }"
@@ -412,8 +412,8 @@ msgstr "Package contents"
 msgid "SelectedCommit"
 msgstr "Selected commit"
 
-msgid "SendPackage"
-msgstr "Send package"
+msgid "DeployPackage"
+msgstr "Deploy package"
 
 msgid "FollowingTmpFilesWereCreated"
 msgstr "The following temporary files have been created"
@@ -427,6 +427,9 @@ msgstr "The following release file have been created and will be sent to the cur
 msgid "Back"
 msgstr "Back"
 
+msgid "Close"
+msgstr "Close"
+
 msgid "ErrorInInitializingGitExtension"
 msgstr "Error in initializing Git extension"
 
@@ -438,3 +441,12 @@ msgstr "Unable to determine project folder in activating Git extension"
 
 msgid "PackageDeploymentNotSupportedForQorus3"
 msgstr "Package deployment is not supported for Qorus version < 4"
+
+msgid "WaitForDeploymentResult1"
+msgstr "Package has been sent. Deployment is in progress."
+
+msgid "WaitForDeploymentResult2"
+msgstr "(You will see the result in the message area.)"
+
+msgid "PackageDeploymentFailed"
+msgstr "Deployment failed"

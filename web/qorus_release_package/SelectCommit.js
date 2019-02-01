@@ -8,9 +8,13 @@ export class SelectCommit extends Component {
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'return-commits':
+                    const commits = event.data.commits;
                     this.setStates({
-                        commits: event.data.commits,
+                        commits: commits
                     });
+                    if (!this.state.value && commits && commits.length) {
+                        this.setState({value: commits[0].hash});
+                    }
                     break;
             }
         });
@@ -39,7 +43,7 @@ export class SelectCommit extends Component {
         this.props.vscode.setState(Object.assign(this.props.vscode.getState() || {}, state));
     }
 
-    setStates(state) {
+    setStates = state => {
         this.setVscodeState(state);
         this.setState(state);
     }
@@ -84,7 +88,6 @@ export class SelectCommit extends Component {
                 text += ' [tag "' + commit.tag + '"]';
             }
 
-            const commit_data = this.state.commits[commit];
             options.push(
                 <option key={hash} value={hash}>
                     {hash.substr(0, 12)}&nbsp;&nbsp;{text}
@@ -93,7 +96,7 @@ export class SelectCommit extends Component {
         }
 
         return (
-            <div>
+            <>
                 <ControlGroup className='bp3-monospace-text' vertical={true}>
                     <InputGroup className='filter-input'
                         leftIcon='git-commit'
@@ -131,7 +134,7 @@ export class SelectCommit extends Component {
                         {this.props.t('buttonOk')}
                     </Button>
                 </div>
-            </div>
+            </>
         );
     }
 }

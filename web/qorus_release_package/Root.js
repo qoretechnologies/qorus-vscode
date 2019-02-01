@@ -28,6 +28,9 @@ export class Root extends Component {
                 case 'package-created':
                     this.setStates({step: 2, tmp_files: event.data.tmp_files});
                     break;
+                case 'deployment-result':
+                    this.setStates({step: 3, result: event.data.result});
+                    break;
             }
         });
     }
@@ -35,24 +38,24 @@ export class Root extends Component {
     componentWillMount() {
         const state = vscode.getState();
         if (state) {
-            const {step, branch, release_type, selected_commit, files, tmp_files, texts} = state;
-            this.setState({step, branch, release_type, selected_commit, files, tmp_files, texts});
+            const {step, branch, release_type, selected_commit, files, tmp_files, result, texts} = state;
+            this.setState({step, branch, release_type, selected_commit, files, tmp_files, result, texts});
 
             if (state.branch) {
                 return;
             }
         }
         else {
-            this.state = {
+            this.setStates({
                 step: 0,
                 branch: null,
                 release_type: 'full',
                 selected_commit: null,
                 files: [],
                 tmp_files: {},
+                result: null,
                 texts: {}
-            };
-            this.setVscodeState(this.state);
+            });
         }
 
         vscode.postMessage({
@@ -102,9 +105,9 @@ export class Root extends Component {
         });
     }
 
-    sendPackage = () => {
+    deployPackage = () => {
         vscode.postMessage({
-            action: 'send-package'
+            action: 'deploy-package'
         });
     }
 
@@ -116,7 +119,16 @@ export class Root extends Component {
             case 1:
                 this.setStates({step: step, tmp_files: {}});
                 break;
+            case 2:
+                this.setStates({step: step});
+                break;
         }
+    }
+
+    close = () => {
+        vscode.postMessage({
+            action: 'close'
+        });
     }
 
     renderBranchInfo = () => {
@@ -182,7 +194,7 @@ export class Root extends Component {
                         <BackForwardButtons
                             onBack={() => this.backToStep(0)}
                             onForward={this.createPackage}
-                            back_text={this.t('Back')}
+                            t={this.t}
                             forward_text={this.t('CreatePackage')}
                         />
                         <H4 style={{marginTop: 12}}>{this.t('PackageContents')}</H4>
@@ -194,12 +206,30 @@ export class Root extends Component {
                     <Card className='card' elevation={Elevation.TWO}>
                         <BackForwardButtons
                             onBack={() => this.backToStep(this.state.release_type == 'full' ? 0 : 1)}
-                            onForward={this.sendPackage}
-                            back_text={this.t('Back')}
-                            forward_text={this.t('SendPackage')}
+                            onForward={this.deployPackage}
+                            t={this.t}
+                            forward_text={this.t('DeployPackage')}
                         />
                         <H5>{this.t('FollowingReleaseFileWillBeSent')}:</H5>
                         <div>{this.state.tmp_files.path_tarbz2}</div>
+                    </Card>
+                </Collapse>
+                <Collapse isOpen={this.state.step == 3}>
+                    <Card className='card' elevation={Elevation.TWO}>
+                        <BackForwardButtons
+                            onBack={() => this.backToStep(2)}
+                            onClose={this.close}
+                            t={this.t}
+                        />
+                        {this.state.result &&
+                            <>
+                                <H5>{this.t('WaitForDeploymentResult1')}</H5>
+                                <div>{this.t('WaitForDeploymentResult2')}</div>
+                            </>
+                        }
+                        {!this.state.result &&
+                            <H5>{this.t('PackageDeploymentFailed')}</H5>
+                        }
                     </Card>
                 </Collapse>
             </div>

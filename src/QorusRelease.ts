@@ -164,8 +164,16 @@ class QorusRelease {
                         case 'create-package':
                             this.createReleaseFile();
                             break;
-                        case 'send-package':
-                            deployer.deployPackage(this.package_file);
+                        case 'deploy-package':
+                            deployer.deployPackage(this.package_file).then(result => {
+                                this.release_panel.webview.postMessage({
+                                    action: 'deployment-result',
+                                    result: result
+                                });
+                            });
+                            break;
+                        case 'close':
+                            this.release_panel.dispose();
                             break;
                     }
                 });

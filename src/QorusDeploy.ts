@@ -57,8 +57,8 @@ class QorusDeploy extends QorusLogin {
         this.doDeploy(files);
     }
 
-    deployPackage(file: string) {
-        this.doDeploy([file], true);
+    deployPackage(file: string): Thenable<boolean> {
+        return this.doDeploy([file], true);
     }
 
     setActiveInstance(tree_item: string | vscode.TreeItem) {
@@ -102,24 +102,26 @@ class QorusDeploy extends QorusLogin {
         tree.refresh();
     }
 
-    private doDeploy(file_paths: Array<string>, is_release: boolean = false) {
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
+    private doDeploy(file_paths: Array<string>, is_release: boolean = false): Thenable<boolean> {
         if (!this.active_url) {
             msg.error(t`noActiveQorusInstance`);
             vscode.commands.executeCommand('qorusInstancesExplorer.focus');
-            return;
+            return Promise.resolve(false);
         }
 
         const active_instance = tree.getQorusInstance(this.active_url);
         if (!active_instance) {
             msg.error(t`unableGetActiveQorusInstanceData`);
-            return;
+            return Promise.resolve(false);
         }
 
         let url_base: string = active_instance.url;
         if (isVersion3(active_instance.version)) {
             if (is_release) {
                 msg.error(t`PackageDeploymentNotSupportedForQorus3`);
-                return;
+                return Promise.resolve(false);
             }
             else {
                 url_base += '/deployment';
@@ -133,7 +135,7 @@ class QorusDeploy extends QorusLogin {
             token = this.getToken(this.active_url);
             if (!token) {
                 msg.error(t`unauthorizedOperationAtUrl ${this.active_url}`);
-                return;
+                return Promise.resolve(false);
             }
         }
 
@@ -169,18 +171,21 @@ class QorusDeploy extends QorusLogin {
             },
             json: true
         };
-        request(options).then(
+
+        return request(options).then(
             (response: any) => {
                 msg.log(t`deploymentResponse ${JSON.stringify(response)}`);
                 if (response.id === undefined) {
                     msg.error(t`responseIdUndefined`);
-                    return;
+                    return false;
                 }
                 this.checkDeploymentResult(url_base, active_instance.url, response.id, token);
+                return true;
             },
             (error: any) => {
                 msg.requestError(error, t`deploymentStartFailed`);
-                this.doLogout(active_instance.url, true, false);
+                this.doLogout(active_instance.url, true, false);         // ???
+                return false;
             }
         );
     }
@@ -209,7 +214,11 @@ class QorusDeploy extends QorusLogin {
         }
     }
 
-    private checkDeploymentResult(request_url_base: string, instance_url: string, deployment_id: string, request_token?: string) {
+    private checkDeploymentResult(request_url_base: string,
+                                  instance_url: string,
+                                  deployment_id: string,
+                                  request_token?: string)
+    {
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
@@ -267,16 +276,16 @@ class QorusDeploy extends QorusLogin {
                             }
                             switch (status) {
                                 case 'FINISHED':
-                                    msg.info(t`deploymentFinishedSuccessfully ${deployment_id}`);
+                                    msg.info(t`DeploymentFinishedSuccessfully ${deployment_id}`);
                                     quit = true;
                                     break;
                                 case 'CANCELED':
                                 case 'CANCELLED':
-                                    msg.info(t`deploymentCancelled ${deployment_id}`);
+                                    msg.info(t`DeploymentCancelled ${deployment_id}`);
                                     quit = true;
                                     break;
                                 case 'FAILED':
-                                    msg.error(t`deploymentFailed ${deployment_id}`);
+                                    msg.error(t`DeploymentFailed ${deployment_id}`);
                                     quit = true;
                                     break;
                                 default:
