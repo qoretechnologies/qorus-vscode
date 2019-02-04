@@ -138,17 +138,17 @@ export class Root extends Component {
                 {this.t('branch')}: <strong>{this.state.branch.name}</strong>
                 <br />
                 {this.t('commit')}: <strong>{this.state.branch.commit}</strong>
+                {this.state.branch.up_to_date ||
+                    <>
+                        <hr />
+                        <H5 style={{ color: Colors.RED5 }}>{this.t('GitBranchNotUpToDate1')}</H5>
+                        <strong style={{ color: Colors.RED5 }}>{this.t('GitBranchNotUpToDate2')}</strong>
+                    </>
+                }
             </div>
         );
     }
-/*
-                {this.state.branch.up_to_date ||
-                    <div>
-                        <br />
-                        <strong style={{ color: Colors.RED5 }}>{this.t('BranchNotUpToDate')}</strong>
-                    </div>
-                }
-*/
+
     render() {
         if (!this.state.branch) {
             return null;
@@ -173,7 +173,10 @@ export class Root extends Component {
                             <H3 style={header_style}>{this.t('FullRelease')}</H3>
                             {this.renderBranchInfo()}
                             <div style={{display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-end'}} >
-                                <Button icon='arrow-right' onClick={this.createFullPackage}>
+                                <Button icon='arrow-right'
+                                    onClick={this.createFullPackage}
+                                    disabled={!this.state.branch.up_to_date}
+                                >
                                     {this.t('CreatePackage')}
                                 </Button>
                             </div>
@@ -184,6 +187,7 @@ export class Root extends Component {
                             <SelectCommit
                                 selectCommit={this.selectCommit}
                                 vscode={vscode}
+                                disabled={!this.state.branch.up_to_date}
                                 t={this.t}
                             />
                         </Collapse>

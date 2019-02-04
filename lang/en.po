@@ -343,8 +343,11 @@ msgstr "branch"
 msgid "commit"
 msgstr "commit"
 
-msgid "BranchNotUpToDate"
-msgstr "Your branch is not up-to-date"
+msgid "GitBranchNotUpToDate1"
+msgstr "Your branch is not synchronized with remote."
+
+msgid "GitBranchNotUpToDate2"
+msgstr "All changes must be committed and pushed/pulled before you can continue."
 
 msgid "QorusReleaseTitle"
 msgstr "Qorus Release"

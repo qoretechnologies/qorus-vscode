@@ -104,7 +104,8 @@ export class SelectCommit extends Component {
                         value={this.state.hash_filter}
                         onChange={ev => this.onFilterChange('hash', ev)}
                         onFocus={this.props.onFilterFocus}
-                        rightElement=<Button icon='cross' minimal={true} onClick={() => this.onFilterChange('hash')} />
+                        rightElement=
+                            <ClearButton disabled={this.props.disabled} onClick={() => this.onFilterChange('hash')} />
                     />
                     <InputGroup className='filter-input'
                         leftIcon='git-branch'
@@ -112,7 +113,8 @@ export class SelectCommit extends Component {
                         value={this.state.branch_filter}
                         onChange={ev => this.onFilterChange('branch', ev)}
                         onFocus={this.props.onFilterFocus}
-                        rightElement=<Button icon='cross' minimal={true} onClick={() => this.onFilterChange('branch')} />
+                        rightElement=
+                            <ClearButton disabled={this.props.disabled} onClick={() => this.onFilterChange('branch')} />
                     />
                     <InputGroup className='filter-input'
                         leftIcon='tag'
@@ -120,9 +122,14 @@ export class SelectCommit extends Component {
                         value={this.state.tag_filter}
                         onChange={ev => this.onFilterChange('tag', ev)}
                         onFocus={this.props.onFilterFocus}
-                        rightElement=<Button icon='cross' minimal={true} onClick={() => this.onFilterChange('tag')} />
+                        rightElement=
+                            <ClearButton disabled={this.props.disabled} onClick={() => this.onFilterChange('tag')} />
                     />
-                    <select size='12' onChange={this.onValueChange} value={this.state.value}>
+                    <select size='12'
+                        onChange={this.onValueChange}
+                        value={this.state.value}
+                        disabled={this.props.disabled}
+                    >
                         {options}
                     </select>
                 </ControlGroup>
@@ -130,6 +137,7 @@ export class SelectCommit extends Component {
                     <Button icon='tick'
                         onClick={() => this.props.selectCommit(this.state.value)}
                         style={{ marginTop: 18 }}
+                        disabled={this.props.disabled}
                     >
                         {this.props.t('ButtonOk')}
                     </Button>
@@ -138,3 +146,7 @@ export class SelectCommit extends Component {
         );
     }
 }
+
+const ClearButton = props => (
+    <Button icon='cross' minimal={true} {...props} />
+);

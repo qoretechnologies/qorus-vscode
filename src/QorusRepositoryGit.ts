@@ -48,7 +48,7 @@ export class QorusRepositoryGit implements QorusRepository {
         return {
             name: branch.name,
             commit: branch.commit,
-            up_to_date: this.repository.state.workingTreeChanges.length == 0
+            up_to_date: this.upToDate()
         };
     }
 
@@ -105,5 +105,24 @@ export class QorusRepositoryGit implements QorusRepository {
                 });
             }
         );
+    }
+
+    private upToDate(): boolean {
+        if (this.repository.state.workingTreeChanges.length) {
+            return false;
+        }
+        if (this.repository.state.indexChanges.length) {
+            return false;
+        }
+        if (this.repository.state.mergeChanges.length) {
+            return false;
+        }
+        if (this.repository.state.HEAD.ahead != 0) {
+            return false;
+        }
+        if (this.repository.state.HEAD.behind != 0) {
+            return false;
+        }
+        return true;
     }
 }
