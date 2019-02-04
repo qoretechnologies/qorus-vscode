@@ -31,6 +31,9 @@ export class Root extends Component {
                 case 'deployment-result':
                     this.setStates({step: 3, result: event.data.result});
                     break;
+                case 'not-up-to-date':
+                    this.setStates({step: 0, branch: event.data.branch});
+                    break;
             }
         });
     }

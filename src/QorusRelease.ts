@@ -104,6 +104,18 @@ class QorusRelease {
         archiver.finalize();
     }
 
+    private checkUpToDate() {
+        const branch = this.repository.currentBranch();
+        if (!branch.up_to_date) {
+            this.release_panel.webview.postMessage({
+                action: 'not-up-to-date',
+                branch: this.repository.currentBranch()
+            });
+            return false;
+        }
+        return true;
+    }
+
     private openWizard() {
         const web_path = path.join(__dirname, '..', 'dist', 'qorus_release_package');
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
@@ -158,19 +170,25 @@ class QorusRelease {
                             });
                             break;
                         case 'create-full-package':
-                            this.setAllFiles();
-                            this.createReleaseFile();
+                            if (this.checkUpToDate()) {
+                                this.setAllFiles();
+                                this.createReleaseFile();
+                            }
                             break;
                         case 'create-package':
-                            this.createReleaseFile();
+                            if (this.checkUpToDate()) {
+                                this.createReleaseFile();
+                            }
                             break;
                         case 'deploy-package':
-                            deployer.deployPackage(this.package_file).then(result => {
-                                this.release_panel.webview.postMessage({
-                                    action: 'deployment-result',
-                                    result: result
+                            if (this.checkUpToDate()) {
+                                deployer.deployPackage(this.package_file).then(result => {
+                                    this.release_panel.webview.postMessage({
+                                        action: 'deployment-result',
+                                        result: result
+                                    });
                                 });
-                            });
+                            }
                             break;
                         case 'close':
                             this.release_panel.dispose();
