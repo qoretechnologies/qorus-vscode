@@ -3,7 +3,7 @@ import { Intent } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
-import { MessageDialog } from './MessageDialog';
+import { MessageDialog } from '../qorus_common/MessageDialog';
 import { texts } from './global';
 import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
@@ -31,7 +31,7 @@ export class Root extends Component {
             };
         }
 
-        this.message_params = {
+        this.message_props = {
             text: null,
             buttons: null
         }
@@ -79,8 +79,8 @@ export class Root extends Component {
         });
     }
 
-    setMessage = (params) => {
-        this.message_params = params;
+    setMessage = (props) => {
+        this.message_props = props;
         this.setState({isMessageDialogOpen: true});
     }
 
@@ -130,8 +130,9 @@ export class Root extends Component {
         return (
             <div>
                 <MessageDialog isOpen={this.state.isMessageDialogOpen}
-                               params={this.message_params}
-                               onClose={this.handleMessageDialogClose} />
+                               onClose={this.handleMessageDialogClose}
+                               text={this.message_props.text}
+                               buttons={this.message_props.buttons} />
 
                 <div className='config-container'>
                     <img style={{ maxWidth: '36px', maxHeight: '36px'}} src={logo} />
