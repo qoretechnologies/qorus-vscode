@@ -364,6 +364,9 @@ msgstr "Create package"
 msgid "PackageContents"
 msgstr "Package contents"
 
+msgid "SelectCommit"
+msgstr "Select commit"
+
 msgid "SelectedCommit"
 msgstr "Selected commit"
 

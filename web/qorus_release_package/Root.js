@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Card, Collapse, Colors, Elevation, H3, H4, H5, Intent, Radio, RadioGroup } from '@blueprintjs/core';
+import { Button, Card, Collapse, Colors, Elevation, H3, H4, H5,
+         Intent, Radio, RadioGroup, Spinner } from '@blueprintjs/core';
 import {BackForwardButtons } from './BackForwardButtons';
 import {SelectCommit } from './SelectCommit';
 import { MessageDialog } from '../qorus_common/MessageDialog';
@@ -19,7 +20,8 @@ export class Root extends Component {
                     this.setStates({
                         step: 1,
                         selected_commit: event.data.commit,
-                        files: event.data.files
+                        files: event.data.files,
+                        pending: false
                     });
                     break;
                 case 'return-text':
@@ -27,15 +29,23 @@ export class Root extends Component {
                                                          {[event.data.text_id]: event.data.text})});
                     break;
                 case 'package-created':
-                    this.setStates({step: 2, tmp_files: event.data.tmp_files});
+                    this.setStates({
+                        step: 2,
+                        tmp_files: event.data.tmp_files,
+                        pending: false
+                    });
                     break;
                 case 'deployment-result':
-                    this.setStates({step: 3, result: event.data.result});
+                    this.setStates({step: 3,
+                        result: event.data.result,
+                        pending: false
+                    });
                     break;
                 case 'not-up-to-date':
                     this.setStates({
                         not_up_to_date_msg_open: true,
-                        branch: event.data.branch
+                        branch: event.data.branch,
+                        pending: false
                     });
                     break;
             }
@@ -45,10 +55,10 @@ export class Root extends Component {
     componentWillMount() {
         const state = vscode.getState();
         if (state) {
-            const {step, branch, release_type, selected_commit,
-                   files, tmp_files, result, texts, not_up_to_date_msg_open} = state;
-            this.setState({step, branch, release_type, selected_commit,
-                           files, tmp_files, result, texts, not_up_to_date_msg_open});
+            const {step, branch, release_type, selected_commit, files,
+                   tmp_files, result, texts, not_up_to_date_msg_open, pending} = state;
+            this.setState({step, branch, release_type, selected_commit, files,
+                           tmp_files, result, texts, not_up_to_date_msg_open, pending});
 
             if (state.branch) {
                 return;
@@ -64,7 +74,8 @@ export class Root extends Component {
                 tmp_files: {},
                 result: null,
                 texts: {},
-                not_up_to_date_msg_open: false
+                not_up_to_date_msg_open: false,
+                pending: false
             });
         }
 
@@ -101,24 +112,28 @@ export class Root extends Component {
             action: 'get-diff',
             commit: commit
         });
+        this.setStates({pending: true});
     }
 
     createPackage = () => {
         vscode.postMessage({
             action: 'create-package'
         });
+        this.setStates({pending: true});
     }
 
     createFullPackage = () => {
         vscode.postMessage({
             action: 'create-full-package'
         });
+        this.setStates({pending: true});
     }
 
     deployPackage = () => {
         vscode.postMessage({
             action: 'deploy-package'
         });
+        this.setStates({pending: true});
     }
 
     backToStep = step => {
@@ -194,7 +209,7 @@ export class Root extends Component {
                             <H3 style={header_style}>{this.t('FullRelease')}</H3>
                             {this.renderBranchInfo()}
                             <div style={{display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-end'}} >
-                                <Button icon='arrow-right'
+                                <Button icon={this.state.pending ? <Spinner size={18} /> : 'arrow-right'}
                                     onClick={this.createFullPackage}
                                     disabled={!this.state.branch.up_to_date}
                                 >
@@ -205,10 +220,12 @@ export class Root extends Component {
                         <Collapse isOpen={this.state.release_type == 'incremental'}>
                             <H3 style={header_style}>{this.t('IncrementalRelease')}</H3>
                             {this.renderBranchInfo()}
+                            <hr />
                             <SelectCommit
                                 selectCommit={this.selectCommit}
                                 vscode={vscode}
                                 disabled={!this.state.branch.up_to_date}
+                                pending={this.state.pending}
                                 t={this.t}
                             />
                         </Collapse>
@@ -221,6 +238,7 @@ export class Root extends Component {
                             onForward={this.createPackage}
                             t={this.t}
                             forward_text={this.t('CreatePackage')}
+                            pending={this.state.pending}
                         />
                         <H4 style={{marginTop: 12}}>{this.t('PackageContents')}</H4>
                         <H5>{this.t('SelectedCommit')}: <strong>{this.state.selected_commit}</strong></H5>
@@ -234,6 +252,7 @@ export class Root extends Component {
                             onForward={this.deployPackage}
                             t={this.t}
                             forward_text={this.t('DeployPackage')}
+                            pending={this.state.pending}
                         />
                         <H5>{this.t('FollowingReleaseFileWillBeSent')}:</H5>
                         <div>{this.state.tmp_files.path_tarbz2}</div>

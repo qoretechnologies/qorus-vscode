@@ -1,29 +1,25 @@
-import React, { Component } from 'react';
-import { Button } from '@blueprintjs/core';
+import React from 'react';
+import { Button, Spinner } from '@blueprintjs/core';
 
 
-export class BackForwardButtons extends Component {
-    render() {
-        return (
-            <>
-                <div style={{display: 'flex', flexFlow: 'row nowrap',
-                             justifyContent: 'space-between', marginBottom: 20}} >
-                    <Button icon='arrow-left' onClick={this.props.onBack}>
-                        {this.props.t('Back')}
-                    </Button>
-                    {this.props.onForward &&
-                        <Button icon='arrow-right' onClick={this.props.onForward}>
-                            {this.props.forward_text}
-                        </Button>
-                    }
-                    {this.props.onClose &&
-                        <Button icon='selection' onClick={this.props.onClose}>
-                            {this.props.t('Close')}
-                        </Button>
-                    }
-                </div>
-                <hr />
-            </>
-        );
-    }
-}
+export const BackForwardButtons = (props) => (
+    <>
+        <div style={{display: 'flex', flexFlow: 'row nowrap',
+                     justifyContent: 'space-between', marginBottom: 20}} >
+            <Button icon='arrow-left' onClick={props.onBack}>
+                {props.t('Back')}
+            </Button>
+            {props.onForward &&
+                <Button icon={props.pending ? <Spinner size={18} /> : 'arrow-right'} onClick={props.onForward}>
+                    {props.forward_text}
+                </Button>
+            }
+            {props.onClose &&
+                <Button icon='selection' onClick={props.onClose}>
+                    {props.t('Close')}
+                </Button>
+            }
+        </div>
+        <hr />
+    </>
+);

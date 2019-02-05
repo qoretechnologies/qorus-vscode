@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, ControlGroup, InputGroup } from '@blueprintjs/core';
+import { Button, ControlGroup, H4, InputGroup, Spinner } from '@blueprintjs/core';
 
 
 export class SelectCommit extends Component {
@@ -97,6 +97,7 @@ export class SelectCommit extends Component {
 
         return (
             <>
+                <H4>{this.props.t('SelectCommit')}</H4>
                 <ControlGroup className='bp3-monospace-text' vertical={true}>
                     <InputGroup className='filter-input'
                         leftIcon='git-commit'
@@ -134,7 +135,7 @@ export class SelectCommit extends Component {
                     </select>
                 </ControlGroup>
                 <div className='flex-center'>
-                    <Button icon='tick'
+                    <Button icon={this.props.pending ? <Spinner size={18} /> : 'tick'}
                         onClick={() => this.props.selectCommit(this.state.value)}
                         style={{ marginTop: 18 }}
                         disabled={this.props.disabled}
