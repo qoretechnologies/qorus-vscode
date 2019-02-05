@@ -10,12 +10,20 @@ export const config_filename = 'qorusproject.json';
 export const source_dirs = ['src'];
 
 
-class QorusProject {
+export class QorusProject {
     private config_file: string;
     private config_panel: vscode.WebviewPanel | undefined = undefined;
 
     constructor(project_folder: string) {
         this.config_file = path.join(project_folder, config_filename);
+    }
+
+    exists(): boolean {
+        return fs.existsSync(this.config_file);
+    }
+
+    projectFolder(): string {
+        return path.dirname(this.config_file);
     }
 
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
@@ -233,7 +241,7 @@ class QorusProjects {
     private projects: any = {};
 
     updateCurrentWorkspaceFolder(uri?: vscode.Uri): boolean {
-        const project_folder: string | undefined = getProjectFolder(uri);
+        const project_folder: string | undefined = QorusProjects.getProjectFolder(uri);
 
         const has_changed: boolean = this.current_project_folder != project_folder;
         if (has_changed) {
@@ -252,34 +260,34 @@ class QorusProjects {
         project && project.manageProjectConfig();
     }
 
-    private getQorusProject(uri?: vscode.Uri): QorusProject | undefined {
-        const workspace_folder: string | undefined = getProjectFolder(uri);
-        if (!workspace_folder) {
+    getQorusProject(uri?: vscode.Uri): QorusProject | undefined {
+        const project_folder: string | undefined = QorusProjects.getProjectFolder(uri);
+        if (!project_folder) {
             return undefined;
         }
-        if (!(workspace_folder in this.projects)) {
-            this.projects[workspace_folder] = new QorusProject(workspace_folder);
+        if (!(project_folder in this.projects)) {
+            this.projects[project_folder] = new QorusProject(project_folder);
         }
-        return this.projects[workspace_folder];
-    }
-}
-
-export function getProjectFolder(uri?: vscode.Uri): string | undefined {
-    if (!vscode.workspace) {
-        return undefined;
+        return this.projects[project_folder];
     }
 
-    if (!uri) {
-        const editor = vscode.window.activeTextEditor;
-        uri = editor ? editor.document.uri : undefined;
-    }
+    private static getProjectFolder(uri?: vscode.Uri): string | undefined {
+        if (!vscode.workspace) {
+            return undefined;
+        }
 
-    if (!uri) {
-        return undefined;
-    }
+        if (!uri) {
+            const editor = vscode.window.activeTextEditor;
+            uri = editor ? editor.document.uri : undefined;
+        }
 
-    const workspace_folder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
-    return workspace_folder ? workspace_folder.uri.fsPath : undefined;
+        if (!uri) {
+            return undefined;
+        }
+
+        const workspace_folder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
+        return workspace_folder ? workspace_folder.uri.fsPath : undefined;
+    }
 }
 
 import { Handler } from 'swagger-object-validator';

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as moment from 'moment';
 import * as fs from 'fs';
-import { getProjectFolder, source_dirs } from './QorusProject';
+import { projects, QorusProject, source_dirs } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { deployer } from './QorusDeploy';
@@ -19,9 +19,16 @@ class QorusRelease {
     private package_file = null;
 
     makeRelease(uri: vscode.Uri) {
-        this.project_folder = getProjectFolder(uri);
+        const project: QorusProject | undefined = projects.getQorusProject(uri);
+        const project_exists: boolean = project ? project.exists() : false;
+        if (!project_exists) {
+            msg.error(t`QorusProjectNotSet`);
+            return;
+        }
+
+        this.project_folder = project.projectFolder();
         if (!this.project_folder) {
-            msg.log(t`UnableDetermineProjectFolder`);
+            msg.error(t`UnableDetermineProjectFolder`);
             return;
         }
 
@@ -109,7 +116,7 @@ class QorusRelease {
         if (!branch.up_to_date) {
             this.release_panel.webview.postMessage({
                 action: 'not-up-to-date',
-                branch: this.repository.currentBranch()
+                branch: branch
             });
             return false;
         }
