@@ -137,10 +137,12 @@ class QorusRelease {
                 this.release_panel.webview.onDidReceiveMessage(message => {
                     switch (message.action) {
                         case 'get-data':
-                            this.release_panel.webview.postMessage({
-                                action: 'return-data',
-                                branch: this.repository.currentBranch()
-                            });
+                            if (this.checkUpToDate()) {
+                                this.release_panel.webview.postMessage({
+                                    action: 'return-data',
+                                    branch: this.repository.currentBranch()
+                                });
+                            }
                             break;
                         case 'get-commits':
                             this.release_panel.webview.postMessage({

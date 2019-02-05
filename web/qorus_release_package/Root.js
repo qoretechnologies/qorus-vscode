@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Card, Collapse, Colors, Elevation, H3, H4, H5, Radio, RadioGroup } from '@blueprintjs/core';
+import { Button, Card, Collapse, Colors, Elevation, H3, H4, H5, Intent, Radio, RadioGroup } from '@blueprintjs/core';
 import {BackForwardButtons } from './BackForwardButtons';
 import {SelectCommit } from './SelectCommit';
+import { MessageDialog } from '../qorus_common/MessageDialog';
 import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
@@ -32,7 +33,10 @@ export class Root extends Component {
                     this.setStates({step: 3, result: event.data.result});
                     break;
                 case 'not-up-to-date':
-                    this.setStates({step: 0, branch: event.data.branch});
+                    this.setStates({
+                        not_up_to_date_msg_open: true,
+                        branch: event.data.branch
+                    });
                     break;
             }
         });
@@ -41,8 +45,10 @@ export class Root extends Component {
     componentWillMount() {
         const state = vscode.getState();
         if (state) {
-            const {step, branch, release_type, selected_commit, files, tmp_files, result, texts} = state;
-            this.setState({step, branch, release_type, selected_commit, files, tmp_files, result, texts});
+            const {step, branch, release_type, selected_commit,
+                   files, tmp_files, result, texts, not_up_to_date_msg_open} = state;
+            this.setState({step, branch, release_type, selected_commit,
+                           files, tmp_files, result, texts, not_up_to_date_msg_open});
 
             if (state.branch) {
                 return;
@@ -57,7 +63,8 @@ export class Root extends Component {
                 files: [],
                 tmp_files: {},
                 result: null,
-                texts: {}
+                texts: {},
+                not_up_to_date_msg_open: false
             });
         }
 
@@ -141,16 +148,25 @@ export class Root extends Component {
                 {this.t('branch')}: <strong>{this.state.branch.name}</strong>
                 <br />
                 {this.t('commit')}: <strong>{this.state.branch.commit}</strong>
-                {this.state.branch.up_to_date ||
-                    <>
-                        <hr />
-                        <H5 style={{ color: Colors.RED5 }}>{this.t('GitBranchNotUpToDate1')}</H5>
-                        <strong style={{ color: Colors.RED5 }}>{this.t('GitBranchNotUpToDate2')}</strong>
-                    </>
-                }
             </div>
         );
     }
+
+    renderNotUpToDateMsg = () => (
+        <MessageDialog
+            isOpen={this.state.not_up_to_date_msg_open}
+            onClose={() => this.setState({not_up_to_date_msg_open: false})}
+            canEscapeKeyClose={false}
+            canOutsideClickClose={false}
+            text={this.t('GitBranchNotUpToDate')}
+            style={{maxWidth: 400}}
+            buttons={[{
+                title: this.t('ClosePage'),
+                intent: Intent.DANGER,
+                onClick: this.close
+            }]}
+        />
+    );
 
     render() {
         if (!this.state.branch) {
@@ -161,6 +177,8 @@ export class Root extends Component {
 
         return (
             <div className='flex-start'>
+                {this.renderNotUpToDateMsg()}
+
                 <img style={{ maxWidth: 36, maxHeight: 36, margin: '24px 0 0 12px' }} src={logo} />
                 <Collapse isOpen={this.state.step == 0}>
                     <Card className='card' elevation={Elevation.TWO}>

@@ -343,11 +343,8 @@ msgstr "branch"
 msgid "commit"
 msgstr "commit"
 
-msgid "GitBranchNotUpToDate1"
-msgstr "Your branch is not synchronized with remote."
-
-msgid "GitBranchNotUpToDate2"
-msgstr "All changes must be committed and pushed/pulled before you can continue."
+msgid "GitBranchNotUpToDate"
+msgstr "Your branch is not synchronized with remote. All changes must be committed and pushed/pulled before you can continue."
 
 msgid "QorusReleaseTitle"
 msgstr "Qorus Release"
@@ -387,6 +384,9 @@ msgstr "Back"
 
 msgid "Close"
 msgstr "Close"
+
+msgid "ClosePage"
+msgstr "Close Page"
 
 msgid "ErrorInInitializingGitExtension"
 msgstr "Error in initializing Git extension"

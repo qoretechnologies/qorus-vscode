@@ -19,7 +19,7 @@ export const MessageDialog = (props) => {
     }
 
     return (
-        <Dialog canOutsideClickClose={true} canEscapeKeyClose={true} {...base_props}>
+        <Dialog {...base_props}>
             <div className={Classes.DIALOG_BODY}>
                 {text}
             </div>
