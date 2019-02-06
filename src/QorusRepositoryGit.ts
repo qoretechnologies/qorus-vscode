@@ -117,6 +117,9 @@ export class QorusRepositoryGit implements QorusRepository {
         if (this.repository.state.mergeChanges.length) {
             return false;
         }
+        if (!this.repository.state.HEAD.upstream) {
+            return false;
+        }
         if (this.repository.state.HEAD.ahead != 0) {
             return false;
         }
