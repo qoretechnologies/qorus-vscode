@@ -211,7 +211,7 @@ export class Root extends Component {
                             <div style={{display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-end'}} >
                                 <Button icon={this.state.pending ? <Spinner size={18} /> : 'arrow-right'}
                                     onClick={this.createFullPackage}
-                                    disabled={!this.state.branch.up_to_date}
+                                    disabled={!this.state.branch.up_to_date || this.state.pending}
                                 >
                                     {this.t('CreatePackage')}
                                 </Button>
@@ -224,7 +224,7 @@ export class Root extends Component {
                             <SelectCommit
                                 selectCommit={this.selectCommit}
                                 vscode={vscode}
-                                disabled={!this.state.branch.up_to_date}
+                                disabled={!this.state.branch.up_to_date || this.state.pending}
                                 pending={this.state.pending}
                                 t={this.t}
                             />
@@ -238,6 +238,7 @@ export class Root extends Component {
                             onForward={this.createPackage}
                             t={this.t}
                             forward_text={this.t('CreatePackage')}
+                            disabled={this.state.pending}
                             pending={this.state.pending}
                         />
                         <H4 style={{marginTop: 12}}>{this.t('PackageContents')}</H4>
