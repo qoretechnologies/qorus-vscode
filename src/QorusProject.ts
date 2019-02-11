@@ -7,14 +7,23 @@ import { t } from 'ttag';
 import { project_template } from './qorus_project_template';
 
 export const config_filename = 'qorusproject.json';
+export const source_dirs = ['src'];
 
 
-class QorusProject {
+export class QorusProject {
     private config_file: string;
     private config_panel: vscode.WebviewPanel | undefined = undefined;
 
     constructor(project_folder: string) {
         this.config_file = path.join(project_folder, config_filename);
+    }
+
+    exists(): boolean {
+        return fs.existsSync(this.config_file);
+    }
+
+    projectFolder(): string {
+        return path.dirname(this.config_file);
     }
 
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
@@ -39,7 +48,7 @@ class QorusProject {
                     }
                 },
                 error => {
-                    msg.error(t`swaggerValidatorError ${JSON.stringify(error)}`);
+                    msg.error(t`SwaggerValidatorError ${JSON.stringify(error)}`);
                 }
             );
         } catch (error) {
@@ -54,18 +63,18 @@ class QorusProject {
         }
         if (!fs.existsSync(this.config_file)) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
-            msg.info(t`projectConfigHasBeenInitialized`);
+            msg.info(t`ProjectConfigHasBeenInitialized`);
         }
         this.validateConfigFileAndDo(this.manageProjectConfigImpl.bind(this));
     }
 
     private manageProjectConfigImpl() {
-        const web_path = path.join(__dirname, '..', 'web', 'qorus_project_config');
+        const web_path = path.join(__dirname, '..', 'dist', 'qorus_project_config');
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
             doc => {
                 this.config_panel = vscode.window.createWebviewPanel(
                     'qorusConfig',
-                    t`qorusConfigTitle`,
+                    t`QorusConfigTitle`,
                     vscode.ViewColumn.One,
                     {
                         enableScripts: true
@@ -80,7 +89,7 @@ class QorusProject {
                         message_on_config_file_change = true;
                         return;
                     }
-                    msg.warning(t`projectConfigFileHasChangedOnDisk`);
+                    msg.warning(t`ProjectConfigFileHasChangedOnDisk`);
                     (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
                         action: 'config-changed-on-disk'
                     });
@@ -112,7 +121,7 @@ class QorusProject {
                 });
             },
             error => {
-                msg.error(t`unableOpenConfigPage`);
+                msg.error(t`UnableOpenConfigPage`);
                 msg.log(JSON.stringify(error));
             }
         );
@@ -120,49 +129,49 @@ class QorusProject {
 
     private static pageTexts(): any {
         return {
-            environments: t`labelEnvironments`,
-            addEnv: t`labelAddEnvironment`,
-            qorusInstances: t`labelQorusInstances`,
-            qorusInstancesIn: t`labelQorusInstancesIn`,
-            addUrl: t`labelAddUrl`,
-            editUrl: t`labelEditUrl`,
-            editMainUrl: t`labelEditMainUrl`,
-            mainUrl: t`labelMainUrl`,
-            name: t`labelName`,
-            url: t`labelUrl`,
-            urls: t`labelUrls`,
-            propertiesOfQorus: t`labelPropertiesOfQorusInstance`,
-            customUrls: t`labelCustomUrls`,
-            remove: t`labelRemove`,
-            add: t`labelAdd`,
-            edit: t`labelEdit`,
-            moveUp: t`labelMoveUp`,
-            addQorus: t`labelAddQorus`,
-            editQorus: t`labelEditQorus`,
-            editEnv: t`labelEditEnvironment`,
-            confirmDeletion: t`labelConfirmDeletion`,
-            confirmRemoveEnvPre: t`confirmRemoveEnvPre`,
-            confirmRemoveEnvPost: t`confirmRemoveEnvPost`,
-            confirmRemoveQorusPre: t`confirmRemoveQorusPre`,
-            confirmRemoveQorusPost: t`confirmRemoveQorusPost`,
-            confirmRemoveUrlPre: t`confirmRemoveUrlPre`,
-            confirmRemoveUrlPost: t`confirmRemoveUrlPost`,
-            buttonCancel: t`buttonCancel`,
-            buttonDelete: t`buttonDelete`,
-            buttonSave: t`buttonSave`,
-            buttonReload: t`buttonReload`,
-            buttonOverwrite: t`buttonOverwrite`,
-            mandatoryInput: t`mandatoryInput`,
-            configChangedOnDisk: t`configChangedOnDiskDialogQuestion`
+            environments: t`Environments`,
+            addEnv: t`AddEnvironment`,
+            qorusInstances: t`QorusInstances`,
+            qorusInstancesIn: t`QorusInstancesIn`,
+            addUrl: t`AddUrl`,
+            editUrl: t`EditUrl`,
+            editMainUrl: t`EditMainUrl`,
+            mainUrl: t`MainUrl`,
+            name: t`Name`,
+            url: t`Url`,
+            urls: t`Urls`,
+            propertiesOfQorus: t`PropertiesOfQorusInstance`,
+            customUrls: t`CustomUrls`,
+            remove: t`Remove`,
+            add: t`AddNew`,
+            edit: t`Edit`,
+            moveUp: t`MoveUp`,
+            addQorus: t`AddQorus`,
+            editQorus: t`EditQorus`,
+            editEnv: t`EditEnvironment`,
+            confirmDeletion: t`ConfirmDeletion`,
+            confirmRemoveEnvPre: t`ConfirmRemoveEnvPre`,
+            confirmRemoveEnvPost: t`ConfirmRemoveEnvPost`,
+            confirmRemoveQorusPre: t`ConfirmRemoveQorusPre`,
+            confirmRemoveQorusPost: t`ConfirmRemoveQorusPost`,
+            confirmRemoveUrlPre: t`ConfirmRemoveUrlPre`,
+            confirmRemoveUrlPost: t`ConfirmRemoveUrlPost`,
+            buttonCancel: t`ButtonCancel`,
+            buttonDelete: t`ButtonDelete`,
+            buttonSave: t`ButtonSave`,
+            buttonReload: t`ButtonReload`,
+            buttonOverwrite: t`ButtonOverwrite`,
+            mandatoryInput: t`MandatoryInput`,
+            configChangedOnDisk: t`ConfigChangedOnDiskDialogQuestion`
         };
     }
 
-    private static file2web(file_data?: any): Array<any> {
+    private static file2web(file_data?: any): any[] {
         if (!file_data) {
             return [];
         }
 
-        let data: Array<any> = [];
+        let data: any[] = [];
         let i: number = 0;
         for (let env_name in file_data.qorus_instances) {
             const env_id = i++;
@@ -200,10 +209,10 @@ class QorusProject {
     private static web2file(data: any): any {
         let file_data: any = {qorus_instances: {}}
         for (let env_id in data) {
-            let env = data[env_id];
+            const env = data[env_id];
             file_data.qorus_instances[env.name] = [];
             for (let qorus_id in env.qoruses) {
-                let qorus: any = env.qoruses[qorus_id];
+                const qorus: any = env.qoruses[qorus_id];
                 let qorus_data: any = {
                     name: qorus.name,
                     url: qorus.url,
@@ -213,7 +222,7 @@ class QorusProject {
                     qorus_data.version = qorus.version;
                 }
                 for (let url_id in qorus.urls) {
-                    let url = qorus.urls[url_id];
+                    const url = qorus.urls[url_id];
                     qorus_data.custom_urls.push({
                         name: url.name,
                         url: url.url
@@ -226,7 +235,7 @@ class QorusProject {
     }
 }
 
-export class QorusProjects {
+class QorusProjects {
 
     private current_project_folder: string | undefined = undefined;
     private projects: any = {};
@@ -234,7 +243,7 @@ export class QorusProjects {
     updateCurrentWorkspaceFolder(uri?: vscode.Uri): boolean {
         const project_folder: string | undefined = QorusProjects.getProjectFolder(uri);
 
-        let has_changed: boolean = this.current_project_folder != project_folder;
+        const has_changed: boolean = this.current_project_folder != project_folder;
         if (has_changed) {
             this.current_project_folder = project_folder;
         }
@@ -251,15 +260,15 @@ export class QorusProjects {
         project && project.manageProjectConfig();
     }
 
-    private getQorusProject(uri?: vscode.Uri): QorusProject | undefined {
-        const workspace_folder: string | undefined = QorusProjects.getProjectFolder(uri);
-        if (!workspace_folder) {
+    getQorusProject(uri?: vscode.Uri): QorusProject | undefined {
+        const project_folder: string | undefined = QorusProjects.getProjectFolder(uri);
+        if (!project_folder) {
             return undefined;
         }
-        if (!(workspace_folder in this.projects)) {
-            this.projects[workspace_folder] = new QorusProject(workspace_folder);
+        if (!(project_folder in this.projects)) {
+            this.projects[project_folder] = new QorusProject(project_folder);
         }
-        return this.projects[workspace_folder];
+        return this.projects[project_folder];
     }
 
     private static getProjectFolder(uri?: vscode.Uri): string | undefined {
@@ -281,6 +290,7 @@ export class QorusProjects {
     }
 }
 
-export const projects = new QorusProjects();
 import { Handler } from 'swagger-object-validator';
 export const validator = new Handler(path.join(__dirname, '..', 'config/qorus_project_definition.json'));
+
+export const projects = new QorusProjects();

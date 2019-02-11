@@ -14,7 +14,7 @@ class QorusTree implements vscode.TreeDataProvider<QorusTreeNode> {
 
     private setQorusInstances() {
         if (!this.data) {
-            msg.error(t`qorusProjectNotSet`);
+            msg.error(t`QorusProjectNotSet`);
             return;
         }
         this.qorus_instances = {};
@@ -51,7 +51,7 @@ class QorusTree implements vscode.TreeDataProvider<QorusTreeNode> {
     getChildren(node?: QorusTreeNode): QorusTreeNode[] {
         if (!node) { // root node
             if (!this.data) {
-                msg.warning(t`qorusProjectNotSet`);
+                msg.warning(t`QorusProjectNotSet`);
                 return [];
             }
             let children: QorusTreeNode[] = [];
@@ -81,7 +81,7 @@ class QorusTreeEnvNode extends QorusTreeNode {
     constructor(env_name: string) {
         super(env_name, vscode.TreeItemCollapsibleState.Expanded);
         this.env_name = env_name;
-        this.tooltip = t`labelEnvironment ${env_name}`;
+        this.tooltip = t`Environment ${env_name}`;
     }
 
     getChildren(data: any): QorusTreeNode[] {
@@ -120,17 +120,17 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
             }
         }
 
-        this.tooltip = t`labelQorusInstance ${instance.name} ${instance.url}`;
+        this.tooltip = t`QorusInstance ${instance.name} ${instance.url}`;
         if (this.is_active) {
-            this.tooltip += '\n' + t`labelNowActive`;
+            this.tooltip += '\n' + t`nowActive`;
         }
         if (isVersion3(instance.version)) {
-            this.tooltip += '\n' + t`labelVersion3`;
+            this.tooltip += '\n' + t`version3`;
         }
 
         this.command = {
             command: 'qorus.setActiveInstance',
-            title: t`setActiveInstance`,
+            title: t`SetActiveInstance`,
             arguments: [instance.url]
         };
     }
@@ -156,11 +156,11 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
 
 class QorusTreeSetActiveNode extends QorusTreeNode {
     constructor(url: any) {
-        super(t`setActiveInstance`, vscode.TreeItemCollapsibleState.None)
-        this.tooltip = t`setActiveInstance`;
+        super(t`SetActiveInstance`, vscode.TreeItemCollapsibleState.None)
+        this.tooltip = t`SetActiveInstance`;
         this.command = {
             command: 'qorus.setActiveInstance',
-            title: t`setActiveInstance`,
+            title: t`SetActiveInstance`,
             arguments: [url.url]
         };
     }
@@ -168,11 +168,11 @@ class QorusTreeSetActiveNode extends QorusTreeNode {
 
 class QorusTreeUrlNode extends QorusTreeNode {
     constructor(url: any) {
-        super(t`openUi`, vscode.TreeItemCollapsibleState.None)
-        this.tooltip = t`openUi`;
+        super(t`OpenUi`, vscode.TreeItemCollapsibleState.None)
+        this.tooltip = t`OpenUi`;
         this.command = {
             command: 'qorus.openUrlInExternalBrowser',
-            title: t`openUi`,
+            title: t`OpenUi`,
             arguments: [url.url, url.name]
         };
     }
@@ -186,7 +186,7 @@ class QorusTreeCustomUrlNode extends QorusTreeNode {
         this.tooltip = url.name;
         this.command = {
             command: 'qorus.openUrlInExternalBrowser',
-            title: t`openUrlLabel`,
+            title: t`OpenUrl`,
             arguments: [url.url, url.name]
         };
     }

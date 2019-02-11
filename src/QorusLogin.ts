@@ -20,14 +20,14 @@ export class QorusLogin extends QorusAuth {
 
         const qorus_instance = tree.getQorusInstance(url);
         if (!qorus_instance) {
-            msg.error(t`noQorusWithGivenUrlFound ${url}`);
+            msg.error(t`NoQorusWithGivenUrlFound ${url}`);
             return;
         }
 
         const web_path = path.join(__dirname, '..', 'web');
         const panel = vscode.window.createWebviewPanel(
             'qorusLogin',
-            t`qorusLoginTitle`,
+            t`QorusLoginTitle`,
             vscode.ViewColumn.One,
             {
                 enableScripts: true
@@ -37,18 +37,18 @@ export class QorusLogin extends QorusAuth {
             html => {
                 panel.webview.html = html.getText()
                                         .replace(/{{ path }}/g, web_path)
-                                        .replace(/{{ loginHeader1 }}/g, t`loginHeader`)
+                                        .replace(/{{ loginHeader1 }}/g, t`LoginHeader`)
                                         .replace(/{{ loginHeader2 }}/g, t`at`)
                                         .replace(/{{ name }}/g, qorus_instance.name)
                                         .replace(/{{ url }}/g, url)
-                                        .replace(/{{ labelUsername }}/g, t`labelUsername`)
-                                        .replace(/{{ labelPassword }}/g, t`labelPassword`)
-                                        .replace(/{{ buttonOk }}/g, t`buttonOk`)
-                                        .replace(/{{ buttonCancel }}/g, t`buttonCancel`);
+                                        .replace(/{{ labelUsername }}/g, t`LabelUsername`)
+                                        .replace(/{{ labelPassword }}/g, t`LabelPassword`)
+                                        .replace(/{{ buttonOk }}/g, t`ButtonOk`)
+                                        .replace(/{{ buttonCancel }}/g, t`ButtonCancel`);
 
                 panel.webview.onDidReceiveMessage(message => {
                     if (message.command != 'ok') {
-                        msg.info(t`loginCancelled`);
+                        msg.info(t`LoginCancelled`);
                         panel.dispose();
                         return;
                     }
@@ -59,24 +59,24 @@ export class QorusLogin extends QorusAuth {
                         strictSSL: false
                     };
 
-                    msg.log(t`sendingLoginRequest`);
+                    msg.log(t`SendingLoginRequest`);
                     request(options).then(
                         response => {
                             const token: string = JSON.parse(response).token;
                             this.addToken(url, token, set_active);
                             tree.refresh();
-                            msg.info(t`loginSuccessful`);
+                            msg.info(t`LoginSuccessful`);
                             panel.dispose();
                         },
                         error => {
-                            msg.requestError(error, t`loginError`);
+                            msg.requestError(error, t`LoginError`);
                             panel.dispose();
                         }
                     );
                 });
             },
             error => {
-                msg.error(t`unableOpenLoginPage`);
+                msg.error(t`UnableOpenLoginPage`);
                 msg.log(JSON.stringify(error));
             }
         );
@@ -87,7 +87,7 @@ export class QorusLogin extends QorusAuth {
 
         const token = this.getToken(url);
         if (!token) {
-            msg.log(t`noTokenForUrl ${url}`);
+            msg.log(t`NoTokenForUrl ${url}`);
             this.doLogout(url, true);
             return;
         }
@@ -112,7 +112,7 @@ export class QorusLogin extends QorusAuth {
     is_error ? this.forgetAllInfo(url) : this.deleteToken(url);
         tree.refresh();
         if (do_message) {
-            msg.info(t`loggedOut`);
+            msg.info(t`LoggedOut`);
         }
     }
 
@@ -120,7 +120,7 @@ export class QorusLogin extends QorusAuth {
         return vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: t`gettingInfo ${url}`,
+                title: t`GettingInfo ${url}`,
                 cancellable: false
             },
             async (progress): Promise<boolean> => {

@@ -3,9 +3,9 @@ import { Intent } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
-import { MessageDialog } from './MessageDialog';
+import { MessageDialog } from '../qorus_common/MessageDialog';
 import { texts } from './global';
-import logo from '../../../images/qorus_logo_256.png';
+import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
 
@@ -13,7 +13,7 @@ export class Root extends Component {
     constructor() {
         super();
 
-        let state = vscode.getState();
+        const state = vscode.getState();
         if (state) {
             global.texts = state.texts;
             this.state = {
@@ -31,7 +31,7 @@ export class Root extends Component {
             };
         }
 
-        this.message_params = {
+        this.message_props = {
             text: null,
             buttons: null
         }
@@ -79,8 +79,8 @@ export class Root extends Component {
         });
     }
 
-    setMessage = (params) => {
-        this.message_params = params;
+    setMessage = (props) => {
+        this.message_props = props;
         this.setState({isMessageDialogOpen: true});
     }
 
@@ -122,16 +122,17 @@ export class Root extends Component {
             return null;
         }
 
-        let selected_env_id = this.state.selected_env_id;
-        let selected_qorus_id = this.state.selected_qorus_id;
-        let selected_env = (selected_env_id !== null) ? this.state.data[selected_env_id] : null;
-        let selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
+        const selected_env_id = this.state.selected_env_id;
+        const selected_qorus_id = this.state.selected_qorus_id;
+        const selected_env = (selected_env_id !== null) ? this.state.data[selected_env_id] : null;
+        const selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
 
         return (
             <div>
                 <MessageDialog isOpen={this.state.isMessageDialogOpen}
-                               params={this.message_params}
-                               onClose={this.handleMessageDialogClose} />
+                               onClose={this.handleMessageDialogClose}
+                               text={this.message_props.text}
+                               buttons={this.message_props.buttons} />
 
                 <div className='config-container'>
                     <img style={{ maxWidth: '36px', maxHeight: '36px'}} src={logo} />

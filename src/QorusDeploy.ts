@@ -19,19 +19,19 @@ class QorusDeploy extends QorusLogin {
         const code = editor ? editor.document.getText() : '';
 
         if (!file_path || !code) {
-            msg.error(t`nothingToDeploy`);
+            msg.error(t`NothingToDeploy`);
             return;
         }
 
         const file_relative_path = vscode.workspace.asRelativePath(file_path, false);
 
         if (!isDeployable(file_path)) {
-            msg.error(t`notDeployableFile ${file_relative_path}`);
+            msg.error(t`NotDeployableFile ${file_relative_path}`);
             return;
         }
 
         if (file_path === file_relative_path) {
-            msg.error(t`cannotLoadFileOutsideWorkspaceFolder ${file_path}`);
+            msg.error(t`CannotLoadFileOutsideWorkspaceFolder ${file_path}`);
             return;
         }
 
@@ -39,9 +39,9 @@ class QorusDeploy extends QorusLogin {
     }
 
     deployFile(uri: vscode.Uri) {
-        let file_path: string = uri.fsPath;
+        const file_path: string = uri.fsPath;
         if (!isDeployable(file_path)) {
-            msg.error(t`notDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
+            msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
             return;
         }
 
@@ -49,12 +49,16 @@ class QorusDeploy extends QorusLogin {
     }
 
     deployDir(uri: vscode.Uri) {
-        let dir: string = uri.fsPath;
-        msg.log(t`deployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
+        const dir: string = uri.fsPath;
+        msg.log(t`DeployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
-        let files: Array<string> = [];
+        let files: string[] = [];
         QorusDeploy.getDeployableFiles(dir, files);
         this.doDeploy(files);
+    }
+
+    deployPackage(file: string): Thenable<boolean> {
+        return this.doDeploy([file], true);
     }
 
     setActiveInstance(tree_item: string | vscode.TreeItem) {
@@ -74,15 +78,15 @@ class QorusDeploy extends QorusLogin {
                 if (no_auth) {
                     this.addNoAuth(url);
                     tree.refresh();
-                    msg.info(t`authNotNeeded ${url}`);
+                    msg.info(t`AuthNotNeeded ${url}`);
                 }
                 else {
-                    msg.info(t`authNeeded ${url}`);
+                    msg.info(t`AuthNeeded ${url}`);
                     this.login(url);
                 }
             },
             (error: any) => {
-                msg.requestError(error, t`gettingInfoError`);
+                msg.requestError(error, t`GettingInfoError`);
             }
         );
     }
@@ -91,44 +95,68 @@ class QorusDeploy extends QorusLogin {
         if (tree_item) {
             const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
             if (!this.isActive(url)) {
-                msg.log(t`attemptToSetInactiveNotActiveInstance ${url}`);
+                msg.log(t`AttemptToSetInactiveNotActiveInstance ${url}`);
             }
         }
         this.unsetActive();
         tree.refresh();
     }
 
-    private doDeploy(file_paths: Array<string>) {
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
+    private doDeploy(file_paths: string[], is_release: boolean = false): Thenable<boolean> {
         if (!this.active_url) {
-            msg.error(t`noActiveQorusInstance`);
+            msg.error(t`NoActiveQorusInstance`);
             vscode.commands.executeCommand('qorusInstancesExplorer.focus');
-            return;
+            return Promise.resolve(false);
         }
 
         const active_instance = tree.getQorusInstance(this.active_url);
         if (!active_instance) {
-            msg.error(t`unableGetActiveQorusInstanceData`);
-            return;
+            msg.error(t`UnableGetActiveQorusInstanceData`);
+            return Promise.resolve(false);
+        }
+
+        let url_base: string = active_instance.url;
+        if (isVersion3(active_instance.version)) {
+            if (is_release) {
+                msg.error(t`PackageDeploymentNotSupportedForQorus3`);
+                return Promise.resolve(false);
+            }
+            else {
+                url_base += '/deployment';
+            }
+        } else {
+            url_base += '/api/latest/development/' + (is_release ? 'release' : 'deploy');
         }
 
         let token: string | undefined = undefined;
         if (this.authNeeded(this.active_url) != AuthNeeded.No) {
             token = this.getToken(this.active_url);
             if (!token) {
-                msg.error(t`unauthorizedOperationAtUrl ${this.active_url}`);
-                return;
+                msg.error(t`UnauthorizedOperationAtUrl ${this.active_url}`);
+                return Promise.resolve(false);
             }
         }
 
-        msg.log(t`filesToDeploy`);
-        let data: Array<object> = [];
-        QorusDeploy.prepareDataToDeploy(file_paths, data);
+        msg.log(t`FilesToDeploy`);
+        let data: object[] = [];
+        if (is_release) {
+            const file = file_paths[0];
+            msg.log(`    ${file}`);
+            const file_content = fs.readFileSync(file);
+            const buffer: Buffer = Buffer.from(file_content);
+            data = [{
+                file_name: path.basename(file),
+                file_content: buffer.toString('base64')
+            }];
+        }
+        else {
+            QorusDeploy.prepareDataToDeploy(file_paths, data);
+        }
 
-        msg.log(t`deploymentHasStarted ${active_instance.name} ${active_instance.url}`);
-
-        const url_base: string = QorusDeploy.urlBase(active_instance.url, active_instance.version);
-
-        msg.log("options: " + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
+        msg.log(t`DeploymentHasStarted ${active_instance.name} ${active_instance.url}`);
+        msg.log(t`options` + ': ' + JSON.stringify(vscode.workspace.getConfiguration('qorusDeployment')));
 
         const options = {
             method: 'POST',
@@ -143,23 +171,26 @@ class QorusDeploy extends QorusLogin {
             },
             json: true
         };
-        request(options).then(
+
+        return request(options).then(
             (response: any) => {
                 msg.log(t`deploymentResponse ${JSON.stringify(response)}`);
                 if (response.id === undefined) {
-                    msg.error(t`responseIdUndefined`);
-                    return;
+                    msg.error(t`ResponseIdUndefined`);
+                    return false;
                 }
                 this.checkDeploymentResult(url_base, active_instance.url, response.id, token);
+                return true;
             },
             (error: any) => {
-                msg.requestError(error, t`deploymentStartFailed`);
-                this.doLogout(active_instance.url, true, false);
+                msg.requestError(error, t`DeploymentStartFailed`);
+                this.doLogout(active_instance.url, true, false);         // ???
+                return false;
             }
         );
     }
 
-    private static prepareDataToDeploy(files: Array<string>, data: Array<object>) {
+    private static prepareDataToDeploy(files: string[], data: object[]) {
         for (let file_path of files) {
             const file_relative_path = vscode.workspace.asRelativePath(file_path, false);
             msg.log(`    ${file_relative_path}`);
@@ -169,30 +200,34 @@ class QorusDeploy extends QorusLogin {
                 return;
             }
             const file_content = fs.readFileSync(file_path);
-            let buffer: Buffer = Buffer.from(file_content);
+            const buffer: Buffer = Buffer.from(file_content);
             data.push({
                 'file_name': file_relative_path.replace(/\\/g, '/'),
                 'file_content': buffer.toString('base64')
             });
 
             if (isService(file_path)) {
-                let resources: Array<string> =
+                const resources: string[] =
                     QorusDeploy.getResources(file_content.toString(), path.dirname(file_path));
                 QorusDeploy.prepareDataToDeploy(resources, data);
             }
         }
     }
 
-    private checkDeploymentResult(request_url_base: string, instance_url: string, deployment_id: string, request_token?: string) {
+    private checkDeploymentResult(request_url_base: string,
+                                  instance_url: string,
+                                  deployment_id: string,
+                                  request_token?: string)
+    {
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: t`deploymentRunning ${deployment_id}`,
+                title: t`DeploymentRunning ${deployment_id}`,
                 cancellable: true
             },
             async (progress, cancel_token): Promise<void> => {
                 cancel_token.onCancellationRequested(() => {
-                    msg.info(t`cancellingDeployment ${deployment_id}`);
+                    msg.info(t`CancellingDeployment ${deployment_id}`);
 
                     const options = {
                         method: 'DELETE',
@@ -205,11 +240,11 @@ class QorusDeploy extends QorusLogin {
                     };
                     request(options).catch(
                         error => {
-                            msg.error(t`deploymentCancellationFailed ${deployment_id}`);
+                            msg.error(t`DeploymentCancellationFailed ${deployment_id}`);
                             msg.log(JSON.stringify(error));
                         }
                     );
-                    msg.log(t`cancellationRequestSent ${deployment_id}`);
+                    msg.log(t`CancellationRequestSent ${deployment_id}`);
                 });
 
                 progress.report({ increment: -1});
@@ -232,7 +267,7 @@ class QorusDeploy extends QorusLogin {
 
                     await request(options).then(
                         (response: any) => {
-                            let status: string = response.status;
+                            const status: string = response.status;
                             if (response.stdout) {
                                 msg.log(t`deploymentResponse ${response.stdout} ${status}`);
                             }
@@ -241,23 +276,23 @@ class QorusDeploy extends QorusLogin {
                             }
                             switch (status) {
                                 case 'FINISHED':
-                                    msg.info(t`deploymentFinishedSuccessfully ${deployment_id}`);
+                                    msg.info(t`DeploymentFinishedSuccessfully ${deployment_id}`);
                                     quit = true;
                                     break;
                                 case 'CANCELED':
                                 case 'CANCELLED':
-                                    msg.info(t`deploymentCancelled ${deployment_id}`);
+                                    msg.info(t`DeploymentCancelled ${deployment_id}`);
                                     quit = true;
                                     break;
                                 case 'FAILED':
-                                    msg.error(t`deploymentFailed ${deployment_id}`);
+                                    msg.error(t`DeploymentFailed ${deployment_id}`);
                                     quit = true;
                                     break;
                                 default:
                             }
                         },
                         (error: any) => {
-                            msg.requestError(error, t`checkingDeploymentStatusFailed ${deployment_id}`);
+                            msg.requestError(error, t`CheckingDeploymentStatusFailed ${deployment_id}`);
                             this.doLogout(instance_url, true, false);
                             quit = true;
                         }
@@ -267,8 +302,8 @@ class QorusDeploy extends QorusLogin {
         );
     }
 
-    private static getResources(file_content: string, dir_path: string): Array<string> {
-        let resources: Array<string> = [];
+    private static getResources(file_content: string, dir_path: string): string[] {
+        let resources: string[] = [];
         for (let line of file_content.split(/\r?\n/)) {
             if (line.search(/^#\s*resource\s*:\s*(.*\S)\s*$/) > -1) {
                 resources = resources.concat(RegExp.$1.split(/\s+/));
@@ -276,28 +311,23 @@ class QorusDeploy extends QorusLogin {
         }
         if (resources.length) {
             resources = resources.map(basename => path.join(dir_path, basename));
-            let pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
+            const pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
             return glob.sync(pattern, {nodir: true});
         }
         return [];
     }
 
     // returns (in the referenced array) all deployable files from the directory 'dir'and its subdirectories
-    private static getDeployableFiles(dir: string, deployable_files: Array<string>) {
-        let dir_entries: Array<string> = fs.readdirSync(dir);
+    private static getDeployableFiles(dir: string, deployable_files: string[]) {
+        const dir_entries: string[] = fs.readdirSync(dir);
         for (let entry of dir_entries) {
-            let entry_path: string = path.join(dir, entry);
+            const entry_path: string = path.join(dir, entry);
             if (fs.lstatSync(entry_path).isDirectory()) {
-                msg.log(t`subdirectory ${entry_path}`);
                 QorusDeploy.getDeployableFiles(entry_path, deployable_files);
             } else if (isDeployable(entry_path)) {
                 deployable_files.push(entry_path);
             }
         }
-    }
-
-    private static urlBase(url: string, version?: string): string {
-        return url + (isVersion3(version) ? '/deployment' : '/api/latest/development/deploy');
     }
 }
 

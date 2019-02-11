@@ -36,16 +36,16 @@ export function requestError(error_data: any, default_error: string) {
     }
 
     if (error_data.statusCode == 401) {
-        error(t`error401 ${url}`);
+        error(t`Error401 ${url}`);
     }
     else if (error_data.message && error_data.message.indexOf('EHOSTUNREACH') > -1) {
-        error(t`hostUnreachable ${url}`);
+        error(t`HostUnreachable ${url}`);
     }
     else if (error_data.message && error_data.message.indexOf('ETIMEDOUT') > -1) {
-        error(t`gettingInfoTimedOut ${url}`);
+        error(t`GettingInfoTimedOut ${url}`);
     }
     else if (error_data.message && error_data.message.indexOf('ECONNREFUSED') > -1) {
-        error(t`connectionRefused ${url}`);
+        error(t`ConnectionRefused ${url}`);
     }
     else {
         error(`${default_error} (${url})`);

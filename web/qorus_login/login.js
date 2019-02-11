@@ -28,6 +28,6 @@ $('#username').on('input', function() {
 });
 
 $('#username').val(function() {
-    let state = vscode.getState();
+    const state = vscode.getState();
     return state ? state.username : '';
 });

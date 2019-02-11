@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { deployer } from './QorusDeploy';
+import { releaser } from './QorusRelease';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
@@ -27,6 +28,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
                                                  (uri: vscode.Uri) => projects.manageProjectConfig(uri));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.makeRelease',
+                                                 (uri: vscode.Uri) => releaser.makeRelease(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
@@ -112,14 +117,14 @@ function openUrlInExternalBrowser(url: string, name: string) {
         default:
             cfg_name = '';
     }
-    let command: string = vscode.workspace.getConfiguration('qorus').get(cfg_name) + ' "' + url +'"';
-    msg.info(t`openingUrlInExternalBrowser ${name} ${url}`);
+    const command: string = vscode.workspace.getConfiguration('qorus').get(cfg_name) + ' "' + url +'"';
+    msg.info(t`OpeningUrlInExternalBrowser ${name} ${url}`);
     msg.log(command);
     try {
         child_process.execSync(command);
     }
     catch (error) {
-        msg.error(t`openUrlInExternalBrowserError`);
+        msg.error(t`OpenUrlInExternalBrowserError`);
     }
 }
 
@@ -162,9 +167,9 @@ function setLocale() {
     useLocale(locale);
 
     if (use_default_locale) {
-        msg.log(t`usingDefaultLocale ${locale}`);
+        msg.log(t`UsingDefaultLocale ${locale}`);
     }
     else {
-        msg.log(t`usingLocaleSettings ${locale}`);
+        msg.log(t`UsingLocaleSettings ${locale}`);
     }
 }
