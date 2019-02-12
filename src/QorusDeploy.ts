@@ -86,7 +86,7 @@ class QorusDeploy extends QorusLogin {
                 }
             },
             (error: any) => {
-                msg.requestError(error, t`GettingInfoError`);
+                this.requestError(error, t`GettingInfoError`);
             }
         );
     }
@@ -107,7 +107,7 @@ class QorusDeploy extends QorusLogin {
     private doDeploy(file_paths: string[], is_release: boolean = false): Thenable<boolean> {
         if (!this.active_url) {
             msg.error(t`NoActiveQorusInstance`);
-            vscode.commands.executeCommand('qorusInstancesExplorer.focus');
+            tree.focus();
             return Promise.resolve(false);
         }
 
@@ -117,17 +117,17 @@ class QorusDeploy extends QorusLogin {
             return Promise.resolve(false);
         }
 
-        let url_base: string = active_instance.url;
+        let url: string = this.active_url;
         if (isVersion3(active_instance.version)) {
             if (is_release) {
                 msg.error(t`PackageDeploymentNotSupportedForQorus3`);
                 return Promise.resolve(false);
             }
             else {
-                url_base += '/deployment';
+                url += '/deployment';
             }
         } else {
-            url_base += '/api/latest/development/' + (is_release ? 'release' : 'deploy');
+            url += '/api/latest/development/' + (is_release ? 'release' : 'deploy');
         }
 
         let token: string | undefined = undefined;
@@ -160,7 +160,7 @@ class QorusDeploy extends QorusLogin {
 
         const options = {
             method: 'POST',
-            uri: `${url_base}`,
+            uri: `${url}`,
             strictSSL: false,
             body: {
                 files: data,
@@ -179,12 +179,11 @@ class QorusDeploy extends QorusLogin {
                     msg.error(t`ResponseIdUndefined`);
                     return false;
                 }
-                this.checkDeploymentResult(url_base, active_instance.url, response.id, token);
+                this.checkDeploymentResult(url, response.id, token);
                 return true;
             },
             (error: any) => {
-                msg.requestError(error, t`DeploymentStartFailed`);
-                this.doLogout(active_instance.url, true, false);         // ???
+                this.requestError(error, t`DeploymentStartFailed`);
                 return false;
             }
         );
@@ -214,11 +213,7 @@ class QorusDeploy extends QorusLogin {
         }
     }
 
-    private checkDeploymentResult(request_url_base: string,
-                                  instance_url: string,
-                                  deployment_id: string,
-                                  request_token?: string)
-    {
+    private checkDeploymentResult(url: string, deployment_id: string, request_token?: string) {
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
@@ -231,7 +226,7 @@ class QorusDeploy extends QorusLogin {
 
                     const options = {
                         method: 'DELETE',
-                        uri: `${request_url_base}/${deployment_id}`,
+                        uri: `${url}/${deployment_id}`,
                         strictSSL: false,
                         headers: {
                             'qorus-token': request_token
@@ -253,7 +248,7 @@ class QorusDeploy extends QorusLogin {
 
                 const options = {
                     method: 'GET',
-                    uri: `${request_url_base}/${deployment_id}`,
+                    uri: `${url}/${deployment_id}`,
                     strictSSL: false,
                     headers: {
                         'qorus-token': request_token
@@ -292,8 +287,7 @@ class QorusDeploy extends QorusLogin {
                             }
                         },
                         (error: any) => {
-                            msg.requestError(error, t`CheckingDeploymentStatusFailed ${deployment_id}`);
-                            this.doLogout(instance_url, true, false);
+                            this.requestError(error, t`CheckingDeploymentStatusFailed ${deployment_id}`);
                             quit = true;
                         }
                     );
