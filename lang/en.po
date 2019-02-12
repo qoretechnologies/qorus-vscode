@@ -127,6 +127,12 @@ msgstr "Response ID is undefined"
 msgid "Error401 ${ url }"
 msgstr "Error 401 - Unauthorized (${ url })"
 
+msgid "Error409 ${ url }"
+msgstr "Error 409 - Conflict (${ url })"
+
+msgid "ErrorN ${ N } ${ url }"
+msgstr "Error ${ N } (${ url })"
+
 msgid "DeploymentStartFailed"
 msgstr "Deployment failed to start"
 

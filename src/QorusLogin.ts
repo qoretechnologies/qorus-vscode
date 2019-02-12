@@ -69,7 +69,7 @@ export class QorusLogin extends QorusAuth {
                             panel.dispose();
                         },
                         error => {
-                            msg.requestError(error, t`LoginError`);
+                            this.requestError(error, t`LoginError`);
                             panel.dispose();
                         }
                     );
@@ -88,7 +88,7 @@ export class QorusLogin extends QorusAuth {
         const token = this.getToken(url);
         if (!token) {
             msg.log(t`NoTokenForUrl ${url}`);
-            this.doLogout(url, true);
+            this.doLogout(url);
             return;
         }
 
@@ -100,19 +100,59 @@ export class QorusLogin extends QorusAuth {
                 'qorus-token': token
             }
         }).then(
-            () => this.doLogout(url),
+            () => this.doLogout(url, false),
             (error: any) => {
                 msg.log(JSON.stringify(error));
-                this.doLogout(url, true);
+                this.doLogout(url);
             }
         );
     }
 
-    protected doLogout(url: string, is_error: boolean = false, do_message: boolean = true) {
-    is_error ? this.forgetAllInfo(url) : this.deleteToken(url);
-        tree.refresh();
-        if (do_message) {
+    private doLogout(url?: string, forget_all: boolean = true, no_message = false) {
+        url = url || this.active_url;
+        const was_logged_in = this.isLoggedIn(url);
+        forget_all ? this.forgetAllInfo(url) : this.deleteToken(url);
+        if (was_logged_in && !no_message) {
             msg.info(t`LoggedOut`);
+        }
+        tree.refresh();
+    }
+
+    protected requestError(error_data: any, default_error: string) {
+        let url: string = error_data.options ? error_data.options.uri || '' : '';
+
+        const params_pos = url.indexOf('?');
+        if (params_pos > -1) {
+            url = url.substr(0, params_pos);
+        }
+
+        if (error_data.statusCode == 401) {
+            msg.error(t`Error401 ${url}`);
+            this.doLogout(null, true, true);
+            tree.focus();
+        }
+        else if (error_data.message && error_data.message.indexOf('EHOSTUNREACH') > -1) {
+            msg.error(t`HostUnreachable ${url}`);
+            this.doLogout();
+        }
+        else if (error_data.message && error_data.message.indexOf('ETIMEDOUT') > -1) {
+            msg.error(t`GettingInfoTimedOut ${url}`);
+        }
+        else if (error_data.message && error_data.message.indexOf('ECONNREFUSED') > -1) {
+            msg.error(t`ConnectionRefused ${url}`);
+            this.doLogout();
+        }
+        else {
+            if (error_data.statusCode == 409) {
+                msg.error(t`Error409 ${url}`);
+            }
+            else if (error_data.statusCode) {
+                msg.error(t`ErrorN ${error_data.statusCode} ${url}`);
+            }
+            else {
+                msg.error(`${default_error} (${url})`);
+            }
+            msg.log(JSON.stringify(error_data, null, 4));
         }
     }
 

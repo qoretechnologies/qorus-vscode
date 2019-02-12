@@ -1,6 +1,6 @@
 export function isDeployable(file_path: string): boolean {
-    const deployable_suffixes = ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst',
-                                 'qconn', 'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript'];
+    const deployable_suffixes = ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn',
+                                 'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java'];
     const suffix: string | undefined = getSuffix(file_path);
     return suffix ? deployable_suffixes.includes(suffix) : false;
 }
