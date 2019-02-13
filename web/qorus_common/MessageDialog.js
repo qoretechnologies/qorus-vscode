@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Button, Classes, Dialog } from '@blueprintjs/core';
 
 
-export const MessageDialog = (props) => {
+export const MessageDialog = props => {
     const {text, buttons, ...base_props} = props;
 
     let footer_buttons = [];
@@ -30,4 +30,4 @@ export const MessageDialog = (props) => {
             </div>
         </Dialog>
     );
-}
+};
