@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Spinner } from '@blueprintjs/core';
 
 
-export const BackForwardButtons = (props) => (
+export const BackForwardButtons = props => (
     <>
         <div style={{display: 'flex', flexFlow: 'row nowrap',
                      justifyContent: 'space-between', marginBottom: 20}} >

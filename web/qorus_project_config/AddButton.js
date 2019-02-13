@@ -1,27 +1,25 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { EditPopover } from './EditPopover';
 
 
-export class AddButton extends Component {
-    render() {
-        let entity;
-        if (this.props.qorus_id !== undefined) {
-            entity = 'Url';
-        }
-        else if (this.props.env_id !== undefined) {
-            entity = 'Qorus';
-        }
-        else {
-            entity = 'Env';
-        }
-
-        return (
-            <tr>
-                <td />
-                <td>
-                    <EditPopover kind='add' entity={entity} {...this.props} />
-                </td>
-            </tr>
-        );
+export const AddButton = props => {
+    let entity;
+    if (props.qorus_id !== undefined) {
+        entity = 'Url';
     }
-}
+    else if (props.env_id !== undefined) {
+        entity = 'Qorus';
+    }
+    else {
+        entity = 'Env';
+    }
+
+    return (
+        <tr>
+            <td />
+            <td>
+                <EditPopover kind='add' entity={entity} {...props} />
+            </td>
+        </tr>
+    );
+};
