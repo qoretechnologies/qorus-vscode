@@ -14,6 +14,16 @@ body {
     flex-flow: row wrap;
     justify-content: center;
 }
+.flex-end {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+}
+.flex-space-between {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}
 .card {
     margin: 18px 36px 0 18px;
     min-width: 300px;

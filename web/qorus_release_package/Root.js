@@ -8,6 +8,8 @@ import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
 
+const Step = {Type: 0, Diff: 1, Send: 2, Close: 3}
+
 export class Root extends Component {
     constructor() {
         super();
@@ -18,7 +20,7 @@ export class Root extends Component {
                     break;
                 case 'return-diff':
                     this.setStates({
-                        step: 1,
+                        step: Step.Diff,
                         selected_commit: event.data.commit,
                         files: event.data.files,
                         pending: false
@@ -29,14 +31,15 @@ export class Root extends Component {
                                                          {[event.data.text_id]: event.data.text})});
                     break;
                 case 'package-created':
+                case 'return-release-file':
                     this.setStates({
-                        step: 2,
-                        tmp_files: event.data.tmp_files,
+                        step: Step.Send,
+                        package_path: event.data.package_path,
                         pending: false
                     });
                     break;
                 case 'deployment-result':
-                    this.setStates({step: 3,
+                    this.setStates({step: Step.Close,
                         result: event.data.result,
                         pending: false
                     });
@@ -56,9 +59,9 @@ export class Root extends Component {
         const state = vscode.getState();
         if (state) {
             const {step, branch, release_type, selected_commit, files,
-                   tmp_files, result, texts, not_up_to_date_msg_open, pending} = state;
+                   package_path, result, texts, not_up_to_date_msg_open, pending} = state;
             this.setState({step, branch, release_type, selected_commit, files,
-                           tmp_files, result, texts, not_up_to_date_msg_open, pending});
+                           package_path, result, texts, not_up_to_date_msg_open, pending});
 
             if (state.branch) {
                 return;
@@ -66,12 +69,12 @@ export class Root extends Component {
         }
         else {
             this.setStates({
-                step: 0,
+                step: Step.Type,
                 branch: null,
                 release_type: 'full',
                 selected_commit: null,
                 files: [],
-                tmp_files: {},
+                package_path: null,
                 result: null,
                 texts: {},
                 not_up_to_date_msg_open: false,
@@ -136,15 +139,22 @@ export class Root extends Component {
         this.setStates({pending: true});
     }
 
+    getReleaseFile = () => {
+        vscode.postMessage({
+            action: 'get-release-file'
+        });
+        this.setStates({pending: true});
+    }
+
     backToStep = step => {
         switch (step) {
-            case 0:
-                this.setStates({step: step, files: []});
+            case Step.Type:
+                this.setStates({step: step, files: [], package_path: null});
                 break;
-            case 1:
-                this.setStates({step: step, tmp_files: {}});
+            case Step.Diff:
+                this.setStates({step: step, package_path: null});
                 break;
-            case 2:
+            case Step.Send:
                 this.setStates({step: step});
                 break;
         }
@@ -195,16 +205,18 @@ export class Root extends Component {
                 {this.renderNotUpToDateMsg()}
 
                 <img style={{ maxWidth: 36, maxHeight: 36, margin: '24px 0 0 12px' }} src={logo} />
-                <Collapse isOpen={this.state.step == 0}>
+
+                <Collapse isOpen={this.state.step == Step.Type}>
                     <Card className='card' elevation={Elevation.TWO}>
                         <div className='flex-start'>
                             <H4 style={{ marginRight: 48 }}>{this.t('ReleaseType')}:</H4>
-                            <RadioGroup inline={true} onChange={this.onReleaseTypeChange} selectedValue={this.state.release_type}>
-                                <Radio label={this.t('releaseTypeFull')} value='full' />
-                                <Radio label={this.t('releaseTypeIncremental')} value='incremental' />
+                            <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.state.release_type}>
+                                <Radio label={this.t('CreateFullRelease')} value='full' />
+                                <Radio label={this.t('CreateIncrementalRelease')} value='incremental' />
+                                <Radio label={this.t('UseExistingRelease')} value='existing' />
                             </RadioGroup>
                         </div>
-                        <hr />
+                        <hr style={{marginBottom: 16}} />
                         <Collapse isOpen={this.state.release_type == 'full'}>
                             <H3 style={header_style}>{this.t('FullRelease')}</H3>
                             {this.renderBranchInfo()}
@@ -229,15 +241,21 @@ export class Root extends Component {
                                 t={this.t}
                             />
                         </Collapse>
+                        <Collapse isOpen={this.state.release_type == 'existing'} className='flex-center'>
+                            <Button icon='folder-open' onClick={this.getReleaseFile}>
+                                {this.t('PickReleaseFile')}
+                            </Button>
+                        </Collapse>
                     </Card>
                 </Collapse>
-                <Collapse isOpen={this.state.step == 1}>
+
+                <Collapse isOpen={this.state.step == Step.Diff}>
                     <Card className='card' elevation={Elevation.TWO}>
                         <BackForwardButtons
-                            onBack={() => this.backToStep(0)}
+                            onBack={() => this.backToStep(Step.Type)}
                             onForward={this.createPackage}
                             t={this.t}
-                            forward_text={this.t('CreatePackage')}
+                            forward_text_id='CreatePackage'
                             disabled={this.state.pending}
                             pending={this.state.pending}
                         />
@@ -246,23 +264,30 @@ export class Root extends Component {
                         {this.state.files && this.state.files.map(file => <div>{file}</div>)}
                     </Card>
                 </Collapse>
-                <Collapse isOpen={this.state.step == 2}>
+
+                <Collapse isOpen={this.state.step == Step.Send}>
                     <Card className='card' elevation={Elevation.TWO}>
                         <BackForwardButtons
-                            onBack={() => this.backToStep(this.state.release_type == 'full' ? 0 : 1)}
+                            onBack={() => this.backToStep(this.state.release_type == 'incremental' ?
+                                                                Step.Diff : Step.Type)}
                             onForward={this.deployPackage}
                             t={this.t}
-                            forward_text={this.t('DeployPackage')}
+                            forward_text_id='DeployPackage'
                             pending={this.state.pending}
                         />
-                        <H5>{this.t('FollowingReleaseFileWillBeSent')}:</H5>
-                        <div>{this.state.tmp_files.path_tarbz2}</div>
+                        <H5>{this.t(this.state.release_type == 'existing'
+                                ? 'ExistingReleaseFileWillBeSent'
+                                : 'NewReleaseFileWillBeSent'
+                             )}:
+                        </H5>
+                        <div>{this.state.package_path}</div>
                     </Card>
                 </Collapse>
-                <Collapse isOpen={this.state.step == 3}>
+
+                <Collapse isOpen={this.state.step == Step.Close}>
                     <Card className='card' elevation={Elevation.TWO}>
                         <BackForwardButtons
-                            onBack={() => this.backToStep(2)}
+                            onBack={() => this.backToStep(Step.Send)}
                             onClose={this.close}
                             t={this.t}
                         />
