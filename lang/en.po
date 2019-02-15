@@ -340,6 +340,15 @@ msgstr "Full release"
 msgid "IncrementalRelease"
 msgstr "Incremental release"
 
+msgid "CreateFullRelease"
+msgstr "Create full release"
+
+msgid "CreateIncrementalRelease"
+msgstr "Create incremental release"
+
+msgid "UseExistingRelease"
+msgstr "Use existing release file"
+
 msgid "CurrentBranchInfo"
 msgstr "Your position"
 
@@ -385,8 +394,11 @@ msgstr "The following temporary files have been created"
 msgid "ReleaseFileWillBeSent"
 msgstr "The release file will be sent to the currently active Qorus instance"
 
-msgid "FollowingReleaseFileWillBeSent"
-msgstr "The following release file have been created and will be sent to the currently active Qorus instance"
+msgid "NewReleaseFileWillBeSent"
+msgstr "The following release file has been created and will be sent to the currently active Qorus instance"
+
+msgid "ExistingReleaseFileWillBeSent"
+msgstr "The following release file will be sent to the currently active Qorus instance"
 
 msgid "Back"
 msgstr "Back"
@@ -417,3 +429,12 @@ msgstr "(You will see the result in the message area.)"
 
 msgid "PackageDeploymentFailed"
 msgstr "Deployment failed"
+
+msgid "Continue"
+msgstr "Continue"
+
+msgid "PickReleaseFile"
+msgstr "Select release file"
+
+msgid "QorusRelaseFilePicker"
+msgstr "Qorus release"

@@ -16,7 +16,7 @@ class QorusRelease {
     private project_folder: string | undefined = undefined;
     private release_panel: vscode.WebviewPanel | undefined = undefined;
     private files: string[] = [];
-    private package_file = null;
+    private package_path = null;
 
     makeRelease(uri: vscode.Uri) {
         const project: QorusProject | undefined = projects.getQorusProject(uri);
@@ -86,7 +86,7 @@ class QorusRelease {
         const [path_tar, path_tarbz2, path_qrf] =
             [file_tar, file_tarbz2, file_qrf].map(file => path.join(tmp_dir, file));
 
-        this.package_file = path_tarbz2;
+        this.package_path = path_tarbz2;
 
         const archiver = require('archiver')('tar');
         const tar_output = fs.createWriteStream(path_tar);
@@ -97,7 +97,7 @@ class QorusRelease {
             fs.writeFileSync(path_tarbz2, compressed);
             this.release_panel.webview.postMessage({
                 action: 'package-created',
-                tmp_files: {path_qrf, path_tarbz2}
+                package_path: path_tarbz2
             });
         });
         archiver.pipe(tar_output);
@@ -191,13 +191,27 @@ class QorusRelease {
                             break;
                         case 'deploy-package':
                             if (this.checkUpToDate()) {
-                                deployer.deployPackage(this.package_file).then(result => {
+                                deployer.deployPackage(this.package_path).then(result => {
                                     this.release_panel.webview.postMessage({
                                         action: 'deployment-result',
                                         result: result
                                     });
                                 });
                             }
+                            break;
+                        case 'get-release-file':
+                            vscode.window.showOpenDialog({
+                                filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']}
+                            }).then(files => {
+                                if (!files || !files.length) {
+                                    return;
+                                }
+                                this.package_path = files[0].fsPath;
+                                this.release_panel.webview.postMessage({
+                                    action: 'return-release-file',
+                                    package_path: this.package_path
+                                });
+                            });
                             break;
                         case 'close':
                             this.release_panel.dispose();
