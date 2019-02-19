@@ -39,7 +39,7 @@ class QorusRelease {
                 this.makeReleaseImpl();
             },
             (error: string) => {
-                msg.log(error);
+                msg.error(error);
             }
         );
     }
