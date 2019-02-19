@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Card, Collapse, Colors, Elevation, H3, H4, H5,
-         Intent, Radio, RadioGroup, Spinner } from '@blueprintjs/core';
-import {BackForwardButtons } from './BackForwardButtons';
-import {SelectCommit } from './SelectCommit';
+import { Button, Card, Collapse, H3, H4, H5, Intent, Radio, RadioGroup, Spinner } from '@blueprintjs/core';
+import { BackForwardButtons } from './BackForwardButtons';
+import { SelectCommit } from './SelectCommit';
 import { MessageDialog } from '../qorus_common/MessageDialog';
 import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
@@ -264,7 +263,7 @@ export class Root extends Component {
             </Button>;
 
         const StepDiff =
-            <Card className='card' elevation={Elevation.TWO}>
+            <Card className='card bp3-elevation-2'>
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Type)}
                     onForward={this.createPackage}
@@ -279,7 +278,7 @@ export class Root extends Component {
             </Card>;
 
         const StepSend =
-            <Card className='card' elevation={Elevation.TWO}>
+            <Card className='card bp3-elevation-2'>
                 <BackForwardButtons
                     onBack={() => this.backToStep(this.state.release_type == 'incremental' ?
                                                         Step.Diff : Step.Type)}
@@ -316,7 +315,7 @@ export class Root extends Component {
             </Card>;
 
         const StepClose =
-            <Card className='card' elevation={Elevation.TWO}>
+            <Card className='card bp3-elevation-2'>
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Send)}
                     onClose={this.close}
@@ -340,7 +339,7 @@ export class Root extends Component {
                 <img style={{ maxWidth: 36, maxHeight: 36, margin: '24px 0 0 12px' }} src={logo} />
 
                 {this.state.step == Step.Type &&
-                    <Card className='card' elevation={Elevation.TWO}>
+                    <Card className='card bp3-elevation-2'>
                         {ReleaseType}
 
                         <Collapse isOpen={this.state.release_type == 'full'}>
