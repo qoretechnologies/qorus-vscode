@@ -5,6 +5,7 @@ import { Button, ControlGroup, H4, InputGroup, Spinner } from '@blueprintjs/core
 export class SelectCommit extends Component {
     constructor() {
         super();
+
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'return-commits':
@@ -20,7 +21,7 @@ export class SelectCommit extends Component {
         });
     }
 
-    componentWillMount() {
+    componentDidMount() {
         const state = this.props.vscode.getState();
         if (state) {
             const {commits, hash_filter, branch_filter, tag_filter, value} = state;
@@ -67,12 +68,13 @@ export class SelectCommit extends Component {
     }
 
     render() {
-        if (!this.state.commits) {
+        if (!this.state || !this.state.commits) {
             return null;
         }
 
-        let options = [];
-        for (let commit of this.state.commits) {
+        const ClearButton = props => <Button icon='cross' minimal={true} {...props} />;
+
+        const options = this.state.commits.map(commit => {
             const hash = commit.hash;
             let text = ''
             if (commit.local) {
@@ -88,12 +90,12 @@ export class SelectCommit extends Component {
                 text += ' [tag "' + commit.tag + '"]';
             }
 
-            options.push(
+            return (
                 <option key={hash} value={hash}>
                     {hash.substr(0, 12)}&nbsp;&nbsp;{text}
                 </option>
             );
-        }
+        });
 
         return (
             <>
@@ -105,8 +107,8 @@ export class SelectCommit extends Component {
                         value={this.state.hash_filter}
                         onChange={ev => this.onFilterChange('hash', ev)}
                         onFocus={this.props.onFilterFocus}
-                        rightElement=
-                            <ClearButton disabled={this.props.disabled} onClick={() => this.onFilterChange('hash')} />
+                        rightElement=<ClearButton disabled={this.props.disabled}
+                                                  onClick={() => this.onFilterChange('hash')} />
                     />
                     <InputGroup className='filter-input'
                         leftIcon='git-branch'
@@ -114,8 +116,8 @@ export class SelectCommit extends Component {
                         value={this.state.branch_filter}
                         onChange={ev => this.onFilterChange('branch', ev)}
                         onFocus={this.props.onFilterFocus}
-                        rightElement=
-                            <ClearButton disabled={this.props.disabled} onClick={() => this.onFilterChange('branch')} />
+                        rightElement=<ClearButton disabled={this.props.disabled}
+                                                  onClick={() => this.onFilterChange('branch')} />
                     />
                     <InputGroup className='filter-input'
                         leftIcon='tag'
@@ -123,8 +125,8 @@ export class SelectCommit extends Component {
                         value={this.state.tag_filter}
                         onChange={ev => this.onFilterChange('tag', ev)}
                         onFocus={this.props.onFilterFocus}
-                        rightElement=
-                            <ClearButton disabled={this.props.disabled} onClick={() => this.onFilterChange('tag')} />
+                        rightElement=<ClearButton disabled={this.props.disabled}
+                                                  onClick={() => this.onFilterChange('tag')} />
                     />
                     <select size='12'
                         onChange={this.onValueChange}
@@ -147,7 +149,3 @@ export class SelectCommit extends Component {
         );
     }
 }
-
-const ClearButton = props => (
-    <Button icon='cross' minimal={true} {...props} />
-);

@@ -93,7 +93,7 @@ export class Root extends Component {
         this.setState(state);
     }
 
-    componentWillMount() {
+    componentDidMount() {
         if (this.state.data) {
             return;
         }

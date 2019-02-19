@@ -6,7 +6,7 @@ import { texts } from './global';
 
 export class EditPopover extends Component {
 
-    componentWillMount() {
+    componentDidMount() {
         this.name = this.props.data ? this.props.data.name : null;
         this.url = this.props.data ? this.props.data.url : null;
         this.action = this.props.action || this.props.kind + '-' + this.props.entity.toLowerCase();
@@ -67,6 +67,10 @@ export class EditPopover extends Component {
     }
 
     render () {
+        if (!this.state) {
+            return null;
+        }
+
         const kind = this.props.kind;      //  'edit' or 'add'
         const entity = this.props.entity;  //  'Env' or 'Qorus' or 'Url'
         const url_label = ['edit-main-url', 'edit-qorus'].includes(this.action)
