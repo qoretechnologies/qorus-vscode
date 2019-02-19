@@ -2,7 +2,17 @@
 
 ## 0.0.7
 
-* release packager implemented
+* feature: local release packager
+  https://github.com/qoretechnologies/qorus-vscode/issues/42
+* feature: qorus instances management with GUI
+  https://github.com/qoretechnologies/qorus-vscode/issues/19
+* fix: 401 unauthorized does not redirect you to the qorus instances list
+  https://github.com/qoretechnologies/qorus-vscode/issues/30
+* fix: deployment failed will logout you
+  https://github.com/qoretechnologies/qorus-vscode/issues/29
+  https://github.com/qoretechnologies/qorus-vscode/issues/28
+* fix: when the .proj file is changed, extension doesn't reload showing old qorus instances
+  https://github.com/qoretechnologies/qorus-vscode/issues/24
 
 ## 0.0.6
 
