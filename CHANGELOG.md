@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.7
+
+* release packager implemented
+
 ## 0.0.6
 
 * fixed indirect event-stream package security issue:
