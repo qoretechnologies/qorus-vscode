@@ -272,6 +272,7 @@
     "dependencies": {
         "archiver": "^3.0.0",
         "compressjs": "^1.0.3",
+        "fs-copy-file": "^2.1.2",
         "gettext-parser": "^2.0.0",
         "moment": "^2.24.0",
         "request": "^2.88.0",
