@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as moment from 'moment';
 import * as fs from 'fs';
+import * as os from 'os';
 import { projects, QorusProject, source_dirs } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
@@ -9,6 +10,7 @@ import { deployer } from './QorusDeploy';
 import * as msg from './qorus_message';
 import { isDeployable } from './qorus_utils';
 import { t, gettext } from 'ttag';
+const copyFile = require('fs-copy-file');
 
 
 class QorusRelease {
@@ -95,6 +97,8 @@ class QorusRelease {
             const input = fs.readFileSync(path_tar);
             const compressed = compressor.compressFile(input);
             fs.writeFileSync(path_tarbz2, compressed);
+            fs.unlinkSync(path_tar);
+            fs.unlinkSync(path_qrf);
             this.release_panel.webview.postMessage({
                 action: 'package-created',
                 package_path: path_tarbz2
@@ -210,6 +214,23 @@ class QorusRelease {
                                 this.release_panel.webview.postMessage({
                                     action: 'return-release-file',
                                     package_path: this.package_path
+                                });
+                            });
+                            break;
+                        case 'save-release-file':
+                            vscode.window.showSaveDialog({
+                                filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']},
+                                defaultUri: vscode.Uri.file(path.join(os.homedir(), path.basename(this.package_path)))
+                            }).then(file => {
+                                copyFile(this.package_path, file.fsPath, error => {
+                                    if (error) {
+                                        msg.error(t`ReleaseFileSaveError ${error}`);
+                                        return;
+                                    }
+                                    this.release_panel.webview.postMessage({
+                                        action: 'release-file-saved',
+                                        saved_path: file.fsPath
+                                    });
                                 });
                             });
                             break;

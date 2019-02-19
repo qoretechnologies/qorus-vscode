@@ -436,5 +436,17 @@ msgstr "Continue"
 msgid "PickReleaseFile"
 msgstr "Select release file"
 
+msgid "SaveReleaseFile"
+msgstr "Save release file"
+
 msgid "QorusRelaseFilePicker"
 msgstr "Qorus release"
+
+msgid "ReleaseFileCanBeSaved"
+msgstr "You can also save the release file for future use"
+
+msgid "ReleaseFileSaveError ${ error }"
+msgstr "Saving release file failed: ${ error }"
+
+msgid "ReleaseFileHasBeenSavedAs"
+msgstr "Release file has been saved as"
