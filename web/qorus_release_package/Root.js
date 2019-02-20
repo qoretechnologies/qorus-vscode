@@ -13,12 +13,15 @@ export class Root extends Component {
     constructor() {
         super();
 
+        this.texts = {};
+        this.num_text_requests = 0;
+
         const state = vscode.getState();
         if (state) {
             const {step, branch, release_type, selected_commit, files, package_path,
-                   saved_path, result, texts, not_up_to_date_msg_open, pending} = state;
+                   saved_path, result, not_up_to_date_msg_open, pending} = state;
             this.state = {step, branch, release_type, selected_commit, files, package_path,
-                           saved_path, result, texts, not_up_to_date_msg_open, pending};
+                           saved_path, result, not_up_to_date_msg_open, pending};
         }
         else {
             this.state = {
@@ -30,7 +33,6 @@ export class Root extends Component {
                 package_path: null,
                 saved_path: null,
                 result: null,
-                texts: {},
                 not_up_to_date_msg_open: false,
                 pending: false
             };
@@ -50,8 +52,10 @@ export class Root extends Component {
                     });
                     break;
                 case 'return-text':
-                    this.setStates({texts: Object.assign(this.state.texts || {},
-                                                         {[event.data.text_id]: event.data.text})});
+                    this.texts[event.data.text_id] = event.data.text;
+                    if (--this.num_text_requests == 0) {
+                        this.forceUpdate();
+                    }
                     break;
                 case 'package-created':
                 case 'return-release-file':
@@ -93,14 +97,15 @@ export class Root extends Component {
         });
     }
 
-    t = (text_id) => {
-        if (this.state && this.state.texts[text_id]) {
-            return this.state.texts[text_id];
+    t = text_id => {
+        if (this.texts[text_id]) {
+            return this.texts[text_id];
         }
         vscode.postMessage({
             action: 'get-text',
             text_id: text_id
         });
+        this.num_text_requests++;
     }
 
     setVscodeState = state => {
@@ -197,22 +202,6 @@ export class Root extends Component {
             </div>
         );
     }
-
-    renderNotUpToDateMsg = () => (
-        <MessageDialog
-            isOpen={this.state.not_up_to_date_msg_open}
-            onClose={() => this.setState({not_up_to_date_msg_open: false})}
-            canEscapeKeyClose={false}
-            canOutsideClickClose={false}
-            text={this.t('GitBranchNotUpToDate')}
-            style={{maxWidth: 400}}
-            buttons={[{
-                title: this.t('ClosePage'),
-                intent: Intent.DANGER,
-                onClick: this.close
-            }]}
-        />
-    );
 
     render() {
         if (!this.state.branch) {
@@ -332,9 +321,24 @@ export class Root extends Component {
                 }
             </Card>;
 
+        const NotUpToDateMsg =
+            <MessageDialog
+                isOpen={this.state.not_up_to_date_msg_open}
+                onClose={() => this.setState({not_up_to_date_msg_open: false})}
+                canEscapeKeyClose={false}
+                canOutsideClickClose={false}
+                text={this.t('GitBranchNotUpToDate')}
+                style={{maxWidth: 400}}
+                buttons={[{
+                    title: this.t('ClosePage'),
+                    intent: Intent.DANGER,
+                    onClick: this.close
+                }]}
+            />;
+
         return (
             <div className='flex-start'>
-                {this.renderNotUpToDateMsg()}
+                {NotUpToDateMsg}
 
                 <img style={{ maxWidth: 36, maxHeight: 36, margin: '24px 0 0 12px' }} src={logo} />
 

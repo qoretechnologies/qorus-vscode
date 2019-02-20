@@ -4,7 +4,6 @@ import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
 import { MessageDialog } from '../qorus_common/MessageDialog';
-import { texts } from './global';
 import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
@@ -13,75 +12,47 @@ export class Root extends Component {
     constructor() {
         super();
 
+        this.texts = {};
+        this.num_text_requests = 0;
+
         const state = vscode.getState();
         if (state) {
-            global.texts = state.texts;
             this.state = {
                 data: state.data,
                 selected_env_id: state.selected_env_id,
                 selected_qorus_id: state.selected_qorus_id,
-                isMessageDialogOpen: false
+                config_changed_on_disk_msg_open: state.config_changed_on_disk_msg_open
             };
         }
         else {
             this.state = {
                 data: null,
                 selected_env_id: null,
-                selected_qorus_id: null
+                selected_qorus_id: null,
+                config_changed_on_disk_msg_open: false
             };
-        }
-
-        this.message_props = {
-            text: null,
-            buttons: null
         }
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'get-data':
-                    global.texts = event.data.texts,
-                    this.setVscodeState({texts: global.texts});
                     this.setStates({
                         data: event.data.data,
                         selected_env_id: null,
                         selected_qorus_id: null
                     });
                     break;
+                case 'return-text':
+                    this.texts[event.data.text_id] = event.data.text;
+                    if (--this.num_text_requests == 0) {
+                        this.forceUpdate();
+                    }
+                    break;
                 case 'config-changed-on-disk':
-                    this.setMessage({
-                        text: global.texts.configChangedOnDisk,
-                        buttons: [
-                            {
-                                title: global.texts.buttonReload,
-                                intent: Intent.WARNING,
-                                onClick: () => {
-                                    vscode.postMessage({
-                                        action: 'get-data',
-                                    });
-                                    this.setState({isMessageDialogOpen: false});
-                                }
-                            },
-                            {
-                                title: global.texts.buttonOverwrite,
-                                intent: Intent.PRIMARY,
-                                onClick: () => {
-                                    vscode.postMessage({
-                                        action: 'update-data',
-                                        data: this.state.data
-                                    });
-                                    this.setState({isMessageDialogOpen: false});
-                                }
-                            }
-                        ]
-                    });
+                    this.setStates({config_changed_on_disk_msg_open: true});
                     break;
             }
         });
-    }
-
-    setMessage = (props) => {
-        this.message_props = props;
-        this.setState({isMessageDialogOpen: true});
     }
 
     setVscodeState(state) {
@@ -102,6 +73,17 @@ export class Root extends Component {
         });
     }
 
+    t = text_id => {
+        if (this.texts[text_id]) {
+            return this.texts[text_id];
+        }
+        vscode.postMessage({
+            action: 'get-text',
+            text_id: text_id
+        });
+        this.num_text_requests++;
+    }
+
     selectEnv = (env_id) => {
         this.setStates({
             selected_env_id: env_id,
@@ -114,7 +96,7 @@ export class Root extends Component {
     }
 
     handleMessageDialogClose = () => {
-        this.setState({isMessageDialogOpen: false});
+        this.setState({config_changed_on_disk_msg_open: false});
     }
 
     render() {
@@ -127,35 +109,62 @@ export class Root extends Component {
         const selected_env = (selected_env_id !== null) ? this.state.data[selected_env_id] : null;
         const selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
 
+        const ConfigChangedOnDiskMsg =
+            <MessageDialog isOpen={this.state.config_changed_on_disk_msg_open}
+                onClose={this.handleMessageDialogClose}
+                text={this.t('ConfigChangedOnDiskDialogQuestion')}
+                buttons={[{
+                    title: this.t('ButtonReload'),
+                    intent: Intent.WARNING,
+                    onClick: () => {
+                        vscode.postMessage({
+                            action: 'get-data',
+                        });
+                        this.setState({config_changed_on_disk_msg_open: false});
+                    }
+                },
+                {
+                    title: this.t('ButtonOverwrite'),
+                    intent: Intent.PRIMARY,
+                    onClick: () => {
+                        vscode.postMessage({
+                            action: 'update-data',
+                            data: this.state.data
+                        });
+                        this.setState({config_changed_on_disk_msg_open: false});
+                    }
+                }]}
+            />;
+
         return (
             <div>
-                <MessageDialog isOpen={this.state.isMessageDialogOpen}
-                               onClose={this.handleMessageDialogClose}
-                               text={this.message_props.text}
-                               buttons={this.message_props.buttons} />
+                {ConfigChangedOnDiskMsg}
 
                 <div className='config-container'>
                     <img style={{ maxWidth: '36px', maxHeight: '36px'}} src={logo} />
                 </div>
 
                 <div className='config-container'>
-                    <Envs data={this.state.data}
-                            selected_env_id={selected_env_id}
-                            onSelect={this.selectEnv}
-                            onEdit={this.updateData.bind(this)}
-                            onRemove={this.updateData.bind(this, 'remove-env')}
-                            onMoveUp={this.updateData.bind(this, 'move-env-up')} />
-                    <Qoruses selected_env={selected_env}
-                            selected_qorus_id={selected_qorus_id}
-                            onSelect={this.selectQorus}
-                            onEdit={this.updateData.bind(this)}
-                            onRemove={this.updateData.bind(this, 'remove-qorus')}
-                            onMoveUp={this.updateData.bind(this, 'move-qorus-up')} />
-                    <Urls env_id={selected_env_id}
-                            selected_qorus={selected_qorus}
-                            onEdit={this.updateData.bind(this)}
-                            onRemove={this.updateData.bind(this, 'remove-url')}
-                            onMoveUp={this.updateData.bind(this, 'move-url-up')} />
+                    <Envs t={this.t}
+                        data={this.state.data}
+                        selected_env_id={selected_env_id}
+                        onSelect={this.selectEnv}
+                        onEdit={this.updateData.bind(this)}
+                        onRemove={this.updateData.bind(this, 'remove-env')}
+                        onMoveUp={this.updateData.bind(this, 'move-env-up')} />
+                    <Qoruses t={this.t}
+                        selected_env={selected_env}
+                        selected_qorus_id={selected_qorus_id}
+                        onSelect={this.selectQorus}
+                        onEdit={this.updateData.bind(this)}
+                        onRemove={this.updateData.bind(this, 'remove-qorus')}
+                        onMoveUp={this.updateData.bind(this, 'move-qorus-up')} />
+                    <Urls t={this.t}
+                        env_id={selected_env_id}
+                        selected_qorus={selected_qorus}
+                        onEdit={this.updateData.bind(this)}
+                        onRemove={this.updateData.bind(this, 'remove-url')}
+                        onMoveUp={this.updateData.bind(this, 'move-url-up')} />
                 </div>
             </div>
         );

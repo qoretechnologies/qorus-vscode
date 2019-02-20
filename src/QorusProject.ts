@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
-import { t } from 'ttag';
+import { t, gettext } from 'ttag';
 import { project_template } from './qorus_project_template';
 
 export const config_filename = 'qorusproject.json';
@@ -99,11 +99,17 @@ export class QorusProject {
                     switch (message.action) {
                         case 'get-data':
                             this.validateConfigFileAndDo(file_data => {
-                                (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
+                                this.config_panel.webview.postMessage({
                                     action: 'get-data',
-                                    data: QorusProject.file2web(file_data),
-                                    texts: QorusProject.pageTexts()
+                                    data: QorusProject.file2web(file_data)
                                 });
+                            });
+                            break;
+                        case 'get-text':
+                            this.config_panel.webview.postMessage({
+                                action: 'return-text',
+                                text_id: message.text_id,
+                                text: gettext(message.text_id)
                             });
                             break;
                         case 'update-data':
@@ -125,45 +131,6 @@ export class QorusProject {
                 msg.log(JSON.stringify(error));
             }
         );
-    }
-
-    private static pageTexts(): any {
-        return {
-            environments: t`Environments`,
-            addEnv: t`AddEnvironment`,
-            qorusInstances: t`QorusInstances`,
-            qorusInstancesIn: t`QorusInstancesIn`,
-            addUrl: t`AddUrl`,
-            editUrl: t`EditUrl`,
-            editMainUrl: t`EditMainUrl`,
-            mainUrl: t`MainUrl`,
-            name: t`Name`,
-            url: t`Url`,
-            urls: t`Urls`,
-            propertiesOfQorus: t`PropertiesOfQorusInstance`,
-            customUrls: t`CustomUrls`,
-            remove: t`Remove`,
-            add: t`AddNew`,
-            edit: t`Edit`,
-            moveUp: t`MoveUp`,
-            addQorus: t`AddQorus`,
-            editQorus: t`EditQorus`,
-            editEnv: t`EditEnvironment`,
-            confirmDeletion: t`ConfirmDeletion`,
-            confirmRemoveEnvPre: t`ConfirmRemoveEnvPre`,
-            confirmRemoveEnvPost: t`ConfirmRemoveEnvPost`,
-            confirmRemoveQorusPre: t`ConfirmRemoveQorusPre`,
-            confirmRemoveQorusPost: t`ConfirmRemoveQorusPost`,
-            confirmRemoveUrlPre: t`ConfirmRemoveUrlPre`,
-            confirmRemoveUrlPost: t`ConfirmRemoveUrlPost`,
-            buttonCancel: t`ButtonCancel`,
-            buttonDelete: t`ButtonDelete`,
-            buttonSave: t`ButtonSave`,
-            buttonReload: t`ButtonReload`,
-            buttonOverwrite: t`ButtonOverwrite`,
-            mandatoryInput: t`MandatoryInput`,
-            configChangedOnDisk: t`ConfigChangedOnDiskDialogQuestion`
-        };
     }
 
     private static file2web(file_data?: any): any[] {

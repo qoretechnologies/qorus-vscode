@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Classes, Colors, H5, InputGroup,
          Intent, Popover, PopoverInteractionKind, FormGroup } from '@blueprintjs/core';
-import { texts } from './global';
 
 
 export class EditPopover extends Component {
@@ -46,12 +45,12 @@ export class EditPopover extends Component {
         let can_close = true;
         if (!this.name_hidden && !this.name) {
             this.name_input.setAttribute('style', 'background-color: ' + Colors.ORANGE5)
-            this.name_input.setAttribute('placeholder', global.texts.mandatoryInput);
+            this.name_input.setAttribute('placeholder', this.props.t('MandatoryInput'));
             can_close = false;
         }
         if (!this.url_hidden && !this.url) {
             this.url_input.setAttribute('style', 'background-color: ' + Colors.ORANGE5)
-            this.url_input.setAttribute('placeholder', global.texts.mandatoryInput);
+            this.url_input.setAttribute('placeholder', this.props.t('MandatoryInput'));
             can_close = false;
         }
         if (!can_close) {
@@ -71,25 +70,28 @@ export class EditPopover extends Component {
             return null;
         }
 
+        const t = this.props.t;
+
         const kind = this.props.kind;      //  'edit' or 'add'
         const entity = this.props.entity;  //  'Env' or 'Qorus' or 'Url'
         const url_label = ['edit-main-url', 'edit-qorus'].includes(this.action)
-                                ? global.texts.mainUrl
-                                : global.texts.url;
+                                ? t('MainUrl')
+                                : t('Url');
         const header = ['edit-main-url'].includes(this.action)
-                                ? global.texts.editMainUrl
-                                : global.texts[kind + entity];
+                                ? t('EditMainUrl')
+                                : t(kind[0].toUpperCase() + kind.substr(1) + entity);
 
         return (
             <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}
                      interactionKind={PopoverInteractionKind.CLICK}
                      onInteraction={nextOpenState => {this.setState({isOpen: nextOpenState});}}
                      isOpen={this.state.isOpen}>
-                <Button icon={kind == 'edit' ? 'edit' : 'plus'} title={global.texts[kind]} />
+                <Button icon={kind == 'edit' ? 'edit' : 'plus'}
+                        title={kind == 'edit' ? t('Edit') : t('AddNew')} />
                 <form onSubmit={this.submit} style={this.url_hidden ? {} : { minWidth: '310px' }}>
                     <H5>{header}</H5>
                     {this.name_hidden ||
-                        <FormGroup label={global.texts.name} labelFor='name'>
+                        <FormGroup label={t('Name')} labelFor='name'>
                             <InputGroup id='name' type='text'
                                         defaultValue={this.props.data ? this.props.data.name : null}
                                         onChange={this.onNameChange}
@@ -106,10 +108,10 @@ export class EditPopover extends Component {
                     }
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 25 }}>
                         <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
-                            {global.texts.buttonCancel}
+                            {t('ButtonCancel')}
                         </Button>
                         <Button type='submit' intent={Intent.SUCCESS}>
-                            {global.texts.buttonSave}
+                            {t('ButtonSave')}
                         </Button>
                     </div>
                 </form>
