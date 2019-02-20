@@ -31,6 +31,7 @@ export class Root extends Component {
                 selected_qorus_id: null,
                 config_changed_on_disk_msg_open: false
             };
+            this.setVscodeState(this.state);
         }
 
         window.addEventListener('message', event => {
