@@ -292,8 +292,14 @@ msgstr "Move up one position"
 msgid "EditQorus"
 msgstr "Edit Qorus instance"
 
+msgid "AddEnv"
+msgstr "Add environment"
+
 msgid "AddEnvironment"
 msgstr "Add environment"
+
+msgid "EditEnv"
+msgstr "Edit environment"
 
 msgid "EditEnvironment"
 msgstr "Edit environment"
