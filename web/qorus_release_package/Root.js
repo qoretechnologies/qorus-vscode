@@ -36,6 +36,7 @@ export class Root extends Component {
                 not_up_to_date_msg_open: false,
                 pending: false
             };
+            this.setVscodeState(this.state);
         }
 
         window.addEventListener('message', event => {
