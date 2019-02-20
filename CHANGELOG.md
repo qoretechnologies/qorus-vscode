@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.8
+
+* fix: release packager page does not remember its initial state
+  https://github.com/qoretechnologies/qorus-vscode/issues/55
+
 ## 0.0.7
 
 * feature: local release packager
