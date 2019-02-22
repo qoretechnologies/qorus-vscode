@@ -128,8 +128,8 @@ class QorusRelease {
     }
 
     private openWizard() {
-        const web_path = path.join(__dirname, '..', 'dist', 'qorus_release_package');
-        vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
+        const web_path = path.join(__dirname, '..', 'dist');
+        vscode.workspace.openTextDocument(path.join(web_path, 'release_package.html')).then(
             doc => {
                 this.release_panel = vscode.window.createWebviewPanel(
                     'qorusRelease',
