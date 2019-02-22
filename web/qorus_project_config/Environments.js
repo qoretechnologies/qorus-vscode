@@ -21,12 +21,12 @@ export const Envs = props => {
     }
 
     return (
-        <div className='config-item column-envs'>
+        <div className='config-item'>
             <HTMLTable condensed={true}>
                 <thead>
                     <tr>
                         <th colspan='2'>
-                            <H4 className='config-color'>{props.t('Environments')}</H4>
+                            <H4 className='fg-color'>{props.t('Environments')}</H4>
                         </th>
                     </tr>
                 </thead>

@@ -141,7 +141,7 @@ export class Root extends Component {
             <div>
                 {ConfigChangedOnDiskMsg}
 
-                <div className='config-container'>
+                <div>
                     <img style={{ maxWidth: 36, maxHeight: 36, margin: '15px 0 -18px 9px' }} src={logo} />
                 </div>
 
