@@ -1,0 +1,26 @@
+body {
+    background-color: var(--vscode-editor-background);
+}
+.fg-color {
+    color: var(--vscode-editor-foreground);
+}
+.flex-start {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+}
+.flex-center {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}
+.flex-end {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+}
+.flex-space-between {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+}

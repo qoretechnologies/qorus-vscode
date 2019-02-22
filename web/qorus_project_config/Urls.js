@@ -33,7 +33,7 @@ export const Urls = props => {
                 <thead>
                     <tr>
                         <th colspan='2'>
-                            <H4 className='config-color'>
+                            <H4 className='fg-color'>
                                 {props.t('PropertiesOfQorusInstance')}&nbsp;
                                 <span style={{ fontWeight: 'bold' }}>{qorus.name}</span>
                             </H4>
@@ -43,14 +43,14 @@ export const Urls = props => {
                 <thead>
                     <tr>
                         <th colspan='2'>
-                            <span className='config-color'>{props.t('MainUrl')}</span>
+                            <span className='fg-color'>{props.t('MainUrl')}</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            <span className='config-color'>{qorus.url}</span>
+                            <span className='fg-color'>{qorus.url}</span>
                         </td>
                         <td>
                             <EditPopover kind='edit' entity='Url'
@@ -64,7 +64,7 @@ export const Urls = props => {
                 <thead>
                     <tr>
                         <th colspan='2'>
-                            <span className='config-color'>{props.t('CustomUrls')}</span>
+                            <span className='fg-color'>{props.t('CustomUrls')}</span>
                         </th>
                     </tr>
                 </thead>
@@ -82,7 +82,7 @@ const CustomUrl = props => {
     return (
         <tr>
             <td>
-                <span className='config-color'>
+                <span className='fg-color'>
                     <span style={{ fontWeight: 'bold' }}>{url.name}</span>
                     <br />
                     {url.url}
