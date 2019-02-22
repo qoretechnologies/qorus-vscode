@@ -14,11 +14,12 @@ const commonConfig = {
                 }
             },
             {
-                test: /\.css$/,
+                test: /\.(s)?css$/,
                 use: [
                     'style-loader',
                     MiniCssExtractPlugin.loader,
-                    'css-loader'
+                    'css-loader',
+                    'sass-loader'
                 ]
             },
             {
