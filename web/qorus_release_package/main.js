@@ -5,7 +5,7 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import { Root } from './Root';
 
 require('./index.html');
-require('./release_package.css');
+require('./release_package.scss');
 
 ReactDOM.render(
     <Root />,
