@@ -3,7 +3,7 @@ import { Intent } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
-import { MessageDialog } from '../qorus_common/MessageDialog';
+import { MessageDialog } from '../common/MessageDialog';
 import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
