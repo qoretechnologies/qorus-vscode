@@ -21,7 +21,7 @@ export class Root extends Component {
             const {step, branch, release_type, selected_commit, files, package_path,
                    saved_path, result, not_up_to_date_msg_open, pending} = state;
             this.state = {step, branch, release_type, selected_commit, files, package_path,
-                           saved_path, result, not_up_to_date_msg_open, pending};
+                          saved_path, result, not_up_to_date_msg_open, pending};
         }
         else {
             this.state = {

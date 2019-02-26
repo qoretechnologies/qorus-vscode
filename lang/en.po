@@ -100,6 +100,9 @@ msgstr "Authentication needed for ${ url }"
 msgid "AuthNotNeeded ${ url }"
 msgstr "Authentication not needed for ${ url }"
 
+msgid "AuthFailed"
+msgstr "Authentication failed"
+
 msgid "GettingInfoError"
 msgstr "Error in getting info"
 
@@ -216,6 +219,9 @@ msgstr "Save"
 
 msgid "ButtonOverwrite"
 msgstr "Overwrite"
+
+msgid "ButtonLogin"
+msgstr "Log in"
 
 msgid "ProjectConfigHasBeenInitialized"
 msgstr "Project configuration has now been initialized from a template"
