@@ -1,9 +1,12 @@
 @import '../qorus_common/common.scss';
 
+$margin: 24px;
+
 .config-container {
     @extend .flex-start;
-    padding: -24px;
+    padding: -$margin;
 }
+
 .config-item {
-    margin: 24px;
+    margin: $margin;
 }

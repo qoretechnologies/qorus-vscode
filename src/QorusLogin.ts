@@ -4,10 +4,16 @@ import { QorusAuth } from './QorusAuth';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
 import * as path from 'path';
 import * as msg from './qorus_message';
-import { t } from 'ttag';
+import { t, gettext } from 'ttag';
 
 
 export class QorusLogin extends QorusAuth {
+    private login_panel: vscode.WebviewPanel | undefined = undefined;
+
+    private disposeLoginPanel() {
+        this.login_panel.dispose();
+        this.login_panel = null;
+    }
 
     login(tree_item: string | vscode.TreeItem, set_active: boolean = true) {
 
@@ -24,8 +30,13 @@ export class QorusLogin extends QorusAuth {
             return;
         }
 
-        const web_path = path.join(__dirname, '..', 'web');
-        const panel = vscode.window.createWebviewPanel(
+        if (this.login_panel) {
+            this.login_panel.reveal(vscode.ViewColumn.One);
+            return;
+        }
+
+        const web_path = path.join(__dirname, '..', 'dist');
+        this.login_panel = vscode.window.createWebviewPanel(
             'qorusLogin',
             t`QorusLoginTitle`,
             vscode.ViewColumn.One,
@@ -33,46 +44,54 @@ export class QorusLogin extends QorusAuth {
                 enableScripts: true
             }
         );
-        vscode.workspace.openTextDocument(path.join(web_path, 'qorus_login', 'login.html')).then(
+        vscode.workspace.openTextDocument(path.join(web_path, 'login.html')).then(
             html => {
-                panel.webview.html = html.getText()
-                                        .replace(/{{ path }}/g, web_path)
-                                        .replace(/{{ loginHeader1 }}/g, t`LoginHeader`)
-                                        .replace(/{{ loginHeader2 }}/g, t`at`)
-                                        .replace(/{{ name }}/g, qorus_instance.name)
-                                        .replace(/{{ url }}/g, url)
-                                        .replace(/{{ labelUsername }}/g, t`LabelUsername`)
-                                        .replace(/{{ labelPassword }}/g, t`LabelPassword`)
-                                        .replace(/{{ buttonOk }}/g, t`ButtonOk`)
-                                        .replace(/{{ buttonCancel }}/g, t`ButtonCancel`);
+                this.login_panel.webview.html = html.getText().replace(/{{ path }}/g, web_path);
 
-                panel.webview.onDidReceiveMessage(message => {
-                    if (message.command != 'ok') {
-                        msg.info(t`LoginCancelled`);
-                        panel.dispose();
-                        return;
+                this.login_panel.webview.onDidReceiveMessage(message => {
+                    switch (message.action) {
+                        case 'get-data':
+                            this.login_panel.webview.postMessage({
+                                action: 'return-data',
+                                qorus: {
+                                    name: qorus_instance.name,
+                                    url: url,
+                                }
+                            });
+                            break;
+                        case 'get-text':
+                            this.login_panel.webview.postMessage({
+                                action: 'return-text',
+                                text_id: message.text_id,
+                                text: gettext(message.text_id)
+                            });
+                            break;
+                        case 'form-cancel':
+                            msg.info(t`LoginCancelled`);
+                            this.disposeLoginPanel();
+                            break;
+                        case 'form-submit':
+                            const options = {
+                                method: 'POST',
+                                uri: `${url}/api/latest/public/login?user=${message.username}&pass=${message.password}`,
+                                strictSSL: false
+                            };
+
+                            msg.log(t`SendingLoginRequest`);
+                            request(options).then(
+                                response => {
+                                    const token: string = JSON.parse(response).token;
+                                    this.addToken(url, token, set_active);
+                                    tree.refresh();
+                                    msg.info(t`LoginSuccessful`);
+                                    this.disposeLoginPanel();
+                                },
+                                error => {
+                                    this.requestError(error, t`LoginError`);
+                                    this.disposeLoginPanel();
+                                }
+                            );
                     }
-
-                    const options = {
-                        method: 'POST',
-                        uri: `${url}/api/latest/public/login?user=${message.username}&pass=${message.password}`,
-                        strictSSL: false
-                    };
-
-                    msg.log(t`SendingLoginRequest`);
-                    request(options).then(
-                        response => {
-                            const token: string = JSON.parse(response).token;
-                            this.addToken(url, token, set_active);
-                            tree.refresh();
-                            msg.info(t`LoginSuccessful`);
-                            panel.dispose();
-                        },
-                        error => {
-                            this.requestError(error, t`LoginError`);
-                            panel.dispose();
-                        }
-                    );
                 });
             },
             error => {
@@ -141,6 +160,11 @@ export class QorusLogin extends QorusAuth {
         else if (error_data.message && error_data.message.indexOf('ECONNREFUSED') > -1) {
             msg.error(t`ConnectionRefused ${url}`);
             this.doLogout();
+        }
+        else if (error_data.message && error_data.message.indexOf('authenticate') > -1
+                        && error_data.statusCode == 400)
+        {
+            msg.error(t`AuthFailed`);
         }
         else {
             if (error_data.statusCode == 409) {
