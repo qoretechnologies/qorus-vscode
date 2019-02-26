@@ -4,9 +4,9 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: {
-        login: './web/qorus_login/main.js',
-        project_config: './web/qorus_project_config/main.js',
-        release_package: './web/qorus_release_package/main.js',
+        login: './web/login/main.js',
+        project_config: './web/project_config/main.js',
+        release_package: './web/release_package/main.js',
     },
     output: {
         path: `${root}/dist`,

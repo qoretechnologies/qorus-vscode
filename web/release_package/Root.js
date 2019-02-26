@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, Card, Collapse, H3, H4, H5, Intent, Radio, RadioGroup, Spinner } from '@blueprintjs/core';
 import { BackForwardButtons } from './BackForwardButtons';
 import { SelectCommit } from './SelectCommit';
-import { MessageDialog } from '../qorus_common/MessageDialog';
+import { MessageDialog } from '../common/MessageDialog';
 import logo from '../../images/qorus_logo_256.png';
 const vscode = acquireVsCodeApi();
 
