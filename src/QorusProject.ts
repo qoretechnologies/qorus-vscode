@@ -249,6 +249,9 @@ class QorusProjects {
         }
 
         if (!uri) {
+            if (vscode.workspace.workspaceFolders.length == 1) {
+                return vscode.workspace.workspaceFolders[0].uri.fsPath;
+            }
             return undefined;
         }
 
