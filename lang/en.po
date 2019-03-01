@@ -462,3 +462,6 @@ msgstr "Saving release file failed: ${ error }"
 
 msgid "ReleaseFileHasBeenSavedAs"
 msgstr "Release file has been saved as"
+
+msgid "SourceDirs"
+msgstr "Source directories"

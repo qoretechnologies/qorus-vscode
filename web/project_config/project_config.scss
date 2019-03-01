@@ -4,6 +4,7 @@ $margin: 24px;
 
 .config-container {
     @extend .flex-start;
+    margin: -$margin;
     padding: -$margin;
 }
 

@@ -92,7 +92,7 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
     }
 
     projects.validateConfigFileAndDo(
-        (file_data: any) => tree.reset(file_data),
+        (file_data: any) => tree.reset(file_data.qorus_instances),
         () => tree.reset({}),
         uri
     );

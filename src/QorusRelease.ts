@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as moment from 'moment';
 import * as fs from 'fs';
 import * as os from 'os';
-import { projects, QorusProject, source_dirs } from './QorusProject';
+import { projects, QorusProject } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { deployer } from './QorusDeploy';
@@ -16,14 +16,14 @@ const copyFile = require('fs-copy-file');
 class QorusRelease {
     private repository: QorusRepository = new QorusRepositoryGit();
     private project_folder: string | undefined = undefined;
+    private source_directories: string[] = [];
     private release_panel: vscode.WebviewPanel | undefined = undefined;
     private files: string[] = [];
     private package_path = null;
 
     makeRelease(uri: vscode.Uri) {
         const project: QorusProject | undefined = projects.getQorusProject(uri);
-        const project_exists: boolean = project ? project.exists() : false;
-        if (!project_exists) {
+        if (!project || !project.exists()) {
             msg.error(t`QorusProjectNotSet`);
             return;
         }
@@ -34,14 +34,18 @@ class QorusRelease {
             return;
         }
 
-        this.repository.init(this.project_folder).then(
-            () => {
-                this.makeReleaseImpl();
-            },
-            (error: string) => {
-                msg.error(error);
-            }
-        );
+        project.validateConfigFileAndDo(file_data => {
+            this.source_directories = file_data.source_directories || [];
+
+            this.repository.init(this.project_folder).then(
+                () => {
+                    this.makeReleaseImpl();
+                },
+                (error: string) => {
+                    msg.error(error);
+                }
+            );
+        });
     }
 
     private makeReleaseImpl() {
@@ -71,7 +75,7 @@ class QorusRelease {
         }
 
         this.files = [];
-        source_dirs.map(dir => getFiles(path.join(this.project_folder, dir)));
+        this.source_directories.map(dir => getFiles(path.join(this.project_folder, dir)));
     }
 
     private createReleaseFile(): any {
@@ -164,7 +168,10 @@ class QorusRelease {
                             });
                             break;
                         case 'get-diff':
-                            this.repository.changedFiles(message.commit, this.project_folder).then(
+                            this.repository.changedFiles(message.commit,
+                                                         this.project_folder,
+                                                         this.source_directories)
+                            .then(
                                 (files: string[]) => {
                                     this.files = files;
                                     this.release_panel.webview.postMessage({

@@ -2,17 +2,11 @@
     "definitions": {
         "qorus_config": {
             "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "wiki": {
-                    "type": "string"
-                },
-                "issue_tracker": {
-                    "type": "string"
+                "source_directories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "qorus_instances": {
                     "type": "object",
@@ -23,7 +17,8 @@
                         }
                     }
                 }
-            }
+            },
+            "required": ["source_directories", "qorus_instances"]
         },
         "qorus_instance": {
             "properties": {

@@ -7,7 +7,6 @@ import { t, gettext } from 'ttag';
 import { project_template } from './qorus_project_template';
 
 export const config_filename = 'qorusproject.json';
-export const source_dirs = ['src'];
 
 
 export class QorusProject {
@@ -100,8 +99,8 @@ export class QorusProject {
                         case 'get-data':
                             this.validateConfigFileAndDo(file_data => {
                                 this.config_panel.webview.postMessage({
-                                    action: 'get-data',
-                                    data: QorusProject.file2web(file_data)
+                                    action: 'return-data',
+                                    data: QorusProject.file2data(file_data)
                                 });
                             });
                             break;
@@ -113,8 +112,8 @@ export class QorusProject {
                             });
                             break;
                         case 'update-data':
-                            const data = QorusProject.web2file(message.data);
-                            tree.reset(data);
+                            const data = QorusProject.data2file(message.data);
+                            tree.reset(data.qorus_instances);
                             message_on_config_file_change = false;
                             fs.writeFileSync(this.config_file, JSON.stringify(data, null, 4) + '\n');
                             break;
@@ -133,16 +132,19 @@ export class QorusProject {
         );
     }
 
-    private static file2web(file_data?: any): any[] {
+    private static file2data(file_data?: any): any {
         if (!file_data) {
-            return [];
+            return {
+                qorus_instances: [],
+                source_directories: []
+            };
         }
 
-        let data: any[] = [];
+        let qorus_instances: any[] = [];
         let i: number = 0;
         for (let env_name in file_data.qorus_instances) {
             const env_id = i++;
-            data.push({
+            qorus_instances.push({
                 id: env_id,
                 name: env_name,
                 qoruses: []
@@ -150,7 +152,7 @@ export class QorusProject {
             let ii: number = 0;
             for (let qorus of file_data.qorus_instances[env_name]) {
                 const qorus_id = ii++;
-                data[env_id].qoruses.push({
+                qorus_instances[env_id].qoruses.push({
                     id: qorus_id,
                     name: qorus.name,
                     url: qorus.url,
@@ -161,7 +163,7 @@ export class QorusProject {
                     let iii: number = 0;
                     for (let url of qorus.custom_urls) {
                         const url_id = iii++;
-                        data[env_id].qoruses[qorus_id].urls.push({
+                        qorus_instances[env_id].qoruses[qorus_id].urls.push({
                             id: url_id,
                             name: url.name,
                             url: url.url
@@ -170,13 +172,21 @@ export class QorusProject {
                 }
             }
         }
-        return data;
+
+        return {
+            qorus_instances: qorus_instances,
+            source_directories: file_data.source_directories
+        };
     }
 
-    private static web2file(data: any): any {
-        let file_data: any = {qorus_instances: {}}
-        for (let env_id in data) {
-            const env = data[env_id];
+    private static data2file(data: any): any {
+        let file_data: any = {
+            qorus_instances: {},
+            source_directories: data.source_directories
+        };
+
+        for (let env_id in data.qorus_instances) {
+            const env = data.qorus_instances[env_id];
             file_data.qorus_instances[env.name] = [];
             for (let qorus_id in env.qoruses) {
                 const qorus: any = env.qoruses[qorus_id];

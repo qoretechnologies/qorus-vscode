@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Intent } from '@blueprintjs/core';
+import { Intent, Radio, RadioGroup } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
@@ -21,6 +21,7 @@ export class Root extends Component {
                 data: state.data,
                 selected_env_id: state.selected_env_id,
                 selected_qorus_id: state.selected_qorus_id,
+                config_type: state.config_type,
                 config_changed_on_disk_msg_open: state.config_changed_on_disk_msg_open
             };
         }
@@ -29,6 +30,7 @@ export class Root extends Component {
                 data: null,
                 selected_env_id: null,
                 selected_qorus_id: null,
+                config_type: 'qoruses',
                 config_changed_on_disk_msg_open: false
             };
             this.setVscodeState(this.state);
@@ -36,7 +38,7 @@ export class Root extends Component {
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
-                case 'get-data':
+                case 'return-data':
                     this.setStates({
                         data: event.data.data,
                         selected_env_id: null,
@@ -85,6 +87,10 @@ export class Root extends Component {
         this.num_text_requests++;
     }
 
+    onConfigTypeChange = ev => {
+        this.setStates({config_type: ev.target.value});
+    }
+
     selectEnv = (env_id) => {
         this.setStates({
             selected_env_id: env_id,
@@ -107,7 +113,7 @@ export class Root extends Component {
 
         const selected_env_id = this.state.selected_env_id;
         const selected_qorus_id = this.state.selected_qorus_id;
-        const selected_env = (selected_env_id !== null) ? this.state.data[selected_env_id] : null;
+        const selected_env = (selected_env_id !== null) ? this.state.data.qorus_instances[selected_env_id] : null;
         const selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
 
         const ConfigChangedOnDiskMsg =
@@ -137,42 +143,65 @@ export class Root extends Component {
                 }]}
             />;
 
+        const QorusInstances =
+            <div className='config-container'>
+                <Envs t={this.t}
+                    data={this.state.data.qorus_instances}
+                    selected_env_id={selected_env_id}
+                    onSelect={this.selectEnv}
+                    onEdit={this.updateQorusInstancesData.bind(this)}
+                    onRemove={this.updateQorusInstancesData.bind(this, 'remove-env')}
+                    onMoveUp={this.updateQorusInstancesData.bind(this, 'move-env-up')} />
+                <Qoruses t={this.t}
+                    selected_env={selected_env}
+                    selected_qorus_id={selected_qorus_id}
+                    onSelect={this.selectQorus}
+                    onEdit={this.updateQorusInstancesData.bind(this)}
+                    onRemove={this.updateQorusInstancesData.bind(this, 'remove-qorus')}
+                    onMoveUp={this.updateQorusInstancesData.bind(this, 'move-qorus-up')} />
+                <Urls t={this.t}
+                    env_id={selected_env_id}
+                    selected_qorus={selected_qorus}
+                    onEdit={this.updateQorusInstancesData.bind(this)}
+                    onRemove={this.updateQorusInstancesData.bind(this, 'remove-url')}
+                    onMoveUp={this.updateQorusInstancesData.bind(this, 'move-url-up')} />
+            </div>;
+
+        const SourceDirs =
+            <ul>
+                {this.state.data.source_directories.map(dir => <li>dir</li>)}
+            </ul>;
+
         return (
-            <div>
+            <>
                 {ConfigChangedOnDiskMsg}
 
-                <div>
-                    <img style={{ maxWidth: 36, maxHeight: 36, margin: '15px 0 -18px 9px' }} src={logo} />
+                <div className='flex-start'>
+                    <div>
+                        <img style={{ maxWidth: 36, maxHeight: 36, margin: '15px 0 -18px 9px' }} src={logo} />
+                    </div>
+                    <div style={{ margin: '24px 0 0 54px' }}>
+                        <RadioGroup
+                            onChange={this.onConfigTypeChange}
+                            selectedValue={this.state.config_type}
+                            inline={true}
+                        >
+                            <Radio label={this.t('QorusInstances')} value='qoruses' />
+                            <Radio label={this.t('SourceDirs')} value='sources' />
+                        </RadioGroup>
+                    </div>
                 </div>
 
-                <div className='config-container'>
-                    <Envs t={this.t}
-                        data={this.state.data}
-                        selected_env_id={selected_env_id}
-                        onSelect={this.selectEnv}
-                        onEdit={this.updateData.bind(this)}
-                        onRemove={this.updateData.bind(this, 'remove-env')}
-                        onMoveUp={this.updateData.bind(this, 'move-env-up')} />
-                    <Qoruses t={this.t}
-                        selected_env={selected_env}
-                        selected_qorus_id={selected_qorus_id}
-                        onSelect={this.selectQorus}
-                        onEdit={this.updateData.bind(this)}
-                        onRemove={this.updateData.bind(this, 'remove-qorus')}
-                        onMoveUp={this.updateData.bind(this, 'move-qorus-up')} />
-                    <Urls t={this.t}
-                        env_id={selected_env_id}
-                        selected_qorus={selected_qorus}
-                        onEdit={this.updateData.bind(this)}
-                        onRemove={this.updateData.bind(this, 'remove-url')}
-                        onMoveUp={this.updateData.bind(this, 'move-url-up')} />
-                </div>
-            </div>
+                <hr style={{ margin: '12px 0 8px'}} />
+
+                {this.state.config_type == 'qoruses' && QorusInstances}
+                {this.state.config_type == 'sources' && SourceDirs}
+            </>
         );
     }
 
-    updateData(action, values) {
-        let data = JSON.parse(JSON.stringify(this.state.data));
+    updateQorusInstancesData(action, values) {
+        let data = JSON.parse(JSON.stringify(this.state.data.qorus_instances));
         let index, env, qorus, qoruses, url, urls;
 
         let resetIds = ((array, index) => {
@@ -284,11 +313,16 @@ export class Root extends Component {
                 break;
         }
 
-        this.setStates({data: data});
+        const all_data = {
+            qorus_instances: data,
+            source_directories: this.state.data.source_directories
+        };
+
+        this.setStates({data: all_data});
 
         vscode.postMessage({
             action: 'update-data',
-            data: data
+            data: all_data
         });
     }
 }
