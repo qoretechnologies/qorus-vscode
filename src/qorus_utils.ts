@@ -5,6 +5,10 @@ export function isDeployable(file_path: string): boolean {
     return suffix ? deployable_suffixes.includes(suffix) : false;
 }
 
+export function isTest(file_path: string): boolean {
+    return getSuffix(file_path) === 'qtest';
+}
+
 export function isService(file_path: string): boolean {
     return getSuffix(file_path) === 'qsd';
 }

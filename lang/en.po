@@ -462,3 +462,54 @@ msgstr "Saving release file failed: ${ error }"
 
 msgid "ReleaseFileHasBeenSavedAs"
 msgstr "Release file has been saved as"
+
+msgid "NotExecutableFile ${ path }";
+msgstr "Not a executable file: ${ path }";
+
+msgid "TestingDirectory ${ dir }"
+msgstr "Testing directory: ${ dir }"
+
+msgid "TestNotSupportedForQorus3"
+msgstr "Execution of tests is not supported for Qorus version < 4"
+
+msgid "FilesToTest"
+msgstr "Files to test:"
+
+msgid "TestHasStarted ${ name } ${ url }"
+msgstr "Test execution to ${ name } - ${ url } has started ..."
+
+msgid "testResponse ${ response }"
+msgstr "  ... response: ${ response }"
+
+msgid "TestStartFailed"
+msgstr "Test execution failed to start"
+
+msgid "CancellingTest ${ test_id }"
+msgstr "Cancelling test execution (ID: ${ test_id })"
+
+msgid "TestCancellationFailed ${ test_id }"
+msgstr "Test execution cancellation failed (ID: ${ test_id })"
+
+msgid "checkingTestProgress ${ test_id } ${ sec }";
+msgstr "${ sec }s   checking test execution progress (ID: ${ test_id }) ... ";
+
+msgid "TestFinishedSuccessfully ${ test_id }"
+msgstr "Test execution finished successfully (ID: ${ test_id })"
+
+msgid "TestCancelled ${ test_id }"
+msgstr "Test execution cancelled (ID: ${ test_id })"
+
+msgid "TestFailed ${ test_id }"
+msgstr "Test execution failed (ID: ${ test_id })"
+
+msgid "CheckingTestStatusFailed ${ test_id }"
+msgstr "Checking test execution status failed (ID: ${ test_id })"
+
+msgid "NoExecutableFilesInDir ${ dir }"
+msgstr "No executable files in the directory ${ dir }"
+
+msgid "TestRunning ${ test_id }"
+msgstr "Qorus test is running (ID: ${ test_id })"
+
+msgid "NothingToTest"
+msgstr "Nothing to test"

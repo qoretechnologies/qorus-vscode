@@ -4,6 +4,7 @@ import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { deployer } from './QorusDeploy';
 import { releaser } from './QorusRelease';
+import { tester } from './QorusTest';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
@@ -26,6 +27,17 @@ export async function activate(context: vscode.ExtensionContext) {
                                                  (uri: vscode.Uri) => deployer.deployDir(uri));
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile',
+                                                           () => tester.testCurrentFile());
+
+    disposable = vscode.commands.registerCommand('qorus.testFile',
+                                                 (uri: vscode.Uri) => tester.testFile(uri));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.testDir',
+                                                 (uri: vscode.Uri) => tester.testDir(uri));
+    context.subscriptions.push(disposable);
+
     disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
                                                  (uri: vscode.Uri) => projects.manageProjectConfig(uri));
     context.subscriptions.push(disposable);
@@ -36,7 +48,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
                                                  (tree_item: string | vscode.TreeItem) =>
-                                                        deployer.setActiveInstance(tree_item));
+                                                    {
+                                                        deployer.setActiveInstance(tree_item);
+                                                        tester.setActiveInstance(tree_item);
+                                                    });
+
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance',
@@ -59,7 +75,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('qorus.setInactiveInstance',
                                                  (tree_item: vscode.TreeItem) =>
-                                                        deployer.unsetActiveInstance(tree_item));
+                                                    {
+                                                        deployer.unsetActiveInstance(tree_item);
+                                                        tester.unsetActiveInstance(tree_item);
+                                                    });
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
