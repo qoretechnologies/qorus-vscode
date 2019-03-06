@@ -15,6 +15,7 @@ export interface QorusRequestTexts {
     checking_progress: string,
     finished_successfully: string,
     cancelled: string,
+    failed: string,
     checking_status_failed: string
 }
 
@@ -37,7 +38,7 @@ export class QorusRequest extends QorusLogin {
         );
     }
 
-    private checkRequestResult = (url: string, request_id: string, texts: any, onFinished?) => {
+    private checkRequestResult = (url: string, request_id: string, texts: QorusRequestTexts, onFinished?) => {
         const id_info = t`RequestIdInfo ${request_id}`;
 
         const token: string | undefined = this.getToken();

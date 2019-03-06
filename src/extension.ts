@@ -6,6 +6,7 @@ import { qorus_request } from './QorusRequest';
 import { deployer } from './QorusDeploy';
 import { deleter } from './QorusDelete';
 import { releaser } from './QorusRelease';
+import { tester } from './QorusTest';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
@@ -26,6 +27,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('qorus.deployDir',
                                                  (uri: vscode.Uri) => deployer.deployDir(uri));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile',
+                                                           () => tester.testCurrentFile());
+
+    disposable = vscode.commands.registerCommand('qorus.testFile',
+                                                 (uri: vscode.Uri) => tester.testFile(uri));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.testDir',
+                                                 (uri: vscode.Uri) => tester.testDir(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.deleteInterfaces',

@@ -129,6 +129,18 @@
             {
                 "command": "qorus.openUrlInExternalBrowser",
                 "title": "Qorus: Open URL in an external tool"
+            },
+            {
+                "command": "qorus.testCurrentFile",
+                "title": "Qorus: Execute current test file"
+            },
+            {
+                "command": "qorus.testFile",
+                "title": "Qorus: Execute test file"
+            },
+            {
+                "command": "qorus.testDir",
+                "title": "Qorus: Execute test files from directory"
             }
         ],
         "keybindings": [
@@ -136,6 +148,12 @@
                 "command": "qorus.deployCurrentFile",
                 "key": "ctrl+alt+o",
                 "mac": "cmd+alt+r",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "qorus.testCurrentFile",
+                "key": "ctrl+alt+t",
+                "mac": "cmd+alt+t",
                 "when": "editorTextFocus"
             }
         ],
@@ -149,6 +167,16 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.deployDir",
+                    "group": "2_workspace"
+                },
+                {
+                    "when": "resourceScheme == file && !explorerResourceIsFolder",
+                    "command": "qorus.testFile",
+                    "group": "2_workspace"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.testDir",
                     "group": "2_workspace"
                 },
                 {
@@ -237,6 +265,11 @@
                     "type": "integer",
                     "description": "Sets verbosity level (greater value = more info)",
                     "default": 1
+                },
+                "qorusTest.continue-on-error": {
+                    "type": "boolean",
+                    "description": "if one of the tests fails, server will continue on execution of the rest",
+                    "default": false
                 }
             }
         }

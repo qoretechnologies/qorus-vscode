@@ -1,19 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as request from 'request-promise';
-import { qorus_request, QorusRequest, QorusRequestTexts } from './QorusRequest';
+import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
 
 
 class QorusDelete {
-    private request: QorusRequest;
     private web_panel: vscode.WebviewPanel | undefined = undefined;
     private interfaces = {};
-
-    constructor() {
-        this.request = qorus_request;
-    }
 
     openPage() {
         if(this.web_panel) {
@@ -64,7 +59,7 @@ class QorusDelete {
     }
 
     private deleteInterfaces(iface_kind: string, ids: string[]) {
-        const {ok, active_instance, token} = this.request.activeQorusInstanceAndToken();
+        const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             return;
         }
@@ -114,10 +109,11 @@ class QorusDelete {
             checking_progress: t`checkingDeletionProgress`,
             finished_successfully: t`DeletionFinishedSuccessfully`,
             cancelled: t`DeletionCancelled`,
+            failed: t`DeletionFailed`,
             checking_status_failed: t`CheckingDeletionStatusFailed`,
         };
 
-        this.request.doRequestAndCheckResult(options, texts, () => {
+        qorus_request.doRequestAndCheckResult(options, texts, () => {
             this.web_panel.webview.postMessage({
                 action: 'deletion-finished',
                 iface_kind: iface_kind
@@ -126,7 +122,7 @@ class QorusDelete {
     }
 
     private getInterfaces(iface_kind: string, keys: string[]) {
-        const {ok, active_instance, token} = this.request.activeQorusInstanceAndToken();
+        const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             this.web_panel.webview.postMessage({
                 action: 'return-interfaces',
