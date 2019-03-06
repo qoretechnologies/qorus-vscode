@@ -2,6 +2,7 @@ import React from 'react';
 import { HTMLTable, H4 } from "@blueprintjs/core";
 import { AddButton } from './AddButton';
 import { ButtonRow } from './ButtonRow';
+import { T } from '../common/Translate';
 
 
 export const Envs = props => {
@@ -9,7 +10,6 @@ export const Envs = props => {
     let is_first = true;
     for (let env_id in props.data) {
         buttonRows.push(<ButtonRow key={env_id}
-                                   t={props.t}
                                    env_id={env_id}
                                    data={props.data[env_id]}
                                    active={env_id == props.selected_env_id}
@@ -26,13 +26,13 @@ export const Envs = props => {
                 <thead>
                     <tr>
                         <th colspan='2'>
-                            <H4 className='fg-color'>{props.t('Environments')}</H4>
+                            <H4 className='fg-color'><T t='Environments' /></H4>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     {buttonRows}
-                    <AddButton onEdit={props.onEdit} t={props.t} />
+                    <AddButton onEdit={props.onEdit} />
                 </tbody>
             </HTMLTable>
         </div>

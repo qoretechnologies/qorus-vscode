@@ -18,8 +18,8 @@ class QorusTree implements vscode.TreeDataProvider<QorusTreeNode> {
             return;
         }
         this.qorus_instances = {};
-        for (let env_name in this.data.qorus_instances) {
-            for (let instance of this.data.qorus_instances[env_name]) {
+        for (let env_name in this.data) {
+            for (let instance of this.data[env_name]) {
                 this.qorus_instances[instance.url] = instance;
             }
         }
@@ -59,7 +59,7 @@ class QorusTree implements vscode.TreeDataProvider<QorusTreeNode> {
                 return [];
             }
             let children: QorusTreeNode[] = [];
-            for (let env_name in this.data.qorus_instances) {
+            for (let env_name in this.data) {
                 children.push(new QorusTreeEnvNode(env_name));
             }
             return children;
@@ -90,7 +90,7 @@ class QorusTreeEnvNode extends QorusTreeNode {
 
     getChildren(data: any): QorusTreeNode[] {
         let children: QorusTreeNode[] = [];
-        for (let instance of data.qorus_instances[this.env_name]) {
+        for (let instance of data[this.env_name]) {
             children.push(new QorusTreeInstanceNode(instance));
         }
         return children;

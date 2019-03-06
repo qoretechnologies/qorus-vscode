@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Button, ButtonGroup, Card, Classes, H4, InputGroup, Intent } from '@blueprintjs/core';
+import { vscode } from '../common/vscode';
+import { T } from '../common/Translate';
 import logo from '../../images/qorus_logo_256.png';
-const vscode = acquireVsCodeApi();
 
 
 export class Root extends Component {
@@ -9,8 +10,6 @@ export class Root extends Component {
         super();
 
         this.qorus = null;
-        this.texts = {};
-        this.num_text_requests = 0;
 
         const state = vscode.getState();
         if (state) {
@@ -42,17 +41,6 @@ export class Root extends Component {
         vscode.postMessage({
             action: 'get-data'
         });
-    }
-
-    t = text_id => {
-        if (this.texts[text_id]) {
-            return this.texts[text_id];
-        }
-        vscode.postMessage({
-            action: 'get-text',
-            text_id: text_id
-        });
-        this.num_text_requests++;
     }
 
     onSubmit = () => {
@@ -89,11 +77,11 @@ export class Root extends Component {
                     </div>
                     <div style={{ gridRow: 1, gridColumnStart: 2, gridColumnEnd: 6 }}>
                         <H4>
-                            {this.t('LoginHeader')} &nbsp;
+                            <T t='LoginHeader' /> &nbsp;
                             <span className='highlighted'>
                                 {this.qorus.name}
                             </span> &nbsp;
-                            {this.t('at')}
+                            <T t='at' />
                         </H4>
                         <H4 className='highlighted'>
                             {this.qorus.url}
@@ -101,7 +89,7 @@ export class Root extends Component {
                     </div>
 
                     <div className='label'>
-                        {t('LabelUsername')}
+                        <T t='LabelUsername' />
                     </div>
                     <div className='input'>
                         <InputGroup id='username' type='text' value={this.username}
@@ -109,7 +97,7 @@ export class Root extends Component {
                                     inputRef={input => {if (input ) {input.focus();}}} />
                     </div>
                     <div className='label'>
-                        {t('LabelPassword')}
+                        <T t='LabelPassword' />
                     </div>
                     <div className='input'>
                         <InputGroup id='password' type='password' value={this.password}
@@ -120,10 +108,10 @@ export class Root extends Component {
                                 intent={Intent.DANGER} style={{ width: '50%'}}
                                 onClick={this.onCancel}
                         >
-                            &nbsp; {t('ButtonCancel')} &nbsp;
+                            &nbsp; <T t='ButtonCancel' /> &nbsp;
                         </Button>
                         <Button icon='log-in' type='submit' intent={Intent.SUCCESS} style={{ width: '50%'}}>
-                            &nbsp; {t('ButtonLogin')} &nbsp;
+                            &nbsp; <T t='ButtonLogin' /> &nbsp;
                         </Button>
                     </ButtonGroup>
                 </form>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Classes, Colors, H5, InputGroup,
          Intent, Popover, PopoverInteractionKind, FormGroup } from '@blueprintjs/core';
+import { T } from '../common/Translate';
 
 
 export class EditPopover extends Component {
@@ -13,31 +14,33 @@ export class EditPopover extends Component {
         this.url_hidden = ['add-env', 'edit-env'].includes(this.action);
         this.name_input = null;
         this.url_input = null;
-        this.setState({isOpen: false});
+        this.setState({
+            is_open: false,
+            warn_mandatory_name: false,
+            warn_mandatory_url: false
+        });
     }
 
-    inputRefName = (input) => {
+    inputRefName = input => {
         this.name_input = input;
         if (input && !this.name_hidden) {
             input.focus();
         }
     }
 
-    inputRefUrl = (input) => {
+    inputRefUrl = input => {
         this.url_input = input;
         if (input && this.name_hidden) {
             input.focus();
         }
     }
 
-    onNameChange = (ev) => {
-        this.name_input.setAttribute('style', null);
-        this.name = ev.target.value.trim();
-    }
-
-    onUrlChange = (ev) => {
-        this.url_input.setAttribute('style', null);
-        this.url = ev.target.value.trim();
+    onChange = (field, ev) => {
+        this[field] = ev.target.value.trim();
+        if (this[field]) {
+            this.setState({['warn_mandatory_' + field]: false});
+            this[field + '_input'].setAttribute('style', null);
+        }
     }
 
     submit = (ev) => {
@@ -45,12 +48,12 @@ export class EditPopover extends Component {
         let can_close = true;
         if (!this.name_hidden && !this.name) {
             this.name_input.setAttribute('style', 'background-color: ' + Colors.ORANGE5)
-            this.name_input.setAttribute('placeholder', this.props.t('MandatoryInput'));
+            this.setState({warn_mandatory_name: true});
             can_close = false;
         }
         if (!this.url_hidden && !this.url) {
             this.url_input.setAttribute('style', 'background-color: ' + Colors.ORANGE5)
-            this.url_input.setAttribute('placeholder', this.props.t('MandatoryInput'));
+            this.setState({warn_mandatory_url: true});
             can_close = false;
         }
         if (!can_close) {
@@ -62,7 +65,7 @@ export class EditPopover extends Component {
                                         url_id: this.props.url_id,
                                         name: this.name,
                                         url: this.url});
-        this.setState({isOpen: false});
+        this.setState({is_open: false});
     }
 
     render () {
@@ -70,48 +73,57 @@ export class EditPopover extends Component {
             return null;
         }
 
-        const t = this.props.t;
-
         const kind = this.props.kind;      //  'edit' or 'add'
         const entity = this.props.entity;  //  'Env' or 'Qorus' or 'Url'
-        const url_label = ['edit-main-url', 'edit-qorus'].includes(this.action)
-                                ? t('MainUrl')
-                                : t('Url');
-        const header = ['edit-main-url'].includes(this.action)
-                                ? t('EditMainUrl')
-                                : t(kind[0].toUpperCase() + kind.substr(1) + entity);
+        const UrlLabel = ['edit-main-url', 'edit-qorus'].includes(this.action)
+                                ? <T t='MainUrl' />
+                                : <T t='Url' />;
+        const Header = ['edit-main-url'].includes(this.action)
+                                ? <T t='EditMainUrl' />
+                                : <T t={kind[0].toUpperCase() + kind.substr(1) + entity} />;
+
+        const Mandatory =
+            <span style={{ color: Colors.RED5 }}>
+                &nbsp; &nbsp; <T t='MandatoryInput' />
+            </span>
 
         return (
             <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}
                      interactionKind={PopoverInteractionKind.CLICK}
-                     onInteraction={nextOpenState => {this.setState({isOpen: nextOpenState});}}
-                     isOpen={this.state.isOpen}>
+                     onInteraction={nextOpenState => {this.setState({is_open: nextOpenState});}}
+                     isOpen={this.state.is_open}>
                 <Button icon={kind == 'edit' ? 'edit' : 'plus'}
-                        title={kind == 'edit' ? t('Edit') : t('AddNew')} />
+                        title={kind == 'edit' ? <T t='Edit' /> : <T t='AddNew' />} />
                 <form onSubmit={this.submit} style={this.url_hidden ? {} : { minWidth: '310px' }}>
-                    <H5>{header}</H5>
+                    <H5>{Header}</H5>
                     {this.name_hidden ||
-                        <FormGroup label={t('Name')} labelFor='name'>
+                        <FormGroup label={<T t='Name' />}
+                                   labelInfo={this.state.warn_mandatory_name && Mandatory}
+                                   labelFor='name'
+                        >
                             <InputGroup id='name' type='text'
                                         defaultValue={this.props.data ? this.props.data.name : null}
-                                        onChange={this.onNameChange}
+                                        onChange={this.onChange.bind(null, 'name')}
                                         inputRef={this.inputRefName} />
                         </FormGroup>
                     }
                     {this.url_hidden ||
-                        <FormGroup label={url_label} labelFor='url'>
+                        <FormGroup label={UrlLabel}
+                                   labelInfo={this.state.warn_mandatory_url && Mandatory}
+                                   labelFor='url'
+                        >
                             <InputGroup id='url' type='text'
                                         defaultValue={this.props.data ? this.props.data.url : null}
-                                        onChange={this.onUrlChange}
+                                        onChange={this.onChange.bind(null, 'url')}
                                         inputRef={this.inputRefUrl} />
                         </FormGroup>
                     }
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 25 }}>
                         <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
-                            {t('ButtonCancel')}
+                            <T t='ButtonCancel' />
                         </Button>
                         <Button type='submit' intent={Intent.SUCCESS}>
-                            {t('ButtonSave')}
+                            <T t='ButtonSave' />
                         </Button>
                     </div>
                 </form>

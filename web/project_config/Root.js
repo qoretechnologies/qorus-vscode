@@ -4,16 +4,14 @@ import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
 import { MessageDialog } from '../common/MessageDialog';
+import { vscode } from '../common/vscode';
+import { T } from '../common/Translate';
 import logo from '../../images/qorus_logo_256.png';
-const vscode = acquireVsCodeApi();
 
 
 export class Root extends Component {
     constructor() {
         super();
-
-        this.texts = {};
-        this.num_text_requests = 0;
 
         const state = vscode.getState();
         if (state) {
@@ -45,12 +43,6 @@ export class Root extends Component {
                         selected_qorus_id: null
                     });
                     break;
-                case 'return-text':
-                    this.texts[event.data.text_id] = event.data.text;
-                    if (--this.num_text_requests == 0) {
-                        this.forceUpdate();
-                    }
-                    break;
                 case 'config-changed-on-disk':
                     this.setStates({config_changed_on_disk_msg_open: true});
                     break;
@@ -74,17 +66,6 @@ export class Root extends Component {
         vscode.postMessage({
             action: 'get-data'
         });
-    }
-
-    t = text_id => {
-        if (this.texts[text_id]) {
-            return this.texts[text_id];
-        }
-        vscode.postMessage({
-            action: 'get-text',
-            text_id: text_id
-        });
-        this.num_text_requests++;
     }
 
     onConfigTypeChange = ev => {
@@ -119,9 +100,9 @@ export class Root extends Component {
         const ConfigChangedOnDiskMsg =
             <MessageDialog isOpen={this.state.config_changed_on_disk_msg_open}
                 onClose={this.handleMessageDialogClose}
-                text={this.t('ConfigChangedOnDiskDialogQuestion')}
+                text=<T t='ConfigChangedOnDiskDialogQuestion' />
                 buttons={[{
-                    title: this.t('ButtonReload'),
+                    title: <T t='ButtonReload' />,
                     intent: Intent.WARNING,
                     onClick: () => {
                         vscode.postMessage({
@@ -131,7 +112,7 @@ export class Root extends Component {
                     }
                 },
                 {
-                    title: this.t('ButtonOverwrite'),
+                    title: <T t='ButtonOverwrite' />,
                     intent: Intent.PRIMARY,
                     onClick: () => {
                         vscode.postMessage({
@@ -145,21 +126,21 @@ export class Root extends Component {
 
         const QorusInstances =
             <div className='config-container'>
-                <Envs t={this.t}
+                <Envs
                     data={this.state.data.qorus_instances}
                     selected_env_id={selected_env_id}
                     onSelect={this.selectEnv}
                     onEdit={this.updateQorusInstancesData.bind(this)}
                     onRemove={this.updateQorusInstancesData.bind(this, 'remove-env')}
                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-env-up')} />
-                <Qoruses t={this.t}
+                <Qoruses
                     selected_env={selected_env}
                     selected_qorus_id={selected_qorus_id}
                     onSelect={this.selectQorus}
                     onEdit={this.updateQorusInstancesData.bind(this)}
                     onRemove={this.updateQorusInstancesData.bind(this, 'remove-qorus')}
                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-qorus-up')} />
-                <Urls t={this.t}
+                <Urls
                     env_id={selected_env_id}
                     selected_qorus={selected_qorus}
                     onEdit={this.updateQorusInstancesData.bind(this)}
@@ -186,8 +167,8 @@ export class Root extends Component {
                             selectedValue={this.state.config_type}
                             inline={true}
                         >
-                            <Radio label={this.t('QorusInstances')} value='qoruses' />
-                            <Radio label={this.t('SourceDirs')} value='sources' />
+                            <Radio label=<T t='QorusInstances' /> value='qoruses' />
+                            <Radio label=<T t='SourceDirs' /> value='sources' />
                         </RadioGroup>
                     </div>
                 </div>
