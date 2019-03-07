@@ -23,12 +23,6 @@ export class Root extends Component {
                     this.qorus = event.data.qorus;
                     this.forceUpdate();
                     break;
-                case 'return-text':
-                    this.texts[event.data.text_id] = event.data.text;
-                    if (--this.num_text_requests == 0) {
-                        this.forceUpdate();
-                    }
-                    break;
             }
         });
     }

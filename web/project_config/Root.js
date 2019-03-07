@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import { Intent, Radio, RadioGroup } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
+import { SourceDirs } from './SourceDirs';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
 import { T } from '../common/Translate';
@@ -87,6 +89,19 @@ export class Root extends Component {
         this.setState({config_changed_on_disk_msg_open: false});
     }
 
+    removeSourceDir = dir => {
+        vscode.postMessage({
+            action: 'remove-source-dir',
+            dir: dir
+        });
+    }
+
+    addSourceDir = () => {
+        vscode.postMessage({
+            action: 'add-source-dir'
+        });
+    }
+
     render() {
         if (!this.state.data) {
             return null;
@@ -148,11 +163,6 @@ export class Root extends Component {
                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-url-up')} />
             </div>;
 
-        const SourceDirs =
-            <ul>
-                {this.state.data.source_directories.map(dir => <li>dir</li>)}
-            </ul>;
-
         return (
             <>
                 {ConfigChangedOnDiskMsg}
@@ -176,7 +186,13 @@ export class Root extends Component {
                 <hr style={{ margin: '12px 0 8px'}} />
 
                 {this.state.config_type == 'qoruses' && QorusInstances}
-                {this.state.config_type == 'sources' && SourceDirs}
+                {this.state.config_type == 'sources' &&
+                    <SourceDirs
+                        data={this.state.data.source_directories}
+                        addSourceDir={this.addSourceDir}
+                        removeSourceDir={this.removeSourceDir}
+                    />
+                }
             </>
         );
     }
@@ -185,11 +201,11 @@ export class Root extends Component {
         let data = JSON.parse(JSON.stringify(this.state.data.qorus_instances));
         let index, env, qorus, qoruses, url, urls;
 
-        let resetIds = ((array, index) => {
+        const resetIds = (array, index) => {
             for (let i = index; i < array.length; i++) {
                 array[i].id = i;
             }
-        });
+        };
 
         switch (action) {
             case 'edit-env':

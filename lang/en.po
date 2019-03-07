@@ -334,6 +334,9 @@ msgstr "Do you really want to remove URL "
 msgid "ConfirmRemoveUrlPost"
 msgstr "?"
 
+msgid "ConfirmRemoveDir"
+msgstr "Do you really want to remove directory "
+
 msgid "MandatoryInput"
 msgstr "Mandatory input"
 
@@ -465,3 +468,12 @@ msgstr "Release file has been saved as"
 
 msgid "SourceDirs"
 msgstr "Source directories"
+
+msgid "AddRemoveDir"
+msgstr "Add / Remove directory"
+
+msgid "NotProjectSubdir ${ dir }"
+msgstr "Selected directory ${ dir } is not a project subdirectory"
+
+msgid "DirAlreadyInConfig ${ dir }"
+msgstr "Selected directory already is in the list: ${ dir }"

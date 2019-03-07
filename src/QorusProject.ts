@@ -12,6 +12,7 @@ export const config_filename = 'qorusproject.json';
 export class QorusProject {
     private config_file: string;
     private config_panel: vscode.WebviewPanel | undefined = undefined;
+    private message_on_config_file_change: boolean = true;
 
     constructor(project_folder: string) {
         this.config_file = path.join(project_folder, config_filename);
@@ -82,10 +83,10 @@ export class QorusProject {
                 this.config_panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
 
                 const config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
-                let message_on_config_file_change: boolean = true;
+                this.message_on_config_file_change = true;
                 config_file_watcher.onDidChange(() => {
-                    if (!message_on_config_file_change) {
-                        message_on_config_file_change = true;
+                    if (!this.message_on_config_file_change) {
+                        this.message_on_config_file_change = true;
                         return;
                     }
                     msg.warning(t`ProjectConfigFileHasChangedOnDisk`);
@@ -112,10 +113,15 @@ export class QorusProject {
                             });
                             break;
                         case 'update-data':
-                            const data = QorusProject.data2file(message.data);
-                            tree.reset(data.qorus_instances);
-                            message_on_config_file_change = false;
-                            fs.writeFileSync(this.config_file, JSON.stringify(data, null, 4) + '\n');
+                            const file_data = QorusProject.data2file(message.data);
+                            tree.reset(file_data.qorus_instances);
+                            this.writeConfig(file_data, false);
+                            break;
+                        case 'add-source-dir':
+                            this.addSourceDir();
+                            break;
+                        case 'remove-source-dir':
+                            this.removeSourceDir(message.dir);
                             break;
                     }
                 });
@@ -130,6 +136,53 @@ export class QorusProject {
                 msg.log(JSON.stringify(error));
             }
         );
+    }
+
+    private addSourceDir() {
+        this.validateConfigFileAndDo(file_data => {
+            vscode.window.showOpenDialog({
+                canSelectFiles: false,
+                canSelectFolders: true,
+                defaultUri: vscode.Uri.file(this.projectFolder())
+            }).then(uris => {
+                if (!uris || !uris.length) {
+                    return;
+                }
+                const full_dir = uris[0].fsPath;
+                const dir = vscode.workspace.asRelativePath(full_dir);
+                if (dir == full_dir) {
+                    msg.error(t`NotProjectSubdir ${dir}`);
+                    return;
+                }
+                if (file_data.source_directories.indexOf(dir) > -1) {
+                    msg.error(t`DirAlreadyInConfig ${dir}`);
+                    return;
+                }
+                file_data.source_directories.push(dir);
+                this.writeConfig(file_data);
+            });
+        });
+    }
+
+    private removeSourceDir(dir) {
+        this.validateConfigFileAndDo(file_data => {
+            const index = file_data.source_directories.indexOf(dir);
+            if (index > -1) {
+                file_data.source_directories.splice(index, 1);
+                this.writeConfig(file_data);
+            }
+        });
+    }
+
+    private writeConfig(file_data: any, send_message: boolean = true) {
+        this.message_on_config_file_change = false;
+        fs.writeFileSync(this.config_file, JSON.stringify(file_data, null, 4) + '\n');
+        if (send_message) {
+            this.config_panel.webview.postMessage({
+                action: 'return-data',
+                data: QorusProject.file2data(file_data)
+            });
+        }
     }
 
     private static file2data(file_data?: any): any {
