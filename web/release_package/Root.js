@@ -244,6 +244,7 @@ export class Root extends Component {
                     selectCommit={this.selectCommit}
                     disabled={!this.state.branch.up_to_date || this.state.pending}
                     pending={this.state.pending}
+                    t={t}
                 />
             </>;
 
@@ -260,6 +261,7 @@ export class Root extends Component {
                     forward_text_id='CreatePackage'
                     disabled={this.state.pending}
                     pending={this.state.pending}
+                    t={t}
                 />
                 <H4 style={{marginTop: 12}}>{t('PackageContents')}</H4>
                 <H5>{t('SelectedCommit')}: <strong>{this.state.selected_commit}</strong></H5>
@@ -272,9 +274,9 @@ export class Root extends Component {
                     onBack={() => this.backToStep(this.state.release_type == 'incremental' ?
                                                         Step.Diff : Step.Type)}
                     onForward={this.deployPackage}
-                    t={t}
                     forward_text_id='DeployPackage'
                     pending={this.state.pending}
+                    t={t}
                 />
                 <H5>{this.state.release_type == 'existing'
                         ? t('ExistingReleaseFileWillBeSent')

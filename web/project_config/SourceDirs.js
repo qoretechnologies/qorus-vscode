@@ -3,12 +3,12 @@ import { Button, Classes, H4, HTMLTable, Intent, Popover } from "@blueprintjs/co
 
 
 export const SourceDirs = props => (
-    <div className='config-item'>
+    <div>
         <HTMLTable condensed={true}>
             <thead>
                 <tr>
                     <th colspan='2'>
-                        <H4 className='fg-color'>{props.t('AddRemoveDir')}></H4>
+                        <H4 className='fg-color'>{props.t('AddRemoveDir')}</H4>
                     </th>
                 </tr>
             </thead>
@@ -16,7 +16,7 @@ export const SourceDirs = props => (
                 {props.data.map(dir =>
                     <tr key={dir}>
                         <td style={{ minWidth: 120, paddingTop: 12 }}>
-                            {dir}
+                             <span className='fg-color'>{dir}</span>
                         </td>
                         <td>
                             <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>

@@ -189,7 +189,7 @@ export class Root extends Component {
                     <div>
                         <img style={{ maxWidth: 36, maxHeight: 36, margin: '15px 0 -18px 9px' }} src={logo} />
                     </div>
-                    <div style={{ margin: '24px 0 0 54px' }}>
+                    <div style={{ margin: '24px 0 0 54px' }} className='fg-color'>
                         <RadioGroup
                             onChange={this.onConfigTypeChange}
                             selectedValue={this.state.config_type}
