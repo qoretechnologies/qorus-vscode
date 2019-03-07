@@ -2,7 +2,6 @@ import React from 'react';
 import { HTMLTable, H4 } from "@blueprintjs/core";
 import { AddButton } from './AddButton';
 import { ButtonRow } from './ButtonRow';
-import { T } from '../common/Translate';
 
 
 export const Qoruses = props => {
@@ -15,6 +14,7 @@ export const Qoruses = props => {
     let is_first = true;
     for (let qorus_id in env.qoruses) {
         buttonRows.push(<ButtonRow key={qorus_id}
+                                   t={props.t}
                                    env_id={env.id}
                                    qorus_id={qorus_id}
                                    data={env.qoruses[qorus_id]}
@@ -33,7 +33,7 @@ export const Qoruses = props => {
                     <tr>
                         <th colspan='2'>
                             <H4 className='fg-color'>
-                                <T t='QorusInstancesIn' />&nbsp;
+                                {props.t('QorusInstancesIn')}&nbsp;
                                 <span style={{ fontWeight: 'bold' }}>{env.name}</span>
                             </H4>
                         </th>
@@ -41,7 +41,7 @@ export const Qoruses = props => {
                 </thead>
                 <tbody>
                     {buttonRows}
-                    <AddButton env_id={env.id} onEdit={props.onEdit} />
+                    <AddButton env_id={env.id} onEdit={props.onEdit} t={props.t} />
                 </tbody>
             </HTMLTable>
         </div>

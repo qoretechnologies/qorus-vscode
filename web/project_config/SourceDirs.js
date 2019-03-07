@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, Classes, H4, HTMLTable, Intent, Popover } from "@blueprintjs/core";
-import { T } from '../common/Translate';
 
 
 export const SourceDirs = props => (
@@ -9,7 +8,7 @@ export const SourceDirs = props => (
             <thead>
                 <tr>
                     <th colspan='2'>
-                        <H4 className='fg-color'><T t='AddRemoveDir' /></H4>
+                        <H4 className='fg-color'>{props.t('AddRemoveDir')}></H4>
                     </th>
                 </tr>
             </thead>
@@ -21,19 +20,19 @@ export const SourceDirs = props => (
                         </td>
                         <td>
                             <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
-                                <Button icon='cross' minimal={true} title=<T t='Remove' /> />
+                                <Button icon='cross' minimal={true} title={props.t('Remove')} />
                                 <div>
-                                    <T t='ConfirmRemoveDir' />
+                                    {props.t('ConfirmRemoveDir')}
                                     <strong>{dir}</strong>?
 
                                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 27 }}>
                                         <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
-                                            <T t='ButtonCancel' />
+                                            {props.t('ButtonCancel')}
                                         </Button>
                                         <Button intent={Intent.DANGER} className={Classes.POPOVER_DISMISS}
                                             onClick={props.removeSourceDir.bind(null, dir)}
                                         >
-                                            <T t='ButtonDelete' />
+                                            {props.t('ButtonDelete')}
                                         </Button>
                                     </div>
                                 </div>
@@ -48,7 +47,7 @@ export const SourceDirs = props => (
                             icon='plus'
                             minimal={true}
                             onClick={props.addSourceDir}
-                            title=<T t='AddNew' />
+                            title={props.t('AddNew')}
                         />
                     </td>
                 </tr>

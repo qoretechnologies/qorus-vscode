@@ -3,7 +3,6 @@ import { HTMLTable, H4, Button } from "@blueprintjs/core";
 import { EditBtnGroup } from './EditBtnGroup';
 import { EditPopover } from './EditPopover';
 import { AddButton } from './AddButton';
-import { T } from '../common/Translate';
 
 
 export const Urls = props => {
@@ -18,6 +17,7 @@ export const Urls = props => {
 
     for (let url_id in qorus.urls) {
         customUrls.push(<CustomUrl key={url_id}
+                                   t={props.t}
                                    env_id={env_id}
                                    qorus_id={qorus.id}
                                    url={qorus.urls[url_id]}
@@ -34,7 +34,7 @@ export const Urls = props => {
                     <tr>
                         <th colspan='2'>
                             <H4 className='fg-color'>
-                                <T t='PropertiesOfQorusInstance' />&nbsp;
+                                {props.t('PropertiesOfQorusInstance')}&nbsp;
                                 <span style={{ fontWeight: 'bold' }}>{qorus.name}</span>
                             </H4>
                         </th>
@@ -43,7 +43,7 @@ export const Urls = props => {
                 <thead>
                     <tr>
                         <th colspan='2'>
-                            <span className='fg-color'><T t='MainUrl' /></span>
+                            <span className='fg-color'>{props.t('MainUrl')}</span>
                         </th>
                     </tr>
                 </thead>
@@ -56,6 +56,7 @@ export const Urls = props => {
                             <EditPopover kind='edit' entity='Url'
                                          env_id={env_id} qorus_id={qorus.id}
                                          action='edit-main-url' data={qorus}
+                                         t={props.t}
                                          onEdit={props.onEdit} />
                         </td>
                     </tr>
@@ -63,13 +64,13 @@ export const Urls = props => {
                 <thead>
                     <tr>
                         <th colspan='2'>
-                            <span className='fg-color'><T t='CustomUrls' /></span>
+                            <span className='fg-color'>{props.t('CustomUrls')}</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     {customUrls}
-                    <AddButton env_id={env_id} qorus_id={qorus.id} onEdit={props.onEdit} />
+                    <AddButton env_id={env_id} qorus_id={qorus.id} onEdit={props.onEdit} t={props.t} />
                 </tbody>
             </HTMLTable>
         </div>

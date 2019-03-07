@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Button, ButtonGroup, Card, Classes, H4, InputGroup, Intent } from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
-import { T } from '../common/Translate';
 import logo from '../../images/qorus_logo_256.png';
 
 
@@ -10,6 +9,8 @@ export class Root extends Component {
         super();
 
         this.qorus = null;
+        this.texts = {};
+        this.num_text_requests = 0;
 
         const state = vscode.getState();
         if (state) {
@@ -23,6 +24,12 @@ export class Root extends Component {
                     this.qorus = event.data.qorus;
                     this.forceUpdate();
                     break;
+                case 'return-text':
+                    this.texts[event.data.text_id] = event.data.text;
+                    if (--this.num_text_requests == 0) {
+                        this.forceUpdate();
+                    }
+                    break;
             }
         });
     }
@@ -35,6 +42,17 @@ export class Root extends Component {
         vscode.postMessage({
             action: 'get-data'
         });
+    }
+
+    t = text_id => {
+        if (this.texts[text_id]) {
+            return this.texts[text_id];
+        }
+        vscode.postMessage({
+            action: 'get-text',
+            text_id: text_id
+        });
+        this.num_text_requests++;
     }
 
     onSubmit = () => {
@@ -71,11 +89,11 @@ export class Root extends Component {
                     </div>
                     <div style={{ gridRow: 1, gridColumnStart: 2, gridColumnEnd: 6 }}>
                         <H4>
-                            <T t='LoginHeader' /> &nbsp;
+                            {this.t('LoginHeader')} &nbsp;
                             <span className='highlighted'>
                                 {this.qorus.name}
                             </span> &nbsp;
-                            <T t='at' />
+                            {this.t('at')}
                         </H4>
                         <H4 className='highlighted'>
                             {this.qorus.url}
@@ -83,7 +101,7 @@ export class Root extends Component {
                     </div>
 
                     <div className='label'>
-                        <T t='LabelUsername' />
+                        {t('LabelUsername')}
                     </div>
                     <div className='input'>
                         <InputGroup id='username' type='text' value={this.username}
@@ -91,7 +109,7 @@ export class Root extends Component {
                                     inputRef={input => {if (input ) {input.focus();}}} />
                     </div>
                     <div className='label'>
-                        <T t='LabelPassword' />
+                        {t('LabelPassword')}
                     </div>
                     <div className='input'>
                         <InputGroup id='password' type='password' value={this.password}
@@ -102,10 +120,10 @@ export class Root extends Component {
                                 intent={Intent.DANGER} style={{ width: '50%'}}
                                 onClick={this.onCancel}
                         >
-                            &nbsp; <T t='ButtonCancel' /> &nbsp;
+                            &nbsp; {t('ButtonCancel')} &nbsp;
                         </Button>
                         <Button icon='log-in' type='submit' intent={Intent.SUCCESS} style={{ width: '50%'}}>
-                            &nbsp; <T t='ButtonLogin' /> &nbsp;
+                            &nbsp; {t('ButtonLogin')} &nbsp;
                         </Button>
                     </ButtonGroup>
                 </form>

@@ -90,7 +90,7 @@ export class QorusProject {
                         return;
                     }
                     msg.warning(t`ProjectConfigFileHasChangedOnDisk`);
-                    (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
+                    this.config_panel.webview.postMessage({
                         action: 'config-changed-on-disk'
                     });
                 });

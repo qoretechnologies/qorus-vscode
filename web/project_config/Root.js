@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { Intent, Radio, RadioGroup } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
@@ -7,13 +6,15 @@ import { Urls } from './Urls';
 import { SourceDirs } from './SourceDirs';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
-import { T } from '../common/Translate';
 import logo from '../../images/qorus_logo_256.png';
 
 
 export class Root extends Component {
     constructor() {
         super();
+
+        this.texts = {};
+        this.num_text_requests = 0;
 
         const state = vscode.getState();
         if (state) {
@@ -45,6 +46,12 @@ export class Root extends Component {
                         selected_qorus_id: null
                     });
                     break;
+                case 'return-text':
+                    this.texts[event.data.text_id] = event.data.text;
+                    if (--this.num_text_requests == 0) {
+                        this.forceUpdate();
+                    }
+                    break;
                 case 'config-changed-on-disk':
                     this.setStates({config_changed_on_disk_msg_open: true});
                     break;
@@ -68,6 +75,17 @@ export class Root extends Component {
         vscode.postMessage({
             action: 'get-data'
         });
+    }
+
+    t = text_id => {
+        if (this.texts[text_id]) {
+            return this.texts[text_id];
+        }
+        vscode.postMessage({
+            action: 'get-text',
+            text_id: text_id
+        });
+        this.num_text_requests++;
     }
 
     onConfigTypeChange = ev => {
@@ -115,9 +133,9 @@ export class Root extends Component {
         const ConfigChangedOnDiskMsg =
             <MessageDialog isOpen={this.state.config_changed_on_disk_msg_open}
                 onClose={this.handleMessageDialogClose}
-                text=<T t='ConfigChangedOnDiskDialogQuestion' />
+                text={this.t('ConfigChangedOnDiskDialogQuestion')}
                 buttons={[{
-                    title: <T t='ButtonReload' />,
+                    title: this.t('ButtonReload'),
                     intent: Intent.WARNING,
                     onClick: () => {
                         vscode.postMessage({
@@ -127,7 +145,7 @@ export class Root extends Component {
                     }
                 },
                 {
-                    title: <T t='ButtonOverwrite' />,
+                    title: this.t('ButtonOverwrite'),
                     intent: Intent.PRIMARY,
                     onClick: () => {
                         vscode.postMessage({
@@ -141,21 +159,21 @@ export class Root extends Component {
 
         const QorusInstances =
             <div className='config-container'>
-                <Envs
+                <Envs t={this.t}
                     data={this.state.data.qorus_instances}
                     selected_env_id={selected_env_id}
                     onSelect={this.selectEnv}
                     onEdit={this.updateQorusInstancesData.bind(this)}
                     onRemove={this.updateQorusInstancesData.bind(this, 'remove-env')}
                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-env-up')} />
-                <Qoruses
+                <Qoruses t={this.t}
                     selected_env={selected_env}
                     selected_qorus_id={selected_qorus_id}
                     onSelect={this.selectQorus}
                     onEdit={this.updateQorusInstancesData.bind(this)}
                     onRemove={this.updateQorusInstancesData.bind(this, 'remove-qorus')}
                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-qorus-up')} />
-                <Urls
+                <Urls t={this.t}
                     env_id={selected_env_id}
                     selected_qorus={selected_qorus}
                     onEdit={this.updateQorusInstancesData.bind(this)}
@@ -177,8 +195,8 @@ export class Root extends Component {
                             selectedValue={this.state.config_type}
                             inline={true}
                         >
-                            <Radio label=<T t='QorusInstances' /> value='qoruses' />
-                            <Radio label=<T t='SourceDirs' /> value='sources' />
+                            <Radio label={this.t('QorusInstances')} value='qoruses' />
+                            <Radio label={this.t('SourceDirs')} value='sources' />
                         </RadioGroup>
                     </div>
                 </div>
@@ -191,6 +209,7 @@ export class Root extends Component {
                         data={this.state.data.source_directories}
                         addSourceDir={this.addSourceDir}
                         removeSourceDir={this.removeSourceDir}
+                        t={this.t}
                     />
                 }
             </>

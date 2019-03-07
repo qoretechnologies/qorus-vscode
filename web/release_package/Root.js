@@ -4,7 +4,6 @@ import { BackForwardButtons } from './BackForwardButtons';
 import { SelectCommit } from './SelectCommit';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
-import { T } from '../common/Translate';
 import logo from '../../images/qorus_logo_256.png';
 
 
@@ -13,6 +12,9 @@ const Step = {Type: 0, Diff: 1, Send: 2, Close: 3}
 export class Root extends Component {
     constructor() {
         super();
+
+        this.texts = {};
+        this.num_text_requests = 0;
 
         const state = vscode.getState();
         if (state) {
@@ -49,6 +51,12 @@ export class Root extends Component {
                         files: event.data.files,
                         pending: false
                     });
+                    break;
+                case 'return-text':
+                    this.texts[event.data.text_id] = event.data.text;
+                    if (--this.num_text_requests == 0) {
+                        this.forceUpdate();
+                    }
                     break;
                 case 'package-created':
                 case 'return-release-file':
@@ -88,6 +96,17 @@ export class Root extends Component {
         vscode.postMessage({
             action: 'get-data'
         });
+    }
+
+    t = text_id => {
+        if (this.texts[text_id]) {
+            return this.texts[text_id];
+        }
+        vscode.postMessage({
+            action: 'get-text',
+            text_id: text_id
+        });
+        this.num_text_requests++;
     }
 
     setVscodeState = state => {
@@ -179,22 +198,24 @@ export class Root extends Component {
             return null;
         }
 
+        const t = this.t;
+
         const BranchInfo =
             <div style={{ marginBottom: 24 }}>
-                <H5><T t='CurrentBranchInfo' />:</H5>
-                <T t='branch' />: <strong>{this.state.branch.name}</strong>
+                <H5>{t('CurrentBranchInfo')}:</H5>
+                {t('branch')}: <strong>{this.state.branch.name}</strong>
                 <br />
-                <T t='commit' />: <strong>{this.state.branch.commit}</strong>
+                {t('commit')}: <strong>{this.state.branch.commit}</strong>
             </div>;
 
         const ReleaseType =
             <>
                 <div className='flex-start'>
-                    <H4 style={{ marginRight: 48 }}><T t='ReleaseType' />:</H4>
+                    <H4 style={{ marginRight: 48 }}>{t('ReleaseType')}:</H4>
                     <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.state.release_type}>
-                        <Radio label=<T t='CreateFullRelease' /> value='full' />
-                        <Radio label=<T t='CreateIncrementalRelease' /> value='incremental' />
-                        <Radio label=<T t='UseExistingRelease' /> value='existing' />
+                        <Radio label={t('CreateFullRelease')} value='full' />
+                        <Radio label={t('CreateIncrementalRelease')} value='incremental' />
+                        <Radio label={t('UseExistingRelease')} value='existing' />
                     </RadioGroup>
                 </div>
                 <hr style={{marginBottom: 16}} />
@@ -202,21 +223,21 @@ export class Root extends Component {
 
         const FullRelease =
             <>
-                <H3 style={{ marginBottom: 24 }}><T t='FullRelease' /></H3>
+                <H3 style={{ marginBottom: 24 }}>{t('FullRelease')}</H3>
                 {BranchInfo}
                 <div style={{display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-end'}} >
                     <Button icon={this.state.pending ? <Spinner size={18} /> : 'arrow-right'}
                         onClick={this.createFullPackage}
                         disabled={!this.state.branch.up_to_date || this.state.pending}
                     >
-                        <T t='CreatePackage' />
+                    {t('CreatePackage')}
                     </Button>
                 </div>
             </>;
 
         const IncrementalRelease =
             <>
-                <H3 style={{ marginBottom: 24 }}><T t='IncrementalRelease' /></H3>
+                <H3 style={{ marginBottom: 24 }}>{t('IncrementalRelease')}</H3>
                 {BranchInfo}
                 <hr />
                 <SelectCommit
@@ -228,7 +249,7 @@ export class Root extends Component {
 
         const ExistingRelease =
             <Button icon='folder-open' onClick={this.getReleaseFile}>
-                <T t='PickReleaseFile' />
+            {t('PickReleaseFile')}
             </Button>;
 
         const StepDiff =
@@ -240,8 +261,8 @@ export class Root extends Component {
                     disabled={this.state.pending}
                     pending={this.state.pending}
                 />
-                <H4 style={{marginTop: 12}}><T t='PackageContents' /></H4>
-                <H5><T t='SelectedCommit' />: <strong>{this.state.selected_commit}</strong></H5>
+                <H4 style={{marginTop: 12}}>{t('PackageContents')}</H4>
+                <H5>{t('SelectedCommit')}: <strong>{this.state.selected_commit}</strong></H5>
                 {this.state.files && this.state.files.map(file => <div>{file}</div>)}
             </Card>;
 
@@ -251,13 +272,13 @@ export class Root extends Component {
                     onBack={() => this.backToStep(this.state.release_type == 'incremental' ?
                                                         Step.Diff : Step.Type)}
                     onForward={this.deployPackage}
-                    t={this.t}
+                    t={t}
                     forward_text_id='DeployPackage'
                     pending={this.state.pending}
                 />
                 <H5>{this.state.release_type == 'existing'
-                        ? <T t='ExistingReleaseFileWillBeSent' />
-                        : <T t='NewReleaseFileWillBeSent' />
+                        ? t('ExistingReleaseFileWillBeSent')
+                        : t('NewReleaseFileWillBeSent')
                     }:
                 </H5>
                 <div>{this.state.package_path}</div>
@@ -266,15 +287,15 @@ export class Root extends Component {
                         <hr style={{marginTop: 20, marginBottom: 20}} />
                         {this.state.saved_path == null &&
                             <>
-                                <H5><T t='ReleaseFileCanBeSaved' />:</H5>
+                                <H5>{t('ReleaseFileCanBeSaved')}:</H5>
                                 <Button icon='floppy-disk' onClick={this.saveReleaseFile}>
-                                    <T t='SaveReleaseFile' />
+                                {t('SaveReleaseFile')}
                                 </Button>
                             </>
                         }
                         {this.state.saved_path != null &&
                             <>
-                                <H5><T t='ReleaseFileHasBeenSavedAs' /></H5>
+                                <H5>{t('ReleaseFileHasBeenSavedAs')}</H5>
                                 {this.state.saved_path}
                             </>
                         }
@@ -287,16 +308,16 @@ export class Root extends Component {
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Send)}
                     onClose={this.close}
-                    t={this.t}
+                    t={t}
                 />
                 {this.state.result &&
                     <>
-                        <H5><T t='WaitForDeploymentResult1' /></H5>
-                        <T t='WaitForDeploymentResult2' />
+                        <H5>{t('WaitForDeploymentResult1')}</H5>
+                        {t('WaitForDeploymentResult2')}
                     </>
                 }
                 {!this.state.result &&
-                    <H5><T t='PackageDeploymentFailed' /></H5>
+                    <H5>{t('PackageDeploymentFailed')}</H5>
                 }
             </Card>;
 
@@ -306,10 +327,10 @@ export class Root extends Component {
                 onClose={() => this.setState({not_up_to_date_msg_open: false})}
                 canEscapeKeyClose={false}
                 canOutsideClickClose={false}
-                text=<T t='GitBranchNotUpToDate' />
+                text={t('GitBranchNotUpToDate')}
                 style={{maxWidth: 400}}
                 buttons={[{
-                    title: <T t='ClosePage' />,
+                    title: t('ClosePage'),
                     intent: Intent.DANGER,
                     onClick: this.close
                 }]}

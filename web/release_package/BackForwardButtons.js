@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, Spinner } from '@blueprintjs/core';
-import { T } from '../common/Translate';
 
 
 export const BackForwardButtons = props => (
@@ -11,7 +10,7 @@ export const BackForwardButtons = props => (
                     onClick={props.onBack}
                     disabled={props.pending}
                 >
-                    <T t={props.backward_text_id || 'Back'} />
+                    {props.t(props.backward_text_id || 'Back')}
                 </Button>
             }
             {props.onForward &&
@@ -19,7 +18,7 @@ export const BackForwardButtons = props => (
                     onClick={props.onForward}
                     disabled={props.pending}
                 >
-                    <T t={props.forward_text_id} />
+                    {props.t(props.forward_text_id)}
                 </Button>
             }
             {props.onClose &&
@@ -27,7 +26,7 @@ export const BackForwardButtons = props => (
                     onClick={props.onClose}
                     disabled={props.pending}
                 >
-                    <T t='Close' />
+                    {props.t('Close')}
                 </Button>
             }
         </div>
