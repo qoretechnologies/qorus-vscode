@@ -3,8 +3,8 @@ import { Button, Card, Collapse, H3, H4, H5, Intent, Radio, RadioGroup, Spinner 
 import { BackForwardButtons } from './BackForwardButtons';
 import { SelectCommit } from './SelectCommit';
 import { MessageDialog } from '../common/MessageDialog';
+import { vscode } from '../common/vscode';
 import logo from '../../images/qorus_logo_256.png';
-const vscode = acquireVsCodeApi();
 
 
 const Step = {Type: 0, Diff: 1, Send: 2, Close: 3}
@@ -193,63 +193,64 @@ export class Root extends Component {
         });
     }
 
-    renderBranchInfo = () => {
-        return (
-            <div style={{ marginBottom: 24 }}>
-                <H5>{this.t('CurrentBranchInfo')}:</H5>
-                {this.t('branch')}: <strong>{this.state.branch.name}</strong>
-                <br />
-                {this.t('commit')}: <strong>{this.state.branch.commit}</strong>
-            </div>
-        );
-    }
-
     render() {
         if (!this.state.branch) {
             return null;
         }
 
-        const ReleaseType = <>
-            <div className='flex-start'>
-                <H4 style={{ marginRight: 48 }}>{this.t('ReleaseType')}:</H4>
-                <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.state.release_type}>
-                    <Radio label={this.t('CreateFullRelease')} value='full' />
-                    <Radio label={this.t('CreateIncrementalRelease')} value='incremental' />
-                    <Radio label={this.t('UseExistingRelease')} value='existing' />
-                </RadioGroup>
-            </div>
-            <hr style={{marginBottom: 16}} />
-        </>;
+        const t = this.t;
 
-        const FullRelease = <>
-            <H3 style={{ marginBottom: 24 }}>{this.t('FullRelease')}</H3>
-            {this.renderBranchInfo()}
-            <div style={{display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-end'}} >
-                <Button icon={this.state.pending ? <Spinner size={18} /> : 'arrow-right'}
-                    onClick={this.createFullPackage}
+        const BranchInfo =
+            <div style={{ marginBottom: 24 }}>
+                <H5>{t('CurrentBranchInfo')}:</H5>
+                {t('branch')}: <strong>{this.state.branch.name}</strong>
+                <br />
+                {t('commit')}: <strong>{this.state.branch.commit}</strong>
+            </div>;
+
+        const ReleaseType =
+            <>
+                <div className='flex-start'>
+                    <H4 style={{ marginRight: 48 }}>{t('ReleaseType')}:</H4>
+                    <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.state.release_type}>
+                        <Radio label={t('CreateFullRelease')} value='full' />
+                        <Radio label={t('CreateIncrementalRelease')} value='incremental' />
+                        <Radio label={t('UseExistingRelease')} value='existing' />
+                    </RadioGroup>
+                </div>
+                <hr style={{marginBottom: 16}} />
+            </>;
+
+        const FullRelease =
+            <>
+                <H3 style={{ marginBottom: 24 }}>{t('FullRelease')}</H3>
+                {BranchInfo}
+                <div style={{display: 'flex', flexFlow: 'row nowrap', justifyContent: 'flex-end'}} >
+                    <Button icon={this.state.pending ? <Spinner size={18} /> : 'arrow-right'}
+                        onClick={this.createFullPackage}
+                        disabled={!this.state.branch.up_to_date || this.state.pending}
+                    >
+                    {t('CreatePackage')}
+                    </Button>
+                </div>
+            </>;
+
+        const IncrementalRelease =
+            <>
+                <H3 style={{ marginBottom: 24 }}>{t('IncrementalRelease')}</H3>
+                {BranchInfo}
+                <hr />
+                <SelectCommit
+                    selectCommit={this.selectCommit}
                     disabled={!this.state.branch.up_to_date || this.state.pending}
-                >
-                    {this.t('CreatePackage')}
-                </Button>
-            </div>
-        </>;
-
-        const IncrementalRelease = <>
-            <H3 style={{ marginBottom: 24 }}>{this.t('IncrementalRelease')}</H3>
-            {this.renderBranchInfo()}
-            <hr />
-            <SelectCommit
-                selectCommit={this.selectCommit}
-                vscode={vscode}
-                disabled={!this.state.branch.up_to_date || this.state.pending}
-                pending={this.state.pending}
-                t={this.t}
-            />
-        </>;
+                    pending={this.state.pending}
+                    t={t}
+                />
+            </>;
 
         const ExistingRelease =
             <Button icon='folder-open' onClick={this.getReleaseFile}>
-                {this.t('PickReleaseFile')}
+            {t('PickReleaseFile')}
             </Button>;
 
         const StepDiff =
@@ -257,13 +258,13 @@ export class Root extends Component {
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Type)}
                     onForward={this.createPackage}
-                    t={this.t}
                     forward_text_id='CreatePackage'
                     disabled={this.state.pending}
                     pending={this.state.pending}
+                    t={t}
                 />
-                <H4 style={{marginTop: 12}}>{this.t('PackageContents')}</H4>
-                <H5>{this.t('SelectedCommit')}: <strong>{this.state.selected_commit}</strong></H5>
+                <H4 style={{marginTop: 12}}>{t('PackageContents')}</H4>
+                <H5>{t('SelectedCommit')}: <strong>{this.state.selected_commit}</strong></H5>
                 {this.state.files && this.state.files.map(file => <div>{file}</div>)}
             </Card>;
 
@@ -273,14 +274,14 @@ export class Root extends Component {
                     onBack={() => this.backToStep(this.state.release_type == 'incremental' ?
                                                         Step.Diff : Step.Type)}
                     onForward={this.deployPackage}
-                    t={this.t}
                     forward_text_id='DeployPackage'
                     pending={this.state.pending}
+                    t={t}
                 />
-                <H5>{this.t(this.state.release_type == 'existing'
-                        ? 'ExistingReleaseFileWillBeSent'
-                        : 'NewReleaseFileWillBeSent'
-                     )}:
+                <H5>{this.state.release_type == 'existing'
+                        ? t('ExistingReleaseFileWillBeSent')
+                        : t('NewReleaseFileWillBeSent')
+                    }:
                 </H5>
                 <div>{this.state.package_path}</div>
                 {this.state.release_type == 'existing' ||
@@ -288,15 +289,15 @@ export class Root extends Component {
                         <hr style={{marginTop: 20, marginBottom: 20}} />
                         {this.state.saved_path == null &&
                             <>
-                                <H5>{this.t('ReleaseFileCanBeSaved')}:</H5>
+                                <H5>{t('ReleaseFileCanBeSaved')}:</H5>
                                 <Button icon='floppy-disk' onClick={this.saveReleaseFile}>
-                                    {this.t('SaveReleaseFile')}
+                                {t('SaveReleaseFile')}
                                 </Button>
                             </>
                         }
                         {this.state.saved_path != null &&
                             <>
-                                <H5>{this.t('ReleaseFileHasBeenSavedAs')}</H5>
+                                <H5>{t('ReleaseFileHasBeenSavedAs')}</H5>
                                 {this.state.saved_path}
                             </>
                         }
@@ -309,16 +310,16 @@ export class Root extends Component {
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Send)}
                     onClose={this.close}
-                    t={this.t}
+                    t={t}
                 />
                 {this.state.result &&
                     <>
-                        <H5>{this.t('WaitForDeploymentResult1')}</H5>
-                        <div>{this.t('WaitForDeploymentResult2')}</div>
+                        <H5>{t('WaitForDeploymentResult1')}</H5>
+                        {t('WaitForDeploymentResult2')}
                     </>
                 }
                 {!this.state.result &&
-                    <H5>{this.t('PackageDeploymentFailed')}</H5>
+                    <H5>{t('PackageDeploymentFailed')}</H5>
                 }
             </Card>;
 
@@ -328,10 +329,10 @@ export class Root extends Component {
                 onClose={() => this.setState({not_up_to_date_msg_open: false})}
                 canEscapeKeyClose={false}
                 canOutsideClickClose={false}
-                text={this.t('GitBranchNotUpToDate')}
+                text={t('GitBranchNotUpToDate')}
                 style={{maxWidth: 400}}
                 buttons={[{
-                    title: this.t('ClosePage'),
+                    title: t('ClosePage'),
                     intent: Intent.DANGER,
                     onClick: this.close
                 }]}

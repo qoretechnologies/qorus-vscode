@@ -7,7 +7,7 @@ export const ButtonRow = props => {
     const {active, onSelect, ...other_props} = props;
     return (
         <tr>
-            <td style={{ minWidth: '120px' }}>
+            <td style={{ minWidth: 120 }}>
                 <Button fill={true}
                         active={active}
                         onClick={() => onSelect(props.data.id)}>

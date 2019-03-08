@@ -1,7 +1,6 @@
 import { extensions } from 'vscode';
 import { GitExtension, API, Branch, Ref, Repository } from './@types/git';
 import { QorusRepository, QorusRepositoryCurrentBranch } from './QorusRepository';
-import { source_dirs } from './QorusProject';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
 
@@ -91,7 +90,7 @@ export class QorusRepositoryGit implements QorusRepository {
         return commits;
     }
 
-    changedFiles(commit: string, folder: string): Promise<string[]> {
+    changedFiles(commit: string, folder: string, source_dirs: string[]): Promise<string[]> {
         return this.repository.diffWith(commit, folder).then(
             diff => {
                 const lines = diff.split(/\r?\n/).filter(line => line.indexOf('+++ b/') == 0);

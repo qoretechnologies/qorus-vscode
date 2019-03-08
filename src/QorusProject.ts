@@ -7,12 +7,12 @@ import { t, gettext } from 'ttag';
 import { project_template } from './qorus_project_template';
 
 export const config_filename = 'qorusproject.json';
-export const source_dirs = ['src'];
 
 
 export class QorusProject {
     private config_file: string;
     private config_panel: vscode.WebviewPanel | undefined = undefined;
+    private message_on_config_file_change: boolean = true;
 
     constructor(project_folder: string) {
         this.config_file = path.join(project_folder, config_filename);
@@ -83,14 +83,14 @@ export class QorusProject {
                 this.config_panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
 
                 const config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
-                let message_on_config_file_change: boolean = true;
+                this.message_on_config_file_change = true;
                 config_file_watcher.onDidChange(() => {
-                    if (!message_on_config_file_change) {
-                        message_on_config_file_change = true;
+                    if (!this.message_on_config_file_change) {
+                        this.message_on_config_file_change = true;
                         return;
                     }
                     msg.warning(t`ProjectConfigFileHasChangedOnDisk`);
-                    (<vscode.WebviewPanel>this.config_panel).webview.postMessage({
+                    this.config_panel.webview.postMessage({
                         action: 'config-changed-on-disk'
                     });
                 });
@@ -100,8 +100,8 @@ export class QorusProject {
                         case 'get-data':
                             this.validateConfigFileAndDo(file_data => {
                                 this.config_panel.webview.postMessage({
-                                    action: 'get-data',
-                                    data: QorusProject.file2web(file_data)
+                                    action: 'return-data',
+                                    data: QorusProject.file2data(file_data)
                                 });
                             });
                             break;
@@ -113,10 +113,15 @@ export class QorusProject {
                             });
                             break;
                         case 'update-data':
-                            const data = QorusProject.web2file(message.data);
-                            tree.reset(data);
-                            message_on_config_file_change = false;
-                            fs.writeFileSync(this.config_file, JSON.stringify(data, null, 4) + '\n');
+                            const file_data = QorusProject.data2file(message.data);
+                            tree.reset(file_data.qorus_instances);
+                            this.writeConfig(file_data, false);
+                            break;
+                        case 'add-source-dir':
+                            this.addSourceDir();
+                            break;
+                        case 'remove-source-dir':
+                            this.removeSourceDir(message.dir);
                             break;
                     }
                 });
@@ -133,16 +138,66 @@ export class QorusProject {
         );
     }
 
-    private static file2web(file_data?: any): any[] {
+    private addSourceDir() {
+        this.validateConfigFileAndDo(file_data => {
+            vscode.window.showOpenDialog({
+                canSelectFiles: false,
+                canSelectFolders: true,
+                defaultUri: vscode.Uri.file(this.projectFolder())
+            }).then(uris => {
+                if (!uris || !uris.length) {
+                    return;
+                }
+                const full_dir = uris[0].fsPath;
+                const dir = vscode.workspace.asRelativePath(full_dir);
+                if (dir == full_dir) {
+                    msg.error(t`NotProjectSubdir ${dir}`);
+                    return;
+                }
+                if (file_data.source_directories.indexOf(dir) > -1) {
+                    msg.error(t`DirAlreadyInConfig ${dir}`);
+                    return;
+                }
+                file_data.source_directories.push(dir);
+                this.writeConfig(file_data);
+            });
+        });
+    }
+
+    private removeSourceDir(dir) {
+        this.validateConfigFileAndDo(file_data => {
+            const index = file_data.source_directories.indexOf(dir);
+            if (index > -1) {
+                file_data.source_directories.splice(index, 1);
+                this.writeConfig(file_data);
+            }
+        });
+    }
+
+    private writeConfig(file_data: any, send_message: boolean = true) {
+        this.message_on_config_file_change = false;
+        fs.writeFileSync(this.config_file, JSON.stringify(file_data, null, 4) + '\n');
+        if (send_message) {
+            this.config_panel.webview.postMessage({
+                action: 'return-data',
+                data: QorusProject.file2data(file_data)
+            });
+        }
+    }
+
+    private static file2data(file_data?: any): any {
         if (!file_data) {
-            return [];
+            return {
+                qorus_instances: [],
+                source_directories: []
+            };
         }
 
-        let data: any[] = [];
+        let qorus_instances: any[] = [];
         let i: number = 0;
         for (let env_name in file_data.qorus_instances) {
             const env_id = i++;
-            data.push({
+            qorus_instances.push({
                 id: env_id,
                 name: env_name,
                 qoruses: []
@@ -150,7 +205,7 @@ export class QorusProject {
             let ii: number = 0;
             for (let qorus of file_data.qorus_instances[env_name]) {
                 const qorus_id = ii++;
-                data[env_id].qoruses.push({
+                qorus_instances[env_id].qoruses.push({
                     id: qorus_id,
                     name: qorus.name,
                     url: qorus.url,
@@ -161,7 +216,7 @@ export class QorusProject {
                     let iii: number = 0;
                     for (let url of qorus.custom_urls) {
                         const url_id = iii++;
-                        data[env_id].qoruses[qorus_id].urls.push({
+                        qorus_instances[env_id].qoruses[qorus_id].urls.push({
                             id: url_id,
                             name: url.name,
                             url: url.url
@@ -170,13 +225,21 @@ export class QorusProject {
                 }
             }
         }
-        return data;
+
+        return {
+            qorus_instances: qorus_instances,
+            source_directories: file_data.source_directories
+        };
     }
 
-    private static web2file(data: any): any {
-        let file_data: any = {qorus_instances: {}}
-        for (let env_id in data) {
-            const env = data[env_id];
+    private static data2file(data: any): any {
+        let file_data: any = {
+            qorus_instances: {},
+            source_directories: data.source_directories
+        };
+
+        for (let env_id in data.qorus_instances) {
+            const env = data.qorus_instances[env_id];
             file_data.qorus_instances[env.name] = [];
             for (let qorus_id in env.qoruses) {
                 const qorus: any = env.qoruses[qorus_id];

@@ -11,5 +11,8 @@ export const project_template = {
                 "url": "http://localhost:8011"
             }
         ]
-    }
+    },
+    "source_directories": [
+        "src"
+    ]
 };

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, ControlGroup, H4, InputGroup, Spinner } from '@blueprintjs/core';
+import { vscode } from '../common/vscode';
 
 
 export class SelectCommit extends Component {
@@ -22,7 +23,7 @@ export class SelectCommit extends Component {
     }
 
     componentDidMount() {
-        const state = this.props.vscode.getState();
+        const state = vscode.getState();
         if (state) {
             const {commits, hash_filter, branch_filter, tag_filter, value} = state;
             this.setState({commits, hash_filter, branch_filter, tag_filter, value});
@@ -32,7 +33,7 @@ export class SelectCommit extends Component {
             }
         }
 
-        this.props.vscode.postMessage({
+        vscode.postMessage({
             action: 'get-commits',
             hash_filter: '',
             branch_filter: '',
@@ -41,7 +42,7 @@ export class SelectCommit extends Component {
     }
 
     setVscodeState = state => {
-        this.props.vscode.setState(Object.assign(this.props.vscode.getState() || {}, state));
+        vscode.setState(Object.assign(vscode.getState() || {}, state));
     }
 
     setStates = state => {
@@ -53,7 +54,7 @@ export class SelectCommit extends Component {
         let new_state = Object.assign({}, this.state);
         new_state[filter_type + '_filter'] = ev ? ev.target.value : '',
 
-        this.props.vscode.postMessage({
+        vscode.postMessage({
             action: 'get-commits',
             hash_filter: new_state.hash_filter,
             branch_filter: new_state.branch_filter,
@@ -97,13 +98,15 @@ export class SelectCommit extends Component {
             );
         });
 
+        const t = this.props.t;
+
         return (
             <>
-                <H4>{this.props.t('SelectCommit')}</H4>
+                <H4>{t('SelectCommit')}</H4>
                 <ControlGroup className='bp3-monospace-text' vertical={true}>
                     <InputGroup className='filter-input'
                         leftIcon='git-commit'
-                        placeholder={this.props.t('filterByCommitHash')}
+                        placeholder={t('filterByCommitHash')}
                         value={this.state.hash_filter}
                         onChange={ev => this.onFilterChange('hash', ev)}
                         onFocus={this.props.onFilterFocus}
@@ -112,7 +115,7 @@ export class SelectCommit extends Component {
                     />
                     <InputGroup className='filter-input'
                         leftIcon='git-branch'
-                        placeholder={this.props.t('filterByBranchName')}
+                        placeholder={t('filterByBranchName')}
                         value={this.state.branch_filter}
                         onChange={ev => this.onFilterChange('branch', ev)}
                         onFocus={this.props.onFilterFocus}
@@ -121,7 +124,7 @@ export class SelectCommit extends Component {
                     />
                     <InputGroup className='filter-input'
                         leftIcon='tag'
-                        placeholder={this.props.t('filterByTag')}
+                        placeholder={t('filterByTag')}
                         value={this.state.tag_filter}
                         onChange={ev => this.onFilterChange('tag', ev)}
                         onFocus={this.props.onFilterFocus}
@@ -142,7 +145,7 @@ export class SelectCommit extends Component {
                         style={{ marginTop: 18 }}
                         disabled={this.props.disabled}
                     >
-                        {this.props.t('ButtonOk')}
+                        {t('ButtonOk')}
                     </Button>
                 </div>
             </>

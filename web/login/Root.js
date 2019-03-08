@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, ButtonGroup, Card, Classes, H4, InputGroup, Intent } from '@blueprintjs/core';
+import { vscode } from '../common/vscode';
 import logo from '../../images/qorus_logo_256.png';
-const vscode = acquireVsCodeApi();
 
 
 export class Root extends Component {
