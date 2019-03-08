@@ -75,6 +75,9 @@ export class EditPopover extends Component {
         const Header = ['edit-main-url'].includes(this.action)
                                 ? t('EditMainUrl')
                                 : t(kind[0].toUpperCase() + kind.substr(1) + entity);
+
+        t('MandatoryInput'); // without this the Popover would not know it at first rendering
+
         return (
             <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}
                      interactionKind={PopoverInteractionKind.CLICK}
@@ -85,7 +88,7 @@ export class EditPopover extends Component {
                 <form onSubmit={this.submit} style={this.url_hidden ? {} : { minWidth: '310px' }}>
                     <H5>{Header}</H5>
                     {this.name_hidden ||
-                        <FormGroup label={t('Name')} labelFor='name'>
+                        <FormGroup label={t('Name')} labelFor='name' key='name'>
                             <InputGroup id='name' type='text'
                                         defaultValue={this.props.data ? this.props.data.name : null}
                                         onChange={this.onChange.bind(null, 'name')}
@@ -93,7 +96,7 @@ export class EditPopover extends Component {
                         </FormGroup>
                     }
                     {this.url_hidden ||
-                        <FormGroup label={UrlLabel} labelFor='url'>
+                        <FormGroup label={UrlLabel} labelFor='url' key='url'>
                             <InputGroup id='url' type='text'
                                         defaultValue={this.props.data ? this.props.data.url : null}
                                         onChange={this.onChange.bind(null, 'url')}
