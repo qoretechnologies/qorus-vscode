@@ -35,6 +35,11 @@ export class QorusProject {
             const file_content = fs.readFileSync(this.config_file);
             const file_data = JSON.parse(file_content.toString());
 
+            if (!file_data.source_directories) {
+                file_data.source_directories = [];
+                this.writeConfig(file_data, false);
+            }
+
             validator.validateModel(file_data, 'qorus_config').then(
                 result => {
                     if (result.errors == undefined || result.errors.length == 0) {
