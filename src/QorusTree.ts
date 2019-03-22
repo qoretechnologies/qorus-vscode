@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { AuthNeeded } from './QorusAuth';
-import { deployer as auth } from './QorusDeploy';
+import { qorus_request as auth } from './QorusRequest';
 import { isVersion3 } from './qorus_utils';
 import * as msg from './qorus_message';
 import { t } from 'ttag';

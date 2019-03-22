@@ -3,7 +3,7 @@ import { Button, Classes, H4, HTMLTable, Intent, Popover } from "@blueprintjs/co
 
 
 export const SourceDirs = props => (
-    <div>
+    <>
         <HTMLTable condensed={true}>
             <thead>
                 <tr>
@@ -53,5 +53,5 @@ export const SourceDirs = props => (
                 </tr>
             </tbody>
         </HTMLTable>
-    </div>
+    </>
 );
