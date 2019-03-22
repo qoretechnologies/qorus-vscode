@@ -58,6 +58,9 @@ msgstr "Qorus Login"
 msgid "QorusConfigTitle"
 msgstr "Qorus Project Configuration"
 
+msgid "QorusDeleteInterfacesTitle"
+msgstr "Delete Qorus Interfaces"
+
 msgid "LoggedOut"
 msgstr "Logged out"
 
@@ -72,6 +75,9 @@ msgstr "Unable to open the project configuration page"
 
 msgid "UnableOpenReleasePage"
 msgstr "Unable to open the release package creator page"
+
+msgid "UnableOpenDeleteInterfacesPage"
+msgstr "Unable to open the delete interfaces page"
 
 msgid "NoTokenForUrl ${ url }"
 msgstr "No authentication token for URL ${ url }"
@@ -139,17 +145,32 @@ msgstr "Error ${ N } (${ url })"
 msgid "DeploymentStartFailed"
 msgstr "Deployment failed to start"
 
+msgid "DeploymentFailed"
+msgstr "Deployment failed"
+
 msgid "DeploymentFailed ${ deployment_id }"
 msgstr "Deployment failed (ID: ${ deployment_id })"
+
+msgid "RequestIdInfo ${ request_id }"
+msgstr " (ID: ${ request_id })"
 
 msgid "fileDoesNotExist ${ path }"
 msgstr "file ${ path } does not exist"
 
+msgid "DeploymentRunning"
+msgstr "Qorus code deployment is running"
+
 msgid "DeploymentRunning ${ deployment_id }"
 msgstr "Qorus code deployment is running (ID: ${ deployment_id })"
 
+msgid "CancellingDeployment"
+msgstr "Cancelling deployment"
+
 msgid "CancellingDeployment ${ deployment_id }"
 msgstr "Cancelling deployment (ID: ${ deployment_id })"
+
+msgid "DeploymentCancellationFailed"
+msgstr "Deployment cancellation failed"
 
 msgid "DeploymentCancellationFailed ${ deployment_id }"
 msgstr "Deployment cancellation failed (ID: ${ deployment_id })"
@@ -157,17 +178,38 @@ msgstr "Deployment cancellation failed (ID: ${ deployment_id })"
 msgid "CancellationRequestSent ${ deployment_id }"
 msgstr "Cancellation request sent (ID: ${ deployment_id })"
 
+msgid "checkingDeploymentProgress";
+msgstr "checking deployment progress"
+
+msgid "seconds ${ sec }";
+msgstr "${ sec }s"
+
 msgid "checkingDeploymentProgress ${ deployment_id } ${ sec }";
-msgstr "${ sec }s   checking deployment progress (ID: ${ deployment_id }) ... ";
+msgstr "${ sec }s   checking deployment progress (ID: ${ deployment_id }) ... "
 
 msgid "deploymentResponse ${ response } ${ status }"
 msgstr "    ... ${ response }, status: ${ status }";
 
+msgid "requestResponse ${ response }"
+msgstr "  ... response: ${ response }"
+
+msgid "requestResponse ${ response } ${ status }"
+msgstr "    ... ${ response }, status: ${ status }";
+
+msgid "DeploymentFinishedSuccessfully"
+msgstr "Deployment finished successfully"
+
 msgid "DeploymentFinishedSuccessfully ${ deployment_id }"
 msgstr "Deployment finished successfully (ID: ${ deployment_id })"
 
+msgid "DeploymentCancelled"
+msgstr "Deployment cancelled"
+
 msgid "DeploymentCancelled ${ deployment_id }"
 msgstr "Deployment cancelled (ID: ${ deployment_id })"
+
+msgid "CheckingDeploymentStatusFailed"
+msgstr "Checking deployment status failed"
 
 msgid "CheckingDeploymentStatusFailed ${ deployment_id }"
 msgstr "Checking deployment status failed (ID: ${ deployment_id })"
@@ -477,3 +519,90 @@ msgstr "Selected directory ${ dir } is not a project subdirectory"
 
 msgid "DirAlreadyInConfig ${ dir }"
 msgstr "Selected directory already is in the list: ${ dir }"
+
+msgid "ColumnHeader-name"
+msgstr "Name"
+
+msgid "ColumnHeader-version"
+msgstr "Version"
+
+msgid "ColumnHeader-workflowid"
+msgstr "ID"
+
+msgid "ColumnHeader-serviceid"
+msgstr "ID"
+
+msgid "ColumnHeader-jobid"
+msgstr "ID"
+
+msgid "ColumnHeader-classid"
+msgstr "ID"
+
+msgid "ColumnHeader-constantid"
+msgstr "ID"
+
+msgid "ColumnHeader-mapperid"
+msgstr "ID"
+
+msgid "ColumnHeader-function_instanceid"
+msgstr "ID"
+
+msgid "ColumnHeader-description"
+msgstr "Description"
+
+msgid "ColumnHeader-desc"
+msgstr "Description"
+
+msgid "ColumnHeader-type"
+msgstr "Type"
+
+msgid "ColumnHeader-language"
+msgstr "Language"
+
+msgid "Workflows"
+msgstr "Workflows"
+
+msgid "Services"
+msgstr "Services"
+
+msgid "Jobs"
+msgstr "Jobs"
+
+msgid "Classes"
+msgstr "Classes"
+
+msgid "Constants"
+msgstr "Constants"
+
+msgid "Mappers"
+msgstr "Mappers"
+
+msgid "Functions"
+msgstr "Functions"
+
+msgid "workflows"
+msgstr "workflows"
+
+msgid "services"
+msgstr "services"
+
+msgid "jobs"
+msgstr "jobs"
+
+msgid "classes"
+msgstr "classes"
+
+msgid "constants"
+msgstr "constants"
+
+msgid "functions"
+msgstr "functions"
+
+msgid "mappers"
+msgstr "mappers"
+
+msgid "Other"
+msgstr "Other"
+
+msgid "DeleteSelected"
+msgstr "Delete selected"
