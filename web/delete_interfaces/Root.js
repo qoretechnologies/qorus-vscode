@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Checkbox, HTMLSelect, HTMLTable, Radio, RadioGroup } from '@blueprintjs/core';
+import { Button, Checkbox, Classes, HTMLSelect, HTMLTable,
+         Intent, Popover, Radio, RadioGroup } from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
 import { Fg } from '../common/Fg';
 import logo from '../../images/qorus_logo_256.png';
@@ -180,16 +181,32 @@ export class Root extends Component {
                             />
                         </td>
                         {columns[this.state.iface_kind].map(column => <td><Fg text={t('ColumnHeader-' + column)} /></td>)}
-                        <Button
-                            icon='trash'
-                            style={{ marginTop: -8, marginBottom: 8 }}
-                            onClick={this.deleteSelected}
-                            disabled={!this.isAnyChecked()}
-                        >
-                            {t('DeleteSelected') + ' ' + t(this.state.iface_kind)}
-                        </Button>
+
+                        <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
+                            <Button icon='trash' style={{ marginTop: -8, marginBottom: 8 }}
+                                disabled={!this.isAnyChecked()}
+                             >
+                                {t('DeleteSelected') + t(this.state.iface_kind)}
+                            </Button>
+                            <div>
+                                {t('ConfirmRemoveInterfaces') + t(this.state.iface_kind) + '?'}
+
+                                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 27 }}>
+                                    <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
+                                        {t('ButtonCancel')}
+                                    </Button>
+                                    <Button intent={Intent.DANGER} className={Classes.POPOVER_DISMISS}
+                                        onClick={this.deleteSelected}
+                                    >
+                                        {t('ButtonDelete')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </Popover>
+
                         <Button
                             icon='refresh'
+                            title={t('Refresh')}
                             style={{ margin: '-8px 0 8px 12px' }}
                             onClick={() => this.getInterfaces()}
                         />
