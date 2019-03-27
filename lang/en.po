@@ -145,6 +145,9 @@ msgstr "Error ${ N } (${ url })"
 msgid "DeploymentStartFailed"
 msgstr "Deployment failed to start"
 
+msgid "DeletionStartFailed"
+msgstr "Deletion failed to start"
+
 msgid "DeploymentFailed"
 msgstr "Deployment failed"
 
@@ -160,17 +163,26 @@ msgstr "file ${ path } does not exist"
 msgid "DeploymentRunning"
 msgstr "Qorus code deployment is running"
 
+msgid "DeletionRunning"
+msgstr "Qorus interface deletion is running"
+
 msgid "DeploymentRunning ${ deployment_id }"
 msgstr "Qorus code deployment is running (ID: ${ deployment_id })"
 
 msgid "CancellingDeployment"
 msgstr "Cancelling deployment"
 
+msgid "CancellingDeletion"
+msgstr "Cancelling deletion"
+
 msgid "CancellingDeployment ${ deployment_id }"
 msgstr "Cancelling deployment (ID: ${ deployment_id })"
 
 msgid "DeploymentCancellationFailed"
 msgstr "Deployment cancellation failed"
+
+msgid "DeletionCancellationFailed"
+msgstr "Deletion cancellation failed"
 
 msgid "DeploymentCancellationFailed ${ deployment_id }"
 msgstr "Deployment cancellation failed (ID: ${ deployment_id })"
@@ -180,6 +192,9 @@ msgstr "Cancellation request sent (ID: ${ deployment_id })"
 
 msgid "checkingDeploymentProgress";
 msgstr "checking deployment progress"
+
+msgid "checkingDeletionProgress";
+msgstr "checking deletion progress"
 
 msgid "seconds ${ sec }";
 msgstr "${ sec }s"
@@ -199,17 +214,26 @@ msgstr "    ... ${ response }, status: ${ status }";
 msgid "DeploymentFinishedSuccessfully"
 msgstr "Deployment finished successfully"
 
+msgid "DeletionFinishedSuccessfully"
+msgstr "Deletion finished successfully"
+
 msgid "DeploymentFinishedSuccessfully ${ deployment_id }"
 msgstr "Deployment finished successfully (ID: ${ deployment_id })"
 
 msgid "DeploymentCancelled"
 msgstr "Deployment cancelled"
 
+msgid "DeletionCancelled"
+msgstr "Deletion cancelled"
+
 msgid "DeploymentCancelled ${ deployment_id }"
 msgstr "Deployment cancelled (ID: ${ deployment_id })"
 
 msgid "CheckingDeploymentStatusFailed"
 msgstr "Checking deployment status failed"
+
+msgid "CheckingDeletionStatusFailed"
+msgstr "Checking deletion status failed"
 
 msgid "CheckingDeploymentStatusFailed ${ deployment_id }"
 msgstr "Checking deployment status failed (ID: ${ deployment_id })"

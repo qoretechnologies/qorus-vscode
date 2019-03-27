@@ -24,7 +24,7 @@ export class QorusRequest extends QorusLogin {
         msg.log('constructor ' + this.active_url);
     }
 
-    doRequestAndCheckResult(token: string, options: any, texts: QorusRequestTexts): Thenable<boolean> {
+    doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
         return request(options).then(
             (response: any) => {
                 msg.log(t`requestResponse ${JSON.stringify(response)}`);
@@ -32,7 +32,7 @@ export class QorusRequest extends QorusLogin {
                     msg.error(t`ResponseIdUndefined`);
                     return false;
                 }
-                this.checkRequestResult(options.uri, response.id, texts, token);
+                this.checkRequestResult(options.uri, response.id, texts, onFinished);
                 return true;
             },
             (error: any) => {
@@ -42,8 +42,10 @@ export class QorusRequest extends QorusLogin {
         );
     }
 
-    private checkRequestResult = (url: string, request_id: string, texts: any, request_token?: string) => {
+    private checkRequestResult = (url: string, request_id: string, texts: any, onFinished?) => {
         const id_info = t`RequestIdInfo ${request_id}`;
+
+        const token: string | undefined = this.getToken();
 
         vscode.window.withProgress(
             {
@@ -60,7 +62,7 @@ export class QorusRequest extends QorusLogin {
                         uri: `${url}/${request_id}`,
                         strictSSL: false,
                         headers: {
-                            'qorus-token': request_token
+                            'qorus-token': token
                         },
                         json: true
                     };
@@ -82,7 +84,7 @@ export class QorusRequest extends QorusLogin {
                     uri: `${url}/${request_id}`,
                     strictSSL: false,
                     headers: {
-                        'qorus-token': request_token
+                        'qorus-token': token
                     },
                     json: true
                 };
@@ -124,6 +126,9 @@ export class QorusRequest extends QorusLogin {
                             quit = true;
                         }
                     );
+                }
+                if (onFinished) {
+                    onFinished();
                 }
             }
         );
@@ -184,8 +189,8 @@ export class QorusRequest extends QorusLogin {
         }
 
         let token: string | undefined = undefined;
-        if (this.authNeeded(this.active_url) != AuthNeeded.No) {
-            token = this.getToken(this.active_url);
+        if (this.authNeeded() != AuthNeeded.No) {
+            token = this.getToken();
             if (!token) {
                 msg.error(t`UnauthorizedOperationAtUrl ${this.active_url}`);
                 return {ok: false};
