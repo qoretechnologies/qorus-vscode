@@ -403,6 +403,9 @@ msgstr "?"
 msgid "ConfirmRemoveDir"
 msgstr "Do you really want to remove directory "
 
+msgid "ConfirmRemoveInterfaces"
+msgstr "Do you really want to remove selected "
+
 msgid "MandatoryInput"
 msgstr "Mandatory input"
 
@@ -629,4 +632,7 @@ msgid "Other"
 msgstr "Other"
 
 msgid "DeleteSelected"
-msgstr "Delete selected"
+msgstr "Delete selected "
+
+msgid "Refresh"
+msgstr "Refresh"
