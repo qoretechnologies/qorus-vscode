@@ -127,7 +127,7 @@ class QorusDeploy {
             checking_status_failed: t`CheckingDeploymentStatusFailed`,
         };
 
-        return this.request.doRequestAndCheckResult(token, options, texts);
+        return this.request.doRequestAndCheckResult(options, texts);
     }
 
     private static prepareDataToDeploy(files: string[], data: object[]) {

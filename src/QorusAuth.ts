@@ -6,7 +6,7 @@ export class QorusAuth {
     protected tokens: any = {};
     protected active_url: string | undefined = undefined;
 
-    getToken(url: string): string | undefined {
+    getToken(url: string | undefined = this.active_url): string | undefined {
         return this.tokens[url];
     }
 
@@ -53,7 +53,7 @@ export class QorusAuth {
         return !!this.tokens[url];
     }
 
-    authNeeded(url: string): AuthNeeded {
+    authNeeded(url: string | undefined = this.active_url): AuthNeeded {
         if (!this.auth_needed[url]) {
             return AuthNeeded.Unknown;
         }

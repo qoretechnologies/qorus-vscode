@@ -52,6 +52,9 @@ export class Root extends Component {
                         this.forceUpdate();
                     }
                     break;
+                case 'deletion-finished':
+                    this.getInterfaces(event.data.iface_kind);
+                    break;
             }
         });
     }
@@ -105,19 +108,33 @@ export class Root extends Component {
 
     currentKindInterfaces = () => this.state.interfaces[this.state.iface_kind];
 
-    getInterfaces = () => {
+    getInterfaces = (iface_kind = this.state.iface_kind) => {
         vscode.postMessage({
             action: 'get-interfaces',
-            iface_kind: this.state.iface_kind,
-            columns: columns[this.state.iface_kind]
+            iface_kind: iface_kind,
+            columns: columns[iface_kind]
         });
     }
 
     isOtherKind = () => !['workflows', 'services', 'jobs'].includes(this.state.iface_kind);
 
     isChecked = id =>
-        this.state.checked[this.state.iface_kind] &&
-        this.state.checked[this.state.iface_kind][id];
+        (this.state.checked[this.state.iface_kind] &&
+         this.state.checked[this.state.iface_kind][id]) || false;
+
+    isAnyChecked = () =>
+        this.currentKindInterfaces().some(iface => this.isChecked(iface.id));
+
+    areAllChecked = () =>
+        this.currentKindInterfaces().every(iface => this.isChecked(iface.id));
+
+    checkAll = () => {
+        const value = !this.areAllChecked();
+        let checked = JSON.parse(JSON.stringify(this.state.checked));
+        checked[this.state.iface_kind] || (checked[this.state.iface_kind] = {});
+        this.currentKindInterfaces().map(iface => checked[this.state.iface_kind][iface.id] = value);
+        this.setStates({checked});
+    }
 
     render() {
         if (!this.currentKindInterfaces()) {
@@ -156,16 +173,26 @@ export class Root extends Component {
                 <thead>
                     <tr>
                         <td>
-                            <Checkbox style={{ margin: 0 }}/>
+                            <Checkbox
+                                style={{ margin: 0 }}
+                                checked={this.areAllChecked()}
+                                onChange={this.checkAll}
+                            />
                         </td>
                         {columns[this.state.iface_kind].map(column => <td><Fg text={t('ColumnHeader-' + column)} /></td>)}
                         <Button
                             icon='trash'
                             style={{ marginTop: -8, marginBottom: 8 }}
                             onClick={this.deleteSelected}
+                            disabled={!this.isAnyChecked()}
                         >
                             {t('DeleteSelected') + ' ' + t(this.state.iface_kind)}
                         </Button>
+                        <Button
+                            icon='refresh'
+                            style={{ margin: '-8px 0 8px 12px' }}
+                            onClick={() => this.getInterfaces()}
+                        />
                     </tr>
                 </thead>
                 <tbody>

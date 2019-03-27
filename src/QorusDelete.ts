@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as request from 'request-promise';
-import { qorus_request, QorusRequest } from './QorusRequest';
+import { qorus_request, QorusRequest, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
 
@@ -64,6 +64,51 @@ class QorusDelete {
     }
 
     private deleteInterfaces(iface_kind: string, ids: string[]) {
+        const {ok, active_instance, token} = this.request.activeQorusInstanceAndToken();
+        if (!ok) {
+            return;
+        }
+        let interfaces = ids.map(id => (({ name, version }) => ({ name, version }))(this.interfaces[iface_kind][id]));
+        let iface_post_kind: string;
+        switch (iface_kind) {
+            case 'classes': iface_post_kind = 'class'; break;
+            default: iface_post_kind = iface_kind.slice(0, -1);
+        }
+        const config = vscode.workspace.getConfiguration('qorusDeployment') || {reload: false, 'verbosity-level': 1};
+        const options = {
+            method: 'POST',
+            uri: `${active_instance.url}/api/latest/development/delete`,
+            strictSSL: false,
+            body: {
+                [iface_post_kind]: interfaces,
+                options:  {
+                    reload: config.reload,
+                    'verbosity-level': config['verbosity-level']
+                }
+            },
+            headers: {
+                'qorus-token': token
+            },
+            json: true
+        };
+
+        const texts: QorusRequestTexts = {
+            error: t`DeletionStartFailed`,
+            running: t`DeletionRunning`,
+            cancelling: t`CancellingDeletion`,
+            cancellation_failed: t`DeletionCancellationFailed`,
+            checking_progress: t`checkingDeletionProgress`,
+            finished_successfully: t`DeletionFinishedSuccessfully`,
+            cancelled: t`DeletionCancelled`,
+            checking_status_failed: t`CheckingDeletionStatusFailed`,
+        };
+
+        this.request.doRequestAndCheckResult(options, texts, () => {
+            this.web_panel.webview.postMessage({
+                action: 'deletion-finished',
+                iface_kind: iface_kind
+            });
+        });
     }
 
     private getInterfaces(iface_kind: string, keys: string[]) {
