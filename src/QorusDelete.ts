@@ -114,6 +114,11 @@ class QorusDelete {
     private getInterfaces(iface_kind: string, keys: string[]) {
         const {ok, active_instance, token} = this.request.activeQorusInstanceAndToken();
         if (!ok) {
+            this.web_panel.webview.postMessage({
+                action: 'return-interfaces',
+                iface_kind: iface_kind,
+                data: []
+            });
             return;
         }
 
