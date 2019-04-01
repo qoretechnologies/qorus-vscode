@@ -19,11 +19,6 @@ export interface QorusRequestTexts {
 }
 
 export class QorusRequest extends QorusLogin {
-    constructor() {
-        super();
-        msg.log('constructor ' + this.active_url);
-    }
-
     doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
         return request(options).then(
             (response: any) => {

@@ -180,7 +180,11 @@ export class Root extends Component {
                                 onChange={this.checkAll}
                             />
                         </td>
-                        {columns[this.state.iface_kind].map(column => <td><Fg text={t('ColumnHeader-' + column)} /></td>)}
+                        {columns[this.state.iface_kind].map(column =>
+                            <td>
+                                <Fg text={t('ColumnHeader-' + column)} />
+                            </td>
+                        )}
 
                         <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
                             <Button icon='trash' style={{ marginTop: -8, marginBottom: 8 }}
