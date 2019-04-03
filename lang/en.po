@@ -586,6 +586,9 @@ msgstr "Type"
 msgid "ColumnHeader-language"
 msgstr "Language"
 
+msgid "ColumnHeader-stepid"
+msgstr "ID"
+
 msgid "Workflows"
 msgstr "Workflows"
 
