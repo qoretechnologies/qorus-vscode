@@ -68,7 +68,18 @@ class QorusDelete {
         if (!ok) {
             return;
         }
-        let interfaces = ids.map(id => (({ name, version }) => ({ name, version }))(this.interfaces[iface_kind][id]));
+
+        let steps = [];
+        let interfaces = ids.map(id => {
+            const iface = this.interfaces[iface_kind][id];
+            if (iface_kind === 'workflows') {
+                [].push.apply(steps, iface.stepinfo.map(step =>
+                    (({ name, version }) => ({ name, version }))(step)
+                ));
+            }
+            return (({ name, version }) => ({ name, version }))(iface);
+        });
+
         let iface_post_kind: string;
         switch (iface_kind) {
             case 'classes': iface_post_kind = 'class'; break;
@@ -91,6 +102,9 @@ class QorusDelete {
             },
             json: true
         };
+        if (steps.length) {
+            options.body.step = steps;
+        }
 
         const texts: QorusRequestTexts = {
             error: t`DeletionStartFailed`,
@@ -132,6 +146,10 @@ class QorusDelete {
             }
         };
 
+        if (iface_kind === 'workflows') {
+            keys.push('stepinfo');
+        }
+
         const subData = obj => {
             let ret: any = {};
             for (let key of keys) {
@@ -170,8 +188,11 @@ class QorusDelete {
                 this.web_panel.webview.postMessage({
                     action: 'return-interfaces',
                     iface_kind: iface_kind,
-                    data: full_data.filter(obj => (obj.type !== 'system' || iface_kind !== 'services'))
+                    data: iface_kind === 'services'
+                        ? full_data.filter(obj => obj.type !== 'system')
                                    .map(subData)
+                                   .sort(sorter)
+                        : full_data.map(subData)
                                    .sort(sorter)
                 });
             }
