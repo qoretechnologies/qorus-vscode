@@ -2,7 +2,9 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
+import { qorus_request } from './QorusRequest';
 import { deployer } from './QorusDeploy';
+import { deleter } from './QorusDelete';
 import { releaser } from './QorusRelease';
 import { tester } from './QorusTest';
 import { tree } from './QorusTree';
@@ -38,6 +40,10 @@ export async function activate(context: vscode.ExtensionContext) {
                                                  (uri: vscode.Uri) => tester.testDir(uri));
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.deleteInterfaces',
+                                                 (_uri: vscode.Uri) => deleter.openPage());
+    context.subscriptions.push(disposable);
+
     disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
                                                  (uri: vscode.Uri) => projects.manageProjectConfig(uri));
     context.subscriptions.push(disposable);
@@ -48,37 +54,30 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
                                                  (tree_item: string | vscode.TreeItem) =>
-                                                    {
-                                                        deployer.setActiveInstance(tree_item);
-                                                        tester.setActiveInstance(tree_item);
-                                                    });
-
+                                                        qorus_request.setActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance',
                                                  (tree_item: vscode.TreeItem) =>
-                                                        deployer.setActiveInstance(tree_item));
+                                                        qorus_request.setActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.logout',
-                                                 (tree_item: vscode.TreeItem) => deployer.logout(tree_item));
+                                                 (tree_item: vscode.TreeItem) => qorus_request.logout(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.loginAndStayInactiveInstance',
-                                                 (tree_item: vscode.TreeItem) => deployer.login(tree_item, false));
+                                                 (tree_item: vscode.TreeItem) => qorus_request.login(tree_item, false));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setInactiveInstanceStayLoggedIn',
                                                  (tree_item: vscode.TreeItem) =>
-                                                        deployer.unsetActiveInstance(tree_item));
+                                                        qorus_request.unsetActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setInactiveInstance',
                                                  (tree_item: vscode.TreeItem) =>
-                                                    {
-                                                        deployer.unsetActiveInstance(tree_item);
-                                                        tester.unsetActiveInstance(tree_item);
-                                                    });
+                                                        qorus_request.unsetActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
@@ -111,7 +110,7 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
     }
 
     projects.validateConfigFileAndDo(
-        (file_data: any) => tree.reset(file_data),
+        (file_data: any) => tree.reset(file_data.qorus_instances),
         () => tree.reset({}),
         uri
     );

@@ -1,10 +1,8 @@
 import * as vscode from 'vscode';
-import * as request from 'request-promise';
 import * as path from 'path';
 import * as fs from 'fs';
+import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import { QorusLogin } from './QorusLogin';
-import { AuthNeeded } from './QorusAuth';
-import { tree, QorusTreeInstanceNode } from './QorusTree';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 import { isTest, isVersion3 } from './qorus_utils';
@@ -59,59 +57,11 @@ class QorusTest extends QorusLogin {
         this.doTest(files);
     }
 
-    setActiveInstance(tree_item: string | vscode.TreeItem) {
-        if (typeof tree_item !== 'string') {
-            this.setActiveInstance((<QorusTreeInstanceNode>tree_item).getUrl());
-            return;
-        }
-
-        const url = tree_item;
-        if (this.isAuthorized(url)) {
-            this.setActive(url);
-            tree.refresh();
-            return;
-        }
-        QorusLogin.checkNoAuth(url).then(
-            (no_auth: boolean) => {
-                if (no_auth) {
-                    this.addNoAuth(url);
-                    tree.refresh();
-                    msg.info(t`AuthNotNeeded ${url}`);
-                }
-                else {
-                    msg.info(t`AuthNeeded ${url}`);
-                    this.login(url);
-                }
-            },
-            (error: any) => {
-                this.requestError(error, t`GettingInfoError`);
-            }
-        );
-    }
-
-    unsetActiveInstance(tree_item?: vscode.TreeItem) {
-        if (tree_item) {
-            const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
-            if (!this.isActive(url)) {
-                msg.log(t`AttemptToSetInactiveNotActiveInstance ${url}`);
-            }
-        }
-        this.unsetActive();
-        tree.refresh();
-    }
-
     // returns true if the process got to the stage of checking the result
     // returns false if the process failed earlier
     private doTest(file_paths: string[]): Thenable<boolean> {
-        if (!this.active_url) {
-            msg.error(t`NoActiveQorusInstance`);
-            tree.focus();
-            return Promise.resolve(false);
-        }
-
-        const active_instance = tree.getQorusInstance(this.active_url);
-        if (!active_instance) {
-            msg.error(t`UnableGetActiveQorusInstanceData`);
+        const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
+        if (!ok) {
             return Promise.resolve(false);
         }
 
@@ -120,15 +70,7 @@ class QorusTest extends QorusLogin {
             return Promise.resolve(false);
         }
 
-        let url: string = this.active_url + '/api/latest/development/test';
-        let token: string | undefined = undefined;
-        if (this.authNeeded(this.active_url) != AuthNeeded.No) {
-            token = this.getToken(this.active_url);
-            if (!token) {
-                msg.error(t`UnauthorizedOperationAtUrl ${this.active_url}`);
-                return Promise.resolve(false);
-            }
-        }
+        const url: string = active_instance.url + '/api/latest/development/test';
 
         msg.log(t`FilesToTest`);
         let data: object[] = [];
@@ -151,21 +93,19 @@ class QorusTest extends QorusLogin {
             json: true
         };
 
-        return request(options).then(
-            (response: any) => {
-                msg.log(t`testResponse ${JSON.stringify(response)}`);
-                if (response.id === undefined) {
-                    msg.error(t`ResponseIdUndefined`);
-                    return false;
-                }
-                this.checkTestResult(url, response.id, token);
-                return true;
-            },
-            (error: any) => {
-                this.requestError(error, t`TestStartFailed`);
-                return false;
-            }
-        );
+        const texts: QorusRequestTexts = {
+            error: t`TestStartFailed`,
+            running: t`TestRunning`,
+            cancelling: t`CancellingTest`,
+            cancellation_failed: t`TestCancellationFailed`,
+            checking_progress: t`checkingTestProgress`,
+            finished_successfully: t`TestFinishedSuccessfully`,
+            cancelled: t`TestCancelled`,
+            failed: t`TestFailed`,
+            checking_status_failed: t`CheckingTestStatusFailed`,
+        };
+
+        return qorus_request.doRequestAndCheckResult(options, texts);
     }
 
     private static prepareData(files: string[], data: object[]) {
@@ -192,89 +132,6 @@ class QorusTest extends QorusLogin {
             }
             data.push(file);
         }
-    }
-
-    private checkTestResult(url: string, test_id: string, request_token?: string) {
-        vscode.window.withProgress(
-            {
-                location: vscode.ProgressLocation.Notification,
-                title: t`TestRunning ${test_id}`,
-                cancellable: true
-            },
-            async (progress, cancel_token): Promise<void> => {
-                cancel_token.onCancellationRequested(() => {
-                    msg.info(t`CancellingTest ${test_id}`);
-
-                    const options = {
-                        method: 'DELETE',
-                        uri: `${url}/${test_id}`,
-                        strictSSL: false,
-                        headers: {
-                            'qorus-token': request_token
-                        },
-                        json: true
-                    };
-                    request(options).catch(
-                        error => {
-                            msg.error(t`TestCancellationFailed ${test_id}`);
-                            msg.log(JSON.stringify(error));
-                        }
-                    );
-                    msg.log(t`CancellationRequestSent ${test_id}`);
-                });
-
-                progress.report({ increment: -1});
-                let sec: number = 0;
-                let quit: boolean = false;
-
-                const options = {
-                    method: 'GET',
-                    uri: `${url}/${test_id}`,
-                    strictSSL: false,
-                    headers: {
-                        'qorus-token': request_token
-                    },
-                    json: true
-                };
-
-                while (!quit) {
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // sleep(1s)
-                    msg.log(t`checkingTestProgress ${test_id} ${++sec}`);
-
-                    await request(options).then(
-                        (response: any) => {
-                            const status: string = response.status;
-                            if (response.stdout) {
-                                msg.log(t`testResponse ${response.stdout} ${status}`);
-                            }
-                            if (response.stderr) {
-                                msg.log(t`testResponse ${response.stderr} ${status}`);
-                            }
-                            switch (status) {
-                                case 'FINISHED':
-                                    msg.info(t`TestFinishedSuccessfully ${test_id}`);
-                                    quit = true;
-                                    break;
-                                case 'CANCELED':
-                                case 'CANCELLED':
-                                    msg.info(t`TestCancelled ${test_id}`);
-                                    quit = true;
-                                    break;
-                                case 'FAILED':
-                                    msg.error(t`TestFailed ${test_id}`);
-                                    quit = true;
-                                    break;
-                                default:
-                            }
-                        },
-                        (error: any) => {
-                            this.requestError(error, t`CheckingTestStatusFailed ${test_id}`);
-                            quit = true;
-                        }
-                    );
-                }
-            }
-        );
     }
 
     // returns (in the referenced array) all files from the directory 'dir'and its subdirectories

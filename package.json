@@ -111,6 +111,10 @@
                 "title": "Qorus: Make release"
             },
             {
+                "command": "qorus.deleteInterfaces",
+                "title": "Qorus: Delete interfaces"
+            },
+            {
                 "command": "qorus.deployCurrentFile",
                 "title": "Qorus: Deploy current file"
             },
@@ -181,6 +185,10 @@
                 },
                 {
                     "command": "qorus.makeRelease",
+                    "group": "2_workspace"
+                },
+                {
+                    "command": "qorus.deleteInterfaces",
                     "group": "2_workspace"
                 }
             ],
