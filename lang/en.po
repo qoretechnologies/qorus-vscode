@@ -226,6 +226,9 @@ msgstr "Deployment cancelled"
 msgid "DeletionCancelled"
 msgstr "Deletion cancelled"
 
+msgid "DeletionFailed"
+msgstr "Deletion failed"
+
 msgid "DeploymentCancelled ${ deployment_id }"
 msgstr "Deployment cancelled (ID: ${ deployment_id })"
 
@@ -639,3 +642,54 @@ msgstr "Delete selected "
 
 msgid "Refresh"
 msgstr "Refresh"
+
+msgid "NotExecutableFile ${ path }";
+msgstr "Not an executable file: ${ path }";
+
+msgid "TestingDirectory ${ dir }"
+msgstr "Testing directory: ${ dir }"
+
+msgid "TestNotSupportedForQorus3"
+msgstr "Execution of tests is not supported for Qorus version < 4"
+
+msgid "FilesToTest"
+msgstr "Files to test:"
+
+msgid "TestHasStarted ${ name } ${ url }"
+msgstr "Test execution to ${ name } - ${ url } has started ..."
+
+msgid "testResponse ${ response }"
+msgstr "  ... response: ${ response }"
+
+msgid "TestStartFailed"
+msgstr "Test execution failed to start"
+
+msgid "CancellingTest"
+msgstr "Cancelling test execution"
+
+msgid "TestCancellationFailed"
+msgstr "Test execution cancellation failed"
+
+msgid "checkingTestProgress"
+msgstr "checking test execution progress"
+
+msgid "TestFinishedSuccessfully"
+msgstr "Test execution finished successfully"
+
+msgid "TestCancelled"
+msgstr "Test execution cancelled"
+
+msgid "TestFailed"
+msgstr "Test execution failed"
+
+msgid "CheckingTestStatusFailed"
+msgstr "Checking test execution status failed"
+
+msgid "NoExecutableFilesInDir ${ dir }"
+msgstr "No executable files in the directory ${ dir }"
+
+msgid "TestRunning"
+msgstr "Qorus test is running"
+
+msgid "NothingToTest"
+msgstr "Nothing to test"

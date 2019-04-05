@@ -2,17 +2,13 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
-import { qorus_request, QorusRequest, QorusRequestTexts } from './QorusRequest';
+import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 import { isDeployable, isService, isVersion3 } from './qorus_utils';
 
 
 class QorusDeploy {
-    private request: QorusRequest;
-    constructor() {
-        this.request = qorus_request;
-    }
 
     deployCurrentFile() {
         const editor = vscode.window.activeTextEditor;
@@ -65,7 +61,7 @@ class QorusDeploy {
     // returns true if the process got to the stage of checking the result
     // returns false if the process failed earlier
     private doDeploy(file_paths: string[], is_release: boolean = false): Thenable<boolean> {
-        const {ok, active_instance, token} = this.request.activeQorusInstanceAndToken();
+        const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             return Promise.resolve(false);
         }
@@ -96,7 +92,7 @@ class QorusDeploy {
             }];
         }
         else {
-            QorusDeploy.prepareDataToDeploy(file_paths, data);
+            QorusDeploy.prepareData(file_paths, data);
         }
 
         msg.log(t`DeploymentHasStarted ${active_instance.name} ${active_instance.url}`);
@@ -124,13 +120,14 @@ class QorusDeploy {
             checking_progress: t`checkingDeploymentProgress`,
             finished_successfully: t`DeploymentFinishedSuccessfully`,
             cancelled: t`DeploymentCancelled`,
+            failed: t`DeploymentFailed`,
             checking_status_failed: t`CheckingDeploymentStatusFailed`,
         };
 
-        return this.request.doRequestAndCheckResult(options, texts);
+        return qorus_request.doRequestAndCheckResult(options, texts);
     }
 
-    private static prepareDataToDeploy(files: string[], data: object[]) {
+    private static prepareData(files: string[], data: object[]) {
         for (let file_path of files) {
             const file_relative_path = vscode.workspace.asRelativePath(file_path, false);
             msg.log(`    ${file_relative_path}`);
@@ -149,7 +146,7 @@ class QorusDeploy {
             if (isService(file_path)) {
                 const resources: string[] =
                     QorusDeploy.getResources(file_content.toString(), path.dirname(file_path));
-                QorusDeploy.prepareDataToDeploy(resources, data);
+                QorusDeploy.prepareData(resources, data);
             }
         }
     }
