@@ -3,8 +3,8 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
+import { webview } from './QorusWebview';
 import { deployer } from './QorusDeploy';
-import { deleter } from './QorusDelete';
 import { releaser } from './QorusRelease';
 import { tester } from './QorusTest';
 import { tree } from './QorusTree';
@@ -41,7 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.deleteInterfaces',
-                                                 (_uri: vscode.Uri) => deleter.openPage());
+                                                 (_uri: vscode.Uri) => webview.open('DeleteInterfaces'));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
@@ -81,6 +81,9 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.webview', () => webview.open());
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);

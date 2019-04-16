@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, Checkbox, Classes, HTMLSelect, HTMLTable,
          Intent, Popover, Radio, RadioGroup } from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
 import { Fg } from '../common/Fg';
-import logo from '../../images/qorus_logo_256.png';
 
 
 const columns = {
@@ -16,36 +16,24 @@ const columns = {
     functions: ['name', 'version', 'function_instanceid', 'description'],
 };
 
-export class Root extends Component {
+export class DeleteInterfaces extends Component {
     constructor() {
         super();
 
         this.texts = {};
         this.num_text_requests = 0;
 
-        const state = vscode.getState();
-        if (state) {
-            const {iface_kind, interfaces, checked} = state;
-            this.state = {iface_kind, interfaces, checked};
-        }
-        else {
-            this.state = {
-                iface_kind: 'workflows',
-                interfaces: {},
-                checked: {}
-            };
-            this.setVscodeState(this.state);
-        }
-
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'return-interfaces':
                     const iface_kind = event.data.iface_kind;
-                    let interfaces = Object.assign({}, this.state.interfaces);
+                    this.props.setIfaceKind(iface_kind);
+                    let interfaces = Object.assign({}, this.props.interfaces);
                     interfaces[iface_kind] = event.data.data;
-                    let checked = Object.assign({}, this.state.checked);
+                    this.props.setInterfaces(interfaces);
+                    let checked = Object.assign({}, this.props.checked);
                     checked[iface_kind] = {};
-                    this.setStates({iface_kind, interfaces, checked});
+                    this.props.setChecked(checked);
                     break;
                 case 'return-text':
                     this.texts[event.data.text_id] = event.data.text;
@@ -60,6 +48,15 @@ export class Root extends Component {
         });
     }
 
+    componentDidMount() {
+        const state = vscode.getState();
+        if (state) {
+            this.props.setIfaceKind(state.iface_kind);
+            this.props.setInterfaces(state.interfaces);
+            this.props.setChecked(state.checked);
+        }
+    }
+
     t = text_id => {
         if (this.texts[text_id]) {
             return this.texts[text_id];
@@ -71,17 +68,8 @@ export class Root extends Component {
         this.num_text_requests++;
     }
 
-    setVscodeState = state => {
-        vscode.setState(Object.assign(vscode.getState() || {}, state));
-    }
-
-    setStates = state => {
-        this.setVscodeState(state);
-        this.setState(state);
-    }
-
     deleteSelected = () => {
-        const interfaces = this.state.checked[this.state.iface_kind];
+        const interfaces = this.props.checked[this.props.iface_kind];
         let ids = [];
         for (let id in interfaces) {
             if(interfaces[id]) {
@@ -91,25 +79,25 @@ export class Root extends Component {
 
         vscode.postMessage({
             action: 'delete-interfaces',
-            iface_kind: this.state.iface_kind,
+            iface_kind: this.props.iface_kind,
             ids: ids
         });
     }
 
     onInterfaceKindChange = ev => {
-        this.setStates({iface_kind: ev.target.value === 'other' ? 'classes' : ev.target.value});
+        this.props.setIfaceKind(ev.target.value === 'other' ? 'classes' : ev.target.value);
     }
 
     onCheckChange = (id, ev) => {
-        let checked = JSON.parse(JSON.stringify(this.state.checked));
-        checked[this.state.iface_kind] || (checked[this.state.iface_kind] = {});
-        checked[this.state.iface_kind][id] = ev.target.checked;
-        this.setStates({checked});
+        let checked = JSON.parse(JSON.stringify(this.props.checked));
+        checked[this.props.iface_kind] || (checked[this.props.iface_kind] = {});
+        checked[this.props.iface_kind][id] = ev.target.checked;
+        this.props.setChecked(checked);
     }
 
-    currentKindInterfaces = () => this.state.interfaces[this.state.iface_kind];
+    currentKindInterfaces = () => this.props.interfaces[this.props.iface_kind];
 
-    getInterfaces = (iface_kind = this.state.iface_kind) => {
+    getInterfaces = (iface_kind = this.props.iface_kind) => {
         vscode.postMessage({
             action: 'get-interfaces',
             iface_kind: iface_kind,
@@ -117,11 +105,11 @@ export class Root extends Component {
         });
     }
 
-    isOtherKind = () => !['workflows', 'services', 'jobs'].includes(this.state.iface_kind);
+    isOtherKind = () => !['workflows', 'services', 'jobs'].includes(this.props.iface_kind);
 
     isChecked = id =>
-        (this.state.checked[this.state.iface_kind] &&
-         this.state.checked[this.state.iface_kind][id]) || false;
+        (this.props.checked[this.props.iface_kind] &&
+         this.props.checked[this.props.iface_kind][id]) || false;
 
     isAnyChecked = () =>
         this.currentKindInterfaces().some(iface => this.isChecked(iface.id));
@@ -131,10 +119,10 @@ export class Root extends Component {
 
     checkAll = () => {
         const value = !this.areAllChecked();
-        let checked = JSON.parse(JSON.stringify(this.state.checked));
-        checked[this.state.iface_kind] || (checked[this.state.iface_kind] = {});
-        this.currentKindInterfaces().map(iface => checked[this.state.iface_kind][iface.id] = value);
-        this.setStates({checked});
+        let checked = JSON.parse(JSON.stringify(this.props.checked));
+        checked[this.props.iface_kind] || (checked[this.props.iface_kind] = {});
+        this.currentKindInterfaces().map(iface => checked[this.props.iface_kind][iface.id] = value);
+        this.props.setChecked(checked);
     }
 
     render() {
@@ -148,7 +136,7 @@ export class Root extends Component {
         const InterfaceKind =
             <RadioGroup
                 onChange={this.onInterfaceKindChange}
-                selectedValue={this.isOtherKind() ? 'other' : this.state.iface_kind}
+                selectedValue={this.isOtherKind() ? 'other' : this.props.iface_kind}
                 inline={true}
                 className='iface-kind-radio-group'
             >
@@ -162,7 +150,7 @@ export class Root extends Component {
             <HTMLSelect
                 className='iface-kind-select'
                 onChange={this.onInterfaceKindChange}
-                value={this.state.iface_kind}
+                value={this.props.iface_kind}
             >
                 {['classes', 'constants', 'mappers', 'functions'].map(iface_kind =>
                     <option value={iface_kind}>{iface_kind}</option>
@@ -170,7 +158,7 @@ export class Root extends Component {
             </HTMLSelect>;
 
         const Interfaces =
-            <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }}>
+            <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }} className='iface-list'>
                 <thead>
                     <tr>
                         <td>
@@ -180,7 +168,7 @@ export class Root extends Component {
                                 onChange={this.checkAll}
                             />
                         </td>
-                        {columns[this.state.iface_kind].map(column =>
+                        {columns[this.props.iface_kind].map(column =>
                             <td>
                                 <Fg text={t('ColumnHeader-' + column)} />
                             </td>
@@ -190,10 +178,10 @@ export class Root extends Component {
                             <Button icon='trash' style={{ marginTop: -8, marginBottom: 8 }}
                                 disabled={!this.isAnyChecked()}
                              >
-                                {t('DeleteSelected') + t(this.state.iface_kind)}
+                                {t('DeleteSelected') + t(this.props.iface_kind)}
                             </Button>
                             <div>
-                                {t('ConfirmRemoveInterfaces') + t(this.state.iface_kind) + '?'}
+                                {t('ConfirmRemoveInterfaces') + t(this.props.iface_kind) + '?'}
 
                                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 27 }}>
                                     <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
@@ -226,7 +214,7 @@ export class Root extends Component {
                                     checked={this.isChecked(iface.id)}
                                 />
                             </td>
-                            {columns[this.state.iface_kind].map(column =>
+                            {columns[this.props.iface_kind].map(column =>
                                 <td className='iface-cell'><Fg text={iface[column]} /></td>
                             )}
                         </tr>
@@ -235,16 +223,28 @@ export class Root extends Component {
             </HTMLTable>;
 
         return (
-            <div className='fg-color'>
+            <div className='fg-color navbar-offset'>
                 <div className='flex-start'>
-                    <img style={{ maxWidth: 36, maxHeight: 36, margin: '24px 0 0 12px' }} src={logo} />
                     {InterfaceKind}
                     {this.isOtherKind() && OtherKind}
                 </div>
-                <hr style={{ marginBottom: 16 }} />
+                <hr style={{ marginBottom: 12 }} />
 
                 {Interfaces}
             </div>
         );
     }
 }
+
+const mapStateToProps = state => {
+    const {iface_kind, interfaces, checked} = state;
+    return {iface_kind, interfaces, checked};
+};
+
+const mapDispatchToProps = dispatch => ({
+    setIfaceKind: iface_kind => dispatch({type: 'iface_kind', iface_kind: iface_kind}),
+    setInterfaces: interfaces => dispatch({type: 'interfaces', interfaces: interfaces}),
+    setChecked: checked => dispatch({type: 'checked', checked: checked}),
+});
+
+export const DeleteInterfacesContainer = connect(mapStateToProps, mapDispatchToProps)(DeleteInterfaces);
