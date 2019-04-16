@@ -20,9 +20,6 @@ export class DeleteInterfaces extends Component {
     constructor() {
         super();
 
-        this.texts = {};
-        this.num_text_requests = 0;
-
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'return-interfaces':
@@ -34,12 +31,6 @@ export class DeleteInterfaces extends Component {
                     let checked = Object.assign({}, this.props.checked);
                     checked[iface_kind] = {};
                     this.props.setChecked(checked);
-                    break;
-                case 'return-text':
-                    this.texts[event.data.text_id] = event.data.text;
-                    if (--this.num_text_requests == 0) {
-                        this.forceUpdate();
-                    }
                     break;
                 case 'deletion-finished':
                     this.getInterfaces(event.data.iface_kind);
@@ -55,17 +46,6 @@ export class DeleteInterfaces extends Component {
             this.props.setInterfaces(state.interfaces);
             this.props.setChecked(state.checked);
         }
-    }
-
-    t = text_id => {
-        if (this.texts[text_id]) {
-            return this.texts[text_id];
-        }
-        vscode.postMessage({
-            action: 'get-text',
-            text_id: text_id
-        });
-        this.num_text_requests++;
     }
 
     deleteSelected = () => {
@@ -131,7 +111,7 @@ export class DeleteInterfaces extends Component {
             return null;
         }
 
-        const t = this.t;
+        const t = this.props.t;
 
         const InterfaceKind =
             <RadioGroup
@@ -236,9 +216,9 @@ export class DeleteInterfaces extends Component {
     }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, own_props) => {
     const {iface_kind, interfaces, checked} = state;
-    return {iface_kind, interfaces, checked};
+    return {iface_kind, interfaces, checked, t: own_props.t};
 };
 
 const mapDispatchToProps = dispatch => ({

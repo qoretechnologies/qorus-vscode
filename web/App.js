@@ -77,7 +77,7 @@ class App extends Component {
                     </NavbarGroup>
                 </Navbar>
 
-                {this.props.active_tab == 'DeleteInterfaces' && <DeleteInterfaces /> }
+                {this.props.active_tab == 'DeleteInterfaces' && <DeleteInterfaces t={this.t}/> }
             </>
         );
     }
