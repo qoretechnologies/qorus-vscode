@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
 import { projects, QorusProject, config_filename } from './QorusProject';
+import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 
 

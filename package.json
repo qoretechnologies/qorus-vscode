@@ -195,10 +195,6 @@
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.testDir",
                     "group": "2_workspace"
-                },
-                {
-                    "command": "qorus.makeRelease",
-                    "group": "2_workspace"
                 }
             ],
             "view/item/context": [

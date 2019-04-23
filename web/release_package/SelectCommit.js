@@ -3,7 +3,7 @@ import { Button, ControlGroup, H4, InputGroup, Spinner } from '@blueprintjs/core
 import { vscode } from '../common/vscode';
 
 
-export class SelectCommit extends Component {
+class SelectCommit extends Component {
     constructor() {
         super();
 
@@ -11,11 +11,9 @@ export class SelectCommit extends Component {
             switch (event.data.action) {
                 case 'return-commits':
                     const commits = event.data.commits;
-                    this.setStates({
-                        commits: commits
-                    });
-                    if (!this.state.value && commits && commits.length) {
-                        this.setState({value: commits[0].hash});
+                    this.props.setCommits(commits);
+                    if (!this.props.value && commits && commits.length) {
+                        this.props.setValue(commits[0].hash);
                     }
                     break;
             }
@@ -23,59 +21,42 @@ export class SelectCommit extends Component {
     }
 
     componentDidMount() {
-        const state = vscode.getState();
-        if (state) {
-            const {commits, hash_filter, branch_filter, tag_filter, value} = state;
-            this.setState({commits, hash_filter, branch_filter, tag_filter, value});
-
-            if (state.commits) {
-                return;
-            }
+        if (!this.props.commits) {
+            vscode.postMessage({
+                action: 'get-commits',
+                filters: {hash: '', branch: '', tag: ''}
+            });
         }
-
-        vscode.postMessage({
-            action: 'get-commits',
-            hash_filter: '',
-            branch_filter: '',
-            tag_filter: ''
-        });
-    }
-
-    setVscodeState = state => {
-        vscode.setState(Object.assign(vscode.getState() || {}, state));
-    }
-
-    setStates = state => {
-        this.setVscodeState(state);
-        this.setState(state);
     }
 
     onFilterChange = (filter_type, ev = null) => {
-        let new_state = Object.assign({}, this.state);
-        new_state[filter_type + '_filter'] = ev ? ev.target.value : '',
+        const filters = {
+            hash: this.props.hash_filter,
+            branch: this.props.branch_filter,
+            tag: this.props.tag_filter
+        };
+        filters[filter_type] = ev ? ev.target.value : '',
 
         vscode.postMessage({
             action: 'get-commits',
-            hash_filter: new_state.hash_filter,
-            branch_filter: new_state.branch_filter,
-            tag_filter: new_state.tag_filter
+            filters
         });
 
-        this.setStates(new_state);
+        this.props.setFilter(filter_type, filters[filter_type])
     }
 
     onValueChange = ev => {
-        this.setStates({value: ev.target.value});
+        this.setValue(ev.target.value);
     }
 
     render() {
-        if (!this.state || !this.state.commits) {
+        if (!this.props || !this.props.commits) {
             return null;
         }
 
         const ClearButton = props => <Button icon='cross' minimal={true} {...props} />;
 
-        const options = this.state.commits.map(commit => {
+        const options = this.props.commits.map(commit => {
             const hash = commit.hash;
             let text = ''
             if (commit.local) {
@@ -107,7 +88,7 @@ export class SelectCommit extends Component {
                     <InputGroup className='filter-input'
                         leftIcon='git-commit'
                         placeholder={t('filterByCommitHash')}
-                        value={this.state.hash_filter}
+                        value={this.props.hash_filter}
                         onChange={ev => this.onFilterChange('hash', ev)}
                         onFocus={this.props.onFilterFocus}
                         rightElement=<ClearButton disabled={this.props.disabled}
@@ -116,7 +97,7 @@ export class SelectCommit extends Component {
                     <InputGroup className='filter-input'
                         leftIcon='git-branch'
                         placeholder={t('filterByBranchName')}
-                        value={this.state.branch_filter}
+                        value={this.props.branch_filter}
                         onChange={ev => this.onFilterChange('branch', ev)}
                         onFocus={this.props.onFilterFocus}
                         rightElement=<ClearButton disabled={this.props.disabled}
@@ -125,7 +106,7 @@ export class SelectCommit extends Component {
                     <InputGroup className='filter-input'
                         leftIcon='tag'
                         placeholder={t('filterByTag')}
-                        value={this.state.tag_filter}
+                        value={this.props.tag_filter}
                         onChange={ev => this.onFilterChange('tag', ev)}
                         onFocus={this.props.onFilterFocus}
                         rightElement=<ClearButton disabled={this.props.disabled}
@@ -133,7 +114,7 @@ export class SelectCommit extends Component {
                     />
                     <select size='12'
                         onChange={this.onValueChange}
-                        value={this.state.value}
+                        value={this.props.value}
                         disabled={this.props.disabled}
                     >
                         {options}
@@ -141,7 +122,7 @@ export class SelectCommit extends Component {
                 </ControlGroup>
                 <div className='flex-center'>
                     <Button icon={this.props.pending ? <Spinner size={18} /> : 'tick'}
-                        onClick={() => this.props.selectCommit(this.state.value)}
+                        onClick={() => this.props.selectCommit(this.props.value)}
                         style={{ marginTop: 18 }}
                         disabled={this.props.disabled}
                     >
@@ -152,3 +133,19 @@ export class SelectCommit extends Component {
         );
     }
 }
+
+const mapStateToProps = (state) => ({
+    commits: state.release_commits,
+    hash_filter: state.release_hash_filter,
+    branch_filter: state.release_branch_filter,
+    tag_filter: state.release_tag_filter,
+    value: state.release_commit_hash
+});
+
+const mapDispatchToProps = dispatch => ({
+    setCommits: commits => dispatch({type: 'release_commits', release_commits}),
+    setFilter: (filter, value) => dispatch({type: 'release_filter', filter, value}),
+    setValue: value => dispatch({type: 'release_commit_hash', release_commit_hash})
+});
+
+export const SelectCommitContainer = connect(mapStateToProps, mapDispatchToProps)(SelectCommit);

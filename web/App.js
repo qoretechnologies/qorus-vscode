@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Navbar, NavbarGroup } from '@blueprintjs/core';
 import { ProjectConfigContainer as ProjectConfig } from './project_config/ProjectConfig';
+import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import { vscode } from './common/vscode';
 import logo from '../images/qorus_logo_256.png';
@@ -53,7 +54,7 @@ class App extends Component {
 
         const Tabs = {
             'ProjectConfig': 'cog',
-            'QorusRelease': 'cube',
+            'ReleasePackage': 'cube',
             'DeleteInterfaces': 'trash',
             'CreateInterface': 'draw'
         };
@@ -74,6 +75,7 @@ class App extends Component {
                 </Navbar>
 
                 {this.props.active_tab == 'ProjectConfig' && <ProjectConfig t={this.t} _={dict_length}/>}
+                {this.props.active_tab == 'ReleasePackage' && <ReleasePackage t={this.t} _={dict_length}/>}
                 {this.props.active_tab == 'DeleteInterfaces' && <DeleteInterfaces t={this.t} _={dict_length}/>}
             </>
         );

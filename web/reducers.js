@@ -43,6 +43,57 @@ function configEditPopoverOpen(state = {}, action) {
     return state;
 }
 
+function releaseStep(state = 0, action) {
+    return simpleReducer(state, action, 'release_step');
+}
+
+function releaseBranch(state = null, action) {
+    return simpleReducer(state, action, 'release_branch');
+}
+
+function releaseCommitHash(state = null, action) {
+    return simpleReducer(state, action, 'release_commit_hash');
+}
+
+function releaseCommit(state = null, action) {
+    return simpleReducer(state, action, 'release_commit');
+}
+
+function releaseCommits(state = null, action) {
+    return simpleReducer(state, action, 'release_commits');
+}
+
+function releaseFiles(state = [], action) {
+    return simpleReducer(state, action, 'release_files');
+}
+
+function releasePending(state = false, action) {
+    return simpleReducer(state, action, 'release_pending');
+}
+
+function releasePackagePath(state = null, action) {
+    return simpleReducer(state, action, 'release_package_path');
+}
+
+function releaseSavedPath(state = null, action) {
+    return simpleReducer(state, action, 'release_saved_path');
+}
+
+function releaseResult(state = null, action) {
+    return simpleReducer(state, action, 'release_result');
+}
+
+function releaseType(state = 'full', action) {
+    return simpleReducer(state, action, 'release_type');
+}
+
+function releaseFilter(state = {hash: '', branch: '', tag: ''}, action) {
+    if (action.type === 'release_filter') {
+        return Object.assign({}, state, {[action.filter]: action.value});
+    }
+    return state;
+}
+
 function msgOpen(state = {config_changed: false, release_not_up_to_date: false}, action) {
     switch (action.type) {
         case 'config_changed_msg_open':
@@ -70,5 +121,17 @@ export default function reducer(state = {}, action) {
         config_selected_env: configSelectedEnv,
         config_selected_qorus: configSelectedQorus,
         config_edit_popover_open: configEditPopoverOpen,
+        release_step: releaseStep,
+        release_branch: releaseBranch,
+        release_commit: releaseCommit,
+        release_commits: releaseCommits,
+        release_commit_hash: releaseCommitHash,
+        release_files: releaseFiles,
+        release_pending: releasePending,
+        release_package_path: releasePackagePath,
+        release_saved_path: releaseSavedPath,
+        release_result: releaseResult,
+        release_type: releaseType,
+        release_filter: releaseFilter,
     })(state, action);
 }

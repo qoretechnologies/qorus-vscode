@@ -6,7 +6,6 @@ module.exports = {
     entry: {
         webview: './web/index.js',
         login: './web/login/main.js',
-        release_package: './web/release_package/main.js',
     },
     output: {
         path: `${root}/dist`,

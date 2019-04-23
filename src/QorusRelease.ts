@@ -137,7 +137,7 @@ class QorusRelease {
             doc => {
                 this.release_panel = vscode.window.createWebviewPanel(
                     'qorusRelease',
-                    t`QorusReleaseTitle`,
+                    t`ReleasePackageTitle`,
                     vscode.ViewColumn.One,
                     {
                         enableScripts: true
@@ -162,9 +162,9 @@ class QorusRelease {
                         case 'get-commits':
                             this.release_panel.webview.postMessage({
                                 action: 'return-commits',
-                                commits: this.repository.commits(message.hash_filter,
-                                                                 message.branch_filter,
-                                                                 message.tag_filter)
+                                commits: this.repository.commits(message.filters.hash,
+                                                                 message.filters.branch,
+                                                                 message.filters.tag)
                             });
                             break;
                         case 'get-diff':

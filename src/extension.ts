@@ -5,7 +5,6 @@ import { projects, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { webview } from './QorusWebview';
 import { deployer } from './QorusDeploy';
-import { releaser } from './QorusRelease';
 import { tester } from './QorusTest';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
@@ -38,18 +37,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.commands.registerCommand('qorus.testDir',
                                                  (uri: vscode.Uri) => tester.testDir(uri));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.deleteInterfaces',
-                                                 (_uri: vscode.Uri) => webview.open('DeleteInterfaces'));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
-                                                 (_uri: vscode.Uri) => webview.open('ProjectConfig'));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.makeRelease',
-                                                 (uri: vscode.Uri) => releaser.makeRelease(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',

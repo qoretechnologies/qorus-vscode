@@ -67,11 +67,11 @@ msgstr "Project configuration"
 msgid "ProjectConfig-buttonTitle"
 msgstr "Project configuration"
 
-msgid "QorusRelease-buttonText"
+msgid "ReleasePackage-buttonText"
 msgstr "Make release"
 
-msgid "QorusRelease-buttonTitle"
-msgstr "Make Qorus release"
+msgid "ReleasePackage-buttonTitle"
+msgstr "Make a release package"
 
 msgid "DeleteInterfaces-buttonText"
 msgstr "Delete interfaces"
@@ -478,10 +478,10 @@ msgstr "commit"
 msgid "GitBranchNotUpToDate"
 msgstr "Your branch is not synchronized with remote. All changes must be committed and pushed/pulled before you can continue."
 
-msgid "QorusReleaseTitle"
-msgstr "Make Qorus Release"
+msgid "ReleasePackageTitle"
+msgstr "Make a release package"
 
-msgid "QorusRelease"
+msgid "ReleasePackage"
 msgstr "Make release"
 
 msgid "QorusWebviewTitle"
