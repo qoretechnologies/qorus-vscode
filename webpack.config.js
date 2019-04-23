@@ -6,7 +6,6 @@ module.exports = {
     entry: {
         webview: './web/index.js',
         login: './web/login/main.js',
-        project_config: './web/project_config/main.js',
         release_package: './web/release_package/main.js',
     },
     output: {

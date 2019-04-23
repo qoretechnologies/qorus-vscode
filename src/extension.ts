@@ -45,7 +45,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
-                                                 (uri: vscode.Uri) => projects.manageProjectConfig(uri));
+                                                 (_uri: vscode.Uri) => webview.open('ProjectConfig'));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.makeRelease',
@@ -108,15 +108,20 @@ export function deactivate() {
 
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
-    if (!projects.updateCurrentWorkspaceFolder(uri) && !forceTreeReset) {
-        return;
+
+    const workspace_folder_changed_or_unset = projects.updateCurrentWorkspaceFolder(uri);
+
+    if (workspace_folder_changed_or_unset || forceTreeReset) {
+        projects.validateConfigFileAndDo(
+            (file_data: any) => tree.reset(file_data.qorus_instances),
+            () => tree.reset({}),
+            uri
+        );
     }
 
-    projects.validateConfigFileAndDo(
-        (file_data: any) => tree.reset(file_data.qorus_instances),
-        () => tree.reset({}),
-        uri
-    );
+    if (workspace_folder_changed_or_unset) {
+        webview.dispose();
+    }
 }
 
 function openUrlInExternalBrowser(url: string, name: string) {

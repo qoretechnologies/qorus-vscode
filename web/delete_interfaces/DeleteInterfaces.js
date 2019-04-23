@@ -16,7 +16,7 @@ const columns = {
     functions: ['name', 'version', 'function_instanceid', 'description'],
 };
 
-export class DeleteInterfaces extends Component {
+class DeleteInterfaces extends Component {
     constructor() {
         super();
 
@@ -37,15 +37,6 @@ export class DeleteInterfaces extends Component {
                     break;
             }
         });
-    }
-
-    componentDidMount() {
-        const state = vscode.getState();
-        if (state) {
-            this.props.setIfaceKind(state.iface_kind);
-            this.props.setInterfaces(state.interfaces);
-            this.props.setChecked(state.checked);
-        }
     }
 
     deleteSelected = () => {
@@ -208,6 +199,7 @@ export class DeleteInterfaces extends Component {
                     {InterfaceKind}
                     {this.isOtherKind() && OtherKind}
                 </div>
+
                 <hr style={{ marginBottom: 12 }} />
 
                 {Interfaces}
@@ -216,15 +208,16 @@ export class DeleteInterfaces extends Component {
     }
 }
 
-const mapStateToProps = (state, own_props) => {
-    const {iface_kind, interfaces, checked} = state;
-    return {iface_kind, interfaces, checked, t: own_props.t};
-};
+const mapStateToProps = (state) => ({
+    iface_kind: state.delete_ifaces_kind,
+    interfaces: state.delete_ifaces_all,
+    checked: state.delete_ifaces_checked
+});
 
 const mapDispatchToProps = dispatch => ({
-    setIfaceKind: iface_kind => dispatch({type: 'iface_kind', iface_kind: iface_kind}),
-    setInterfaces: interfaces => dispatch({type: 'interfaces', interfaces: interfaces}),
-    setChecked: checked => dispatch({type: 'checked', checked: checked}),
+    setIfaceKind: iface_kind => dispatch({type: 'delete_ifaces_kind', delete_ifaces_kind: iface_kind || 'workflows'}),
+    setInterfaces: interfaces => dispatch({type: 'delete_ifaces_all', delete_ifaces_all: interfaces || {}}),
+    setChecked: checked => dispatch({type: 'delete_ifaces_checked', delete_ifaces_checked: checked || {}}),
 });
 
 export const DeleteInterfacesContainer = connect(mapStateToProps, mapDispatchToProps)(DeleteInterfaces);

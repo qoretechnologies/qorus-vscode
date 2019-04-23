@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditPopover } from './EditPopover';
+import { EditPopoverContainer as EditPopover } from './EditPopover';
 
 
 export const AddButton = props => {

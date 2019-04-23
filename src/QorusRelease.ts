@@ -22,8 +22,8 @@ class QorusRelease {
     private package_path = null;
 
     makeRelease(uri: vscode.Uri) {
-        const project: QorusProject | undefined = projects.getQorusProject(uri);
-        if (!project || !project.exists()) {
+        const project: QorusProject | undefined = projects.getProject(uri);
+        if (!project || !project.configFileExists()) {
             msg.error(t`QorusProjectNotSet`);
             return;
         }

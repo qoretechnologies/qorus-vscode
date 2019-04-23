@@ -1,7 +1,7 @@
 import React from 'react';
 import { HTMLTable, H4, Button } from "@blueprintjs/core";
 import { EditBtnGroup } from './EditBtnGroup';
-import { EditPopover } from './EditPopover';
+import { EditPopoverContainer as EditPopover } from './EditPopover';
 import { AddButton } from './AddButton';
 
 

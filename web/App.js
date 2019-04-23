@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Navbar, NavbarGroup } from '@blueprintjs/core';
+import { ProjectConfigContainer as ProjectConfig } from './project_config/ProjectConfig';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import { vscode } from './common/vscode';
 import logo from '../images/qorus_logo_256.png';
@@ -13,6 +14,8 @@ class App extends Component {
         this.texts = {};
         this.num_text_requests = 0;
 
+        this.vscode_state = vscode.getState();
+
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'return-text':
@@ -22,19 +25,10 @@ class App extends Component {
                     }
                     break;
                 case 'set-active-tab':
-                    console.log('set-active-tab');
                     this.props.setActiveTab(event.data.active_tab);
                     break;
             }
         });
-    }
-
-    componentDidMount() {
-        const state = vscode.getState();
-        console.log('vscode.getState(): ' + JSON.stringify(state, null, 4));
-        if (state) {
-            this.props.setActiveTab(state.active_tab);
-        }
     }
 
     t = text_id => {
@@ -49,11 +43,13 @@ class App extends Component {
     }
 
     render() {
-        if (!this.texts) {
-            return null;
+        if (this.vscode_state) {
+            this.props.setAll(this.vscode_state);
+            this.vscode_state = undefined;
         }
 
         const t = this.t;
+        const dict_length = Object.keys(this.texts).length;
 
         const Tabs = {
             'ProjectConfig': 'cog',
@@ -77,16 +73,20 @@ class App extends Component {
                     </NavbarGroup>
                 </Navbar>
 
-                {this.props.active_tab == 'DeleteInterfaces' && <DeleteInterfaces t={this.t}/> }
+                {this.props.active_tab == 'ProjectConfig' && <ProjectConfig t={this.t} _={dict_length}/>}
+                {this.props.active_tab == 'DeleteInterfaces' && <DeleteInterfaces t={this.t} _={dict_length}/>}
             </>
         );
     }
 }
 
-const mapStateToProps = state => ({ active_tab: state.active_tab });
+const mapStateToProps = state => ({
+    active_tab: state.active_tab
+});
 
 const mapDispatchToProps = dispatch => ({
-    setActiveTab: tab_key => {dispatch({type: 'active_tab', active_tab: tab_key});}
+    setActiveTab: tab_key => {dispatch({type: 'active_tab', active_tab: tab_key});},
+    setAll: all_state => {dispatch({type: 'all', all: all_state});}
 });
 
 export const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);

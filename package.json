@@ -197,15 +197,7 @@
                     "group": "2_workspace"
                 },
                 {
-                    "command": "qorus.manageProjectConfig",
-                    "group": "2_workspace"
-                },
-                {
                     "command": "qorus.makeRelease",
-                    "group": "2_workspace"
-                },
-                {
-                    "command": "qorus.deleteInterfaces",
                     "group": "2_workspace"
                 }
             ],

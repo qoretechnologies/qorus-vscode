@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ButtonGroup, Classes, H5, Intent, Popover } from "@blueprintjs/core";
-import { EditPopover } from './EditPopover';
+import { EditPopoverContainer as EditPopover } from './EditPopover';
 
 
 export const EditBtnGroup = props => {

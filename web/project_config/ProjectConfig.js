@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Intent, Radio, RadioGroup } from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
@@ -6,174 +7,120 @@ import { Urls } from './Urls';
 import { SourceDirs } from './SourceDirs';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
-import logo from '../../images/qorus_logo_256.png';
 
 
-export class Root extends Component {
+class ProjectConfig extends Component {
     constructor() {
         super();
 
-        this.texts = {};
-        this.num_text_requests = 0;
-
-        const state = vscode.getState();
-        if (state) {
-            this.state = {
-                data: state.data,
-                selected_env_id: state.selected_env_id,
-                selected_qorus_id: state.selected_qorus_id,
-                config_type: state.config_type,
-                config_changed_on_disk_msg_open: state.config_changed_on_disk_msg_open
-            };
-        }
-        else {
-            this.state = {
-                data: null,
-                selected_env_id: null,
-                selected_qorus_id: null,
-                config_type: 'qoruses',
-                config_changed_on_disk_msg_open: false
-            };
-            this.setVscodeState(this.state);
-        }
-
         window.addEventListener('message', event => {
             switch (event.data.action) {
-                case 'return-data':
-                    this.setStates({
-                        data: event.data.data,
-                        selected_env_id: null,
-                        selected_qorus_id: null
-                    });
-                    break;
-                case 'return-text':
-                    this.texts[event.data.text_id] = event.data.text;
-                    if (--this.num_text_requests == 0) {
-                        this.forceUpdate();
-                    }
+                case 'config-return-data':
+                    this.props.setData(event.data.data);
+                    this.props.setSelectedQorus(null);
+                    this.props.setSelectedEnv(null);
                     break;
                 case 'config-changed-on-disk':
-                    this.setStates({config_changed_on_disk_msg_open: true});
+                    this.props.setConfigChangedMsgOpen(true);
                     break;
             }
         });
     }
 
-    setVscodeState(state) {
-        vscode.setState(Object.assign(vscode.getState() || {}, state));
-    }
-
-    setStates(state) {
-        this.setVscodeState(state);
-        this.setState(state);
-    }
-
     componentDidMount() {
-        if (this.state.data) {
-            return;
+        if (!this.props.data) {
+            vscode.postMessage({
+                action: 'config-get-data'
+            });
         }
-        vscode.postMessage({
-            action: 'get-data'
-        });
-    }
-
-    t = text_id => {
-        if (this.texts[text_id]) {
-            return this.texts[text_id];
-        }
-        vscode.postMessage({
-            action: 'get-text',
-            text_id: text_id
-        });
-        this.num_text_requests++;
     }
 
     onConfigTypeChange = ev => {
-        this.setStates({config_type: ev.target.value});
+        this.props.setConfigType(ev.target.value);
     }
 
     selectEnv = (env_id) => {
-        this.setStates({
-            selected_env_id: env_id,
-            selected_qorus_id: null
-        });
+        this.props.setSelectedEnv(env_id);
+        this.props.setSelectedQorus(null);
     }
 
     selectQorus = (qorus_id) => {
-        this.setStates({selected_qorus_id: qorus_id});
+        this.props.setSelectedQorus(qorus_id);
     }
 
     handleMessageDialogClose = () => {
-        this.setState({config_changed_on_disk_msg_open: false});
+        this.props.setConfigChangedMsgOpen(false);
     }
 
     removeSourceDir = dir => {
         vscode.postMessage({
-            action: 'remove-source-dir',
+            action: 'config-remove-dir',
             dir: dir
         });
     }
 
     addSourceDir = () => {
         vscode.postMessage({
-            action: 'add-source-dir'
+            action: 'config-add-dir'
         });
     }
 
     render() {
-        if (!this.state.data) {
+        if (!this.props.data) {
             return null;
         }
 
-        const selected_env_id = this.state.selected_env_id;
-        const selected_qorus_id = this.state.selected_qorus_id;
-        const selected_env = (selected_env_id !== null) ? this.state.data.qorus_instances[selected_env_id] : null;
+        const t = this.props.t;
+
+        const selected_env_id = this.props.selected_env_id;
+        const selected_qorus_id = this.props.selected_qorus_id;
+        const selected_env = (selected_env_id !== null) ? this.props.data.qorus_instances[selected_env_id] : null;
         const selected_qorus = (selected_qorus_id !== null) ? selected_env.qoruses[selected_qorus_id] : null;
 
         const ConfigChangedOnDiskMsg =
-            <MessageDialog isOpen={this.state.config_changed_on_disk_msg_open}
+            <MessageDialog isOpen={this.props.config_changed_msg_open}
                 onClose={this.handleMessageDialogClose}
-                text={this.t('ConfigChangedOnDiskDialogQuestion')}
+                text={t('ConfigChangedOnDiskDialogQuestion')}
                 buttons={[{
-                    title: this.t('ButtonReload'),
+                    title: t('ButtonReload'),
                     intent: Intent.WARNING,
                     onClick: () => {
                         vscode.postMessage({
-                            action: 'get-data',
+                            action: 'config-get-data',
                         });
-                        this.setState({config_changed_on_disk_msg_open: false});
+                        this.props.setConfigChangedMsgOpen(false);
                     }
                 },
                 {
-                    title: this.t('ButtonOverwrite'),
+                    title: t('ButtonOverwrite'),
                     intent: Intent.PRIMARY,
                     onClick: () => {
                         vscode.postMessage({
-                            action: 'update-data',
-                            data: this.state.data
+                            action: 'config-update-data',
+                            data: this.props.data
                         });
-                        this.setState({config_changed_on_disk_msg_open: false});
+                        this.props.setConfigChangedMsgOpen(false);
                     }
                 }]}
             />;
 
         const QorusInstances =
             <div className='config-container'>
-                <Envs t={this.t}
-                    data={this.state.data.qorus_instances}
+                <Envs t={t}
+                    data={this.props.data.qorus_instances}
                     selected_env_id={selected_env_id}
                     onSelect={this.selectEnv}
                     onEdit={this.updateQorusInstancesData.bind(this)}
                     onRemove={this.updateQorusInstancesData.bind(this, 'remove-env')}
                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-env-up')} />
-                <Qoruses t={this.t}
+                <Qoruses t={t}
                     selected_env={selected_env}
                     selected_qorus_id={selected_qorus_id}
                     onSelect={this.selectQorus}
                     onEdit={this.updateQorusInstancesData.bind(this)}
                     onRemove={this.updateQorusInstancesData.bind(this, 'remove-qorus')}
                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-qorus-up')} />
-                <Urls t={this.t}
+                <Urls t={t}
                     env_id={selected_env_id}
                     selected_qorus={selected_qorus}
                     onEdit={this.updateQorusInstancesData.bind(this)}
@@ -185,31 +132,27 @@ export class Root extends Component {
             <>
                 {ConfigChangedOnDiskMsg}
 
-                <div className='flex-start'>
-                    <div>
-                        <img style={{ maxWidth: 36, maxHeight: 36, margin: '15px 0 -18px 9px' }} src={logo} />
-                    </div>
-                    <div style={{ margin: '24px 0 0 54px' }} className='fg-color'>
-                        <RadioGroup
-                            onChange={this.onConfigTypeChange}
-                            selectedValue={this.state.config_type}
-                            inline={true}
-                        >
-                            <Radio label={this.t('QorusInstances')} value='qoruses' />
-                            <Radio label={this.t('SourceDirs')} value='sources' />
-                        </RadioGroup>
-                    </div>
+                <div className='fg-color navbar-offset flex-start'>
+                    <RadioGroup style={{ marginTop: 18 }}
+                        onChange={this.onConfigTypeChange}
+                        selectedValue={this.props.config_type}
+                        inline={true}
+                        className='config-type-radio-group'
+                    >
+                        <Radio label={t('QorusInstances')} value='qoruses' />
+                        <Radio label={t('SourceDirs')} value='sources' />
+                    </RadioGroup>
                 </div>
 
-                <hr style={{ margin: '12px 0 8px'}} />
+                <hr style={{ marginBottom: 12 }} />
 
-                {this.state.config_type == 'qoruses' && QorusInstances}
-                {this.state.config_type == 'sources' &&
+                {this.props.config_type == 'qoruses' && QorusInstances}
+                {this.props.config_type == 'sources' &&
                     <SourceDirs
-                        data={this.state.data.source_directories}
+                        data={this.props.data.source_directories}
                         addSourceDir={this.addSourceDir}
                         removeSourceDir={this.removeSourceDir}
-                        t={this.t}
+                        t={t}
                     />
                 }
             </>
@@ -217,7 +160,7 @@ export class Root extends Component {
     }
 
     updateQorusInstancesData(action, values) {
-        let data = JSON.parse(JSON.stringify(this.state.data.qorus_instances));
+        let data = JSON.parse(JSON.stringify(this.props.data.qorus_instances));
         let index, env, qorus, qoruses, url, urls;
 
         const resetIds = (array, index) => {
@@ -241,22 +184,23 @@ export class Root extends Component {
             case 'remove-env':
                 index = values.env_id;
                 data.splice(index, 1);
-                if (this.state.selected_env_id == index) {
-                    this.setStates({selected_env_id: null, selected_qorus_id: null});
+                if (this.props.selected_env_id == index) {
+                    this.props.setSelectedEnv(null);
+                    this.props.setSelectedQorus(null);
                 }
-                else if (this.state.selected_env_id > index) {
-                    this.setStates({selected_env_id: this.state.selected_env_id - 1});
+                else if (this.props.selected_env_id > index) {
+                    this.props.setSelectedEnv(this.props.selected_env_id - 1);
                 }
                 resetIds(data, index);
                 break;
             case 'move-env-up':
                 index = values.env_id;
                 data[index-1] = data.splice(index, 1, data[index-1])[0]
-                if (this.state.selected_env_id == index) {
-                    this.setStates({selected_env_id: index - 1})
+                if (this.props.selected_env_id == index) {
+                    this.props.setSelectedEnv(index - 1);
                 }
-                else if (this.state.selected_env_id == index - 1) {
-                    this.setStates({selected_env_id: index})
+                else if (this.props.selected_env_id == index - 1) {
+                    this.props.setSelectedEnv(index);
                 }
                 resetIds(data, index - 1);
                 break;
@@ -278,11 +222,11 @@ export class Root extends Component {
                 qoruses = data[values.env_id].qoruses;
                 index = values.qorus_id;
                 qoruses.splice(index, 1);
-                if (this.state.selected_qorus_id == index) {
-                    this.setStates({selected_qorus_id: null});
+                if (this.props.selected_qorus_id == index) {
+                    this.props.setSelectedQorus(null);
                 }
-                else if (this.state.selected_qorus_id > index) {
-                    this.setStates({selected_qorus_id: this.state.selected_qorus_id - 1});
+                else if (this.props.selected_qorus_id > index) {
+                    this.props.setSelectedQorus(this.props.selected_qorus_id - 1);
                 }
                 resetIds(qoruses, index);
                 break;
@@ -290,11 +234,11 @@ export class Root extends Component {
                 qoruses = data[values.env_id].qoruses;
                 index = values.qorus_id;
                 qoruses[index-1] = qoruses.splice(index, 1, qoruses[index-1])[0]
-                if (this.state.selected_qorus_id == index) {
-                    this.setStates({selected_qorus_id: index - 1})
+                if (this.props.selected_qorus_id == index) {
+                    this.props.setSelectedQorus(index - 1);
                 }
-                else if (this.state.selected_qorus_id == index - 1) {
-                    this.setStates({selected_qorus_id: index})
+                else if (this.props.selected_qorus_id == index - 1) {
+                    this.props.setSelectedQorus(index);
                 }
                 resetIds(qoruses, index - 1);
                 break;
@@ -331,14 +275,34 @@ export class Root extends Component {
 
         const all_data = {
             qorus_instances: data,
-            source_directories: this.state.data.source_directories
+            source_directories: this.props.data.source_directories
         };
 
-        this.setStates({data: all_data});
+        this.props.setData(all_data);
 
         vscode.postMessage({
-            action: 'update-data',
+            action: 'config-update-data',
             data: all_data
         });
     }
 }
+
+const mapStateToProps = (state) => ({
+    config_type: state.config_type,
+    data: state.config_data,
+    selected_env_id: state.config_selected_env,
+    selected_qorus_id: state.config_selected_qorus,
+    config_changed_msg_open: state.msg_open.config_changed
+});
+
+const mapDispatchToProps = dispatch => ({
+    setData: data => dispatch({type: 'config_data', config_data: data}),
+    setSelectedEnv: selected_env_id => dispatch({type: 'config_selected_env',
+                                                 config_selected_env: selected_env_id}),
+    setSelectedQorus: selected_qorus_id => dispatch({type: 'config_selected_qorus',
+                                                     config_selected_qorus: selected_qorus_id}),
+    setConfigType: config_type => dispatch({type: 'config_type', config_type}),
+    setConfigChangedMsgOpen: open => dispatch({type: 'config_changed_msg_open', open})
+});
+
+export const ProjectConfigContainer = connect(mapStateToProps, mapDispatchToProps)(ProjectConfig);

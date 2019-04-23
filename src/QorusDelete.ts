@@ -63,14 +63,16 @@ class QorusDelete {
         };
 
         qorus_request.doRequestAndCheckResult(options, texts, () => {
-            webview.postMessage({
-                action: 'deletion-finished',
-                iface_kind: iface_kind
-            });
+            if (webview) {
+                webview.postMessage({
+                    action: 'deletion-finished',
+                    iface_kind: iface_kind
+                });
+            }
         });
     }
 
-    getInterfaces(iface_kind: string, keys: string[], webview: vscode.Webview = null) {
+    getInterfaces(iface_kind: string, keys: string[], webview: vscode.Webview) {
         const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             webview.postMessage({

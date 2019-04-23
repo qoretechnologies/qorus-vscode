@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
-import { t, gettext } from 'ttag';
+import { t } from 'ttag';
 import { project_template } from './qorus_project_template';
 
 export const config_filename = 'qorusproject.json';
@@ -11,14 +11,12 @@ export const config_filename = 'qorusproject.json';
 
 export class QorusProject {
     private config_file: string;
-    private config_panel: vscode.WebviewPanel | undefined = undefined;
-    private message_on_config_file_change: boolean = true;
 
     constructor(project_folder: string) {
         this.config_file = path.join(project_folder, config_filename);
     }
 
-    exists(): boolean {
+    configFileExists(): boolean {
         return fs.existsSync(this.config_file);
     }
 
@@ -27,7 +25,7 @@ export class QorusProject {
     }
 
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
-        if (!fs.existsSync(this.config_file)) {
+        if (!this.configFileExists()) {
             return;
         }
 
@@ -37,7 +35,7 @@ export class QorusProject {
 
             if (!file_data.source_directories) {
                 file_data.source_directories = [];
-                this.writeConfig(file_data, false);
+                this.writeConfig(file_data);
             }
 
             validator.validateModel(file_data, 'qorus_config').then(
@@ -61,89 +59,14 @@ export class QorusProject {
         }
     }
 
-    manageProjectConfig() {
-        if(this.config_panel) {
-            this.config_panel.reveal(vscode.ViewColumn.One);
-            return;
-        }
-        if (!fs.existsSync(this.config_file)) {
+    createConfigFileIfNotExists() {
+        if (!this.configFileExists()) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
             msg.info(t`ProjectConfigHasBeenInitialized`);
         }
-        this.validateConfigFileAndDo(this.manageProjectConfigImpl.bind(this));
     }
 
-    private manageProjectConfigImpl() {
-        const web_path = path.join(__dirname, '..', 'dist');
-        vscode.workspace.openTextDocument(path.join(web_path, 'project_config.html')).then(
-            doc => {
-                this.config_panel = vscode.window.createWebviewPanel(
-                    'qorusConfig',
-                    t`QorusConfigTitle`,
-                    vscode.ViewColumn.One,
-                    {
-                        enableScripts: true
-                    }
-                );
-                this.config_panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
-
-                const config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
-                this.message_on_config_file_change = true;
-                config_file_watcher.onDidChange(() => {
-                    if (!this.message_on_config_file_change) {
-                        this.message_on_config_file_change = true;
-                        return;
-                    }
-                    msg.warning(t`ProjectConfigFileHasChangedOnDisk`);
-                    this.config_panel.webview.postMessage({
-                        action: 'config-changed-on-disk'
-                    });
-                });
-
-                this.config_panel.webview.onDidReceiveMessage(message => {
-                    switch (message.action) {
-                        case 'get-data':
-                            this.validateConfigFileAndDo(file_data => {
-                                this.config_panel.webview.postMessage({
-                                    action: 'return-data',
-                                    data: QorusProject.file2data(file_data)
-                                });
-                            });
-                            break;
-                        case 'get-text':
-                            this.config_panel.webview.postMessage({
-                                action: 'return-text',
-                                text_id: message.text_id,
-                                text: gettext(message.text_id)
-                            });
-                            break;
-                        case 'update-data':
-                            const file_data = QorusProject.data2file(message.data);
-                            tree.reset(file_data.qorus_instances);
-                            this.writeConfig(file_data, false);
-                            break;
-                        case 'add-source-dir':
-                            this.addSourceDir();
-                            break;
-                        case 'remove-source-dir':
-                            this.removeSourceDir(message.dir);
-                            break;
-                    }
-                });
-
-                this.config_panel.onDidDispose(() => {
-                    this.config_panel = undefined;
-                    config_file_watcher.dispose();
-                });
-            },
-            error => {
-                msg.error(t`UnableOpenConfigPage`);
-                msg.log(JSON.stringify(error));
-            }
-        );
-    }
-
-    private addSourceDir() {
+    addSourceDir(webview: vscode.Webview) {
         this.validateConfigFileAndDo(file_data => {
             vscode.window.showOpenDialog({
                 canSelectFiles: false,
@@ -164,33 +87,48 @@ export class QorusProject {
                     return;
                 }
                 file_data.source_directories.push(dir);
-                this.writeConfig(file_data);
+                this.writeConfig(file_data, webview);
             });
         });
     }
 
-    private removeSourceDir(dir) {
+    removeSourceDir(dir: string, webview: vscode.Webview) {
         this.validateConfigFileAndDo(file_data => {
             const index = file_data.source_directories.indexOf(dir);
             if (index > -1) {
                 file_data.source_directories.splice(index, 1);
-                this.writeConfig(file_data);
+                this.writeConfig(file_data, webview);
             }
         });
     }
 
-    private writeConfig(file_data: any, send_message: boolean = true) {
-        this.message_on_config_file_change = false;
+    getConfigForWebview(webview: vscode.Webview) {
+        this.createConfigFileIfNotExists();
+        this.validateConfigFileAndDo(file_data => {
+            webview.postMessage({
+                action: 'config-return-data',
+                data: QorusProject.file2data(file_data)
+            });
+        });
+    }
+
+    updateConfigFromWebview(msg_data) {
+        const file_data = QorusProject.data2file(msg_data);
+        tree.reset(file_data.qorus_instances);
+        this.writeConfig(file_data);
+    }
+
+    private writeConfig(file_data: any, webview: vscode.Webview = undefined) {
         fs.writeFileSync(this.config_file, JSON.stringify(file_data, null, 4) + '\n');
-        if (send_message) {
-            this.config_panel.webview.postMessage({
-                action: 'return-data',
+        if (webview) {
+            webview.postMessage({
+                action: 'config-return-data',
                 data: QorusProject.file2data(file_data)
             });
         }
     }
 
-    private static file2data(file_data?: any): any {
+    static file2data(file_data?: any): any {
         if (!file_data) {
             return {
                 qorus_instances: [],
@@ -237,7 +175,7 @@ export class QorusProject {
         };
     }
 
-    private static data2file(data: any): any {
+    static data2file(data: any): any {
         let file_data: any = {
             qorus_instances: {},
             source_directories: data.source_directories
@@ -276,7 +214,7 @@ class QorusProjects {
     private projects: any = {};
 
     updateCurrentWorkspaceFolder(uri?: vscode.Uri): boolean {
-        const project_folder: string | undefined = QorusProjects.getProjectFolder(uri);
+        const project_folder: string | undefined = this.getProjectFolder(uri, false);
 
         const has_changed: boolean = this.current_project_folder != project_folder;
         if (has_changed) {
@@ -286,17 +224,12 @@ class QorusProjects {
     }
 
     validateConfigFileAndDo(onSuccess: Function, onError?: Function, uri?: vscode.Uri) {
-        const project = this.getQorusProject(uri);
+        const project = this.getProject(uri);
         project && project.validateConfigFileAndDo(onSuccess, onError);
     }
 
-    manageProjectConfig(uri: vscode.Uri) {
-        const project = this.getQorusProject(uri);
-        project && project.manageProjectConfig();
-    }
-
-    getQorusProject(uri?: vscode.Uri): QorusProject | undefined {
-        const project_folder: string | undefined = QorusProjects.getProjectFolder(uri);
+    getProject(uri?: vscode.Uri): QorusProject | undefined {
+        const project_folder: string | undefined = this.getProjectFolder(uri);
         if (!project_folder) {
             return undefined;
         }
@@ -306,7 +239,11 @@ class QorusProjects {
         return this.projects[project_folder];
     }
 
-    private static getProjectFolder(uri?: vscode.Uri): string | undefined {
+    private getProjectFolder(uri?: vscode.Uri, use_current: boolean = true): string | undefined {
+        if (use_current && this.current_project_folder) {
+            return this.current_project_folder;
+        }
+
         if (!vscode.workspace) {
             return undefined;
         }
