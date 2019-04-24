@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, ControlGroup, H4, InputGroup, Spinner } from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
 
@@ -9,7 +10,7 @@ class SelectCommit extends Component {
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
-                case 'return-commits':
+                case 'release-return-commits':
                     const commits = event.data.commits;
                     this.props.setCommits(commits);
                     if (!this.props.value && commits && commits.length) {
@@ -23,7 +24,7 @@ class SelectCommit extends Component {
     componentDidMount() {
         if (!this.props.commits) {
             vscode.postMessage({
-                action: 'get-commits',
+                action: 'release-get-commits',
                 filters: {hash: '', branch: '', tag: ''}
             });
         }
@@ -38,7 +39,7 @@ class SelectCommit extends Component {
         filters[filter_type] = ev ? ev.target.value : '',
 
         vscode.postMessage({
-            action: 'get-commits',
+            action: 'release-get-commits',
             filters
         });
 
@@ -46,7 +47,7 @@ class SelectCommit extends Component {
     }
 
     onValueChange = ev => {
-        this.setValue(ev.target.value);
+        this.props.setValue(ev.target.value);
     }
 
     render() {
@@ -143,9 +144,9 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    setCommits: commits => dispatch({type: 'release_commits', release_commits}),
+    setCommits: commits => dispatch({type: 'release_commits', release_commits: commits}),
     setFilter: (filter, value) => dispatch({type: 'release_filter', filter, value}),
-    setValue: value => dispatch({type: 'release_commit_hash', release_commit_hash})
+    setValue: value => dispatch({type: 'release_commit_hash', release_commit_hash: value})
 });
 
 export const SelectCommitContainer = connect(mapStateToProps, mapDispatchToProps)(SelectCommit);

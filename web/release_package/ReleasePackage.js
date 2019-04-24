@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, Card, Collapse, H3, H4, H5, Intent, Radio, RadioGroup, Spinner } from '@blueprintjs/core';
 import { BackForwardButtons } from './BackForwardButtons';
-import { SelectCommit } from './SelectCommit';
+import { SelectCommitContainer as SelectCommit } from './SelectCommit';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
-import logo from '../../images/qorus_logo_256.png';
 
 
 const Step = {Type: 0, Diff: 1, Send: 2, Close: 3}
@@ -15,33 +15,33 @@ class ReleasePackage extends Component {
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
-                case 'return-data':
-                    this.setBranch(event.data.branch);
+                case 'release-return-branch':
+                    this.props.setBranch(event.data.branch);
                     break;
-                case 'return-diff':
-                    this.setStep(Step.Diff);
-                    this.setSelectedCommit(event.data.commit);
-                    this.setFiles(event.data.files);
-                    this.setPending(false);
+                case 'release-return-diff':
+                    this.props.setStep(Step.Diff);
+                    this.props.setSelectedCommit(event.data.commit);
+                    this.props.setFiles(event.data.files);
+                    this.props.setPending(false);
                     break;
-                case 'package-created':
-                case 'return-release-file':
-                    this.setStep(Step.Send);
-                    this.setPackagePath(event.data.package_path);
-                    this.setPending(false);
+                case 'release-package-created':
+                case 'release-return-package':
+                    this.props.setStep(Step.Send);
+                    this.props.setPackagePath(event.data.package_path);
+                    this.props.setPending(false);
                     break;
-                case 'deployment-result':
-                    this.setStep(Step.Close);
-                    this.setResult(event.data.result);
-                    this.setPending(false);
+                case 'release-deployment-result':
+                    this.props.setStep(Step.Close);
+                    this.props.setResult(event.data.result);
+                    this.props.setPending(false);
                     break;
-                case 'not-up-to-date':
-                    this.setNotUpToDateMsgOpen(true);
-                    this.setBranch(event.data.branch);
-                    this.setPending(false);
+                case 'release-branch-not-up-to-date':
+                    this.props.setNotUpToDateMsgOpen(true);
+                    this.props.setBranch(event.data.branch);
+                    this.props.setPending(false);
                     break;
-                case 'release-file-saved':
-                    this.setSavedPath(event.data.saved_path);
+                case 'release-package-saved':
+                    this.props.setSavedPath(event.data.saved_path);
                     break;
             }
         });
@@ -50,72 +50,74 @@ class ReleasePackage extends Component {
     componentDidMount() {
         if (!this.props.branch) {
             vscode.postMessage({
-                action: 'get-data'
+                action: 'release-get-initial-data'
             });
         }
     }
 
     onReleaseTypeChange = ev => {
-        this.setReleaseType(ev.target.value);
+        this.props.setReleaseType(ev.target.value);
     }
 
     selectCommit = commit => {
         vscode.postMessage({
-            action: 'get-diff',
+            action: 'release-get-diff',
             commit: commit
         });
-        this.setPending(true);
+        this.props.setPending(true);
     }
 
     createPackage = () => {
         vscode.postMessage({
-            action: 'create-package'
+            action: 'release-create-package',
+            full: false
         });
-        this.setPending(true);
+        this.props.setPending(true);
     }
 
     createFullPackage = () => {
         vscode.postMessage({
-            action: 'create-full-package'
+            action: 'release-create-package',
+            full: true
         });
-        this.setPending(true);
+        this.props.setPending(true);
     }
 
     deployPackage = () => {
         vscode.postMessage({
-            action: 'deploy-package'
+            action: 'release-deploy-package'
         });
-        this.setPending(true);
+        this.props.setPending(true);
     }
 
     getReleaseFile = () => {
         vscode.postMessage({
-            action: 'get-release-file'
+            action: 'release-get-package'
         });
-        this.setPending(true);
+        this.props.setPending(true);
     }
 
     saveReleaseFile = () => {
         vscode.postMessage({
-            action: 'save-release-file'
+            action: 'release-save-package'
         });
     }
 
     backToStep = step => {
         switch (step) {
             case Step.Type:
-                this.setStep(step);
-                this.setFiles([]);
-                this.setPackagePath(null);
-                this.setSavedPath(null);
+                this.props.setStep(step);
+                this.props.setFiles([]);
+                this.props.setPackagePath(null);
+                this.props.setSavedPath(null);
                 break;
             case Step.Diff:
-                this.setStep(step);
-                this.setPackagePath(null);
-                this.setSavedPath(null);
+                this.props.setStep(step);
+                this.props.setPackagePath(null);
+                this.props.setSavedPath(null);
                 break;
             case Step.Send:
-                this.setStep(step);
+                this.props.setStep(step);
                 break;
         }
     }
@@ -131,7 +133,7 @@ class ReleasePackage extends Component {
             return null;
         }
 
-        const t = this.t;
+        const t = this.props.t;
 
         const BranchInfo =
             <div style={{ marginBottom: 24 }}>
@@ -259,7 +261,7 @@ class ReleasePackage extends Component {
         const NotUpToDateMsg =
             <MessageDialog
                 isOpen={this.props.not_up_to_date_msg_open}
-                onClose={() => this.setNotUpToDateMsgOpen(false)}
+                onClose={() => this.props.setNotUpToDateMsgOpen(false)}
                 canEscapeKeyClose={false}
                 canOutsideClickClose={false}
                 text={t('GitBranchNotUpToDate')}
@@ -274,8 +276,6 @@ class ReleasePackage extends Component {
         return (
             <div className='flex-start'>
                 {NotUpToDateMsg}
-
-                <img style={{ maxWidth: 36, maxHeight: 36, margin: '24px 0 0 12px' }} src={logo} />
 
                 {this.props.step == Step.Type &&
                     <Card className='step-card bp3-elevation-2'>

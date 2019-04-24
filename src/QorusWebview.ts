@@ -89,6 +89,27 @@ class QorusWebview {
                         case 'delete-interfaces':
                             deleter.deleteInterfaces(message.iface_kind, message.ids, this.panel.webview);
                             break;
+                        case 'release-get-initial-data':
+                            releaser.makeRelease(this.panel.webview);
+                            break;
+                        case 'release-get-commits':
+                            releaser.getCommits(this.panel.webview, message.filters);
+                            break;
+                        case 'release-get-diff':
+                            releaser.getDiff(this.panel.webview, message.commit);
+                            break;
+                        case 'release-create-package':
+                            releaser.createPackage(this.panel.webview, message.full);
+                            break;
+                        case 'release-deploy-package':
+                            releaser.deployPackage(this.panel.webview);
+                            break;
+                        case 'release-get-package':
+                            releaser.getPackage(this.panel.webview);
+                            break;
+                        case 'release-save-package':
+                            releaser.savePackage(this.panel.webview);
+                            break;
                     }
                 });
             },

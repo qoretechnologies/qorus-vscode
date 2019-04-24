@@ -9,7 +9,7 @@ import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { deployer } from './QorusDeploy';
 import * as msg from './qorus_message';
 import { isDeployable } from './qorus_utils';
-import { t, gettext } from 'ttag';
+import { t } from 'ttag';
 const copyFile = require('fs-copy-file');
 
 
@@ -17,12 +17,11 @@ class QorusRelease {
     private repository: QorusRepository = new QorusRepositoryGit();
     private project_folder: string | undefined = undefined;
     private source_directories: string[] = [];
-    private release_panel: vscode.WebviewPanel | undefined = undefined;
     private files: string[] = [];
     private package_path = null;
 
-    makeRelease(uri: vscode.Uri) {
-        const project: QorusProject | undefined = projects.getProject(uri);
+    makeRelease(webview?: vscode.Webview) {
+        const project: QorusProject | undefined = projects.getProject();
         if (!project || !project.configFileExists()) {
             msg.error(t`QorusProjectNotSet`);
             return;
@@ -39,22 +38,13 @@ class QorusRelease {
 
             this.repository.init(this.project_folder).then(
                 () => {
-                    this.makeReleaseImpl();
+                    this.getCurrentBranch(webview);
                 },
                 (error: string) => {
                     msg.error(error);
                 }
             );
         });
-    }
-
-    private makeReleaseImpl() {
-        if(this.release_panel) {
-            this.release_panel.reveal(vscode.ViewColumn.One);
-            return;
-        }
-
-        this.openWizard();
     }
 
     private setAllFiles() {
@@ -78,7 +68,7 @@ class QorusRelease {
         this.source_directories.map(dir => getFiles(path.join(this.project_folder, dir)));
     }
 
-    private createReleaseFile(): any {
+    private createReleaseFile(webview?: vscode.Webview): any {
         const timestamp = moment().format('YYYYMMDDHHmmss');
         const tmp_dir = require('os-tmpdir')();
         const project = path.basename(this.project_folder);
@@ -103,10 +93,12 @@ class QorusRelease {
             fs.writeFileSync(path_tarbz2, compressed);
             fs.unlinkSync(path_tar);
             fs.unlinkSync(path_qrf);
-            this.release_panel.webview.postMessage({
-                action: 'package-created',
-                package_path: path_tarbz2
-            });
+            if (webview) {
+                webview.postMessage({
+                    action: 'release-package-created',
+                    package_path: path_tarbz2
+                });
+            }
         });
         archiver.pipe(tar_output);
 
@@ -119,139 +111,99 @@ class QorusRelease {
         archiver.finalize();
     }
 
-    private checkUpToDate() {
+    private checkUpToDate(webview?: vscode.Webview) {
         const branch = this.repository.currentBranch();
         if (!branch.up_to_date) {
-            this.release_panel.webview.postMessage({
-                action: 'not-up-to-date',
-                branch: branch
-            });
+            if (webview) {
+                webview.postMessage({
+                    action: 'release-branch-not-up-to-date',
+                    branch: branch
+                });
+            }
             return false;
         }
         return true;
     }
 
-    private openWizard() {
-        const web_path = path.join(__dirname, '..', 'dist');
-        vscode.workspace.openTextDocument(path.join(web_path, 'release_package.html')).then(
-            doc => {
-                this.release_panel = vscode.window.createWebviewPanel(
-                    'qorusRelease',
-                    t`ReleasePackageTitle`,
-                    vscode.ViewColumn.One,
-                    {
-                        enableScripts: true
-                    }
-                );
-                this.release_panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
+    getCurrentBranch(webview: vscode.Webview) {
+        if (this.checkUpToDate(webview)) {
+            webview.postMessage({
+                action: 'release-return-branch',
+                branch: this.repository.currentBranch()
+            });
+        }
+    }
 
-                this.release_panel.onDidDispose(() => {
-                    this.release_panel = undefined;
-                });
+    getCommits(webview: vscode.Webview, filters: any) {
+        webview.postMessage({
+            action: 'release-return-commits',
+            commits: this.repository.commits(filters.hash, filters.branch, filters.tag)
+        });
+    }
 
-                this.release_panel.webview.onDidReceiveMessage(message => {
-                    switch (message.action) {
-                        case 'get-data':
-                            if (this.checkUpToDate()) {
-                                this.release_panel.webview.postMessage({
-                                    action: 'return-data',
-                                    branch: this.repository.currentBranch()
-                                });
-                            }
-                            break;
-                        case 'get-commits':
-                            this.release_panel.webview.postMessage({
-                                action: 'return-commits',
-                                commits: this.repository.commits(message.filters.hash,
-                                                                 message.filters.branch,
-                                                                 message.filters.tag)
-                            });
-                            break;
-                        case 'get-diff':
-                            this.repository.changedFiles(message.commit,
-                                                         this.project_folder,
-                                                         this.source_directories)
-                            .then(
-                                (files: string[]) => {
-                                    this.files = files;
-                                    this.release_panel.webview.postMessage({
-                                        action: 'return-diff',
-                                        commit: message.commit,
-                                        files: files
-                                    });
-                                }
-                            );
-                            break;
-                        case 'get-text':
-                            this.release_panel.webview.postMessage({
-                                action: 'return-text',
-                                text_id: message.text_id,
-                                text: gettext(message.text_id)
-                            });
-                            break;
-                        case 'create-full-package':
-                            if (this.checkUpToDate()) {
-                                this.setAllFiles();
-                                this.createReleaseFile();
-                            }
-                            break;
-                        case 'create-package':
-                            if (this.checkUpToDate()) {
-                                this.createReleaseFile();
-                            }
-                            break;
-                        case 'deploy-package':
-                            if (this.checkUpToDate()) {
-                                deployer.deployPackage(this.package_path).then(result => {
-                                    this.release_panel.webview.postMessage({
-                                        action: 'deployment-result',
-                                        result: result
-                                    });
-                                });
-                            }
-                            break;
-                        case 'get-release-file':
-                            vscode.window.showOpenDialog({
-                                filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']}
-                            }).then(files => {
-                                if (!files || !files.length) {
-                                    return;
-                                }
-                                this.package_path = files[0].fsPath;
-                                this.release_panel.webview.postMessage({
-                                    action: 'return-release-file',
-                                    package_path: this.package_path
-                                });
-                            });
-                            break;
-                        case 'save-release-file':
-                            vscode.window.showSaveDialog({
-                                filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']},
-                                defaultUri: vscode.Uri.file(path.join(os.homedir(), path.basename(this.package_path)))
-                            }).then(file => {
-                                copyFile(this.package_path, file.fsPath, error => {
-                                    if (error) {
-                                        msg.error(t`ReleaseFileSaveError ${error}`);
-                                        return;
-                                    }
-                                    this.release_panel.webview.postMessage({
-                                        action: 'release-file-saved',
-                                        saved_path: file.fsPath
-                                    });
-                                });
-                            });
-                            break;
-                        case 'close':
-                            this.release_panel.dispose();
-                            break;
-                    }
-                });
-            },
-            error => {
-                msg.error(t`UnableOpenReleasePage`);
-                msg.log(JSON.stringify(error));
+    getDiff(webview: vscode.Webview, commit: any) {
+        this.repository.changedFiles(commit,
+                                     this.project_folder,
+                                     this.source_directories)
+        .then(
+            (files: string[]) => {
+                this.files = files;
+                webview.postMessage({action: 'release-return-diff', commit, files});
             }
         );
+    }
+
+    createPackage(webview: vscode.Webview, full: boolean = true) {
+        if (this.checkUpToDate(webview)) {
+            if (full) {
+                this.setAllFiles();
+            }
+            this.createReleaseFile(webview);
+        }
+    }
+
+    deployPackage(webview: vscode.Webview) {
+        if (this.checkUpToDate(webview)) {
+            deployer.deployPackage(this.package_path).then(result => {
+                webview.postMessage({
+                    action: 'release-deployment-result',
+                    result: result
+                });
+            });
+        }
+    }
+
+    getPackage(webview: vscode.Webview) {
+        vscode.window.showOpenDialog({
+            filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']}
+        }).then(files => {
+            if (!files || !files.length) {
+                return;
+            }
+            this.package_path = files[0].fsPath;
+            webview.postMessage({
+                action: 'release-return-package',
+                package_path: this.package_path
+            });
+        });
+    }
+
+    savePackage(webview: vscode.Webview) {
+        vscode.window.showSaveDialog({
+            filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']},
+            defaultUri: vscode.Uri.file(path.join(os.homedir(), path.basename(this.package_path)))
+        }).then(file => {
+            copyFile(this.package_path, file.fsPath, error => {
+                if (error) {
+                    msg.error(t`ReleaseFileSaveError ${error}`);
+                    return;
+                }
+                webview.postMessage({
+                    action: 'release-package-saved',
+                    saved_path: file.fsPath
+                });
+            });
+        });
     }
 }
 
