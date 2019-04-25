@@ -89,7 +89,7 @@ class QorusWebview {
                         case 'delete-interfaces':
                             deleter.deleteInterfaces(message.iface_kind, message.ids, this.panel.webview);
                             break;
-                        case 'release-get-initial-data':
+                        case 'release-get-branch':
                             releaser.makeRelease(this.panel.webview);
                             break;
                         case 'release-get-commits':

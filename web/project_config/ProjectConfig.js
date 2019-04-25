@@ -48,10 +48,6 @@ class ProjectConfig extends Component {
         this.props.setSelectedQorus(qorus_id);
     }
 
-    handleMessageDialogClose = () => {
-        this.props.setConfigChangedMsgOpen(false);
-    }
-
     removeSourceDir = dir => {
         vscode.postMessage({
             action: 'config-remove-dir',
@@ -79,7 +75,6 @@ class ProjectConfig extends Component {
 
         const ConfigChangedOnDiskMsg =
             <MessageDialog isOpen={this.props.config_changed_msg_open}
-                onClose={this.handleMessageDialogClose}
                 text={t('ConfigChangedOnDiskDialogQuestion')}
                 buttons={[{
                     title: t('ButtonReload'),

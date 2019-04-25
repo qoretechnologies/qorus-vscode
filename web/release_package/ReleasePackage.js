@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Card, Collapse, H3, H4, H5, Intent, Radio, RadioGroup, Spinner } from '@blueprintjs/core';
+import { Button, Card, Collapse, Colors, H3, H4, H5, Intent, Radio, RadioGroup, Spinner } from '@blueprintjs/core';
 import { BackForwardButtons } from './BackForwardButtons';
 import { SelectCommitContainer as SelectCommit } from './SelectCommit';
 import { MessageDialog } from '../common/MessageDialog';
@@ -12,6 +12,8 @@ const Step = {Type: 0, Diff: 1, Send: 2, Close: 3}
 class ReleasePackage extends Component {
     constructor() {
         super();
+
+        this.getBranch();
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
@@ -47,12 +49,10 @@ class ReleasePackage extends Component {
         });
     }
 
-    componentDidMount() {
-        if (!this.props.branch) {
-            vscode.postMessage({
-                action: 'release-get-initial-data'
-            });
-        }
+    getBranch() {
+        vscode.postMessage({
+            action: 'release-get-branch'
+        });
     }
 
     onReleaseTypeChange = ev => {
@@ -122,12 +122,6 @@ class ReleasePackage extends Component {
         }
     }
 
-    close = () => {
-        vscode.postMessage({
-            action: 'close'
-        });
-    }
-
     render() {
         if (!this.props.branch) {
             return null;
@@ -143,8 +137,26 @@ class ReleasePackage extends Component {
                 {t('commit')}: <strong>{this.props.branch.commit}</strong>
             </div>;
 
+        const NotUpToDate =
+            <>
+                <div className='flex-start'>
+                    <div style={{ maxWidth: 400, color: Colors.RED3, marginRight: 24 }}>
+                        {t('GitBranchNotUpToDate')}
+                    </div>
+                    <Button
+                        icon='refresh'
+                        title={t('Refresh')}
+                        style={{ margin: '-8px 0 8px 12px' }}
+                        onClick={this.getBranch}
+                    />
+                </div>
+                <hr style={{ marginTop: 16, marginBottom: 16 }} />
+            </>;
+
+
         const ReleaseType =
             <>
+                {this.props.branch.up_to_date || NotUpToDate}
                 <div className='flex-start'>
                     <H4 style={{ marginRight: 48 }}>{t('ReleaseType')}:</H4>
                     <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.props.release_type}>
@@ -244,7 +256,7 @@ class ReleasePackage extends Component {
             <Card className='step-card bp3-elevation-2'>
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Send)}
-                    onClose={this.close}
+                    onClose={() => this.backToStep(Step.Type)}
                     t={t}
                 />
                 {this.props.result &&
@@ -261,15 +273,17 @@ class ReleasePackage extends Component {
         const NotUpToDateMsg =
             <MessageDialog
                 isOpen={this.props.not_up_to_date_msg_open}
-                onClose={() => this.props.setNotUpToDateMsgOpen(false)}
                 canEscapeKeyClose={false}
                 canOutsideClickClose={false}
                 text={t('GitBranchNotUpToDate')}
                 style={{maxWidth: 400}}
                 buttons={[{
-                    title: t('ClosePage'),
+                    title: t('ButtonOK'),
                     intent: Intent.DANGER,
-                    onClick: this.close
+                    onClick: () => {
+                        this.backToStep(Step.Type);
+                        this.props.setNotUpToDateMsgOpen(false)
+                    }
                 }]}
             />;
 

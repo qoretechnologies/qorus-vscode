@@ -62,7 +62,7 @@ class QorusRelease {
                     this.files.push(vscode.workspace.asRelativePath(entry_path, false));
                 }
             }
-        }
+        };
 
         this.files = [];
         this.source_directories.map(dir => getFiles(path.join(this.project_folder, dir)));
