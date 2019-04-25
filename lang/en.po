@@ -58,8 +58,38 @@ msgstr "Qorus Login"
 msgid "QorusConfigTitle"
 msgstr "Qorus Project Configuration"
 
+msgid "QorusProjectConfig"
+msgstr "Project configuration"
+
+msgid "ProjectConfig-buttonText"
+msgstr "Project configuration"
+
+msgid "ProjectConfig-buttonTitle"
+msgstr "Project configuration"
+
+msgid "ReleasePackage-buttonText"
+msgstr "Make release"
+
+msgid "ReleasePackage-buttonTitle"
+msgstr "Make a release package"
+
+msgid "DeleteInterfaces-buttonText"
+msgstr "Delete interfaces"
+
+msgid "DeleteInterfaces-buttonTitle"
+msgstr "Delete Qorus interfaces"
+
+msgid "CreateInterface-buttonText"
+msgstr "Create interface"
+
+msgid "CreateInterface-buttonTitle"
+msgstr "Create Qorus interface"
+
 msgid "QorusDeleteInterfacesTitle"
 msgstr "Delete Qorus Interfaces"
+
+msgid "DeleteQorusInterfaces"
+msgstr "Delete interfaces"
 
 msgid "LoggedOut"
 msgstr "Logged out"
@@ -448,8 +478,17 @@ msgstr "commit"
 msgid "GitBranchNotUpToDate"
 msgstr "Your branch is not synchronized with remote. All changes must be committed and pushed/pulled before you can continue."
 
-msgid "QorusReleaseTitle"
-msgstr "Qorus Release"
+msgid "ReleasePackageTitle"
+msgstr "Make a release package"
+
+msgid "ReleasePackage"
+msgstr "Make release"
+
+msgid "QorusWebviewTitle"
+msgstr "Qorus Manager"
+
+msgid "CreateQorusInterface"
+msgstr "Create interface"
 
 msgid "filterByTag"
 msgstr "filter by tag"

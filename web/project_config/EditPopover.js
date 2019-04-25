@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, Classes, Colors, H5, InputGroup,
          Intent, Popover, PopoverInteractionKind, FormGroup } from '@blueprintjs/core';
 
 
-export class EditPopover extends Component {
+class EditPopover extends Component {
 
     componentDidMount() {
         this.name = this.props.data ? this.props.data.name : null;
@@ -13,8 +14,11 @@ export class EditPopover extends Component {
         this.url_hidden = ['add-env', 'edit-env'].includes(this.action);
         this.name_input = null;
         this.url_input = null;
-        this.setState({is_open: false});
+        this.id = this.action + '|' + this.props.env_id + '|' + this.props.qorus_id + '|' + this.props.url_id;
+        this.props.setOpen(this.id, false);
     }
+
+    setOpen = is_open => {this.props.setOpen(this.id, is_open);}
 
     inputRefName = input => {
         this.name_input = input;
@@ -57,14 +61,10 @@ export class EditPopover extends Component {
                                         url_id: this.props.url_id,
                                         name: this.name,
                                         url: this.url});
-        this.setState({is_open: false});
+        this.setOpen(false);
     }
 
     render () {
-        if (!this.state) {
-            return null;
-        }
-
         const t = this.props.t;
 
         const kind = this.props.kind;      //  'edit' or 'add'
@@ -81,8 +81,8 @@ export class EditPopover extends Component {
         return (
             <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}
                      interactionKind={PopoverInteractionKind.CLICK}
-                     onInteraction={nextOpenState => {this.setState({is_open: nextOpenState});}}
-                     isOpen={this.state.is_open}>
+                     onInteraction={nextOpenState => {this.setOpen(nextOpenState);}}
+                     isOpen={this.props.is_open}>
                 <Button icon={kind == 'edit' ? 'edit' : 'plus'}
                         title={kind == 'edit' ? t('Edit') : t('AddNew')} />
                 <form onSubmit={this.submit} style={this.url_hidden ? {} : { minWidth: '310px' }}>
@@ -116,3 +116,15 @@ export class EditPopover extends Component {
         );
     }
 }
+
+const mapStateToProps = (state, own_props) => {
+    const action = own_props.action || own_props.kind + '-' + own_props.entity.toLowerCase();
+    const id = action + '|' + own_props.env_id + '|' + own_props.qorus_id + '|' + own_props.url_id;
+    return {is_open: state.config_edit_popover_open[id] || false};
+};
+
+const mapDispatchToProps = dispatch => ({
+    setOpen: (id, is_open) => dispatch({type: 'config_edit_popover_open', id, open: is_open}),
+});
+
+export const EditPopoverContainer = connect(mapStateToProps, mapDispatchToProps)(EditPopover);

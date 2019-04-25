@@ -4,10 +4,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: {
+        webview: './web/index.js',
         login: './web/login/main.js',
-        project_config: './web/project_config/main.js',
-        release_package: './web/release_package/main.js',
-        delete_interfaces: './web/delete_interfaces/main.js',
     },
     output: {
         path: `${root}/dist`,

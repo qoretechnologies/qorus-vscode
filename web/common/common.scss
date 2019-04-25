@@ -4,6 +4,7 @@ body {
 .fg-color {
     color: var(--vscode-editor-foreground);
 }
+
 .flex-start {
     display: flex;
     flex-flow: row wrap;
@@ -23,4 +24,10 @@ body {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
+}
+
+$navbar_offset: 50px;
+
+.navbar-offset {
+    margin-top: $navbar_offset;
 }

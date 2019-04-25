@@ -1,64 +1,13 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import * as request from 'request-promise';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
-import * as msg from './qorus_message';
-import { t, gettext } from 'ttag';
+import { t } from 'ttag';
 
 
 class QorusDelete {
-    private web_panel: vscode.WebviewPanel | undefined = undefined;
     private interfaces = {};
 
-    openPage() {
-        if(this.web_panel) {
-            this.web_panel.reveal(vscode.ViewColumn.One);
-            return;
-        }
-
-        const web_path = path.join(__dirname, '..', 'dist');
-        vscode.workspace.openTextDocument(path.join(web_path, 'delete_interfaces.html')).then(
-            doc => {
-                this.web_panel = vscode.window.createWebviewPanel(
-                    'qorusDelete',
-                    t`QorusDeleteInterfacesTitle`,
-                    vscode.ViewColumn.One,
-                    {
-                        enableScripts: true
-                    }
-                );
-                this.web_panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
-
-                this.web_panel.onDidDispose(() => {
-                    this.web_panel = undefined;
-                });
-
-                this.web_panel.webview.onDidReceiveMessage(message => {
-                    switch (message.action) {
-                        case 'get-text':
-                            this.web_panel.webview.postMessage({
-                                action: 'return-text',
-                                text_id: message.text_id,
-                                text: gettext(message.text_id)
-                            });
-                            break;
-                        case 'get-interfaces':
-                            this.getInterfaces(message.iface_kind, message.columns);
-                            break;
-                        case 'delete-interfaces':
-                            this.deleteInterfaces(message.iface_kind, message.ids);
-                            break;
-                    }
-                });
-            },
-            error => {
-                msg.error(t`UnableOpenDeleteInterfacesPage`);
-                msg.log(JSON.stringify(error));
-            }
-        );
-    }
-
-    private deleteInterfaces(iface_kind: string, ids: string[]) {
+    deleteInterfaces(iface_kind: string, ids: string[], webview: vscode.Webview = null) {
         const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             return;
@@ -114,17 +63,19 @@ class QorusDelete {
         };
 
         qorus_request.doRequestAndCheckResult(options, texts, () => {
-            this.web_panel.webview.postMessage({
-                action: 'deletion-finished',
-                iface_kind: iface_kind
-            });
+            if (webview) {
+                webview.postMessage({
+                    action: 'deletion-finished',
+                    iface_kind: iface_kind
+                });
+            }
         });
     }
 
-    private getInterfaces(iface_kind: string, keys: string[]) {
+    getInterfaces(iface_kind: string, keys: string[], webview: vscode.Webview) {
         const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
-            this.web_panel.webview.postMessage({
+            webview.postMessage({
                 action: 'return-interfaces',
                 iface_kind: iface_kind,
                 data: []
@@ -181,7 +132,7 @@ class QorusDelete {
             json: true
         }).then(
             (full_data: any) => {
-                this.web_panel.webview.postMessage({
+                webview.postMessage({
                     action: 'return-interfaces',
                     iface_kind: iface_kind,
                     data: iface_kind === 'services'

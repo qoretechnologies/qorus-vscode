@@ -3,9 +3,8 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
+import { webview } from './QorusWebview';
 import { deployer } from './QorusDeploy';
-import { deleter } from './QorusDelete';
-import { releaser } from './QorusRelease';
 import { tester } from './QorusTest';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
@@ -40,18 +39,6 @@ export async function activate(context: vscode.ExtensionContext) {
                                                  (uri: vscode.Uri) => tester.testDir(uri));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.deleteInterfaces',
-                                                 (_uri: vscode.Uri) => deleter.openPage());
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.manageProjectConfig',
-                                                 (uri: vscode.Uri) => projects.manageProjectConfig(uri));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.makeRelease',
-                                                 (uri: vscode.Uri) => releaser.makeRelease(uri));
-    context.subscriptions.push(disposable);
-
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
                                                  (tree_item: string | vscode.TreeItem) =>
                                                         qorus_request.setActiveInstance(tree_item));
@@ -83,6 +70,9 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.webview', () => webview.open());
+    context.subscriptions.push(disposable);
+
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
     context.subscriptions.push(disposable);
     updateQorusTree();
@@ -105,15 +95,20 @@ export function deactivate() {
 
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
-    if (!projects.updateCurrentWorkspaceFolder(uri) && !forceTreeReset) {
-        return;
+
+    const workspace_folder_changed_or_unset = projects.updateCurrentWorkspaceFolder(uri);
+
+    if (workspace_folder_changed_or_unset || forceTreeReset) {
+        projects.validateConfigFileAndDo(
+            (file_data: any) => tree.reset(file_data.qorus_instances),
+            () => tree.reset({}),
+            uri
+        );
     }
 
-    projects.validateConfigFileAndDo(
-        (file_data: any) => tree.reset(file_data.qorus_instances),
-        () => tree.reset({}),
-        uri
-    );
+    if (workspace_folder_changed_or_unset) {
+        webview.dispose();
+    }
 }
 
 function openUrlInExternalBrowser(url: string, name: string) {

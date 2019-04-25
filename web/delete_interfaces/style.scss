@@ -1,11 +1,11 @@
 @import '../common/common.scss';
 
 .iface-kind-radio-group {
-    margin: 30px 0 0 72px;
+    margin: 18px 0 0 72px;
 }
 
 .iface-kind-radio-button {
-    margin-left: 52px;
+    width: 108px;
 }
 
 .iface-kind-select {
@@ -17,6 +17,6 @@
     padding: -8px;
 }
 
-td {
+.iface-list td {
     line-height: 10px;
 }
