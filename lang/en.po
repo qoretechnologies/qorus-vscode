@@ -732,3 +732,9 @@ msgstr "Qorus test is running"
 
 msgid "NothingToTest"
 msgstr "Nothing to test"
+
+msgid "TargetDir"
+msgstr "Target directory"
+
+msgid "Unknown"
+msgstr "Unknown"

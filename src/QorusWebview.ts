@@ -12,8 +12,7 @@ class QorusWebview {
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
 
-    open(active_tab?: string) {
-        this.panel;
+    open(active_tab?: string, opening_path?: string) {
         if(this.panel) {
             this.panel.reveal(vscode.ViewColumn.One);
             this.setActiveTab(active_tab);
@@ -66,6 +65,12 @@ class QorusWebview {
                                 action: 'return-text',
                                 text_id: message.text_id,
                                 text: gettext(message.text_id)
+                            });
+                            break;
+                        case 'get-opening-path':
+                            this.panel.webview.postMessage({
+                                action: 'return-opening-path',
+                                path: opening_path || t`Unknown`
                             });
                             break;
                         case 'config-get-data':

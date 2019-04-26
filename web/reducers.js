@@ -94,6 +94,10 @@ function releaseFilter(state = {hash: '', branch: '', tag: ''}, action) {
     return state;
 }
 
+function createIfaceTargetDir(state = null, action) {
+    return simpleReducer(state, action, 'create_iface_target_dir');
+}
+
 function msgOpen(state = {config_changed: false, release_not_up_to_date: false}, action) {
     switch (action.type) {
         case 'config_changed_msg_open':
@@ -133,5 +137,6 @@ export default function reducer(state = {}, action) {
         release_result: releaseResult,
         release_type: releaseType,
         release_filter: releaseFilter,
+        create_iface_target_dir: createIfaceTargetDir,
     })(state, action);
 }
