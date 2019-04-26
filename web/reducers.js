@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { vscode } from './common/vscode';
 
 function simpleReducer(state, action, type) {
     return action.type == type ? action[type] : state;
@@ -109,11 +110,7 @@ function msgOpen(state = {config_changed: false, release_not_up_to_date: false},
     }
 }
 
-export default function reducer(state = {}, action) {
-    if (action.type === 'all') {
-        return action.all;
-    }
-
+export default function reducer(state = vscode.getState(), action) {
     return combineReducers({
         active_tab: activeTab,
         delete_ifaces_kind: deleteIfacesKind,
