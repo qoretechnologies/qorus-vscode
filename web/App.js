@@ -5,9 +5,18 @@ import { LoginContainer as Login } from './login/Login';
 import { ProjectConfigContainer as ProjectConfig } from './project_config/ProjectConfig';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
+import InterfaceCreator from './containers/InterfaceCreator';
 import { vscode } from './common/vscode';
 import logo from '../images/qorus_logo_256.png';
+import { hot } from 'react-hot-loader/root';
+import styled from 'styled-components';
 
+const StyledApp = styled.div`
+    display: flex;
+    flex-flow: column;
+    margin-top: 50px;
+    flex: 1 auto;
+`;
 
 class App extends Component {
     constructor() {
@@ -54,10 +63,10 @@ class App extends Component {
         }
         vscode.postMessage({
             action: 'get-text',
-            text_id: text_id
+            text_id: text_id,
         });
         this.num_text_requests++;
-    }
+    };
 
     render() {
         const t = this.t;
@@ -68,6 +77,7 @@ class App extends Component {
             ProjectConfig: 'cog',
             ReleasePackage: 'cube',
             DeleteInterfaces: 'trash',
+            CreateInterface: 'draw',
         };
 
         return (
@@ -106,10 +116,13 @@ class App extends Component {
                         </HTMLTable>
                     </NavbarGroup>
                 </Navbar>
-                {this.props.active_tab == 'Login' && <Login t={this.t} _={dict_length} />}
-                {this.props.active_tab == 'ProjectConfig' && <ProjectConfig t={this.t} _={dict_length} />}
-                {this.props.active_tab == 'ReleasePackage' && <ReleasePackage t={this.t} _={dict_length} />}
-                {this.props.active_tab == 'DeleteInterfaces' && <DeleteInterfaces t={this.t} _={dict_length} />}
+                <StyledApp>
+                    {this.props.active_tab == 'Login' && <Login t={this.t} _={dict_length} />}
+                    {this.props.active_tab == 'ProjectConfig' && <ProjectConfig t={this.t} _={dict_length} />}
+                    {this.props.active_tab == 'ReleasePackage' && <ReleasePackage t={this.t} _={dict_length} />}
+                    {this.props.active_tab == 'DeleteInterfaces' && <DeleteInterfaces t={this.t} _={dict_length} />}
+                    {this.props.active_tab == 'CreateInterface' && <InterfaceCreator t={this.t} _={dict_length} />}
+                </StyledApp>
             </>
         );
     }
@@ -142,4 +155,9 @@ const mapDispatchToProps = dispatch => ({
     },
 });
 
-export const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);
+export const AppContainer = hot(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps
+    )(App)
+);

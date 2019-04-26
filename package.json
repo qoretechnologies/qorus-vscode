@@ -143,6 +143,10 @@
                 "title": "Qorus: Execute test files from directory"
             },
             {
+                "command": "qorus.createInterface",
+                "title": "Qorus: Create Qorus interface"
+            },
+            {
                 "command": "qorus.webview",
                 "title": "Qorus: webview",
                 "icon": "images/qorus_logo_28.png"
@@ -194,6 +198,11 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.testDir",
+                    "group": "2_workspace"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createInterface",
                     "group": "2_workspace"
                 }
             ],

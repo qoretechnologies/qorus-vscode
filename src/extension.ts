@@ -73,6 +73,10 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.createInterface',
+                                                 (uri: vscode.Uri) => webview.open('CreateInterface', uri.fsPath));
+    context.subscriptions.push(disposable);
+
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
     context.subscriptions.push(disposable);
     updateQorusTree();

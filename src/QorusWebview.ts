@@ -7,6 +7,7 @@ import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
+import { creator } from './QorusCreate';
 
 
 class QorusWebview {
@@ -14,8 +15,7 @@ class QorusWebview {
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
 
-    open(active_tab?: string) {
-        this.panel;
+    open(active_tab?: string, opening_uri?: vscode.Uri) {
         if(this.panel) {
             this.panel.reveal(vscode.ViewColumn.One);
             this.setActiveTab(active_tab);
@@ -69,6 +69,12 @@ class QorusWebview {
                                 action: 'return-text',
                                 text_id: message.text_id,
                                 text: gettext(message.text_id)
+                            });
+                            break;
+                        case 'get-opening-path':
+                            this.panel.webview.postMessage({
+                                action: 'return-opening-path',
+                                path: opening_uri ? opening_uri.fsPath : t`Unknown`
                             });
                             break;
                         case 'get-current-project-folder':
@@ -139,6 +145,9 @@ class QorusWebview {
                             break;
                         case 'release-save-package':
                             releaser.savePackage(this.panel.webview);
+                            break;
+                        case 'creator-get-object_names':
+                            creator.getProjectObjectNames(message.object_type, this.panel.webview, opening_uri);
                             break;
                     }
                 });
