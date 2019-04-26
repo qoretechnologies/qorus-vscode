@@ -161,6 +161,7 @@ function loginData(state = {username: '', password: ''}, action) {
     }
 }
 
+
 export default function reducer(state = vscode.getState(), action) {
     return combineReducers({
         active_tab_queue: activeTabQueue,
