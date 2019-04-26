@@ -82,8 +82,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    setActiveTab: tab_key => {dispatch({type: 'active_tab', active_tab: tab_key});},
-    setAll: all_state => {dispatch({type: 'all', all: all_state});}
+    setActiveTab: tab_key => {dispatch({type: 'active_tab', active_tab: tab_key});}
 });
 
 export const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);
