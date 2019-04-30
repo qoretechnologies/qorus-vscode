@@ -1,23 +1,25 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es6",
+        "target": "es2016",
         "outDir": "out",
-        "lib": [
-            "es7",
-            "dom"
-        ],
+        "lib": ["es7", "dom"],
         "sourceMap": true,
+        "moduleResolution": "node",
         "rootDir": "src",
         "strict": true,
         "noUnusedLocals": true,
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "noUnusedParameters": true,
-        "strictNullChecks": false
+        "strictNullChecks": false,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "declaration": true,
+        "declarationMap": true,
+        "jsx": "react",
+        "types": ["node", "react", "react-dom"]
     },
-    "exclude": [
-        "node_modules",
-        ".vscode-test"
-    ]
+    "exclude": ["node_modules", ".vscode-test"],
+    "include": ["web/**/*.ts", "web/**/*.tsx"]
 }
