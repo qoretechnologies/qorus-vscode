@@ -4,9 +4,10 @@ import { Button, Navbar, NavbarGroup } from "@blueprintjs/core";
 import { ProjectConfigContainer as ProjectConfig } from "./project_config/ProjectConfig";
 import { ReleasePackageContainer as ReleasePackage } from "./release_package/ReleasePackage";
 import { DeleteInterfacesContainer as DeleteInterfaces } from "./delete_interfaces/DeleteInterfaces";
-import { CreateInterfaceContainer as CreateInterface } from "./create_interface/CreateInterface";
+import { CreateInterfaceContainer as CreateInterface } from "./create_interface/CreateInterface.tsx";
 import { vscode } from "./common/vscode";
 import logo from "../images/qorus_logo_256.png";
+import { hot } from "react-hot-loader/root";
 
 class App extends Component {
     constructor() {
@@ -105,7 +106,9 @@ const mapDispatchToProps = dispatch => ({
     },
 });
 
-export const AppContainer = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(App);
+export const AppContainer = hot(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps
+    )(App)
+);
