@@ -346,6 +346,7 @@
         "webpack-merge": "^4.2.1"
     },
     "dependencies": {
+        "@types/styled-components": "^4.1.14",
         "archiver": "^3.0.0",
         "compressjs": "^1.0.3",
         "fs-copy-file": "^2.1.2",
@@ -354,6 +355,7 @@
         "react-use": "^8.3.1",
         "request": "^2.88.0",
         "request-promise": "^4.2.2",
+        "styled-components": "^4.2.0",
         "swagger-object-validator": "^1.1.7",
         "ttag": "^1.4.0",
         "vsce": "^1.52.0"
