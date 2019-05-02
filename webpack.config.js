@@ -86,7 +86,7 @@ let webpackConfig = {
     plugins: [
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
         new MiniCssExtractPlugin({
-            filename: "css/base.css",
+            filename: "css/[name].css",
             chunkFilename: "css/[name].css",
         }),
         new webpack.DefinePlugin({
@@ -106,6 +106,10 @@ if (process.env.NODE_ENV === "development") {
             webview: [
                 "webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr",
                 `${root}/web/index.js`,
+            ],
+            login: [
+                "webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr",
+                `${root}/web/login/main.js`,
             ],
         },
         module: {
@@ -137,6 +141,7 @@ if (process.env.NODE_ENV === "development") {
     webpackConfig = merge(webpackConfig, {
         entry: {
             webview: [`${root}/web/index.js`],
+            login: [`${root}/web/login/main.js`],
         },
         mode: "production",
         devtool: false,
