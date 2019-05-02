@@ -290,8 +290,8 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run compile && npm run build",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "compile": "tsc -p ./src",
+        "watch": "tsc -watch -p ./src",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "start": "NODE_ENV=development babel-node server.js",

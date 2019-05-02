@@ -1,7 +1,7 @@
-import React, { FunctionComponent } from "react";
-import { connect } from "react-redux";
-import { vscode } from "../common/vscode";
-import useEffectOnce from "react-use/lib/useEffectOnce";
+import React, { FunctionComponent } from 'react';
+import { connect } from 'react-redux';
+import { vscode } from '../common/vscode';
+import useEffectOnce from 'react-use/lib/useEffectOnce';
 
 export interface ICreateInterface {
     setTargetDir: (path: string) => Function;
@@ -16,21 +16,21 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({
 }) => {
     const messageListener: (event: MessageEvent) => void = event => {
         switch (event.data.action) {
-            case "return-opening-path":
+            case 'return-opening-path':
                 setTargetDir(event.data.path);
                 break;
         }
     };
 
     useEffectOnce(() => {
-        window.addEventListener("message", messageListener);
+        window.addEventListener('message', messageListener);
 
         vscode.postMessage({
-            action: "get-opening-path",
+            action: 'get-opening-path',
         });
 
         return () => {
-            window.removeEventListener("message", messageListener);
+            window.removeEventListener('message', messageListener);
         };
     });
 
@@ -40,7 +40,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({
 
     return (
         <div className="navbar-offset">
-            {t("TargetDir")}: {targetDir}
+            {t('TargetDir')}: {targetDir}
         </div>
     );
 };
@@ -52,7 +52,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     setTargetDir: targetDir =>
         dispatch({
-            type: "create_iface_target_dir",
+            type: 'create_iface_target_dir',
             create_iface_target_dir: targetDir,
         }),
 });
