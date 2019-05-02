@@ -17,7 +17,7 @@
         "declaration": true,
         "declarationMap": true,
         "jsx": "react",
-        "types": ["node", "react", "react-dom"]
+        "types": ["node", "react", "react-dom", "styled-components"]
     },
     "exclude": ["node_modules", ".vscode-test"],
     "include": ["./web/**/*.ts", "./web/**/*.tsx"]

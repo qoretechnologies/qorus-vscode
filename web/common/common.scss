@@ -1,8 +1,20 @@
-body {
-    background-color: var(--vscode-editor-background);
+html,
+body,
+#root {
+    height: 100%;
 }
+
+body {
+    background-color: #eee;
+    padding: 0;
+}
+
+#root {
+    display: flex;
+}
+
 .fg-color {
-    color: var(--vscode-editor-foreground);
+    color: #222;
 }
 
 .flex-start {
@@ -26,7 +38,7 @@ body {
     justify-content: space-between;
 }
 
-$navbar_offset: 50px;
+$navbar_offset: 60px;
 
 .navbar-offset {
     margin-top: $navbar_offset;
