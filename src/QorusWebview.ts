@@ -5,6 +5,7 @@ import { t, gettext } from 'ttag';
 import { projects, QorusProject, config_filename } from './QorusProject';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
+import { creator } from './QorusCreate';
 
 
 class QorusWebview {
@@ -12,7 +13,7 @@ class QorusWebview {
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
 
-    open(active_tab?: string, opening_path?: string) {
+    open(active_tab?: string, opening_uri?: vscode.Uri) {
         if(this.panel) {
             this.panel.reveal(vscode.ViewColumn.One);
             this.setActiveTab(active_tab);
@@ -70,7 +71,7 @@ class QorusWebview {
                         case 'get-opening-path':
                             this.panel.webview.postMessage({
                                 action: 'return-opening-path',
-                                path: opening_path || t`Unknown`
+                                path: opening_uri ? opening_uri.fsPath : t`Unknown`
                             });
                             break;
                         case 'config-get-data':
@@ -114,6 +115,9 @@ class QorusWebview {
                             break;
                         case 'release-save-package':
                             releaser.savePackage(this.panel.webview);
+                            break;
+                        case 'creator-get-object_names':
+                            creator.getProjectObjectNames(message.object_type, this.panel.webview, opening_uri);
                             break;
                     }
                 });
