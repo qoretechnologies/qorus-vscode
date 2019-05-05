@@ -28,10 +28,6 @@ class QorusRelease {
         }
 
         this.project_folder = project.projectFolder();
-        if (!this.project_folder) {
-            msg.error(t`UnableDetermineProjectFolder`);
-            return;
-        }
 
         project.validateConfigFileAndDo(file_data => {
             this.source_directories = file_data.source_directories || [];
