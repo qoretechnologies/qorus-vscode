@@ -98,12 +98,12 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-    active_tab: state.active_tab,
+    active_tab: state.activeTab,
 });
 
 const mapDispatchToProps = dispatch => ({
     setActiveTab: tab_key => {
-        dispatch({ type: 'active_tab', active_tab: tab_key });
+        dispatch({ type: 'activeTab', activeTab: tab_key });
     },
 });
 

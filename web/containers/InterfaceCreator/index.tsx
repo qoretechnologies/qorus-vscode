@@ -49,14 +49,14 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ setTargetDir, t,
 };
 
 const mapStateToProps = state => ({
-    targetDir: state.create_iface_target_dir,
+    targetDir: state.createIfaceTargetDir,
 });
 
 const mapDispatchToProps = dispatch => ({
     setTargetDir: targetDir =>
         dispatch({
-            type: 'create_iface_target_dir',
-            create_iface_target_dir: targetDir,
+            type: 'createIfaceTargetDir',
+            createIfaceTargetDir: targetDir,
         }),
 });
 

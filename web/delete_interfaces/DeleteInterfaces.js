@@ -85,8 +85,6 @@ class DeleteInterfaces extends Component {
         });
     };
 
-    isOtherKind = () => !['workflows', 'services', 'jobs'].includes(this.props.iface_kind);
-
     isChecked = id =>
         (this.props.checked[this.props.iface_kind] && this.props.checked[this.props.iface_kind][id]) || false;
 
@@ -110,7 +108,7 @@ class DeleteInterfaces extends Component {
         const t = this.props.t;
 
         const Interfaces = (
-            <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }} className="iface-list">
+            <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }} className='iface-list'>
                 <thead>
                     <tr>
                         <td>
@@ -124,7 +122,7 @@ class DeleteInterfaces extends Component {
 
                         <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
                             <Button
-                                icon="trash"
+                                icon='trash'
                                 style={{ marginTop: -8, marginBottom: 8 }}
                                 disabled={!this.isAnyChecked()}
                             >
@@ -149,7 +147,7 @@ class DeleteInterfaces extends Component {
                         </Popover>
 
                         <Button
-                            icon="refresh"
+                            icon='refresh'
                             title={t('Refresh')}
                             style={{ margin: '-8px 0 8px 12px' }}
                             onClick={() => this.getInterfaces()}
@@ -167,7 +165,7 @@ class DeleteInterfaces extends Component {
                                 />
                             </td>
                             {columns[this.props.iface_kind].map(column => (
-                                <td className="iface-cell">
+                                <td className='iface-cell'>
                                     <Fg text={iface[column]} />
                                 </td>
                             ))}
@@ -180,18 +178,18 @@ class DeleteInterfaces extends Component {
         return (
             <Box>
                 <Tabs
-                    id="DeleteInterfacesTabs"
+                    id='DeleteInterfacesTabs'
                     onChange={this.onInterfaceKindChange}
                     selectedTabId={this.props.iface_kind}
                     renderActiveTabPanelOnly
                 >
-                    <Tab id="workflows" title={t('Workflows')} panel={Interfaces} />
-                    <Tab id="services" title={t('Services')} panel={Interfaces} />
-                    <Tab id="jobs" title={t('Jobs')} panel={Interfaces} />
-                    <Tab id="classes" title={t('Classes')} panel={Interfaces} />
-                    <Tab id="constants" title={t('Constants')} panel={Interfaces} />
-                    <Tab id="mappers" title={t('Mappers')} panel={Interfaces} />
-                    <Tab id="functions" title={t('Functions')} panel={Interfaces} />
+                    <Tab id='workflows' title={t('Workflows')} panel={Interfaces} />
+                    <Tab id='services' title={t('Services')} panel={Interfaces} />
+                    <Tab id='jobs' title={t('Jobs')} panel={Interfaces} />
+                    <Tab id='classes' title={t('Classes')} panel={Interfaces} />
+                    <Tab id='constants' title={t('Constants')} panel={Interfaces} />
+                    <Tab id='mappers' title={t('Mappers')} panel={Interfaces} />
+                    <Tab id='functions' title={t('Functions')} panel={Interfaces} />
                 </Tabs>
             </Box>
         );
@@ -199,15 +197,15 @@ class DeleteInterfaces extends Component {
 }
 
 const mapStateToProps = state => ({
-    iface_kind: state.delete_ifaces_kind,
-    interfaces: state.delete_ifaces_all,
-    checked: state.delete_ifaces_checked,
+    iface_kind: state.deleteIfacesKind,
+    interfaces: state.deleteIfacesAll,
+    checked: state.deleteIfacesChecked,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setIfaceKind: iface_kind => dispatch({ type: 'delete_ifaces_kind', delete_ifaces_kind: iface_kind || 'workflows' }),
-    setInterfaces: interfaces => dispatch({ type: 'delete_ifaces_all', delete_ifaces_all: interfaces || {} }),
-    setChecked: checked => dispatch({ type: 'delete_ifaces_checked', delete_ifaces_checked: checked || {} }),
+    setIfaceKind: iface_kind => dispatch({ type: 'deleteIfacesKind', deleteIfacesKind: iface_kind || 'workflows' }),
+    setInterfaces: interfaces => dispatch({ type: 'deleteIfacesAll', deleteIfacesAll: interfaces || {} }),
+    setChecked: checked => dispatch({ type: 'deleteIfacesChecked', deleteIfacesChecked: checked || {} }),
 });
 
 export const DeleteInterfacesContainer = connect(

@@ -6,97 +6,97 @@ function simpleReducer(state, action, type) {
 }
 
 function activeTab(state = 'ProjectConfig', action) {
-    return simpleReducer(state, action, 'active_tab');
+    return simpleReducer(state, action, 'activeTab');
 }
 
 function deleteIfacesKind(state = 'workflows', action) {
-    return simpleReducer(state, action, 'delete_ifaces_kind');
+    return simpleReducer(state, action, 'deleteIfacesKind');
 }
 
 function deleteIfacesAll(state = {}, action) {
-    return simpleReducer(state, action, 'delete_ifaces_all');
+    return simpleReducer(state, action, 'deleteIfacesAll');
 }
 
 function deleteIfacesChecked(state = {}, action) {
-    return simpleReducer(state, action, 'delete_ifaces_checked');
+    return simpleReducer(state, action, 'deleteIfacesChecked');
 }
 
 function configSelectedEnv(state = null, action) {
-    return simpleReducer(state, action, 'config_selected_env');
+    return simpleReducer(state, action, 'configSelectedEnv');
 }
 
 function configSelectedQorus(state = null, action) {
-    return simpleReducer(state, action, 'config_selected_qorus');
+    return simpleReducer(state, action, 'configSelectedQorus');
 }
 
 function configType(state = 'qoruses', action) {
-    return simpleReducer(state, action, 'config_type');
+    return simpleReducer(state, action, 'configType');
 }
 
 function configData(state = null, action) {
-    return simpleReducer(state, action, 'config_data');
+    return simpleReducer(state, action, 'configData');
 }
 
 function configEditPopoverOpen(state = {}, action) {
-    if (action.type == 'config_edit_popover_open') {
+    if (action.type == 'configEditPopoverOpen') {
         return Object.assign({}, state, {[action.id]: action.open});
     }
     return state;
 }
 
 function releaseStep(state = 0, action) {
-    return simpleReducer(state, action, 'release_step');
+    return simpleReducer(state, action, 'releaseStep');
 }
 
 function releaseBranch(state = null, action) {
-    return simpleReducer(state, action, 'release_branch');
+    return simpleReducer(state, action, 'releaseBranch');
 }
 
 function releaseCommitHash(state = null, action) {
-    return simpleReducer(state, action, 'release_commit_hash');
+    return simpleReducer(state, action, 'releaseCommitHash');
 }
 
 function releaseCommit(state = null, action) {
-    return simpleReducer(state, action, 'release_commit');
+    return simpleReducer(state, action, 'releaseCommit');
 }
 
 function releaseCommits(state = null, action) {
-    return simpleReducer(state, action, 'release_commits');
+    return simpleReducer(state, action, 'releaseCommits');
 }
 
 function releaseFiles(state = [], action) {
-    return simpleReducer(state, action, 'release_files');
+    return simpleReducer(state, action, 'releaseFiles');
 }
 
 function releasePending(state = false, action) {
-    return simpleReducer(state, action, 'release_pending');
+    return simpleReducer(state, action, 'releasePending');
 }
 
 function releasePackagePath(state = null, action) {
-    return simpleReducer(state, action, 'release_package_path');
+    return simpleReducer(state, action, 'releasePackagePath');
 }
 
 function releaseSavedPath(state = null, action) {
-    return simpleReducer(state, action, 'release_saved_path');
+    return simpleReducer(state, action, 'releaseSavedPath');
 }
 
 function releaseResult(state = null, action) {
-    return simpleReducer(state, action, 'release_result');
+    return simpleReducer(state, action, 'releaseResult');
 }
 
 function releaseType(state = 'full', action) {
-    return simpleReducer(state, action, 'release_type');
+    return simpleReducer(state, action, 'releaseType');
 }
 
 function releaseFilter(state = {hash: '', branch: '', tag: ''}, action) {
-    if (action.type === 'release_filter') {
+    if (action.type === 'releaseFilter') {
         return Object.assign({}, state, {[action.filter]: action.value});
     }
     return state;
 }
 
 function createIfaceTargetDir(state = null, action) {
-    return simpleReducer(state, action, 'create_iface_target_dir');
+    return simpleReducer(state, action, 'createIfaceTargetDir');
 }
 
 function msgOpen(state = {config_changed: false, release_not_up_to_date: false}, action) {
@@ -112,28 +112,28 @@ function msgOpen(state = {config_changed: false, release_not_up_to_date: false},
 
 export default function reducer(state = vscode.getState(), action) {
     return combineReducers({
-        active_tab: activeTab,
-        delete_ifaces_kind: deleteIfacesKind,
-        delete_ifaces_all: deleteIfacesAll,
-        delete_ifaces_checked: deleteIfacesChecked,
-        msg_open: msgOpen,
-        config_type: configType,
-        config_data: configData,
-        config_selected_env: configSelectedEnv,
-        config_selected_qorus: configSelectedQorus,
-        config_edit_popover_open: configEditPopoverOpen,
-        release_step: releaseStep,
-        release_branch: releaseBranch,
-        release_commit: releaseCommit,
-        release_commits: releaseCommits,
-        release_commit_hash: releaseCommitHash,
-        release_files: releaseFiles,
-        release_pending: releasePending,
-        release_package_path: releasePackagePath,
-        release_saved_path: releaseSavedPath,
-        release_result: releaseResult,
-        release_type: releaseType,
-        release_filter: releaseFilter,
-        create_iface_target_dir: createIfaceTargetDir,
+        activeTab,
+        deleteIfacesKind,
+        deleteIfacesAll,
+        deleteIfacesChecked,
+        msgOpen,
+        configType,
+        configData,
+        configSelectedEnv,
+        configSelectedQorus,
+        configEditPopoverOpen,
+        releaseStep,
+        releaseBranch,
+        releaseCommit,
+        releaseCommits,
+        releaseCommitHash,
+        releaseFiles,
+        releasePending,
+        releasePackagePath,
+        releaseSavedPath,
+        releaseResult,
+        releaseType,
+        releaseFilter,
+        createIfaceTargetDir,
     })(state, action);
 }

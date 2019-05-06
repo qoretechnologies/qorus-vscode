@@ -136,17 +136,17 @@ class SelectCommit extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    commits: state.release_commits,
-    hash_filter: state.release_hash_filter,
-    branch_filter: state.release_branch_filter,
-    tag_filter: state.release_tag_filter,
-    value: state.release_commit_hash
+    commits: state.releaseCommits,
+    hash_filter: state.releaseFilter.hash,
+    branch_filter: state.releaseFilter.branch,
+    tag_filter: state.releaseFilter.tag,
+    value: state.releaseCommitHash
 });
 
 const mapDispatchToProps = dispatch => ({
-    setCommits: commits => dispatch({type: 'release_commits', release_commits: commits}),
-    setFilter: (filter, value) => dispatch({type: 'release_filter', filter, value}),
-    setValue: value => dispatch({type: 'release_commit_hash', release_commit_hash: value})
+    setCommits: commits => dispatch({type: 'releaseCommits', releaseCommits: commits}),
+    setFilter: (filter, value) => dispatch({type: 'releaseFilter', filter, value}),
+    setValue: value => dispatch({type: 'releaseCommitHash', releaseCommitHash: value})
 });
 
 export const SelectCommitContainer = connect(mapStateToProps, mapDispatchToProps)(SelectCommit);
