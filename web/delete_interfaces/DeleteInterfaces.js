@@ -1,29 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import {
-    Button,
-    Checkbox,
-    Classes,
-    HTMLSelect,
-    HTMLTable,
-    Intent,
-    Popover,
-    Radio,
-    RadioGroup,
-    Tabs,
-    Tab,
-} from '@blueprintjs/core';
+import { Button, Checkbox, Classes, HTMLSelect, HTMLTable, Intent,
+         Popover, Radio, RadioGroup, Tabs, Tab, } from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
 import { Fg } from '../common/Fg';
 import Box from '../components/Box';
 
 const columns = {
     workflows: ['name', 'version', 'workflowid', 'description'],
-    services: ['name', 'version', 'serviceid'],
-    jobs: ['name', 'version', 'jobid', 'description'],
-    classes: ['name', 'version', 'classid', 'description', 'language'],
+    services:  ['name', 'version', 'serviceid'],
+    jobs:      ['name', 'version', 'jobid', 'description'],
+    classes:   ['name', 'version', 'classid', 'description', 'language'],
     constants: ['name', 'version', 'constantid', 'description'],
-    mappers: ['name', 'version', 'mapperid', 'desc', 'type'],
+    mappers:   ['name', 'version', 'mapperid', 'desc', 'type'],
     functions: ['name', 'version', 'function_instanceid', 'description'],
 };
 
@@ -66,9 +55,18 @@ class DeleteInterfaces extends Component {
         });
     };
 
-    onInterfaceKindChange = interfaceKind => {
-        this.props.setIfaceKind(interfaceKind);
+    onInterfaceKindChange = iface_kind => {
+        this.props.setIfaceKind(iface_kind);
+        if (!this.props.interfaces[iface_kind]) {
+            this.getInterfaces(iface_kind);
+        }
     };
+
+    componentDidMount() {
+        if (!this.currentKindInterfaces()) {
+            this.getInterfaces();
+        }
+    }
 
     onCheckChange = (id, ev) => {
         let checked = JSON.parse(JSON.stringify(this.props.checked));
@@ -105,10 +103,7 @@ class DeleteInterfaces extends Component {
     };
 
     render() {
-        // Do not do this in RENDER!
-        // We need to move this to componentDidMount / componentWillReceiveProps
         if (!this.currentKindInterfaces()) {
-            this.getInterfaces();
             return null;
         }
 
