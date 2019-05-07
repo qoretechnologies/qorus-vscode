@@ -9,6 +9,22 @@ function activeTab(state = 'ProjectConfig', action) {
     return simpleReducer(state, action, 'active_tab');
 }
 
+function loginVisible(state = false, action) {
+    return simpleReducer(state, action, 'login_visible');
+}
+
+function loginQorus(state = null, action) {
+    return simpleReducer(state, action, 'login_qorus');
+}
+
+function loginUsername(state = '', action) {
+    return simpleReducer(state, action, 'login_username');
+}
+
+function loginPassword(state = '', action) {
+    return simpleReducer(state, action, 'login_password');
+}
+
 function deleteIfacesKind(state = 'workflows', action) {
     return simpleReducer(state, action, 'delete_ifaces_kind');
 }
@@ -109,6 +125,10 @@ function msgOpen(state = {config_changed: false, release_not_up_to_date: false},
 export default function reducer(state = vscode.getState(), action) {
     return combineReducers({
         active_tab: activeTab,
+        login_visible: loginVisible,
+        login_qorus: loginQorus,
+        login_username: loginUsername,
+        login_password: loginPassword,
         delete_ifaces_kind: deleteIfacesKind,
         delete_ifaces_all: deleteIfacesAll,
         delete_ifaces_checked: deleteIfacesChecked,

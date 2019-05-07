@@ -282,7 +282,7 @@ class ProjectConfig extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
     config_type: state.config_type,
     data: state.config_data,
     selected_env_id: state.config_selected_env,

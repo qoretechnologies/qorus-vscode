@@ -2,16 +2,18 @@ import * as vscode from 'vscode';
 import * as request from 'request-promise';
 import { QorusAuth } from './QorusAuth';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
-import * as path from 'path';
+import { webview } from './QorusWebview';
 import * as msg from './qorus_message';
-import { t, gettext } from 'ttag';
+import { t } from 'ttag';
 
 
 export class QorusLogin extends QorusAuth {
-    private login_panel: vscode.WebviewPanel | undefined = undefined;
+    private current_login_params: any = {
+        qorus_instance: undefined,
+        set_active: true,
+    };
 
     login(tree_item: string | vscode.TreeItem, set_active: boolean = true) {
-
         if (typeof tree_item !== 'string') {
             this.login((<QorusTreeInstanceNode>tree_item).getUrl(), set_active);
             return;
@@ -25,79 +27,42 @@ export class QorusLogin extends QorusAuth {
             return;
         }
 
-        if (this.login_panel) {
-            this.login_panel.reveal(vscode.ViewColumn.One);
+        this.current_login_params = {
+            qorus_instance: (({ name, url }) => ({ name, url }))(qorus_instance),
+            set_active
+        }
+
+        webview.open('Login');
+    }
+
+    loginPost(username: string, password: string) {
+        if (!this.current_login_params.qorus_instance) {
             return;
         }
 
-        const web_path = path.join(__dirname, '..', 'dist');
-        this.login_panel = vscode.window.createWebviewPanel(
-            'qorusLogin',
-            t`QorusLoginTitle`,
-            vscode.ViewColumn.One,
-            {
-                enableScripts: true
-            }
-        );
-        vscode.workspace.openTextDocument(path.join(web_path, 'login.html')).then(
-            html => {
-                this.login_panel.webview.html = html.getText().replace(/{{ path }}/g, web_path);
+        const url = this.current_login_params.qorus_instance.url;
+        const options = {
+            method: 'POST',
+            uri: `${url}/api/latest/public/login?user=${username}&pass=${password}`,
+            strictSSL: false
+        };
 
-                this.login_panel.webview.onDidReceiveMessage(message => {
-                    switch (message.action) {
-                        case 'get-data':
-                            this.login_panel.webview.postMessage({
-                                action: 'return-data',
-                                qorus: {
-                                    name: qorus_instance.name,
-                                    url: url,
-                                }
-                            });
-                            break;
-                        case 'get-text':
-                            this.login_panel.webview.postMessage({
-                                action: 'return-text',
-                                text_id: message.text_id,
-                                text: gettext(message.text_id)
-                            });
-                            break;
-                        case 'form-cancel':
-                            msg.info(t`LoginCancelled`);
-                            this.login_panel.dispose();
-                            break;
-                        case 'form-submit':
-                            const options = {
-                                method: 'POST',
-                                uri: `${url}/api/latest/public/login?user=${message.username}&pass=${message.password}`,
-                                strictSSL: false
-                            };
-
-                            msg.log(t`SendingLoginRequest`);
-                            request(options).then(
-                                response => {
-                                    const token: string = JSON.parse(response).token;
-                                    this.addToken(url, token, set_active);
-                                    tree.refresh();
-                                    msg.info(t`LoginSuccessful`);
-                                    this.login_panel.dispose();
-                                },
-                                error => {
-                                    this.requestError(error, t`LoginError`);
-                                    this.login_panel.dispose();
-                                }
-                            );
-                    }
-                });
-
-                this.login_panel.onDidDispose(() => {
-                    this.login_panel = null;
-                });
+        msg.log(t`SendingLoginRequest`);
+        request(options).then(
+            response => {
+                const token: string = JSON.parse(response).token;
+                this.addToken(url, token, this.current_login_params.set_active);
+                tree.refresh();
+                msg.info(t`LoginSuccessful`);
             },
             error => {
-                msg.error(t`UnableOpenLoginPage`);
-                msg.log(JSON.stringify(error));
+                this.requestError(error, t`LoginError`);
             }
         );
+    }
+
+    loginQorusInstance(): any {
+        return this.current_login_params.qorus_instance;
     }
 
     logout(tree_item: vscode.TreeItem) {

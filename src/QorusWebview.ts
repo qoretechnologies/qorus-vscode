@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
 import { projects, QorusProject, config_filename } from './QorusProject';
+import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 
@@ -66,6 +67,21 @@ class QorusWebview {
                                 action: 'return-text',
                                 text_id: message.text_id,
                                 text: gettext(message.text_id)
+                            });
+                            break;
+                        case 'login-get-data':
+                            this.panel.webview.postMessage({
+                                action: 'login-return-data',
+                                qorus_instance: qorus_request.loginQorusInstance()
+                            });
+                            break;
+                        case 'login-submit':
+                            qorus_request.loginPost(message.username, message.password);
+                            break;
+                        case 'login-cancel':
+                            msg.info(t`LoginCancelled`);
+                            this.panel.webview.postMessage({
+                                action: 'close-login'
                             });
                             break;
                         case 'config-get-data':
