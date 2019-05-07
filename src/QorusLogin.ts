@@ -10,11 +10,6 @@ import { t, gettext } from 'ttag';
 export class QorusLogin extends QorusAuth {
     private login_panel: vscode.WebviewPanel | undefined = undefined;
 
-    private disposeLoginPanel() {
-        this.login_panel.dispose();
-        this.login_panel = null;
-    }
-
     login(tree_item: string | vscode.TreeItem, set_active: boolean = true) {
 
         if (typeof tree_item !== 'string') {
@@ -68,7 +63,7 @@ export class QorusLogin extends QorusAuth {
                             break;
                         case 'form-cancel':
                             msg.info(t`LoginCancelled`);
-                            this.disposeLoginPanel();
+                            this.login_panel.dispose();
                             break;
                         case 'form-submit':
                             const options = {
@@ -84,14 +79,18 @@ export class QorusLogin extends QorusAuth {
                                     this.addToken(url, token, set_active);
                                     tree.refresh();
                                     msg.info(t`LoginSuccessful`);
-                                    this.disposeLoginPanel();
+                                    this.login_panel.dispose();
                                 },
                                 error => {
                                     this.requestError(error, t`LoginError`);
-                                    this.disposeLoginPanel();
+                                    this.login_panel.dispose();
                                 }
                             );
                     }
+                });
+
+                this.login_panel.onDidDispose(() => {
+                    this.login_panel = null;
                 });
             },
             error => {
