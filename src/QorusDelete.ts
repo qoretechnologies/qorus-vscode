@@ -29,7 +29,8 @@ class QorusDelete {
             case 'classes': iface_post_kind = 'class'; break;
             default: iface_post_kind = iface_kind.slice(0, -1);
         }
-        const config = vscode.workspace.getConfiguration('qorusDeployment') || {reload: false, 'verbosity-level': 1};
+        const config: any = vscode.workspace.getConfiguration('qorusDeployment')
+                                || {reload: false, 'verbosity-level': 1};
         const options = {
             method: 'POST',
             uri: `${active_instance.url}/api/latest/development/delete`,
