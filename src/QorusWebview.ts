@@ -114,7 +114,7 @@ class QorusWebview {
                 });
             },
             error => {
-                msg.error(t`UnableOpenDeleteInterfacesPage`);
+                msg.error(t`UnableOpenQorusConfigPage`);
                 msg.log(JSON.stringify(error));
             }
         );

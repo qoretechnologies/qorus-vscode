@@ -109,6 +109,9 @@ msgstr "Unable to open the release package creator page"
 msgid "UnableOpenDeleteInterfacesPage"
 msgstr "Unable to open the delete interfaces page"
 
+msgid "UnableOpenQorusConfigPage"
+msgstr "Unable to open the Qorus manager page"
+
 msgid "NoTokenForUrl ${ url }"
 msgstr "No authentication token for URL ${ url }"
 
