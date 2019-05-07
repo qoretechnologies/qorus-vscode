@@ -197,15 +197,15 @@ class DeleteInterfaces extends Component {
 }
 
 const mapStateToProps = state => ({
-    iface_kind: state.deleteIfacesKind,
-    interfaces: state.deleteIfacesAll,
-    checked: state.deleteIfacesChecked,
+    iface_kind: state.delete_ifaces_kind,
+    interfaces: state.delete_ifaces_all,
+    checked: state.delete_ifaces_checked,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setIfaceKind: iface_kind => dispatch({ type: 'deleteIfacesKind', deleteIfacesKind: iface_kind || 'workflows' }),
-    setInterfaces: interfaces => dispatch({ type: 'deleteIfacesAll', deleteIfacesAll: interfaces || {} }),
-    setChecked: checked => dispatch({ type: 'deleteIfacesChecked', deleteIfacesChecked: checked || {} }),
+    setIfaceKind: iface_kind => dispatch({ type: 'delete_ifaces_kind', delete_ifaces_kind: iface_kind || 'workflows' }),
+    setInterfaces: interfaces => dispatch({ type: 'delete_ifaces_all', delete_ifaces_all: interfaces || {} }),
+    setChecked: checked => dispatch({ type: 'delete_ifaces_checked', delete_ifaces_checked: checked || {} }),
 });
 
 export const DeleteInterfacesContainer = connect(

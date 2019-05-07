@@ -140,7 +140,7 @@ class ProjectConfig extends Component {
                 <Tabs
                     id="ProjectConfigTabs"
                     onChange={this.props.setConfigType}
-                    selectedTabId={this.props.configType}
+                    selectedTabId={this.props.config_type}
                     renderActiveTabPanelOnly
                 >
                     <Tab
@@ -319,19 +319,19 @@ class ProjectConfig extends Component {
 }
 
 const mapStateToProps = state => ({
-    configType: state.configType,
-    data: state.configData,
-    selected_env_id: state.configSelectedEnv,
-    selected_qorus_id: state.configSelectedQorus,
-    config_changed_msg_open: state.msgOpen.config_changed,
+    config_type: state.config_type,
+    data: state.config_data,
+    selected_env_id: state.config_selected_env,
+    selected_qorus_id: state.config_selected_qorus,
+    config_changed_msg_open: state.msg_open.config_changed,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setData: data => dispatch({ type: 'configData', configData: data }),
-    setSelectedEnv: selected_env_id => dispatch({ type: 'configSelectedEnv', configSelectedEnv: selected_env_id }),
+    setData: data => dispatch({ type: 'config_data', config_data: data }),
+    setSelectedEnv: selected_env_id => dispatch({ type: 'config_selected_env', config_selected_env: selected_env_id }),
     setSelectedQorus: selected_qorus_id =>
-        dispatch({ type: 'configSelectedQorus', configSelectedQorus: selected_qorus_id }),
-    setConfigType: configType => dispatch({ type: 'configType', configType }),
+        dispatch({ type: 'config_selected_qorus', config_selected_qorus: selected_qorus_id }),
+    setConfigType: config_type => dispatch({ type: 'config_type', config_type }),
     setConfigChangedMsgOpen: open => dispatch({ type: 'config_changed_msg_open', open }),
 });
 

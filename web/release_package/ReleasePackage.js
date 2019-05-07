@@ -320,28 +320,28 @@ class ReleasePackage extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    step: state.releaseStep,
-    branch: state.releaseBranch,
-    release_type: state.releaseType,
-    selected_commit: state.releaseCommit,
-    files: state.releaseFiles,
-    package_path: state.releasePackagePath,
-    saved_path: state.releaseSavedPath,
-    result: state.releaseResult,
-    not_up_to_date_msg_open: state.msgOpen.release_not_up_to_date,
+    step: state.release_step,
+    branch: state.release_branch,
+    release_type: state.release_type,
+    selected_commit: state.release_commit,
+    files: state.release_files,
+    package_path: state.release_package_path,
+    saved_path: state.release_saved_path,
+    result: state.release_result,
+    not_up_to_date_msg_open: state.msg_open.release_not_up_to_date,
     pending: state.releasePending,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setStep: step => dispatch({type: 'releaseStep', releaseStep: step}),
-    setBranch: branch => dispatch({type: 'releaseBranch', releaseBranch: branch}),
-    setReleaseType: type => dispatch({type: 'releaseType', releaseType: type}),
-    setSelectedCommit: commit => dispatch({type: 'releaseCommit', releaseCommit: commit}),
-    setFiles: files => dispatch({type: 'releaseFiles', releaseFiles: files}),
+    setStep: step => dispatch({type: 'release_step', release_step: step}),
+    setBranch: branch => dispatch({type: 'release_branch', release_branch: branch}),
+    setReleaseType: type => dispatch({type: 'release_type', release_type: type}),
+    setSelectedCommit: commit => dispatch({type: 'release_commit', release_commit: commit}),
+    setFiles: files => dispatch({type: 'release_files', release_files: files}),
     setPending: pending => dispatch({type: 'releasePending', releasePending: pending}),
-    setPackagePath: path => dispatch({type: 'releasePackagePath', releasePackagePath: path}),
-    setSavedPath: path => dispatch({type: 'releaseSavedPath', releaseSavedPath: path}),
-    setResult: result => dispatch({type: 'releaseResult', releaseResult: result}),
+    setPackagePath: path => dispatch({type: 'release_package_path', release_package_path: path}),
+    setSavedPath: path => dispatch({type: 'release_saved_path', release_saved_path: path}),
+    setResult: result => dispatch({type: 'release_result', release_result: result}),
     setNotUpToDateMsgOpen: open => dispatch({type: 'release_not_up_to_date_msg_open', open})
 });
 

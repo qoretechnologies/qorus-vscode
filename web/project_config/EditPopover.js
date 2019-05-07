@@ -120,11 +120,11 @@ class EditPopover extends Component {
 const mapStateToProps = (state, own_props) => {
     const action = own_props.action || own_props.kind + '-' + own_props.entity.toLowerCase();
     const id = action + '|' + own_props.env_id + '|' + own_props.qorus_id + '|' + own_props.url_id;
-    return {is_open: state.configEditPopoverOpen[id] || false};
+    return {is_open: state.config_edit_popover_open[id] || false};
 };
 
 const mapDispatchToProps = dispatch => ({
-    setOpen: (id, is_open) => dispatch({type: 'configEditPopoverOpen', id, open: is_open}),
+    setOpen: (id, is_open) => dispatch({type: 'config_edit_popover_open', id, open: is_open}),
 });
 
 export const EditPopoverContainer = connect(mapStateToProps, mapDispatchToProps)(EditPopover);
