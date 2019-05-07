@@ -137,9 +137,9 @@ class SelectCommit extends Component {
 
 const mapStateToProps = (state) => ({
     commits: state.release_commits,
-    hash_filter: state.release_hash_filter,
-    branch_filter: state.release_branch_filter,
-    tag_filter: state.release_tag_filter,
+    hash_filter: state.release_filter.hash,
+    branch_filter: state.release_filter.branch,
+    tag_filter: state.release_filter.tag,
     value: state.release_commit_hash
 });
 
