@@ -56,7 +56,17 @@ class DeleteInterfaces extends Component {
     }
 
     onInterfaceKindChange = ev => {
-        this.props.setIfaceKind(ev.target.value === 'other' ? 'classes' : ev.target.value);
+        const iface_kind = ev.target.value === 'other' ? 'classes' : ev.target.value;
+        this.props.setIfaceKind(iface_kind);
+        if (!this.props.interfaces[iface_kind]) {
+            this.getInterfaces(iface_kind);
+        }
+    }
+
+    componentDidMount() {
+        if (!this.currentKindInterfaces()) {
+            this.getInterfaces();
+        }
     }
 
     onCheckChange = (id, ev) => {
@@ -98,7 +108,6 @@ class DeleteInterfaces extends Component {
 
     render() {
         if (!this.currentKindInterfaces()) {
-            this.getInterfaces();
             return null;
         }
 
