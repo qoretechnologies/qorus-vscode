@@ -15,8 +15,6 @@ class App extends Component {
         this.texts = {};
         this.num_text_requests = 0;
 
-        this.vscode_state = vscode.getState();
-
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'return-text':
@@ -44,11 +42,6 @@ class App extends Component {
     }
 
     render() {
-        if (this.vscode_state) {
-            this.props.setAll(this.vscode_state);
-            this.vscode_state = undefined;
-        }
-
         const t = this.t;
         const dict_length = Object.keys(this.texts).length;
 
@@ -87,8 +80,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    setActiveTab: tab_key => {dispatch({type: 'active_tab', active_tab: tab_key});},
-    setAll: all_state => {dispatch({type: 'all', all: all_state});}
+    setActiveTab: tab_key => {dispatch({type: 'active_tab', active_tab: tab_key});}
 });
 
 export const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);
