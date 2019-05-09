@@ -41,16 +41,15 @@ class Login extends Component {
 
     onCancel = () => {
         vscode.postMessage({
-            action: 'login-form-cancel'
+            action: 'login-cancel'
         });
     }
 
     render() {
-        if (!this.props.qorus) {
-            return null;
-        }
-
         const t = this.props.t;
+        const [qorus_name, qorus_url] = this.props.qorus
+            ? [this.props.qorus.name, this.props.qorus.url]
+            : ['',  ''];
 
         return (
             <Card className='login-card bp3-elevation-2'>
@@ -59,12 +58,12 @@ class Login extends Component {
                         <H4 style={{ textAlign: 'center' }}>
                             {t('LoginHeader')} &nbsp;
                             <span className='login-highlighted'>
-                                {this.props.qorus.name}
+                                {qorus_name}
                             </span> &nbsp;
                             {t('at')}
                         </H4>
                         <H4 className='login-highlighted'>
-                            {this.props.qorus.url}
+                            {qorus_url}
                         </H4>
                     </div>
 
