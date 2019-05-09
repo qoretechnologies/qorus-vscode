@@ -57,7 +57,6 @@ class App extends Component {
             ProjectConfig: 'cog',
             ReleasePackage: 'cube',
             DeleteInterfaces: 'trash',
-            CreateInterface: 'draw',
         };
 
         return (

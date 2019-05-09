@@ -13,6 +13,10 @@ function loginQorus(state = null, action) {
     return simpleReducer(state, action, 'login_qorus');
 }
 
+function loginError(state = null, action) {
+    return simpleReducer(state, action, 'login_error');
+}
+
 function deleteIfacesKind(state = 'workflows', action) {
     return simpleReducer(state, action, 'delete_ifaces_kind');
 }
@@ -150,6 +154,7 @@ export default function reducer(state = vscode.getState(), action) {
         active_tab_queue: activeTabQueue,
         login_visible: loginVisible,
         login_qorus: loginQorus,
+        login_error: loginError,
         login_data: loginData,
         delete_ifaces_kind: deleteIfacesKind,
         delete_ifaces_all: deleteIfacesAll,

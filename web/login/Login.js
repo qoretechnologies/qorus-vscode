@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, ButtonGroup, Card, Classes, H4, InputGroup, Intent } from '@blueprintjs/core';
+import { Button, ButtonGroup, Card, Classes, Colors, H4, InputGroup, Intent } from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
 
 
@@ -12,6 +12,9 @@ class Login extends Component {
             switch (event.data.action) {
                 case 'login-return-data':
                     this.props.setQorus(event.data.qorus_instance);
+                    break;
+                case 'login-error':
+                    this.props.setLoginError(event.data.error);
                     break;
             }
         });
@@ -33,7 +36,7 @@ class Login extends Component {
 
     onSubmit = () => {
         vscode.postMessage({
-            action: 'login-form-submit',
+            action: 'login-submit',
             username: this.props.username,
             password: this.props.password
         });
@@ -62,7 +65,7 @@ class Login extends Component {
                             </span> &nbsp;
                             {t('at')}
                         </H4>
-                        <H4 className='login-highlighted'>
+                        <H4 className='login-highlighted text-center'>
                             {qorus_url}
                         </H4>
                     </div>
@@ -96,6 +99,11 @@ class Login extends Component {
                         </Button>
                     </ButtonGroup>
                 </form>
+                {this.props.error &&
+                    <H4 style={{ textAlign: 'center', color: Colors.RED3, marginTop: 24 }}>
+                        {this.props.error}
+                    </H4>
+                }
             </Card>
         );
     }
@@ -105,12 +113,14 @@ const mapStateToProps = state => ({
     qorus: state.login_qorus,
     username: state.login_data.username,
     password: state.login_data.password,
+    error: state.login_error,
 });
 
 const mapDispatchToProps = dispatch => ({
     setQorus: qorus => dispatch({type: 'login_qorus', login_qorus: qorus}),
     setUsername: username => dispatch({type: 'login_username', username}),
     setPassword: password => dispatch({type: 'login_password', password}),
+    setLoginError: error => dispatch({type: 'login_error', login_error: error}),
 });
 
 export const LoginContainer = connect(mapStateToProps, mapDispatchToProps)(Login);

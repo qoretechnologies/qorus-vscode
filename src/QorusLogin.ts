@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as request from 'request-promise';
 import { QorusAuth } from './QorusAuth';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
-import { webview } from './QorusWebview';
+import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
@@ -32,10 +32,10 @@ export class QorusLogin extends QorusAuth {
             set_active
         }
 
-        webview.open('Login');
+        qorus_webview.open('Login');
     }
 
-    loginPost(username: string, password: string) {
+    loginPost(username: string, password: string, webview: vscode.Webview = null) {
         if (!this.current_login_params.qorus_instance) {
             return;
         }
@@ -54,9 +54,20 @@ export class QorusLogin extends QorusAuth {
                 this.addToken(url, token, this.current_login_params.set_active);
                 tree.refresh();
                 msg.info(t`LoginSuccessful`);
+                if (webview) {
+                    webview.postMessage({
+                        action: 'close-login'
+                    });
+                }
             },
             error => {
                 this.requestError(error, t`LoginError`);
+                if (webview) {
+                    webview.postMessage({
+                        action: 'login-error',
+                        error: t`AuthFailed`
+                    });
+                }
             }
         );
     }

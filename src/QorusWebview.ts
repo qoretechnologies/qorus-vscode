@@ -76,7 +76,9 @@ class QorusWebview {
                             });
                             break;
                         case 'login-submit':
-                            qorus_request.loginPost(message.username, message.password);
+                            qorus_request.loginPost(message.username,
+                                                    message.password,
+                                                    this.panel.webview);
                             break;
                         case 'login-cancel':
                             msg.info(t`LoginCancelled`);
@@ -100,10 +102,14 @@ class QorusWebview {
                             project.removeSourceDir(message.dir, this.panel.webview);
                             break;
                         case 'get-interfaces':
-                            deleter.getInterfaces(message.iface_kind, message.columns, this.panel.webview);
+                            deleter.getInterfaces(message.iface_kind,
+                                                  message.columns,
+                                                  this.panel.webview);
                             break;
                         case 'delete-interfaces':
-                            deleter.deleteInterfaces(message.iface_kind, message.ids, this.panel.webview);
+                            deleter.deleteInterfaces(message.iface_kind,
+                                                     message.ids,
+                                                     this.panel.webview);
                             break;
                         case 'release-get-branch':
                             releaser.makeRelease(this.panel.webview);
@@ -154,4 +160,4 @@ class QorusWebview {
     }
 }
 
-export const webview = new QorusWebview();
+export const qorus_webview = new QorusWebview();
