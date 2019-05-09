@@ -5,24 +5,12 @@ function simpleReducer(state, action, type) {
     return action.type == type ? action[type] : state;
 }
 
-function activeTab(state = 'ProjectConfig', action) {
-    return simpleReducer(state, action, 'active_tab');
-}
-
 function loginVisible(state = false, action) {
     return simpleReducer(state, action, 'login_visible');
 }
 
 function loginQorus(state = null, action) {
     return simpleReducer(state, action, 'login_qorus');
-}
-
-function loginUsername(state = '', action) {
-    return simpleReducer(state, action, 'login_username');
-}
-
-function loginPassword(state = '', action) {
-    return simpleReducer(state, action, 'login_password');
 }
 
 function deleteIfacesKind(state = 'workflows', action) {
@@ -122,13 +110,47 @@ function msgOpen(state = {config_changed: false, release_not_up_to_date: false},
     }
 }
 
+function activeTabQueue(state = ['ProjectConfig'], action) {
+    let index;
+    let new_state = [...state];
+    switch (action.type) {
+        case 'set_active_tab':
+            index = new_state.indexOf(action.active_tab);
+            if (index > -1) {
+                new_state.splice(index, 1);
+            }
+            new_state.unshift(action.active_tab);
+            return new_state;
+        case 'close_tab':
+            index = new_state.indexOf(action.tab);
+            if (index > -1) {
+                new_state.splice(index, 1);
+            }
+            return new_state;
+        default:
+            return state;
+    }
+}
+
+function loginData(state = {username: '', password: ''}, action) {
+    switch (action.type) {
+        case 'login_username':
+            return Object.assign({}, state, {username: action.username});
+        case 'login_password':
+            return Object.assign({}, state, {password: action.password});
+        case 'login_clear':
+            return {username: '', password: ''};
+        default:
+            return state;
+    }
+}
+
 export default function reducer(state = vscode.getState(), action) {
     return combineReducers({
-        active_tab: activeTab,
+        active_tab_queue: activeTabQueue,
         login_visible: loginVisible,
         login_qorus: loginQorus,
-        login_username: loginUsername,
-        login_password: loginPassword,
+        login_data: loginData,
         delete_ifaces_kind: deleteIfacesKind,
         delete_ifaces_all: deleteIfacesAll,
         delete_ifaces_checked: deleteIfacesChecked,

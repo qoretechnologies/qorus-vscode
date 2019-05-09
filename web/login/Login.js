@@ -103,14 +103,14 @@ class Login extends Component {
 
 const mapStateToProps = state => ({
     qorus: state.login_qorus,
-    username: state.login_username,
-    password: state.login_password,
+    username: state.login_data.username,
+    password: state.login_data.password,
 });
 
 const mapDispatchToProps = dispatch => ({
     setQorus: qorus => dispatch({type: 'login_qorus', login_qorus: qorus}),
-    setUsername: username => dispatch({type: 'login_username', login_username: username}),
-    setPassword: password => dispatch({type: 'login_password', login_password: password}),
+    setUsername: username => dispatch({type: 'login_username', username}),
+    setPassword: password => dispatch({type: 'login_password', password}),
 });
 
 export const LoginContainer = connect(mapStateToProps, mapDispatchToProps)(Login);

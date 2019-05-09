@@ -27,11 +27,11 @@ class App extends Component {
                 case 'set-active-tab':
                     this.props.setActiveTab(event.data.active_tab);
                     if (event.data.active_tab === 'Login') {
-                        this.props.setLoginVisible(true);
+                        this.props.openLogin();
                     }
                     break;
                 case 'close-login':
-                    this.props.setLoginVisible(false);
+                    this.props.closeLogin(false);
                     break;
             }
         });
@@ -89,13 +89,20 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-    active_tab: state.active_tab,
+    active_tab: state.active_tab_queue[0],
     login_visible: state.login_visible,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setActiveTab: tab_key => { dispatch({ type: 'active_tab', active_tab: tab_key }); },
-    setLoginVisible: visible => { dispatch({ type: 'login_visible', login_visible: visible }); },
+    setActiveTab: tab_key => { dispatch({ type: 'set_active_tab', active_tab: tab_key }); },
+    openLogin: () => {
+        dispatch({ type: 'login_visible', login_visible: true });
+    },
+    closeLogin: () => {
+        dispatch({ type: 'close_tab', tab: 'Login' });
+        dispatch({ type: 'login_clear'});
+        dispatch({ type: 'login_visible', login_visible: false });
+    },
 });
 
 export const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);
