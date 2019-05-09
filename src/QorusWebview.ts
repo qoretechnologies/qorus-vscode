@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
 import { projects, QorusProject, config_filename } from './QorusProject';
+import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 
@@ -68,6 +69,23 @@ class QorusWebview {
                                 text: gettext(message.text_id)
                             });
                             break;
+                        case 'login-get-data':
+                            this.panel.webview.postMessage({
+                                action: 'login-return-data',
+                                qorus_instance: qorus_request.loginQorusInstance()
+                            });
+                            break;
+                        case 'login-submit':
+                            qorus_request.loginPost(message.username,
+                                                    message.password,
+                                                    this.panel.webview);
+                            break;
+                        case 'login-cancel':
+                            msg.info(t`LoginCancelled`);
+                            this.panel.webview.postMessage({
+                                action: 'close-login'
+                            });
+                            break;
                         case 'config-get-data':
                             project.getConfigForWebview(this.panel.webview);
                             break;
@@ -84,10 +102,14 @@ class QorusWebview {
                             project.removeSourceDir(message.dir, this.panel.webview);
                             break;
                         case 'get-interfaces':
-                            deleter.getInterfaces(message.iface_kind, message.columns, this.panel.webview);
+                            deleter.getInterfaces(message.iface_kind,
+                                                  message.columns,
+                                                  this.panel.webview);
                             break;
                         case 'delete-interfaces':
-                            deleter.deleteInterfaces(message.iface_kind, message.ids, this.panel.webview);
+                            deleter.deleteInterfaces(message.iface_kind,
+                                                     message.ids,
+                                                     this.panel.webview);
                             break;
                         case 'release-get-branch':
                             releaser.makeRelease(this.panel.webview);
@@ -138,4 +160,4 @@ class QorusWebview {
     }
 }
 
-export const webview = new QorusWebview();
+export const qorus_webview = new QorusWebview();
