@@ -40,10 +40,12 @@ export class QorusLogin extends QorusAuth {
             return;
         }
 
-        const url = this.current_login_params.qorus_instance.url;
+        const set_active = this.current_login_params.set_active;
+        const qorus_instance = this.current_login_params.qorus_instance;
+
         const options = {
             method: 'POST',
-            uri: `${url}/api/latest/public/login?user=${username}&pass=${password}`,
+            uri: `${qorus_instance.url}/api/latest/public/login?user=${username}&pass=${password}`,
             strictSSL: false
         };
 
@@ -51,12 +53,13 @@ export class QorusLogin extends QorusAuth {
         request(options).then(
             response => {
                 const token: string = JSON.parse(response).token;
-                this.addToken(url, token, this.current_login_params.set_active);
+                this.addToken(qorus_instance.url, token, set_active);
                 tree.refresh();
                 msg.info(t`LoginSuccessful`);
                 if (webview) {
                     webview.postMessage({
-                        action: 'close-login'
+                        action: 'close-login',
+                        qorus_instance: set_active ? qorus_instance : undefined
                     });
                 }
             },

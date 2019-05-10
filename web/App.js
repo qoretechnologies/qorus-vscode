@@ -32,6 +32,9 @@ class App extends Component {
                     break;
                 case 'close-login':
                     this.props.closeLogin(false);
+                    if (event.data.qorus_instance) {
+                        this.props.setCurrentQorusInstance(event.data.qorus_instance);
+                    }
                     break;
                 case 'current-project-folder':
                     this.props.setCurrentProjectFolder(event.data.folder);
@@ -91,7 +94,11 @@ class App extends Component {
                             </tr>
                             <tr>
                                 <td>{t('ActiveQorusInstance')}:</td>
-                                <td><strong>N/A</strong></td>
+                                <td>
+                                    <strong>
+                                        {this.props.qorus_instance ? this.props.qorus_instance.name : t('N/A')}
+                                    </strong>
+                                </td>
                             </tr>
                         </HTMLTable>
                     </NavbarGroup>
@@ -108,6 +115,7 @@ class App extends Component {
 const mapStateToProps = state => ({
     active_tab: state.active_tab_queue[0],
     project_folder: state.current_project_folder,
+    qorus_instance: state.current_qorus_instance,
     login_visible: state.login_visible,
 });
 
@@ -117,6 +125,9 @@ const mapDispatchToProps = dispatch => ({
     },
     setCurrentProjectFolder: folder => {
         dispatch({ type: 'current_project_folder', current_project_folder: folder });
+    },
+    setCurrentQorusInstance: qorus_instance => {
+        dispatch({ type: 'current_qorus_instance', current_qorus_instance: qorus_instance });
     },
     openLogin: () => {
         dispatch({ type: 'login_visible', login_visible: true });
