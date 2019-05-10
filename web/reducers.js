@@ -5,6 +5,10 @@ function simpleReducer(state, action, type) {
     return action.type == type ? action[type] : state;
 }
 
+function currentProjectFolder(state = '', action) {
+    return simpleReducer(state, action, 'current_project_folder');
+}
+
 function loginVisible(state = false, action) {
     return simpleReducer(state, action, 'login_visible');
 }
@@ -118,7 +122,7 @@ function activeTabQueue(state = ['ProjectConfig'], action) {
     let index;
     let new_state = [...state];
     switch (action.type) {
-        case 'set_active_tab':
+        case 'active_tab':
             index = new_state.indexOf(action.active_tab);
             if (index > -1) {
                 new_state.splice(index, 1);
@@ -152,6 +156,7 @@ function loginData(state = {username: '', password: ''}, action) {
 export default function reducer(state = vscode.getState(), action) {
     return combineReducers({
         active_tab_queue: activeTabQueue,
+        current_project_folder: currentProjectFolder,
         login_visible: loginVisible,
         login_qorus: loginQorus,
         login_error: loginError,
