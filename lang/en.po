@@ -741,3 +741,9 @@ msgstr "Qorus test is running"
 
 msgid "NothingToTest"
 msgstr "Nothing to test"
+
+msgid "Project"
+msgstr "Project"
+
+msgid "ActiveQorusInstance"
+msgstr "Active Qorus instance"

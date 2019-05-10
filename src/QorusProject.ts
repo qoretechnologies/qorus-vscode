@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { qorus_webview } from './QorusWebview';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
@@ -219,6 +220,7 @@ class QorusProjects {
         const has_changed: boolean = this.current_project_folder != project_folder;
         if (has_changed) {
             this.current_project_folder = project_folder;
+            qorus_webview.updateCurrentProjectFolder(project_folder);
         }
         return has_changed || !this.current_project_folder;
     }

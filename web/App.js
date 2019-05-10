@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Navbar, NavbarGroup } from '@blueprintjs/core';
+import { Alignment, Button, HTMLTable, Navbar, NavbarDivider, NavbarGroup } from '@blueprintjs/core';
 import { LoginContainer as Login } from './login/Login';
 import { ProjectConfigContainer as ProjectConfig } from './project_config/ProjectConfig';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
@@ -33,8 +33,13 @@ class App extends Component {
                 case 'close-login':
                     this.props.closeLogin(false);
                     break;
+                case 'current-project-folder':
+                    this.props.setCurrentProjectFolder(event.data.folder);
+                    break;
             }
         });
+
+        vscode.postMessage({ action: 'get-current-project-folder' });
     }
 
     t = text_id => {
@@ -77,6 +82,19 @@ class App extends Component {
                             />
                         )}
                     </NavbarGroup>
+                    <NavbarGroup align={Alignment.RIGHT} style={{ marginRight: 36 }}>
+                        <NavbarDivider />
+                        <HTMLTable condensed={true} className='navbar-info-table'>
+                            <tr>
+                                <td>{t('Project')}:</td>
+                                <td><strong>{this.props.project_folder}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>{t('ActiveQorusInstance')}:</td>
+                                <td><strong>N/A</strong></td>
+                            </tr>
+                        </HTMLTable>
+                    </NavbarGroup>
                 </Navbar>
                 {this.props.active_tab == 'Login' && <Login t={this.t} _={dict_length} />}
                 {this.props.active_tab == 'ProjectConfig' && <ProjectConfig t={this.t} _={dict_length} />}
@@ -89,11 +107,17 @@ class App extends Component {
 
 const mapStateToProps = state => ({
     active_tab: state.active_tab_queue[0],
+    project_folder: state.current_project_folder,
     login_visible: state.login_visible,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setActiveTab: tab_key => { dispatch({ type: 'set_active_tab', active_tab: tab_key }); },
+    setActiveTab: tab_key => {
+        dispatch({ type: 'active_tab', active_tab: tab_key });
+    },
+    setCurrentProjectFolder: folder => {
+        dispatch({ type: 'current_project_folder', current_project_folder: folder });
+    },
     openLogin: () => {
         dispatch({ type: 'login_visible', login_visible: true });
     },

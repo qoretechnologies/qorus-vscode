@@ -53,12 +53,10 @@ class QorusWebview {
                 });
 
                 this.panel.webview.onDidReceiveMessage(message => {
-                    let project: QorusProject;
-                    if (message.action.substr(0, 7) == 'config-') {
-                        project = projects.getProject();
-                        if (!project) {
-                            return;
-                        }
+                    const project: QorusProject = projects.getProject();
+                    if (!project) {
+                        msg.error(t`QorusProjectNotSet`);
+                        return;
                     }
 
                     switch (message.action) {
@@ -67,6 +65,12 @@ class QorusWebview {
                                 action: 'return-text',
                                 text_id: message.text_id,
                                 text: gettext(message.text_id)
+                            });
+                            break;
+                        case 'get-current-project-folder':
+                            this.panel.webview.postMessage({
+                                action: 'current-project-folder',
+                                folder: path.basename(project.projectFolder())
                             });
                             break;
                         case 'login-get-data':
@@ -147,6 +151,17 @@ class QorusWebview {
         if (this.config_file_watcher) {
             this.config_file_watcher.dispose();
         }
+    }
+
+    updateCurrentProjectFolder(project_folder: string | undefined) {
+        if (!this.panel) {
+            return;
+        }
+
+        this.panel.webview.postMessage({
+            action: 'current-project-folder',
+            folder: project_folder
+        });
     }
 
     private setActiveTab(active_tab?: string) {
