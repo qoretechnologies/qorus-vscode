@@ -9,6 +9,10 @@ function currentProjectFolder(state = '', action) {
     return simpleReducer(state, action, 'current_project_folder');
 }
 
+function currentQorusInstance(state = null, action) {
+    return simpleReducer(state, action, 'current_qorus_instance');
+}
+
 function loginVisible(state = false, action) {
     return simpleReducer(state, action, 'login_visible');
 }
@@ -157,6 +161,7 @@ export default function reducer(state = vscode.getState(), action) {
     return combineReducers({
         active_tab_queue: activeTabQueue,
         current_project_folder: currentProjectFolder,
+        current_qorus_instance: currentQorusInstance,
         login_visible: loginVisible,
         login_qorus: loginQorus,
         login_error: loginError,

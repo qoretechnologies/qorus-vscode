@@ -747,3 +747,6 @@ msgstr "Project"
 
 msgid "ActiveQorusInstance"
 msgstr "Active Qorus instance"
+
+msgid "N/A"
+msgstr "N/A"
