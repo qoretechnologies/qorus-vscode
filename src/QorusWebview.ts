@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
+import { tree } from './QorusTree';
 import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
@@ -153,7 +154,7 @@ class QorusWebview {
         }
     }
 
-    updateCurrentProjectFolder(project_folder: string | undefined) {
+    setCurrentProjectFolder(project_folder: string | undefined) {
         if (!this.panel) {
             return;
         }
@@ -161,6 +162,17 @@ class QorusWebview {
         this.panel.webview.postMessage({
             action: 'current-project-folder',
             folder: project_folder
+        });
+    }
+
+    setActiveQorusInstance(url: string | null) {
+        let qorus_instance = null;
+        if (url) {
+            qorus_instance = tree.getQorusInstance(url);
+        }
+        this.panel.webview.postMessage({
+            action: 'current-qorus-instance',
+            qorus_instance: qorus_instance
         });
     }
 

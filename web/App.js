@@ -39,6 +39,9 @@ class App extends Component {
                 case 'current-project-folder':
                     this.props.setCurrentProjectFolder(event.data.folder);
                     break;
+                case 'current-qorus-instance':
+                    this.props.setCurrentQorusInstance(event.data.qorus_instance);
+                    break;
             }
         });
 

@@ -220,7 +220,7 @@ class QorusProjects {
         const has_changed: boolean = this.current_project_folder != project_folder;
         if (has_changed) {
             this.current_project_folder = project_folder;
-            qorus_webview.updateCurrentProjectFolder(project_folder);
+            qorus_webview.setCurrentProjectFolder(project_folder);
         }
         return has_changed || !this.current_project_folder;
     }

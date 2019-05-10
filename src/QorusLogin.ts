@@ -59,7 +59,7 @@ export class QorusLogin extends QorusAuth {
                 if (webview) {
                     webview.postMessage({
                         action: 'close-login',
-                        qorus_instance: set_active ? qorus_instance : undefined
+                        qorus_instance: set_active ? qorus_instance : null
                     });
                 }
             },
@@ -113,6 +113,7 @@ export class QorusLogin extends QorusAuth {
             msg.info(t`LoggedOut`);
         }
         tree.refresh();
+        qorus_webview.setActiveQorusInstance(null);
     }
 
     protected requestError(error_data: any, default_error: string) {
