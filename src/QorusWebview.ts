@@ -7,7 +7,7 @@ import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
-import { creator } from './QorusCreate';
+import { creator } from './qorus_creator/InterfaceCreator';
 
 
 class QorusWebview {
@@ -146,8 +146,11 @@ class QorusWebview {
                         case 'release-save-package':
                             releaser.savePackage(this.panel.webview);
                             break;
-                        case 'creator-get-object_names':
+                        case 'creator-get-object-names':
                             creator.getProjectObjectNames(message.object_type, this.panel.webview, opening_uri);
+                            break;
+                        case 'creator-create-interface':
+                            creator.createInterface(message.data);
                             break;
                     }
                 });

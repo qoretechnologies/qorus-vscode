@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { projects, QorusProject } from './QorusProject';
-import * as msg from './qorus_message';
+import { projects, QorusProject } from '../QorusProject';
+import * as msg from '../qorus_message';
 import { t } from 'ttag';
+import { createService } from './service_creator';
 
 
-class QorusCreate {
+class InterfaceCreator {
     private project_folder: string | undefined = undefined;
 
     private initProjectFolderIfNeeded(uri: vscode.Uri): boolean {
@@ -45,6 +46,12 @@ class QorusCreate {
         return names;
     }
 
+    createInterface(data: any) {
+        switch (data.iface_kind) {
+            case 'service': createService(data); break;
+        }
+    }
+
     private getFunctions() {
         return [
             'uk-lib-common',
@@ -74,4 +81,4 @@ class QorusCreate {
 }
 
 
-export const creator = new QorusCreate();
+export const creator = new InterfaceCreator();
