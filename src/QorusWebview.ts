@@ -50,7 +50,10 @@ class QorusWebview {
                 });
 
                 this.panel.onDidDispose(() => {
-                    this.dispose();
+                    this.panel = undefined;
+                    if (this.config_file_watcher) {
+                        this.config_file_watcher.dispose();
+                    }
                 });
 
                 this.panel.webview.onDidReceiveMessage(message => {
@@ -148,9 +151,8 @@ class QorusWebview {
     }
 
     dispose() {
-        this.panel = undefined;
-        if (this.config_file_watcher) {
-            this.config_file_watcher.dispose();
+        if (this.panel) {
+            this.panel.dispose();
         }
     }
 
