@@ -1,3 +1,5 @@
+import { qorus_webview } from './QorusWebview';
+
 export enum AuthNeeded {Yes = 1, No, Unknown}
 
 export class QorusAuth {
@@ -39,10 +41,12 @@ export class QorusAuth {
 
     setActive(url: string) {
         this.active_url = url;
+        qorus_webview.setActiveQorusInstance(url);
     }
 
     unsetActive() {
         this.active_url = undefined;
+        qorus_webview.setActiveQorusInstance(null);
     }
 
     isActive(url: string): boolean {

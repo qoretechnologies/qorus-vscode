@@ -2,7 +2,9 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
+import { tree } from './QorusTree';
 import { projects, QorusProject, config_filename } from './QorusProject';
+import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './QorusCreate';
@@ -48,16 +50,17 @@ class QorusWebview {
                 });
 
                 this.panel.onDidDispose(() => {
-                    this.dispose();
+                    this.panel = undefined;
+                    if (this.config_file_watcher) {
+                        this.config_file_watcher.dispose();
+                    }
                 });
 
                 this.panel.webview.onDidReceiveMessage(message => {
-                    let project: QorusProject;
-                    if (message.action.substr(0, 7) == 'config-') {
-                        project = projects.getProject();
-                        if (!project) {
-                            return;
-                        }
+                    const project: QorusProject = projects.getProject();
+                    if (!project) {
+                        msg.error(t`QorusProjectNotSet`);
+                        return;
                     }
 
                     switch (message.action) {
@@ -72,6 +75,29 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'return-opening-path',
                                 path: opening_uri ? opening_uri.fsPath : t`Unknown`
+                            });
+                            break;
+                        case 'get-current-project-folder':
+                            this.panel.webview.postMessage({
+                                action: 'current-project-folder',
+                                folder: path.basename(project.projectFolder())
+                            });
+                            break;
+                        case 'login-get-data':
+                            this.panel.webview.postMessage({
+                                action: 'login-return-data',
+                                qorus_instance: qorus_request.loginQorusInstance()
+                            });
+                            break;
+                        case 'login-submit':
+                            qorus_request.loginPost(message.username,
+                                                    message.password,
+                                                    this.panel.webview);
+                            break;
+                        case 'login-cancel':
+                            msg.info(t`LoginCancelled`);
+                            this.panel.webview.postMessage({
+                                action: 'close-login'
                             });
                             break;
                         case 'config-get-data':
@@ -90,10 +116,14 @@ class QorusWebview {
                             project.removeSourceDir(message.dir, this.panel.webview);
                             break;
                         case 'get-interfaces':
-                            deleter.getInterfaces(message.iface_kind, message.columns, this.panel.webview);
+                            deleter.getInterfaces(message.iface_kind,
+                                                  message.columns,
+                                                  this.panel.webview);
                             break;
                         case 'delete-interfaces':
-                            deleter.deleteInterfaces(message.iface_kind, message.ids, this.panel.webview);
+                            deleter.deleteInterfaces(message.iface_kind,
+                                                     message.ids,
+                                                     this.panel.webview);
                             break;
                         case 'release-get-branch':
                             releaser.makeRelease(this.panel.webview);
@@ -130,10 +160,31 @@ class QorusWebview {
     }
 
     dispose() {
-        this.panel = undefined;
-        if (this.config_file_watcher) {
-            this.config_file_watcher.dispose();
+        if (this.panel) {
+            this.panel.dispose();
         }
+    }
+
+    setCurrentProjectFolder(project_folder: string | undefined) {
+        if (!this.panel) {
+            return;
+        }
+
+        this.panel.webview.postMessage({
+            action: 'current-project-folder',
+            folder: project_folder
+        });
+    }
+
+    setActiveQorusInstance(url: string | null) {
+        let qorus_instance = null;
+        if (url) {
+            qorus_instance = tree.getQorusInstance(url);
+        }
+        this.panel.webview.postMessage({
+            action: 'current-qorus-instance',
+            qorus_instance: qorus_instance
+        });
     }
 
     private setActiveTab(active_tab?: string) {
@@ -147,4 +198,4 @@ class QorusWebview {
     }
 }
 
-export const webview = new QorusWebview();
+export const qorus_webview = new QorusWebview();

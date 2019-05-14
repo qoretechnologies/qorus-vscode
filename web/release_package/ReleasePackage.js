@@ -329,7 +329,7 @@ const mapStateToProps = (state) => ({
     saved_path: state.release_saved_path,
     result: state.release_result,
     not_up_to_date_msg_open: state.msg_open.release_not_up_to_date,
-    pending: state.releasePending,
+    pending: state.release_pending,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -338,7 +338,7 @@ const mapDispatchToProps = dispatch => ({
     setReleaseType: type => dispatch({type: 'release_type', release_type: type}),
     setSelectedCommit: commit => dispatch({type: 'release_commit', release_commit: commit}),
     setFiles: files => dispatch({type: 'release_files', release_files: files}),
-    setPending: pending => dispatch({type: 'releasePending', releasePending: pending}),
+    setPending: pending => dispatch({type: 'release_pending', release_pending: pending}),
     setPackagePath: path => dispatch({type: 'release_package_path', release_package_path: path}),
     setSavedPath: path => dispatch({type: 'release_saved_path', release_saved_path: path}),
     setResult: result => dispatch({type: 'release_result', release_result: result}),

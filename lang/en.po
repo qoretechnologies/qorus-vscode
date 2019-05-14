@@ -55,6 +55,12 @@ msgstr "Login failed"
 msgid "QorusLoginTitle"
 msgstr "Qorus Login"
 
+msgid "Login-buttonText"
+msgstr "Login"
+
+msgid "Login-buttonTitle"
+msgstr "Login to a Qorus instance"
+
 msgid "QorusConfigTitle"
 msgstr "Qorus Project Configuration"
 
@@ -741,3 +747,12 @@ msgstr "Target directory"
 
 msgid "Unknown"
 msgstr "Unknown"
+
+msgid "Project"
+msgstr "Project"
+
+msgid "ActiveQorusInstance"
+msgstr "Active Qorus instance"
+
+msgid "N/A"
+msgstr "N/A"

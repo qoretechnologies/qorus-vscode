@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
-import { webview } from './QorusWebview';
+import { qorus_webview } from './QorusWebview';
 import { deployer } from './QorusDeploy';
 import { tester } from './QorusTest';
 import { tree } from './QorusTree';
@@ -70,11 +70,11 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.webview', () => webview.open());
+    disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.createInterface',
-                                                 (uri: vscode.Uri) => webview.open('CreateInterface', uri));
+                                                 (uri: vscode.Uri) => qorus_webview.open('CreateInterface', uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
@@ -111,7 +111,7 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
     }
 
     if (workspace_folder_changed_or_unset) {
-        webview.dispose();
+        qorus_webview.dispose();
     }
 }
 

@@ -3,32 +3,27 @@
 .login-card {
     width: 600px;
     background-color: #fff;
-    margin: 54px auto;
-    max-height: 320px;
-    padding: 24px;
+    margin: 54px auto 0;
+    padding: 24px 24px 36px;
 }
 
-.grid-container {
+.login-grid {
     display: grid;
     grid-row-gap: 8px;
     grid-template-columns: 72px 96px auto auto 96px 72px;
     grid-template-rows: 72px auto auto;
 }
 
-.highlighted {
+.login-highlighted {
     color: blue;
 }
 
-.label {
+.login-label {
     grid-column: 2;
     padding-top: 6px;
     font-weight: bold;
 }
 
-.input {
+.login-input {
     grid-column: 3/5;
-}
-
-H4 {
-    text-align: center
 }

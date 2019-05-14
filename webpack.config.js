@@ -107,10 +107,6 @@ if (process.env.NODE_ENV === "development") {
                 "webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr",
                 `${root}/web/index.js`,
             ],
-            login: [
-                "webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr",
-                `${root}/web/login/main.js`,
-            ],
         },
         module: {
             rules: [
@@ -141,7 +137,6 @@ if (process.env.NODE_ENV === "development") {
     webpackConfig = merge(webpackConfig, {
         entry: {
             webview: [`${root}/web/index.js`],
-            login: [`${root}/web/login/main.js`],
         },
         mode: "production",
         devtool: false,
