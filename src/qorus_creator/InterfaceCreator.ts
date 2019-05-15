@@ -1,8 +1,12 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 import { projects, QorusProject } from '../QorusProject';
 import * as msg from '../qorus_message';
 import { t } from 'ttag';
-import { createService } from './service_creator';
+import { fillTemplate, createHeaders } from './creator_common';
+import { service_template, default_service_headers } from './service_template';
+import { job_template, defaultJobHeaders, default_job_parse_options } from './job_template';
 
 
 class InterfaceCreator {
@@ -49,8 +53,38 @@ class InterfaceCreator {
     createInterface(data: any) {
         const {iface_kind, ...other_data} = data;
         switch (iface_kind) {
-            case 'service': createService(other_data); break;
+            case 'service': this.createService(other_data); break;
+            case 'job': this.createJob(other_data); break;
         }
+    }
+
+    private createService(data: any) {
+        const {target_path, header_vars, headers, code}
+            = this.headersAndCode(data, service_template, default_service_headers);
+
+        fs.writeFileSync(
+            path.join(target_path, `${header_vars.service}-${header_vars.serviceversion}.qsd`),
+            headers + '# ENDSERVICE\n\n' + code
+        );
+    }
+
+    private createJob(data: any) {
+        const {target_path, header_vars, headers, code}
+            = this.headersAndCode(data, job_template, defaultJobHeaders(data));
+
+        fs.writeFileSync(
+            path.join(target_path, `${header_vars.name}-${header_vars.version}.qjob`),
+            headers + default_job_parse_options + '\n' + code + '# END\n'
+        );
+    }
+
+    private headersAndCode(data, template, default_header_vars) {
+        const {target_path, headers: header_vars, ...code_vars} = data;
+
+        const headers: string = createHeaders(Object.assign({}, header_vars, default_header_vars, header_vars));
+        const code: string = fillTemplate(template, code_vars);
+
+        return {target_path, header_vars, headers, code};
     }
 
     private getFunctions() {
