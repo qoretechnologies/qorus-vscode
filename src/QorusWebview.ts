@@ -8,6 +8,7 @@ import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreator';
+import { fake_data } from './qorus_creator/service_creator';
 
 
 class QorusWebview {
@@ -21,6 +22,8 @@ class QorusWebview {
             this.setActiveTab(active_tab);
             return;
         }
+
+        creator.createInterface(fake_data);
 
         const web_path = path.join(__dirname, '..', 'dist');
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(

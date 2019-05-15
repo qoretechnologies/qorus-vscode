@@ -47,8 +47,9 @@ class InterfaceCreator {
     }
 
     createInterface(data: any) {
-        switch (data.iface_kind) {
-            case 'service': createService(data); break;
+        const {iface_kind, ...other_data} = data;
+        switch (iface_kind) {
+            case 'service': createService(other_data); break;
         }
     }
 
