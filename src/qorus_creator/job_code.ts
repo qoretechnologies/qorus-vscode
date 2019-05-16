@@ -12,8 +12,8 @@ class ${this.class_name} inherits ${this.inherits} {\n\
 
 export const defaultJobHeaders = data => ({
     'active': true,
+    'class-name': data.class_name,
     'class-based': true,
-    'classname': data.class_name
 });
 
 

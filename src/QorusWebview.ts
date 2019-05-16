@@ -8,8 +8,8 @@ import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreator';
-import { fake_service_data } from './qorus_creator/service_template';
-import { fake_job_data } from './qorus_creator/job_template';
+import { fake_service_data } from './qorus_creator/service_code';
+import { fake_job_data } from './qorus_creator/job_code';
 
 
 class QorusWebview {
@@ -156,6 +156,13 @@ class QorusWebview {
                             break;
                         case 'creator-create-interface':
                             creator.createInterface(message.data);
+                            break;
+                        case 'creator-get-fields':
+                            this.panel.webview.postMessage({
+                                action: 'return-fields',
+                                iface_kind: message.iface_kind,
+                                tags: creator.getFields(message.iface_kind)
+                            });
                             break;
                     }
                 });

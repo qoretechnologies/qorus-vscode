@@ -5,8 +5,8 @@ import { projects, QorusProject } from '../QorusProject';
 import * as msg from '../qorus_message';
 import { t } from 'ttag';
 import { fillTemplate, createHeaders } from './creator_common';
-import { service_template, default_service_headers } from './service_template';
-import { job_template, defaultJobHeaders, default_job_parse_options } from './job_template';
+import { service_fields, service_template, defaultServiceHeaders } from './service_code';
+import { job_template, defaultJobHeaders, default_job_parse_options } from './job_code';
 
 
 class InterfaceCreator {
@@ -58,12 +58,18 @@ class InterfaceCreator {
         }
     }
 
+    getFields(iface_kind: string): any {
+        switch (iface_kind) {
+            case 'service': return service_fields; break;
+        }
+    }
+
     private createService(data: any) {
         const {target_path, header_vars, headers, code}
-            = this.headersAndCode(data, service_template, default_service_headers);
+            = this.headersAndCode(data, service_template, defaultServiceHeaders(data));
 
         fs.writeFileSync(
-            path.join(target_path, `${header_vars.service}-${header_vars.serviceversion}.qsd`),
+            path.join(target_path, `${header_vars.service}-${header_vars.version}.qsd`),
             headers + '# ENDSERVICE\n\n' + code
         );
     }

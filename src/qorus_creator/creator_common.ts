@@ -31,3 +31,9 @@ export function createHeaders(headers: any): string {
 
     return result;
 }
+
+export const SQLAuthorLen = 240;
+export const SQLDescLen = 4000;
+export const SQLVersionLen = 80;
+export const SQLNameLen = 160;
+export const SQLPatchLen = 80;
