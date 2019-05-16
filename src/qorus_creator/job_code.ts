@@ -50,19 +50,18 @@ export const default_job_parse_options = "\
 export const fake_job_data = {
     target_dir: os.homedir(),
     iface_kind: 'job',
-//    lang: 'java',
+    lang: 'java',
     class_name: 'ExampleJob',
     base_class_name: 'QorusJob',
-    headers: {
-        name: 'example-job',
-        version: '1.0',
-        desc: 'example job',
-        groups: [{
-            name: 'GROUP1',
-            desc: 'example group 1'
-        }, {
-            name: 'GROUP2',
-            desc: 'example group 2'
-        }]
-    }
+
+    name: 'example-job',
+    version: '1.0',
+    desc: 'example job',
+    groups: [{
+        name: 'GROUP1',
+        desc: 'example group 1'
+    }, {
+        name: 'GROUP2',
+        desc: 'example group 2'
+    }]
 }

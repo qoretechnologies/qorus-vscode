@@ -51,9 +51,10 @@ class InterfaceCreator {
     }
 
     createInterface(data: any) {
-        switch (data.iface_kind) {
-            case 'service': this.createService(data); break;
-            case 'job': this.createJob(data); break;
+        const {iface_kind, ...other_data} = data;
+        switch (iface_kind) {
+            case 'service': this.createService(other_data); break;
+            case 'job': this.createJob(other_data); break;
         }
     }
 
@@ -64,46 +65,57 @@ class InterfaceCreator {
     }
 
     private createService(data: any) {
-        const {
-            lang = 'qore',
-            headers: header_vars,
-            target_dir,
-            target_file = `${header_vars.service}-${header_vars.version}.qsd${suffix[lang]}`,
-            ...code_vars
-        } = data;
-
-        const headers = createHeaders(
-            Object.assign({}, header_vars, defaultServiceHeaders(data), header_vars),
-            lang
+        const {lang = 'qore', ...other_data} = data
+        const {headers, code, target_path} = this.headersAndCode(
+            lang,
+            other_data,
+            `${other_data.service}-${other_data.serviceversion}.qsd${suffix[lang]}`,
+            defaultServiceHeaders(other_data),
+            service_template[lang]
         );
-        const code = fillTemplate(service_template[lang], code_vars);
 
         fs.writeFileSync(
-            path.join(target_dir, target_file),
+            target_path,
             headers + `${comment_chars[lang]} ENDSERVICE\n\n` + code
         );
     }
 
     private createJob(data: any) {
-        const {
-            lang = 'qore',
-            headers: header_vars,
-            target_dir,
-            target_file = `${header_vars.name}-${header_vars.version}.qjob${suffix[lang]}`,
-            ...code_vars
-        } = data;
-
-        const headers = createHeaders(
-            Object.assign({}, header_vars, defaultJobHeaders(data), header_vars),
-            lang
+        const {lang = 'qore', ...other_data} = data
+        const {headers, code, target_path} = this.headersAndCode(
+            lang,
+            other_data,
+            `${other_data.name}-${other_data.version}.qjob${suffix[lang]}`,
+            defaultJobHeaders(other_data),
+            job_template[lang]
         );
-        const code = fillTemplate(job_template[lang], code_vars);
 
         fs.writeFileSync(
-            path.join(target_dir, target_file),
+            target_path,
             headers + (lang === 'qore' ? default_job_parse_options : '') + '\n'
                     + code + comment_chars[lang] + ' END\n'
         );
+    }
+
+    private headersAndCode(lang, data, default_file_name, default_header_vars, template): any
+    {
+        const {
+            target_dir,
+            target_file = default_file_name,
+            class_name,
+            base_class_name,
+            ...header_vars
+        } = data;
+
+        const headers = createHeaders(
+            Object.assign({}, header_vars, default_header_vars, header_vars),
+            lang
+        );
+        const code = fillTemplate(template, {class_name, base_class_name});
+
+        const target_path = path.join(target_dir, target_file);
+
+        return {headers, code, target_path};
     }
 
     private getFunctions() {

@@ -1,5 +1,5 @@
 import * as os from 'os';
-import { SQLAuthorLen, SQLDescLen, SQLVersionLen, SQLNameLen, SQLPatchLen } from './creator_common';
+// import { SQLAuthorLen, SQLDescLen, SQLVersionLen, SQLNameLen, SQLPatchLen } from './creator_common';
 
 
 let template: any = {};
@@ -37,41 +37,30 @@ export const defaultServiceHeaders = data => {
 };
 
 
-// default - mandatory: true, type: string
 export const service_fields = {
-    target_dir: {},
-    class_name: {maxlen: SQLNameLen},
-    base_class_name: {},
-
-    name: {maxlen: SQLNameLen},
-    desc: {maxlen: SQLDescLen, type: 'array'},
-    version: {maxlen: SQLVersionLen},
-    author: {maxlen: SQLAuthorLen, type: 'array'},
-    lang: {maxlen: 80, type: 'enum', values: ["qore", "java"], default_value: "qore"},
-    constants: {type: 'array', mandatory: false},
-    classes: {type: 'array', mandatory: false},
-    functions: {type: 'array', mandatory: false},
-    groups: {type: 'array', mandatory: false},
-//    'class-name': {maxlen: SQLNameLen},
-    lock: {mandatory: false},
-    internal: {type: 'boolean'},
-    write: {type: 'boolean', mandatory: false},
-   'import-code': {mandatory: false},
-    servicetype: {mandatory: false},
-    service: {maxlen: SQLNameLen},
-    servicepatch: {maxlen: SQLPatchLen, mandatory: false},
-    mappers: {type: 'array', mandatory: false},
-    vmaps: {type: 'array', mandatory: false},
-    resource: {type: 'array', mandatory: false},
-    'text-resource': {type: 'array', mandatory: false},
-    'bin-resource': {type: 'array', mandatory: false},
-    template: {type: 'array', mandatory: false},
-    autostart: {type: 'boolean'},
-    remote: {type: 'boolean'},
-    'parse-options': {mandatory: false},
-    'service-modules': {type: 'array'},
-    'define-auth': {mandatory: false},
-    'define-auth-label': {mandatory: false},
+    service:            {mandatory: true,  type: 'string'},
+    serviceversion:     {mandatory: true,  type: 'string'},
+    servicedesc:        {mandatory: true,  type: 'string'},
+    patch:              {mandatory: false, type: 'string'},
+    'class-name':       {mandatory: true,  type: 'string'},
+    remote:             {mandatory: false, type: 'boolean'},
+    author:             {mandatory: false, type: 'array'},
+    groups:             {mandatory: false, type: 'array-of-pairs', fields: ['name', 'desc']},
+    constants:          {mandatory: false, type: 'array'},
+    classes:            {mandatory: false, type: 'array'},
+    functions:          {mandatory: false, type: 'array'},
+    lock:               {mandatory: false, type: 'string'},
+    autostart:          {mandatory: false, type: 'boolean'},
+    internal:           {mandatory: false, type: 'boolean'},
+    write:              {mandatory: false, type: 'boolean'},
+    mappers:            {mandatory: false, type: 'array'},
+    vmaps:              {mandatory: false, type: 'array'},
+    resource:           {mandatory: false, type: 'array'},
+    'text-resource':    {mandatory: false, type: 'array'},
+    'bin-resource':     {mandatory: false, type: 'array'},
+    template:           {mandatory: false, type: 'array'},
+    'define-auth-label':{mandatory: false, type: 'array-of-pairs', fields: ['key', 'value']},
+    TAG:                {mandatory: false, type: 'array-of-pairs', fields: ['key', 'value']},
 };
 
 
@@ -79,23 +68,21 @@ export const fake_service_data = {
     target_dir: os.homedir(),
 //    target_file: 
     iface_kind: 'service',
-//    lang: 'java',
+    lang: 'java',
     class_name: 'ExampleService',
     base_class_name: 'QorusService',
 
-    headers: {
-        service: 'example-service',
-        version: '1.0',
-        desc: 'example service',
-        classes: ['ExampleClass1', 'ExampleClass2'],
-        groups: [{
-            name: 'GROUP1',
-            desc: 'example group 1'
-        }, {
-            name: 'GROUP2',
-            desc: 'example group 2'
-        }]
-    }
+    service: 'example-service',
+    serviceversion: '1.0',
+    desc: 'example service',
+    classes: ['ExampleClass1', 'ExampleClass2'],
+    groups: [{
+        name: 'GROUP1',
+        desc: 'example group 1'
+    }, {
+        name: 'GROUP2',
+        desc: 'example group 2'
+    }]
 }
 
 /*
