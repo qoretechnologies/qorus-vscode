@@ -3,12 +3,19 @@ export function fillTemplate(template: string, vars: any) {
 }
 
 export const suffix = {
-    qore: '',
     java: '.java',
+    qore: '',
 };
 
-export function createHeaders(headers: any): string {
-    let result: string= '';
+export const comment_chars = {
+    java: '//',
+    qore: '#',
+};
+
+export function createHeaders(headers: any, lang: string = 'qore'): string {
+    let result: string = '';
+
+    let comment: string = comment_chars[lang];
 
     for (let key in headers) {
         const value = headers[key];
@@ -19,16 +26,16 @@ export function createHeaders(headers: any): string {
                 case 'groups':
                     for (let group of value) {
                         names.push(group.name);
-                        result += `# define-group: ${group.name}: ${group.desc}\n`;
+                        result += `${comment} define-group: ${group.name}: ${group.desc}\n`;
                     }
-                    result += '# groups: ' + names.join(', ');
+                    result += `${comment} groups: ` + names.join(', ');
                     break;
                 default:
-                    result += `# ${key}: ` + value.join(', ');
+                    result += `${comment} ${key}: ` + value.join(', ');
                     break;
             }
         } else {
-            result += `# ${key}: ${value}`;
+            result += `${comment} ${key}: ${value}`;
         }
 
         result += '\n';

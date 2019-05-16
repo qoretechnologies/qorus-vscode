@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { projects, QorusProject } from '../QorusProject';
 import * as msg from '../qorus_message';
 import { t } from 'ttag';
-import { fillTemplate, createHeaders, suffix } from './creator_common';
+import { fillTemplate, createHeaders, suffix, comment_chars } from './creator_common';
 import { service_fields, service_template, defaultServiceHeaders } from './service_code';
 import { job_template, defaultJobHeaders, default_job_parse_options } from './job_code';
 
@@ -72,12 +72,15 @@ class InterfaceCreator {
             ...code_vars
         } = data;
 
-        const headers = createHeaders(Object.assign({}, header_vars, defaultServiceHeaders(data), header_vars));
+        const headers = createHeaders(
+            Object.assign({}, header_vars, defaultServiceHeaders(data), header_vars),
+            lang
+        );
         const code = fillTemplate(service_template[lang], code_vars);
 
         fs.writeFileSync(
             path.join(target_dir, target_file),
-            headers + '# ENDSERVICE\n\n' + code
+            headers + `${comment_chars[lang]} ENDSERVICE\n\n` + code
         );
     }
 
@@ -90,12 +93,16 @@ class InterfaceCreator {
             ...code_vars
         } = data;
 
-        const headers = createHeaders(Object.assign({}, header_vars, defaultJobHeaders(data), header_vars));
+        const headers = createHeaders(
+            Object.assign({}, header_vars, defaultJobHeaders(data), header_vars),
+            lang
+        );
         const code = fillTemplate(job_template[lang], code_vars);
 
         fs.writeFileSync(
             path.join(target_dir, target_file),
-            headers + (lang === 'qore' ? default_job_parse_options : '') + '\n' + code + '# END\n'
+            headers + (lang === 'qore' ? default_job_parse_options : '') + '\n'
+                    + code + comment_chars[lang] + ' END\n'
         );
     }
 
