@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { projects, QorusProject } from '../QorusProject';
 import * as msg from '../qorus_message';
 import { t } from 'ttag';
-import { fillTemplate, createHeaders } from './creator_common';
+import { fillTemplate, createHeaders, suffix } from './creator_common';
 import { service_fields, service_template, defaultServiceHeaders } from './service_code';
 import { job_template, defaultJobHeaders, default_job_parse_options } from './job_code';
 
@@ -51,10 +51,9 @@ class InterfaceCreator {
     }
 
     createInterface(data: any) {
-        const {iface_kind, ...other_data} = data;
-        switch (iface_kind) {
-            case 'service': this.createService(other_data); break;
-            case 'job': this.createJob(other_data); break;
+        switch (data.iface_kind) {
+            case 'service': this.createService(data); break;
+            case 'job': this.createJob(data); break;
         }
     }
 
@@ -65,32 +64,39 @@ class InterfaceCreator {
     }
 
     private createService(data: any) {
-        const {target_path, header_vars, headers, code}
-            = this.headersAndCode(data, service_template, defaultServiceHeaders(data));
+        const {
+            lang = 'qore',
+            headers: header_vars,
+            target_dir,
+            target_file = `${header_vars.service}-${header_vars.version}.qsd${suffix[lang]}`,
+            ...code_vars
+        } = data;
+
+        const headers = createHeaders(Object.assign({}, header_vars, defaultServiceHeaders(data), header_vars));
+        const code = fillTemplate(service_template[lang], code_vars);
 
         fs.writeFileSync(
-            path.join(target_path, `${header_vars.service}-${header_vars.version}.qsd`),
+            path.join(target_dir, target_file),
             headers + '# ENDSERVICE\n\n' + code
         );
     }
 
     private createJob(data: any) {
-        const {target_path, header_vars, headers, code}
-            = this.headersAndCode(data, job_template, defaultJobHeaders(data));
+        const {
+            lang = 'qore',
+            headers: header_vars,
+            target_dir,
+            target_file = `${header_vars.name}-${header_vars.version}.qjob${suffix[lang]}`,
+            ...code_vars
+        } = data;
+
+        const headers = createHeaders(Object.assign({}, header_vars, defaultJobHeaders(data), header_vars));
+        const code = fillTemplate(job_template[lang], code_vars);
 
         fs.writeFileSync(
-            path.join(target_path, `${header_vars.name}-${header_vars.version}.qjob`),
-            headers + default_job_parse_options + '\n' + code + '# END\n'
+            path.join(target_dir, target_file),
+            headers + (lang === 'qore' ? default_job_parse_options : '') + '\n' + code + '# END\n'
         );
-    }
-
-    private headersAndCode(data, template, default_header_vars) {
-        const {target_path, headers: header_vars, ...code_vars} = data;
-
-        const headers: string = createHeaders(Object.assign({}, header_vars, default_header_vars, header_vars));
-        const code: string = fillTemplate(template, code_vars);
-
-        return {target_path, header_vars, headers, code};
     }
 
     private getFunctions() {

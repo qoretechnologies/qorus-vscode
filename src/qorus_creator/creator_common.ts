@@ -2,6 +2,11 @@ export function fillTemplate(template: string, vars: any) {
     return new Function('return `' + template + '`;').call(vars);
 }
 
+export const suffix = {
+    qore: '',
+    java: '.java',
+};
+
 export function createHeaders(headers: any): string {
     let result: string= '';
 

@@ -2,27 +2,46 @@ import * as os from 'os';
 import { SQLAuthorLen, SQLDescLen, SQLVersionLen, SQLNameLen, SQLPatchLen } from './creator_common';
 
 
-export const service_template =
+let template: any = {};
+
+template.qore =
 "\
-class ${this.class_name} inherits ${this.inherits} {\n\
+class ${this.class_name} inherits ${this.base_class_name} {\n\
     init() {\n\
     }\n\
 }\n\
 ";
 
+template.java =
+"\
+class ${this.class_name} extends ${this.base_class_name} {\n\
+    public void init() {\n\
+    }\n\
+}\n\
+";
 
-export const defaultServiceHeaders = data => ({
-    'class-based': true,
-    'class-name': data.class_name,
-    'parse-options': ['PO_NEW_STYLE', 'PO_STRICT_ARGS', 'PO_REQUIRE_TYPES'],
-});
+export const service_template = template;
+
+
+export const defaultServiceHeaders = data => {
+    switch (data.lang) {
+        case 'java': return {
+            'class-name': data.class_name,
+        };
+        default: return {
+            'class-based': true,
+            'class-name': data.class_name,
+            'parse-options': ['PO_NEW_STYLE', 'PO_STRICT_ARGS', 'PO_REQUIRE_TYPES'],
+        };
+    }
+};
 
 
 // default - mandatory: true, type: string
 export const service_fields = {
-    target_path: {},
+    target_dir: {},
     class_name: {maxlen: SQLNameLen},
-    inherits: {},
+    base_class_name: {},
 
     name: {maxlen: SQLNameLen},
     desc: {maxlen: SQLDescLen, type: 'array'},
@@ -57,10 +76,13 @@ export const service_fields = {
 
 
 export const fake_service_data = {
-    target_path: os.homedir(),
+    target_dir: os.homedir(),
+//    target_file: 
     iface_kind: 'service',
+//    lang: 'java',
     class_name: 'ExampleService',
-    inherits: 'QorusService',
+    base_class_name: 'QorusService',
+
     headers: {
         service: 'example-service',
         version: '1.0',
