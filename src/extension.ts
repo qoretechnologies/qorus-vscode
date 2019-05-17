@@ -99,7 +99,6 @@ export function deactivate() {
 
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
-
     const workspace_folder_changed_or_unset = projects.updateCurrentWorkspaceFolder(uri);
 
     if (workspace_folder_changed_or_unset || forceTreeReset) {
@@ -111,7 +110,9 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
     }
 
     if (workspace_folder_changed_or_unset) {
-        qorus_webview.dispose();
+        if (qorus_webview.dispose()) {
+            msg.warning(t`WorkspaceFolderChangedOrUnsetCloseWebview`);
+        }
     }
 }
 

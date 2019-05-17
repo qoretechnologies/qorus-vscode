@@ -1,37 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { projects, QorusProject } from '../QorusProject';
-import * as msg from '../qorus_message';
-import { t } from 'ttag';
 import { fillTemplate, createHeaders, suffix, comment_chars } from './creator_common';
 import { service_template, defaultServiceHeaders } from './service_code';
 import { job_template, defaultJobHeaders, default_job_parse_options } from './job_code';
 
 
 class InterfaceCreator {
-    private project_folder: string | undefined = undefined;
 
-    private initProjectFolderIfNeeded(uri: vscode.Uri): boolean {
-        if (this.project_folder) {
-            return true;
-        }
-
-        const project: QorusProject | undefined = projects.getProject(uri);
-        if (!project) {
-            msg.error(t`QorusProjectNotSet`);
-            return false;
-        }
-
-        this.project_folder = project.projectFolder();
-        return true;
-    }
-
-    getProjectObjectNames(object_type: string, webview: vscode.Webview, uri?: vscode.Uri): string[] {
-        if (!this.initProjectFolderIfNeeded(uri)) {
-            return [];
-        }
-
+    getProjectObjectNames(object_type: string, webview: vscode.Webview): string[] {
         let names: string[] = [];
         switch (object_type) {
             case 'functions': names = this.getFunctions(); break;

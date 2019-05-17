@@ -19,6 +19,19 @@ class QorusWebview {
 
     open(active_tab?: string, opening_uri?: vscode.Uri) {
         if(this.panel) {
+            if (opening_uri) {
+                if (projects.updateCurrentWorkspaceFolder(opening_uri)) {
+                    this.dispose();
+                    msg.warning(t`WorkspaceFolderChangedResetWebview`);
+                    return this.open(active_tab, opening_uri);
+                }
+                if (!projects.getProject()) {
+                    this.dispose();
+                    msg.error(t`WorkspaceFolderUnsetCloseWebview`);
+                    return;
+                }
+            }
+
             this.panel.reveal(vscode.ViewColumn.One);
             this.setActiveTab(active_tab);
             return;
@@ -64,7 +77,8 @@ class QorusWebview {
                 this.panel.webview.onDidReceiveMessage(message => {
                     const project: QorusProject = projects.getProject();
                     if (!project) {
-                        msg.error(t`QorusProjectNotSet`);
+                        this.dispose();
+                        msg.error(t`WorkspaceFolderUnsetCloseWebview`);
                         return;
                     }
 
@@ -152,7 +166,7 @@ class QorusWebview {
                             releaser.savePackage(this.panel.webview);
                             break;
                         case 'creator-get-object-names':
-                            creator.getProjectObjectNames(message.object_type, this.panel.webview, opening_uri);
+                            creator.getProjectObjectNames(message.object_type, this.panel.webview);
                             break;
                         case 'creator-create-interface':
                             creator.createInterface(message.data);
@@ -170,7 +184,9 @@ class QorusWebview {
     dispose() {
         if (this.panel) {
             this.panel.dispose();
+            return true;
         }
+        return false;
     }
 
     setCurrentProjectFolder(project_folder: string | undefined) {

@@ -756,3 +756,15 @@ msgstr "Active Qorus instance"
 
 msgid "N/A"
 msgstr "N/A"
+
+msgid "WorkspaceFolderChangedResetWebview"
+msgstr "Webview has been reset because current workspace folder has changed"
+
+msgid "WorkspaceFolderChangedCloseWebview"
+msgstr "Webview has been closed because current workspace folder has changed"
+
+msgid "WorkspaceFolderChangedOrUnsetCloseWebview"
+msgstr "Webview has been closed because current workspace has changed or has not been set"
+
+msgid "WorkspaceFolderUnsetCloseWebview"
+msgstr "Webview has been closed because current workspace has not been set"

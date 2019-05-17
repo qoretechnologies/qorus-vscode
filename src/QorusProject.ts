@@ -242,7 +242,7 @@ class QorusProjects {
     }
 
     private getProjectFolder(uri?: vscode.Uri, use_current: boolean = true): string | undefined {
-        if (use_current && this.current_project_folder) {
+        if (!uri && use_current && this.current_project_folder) {
             return this.current_project_folder;
         }
 
