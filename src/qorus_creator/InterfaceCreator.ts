@@ -5,7 +5,7 @@ import { projects, QorusProject } from '../QorusProject';
 import * as msg from '../qorus_message';
 import { t } from 'ttag';
 import { fillTemplate, createHeaders, suffix, comment_chars } from './creator_common';
-import { service_fields, service_template, defaultServiceHeaders } from './service_code';
+import { service_template, defaultServiceHeaders } from './service_code';
 import { job_template, defaultJobHeaders, default_job_parse_options } from './job_code';
 
 
@@ -55,12 +55,6 @@ class InterfaceCreator {
         switch (iface_kind) {
             case 'service': this.createService(other_data); break;
             case 'job': this.createJob(other_data); break;
-        }
-    }
-
-    getFields(iface_kind: string): any {
-        switch (iface_kind) {
-            case 'service': return service_fields; break;
         }
     }
 

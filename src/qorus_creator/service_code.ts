@@ -41,14 +41,15 @@ export const service_fields = {
     service:            {mandatory: true,  type: 'string'},
     serviceversion:     {mandatory: true,  type: 'string'},
     servicedesc:        {mandatory: true,  type: 'string'},
-    patch:              {mandatory: false, type: 'string'},
     'class-name':       {mandatory: true,  type: 'string'},
+    patch:              {mandatory: false, type: 'string'},
     remote:             {mandatory: false, type: 'boolean'},
     author:             {mandatory: false, type: 'array'},
-    groups:             {mandatory: false, type: 'array-of-pairs', fields: ['name', 'desc']},
+    groups:             {mandatory: false, type: 'array-of-pairs'},
     constants:          {mandatory: false, type: 'array'},
     classes:            {mandatory: false, type: 'array'},
     functions:          {mandatory: false, type: 'array'},
+    'service-modules':  {mandatory: false, type: 'array'},
     lock:               {mandatory: false, type: 'string'},
     autostart:          {mandatory: false, type: 'boolean'},
     internal:           {mandatory: false, type: 'boolean'},
@@ -59,8 +60,8 @@ export const service_fields = {
     'text-resource':    {mandatory: false, type: 'array'},
     'bin-resource':     {mandatory: false, type: 'array'},
     template:           {mandatory: false, type: 'array'},
-    'define-auth-label':{mandatory: false, type: 'array-of-pairs', fields: ['key', 'value']},
-    TAG:                {mandatory: false, type: 'array-of-pairs', fields: ['key', 'value']},
+    'define-auth-label':{mandatory: false, type: 'array-of-pairs'},
+    TAG:                {mandatory: false, type: 'array-of-pairs'},
 };
 
 

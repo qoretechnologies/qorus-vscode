@@ -47,6 +47,28 @@ export const default_job_parse_options = "\
 ";
 
 
+export const job_fields = {
+    name:               {mandatory: true,  type: 'string'},
+    version:            {mandatory: true,  type: 'string'},
+    desc:               {mandatory: true,  type: 'string'},
+    'class-name':       {mandatory: true,  type: 'string'},
+    schedule:           {mandatory: true,  type: 'string'},
+    remote:             {mandatory: false, type: 'boolean'},
+    active:             {mandatory: false, type: 'boolean'},
+    'run-skipped':      {mandatory: false, type: 'boolean'},
+    'single-instance':  {mandatory: false, type: 'boolean'},
+    author:             {mandatory: false, type: 'array'},
+    groups:             {mandatory: false, type: 'array-of-pairs'},
+    constants:          {mandatory: false, type: 'array'},
+    classes:            {mandatory: false, type: 'array'},
+    functions:          {mandatory: false, type: 'array'},
+    'job-modules':      {mandatory: false, type: 'array'},
+    mappers:            {mandatory: false, type: 'array'},
+    vmaps:              {mandatory: false, type: 'array'},
+    TAG:                {mandatory: false, type: 'array-of-pairs'},
+};
+
+
 export const fake_job_data = {
     target_dir: os.homedir(),
     iface_kind: 'job',

@@ -157,13 +157,6 @@ class QorusWebview {
                         case 'creator-create-interface':
                             creator.createInterface(message.data);
                             break;
-                        case 'creator-get-fields':
-                            this.panel.webview.postMessage({
-                                action: 'return-fields',
-                                iface_kind: message.iface_kind,
-                                tags: creator.getFields(message.iface_kind)
-                            });
-                            break;
                     }
                 });
             },
