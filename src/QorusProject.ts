@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { qorus_webview } from './QorusWebview';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
@@ -11,10 +12,20 @@ export const config_filename = 'qorusproject.json';
 
 
 export class QorusProject {
-    private config_file: string;
+    private project_folder: string;
+    private project_code_info: QorusProjectCodeInfo;
 
     constructor(project_folder: string) {
-        this.config_file = path.join(project_folder, config_filename);
+        this.project_folder = project_folder;
+        this.project_code_info = new QorusProjectCodeInfo(project_folder);
+    }
+
+    get config_file(): string {
+        return path.join(this.project_folder, config_filename);
+    }
+
+    get code_info(): QorusProjectCodeInfo {
+        return this.project_code_info;
     }
 
     configFileExists(): boolean {
@@ -213,6 +224,12 @@ class QorusProjects {
 
     private current_project_folder: string | undefined = undefined;
     private projects: any = {};
+
+    constructor() {
+        for (const workspace_folder of vscode.workspace.workspaceFolders) {
+            this.getProject(workspace_folder.uri);
+        }
+    }
 
     updateCurrentWorkspaceFolder(uri?: vscode.Uri): boolean {
         const project_folder: string | undefined = this.getProjectFolder(uri, false);
