@@ -11,7 +11,7 @@ export class QorusProjectCodeInfo {
     }
 
     update() {
-        new Promise(resolve => setTimeout(() => resolve(this.doAsynUpdate()), 0)).then(
+        new Promise(resolve => setTimeout(() => resolve(this.doAsyncUpdate()), 0)).then(
             s => {
                 msg.log(this.project_folder + ' - code info update finished succesfully: ' + s);
                 this.pending = false;
@@ -26,10 +26,10 @@ export class QorusProjectCodeInfo {
         this.pending = true;
     }
 
-    private doAsynUpdate() {
-        let s = 0;
-        for (let i = 1; i < 1000000000; i++) {
-            s += i;
+    private doAsyncUpdate() {
+        let s = 0, p = -1;
+        for (let i = 1; i < 3000000000; i++, p = -p) {
+            s += p * i;
         }
         return s;
     }
