@@ -8,6 +8,8 @@ import { SourceDirs } from './SourceDirs';
 import { MessageDialog } from '../common/MessageDialog';
 import { vscode } from '../common/vscode';
 import Box from '../components/Box';
+import compose from 'recompose/compose';
+import withTextContext from '../hocomponents/withTextContext';
 
 class ProjectConfig extends Component {
     constructor() {
@@ -30,7 +32,7 @@ class ProjectConfig extends Component {
     componentDidMount() {
         if (!this.props.data) {
             vscode.postMessage({
-                action: 'config-get-data'
+                action: 'config-get-data',
             });
         }
     }
@@ -51,13 +53,13 @@ class ProjectConfig extends Component {
     removeSourceDir = dir => {
         vscode.postMessage({
             action: 'config-remove-dir',
-            dir: dir
+            dir: dir,
         });
     };
 
     addSourceDir = () => {
         vscode.postMessage({
-            action: 'config-add-dir'
+            action: 'config-add-dir',
         });
     };
 
@@ -73,31 +75,35 @@ class ProjectConfig extends Component {
         const selected_env = selected_env_id !== null ? this.props.data.qorus_instances[selected_env_id] : null;
         const selected_qorus = selected_qorus_id !== null ? selected_env.qoruses[selected_qorus_id] : null;
 
-        const ConfigChangedOnDiskMsg =
-            <MessageDialog isOpen={this.props.config_changed_msg_open}
+        const ConfigChangedOnDiskMsg = (
+            <MessageDialog
+                isOpen={this.props.config_changed_msg_open}
                 text={t('ConfigChangedOnDiskDialogQuestion')}
-                buttons={[{
-                    title: t('ButtonReload'),
-                    intent: Intent.WARNING,
-                    onClick: () => {
-                        vscode.postMessage({
-                            action: 'config-get-data',
-                        });
-                        this.props.setConfigChangedMsgOpen(false);
-                    }
-                },
-                {
-                    title: t('ButtonOverwrite'),
-                    intent: Intent.PRIMARY,
-                    onClick: () => {
-                        vscode.postMessage({
-                            action: 'config-update-data',
-                            data: this.props.data
-                        });
-                        this.props.setConfigChangedMsgOpen(false);
-                    }
-                }]}
-            />;
+                buttons={[
+                    {
+                        title: t('ButtonReload'),
+                        intent: Intent.WARNING,
+                        onClick: () => {
+                            vscode.postMessage({
+                                action: 'config-get-data',
+                            });
+                            this.props.setConfigChangedMsgOpen(false);
+                        },
+                    },
+                    {
+                        title: t('ButtonOverwrite'),
+                        intent: Intent.PRIMARY,
+                        onClick: () => {
+                            vscode.postMessage({
+                                action: 'config-update-data',
+                                data: this.props.data,
+                            });
+                            this.props.setConfigChangedMsgOpen(false);
+                        },
+                    },
+                ]}
+            />
+        );
 
         return (
             <Box>
@@ -114,7 +120,6 @@ class ProjectConfig extends Component {
                         panel={
                             <div className="config-container">
                                 <Envs
-                                    t={t}
                                     data={this.props.data.qorus_instances}
                                     selected_env_id={selected_env_id}
                                     onSelect={this.selectEnv}
@@ -123,7 +128,6 @@ class ProjectConfig extends Component {
                                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-env-up')}
                                 />
                                 <Qoruses
-                                    t={t}
                                     selected_env={selected_env}
                                     selected_qorus_id={selected_qorus_id}
                                     onSelect={this.selectQorus}
@@ -132,7 +136,6 @@ class ProjectConfig extends Component {
                                     onMoveUp={this.updateQorusInstancesData.bind(this, 'move-qorus-up')}
                                 />
                                 <Urls
-                                    t={t}
                                     env_id={selected_env_id}
                                     selected_qorus={selected_qorus}
                                     onEdit={this.updateQorusInstancesData.bind(this)}
@@ -150,7 +153,6 @@ class ProjectConfig extends Component {
                                 data={this.props.data.source_directories}
                                 addSourceDir={this.addSourceDir}
                                 removeSourceDir={this.removeSourceDir}
-                                t={t}
                             />
                         }
                     />
@@ -178,7 +180,7 @@ class ProjectConfig extends Component {
                 data.push({
                     id: data.length,
                     name: values.name,
-                    qoruses: []
+                    qoruses: [],
                 });
                 break;
             case 'remove-env':
@@ -194,7 +196,7 @@ class ProjectConfig extends Component {
                 break;
             case 'move-env-up':
                 index = values.env_id;
-                data[index-1] = data.splice(index, 1, data[index-1])[0]
+                data[index - 1] = data.splice(index, 1, data[index - 1])[0];
                 if (this.props.selected_env_id == index) {
                     this.props.setSelectedEnv(index - 1);
                 } else if (this.props.selected_env_id == index - 1) {
@@ -213,7 +215,7 @@ class ProjectConfig extends Component {
                     id: qoruses.length,
                     name: values.name,
                     url: values.url,
-                    urls: []
+                    urls: [],
                 });
                 break;
             case 'remove-qorus':
@@ -230,7 +232,7 @@ class ProjectConfig extends Component {
             case 'move-qorus-up':
                 qoruses = data[values.env_id].qoruses;
                 index = values.qorus_id;
-                qoruses[index-1] = qoruses.splice(index, 1, qoruses[index-1])[0]
+                qoruses[index - 1] = qoruses.splice(index, 1, qoruses[index - 1])[0];
                 if (this.props.selected_qorus_id == index) {
                     this.props.setSelectedQorus(index - 1);
                 } else if (this.props.selected_qorus_id == index - 1) {
@@ -252,7 +254,7 @@ class ProjectConfig extends Component {
                 urls.push({
                     id: urls.length,
                     name: values.name,
-                    url: values.url
+                    url: values.url,
                 });
                 break;
             case 'remove-url':
@@ -264,21 +266,21 @@ class ProjectConfig extends Component {
             case 'move-url-up':
                 urls = data[values.env_id].qoruses[values.qorus_id].urls;
                 index = values.url_id;
-                urls[index-1] = urls.splice(index, 1, urls[index-1])[0]
+                urls[index - 1] = urls.splice(index, 1, urls[index - 1])[0];
                 resetIds(urls, index - 1);
                 break;
         }
 
         const all_data = {
             qorus_instances: data,
-            source_directories: this.props.data.source_directories
+            source_directories: this.props.data.source_directories,
         };
 
         this.props.setData(all_data);
 
         vscode.postMessage({
             action: 'config-update-data',
-            data: all_data
+            data: all_data,
         });
     }
 }
@@ -288,17 +290,22 @@ const mapStateToProps = state => ({
     data: state.config_data,
     selected_env_id: state.config_selected_env,
     selected_qorus_id: state.config_selected_qorus,
-    config_changed_msg_open: state.msg_open.config_changed
+    config_changed_msg_open: state.msg_open.config_changed,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setData: data => dispatch({type: 'config_data', config_data: data}),
-    setSelectedEnv: selected_env_id => dispatch({type: 'config_selected_env',
-                                                 config_selected_env: selected_env_id}),
-    setSelectedQorus: selected_qorus_id => dispatch({type: 'config_selected_qorus',
-                                                     config_selected_qorus: selected_qorus_id}),
-    setConfigType: config_type => dispatch({type: 'config_type', config_type}),
-    setConfigChangedMsgOpen: open => dispatch({type: 'config_changed_msg_open', open})
+    setData: data => dispatch({ type: 'config_data', config_data: data }),
+    setSelectedEnv: selected_env_id => dispatch({ type: 'config_selected_env', config_selected_env: selected_env_id }),
+    setSelectedQorus: selected_qorus_id =>
+        dispatch({ type: 'config_selected_qorus', config_selected_qorus: selected_qorus_id }),
+    setConfigType: config_type => dispatch({ type: 'config_type', config_type }),
+    setConfigChangedMsgOpen: open => dispatch({ type: 'config_changed_msg_open', open }),
 });
 
-export const ProjectConfigContainer = connect(mapStateToProps, mapDispatchToProps)(ProjectConfig);
+export const ProjectConfigContainer = compose(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps
+    ),
+    withTextContext()
+)(ProjectConfig);

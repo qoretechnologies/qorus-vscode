@@ -1,18 +1,31 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Checkbox, Classes, HTMLSelect, HTMLTable, Intent,
-         Popover, Radio, RadioGroup, Tabs, Tab, } from '@blueprintjs/core';
+import {
+    Button,
+    Checkbox,
+    Classes,
+    HTMLSelect,
+    HTMLTable,
+    Intent,
+    Popover,
+    Radio,
+    RadioGroup,
+    Tabs,
+    Tab,
+} from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
 import { Fg } from '../common/Fg';
 import Box from '../components/Box';
+import compose from 'recompose/compose';
+import withTextContext from '../hocomponents/withTextContext';
 
 const columns = {
     workflows: ['name', 'version', 'workflowid', 'description'],
-    services:  ['name', 'version', 'serviceid'],
-    jobs:      ['name', 'version', 'jobid', 'description'],
-    classes:   ['name', 'version', 'classid', 'description', 'language'],
+    services: ['name', 'version', 'serviceid'],
+    jobs: ['name', 'version', 'jobid', 'description'],
+    classes: ['name', 'version', 'classid', 'description', 'language'],
     constants: ['name', 'version', 'constantid', 'description'],
-    mappers:   ['name', 'version', 'mapperid', 'desc', 'type'],
+    mappers: ['name', 'version', 'mapperid', 'desc', 'type'],
     functions: ['name', 'version', 'function_instanceid', 'description'],
 };
 
@@ -86,20 +99,17 @@ class DeleteInterfaces extends Component {
     };
 
     isChecked = id =>
-        (this.props.checked[this.props.iface_kind] &&
-         this.props.checked[this.props.iface_kind][id]) || false;
+        (this.props.checked[this.props.iface_kind] && this.props.checked[this.props.iface_kind][id]) || false;
 
-    isAnyChecked = () =>
-        this.currentKindInterfaces().some(iface => this.isChecked(iface.id));
+    isAnyChecked = () => this.currentKindInterfaces().some(iface => this.isChecked(iface.id));
 
-    areAllChecked = () =>
-        this.currentKindInterfaces().every(iface => this.isChecked(iface.id));
+    areAllChecked = () => this.currentKindInterfaces().every(iface => this.isChecked(iface.id));
 
     checkAll = () => {
         const value = !this.areAllChecked();
         let checked = JSON.parse(JSON.stringify(this.props.checked));
         checked[this.props.iface_kind] || (checked[this.props.iface_kind] = {});
-        this.currentKindInterfaces().map(iface => checked[this.props.iface_kind][iface.id] = value);
+        this.currentKindInterfaces().map(iface => (checked[this.props.iface_kind][iface.id] = value));
         this.props.setChecked(checked);
     };
 
@@ -110,25 +120,23 @@ class DeleteInterfaces extends Component {
 
         const t = this.props.t;
 
-        const Interfaces =
-            <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }} className='iface-list'>
+        const Interfaces = (
+            <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }} className="iface-list">
                 <thead>
                     <tr>
                         <td>
-                            <Checkbox
-                                style={{ margin: 0 }}
-                                checked={this.areAllChecked()}
-                                onChange={this.checkAll}
-                            />
+                            <Checkbox style={{ margin: 0 }} checked={this.areAllChecked()} onChange={this.checkAll} />
                         </td>
-                        {columns[this.props.iface_kind].map(column =>
+                        {columns[this.props.iface_kind].map(column => (
                             <td>
                                 <Fg text={t('ColumnHeader-' + column)} />
                             </td>
-                        )}
+                        ))}
 
                         <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
-                            <Button icon='trash' style={{ marginTop: -8, marginBottom: 8 }}
+                            <Button
+                                icon="trash"
+                                style={{ marginTop: -8, marginBottom: 8 }}
                                 disabled={!this.isAnyChecked()}
                             >
                                 {t('DeleteSelected') + t(this.props.iface_kind)}
@@ -140,7 +148,9 @@ class DeleteInterfaces extends Component {
                                     <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                                         {t('ButtonCancel')}
                                     </Button>
-                                    <Button intent={Intent.DANGER} className={Classes.POPOVER_DISMISS}
+                                    <Button
+                                        intent={Intent.DANGER}
+                                        className={Classes.POPOVER_DISMISS}
                                         onClick={this.deleteSelected}
                                     >
                                         {t('ButtonDelete')}
@@ -150,7 +160,7 @@ class DeleteInterfaces extends Component {
                         </Popover>
 
                         <Button
-                            icon='refresh'
+                            icon="refresh"
                             title={t('Refresh')}
                             style={{ margin: '-8px 0 8px 12px' }}
                             onClick={() => this.getInterfaces()}
@@ -158,7 +168,7 @@ class DeleteInterfaces extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.currentKindInterfaces().map(iface =>
+                    {this.currentKindInterfaces().map(iface => (
                         <tr key={iface.name + iface.id}>
                             <td>
                                 <Checkbox
@@ -168,30 +178,31 @@ class DeleteInterfaces extends Component {
                                 />
                             </td>
                             {columns[this.props.iface_kind].map(column => (
-                                <td className='iface-cell'>
+                                <td className="iface-cell">
                                     <Fg text={iface[column]} />
                                 </td>
                             ))}
                         </tr>
-                    )}
+                    ))}
                 </tbody>
-            </HTMLTable>;
+            </HTMLTable>
+        );
 
         return (
             <Box>
                 <Tabs
-                    id='DeleteInterfacesTabs'
+                    id="DeleteInterfacesTabs"
                     onChange={this.onInterfaceKindChange}
                     selectedTabId={this.props.iface_kind}
                     renderActiveTabPanelOnly
                 >
-                    <Tab id='workflows' title={t('Workflows')} panel={Interfaces} />
-                    <Tab id='services' title={t('Services')} panel={Interfaces} />
-                    <Tab id='jobs' title={t('Jobs')} panel={Interfaces} />
-                    <Tab id='classes' title={t('Classes')} panel={Interfaces} />
-                    <Tab id='constants' title={t('Constants')} panel={Interfaces} />
-                    <Tab id='mappers' title={t('Mappers')} panel={Interfaces} />
-                    <Tab id='functions' title={t('Functions')} panel={Interfaces} />
+                    <Tab id="workflows" title={t('Workflows')} panel={Interfaces} />
+                    <Tab id="services" title={t('Services')} panel={Interfaces} />
+                    <Tab id="jobs" title={t('Jobs')} panel={Interfaces} />
+                    <Tab id="classes" title={t('Classes')} panel={Interfaces} />
+                    <Tab id="constants" title={t('Constants')} panel={Interfaces} />
+                    <Tab id="mappers" title={t('Mappers')} panel={Interfaces} />
+                    <Tab id="functions" title={t('Functions')} panel={Interfaces} />
                 </Tabs>
             </Box>
         );
@@ -210,4 +221,10 @@ const mapDispatchToProps = dispatch => ({
     setChecked: checked => dispatch({ type: 'delete_ifaces_checked', delete_ifaces_checked: checked || {} }),
 });
 
-export const DeleteInterfacesContainer = connect(mapStateToProps, mapDispatchToProps)(DeleteInterfaces);
+export const DeleteInterfacesContainer = compose(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps
+    ),
+    withTextContext()
+)(DeleteInterfaces);
