@@ -1,10 +1,9 @@
 import React, { FunctionComponent } from 'react';
-import { connect } from 'react-redux';
-import { vscode } from '../../common/vscode';
 import { Tabs, Tab } from '@blueprintjs/core';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
 import InterfaceCreatorPanel from './panel';
-import Box, { BoxContent } from '../../components/Box';
+import Box from '../../components/Box';
+import compose from 'recompose/compose';
+import withTargetDir from '../../hocomponents/withTargetDir';
 
 export interface ICreateInterface {
     setTargetDir: (path: string) => Function;
@@ -12,30 +11,12 @@ export interface ICreateInterface {
     targetDir: string;
 }
 
-const CreateInterface: FunctionComponent<ICreateInterface> = ({ setTargetDir, t, targetDir }) => {
-    const messageListener: (event: MessageEvent) => void = event => {
-        switch (event.data.action) {
-            case 'return-opening-path':
-                setTargetDir(event.data.path);
-                break;
-        }
-    };
-
-    useEffectOnce(() => {
-        window.addEventListener('message', messageListener);
-
-        vscode.postMessage({
-            action: 'get-opening-path',
-        });
-
-        return () => {
-            window.removeEventListener('message', messageListener);
-        };
-    });
-
+const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, targetDir }) => {
     /*if (!targetDir) {
         return null;
     }*/
+
+    console.log(targetDir);
 
     return (
         <Box>
@@ -48,19 +29,4 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ setTargetDir, t,
     );
 };
 
-const mapStateToProps = state => ({
-    targetDir: state.create_iface_target_dir,
-});
-
-const mapDispatchToProps = dispatch => ({
-    setTargetDir: targetDir =>
-        dispatch({
-            type: 'create_iface_target_dir',
-            create_iface_target_dir: targetDir,
-        }),
-});
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(CreateInterface);
+export default compose(withTargetDir())(CreateInterface);
