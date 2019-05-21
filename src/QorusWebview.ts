@@ -160,8 +160,19 @@ class QorusWebview {
                         case 'release-save-package':
                             releaser.savePackage(this.panel.webview);
                             break;
-                        case 'creator-get-object-names':
-                            creator.getProjectObjectNames(message.object_type, this.panel.webview);
+                        case 'creator-get-fields':
+                            this.panel.webview.postMessage({
+                                action: 'creator-return-fields',
+                                iface_kind: message.iface_kind,
+                                fields: creator.getFields(message.iface_kind)
+                            });
+                            break;
+                        case 'creator-get-objects':
+                            this.panel.webview.postMessage({
+                                action: 'creator-return-objects',
+                                object_type: message.object_type,
+                                objects: creator.getProjectObjects(message.object_type, this.panel.webview)
+                            });
                             break;
                         case 'creator-create-interface':
                             creator.createInterface(message.data);

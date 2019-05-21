@@ -7,7 +7,7 @@ export class QorusProjectCodeInfo {
 
     constructor(project_folder: string) {
         this.project_folder = project_folder;
-        this.update();
+//        this.update();
     }
 
     update() {

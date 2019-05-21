@@ -2,29 +2,29 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { fillTemplate, createHeaders, suffix, comment_chars } from './creator_common';
-import { service_template, defaultServiceHeaders } from './service_code';
+import { service_template, service_fields, defaultServiceHeaders } from './service_code';
 import { job_template, defaultJobHeaders, default_job_parse_options } from './job_code';
 
 
 class InterfaceCreator {
 
-    getProjectObjectNames(object_type: string, webview: vscode.Webview): any[] {
-        let names: any[] = [];
+    getProjectObjects(object_type: string, webview: vscode.Webview): any[] {
+        let objects: any[] = [];
         switch (object_type) {
-            case 'functions': names = this.getFunctions(); break;
-            case 'classes': names = this.getClasses(); break;
-            case 'constants': names = this.getConstants(); break;
+            case 'functions': objects = this.getFunctions(); break;
+            case 'classes': objects = this.getClasses(); break;
+            case 'constants': objects = this.getConstants(); break;
         }
 
         if (webview) {
             webview.postMessage({
-                action: 'creator-return-object-names',
+                action: 'creator-return-objects',
                 object_type,
-                names,
+                objects,
             });
         }
 
-        return names;
+        return objects;
     }
 
     createInterface(data: any) {
@@ -49,6 +49,12 @@ class InterfaceCreator {
             target_path,
             headers + `${comment_chars[lang]} ENDSERVICE\n\n` + code
         );
+    }
+
+     getFields(iface_kind: string): any {
+         switch (iface_kind) {
+            case 'service': return service_fields; break;
+         }
     }
 
     private createJob(data: any) {

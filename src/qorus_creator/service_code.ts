@@ -38,30 +38,154 @@ export const defaultServiceHeaders = data => {
 
 
 export const service_fields = {
-    service:            {mandatory: true,  type: 'string'},
-    serviceversion:     {mandatory: true,  type: 'string'},
-    servicedesc:        {mandatory: true,  type: 'string'},
-    'class-name':       {mandatory: true,  type: 'string'},
-    patch:              {mandatory: false, type: 'string'},
-    remote:             {mandatory: false, type: 'boolean'},
-    author:             {mandatory: false, type: 'array'},
-    groups:             {mandatory: false, type: 'array-of-pairs'},
-    constants:          {mandatory: false, type: 'array'},
-    classes:            {mandatory: false, type: 'array'},
-    functions:          {mandatory: false, type: 'array'},
-    'service-modules':  {mandatory: false, type: 'array'},
-    lock:               {mandatory: false, type: 'string'},
-    autostart:          {mandatory: false, type: 'boolean'},
-    internal:           {mandatory: false, type: 'boolean'},
-    write:              {mandatory: false, type: 'boolean'},
-    mappers:            {mandatory: false, type: 'array'},
-    vmaps:              {mandatory: false, type: 'array'},
-    resource:           {mandatory: false, type: 'array'},
-    'text-resource':    {mandatory: false, type: 'array'},
-    'bin-resource':     {mandatory: false, type: 'array'},
-    template:           {mandatory: false, type: 'array'},
-    'define-auth-label':{mandatory: false, type: 'array-of-pairs'},
-    TAG:                {mandatory: false, type: 'array-of-pairs'},
+    target_dir: {
+        prefill: {
+            message: {
+                action: 'return-opening-path',
+                value: 'path'
+            }
+        }
+    },
+    target_file: {
+        prefill: {
+            formula: '`${service}-${version}.qsd`'
+        }
+    },
+    class_name: {
+        style: 'camel'
+    },
+    base_class_name: {
+        style: 'camel'
+    },
+    lang: {
+        type: 'enum',
+        values: ['qore', 'java'],
+        default_value: 'qore'
+    },
+    service: {
+        prefill: {
+            function: {
+                name: 'camelToDash',
+                args: ['class_name']
+            }
+        }
+    },
+    serviceversion: {
+    },
+    servicedesc: {
+    },
+    serviceauthor: {
+        mandatory: false,
+        type: 'array'
+    },
+    patch: {
+        mandatory: false,
+    },
+    remote: {
+        mandatory: false,
+        type: 'boolean'
+    },
+    author: {
+        mandatory: false,
+        type: 'array'
+    },
+    groups: {
+        mandatory: false,
+        type: 'array-of-pairs',
+        fields: ['name', 'desc']
+    },
+    constants: {
+        mandatory: false,
+        type: 'array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'constants'
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'constants',
+            return_value: 'objects'
+        }
+    },
+    classes: {
+        mandatory: false,
+        type: 'array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'classes'
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'classes',
+            return_value: 'objects'
+        }
+    },
+    functions: {
+        mandatory: false,
+        type: 'array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'functions'
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'functions',
+            return_value: 'objects'
+        }
+    },
+    service_modules: {
+        mandatory: false,
+        type: 'array'
+    },
+    lock: {
+        mandatory: false,
+    },
+    autostart: {
+        mandatory: false,
+        type: 'boolean'
+    },
+    internal: {
+        mandatory: false,
+        type: 'boolean'
+    },
+    write: {
+        mandatory: false,
+        type: 'boolean'
+    },
+    mappers: {
+        mandatory: false,
+        type: 'array'
+    },
+    vmaps: {
+        mandatory: false,
+        type: 'array'
+    },
+    resource: {
+        mandatory: false,
+        type: 'array'
+    },
+    text_resource: {
+        mandatory: false,
+        type: 'array'
+    },
+    bin_resource: {
+        mandatory: false,
+        type: 'array'
+    },
+    template: {
+        mandatory: false,
+        type: 'array'
+    },
+    define_auth_label: {
+        mandatory: false,
+        type: 'array-of-pairs',
+        fields: ['name', 'desc']
+    },
+    TAG: {
+        mandatory: false,
+        type: 'array-of-pairs',
+        fields: ['name', 'desc']
+    },
 };
 
 
@@ -84,47 +208,4 @@ export const fake_service_data = {
         name: 'GROUP2',
         desc: 'example group 2'
     }]
-}
-
-/*
-
-??? attrib
-
-public const ServiceTags = {
-    "define-group": {"list": True},
-    "groups": {"mandatory": False},
-    "constants": {"list": True, "mandatory": False},
-    "classes": {"list": True, "mandatory": False},
-    "functions": {"list": True, "mandatory": False},
-    "author": {"maxlen": SQLAuthorLen, "multi": ", ", "attrib": True},
-    "desc": {"maxlen": SQLDescLen, "multi": " ", "warn": True},
-    "version": {"mandatory": True, "attrib": True, "maxlen": SQLVersionLen},
-    "name": {"maxlen": SQLNameLen},
-    "lang": {"maxlen": 80, "values": ("qore", "java"), "default": "qore"}
-    "class-based": {"type": Type::Boolean, "default": False},
-    "class-name": {"maxlen": SQLNameLen},
-
-    "lock": {"mandatory": False},
-    "internal": {"type": Type::Boolean},
-    "write": {"type": Type::Boolean},
-    "import-code": {"mandatory": False},
-    "servicetype": {"mandatory": False},
-    "service": {"maxlen": SQLNameLen},
-    "servicedesc": {"multi": " ", "maxlen": SQLDescLen},                             ???
-    "serviceauthor": {"multi": ", ", "maxlen": SQLAuthorLen, "attrib": True},        ???
-    "servicepatch": {"maxlen": SQLPatchLen, "attrib": True},
-    "serviceversion": {"attrib": True, "maxlen": SQLVersionLen},                     ???
-    "mappers": {"list": True, "mandatory": False},
-    "vmaps": {"list": True, "mandatory": False},
-    "resource": {"list": True, "mandatory": False},
-    "text-resource": {"list": True, "mandatory": False},
-    "bin-resource": {"list": True, "mandatory": False},
-    "template": {"list": True, "mandatory": False},
-    "autostart": {"type": Type::Boolean},
-    "remote": {"type": Type::Boolean},
-    "parse-options": {"mandatory": False},
-    "service-modules": {"list": True,},
-    "define-auth": ("mandatory": False),
-    "define-auth-label": ("mandatory": False),
 };
-*/
