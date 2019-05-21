@@ -105,10 +105,18 @@ const App: FunctionComponent<IApp> = ({
         addMessageListener(
             Messages.TEXT_RECEIVED,
             (data: any): void => {
-                setTexts(currentTexts => ({
-                    ...currentTexts,
-                    [data.text_id]: data.text,
-                }));
+                setTexts(currentTexts => {
+                    // Do not modify state if the text alread
+                    // exists
+                    if (!currentTexts[data.text_id]) {
+                        return {
+                            ...currentTexts,
+                            [data.text_id]: data.text,
+                        };
+                    }
+                    // Return current state
+                    return currentTexts;
+                });
             }
         );
         // Set the active tab
@@ -158,6 +166,8 @@ const App: FunctionComponent<IApp> = ({
         postMessage(Messages.GET_TEXT, { text_id });
         return '';
     };
+
+    console.log('updated');
 
     return (
         <>
