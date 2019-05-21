@@ -36,7 +36,7 @@ class InterfaceCreator {
     }
 
     private createService(data: any) {
-        const {lang = 'qore', ...other_data} = data
+        const {lang = 'qore', ...other_data} = data;
         const {headers, code, target_path} = this.headersAndCode(
             lang,
             other_data,
@@ -58,7 +58,7 @@ class InterfaceCreator {
     }
 
     private createJob(data: any) {
-        const {lang = 'qore', ...other_data} = data
+        const {lang = 'qore', ...other_data} = data;
         const {headers, code, target_path} = this.headersAndCode(
             lang,
             other_data,

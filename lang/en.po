@@ -691,6 +691,12 @@ msgstr "Delete selected "
 msgid "Refresh"
 msgstr "Refresh"
 
+msgid "CodeInfoUpdateStarted ${ dir }"
+msgstr "${ dir } - Code info update started"
+
+msgid "CodeInfoUpdateFinished ${ dir }"
+msgstr "${ dir } - Code info update finished"
+
 msgid "NotExecutableFile ${ path }";
 msgstr "Not an executable file: ${ path }";
 

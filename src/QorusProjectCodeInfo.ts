@@ -1,3 +1,4 @@
+import { t } from 'ttag';
 import * as msg from './qorus_message';
 
 
@@ -11,18 +12,9 @@ export class QorusProjectCodeInfo {
     }
 
     update() {
-        new Promise(resolve => setTimeout(() => resolve(this.doAsyncUpdate()), 0)).then(
-            s => {
-                msg.log(this.project_folder + ' - code info update finished succesfully: ' + s);
-                this.pending = false;
-            },
-            e => {
-                msg.log(this.project_folder + ' - code info update failed: ' + JSON.stringify(e, null, 4));
-                this.pending = false;
-            }
-        );
+        setTimeout(this.doAsyncUpdate, 0);
 
-        msg.log(this.project_folder + ' - code info update started');
+        msg.log(t`CodeInfoUpdateStarted ${this.project_folder}`);
         this.pending = true;
     }
 
@@ -31,7 +23,8 @@ export class QorusProjectCodeInfo {
         for (let i = 1; i < 3000000000; i++, p = -p) {
             s += p * i;
         }
-        return s;
+        this.pending = false;
+        msg.log(t`CodeInfoUpdateFinished ${this.project_folder}`);
     }
 
     get update_pending(): boolean {
