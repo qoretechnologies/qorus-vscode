@@ -55,6 +55,7 @@ export const service_fields = {
         style: 'camel'
     },
     base_class_name: {
+        type: 'select-string',
         style: 'camel'
     },
     lang: {
@@ -92,7 +93,7 @@ export const service_fields = {
     },
     constants: {
         mandatory: false,
-        type: 'array',
+        type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
             object_type: 'constants'
@@ -105,7 +106,7 @@ export const service_fields = {
     },
     classes: {
         mandatory: false,
-        type: 'array',
+        type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
             object_type: 'classes'
@@ -118,7 +119,7 @@ export const service_fields = {
     },
     functions: {
         mandatory: false,
-        type: 'array',
+        type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
             object_type: 'functions'
@@ -175,12 +176,12 @@ export const service_fields = {
     define_auth_label: {
         mandatory: false,
         type: 'array-of-pairs',
-        fields: ['name', 'desc']
+        fields: ['label', 'value']
     },
     TAG: {
         mandatory: false,
         type: 'array-of-pairs',
-        fields: ['name', 'desc']
+        fields: ['key', 'value']
     },
 };
 

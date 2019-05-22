@@ -775,6 +775,12 @@ msgstr "Webview has been closed because current workspace has changed or has not
 msgid "WorkspaceFolderUnsetCloseWebview"
 msgstr "Webview has been closed because current workspace has not been set"
 
+msgid "field-label-target_dir"
+msgstr "Target directory"
+
+msgid "field-desc-target_dir"
+msgstr "Directory where the code will be saved"
+
 msgid "field-label-target_file"
 msgstr "Target file"
 
@@ -936,3 +942,18 @@ msgstr "Tag"
 
 msgid "field-desc-TAG"
 msgstr "Option tag definition in the format \"key: value\"; for Java services, entries in the classpath can be added here by adding a colon-separated list of path names to the \"classpath\" tag; note also that $OMQ_DIR (or any other server-side environment variable) can be used in classpath entries and will be resolved to the Qorus directory"
+
+msgid "field-label-name"
+msgstr "Name"
+
+msgid "field-label-desc"
+msgstr "Description"
+
+msgid "field-label-label"
+msgstr "Label"
+
+msgid "field-label-key"
+msgstr "Key"
+
+msgid "field-label-value"
+msgstr "Value"
