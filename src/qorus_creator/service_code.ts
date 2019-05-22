@@ -184,12 +184,12 @@ export const service_fields = {
     },
     define_auth_label: {
         mandatory: false,
-        type: 'array-of-pairs',
+        type: 'pair',
         fields: ['label', 'value']
     },
     TAG: {
         mandatory: false,
-        type: 'array-of-pairs',
+        type: 'pair',
         fields: ['key', 'value']
     },
 };

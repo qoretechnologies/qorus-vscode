@@ -19,6 +19,10 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
 
     for (let key in headers) {
         const value = headers[key];
+        if (!value) {
+            continue;
+        }
+
         const tag = key.replace(/_/g, '-');
 
         if (Array.isArray(value)) {
@@ -33,10 +37,19 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
                     break;
                 default:
                     result += `${comment} ${tag}: ` + value.join(', ');
-                    break;
             }
-        } else {
-            result += `${comment} ${tag}: ${value}`;
+        }
+        else {
+            switch (key) {
+                case 'define_auth_label':
+                    result += `${comment} ${tag}: ${value.label}=${value.value}`;
+                    break;
+                case 'TAG':
+                    result += `${comment} ${tag}: ${value.key}: ${value.value}`;
+                    break;
+                default:
+                    result += `${comment} ${tag}: ${value}`;
+            }
         }
 
         result += '\n';
