@@ -199,13 +199,13 @@ export const fake_service_data = {
     target_dir: os.homedir(),
 //    target_file: 
     iface_kind: 'service',
-    lang: 'java',
+//    lang: 'java',
     class_name: 'ExampleService',
     base_class_name: 'QorusService',
 
     service: 'example-service',
     serviceversion: '1.0',
-    desc: 'example service',
+    servicedesc: 'example service',
     classes: ['ExampleClass1', 'ExampleClass2'],
     groups: [{
         name: 'GROUP1',
@@ -213,5 +213,9 @@ export const fake_service_data = {
     }, {
         name: 'GROUP2',
         desc: 'example group 2'
-    }]
+    }],
+    TAG: {
+        key: 'example-code',
+        value: 'true'
+    }
 };
