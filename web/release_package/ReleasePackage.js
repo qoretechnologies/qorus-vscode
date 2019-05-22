@@ -130,48 +130,45 @@ class ReleasePackage extends Component {
 
         const t = this.props.t;
 
-        const BranchInfo = (
+        const BranchInfo =
             <div style={{ marginBottom: 24 }}>
                 <H5>{t('CurrentBranchInfo')}:</H5>
                 {t('branch')}: <strong>{this.props.branch.name}</strong>
                 <br />
                 {t('commit')}: <strong>{this.props.branch.commit}</strong>
-            </div>
-        );
+            </div>;
 
-        const NotUpToDate = (
+        const NotUpToDate =
             <>
-                <div className="flex-start">
+                <div className='flex-start'>
                     <div style={{ maxWidth: 400, color: Colors.RED3, marginRight: 24 }}>
                         {t('GitBranchNotUpToDate')}
                     </div>
                     <Button
-                        icon="refresh"
+                        icon='refresh'
                         title={t('Refresh')}
                         style={{ margin: '-8px 0 8px 12px' }}
                         onClick={this.getBranch}
                     />
                 </div>
                 <hr style={{ marginTop: 16, marginBottom: 16 }} />
-            </>
-        );
+            </>;
 
-        const ReleaseType = (
+        const ReleaseType =
             <>
                 {this.props.branch.up_to_date || NotUpToDate}
-                <div className="flex-start">
+                <div className='flex-start'>
                     <H4 style={{ marginRight: 48 }}>{t('ReleaseType')}:</H4>
                     <RadioGroup onChange={this.onReleaseTypeChange} selectedValue={this.props.release_type}>
-                        <Radio label={t('CreateFullRelease')} value="full" />
-                        <Radio label={t('CreateIncrementalRelease')} value="incremental" />
-                        <Radio label={t('UseExistingRelease')} value="existing" />
+                        <Radio label={t('CreateFullRelease')} value='full' />
+                        <Radio label={t('CreateIncrementalRelease')} value='incremental' />
+                        <Radio label={t('UseExistingRelease')} value='existing' />
                     </RadioGroup>
                 </div>
                 <hr style={{ marginBottom: 16 }} />
-            </>
-        );
+            </>;
 
-        const FullRelease = (
+        const FullRelease =
             <>
                 <H3 style={{ marginBottom: 24 }}>{t('FullRelease')}</H3>
                 {BranchInfo}
@@ -184,10 +181,9 @@ class ReleasePackage extends Component {
                         {t('CreatePackage')}
                     </Button>
                 </div>
-            </>
-        );
+            </>;
 
-        const IncrementalRelease = (
+        const IncrementalRelease =
             <>
                 <H3 style={{ marginBottom: 24 }}>{t('IncrementalRelease')}</H3>
                 {BranchInfo}
@@ -197,21 +193,19 @@ class ReleasePackage extends Component {
                     disabled={!this.props.branch.up_to_date || this.props.pending}
                     pending={this.props.pending}
                 />
-            </>
-        );
+            </>;
 
-        const ExistingRelease = (
-            <Button icon="folder-open" onClick={this.getReleaseFile}>
+        const ExistingRelease =
+            <Button icon='folder-open' onClick={this.getReleaseFile}>
                 {t('PickReleaseFile')}
-            </Button>
-        );
+            </Button>;
 
-        const StepDiff = (
-            <Card className="step-card bp3-elevation-2">
+        const StepDiff =
+            <Card className='step-card bp3-elevation-2'>
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Type)}
                     onForward={this.createPackage}
-                    forward_text_id="CreatePackage"
+                    forward_text_id='CreatePackage'
                     disabled={this.props.pending}
                     pending={this.props.pending}
                 />
@@ -220,15 +214,14 @@ class ReleasePackage extends Component {
                     {t('SelectedCommit')}: <strong>{this.props.selected_commit}</strong>
                 </H5>
                 {this.props.files && this.props.files.map(file => <div>{file}</div>)}
-            </Card>
-        );
+            </Card>;
 
-        const StepSend = (
-            <Card className="step-card bp3-elevation-2">
+        const StepSend =
+            <Card className='step-card bp3-elevation-2'>
                 <BackForwardButtons
                     onBack={() => this.backToStep(this.props.release_type == 'incremental' ? Step.Diff : Step.Type)}
                     onForward={this.deployPackage}
-                    forward_text_id="DeployPackage"
+                    forward_text_id='DeployPackage'
                     pending={this.props.pending}
                 />
                 <H5>
@@ -244,7 +237,7 @@ class ReleasePackage extends Component {
                         {this.props.saved_path == null && (
                             <>
                                 <H5>{t('ReleaseFileCanBeSaved')}:</H5>
-                                <Button icon="floppy-disk" onClick={this.saveReleaseFile}>
+                                <Button icon='floppy-disk' onClick={this.saveReleaseFile}>
                                     {t('SaveReleaseFile')}
                                 </Button>
                             </>
@@ -257,11 +250,10 @@ class ReleasePackage extends Component {
                         )}
                     </>
                 )}
-            </Card>
-        );
+            </Card>;
 
-        const StepClose = (
-            <Card className="step-card bp3-elevation-2">
+        const StepClose =
+            <Card className='step-card bp3-elevation-2'>
                 <BackForwardButtons
                     onBack={() => this.backToStep(Step.Send)}
                     onClose={() => this.backToStep(Step.Type)}
@@ -273,10 +265,9 @@ class ReleasePackage extends Component {
                     </>
                 )}
                 {!this.props.result && <H5>{t('PackageDeploymentFailed')}</H5>}
-            </Card>
-        );
+            </Card>;
 
-        const NotUpToDateMsg = (
+        const NotUpToDateMsg =
             <MessageDialog
                 isOpen={this.props.not_up_to_date_msg_open}
                 canEscapeKeyClose={false}
@@ -293,22 +284,21 @@ class ReleasePackage extends Component {
                         },
                     },
                 ]}
-            />
-        );
+            />;
 
         return (
-            <div className="flex-start">
+            <div className='flex-start'>
                 {NotUpToDateMsg}
 
                 {this.props.step == Step.Type && (
-                    <Card className="step-card bp3-elevation-2">
+                    <Card className='step-card bp3-elevation-2'>
                         {ReleaseType}
 
                         <Collapse isOpen={this.props.release_type == 'full'}>{FullRelease}</Collapse>
 
                         <Collapse isOpen={this.props.release_type == 'incremental'}>{IncrementalRelease}</Collapse>
 
-                        <Collapse isOpen={this.props.release_type == 'existing'} className="flex-center">
+                        <Collapse isOpen={this.props.release_type == 'existing'} className='flex-center'>
                             {ExistingRelease}
                         </Collapse>
                     </Card>

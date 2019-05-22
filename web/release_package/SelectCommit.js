@@ -37,11 +37,11 @@ class SelectCommit extends Component {
             branch: this.props.branch_filter,
             tag: this.props.tag_filter,
         };
-        (filters[filter_type] = ev ? ev.target.value : ''),
-            vscode.postMessage({
-                action: 'release-get-commits',
-                filters,
-            });
+        filters[filter_type] = ev ? ev.target.value : '',
+        vscode.postMessage({
+            action: 'release-get-commits',
+            filters,
+        });
 
         this.props.setFilter(filter_type, filters[filter_type]);
     };
@@ -55,7 +55,7 @@ class SelectCommit extends Component {
             return null;
         }
 
-        const ClearButton = props => <Button icon="cross" minimal={true} {...props} />;
+        const ClearButton = props => <Button icon='cross' minimal={true} {...props} />;
 
         const options = this.props.commits.map(commit => {
             const hash = commit.hash;
@@ -85,10 +85,10 @@ class SelectCommit extends Component {
         return (
             <>
                 <H4>{t('SelectCommit')}</H4>
-                <ControlGroup className="bp3-monospace-text" vertical={true}>
+                <ControlGroup className='bp3-monospace-text' vertical={true}>
                     <InputGroup
-                        className="filter-input"
-                        leftIcon="git-commit"
+                        className='filter-input'
+                        leftIcon='git-commit'
                         placeholder={t('filterByCommitHash')}
                         value={this.props.hash_filter}
                         onChange={ev => this.onFilterChange('hash', ev)}
@@ -99,8 +99,8 @@ class SelectCommit extends Component {
                         />
                     />
                     <InputGroup
-                        className="filter-input"
-                        leftIcon="git-branch"
+                        className='filter-input'
+                        leftIcon='git-branch'
                         placeholder={t('filterByBranchName')}
                         value={this.props.branch_filter}
                         onChange={ev => this.onFilterChange('branch', ev)}
@@ -111,8 +111,8 @@ class SelectCommit extends Component {
                         />
                     />
                     <InputGroup
-                        className="filter-input"
-                        leftIcon="tag"
+                        className='filter-input'
+                        leftIcon='tag'
                         placeholder={t('filterByTag')}
                         value={this.props.tag_filter}
                         onChange={ev => this.onFilterChange('tag', ev)}
@@ -123,7 +123,7 @@ class SelectCommit extends Component {
                         />
                     />
                     <select
-                        size="12"
+                        size='12'
                         onChange={this.onValueChange}
                         value={this.props.value}
                         disabled={this.props.disabled}
@@ -131,7 +131,7 @@ class SelectCommit extends Component {
                         {options}
                     </select>
                 </ControlGroup>
-                <div className="flex-center">
+                <div className='flex-center'>
                     <Button
                         icon={this.props.pending ? <Spinner size={18} /> : 'tick'}
                         onClick={() => this.props.selectCommit(this.props.value)}

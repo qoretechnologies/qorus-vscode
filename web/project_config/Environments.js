@@ -24,12 +24,12 @@ export const Envs = withTextContext()(props => {
     }
 
     return (
-        <div className="config-item">
+        <div className='config-item'>
             <HTMLTable condensed={true}>
                 <thead>
                     <tr>
-                        <th colspan="2">
-                            <H4 className="fg-color">{props.t('Environments')}</H4>
+                        <th colspan='2'>
+                            <H4 className='fg-color'>{props.t('Environments')}</H4>
                         </th>
                     </tr>
                 </thead>

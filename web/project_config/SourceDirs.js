@@ -7,8 +7,8 @@ export const SourceDirs = withTextContext()(props => (
         <HTMLTable condensed={true}>
             <thead>
                 <tr>
-                    <th colspan="2">
-                        <H4 className="fg-color">{props.t('AddRemoveDir')}</H4>
+                    <th colspan='2'>
+                        <H4 className='fg-color'>{props.t('AddRemoveDir')}</H4>
                     </th>
                 </tr>
             </thead>
@@ -16,11 +16,11 @@ export const SourceDirs = withTextContext()(props => (
                 {props.data.map(dir => (
                     <tr key={dir}>
                         <td style={{ minWidth: 120, paddingTop: 12 }}>
-                            <span className="fg-color">{dir}</span>
+                            <span className='fg-color'>{dir}</span>
                         </td>
                         <td>
                             <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
-                                <Button icon="cross" minimal={true} title={props.t('Remove')} />
+                                <Button icon='cross' minimal={true} title={props.t('Remove')} />
                                 <div>
                                     {props.t('ConfirmRemoveDir')}
                                     <strong>{dir}</strong>?
@@ -44,7 +44,7 @@ export const SourceDirs = withTextContext()(props => (
                 <tr>
                     <td />
                     <td style={{ paddingTop: 16 }}>
-                        <Button icon="plus" minimal={true} onClick={props.addSourceDir} title={props.t('AddNew')} />
+                        <Button icon='plus' minimal={true} onClick={props.addSourceDir} title={props.t('AddNew')} />
                     </td>
                 </tr>
             </tbody>

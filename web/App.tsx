@@ -191,7 +191,7 @@ const App: FunctionComponent<IApp> = ({
                 </NavbarGroup>
                 <NavbarGroup align={Alignment.RIGHT} style={{ marginRight: 36 }}>
                     <NavbarDivider />
-                    <HTMLTable condensed={true} className="navbar-info-table">
+                    <HTMLTable condensed={true} className='navbar-info-table'>
                         <tr>
                             <td>{t('Project')}:</td>
                             <td>

@@ -31,12 +31,12 @@ export const Urls = withTextContext()(props => {
     }
 
     return (
-        <div className="config-item">
+        <div className='config-item'>
             <HTMLTable condensed={true}>
                 <thead>
                     <tr>
-                        <th colspan="2">
-                            <H4 className="fg-color">
+                        <th colspan='2'>
+                            <H4 className='fg-color'>
                                 {props.t('PropertiesOfQorusInstance')}&nbsp;
                                 <span style={{ fontWeight: 'bold' }}>{qorus.name}</span>
                             </H4>
@@ -45,24 +45,19 @@ export const Urls = withTextContext()(props => {
                 </thead>
                 <thead>
                     <tr>
-                        <th colspan="2">
-                            <span className="fg-color">{props.t('MainUrl')}</span>
+                        <th colspan='2'>
+                            <span className='fg-color'>{props.t('MainUrl')}</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            <span className="fg-color">{qorus.url}</span>
+                            <span className='fg-color'>{qorus.url}</span>
                         </td>
                         <td>
-                            <EditPopover
-                                kind="edit"
-                                entity="Url"
-                                env_id={env_id}
-                                qorus_id={qorus.id}
-                                action="edit-main-url"
-                                data={qorus}
+                            <EditPopover kind='edit' entity='Url' env_id={env_id}
+                                qorus_id={qorus.id} action='edit-main-url' data={qorus}
                                 onEdit={props.onEdit}
                             />
                         </td>
@@ -70,8 +65,8 @@ export const Urls = withTextContext()(props => {
                 </tbody>
                 <thead>
                     <tr>
-                        <th colspan="2">
-                            <span className="fg-color">{props.t('CustomUrls')}</span>
+                        <th colspan='2'>
+                            <span className='fg-color'>{props.t('CustomUrls')}</span>
                         </th>
                     </tr>
                 </thead>
@@ -89,7 +84,7 @@ const CustomUrl = withTextContext()(props => {
     return (
         <tr>
             <td>
-                <span className="fg-color">
+                <span className='fg-color'>
                     <span style={{ fontWeight: 'bold' }}>{url.name}</span>
                     <br />
                     {url.url}

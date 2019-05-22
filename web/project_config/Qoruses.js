@@ -30,12 +30,12 @@ export const Qoruses = withTextContext()(props => {
     }
 
     return (
-        <div className="config-item">
+        <div className='config-item'>
             <HTMLTable condensed={true}>
                 <thead>
                     <tr>
-                        <th colspan="2">
-                            <H4 className="fg-color">
+                        <th colspan='2'>
+                            <H4 className='fg-color'>
                                 {props.t('QorusInstancesIn')}&nbsp;
                                 <span style={{ fontWeight: 'bold' }}>{env.name}</span>
                             </H4>

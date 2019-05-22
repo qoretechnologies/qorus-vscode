@@ -25,6 +25,7 @@ export class QorusProjectCodeInfo {
         }
         this.pending = false;
         msg.log(t`CodeInfoUpdateFinished ${this.project_folder}`);
+        return s;
     }
 
     get update_pending(): boolean {

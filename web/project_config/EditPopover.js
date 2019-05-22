@@ -102,10 +102,8 @@ class EditPopover extends Component {
                 <form onSubmit={this.submit} style={this.url_hidden ? {} : { minWidth: '310px' }}>
                     <H5>{Header}</H5>
                     {this.name_hidden || (
-                        <FormGroup label={t('Name')} labelFor="name" key="name">
-                            <InputGroup
-                                id="name"
-                                type="text"
+                        <FormGroup label={t('Name')} labelFor='name' key='name'>
+                            <InputGroup id='name' type='text'
                                 defaultValue={this.props.data ? this.props.data.name : null}
                                 onChange={this.onChange.bind(null, 'name')}
                                 inputRef={this.inputRefName}
@@ -113,10 +111,8 @@ class EditPopover extends Component {
                         </FormGroup>
                     )}
                     {this.url_hidden || (
-                        <FormGroup label={UrlLabel} labelFor="url" key="url">
-                            <InputGroup
-                                id="url"
-                                type="text"
+                        <FormGroup label={UrlLabel} labelFor='url' key='url'>
+                            <InputGroup id='url' type='text'
                                 defaultValue={this.props.data ? this.props.data.url : null}
                                 onChange={this.onChange.bind(null, 'url')}
                                 inputRef={this.inputRefUrl}
@@ -127,7 +123,7 @@ class EditPopover extends Component {
                         <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                             {t('ButtonCancel')}
                         </Button>
-                        <Button type="submit" intent={Intent.SUCCESS}>
+                        <Button type='submit' intent={Intent.SUCCESS}>
                             {t('ButtonSave')}
                         </Button>
                     </div>

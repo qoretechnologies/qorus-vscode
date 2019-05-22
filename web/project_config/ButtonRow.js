@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from "@blueprintjs/core";
+import { Button } from '@blueprintjs/core';
 import { EditBtnGroup } from './EditBtnGroup';
 
 

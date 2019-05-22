@@ -109,16 +109,16 @@ class ProjectConfig extends Component {
             <Box>
                 {ConfigChangedOnDiskMsg}
                 <Tabs
-                    id="ProjectConfigTabs"
+                    id='ProjectConfigTabs'
                     onChange={this.props.setConfigType}
                     selectedTabId={this.props.config_type}
                     renderActiveTabPanelOnly
                 >
                     <Tab
-                        id="qoruses"
+                        id='qoruses'
                         title={t('QorusInstances')}
                         panel={
-                            <div className="config-container">
+                            <div className='config-container'>
                                 <Envs
                                     data={this.props.data.qorus_instances}
                                     selected_env_id={selected_env_id}
@@ -146,7 +146,7 @@ class ProjectConfig extends Component {
                         }
                     />
                     <Tab
-                        id="sources"
+                        id='sources'
                         title={t('SourceDirs')}
                         panel={
                             <SourceDirs

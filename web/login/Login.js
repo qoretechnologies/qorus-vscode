@@ -51,27 +51,29 @@ class Login extends Component {
     };
 
     render() {
-        const [qorus_name, qorus_url] = this.props.qorus ? [this.props.qorus.name, this.props.qorus.url] : ['', ''];
+        const [qorus_name, qorus_url] = this.props.qorus
+            ? [this.props.qorus.name, this.props.qorus.url]
+            : ['', ''];
 
         return (
             <TextContext.Consumer>
                 {t => (
-                    <Card className="login-card bp3-elevation-2">
-                        <form className="login-grid" onSubmit={this.onSubmit}>
+                    <Card className='login-card bp3-elevation-2'>
+                        <form className='login-grid' onSubmit={this.onSubmit}>
                             <div style={{ gridRow: 1, gridColumnStart: 2, gridColumnEnd: 6 }}>
                                 <H4 style={{ textAlign: 'center' }}>
                                     {t('LoginHeader')} &nbsp;
-                                    <span className="login-highlighted">{qorus_name}</span> &nbsp;
+                                    <span className='login-highlighted'>{qorus_name}</span> &nbsp;
                                     {t('at')}
                                 </H4>
-                                <H4 className="login-highlighted text-center">{qorus_url}</H4>
+                                <H4 className='login-highlighted text-center'>{qorus_url}</H4>
                             </div>
 
-                            <div className="login-label">{t('LabelUsername')}</div>
-                            <div className="login-input">
+                            <div className='login-label'>{t('LabelUsername')}</div>
+                            <div className='login-input'>
                                 <InputGroup
-                                    id="username"
-                                    type="text"
+                                    id='username'
+                                    type='text'
                                     value={this.props.username}
                                     onChange={ev => this.props.setUsername(ev.target.value.trim())}
                                     inputRef={input => {
@@ -79,18 +81,18 @@ class Login extends Component {
                                     }}
                                 />
                             </div>
-                            <div className="login-label">{t('LabelPassword')}</div>
-                            <div className="login-input">
+                            <div className='login-label'>{t('LabelPassword')}</div>
+                            <div className='login-input'>
                                 <InputGroup
-                                    id="password"
-                                    type="password"
+                                    id='password'
+                                    type='password'
                                     value={this.props.password}
                                     onChange={ev => this.props.setPassword(ev.target.value.trim())}
                                 />
                             </div>
                             <ButtonGroup style={{ gridColumn: '3/5', marginTop: 12 }} fill={true}>
                                 <Button
-                                    icon="cross"
+                                    icon='cross'
                                     className={Classes.POPOVER_DISMISS}
                                     intent={Intent.DANGER}
                                     style={{ width: '50%' }}
@@ -98,7 +100,7 @@ class Login extends Component {
                                 >
                                     &nbsp; {t('ButtonCancel')} &nbsp;
                                 </Button>
-                                <Button icon="log-in" type="submit" intent={Intent.SUCCESS} style={{ width: '50%' }}>
+                                <Button icon='log-in' type='submit' intent={Intent.SUCCESS} style={{ width: '50%' }}>
                                     &nbsp; {t('ButtonLogin')} &nbsp;
                                 </Button>
                             </ButtonGroup>

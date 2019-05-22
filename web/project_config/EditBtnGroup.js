@@ -17,13 +17,13 @@ export const EditBtnGroup = withTextContext()(props => {
 
     return (
         <ButtonGroup>
-            <EditPopover kind="edit" entity={entity} onEdit={onEdit} {...other_props} />
+            <EditPopover kind='edit' entity={entity} onEdit={onEdit} {...other_props} />
             <DeletePopover entity={entity} onRemove={onRemove} {...other_props} />
             {props.onMoveUp && (
                 <Button
-                    icon="arrow-up"
+                    icon='arrow-up'
                     title={props.t('MoveUp')}
-                    role="button"
+                    role='button'
                     onClick={onMoveUp.bind(null, {
                         env_id: props.env_id,
                         qorus_id: props.qorus_id,
@@ -37,7 +37,7 @@ export const EditBtnGroup = withTextContext()(props => {
 
 const DeletePopover = withTextContext()(props => (
     <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
-        <Button icon="trash" title={props.t('Remove')} />
+        <Button icon='trash' title={props.t('Remove')} />
         <div>
             <H5>{props.t('ConfirmDeletion')}</H5>
 
@@ -49,9 +49,7 @@ const DeletePopover = withTextContext()(props => (
                 <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                     {props.t('ButtonCancel')}
                 </Button>
-                <Button
-                    intent={Intent.DANGER}
-                    className={Classes.POPOVER_DISMISS}
+                <Button intent={Intent.DANGER} className={Classes.POPOVER_DISMISS}
                     onClick={props.onRemove.bind(null, {
                         env_id: props.env_id,
                         qorus_id: props.qorus_id,
