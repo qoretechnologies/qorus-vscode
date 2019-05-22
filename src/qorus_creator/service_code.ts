@@ -85,10 +85,6 @@ export const service_fields = {
         mandatory: false,
         type: 'boolean'
     },
-    author: {
-        mandatory: false,
-        type: 'array'
-    },
     groups: {
         mandatory: false,
         type: 'array-of-pairs',

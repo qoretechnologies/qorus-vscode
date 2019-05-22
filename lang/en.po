@@ -774,3 +774,165 @@ msgstr "Webview has been closed because current workspace has changed or has not
 
 msgid "WorkspaceFolderUnsetCloseWebview"
 msgstr "Webview has been closed because current workspace has not been set"
+
+msgid "field-label-target_file"
+msgstr "Target file"
+
+msgid "field-desc-target_file"
+msgstr "Name of the file the code will be saved as"
+
+msgid "field-label-class_name"
+msgstr "Class name"
+
+msgid "field-desc-class_name"
+msgstr "Class name"
+
+msgid "field-label-base_class_name"
+msgstr "Base class name"
+
+msgid "field-desc-base_class_name"
+msgstr "Inherited class name"
+
+msgid "field-label-lang"
+msgstr "Language"
+
+msgid "field-desc-lang"
+msgstr "Programming language"
+
+msgid "field-label-service"
+msgstr "Service"
+
+msgid "field-desc-service"
+msgstr "The name of the service"
+
+msgid "field-label-serviceversion"
+msgstr "Version"
+
+msgid "field-desc-serviceversion"
+msgstr "Version string for the service object"
+
+msgid "field-label-servicedesc"
+msgstr "Description"
+
+msgid "field-desc-servicedesc"
+msgstr "Description of the service object"
+
+msgid "field-label-serviceauthor"
+msgstr "Author"
+
+msgid "field-desc-serviceauthor"
+msgstr "The optional author of the code object"
+
+msgid "field-label-patch"
+msgstr "Patch"
+
+msgid "field-desc-patch"
+msgstr "Optional patch string; does not affect version compatibility; this value should be updated every time the same version of the service object is updated in the database."
+
+msgid "field-label-remote"
+msgstr "Remote"
+
+msgid "field-desc-remote"
+msgstr "The optional remote status of the service, indicating if the service will run in an independent qsvc process (always False for system services; see qorus-client.remote for how the default value is set by oload when loading user services)"
+
+msgid "field-label-groups"
+msgstr "Groups"
+
+msgid "field-desc-groups"
+msgstr "One or more interface groups that the service is a member of"
+
+msgid "field-label-constants"
+msgstr "Constants"
+
+msgid "field-desc-constants"
+msgstr "An optional list of constant objects to load into the service program object"
+
+msgid "field-label-classes"
+msgstr "Classes"
+
+msgid "field-desc-classes"
+msgstr "An optional list of class objects to load into the service program object"
+
+msgid "field-label-functions"
+msgstr "Functions"
+
+msgid "field-desc-functions"
+msgstr "An optional list of functions to load into the service program object"
+
+msgid "field-label-service_modules"
+msgstr "Service modules"
+
+msgid "field-desc-service_modules"
+msgstr "lists modules providing base classes for class-based services"
+
+msgid "field-label-lock"
+msgstr "Lock"
+
+msgid "field-desc-lock"
+msgstr "Must be either none, read, or write (default none), to determine how the service's RWLock will be grabbed before the method is executed"
+
+msgid "field-label-autostart"
+msgstr "Autostart"
+
+msgid "field-desc-autostart"
+msgstr "The value of the autostart property of the service (default: False, managed by operations)"
+
+msgid "field-label-internal"
+msgstr "Internal"
+
+msgid "field-desc-internal"
+msgstr "If this boolean flag is set to True, then the method will not be automatically exported through the any network interface"
+
+msgid "field-label-write"
+msgstr "Write"
+
+msgid "field-desc-write"
+msgstr "If this boolean flag is set to True, then the method will be marked as a write method, meaning that external callers will have to have the CALL-USER-SERVICES-RW role to call the method if RBAC security is enabled"
+
+msgid "field-label-mappers"
+msgstr "Mappers"
+
+msgid "field-desc-mappers"
+msgstr "An optional list of mappers to register with the service so they are available with the UserApi::getMapper() call"
+
+msgid "field-label-vmaps"
+msgstr "Vmaps"
+
+msgid "field-desc-vmaps"
+msgstr "An optional list of value maps to register with the service so they can be used with the UserApi::getValueMap() call"
+
+msgid "field-label-resource"
+msgstr "Resource"
+
+msgid "field-desc-resource"
+msgstr "Each resource line describes one or more files (if wildcards are used) that will be loaded into the database as service file resources for use in serivces that provide HTML UI services; using this tag the resource type will be derived from the file name (either \"text\", \"binary\", or \"template\")"
+
+msgid "field-label-text_resource"
+msgstr "Text resource"
+
+msgid "field-desc-text_resource"
+msgstr "Defines text file resources (accepts wildcards)"
+
+msgid "field-label-bin_resource"
+msgstr "Bin resource"
+
+msgid "field-desc-bin_resource"
+msgstr "Defines binary file resources (accepts wildcards)"
+
+msgid "field-label-template"
+msgstr "Template"
+
+msgid "field-desc-template"
+msgstr "Defines template file resources (accepts wildcards)"
+
+msgid "field-label-define_auth_label"
+msgstr "Define auth label"
+
+msgid "field-desc-define_auth_label"
+msgstr "Defines an authentication label with an associated value"
+
+msgid "field-label-TAG"
+msgstr "Tag"
+
+msgid "field-desc-TAG"
+msgstr "Option tag definition in the format \"key: value\"; for Java services, entries in the classpath can be added here by adding a colon-separated list of path names to the \"classpath\" tag; note also that $OMQ_DIR (or any other server-side environment variable) can be used in classpath entries and will be resolved to the Qorus directory"
