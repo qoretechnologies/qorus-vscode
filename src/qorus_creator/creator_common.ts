@@ -19,6 +19,7 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
 
     for (let key in headers) {
         const value = headers[key];
+        const tag = key.replace(/_/g, '-');
 
         if (Array.isArray(value)) {
             let names: string[] = [];
@@ -31,11 +32,11 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
                     result += `${comment} groups: ` + names.join(', ');
                     break;
                 default:
-                    result += `${comment} ${key}: ` + value.join(', ');
+                    result += `${comment} ${tag}: ` + value.join(', ');
                     break;
             }
         } else {
-            result += `${comment} ${key}: ${value}`;
+            result += `${comment} ${tag}: ${value}`;
         }
 
         result += '\n';
@@ -43,9 +44,3 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
 
     return result;
 }
-
-export const SQLAuthorLen = 240;
-export const SQLDescLen = 4000;
-export const SQLVersionLen = 80;
-export const SQLNameLen = 160;
-export const SQLPatchLen = 80;
