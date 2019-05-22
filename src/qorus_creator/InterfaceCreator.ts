@@ -11,6 +11,7 @@ class InterfaceCreator {
     getProjectObjects(object_type: string, webview: vscode.Webview): any[] {
         let objects: any[] = [];
         switch (object_type) {
+            case 'base-classes': objects = this.getBaseClasses(); break;
             case 'functions': objects = this.getFunctions(); break;
             case 'classes': objects = this.getClasses(); break;
             case 'constants': objects = this.getConstants(); break;
@@ -166,6 +167,21 @@ class InterfaceCreator {
                 version: '1.0',
                 desc: 'description of uk-165-employee_hcm_master_worker-callidus-out',
             }
+        ];
+    }
+
+    private getBaseClasses() {
+        return [
+            {
+                name: 'QorusService1',
+                version: '1.0',
+                desc: 'Service class 2',
+            },
+            {
+                name: 'QorusService2',
+                version: '1.0',
+                desc: 'Service class 2',
+            },
         ];
     }
 }

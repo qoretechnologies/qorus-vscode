@@ -56,7 +56,16 @@ export const service_fields = {
     },
     base_class_name: {
         type: 'select-string',
-        style: 'camel'
+        style: 'camel',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'base-classes'
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'base-classes',
+            return_value: 'objects'
+        }
     },
     lang: {
         type: 'enum',
