@@ -2,6 +2,11 @@
 @import './project_config/style.scss';
 @import './release_package/style.scss';
 @import './delete_interfaces/style.scss';
+@import './containers/InterfaceCreator/style.scss';
+
+* {
+    box-sizing: border-box;
+}
 
 .navbar-info-table td {
     line-height: 9px;
