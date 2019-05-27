@@ -160,7 +160,7 @@ export const service_fields = {
     },
     mappers: {
         mandatory: false,
-        type: 'array'
+        type: 'select-array'
     },
     vmaps: {
         mandatory: false,
@@ -206,6 +206,7 @@ export const fake_service_data = {
     service: 'example-service',
     serviceversion: '1.0',
     servicedesc: 'example service',
+    serviceauthor: ['first author', 'second author'],
     classes: ['ExampleClass1', 'ExampleClass2'],
     groups: [{
         name: 'GROUP1',

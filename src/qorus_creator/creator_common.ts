@@ -33,10 +33,16 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
                         names.push(group.name);
                         result += `${comment} define-group: ${group.name}: ${group.desc}\n`;
                     }
-                    result += `${comment} groups: ` + names.join(', ');
+                    result += `${comment} groups: ${names.join(', ')}\n`;
+                    break;
+                case 'author':
+                case 'serviceauthor':
+                    for (let item of value) {
+                        result += `${comment} ${tag}: ${item}\n`;
+                    }
                     break;
                 default:
-                    result += `${comment} ${tag}: ` + value.join(', ');
+                    result += `${comment} ${tag}: ${value.join(', ')}\n`;
             }
         }
         else {
@@ -50,9 +56,8 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
                 default:
                     result += `${comment} ${tag}: ${value}`;
             }
+            result += '\n';
         }
-
-        result += '\n';
     }
 
     return result;
