@@ -37,6 +37,10 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
                     break;
                 case 'author':
                 case 'serviceauthor':
+                case 'resource':
+                case 'text_resource':
+                case 'bin_resource':
+                case 'template':
                     for (let item of value) {
                         result += `${comment} ${tag}: ${item}\n`;
                     }

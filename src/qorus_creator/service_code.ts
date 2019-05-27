@@ -164,23 +164,23 @@ export const service_fields = {
     },
     vmaps: {
         mandatory: false,
-        type: 'array'
+        type: 'select-array'
     },
     resource: {
         mandatory: false,
-        type: 'array'
+        type: 'file-array'
     },
     text_resource: {
         mandatory: false,
-        type: 'array'
+        type: 'file-array'
     },
     bin_resource: {
         mandatory: false,
-        type: 'array'
+        type: 'file-array'
     },
     template: {
         mandatory: false,
-        type: 'array'
+        type: 'file-array'
     },
     define_auth_label: {
         mandatory: false,
