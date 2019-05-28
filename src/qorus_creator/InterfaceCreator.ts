@@ -99,27 +99,22 @@ class InterfaceCreator {
         return [
             {
                 name: 'uk-lib-common',
-                version: '1.0',
                 desc: 'description of uk-lib-common',
             },
             {
                 name: 'uk-lib-archive',
-                version: '1.0',
                 desc: 'description of uk-lib-archive',
             },
             {
                 name: 'uk-lib-audit_tracker',
-                version: '1.0',
                 desc: 'description of uk-lib-audit_tracker',
             },
             {
                 name: 'uk-lib-sftp',
-                version: '1.0',
                 desc: 'description of uk-lib-sftp',
             },
             {
                 name: 'uk-validation-gen-transactional_info',
-                version: '1.0',
                 desc: 'description of uk-validation-gen-transactional_info',
             }
         ];
@@ -129,17 +124,14 @@ class InterfaceCreator {
         return [
             {
                 name: 'RebusHttpHandler',
-                version: '1.0',
                 desc: 'description of RebusHttpHandler',
             },
             {
                 name: 'RebusSftpPoller',
-                version: '1.0',
                 desc: 'description of RebusSftpPoller',
             },
             {
                 name: 'CsvFileIteratorWithLineGetter',
-                version: '1.0',
                 desc: 'description of CsvFileIteratorWithLineGetter',
             }
         ];
@@ -149,22 +141,18 @@ class InterfaceCreator {
         return [
             {
                 name: 'uk-001-master_item-anovo-out',
-                version: '1.0',
                 desc: 'description of uk-001-master_item-anovo-out',
             },
             {
                 name: 'uk-007-wip_work_order-utl-out',
-                version: '1.0',
                 desc: 'description of uk-007-wip_work_order-utl-out',
             },
             {
                 name: 'uk-014-om_ship_req-utl-out',
-                version: '1.0',
                 desc: 'description of uk-014-om_ship_req-utl-out',
             },
             {
                 name: 'uk-165-employee_hcm_master_worker-callidus-out',
-                version: '1.0',
                 desc: 'description of uk-165-employee_hcm_master_worker-callidus-out',
             }
         ];
@@ -174,12 +162,10 @@ class InterfaceCreator {
         return [
             {
                 name: 'QorusService1',
-                version: '1.0',
                 desc: 'Service class 2',
             },
             {
                 name: 'QorusService2',
-                version: '1.0',
                 desc: 'Service class 2',
             },
         ];
