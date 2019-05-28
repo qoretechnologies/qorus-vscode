@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import * as fs from 'fs';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import { QorusLogin } from './QorusLogin';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
-import { isTest, isVersion3 } from './qorus_utils';
+import { filesInDir, isTest, isVersion3 } from './qorus_utils';
 
 
 class QorusTest extends QorusLogin {
@@ -49,8 +48,8 @@ class QorusTest extends QorusLogin {
         const dir: string = uri.fsPath;
         msg.log(t`TestingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
-        let files: string[] = [];
-        if (!QorusTest.getAllFiles(dir, files)) {
+        const files: string[] = filesInDir(dir);
+        if (!files.some(isTest)) {
             msg.error(t`NoExecutableFilesInDir ${vscode.workspace.asRelativePath(dir, false)}`);
             return;
         }
@@ -132,24 +131,6 @@ class QorusTest extends QorusLogin {
             }
             data.push(file);
         }
-    }
-
-    // returns (in the referenced array) all files from the directory 'dir'and its subdirectories
-    private static getAllFiles(dir: string, files: string[]): boolean {
-        var result = false;
-        const dir_entries: string[] = fs.readdirSync(dir);
-        for (let entry of dir_entries) {
-            const entry_path: string = path.join(dir, entry);
-            if (fs.lstatSync(entry_path).isDirectory()) {
-                QorusTest.getAllFiles(entry_path, files);
-            } else if (isTest(entry_path)) {
-                result = true;
-                files.push(entry_path);
-            } else {
-                files.push(entry_path);
-            }
-        }
-        return result;
     }
 }
 

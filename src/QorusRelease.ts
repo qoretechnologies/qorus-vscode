@@ -8,7 +8,7 @@ import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { deployer } from './QorusDeploy';
 import * as msg from './qorus_message';
-import { isDeployable } from './qorus_utils';
+import { filesInDir, isDeployable } from './qorus_utils';
 import { t } from 'ttag';
 const copyFile = require('fs-copy-file');
 
@@ -44,24 +44,15 @@ class QorusRelease {
     }
 
     private setAllFiles() {
-        const getFiles = (dir: string) => {
-            if (!fs.existsSync(dir)) {
-                return;
-            }
-
-            const dir_entries: string[] = fs.readdirSync(dir);
-            for (let entry of dir_entries) {
-                const entry_path: string = path.join(dir, entry);
-                if (fs.lstatSync(entry_path).isDirectory()) {
-                    getFiles(entry_path);
-                } else {
-                    this.files.push(vscode.workspace.asRelativePath(entry_path, false));
-                }
-            }
-        };
-
         this.files = [];
-        this.source_directories.map(dir => getFiles(path.join(this.project_folder, dir)));
+        for (let dir of this.source_directories) {
+            if (!fs.existsSync(dir)) {
+                continue;
+            }
+            for (let file of filesInDir(path.join(this.project_folder, dir))) {
+                this.files.push(vscode.workspace.asRelativePath(file, false));
+            }
+        }
     }
 
     private createReleaseFile(webview?: vscode.Webview): any {

@@ -5,7 +5,7 @@ import * as glob from 'glob';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
-import { isDeployable, isService, isVersion3 } from './qorus_utils';
+import { filesInDir, isDeployable, isService, isVersion3 } from './qorus_utils';
 
 
 class QorusDeploy {
@@ -49,8 +49,7 @@ class QorusDeploy {
         const dir: string = uri.fsPath;
         msg.log(t`DeployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
-        let files: string[] = [];
-        QorusDeploy.getDeployableFiles(dir, files);
+        const files: string[] = filesInDir(dir, isDeployable);
         this.doDeploy(files);
     }
 
@@ -164,19 +163,6 @@ class QorusDeploy {
             return glob.sync(pattern, {nodir: true});
         }
         return [];
-    }
-
-    // returns (in the referenced array) all deployable files from the directory 'dir'and its subdirectories
-    private static getDeployableFiles(dir: string, deployable_files: string[]) {
-        const dir_entries: string[] = fs.readdirSync(dir);
-        for (let entry of dir_entries) {
-            const entry_path: string = path.join(dir, entry);
-            if (fs.lstatSync(entry_path).isDirectory()) {
-                QorusDeploy.getDeployableFiles(entry_path, deployable_files);
-            } else if (isDeployable(entry_path)) {
-                deployable_files.push(entry_path);
-            }
-        }
     }
 }
 
