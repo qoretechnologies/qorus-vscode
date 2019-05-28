@@ -2,11 +2,19 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 export function isDeployable(file_path: string): boolean {
-    const deployable_suffixes = ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn',
-                                 'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java'];
-    const suffix: string | undefined = getSuffix(file_path);
-    return suffix ? deployable_suffixes.includes(suffix) : false;
+    return hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn',
+                                        'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java']);
 };
+
+export function canBeParsed(file_path: string): boolean {
+    return hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst',
+                                        'qconn', 'qmapper', 'qvmap', 'qrf', 'java']);
+};
+
+const hasOneOfSuffixes = function(file_path: string, suffixes): boolean {
+    const suffix: string | undefined = getSuffix(file_path);
+    return suffix ? suffixes.includes(suffix) : false;
+}
 
 export function isTest(file_path: string): boolean {
     return getSuffix(file_path) === 'qtest';
