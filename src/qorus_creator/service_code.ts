@@ -202,12 +202,12 @@ export const service_fields = {
     },
     define_auth_label: {
         mandatory: false,
-        type: 'pair',
+        type: 'array-of-pairs',
         fields: ['label', 'value']
     },
     TAG: {
         mandatory: false,
-        type: 'pair',
+        type: 'array-of-pairs',
         fields: ['key', 'value']
     },
 };
