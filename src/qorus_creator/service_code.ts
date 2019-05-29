@@ -160,11 +160,29 @@ export const service_fields = {
     },
     mappers: {
         mandatory: false,
-        type: 'select-array'
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'mappers'
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'mappers',
+            return_value: 'objects'
+        }
     },
     vmaps: {
         mandatory: false,
-        type: 'select-array'
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'vmaps'
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'mappers',
+            return_value: 'vmaps'
+        }
     },
     resource: {
         mandatory: false,

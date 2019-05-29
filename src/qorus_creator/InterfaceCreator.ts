@@ -15,6 +15,7 @@ class InterfaceCreator {
             case 'functions': objects = this.getFunctions(); break;
             case 'classes': objects = this.getClasses(); break;
             case 'constants': objects = this.getConstants(); break;
+            default: objects = [];
         }
 
         if (webview) {
