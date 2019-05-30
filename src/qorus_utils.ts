@@ -7,8 +7,7 @@ export function isDeployable(file_path: string): boolean {
 };
 
 export function canBeParsed(file_path: string): boolean {
-    return hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst',
-                                        'qconn', 'qmapper', 'qvmap', 'qrf', 'java']);
+    return hasOneOfSuffixes(file_path, ['qfd', 'qsd', 'qjob', 'qclass', 'qconst', 'qmapper', 'qvmap', 'java']);
 };
 
 const hasOneOfSuffixes = function(file_path: string, suffixes): boolean {

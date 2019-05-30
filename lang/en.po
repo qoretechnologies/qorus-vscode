@@ -697,6 +697,9 @@ msgstr "${ dir } - Code info update started"
 msgid "CodeInfoUpdateFinished ${ dir }"
 msgstr "${ dir } - Code info update finished"
 
+msgid "CodeInfoUpdateFailed ${ dir }"
+msgstr "${ dir } - Code info update failed"
+
 msgid "NotExecutableFile ${ path }";
 msgstr "Not an executable file: ${ path }";
 
@@ -963,3 +966,9 @@ msgstr "Qore"
 
 msgid "field-label-java"
 msgstr "Java"
+
+msgid "ConfigFileDoesNotExist"
+msgstr "Config file does not exist"
+
+msgid "CannotReadConfigFile"
+msgstr "Unable to read config file"

@@ -35,7 +35,22 @@ export class QorusProject {
     projectFolder(): string {
         return path.dirname(this.config_file);
     }
+/*
+    configFileData(): any {
+        if (!this.configFileExists()) {
+            msg.error(t`ConfigFileDoesNotExist`);
+            return undefined;
+        }
 
+        try {
+            const file_content = fs.readFileSync(this.config_file);
+            return JSON.parse(file_content.toString());
+        } catch (error) {
+            msg.error(t`CannotReadConfigFile` + ': ' +JSON.stringify(error, null, 4));
+            return undefined;
+        }
+    }
+*/
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
         if (!this.configFileExists()) {
             return;
@@ -256,6 +271,13 @@ class QorusProjects {
             this.projects[project_folder] = new QorusProject(project_folder);
         }
         return this.projects[project_folder];
+    }
+
+    updateCodeInfo() {
+        for (let project_folder in this.projects) {
+            this.projects[project_folder].code_info.update();
+        }
+        msg.log('code info update starter returned');
     }
 
     private getProjectFolder(uri?: vscode.Uri, use_current: boolean = true): string | undefined {

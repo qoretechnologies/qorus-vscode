@@ -52,18 +52,16 @@ export const service_fields = {
         }
     },
     class_name: {
-        style: 'camel'
     },
     base_class_name: {
         type: 'select-string',
-        style: 'camel',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'base-classes'
+            object_type: 'base-class'
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'base-classes',
+            object_type: 'base-class',
             return_value: 'objects'
         }
     },
@@ -105,11 +103,11 @@ export const service_fields = {
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'constants'
+            object_type: 'constant'
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'constants',
+            object_type: 'constant',
             return_value: 'objects'
         }
     },
@@ -118,11 +116,11 @@ export const service_fields = {
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'classes'
+            object_type: 'class'
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'classes',
+            object_type: 'class',
             return_value: 'objects'
         }
     },
@@ -131,11 +129,11 @@ export const service_fields = {
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'functions'
+            object_type: 'function'
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'functions',
+            object_type: 'function',
             return_value: 'objects'
         }
     },
@@ -163,11 +161,11 @@ export const service_fields = {
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'mappers'
+            object_type: 'mapper'
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'mappers',
+            object_type: 'mapper',
             return_value: 'objects'
         }
     },
@@ -176,12 +174,12 @@ export const service_fields = {
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'vmaps'
+            object_type: 'value-map'
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'mappers',
-            return_value: 'vmaps'
+            object_type: 'value-map',
+            return_value: 'object'
         }
     },
     resource: {

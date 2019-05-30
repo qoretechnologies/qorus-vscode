@@ -11,10 +11,12 @@ class InterfaceCreator {
     getProjectObjects(object_type: string, webview: vscode.Webview): any[] {
         let objects: any[] = [];
         switch (object_type) {
-            case 'base-classes': objects = this.getBaseClasses(); break;
-            case 'functions': objects = this.getFunctions(); break;
-            case 'classes': objects = this.getClasses(); break;
-            case 'constants': objects = this.getConstants(); break;
+            case 'base-class': objects = this.getBaseClasses(); break;
+            case 'function': objects = this.getFunctions(); break;
+            case 'class': objects = this.getClasses(); break;
+            case 'constant': objects = this.getConstants(); break;
+            case 'mapper': objects = this.getMappers(); break;
+            case 'value-map': objects = this.getVMaps(); break;
             default: objects = [];
         }
 
@@ -168,6 +170,32 @@ class InterfaceCreator {
             {
                 name: 'QorusService2',
                 desc: 'Service class 2',
+            },
+        ];
+    }
+
+    private getMappers() {
+        return [
+            {
+                name: 'Mapper1',
+                desc: 'Mapper 2',
+            },
+            {
+                name: 'Mapper2',
+                desc: 'Mapper 2',
+            },
+        ];
+    }
+
+    private getVMaps() {
+        return [
+            {
+                name: 'VMap1',
+                desc: 'Value map 2',
+            },
+            {
+                name: 'VMap2',
+                desc: 'Value map 2',
             },
         ];
     }
