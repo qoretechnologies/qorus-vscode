@@ -47,7 +47,6 @@ class QorusWebview {
                     }
                 );
                 this.panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
-                this.setActiveTab(active_tab);
 
                 this.config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
                 this.message_on_config_file_change = true;
@@ -90,6 +89,9 @@ class QorusWebview {
                                 action: 'return-opening-path',
                                 path: opening_uri ? opening_uri.fsPath : t`Unknown`
                             });
+                            break;
+                        case 'get-active-tab':
+                            this.setActiveTab(active_tab);
                             break;
                         case 'get-current-project-folder':
                             this.panel.webview.postMessage({
