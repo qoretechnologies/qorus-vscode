@@ -170,11 +170,7 @@ class QorusWebview {
                             });
                             break;
                         case 'creator-get-objects':
-                            this.panel.webview.postMessage({
-                                action: 'creator-return-objects',
-                                object_type: message.object_type,
-                                objects: creator.getProjectObjects(message.object_type, this.panel.webview)
-                            });
+                            project.code_info.getObjects(message.object_type, this.panel.webview);
                             break;
                         case 'creator-create-interface':
                             creator.createInterface(message.data);
