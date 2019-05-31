@@ -188,7 +188,7 @@ export const service_fields = {
         return_message: {
             action: 'creator-return-objects',
             object_type: 'value-map',
-            return_value: 'object'
+            return_value: 'objects'
         }
     },
     resource: {
