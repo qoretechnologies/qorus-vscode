@@ -26,8 +26,6 @@ export class QorusProjectCodeInfo {
                 objects = dummy_base_classes;
                 break;
             case 'author':
-                objects = dummy_authors;
-                break;
             case 'function':
             case 'class':
             case 'constant':
@@ -35,7 +33,8 @@ export class QorusProjectCodeInfo {
             case 'value-map':
 //                objects = this.code_info[object_type];
                 objects = dummy_data[object_type];
-            default: objects = [];
+            default:
+                objects = [];
         }
 
         webview.postMessage({
@@ -73,6 +72,7 @@ export class QorusProjectCodeInfo {
         for (let type of types) {
             code_info[spaceToDash(type)] = {};
         }
+        code_info.author = {};
 
         for (let dir of ['src']) {
             if (!fs.existsSync(dir)) {
@@ -88,7 +88,13 @@ export class QorusProjectCodeInfo {
 
                 const result: Buffer = child_process.execSync(command);
                 const objects: any[] = JSON.parse(result.toString());
+
                 for (let obj of objects) {
+                    const author = obj.tags.author || obj.tags.serviceauthor;
+                    if (author) {
+                        code_info.author[author] = { name: author };
+                    }
+
                     if (!types.includes(obj.type)) {
                         continue;
                     }
@@ -303,16 +309,39 @@ const dummy_data = {
             "desc": "map of SFTP configurations to proper user connections"
         }
     ],
+    "author": [
+        {
+            "name": "David Nichols (Qore Technologies, sro)"
+        },
+        {
+            "name": "Adrian Lachata (Qore Technologies, sro)"
+        },
+        {
+            "name": "Frantisek Synek (Qoretechnologies)"
+        },
+        {
+            "name": "Frantisek Synek (Qore Technologies)"
+        },
+        {
+            "name": "Qore Technologies, sro"
+        },
+        {
+            "name": "Pavel Kveton (Qore Technologies, sro)"
+        },
+        {
+            "name": "Pavel Kveton (Qore Technologies, s.r.o.)"
+        },
+        {
+            "name": "Enzo Corbo (Accenture Italy)"
+        },
+        {
+            "name": "Claudio Deluca (Accenture)"
+        },
+        {
+            "name": "Claudio Deluca (Accenture ATS)"
+        },
+    ],
 };
-
-const dummy_authors = [
-    {
-        name: 'author 1 from company ltd, author1@company.com',
-    },
-    {
-        name: 'author 2 from company ltd, author2@company.com',
-    },
-];
 
 const dummy_base_classes = [
     {
