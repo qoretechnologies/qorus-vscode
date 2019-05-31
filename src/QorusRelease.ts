@@ -27,7 +27,7 @@ class QorusRelease {
             return;
         }
 
-        this.project_folder = project.projectFolder();
+        this.project_folder = project.folder;
 
         project.validateConfigFileAndDo(file_data => {
             this.source_directories = file_data.source_directories || [];

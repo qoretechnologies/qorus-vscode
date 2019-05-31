@@ -96,7 +96,7 @@ class QorusWebview {
                         case 'get-current-project-folder':
                             this.panel.webview.postMessage({
                                 action: 'current-project-folder',
-                                folder: path.basename(project.projectFolder())
+                                folder: path.basename(project.folder)
                             });
                             break;
                         case 'login-get-data':

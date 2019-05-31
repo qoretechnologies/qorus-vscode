@@ -17,7 +17,7 @@ export class QorusProject {
 
     constructor(project_folder: string) {
         this.project_folder = project_folder;
-        this.project_code_info = new QorusProjectCodeInfo(project_folder);
+        this.project_code_info = new QorusProjectCodeInfo(this);
     }
 
     get config_file(): string {
@@ -28,29 +28,14 @@ export class QorusProject {
         return this.project_code_info;
     }
 
+    get folder(): string {
+        return path.dirname(this.config_file);
+    }
+
     configFileExists(): boolean {
         return fs.existsSync(this.config_file);
     }
 
-    projectFolder(): string {
-        return path.dirname(this.config_file);
-    }
-/*
-    configFileData(): any {
-        if (!this.configFileExists()) {
-            msg.error(t`ConfigFileDoesNotExist`);
-            return undefined;
-        }
-
-        try {
-            const file_content = fs.readFileSync(this.config_file);
-            return JSON.parse(file_content.toString());
-        } catch (error) {
-            msg.error(t`CannotReadConfigFile` + ': ' +JSON.stringify(error, null, 4));
-            return undefined;
-        }
-    }
-*/
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
         if (!this.configFileExists()) {
             return;
@@ -98,7 +83,7 @@ export class QorusProject {
             vscode.window.showOpenDialog({
                 canSelectFiles: false,
                 canSelectFolders: true,
-                defaultUri: vscode.Uri.file(this.projectFolder())
+                defaultUri: vscode.Uri.file(this.folder)
             }).then(uris => {
                 if (!uris || !uris.length) {
                     return;

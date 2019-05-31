@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import { QorusProject } from './QorusProject';
 import { filesInDir, canBeParsed } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
@@ -11,12 +12,12 @@ const object_parser_command = 'qop.q';
 const object_chunk_length = 30;
 
 export class QorusProjectCodeInfo {
-    private project_folder: string;
+    private project: QorusProject;
     private pending: boolean = false;
     private code_info: any = {};
 
-    constructor(project_folder: string) {
-        this.project_folder = project_folder;
+    constructor(project: QorusProject) {
+        this.project = project;
     }
 
     getObjects(object_type: string, webview: vscode.Webview) {
@@ -45,25 +46,18 @@ export class QorusProjectCodeInfo {
     }
 
     update() {
-        new Promise<void>(resolve => {
-            setTimeout(() => resolve(this.doAsyncUpdate()), 1000);
-        }).then(
-            () => {
-                this.pending = false;
-                msg.log(t`CodeInfoUpdateFinished ${this.project_folder}` + ' ' + new Date().toString());
-            },
-            error => {
-                this.pending = false;
-                msg.log(t`CodeInfoUpdateFailed ${this.project_folder}` + ' ' + new Date().toString()
-                                            + ' ' + JSON.stringify(error, null, 4));
-            }
-        );
+        setTimeout(() => {
+            this.project.validateConfigFileAndDo(file_data => {
+                this.doUpdate(file_data.source_directories);
+            });
+        }, 500);
 
-        msg.log(t`CodeInfoUpdateStarted ${this.project_folder}` + ' ' + new Date().toString());
+        msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
         this.pending = true;
     }
 
-    private doAsyncUpdate() {
+    private doUpdate(source_directories: string[]) {
+        msg.log('source_directories ' + source_directories);
         const spaceToDash = str => str.replace(/ /g, '-');
 
         const types = ['class', 'function', 'constant', 'mapper', 'value map'];
@@ -74,12 +68,12 @@ export class QorusProjectCodeInfo {
         }
         code_info.author = {};
 
-        for (let dir of ['src']) {
+        for (let dir of source_directories) {
             if (!fs.existsSync(dir)) {
                 continue;
             }
 
-            let files = filesInDir(path.join(this.project_folder, dir), canBeParsed);
+            let files = filesInDir(path.join(this.project.folder, dir), canBeParsed);
 
             while (files.length) {
                 let command_parts = files.splice(0, object_chunk_length);
@@ -115,6 +109,9 @@ export class QorusProjectCodeInfo {
             this.code_info[obj_type] = Object.keys(code_info[obj_type]).map(key => code_info[obj_type][key]);
         }
 //        msg.log(JSON.stringify(this.code_info, null, 4));
+
+        this.pending = false;
+        msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
     }
 
     get update_pending(): boolean {
