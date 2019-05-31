@@ -94,7 +94,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }, null, context.subscriptions);
 }
 
-//projects.updateCodeInfo();
+// projects.updateCodeInfo();
 
 export function deactivate() {
 }

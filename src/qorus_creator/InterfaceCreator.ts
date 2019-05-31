@@ -17,6 +17,7 @@ class InterfaceCreator {
             case 'constant': objects = this.getConstants(); break;
             case 'mapper': objects = this.getMappers(); break;
             case 'value-map': objects = this.getVMaps(); break;
+            case 'author': objects = this.getAuthors(); break;
             default: objects = [];
         }
 
@@ -196,6 +197,17 @@ class InterfaceCreator {
             {
                 name: 'VMap2',
                 desc: 'Value map 2',
+            },
+        ];
+    }
+
+    private getAuthors() {
+        return [
+            {
+                name: 'author 1 from company ltd, author1@company.com',
+            },
+            {
+                name: 'author 2 from company ltd, author2@company.com',
             },
         ];
     }

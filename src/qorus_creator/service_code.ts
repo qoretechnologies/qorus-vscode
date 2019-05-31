@@ -84,7 +84,16 @@ export const service_fields = {
     },
     serviceauthor: {
         mandatory: false,
-        type: 'array'
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'author'
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'author',
+            return_value: 'objects'
+        }
     },
     patch: {
         mandatory: false,
