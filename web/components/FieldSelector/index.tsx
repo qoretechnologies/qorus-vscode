@@ -10,7 +10,9 @@ const StyledFieldSelector = styled.div`
     padding: 5px;
     border: 1px solid #eee;
     border-radius: 3px;
-    margin-bottom: 5px;
+    &:not(:first-child) {
+        margin-top: 5px;
+    }
     cursor: pointer;
     transition: all 0.1s ease-in;
     position: relative;
@@ -78,7 +80,13 @@ const FieldButton = styled.div`
     }
 `;
 
-const FieldSelector: FunctionComponent = ({ name, type: type = 'string', onClick }) => (
+export interface IFieldSelector {
+    name: string;
+    type: string;
+    onClick: (name: string) => any;
+}
+
+const FieldSelector: FunctionComponent<IFieldSelector> = ({ name, type: type = 'string', onClick }) => (
     <TextContext.Consumer>
         {t => (
             <StyledFieldSelector onClick={() => onClick(name)}>

@@ -7,7 +7,7 @@ const StyledContent = styled.div`
     overflow-y: auto;
     flex: 1;
     height: 100%;
-    padding: 0 15px;
+    padding: 0 0 0 15px;
 `;
 
 export interface IContent {

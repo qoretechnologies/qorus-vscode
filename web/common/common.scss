@@ -38,6 +38,26 @@ body {
     justify-content: space-between;
 }
 
+// This is needed for popover contents
+// to properly render with tooltips
+// otherwise the popover content is rendered
+// inline
+.bp3-menu .bp3-popover-target {
+    display: block;
+}
+.bp3-select-popover .bp3-popover-content {
+    padding: 5px;
+}
+// Add line-height to bp3 controls
+.bp3-radio,
+.bp3-switch {
+    line-height: 30px;
+}
+// Add full width to the select popover
+.select-popover {
+    width: 100%;
+}
+
 $navbar_offset: 54px;
 
 .navbar-offset {

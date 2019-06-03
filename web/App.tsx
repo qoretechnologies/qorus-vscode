@@ -23,44 +23,6 @@ const StyledApp = styled.div`
     flex: 1 auto;
 `;
 
-/*constructor() {
-    super();
-
-    this.texts = {};
-    this.num_text_requests = 0;
-
-    window.addEventListener('message', event => {
-        switch (event.data.action) {
-            case 'return-text':
-                this.texts[event.data.text_id] = event.data.text;
-                if (--this.num_text_requests == 0) {
-                    this.forceUpdate();
-                }
-                break;
-            case 'set-active-tab':
-                this.props.setActiveTab(event.data.active_tab);
-                if (event.data.active_tab === 'Login') {
-                    this.props.openLogin();
-                }
-                break;
-            case 'close-login':
-                this.props.closeLogin(false);
-                if (event.data.qorus_instance) {
-                    this.props.setCurrentQorusInstance(event.data.qorus_instance);
-                }
-                break;
-            case 'current-project-folder':
-                this.props.setCurrentProjectFolder(event.data.folder);
-                break;
-            case 'current-qorus-instance':
-                this.props.setCurrentQorusInstance(event.data.qorus_instance);
-                break;
-        }
-    });
-
-    vscode.postMessage({ action: 'get-current-project-folder' });
-}*/
-
 const Tabs = {
     Login: 'log-in',
     ProjectConfig: 'cog',
@@ -153,6 +115,8 @@ const App: FunctionComponent<IApp> = ({
                 setCurrentQorusInstance(data.qorus_instance);
             }
         );
+        // Get the current active tab
+        postMessage(Messages.GET_ACTIVE_TAB);
         // Get the current project folder
         postMessage(Messages.GET_PROJECT_FOLDER);
     });
@@ -166,8 +130,6 @@ const App: FunctionComponent<IApp> = ({
         postMessage(Messages.GET_TEXT, { text_id });
         return '';
     };
-
-    console.log('updated');
 
     return (
         <>
@@ -191,7 +153,7 @@ const App: FunctionComponent<IApp> = ({
                 </NavbarGroup>
                 <NavbarGroup align={Alignment.RIGHT} style={{ marginRight: 36 }}>
                     <NavbarDivider />
-                    <HTMLTable condensed={true} className='navbar-info-table'>
+                    <HTMLTable condensed={true} className="navbar-info-table">
                         <tr>
                             <td>{t('Project')}:</td>
                             <td>

@@ -6,7 +6,9 @@ const StyledSidePanel = styled.div`
     height: 100%;
     padding-right: 15px;
     border-right: 2px solid #d7d7d7;
-    overflow: scroll;
+    overflow: none;
+    display: flex;
+    flex-flow: column;
 `;
 
 const SidePanel: FunctionComponent = ({ children }) => <StyledSidePanel>{children}</StyledSidePanel>;

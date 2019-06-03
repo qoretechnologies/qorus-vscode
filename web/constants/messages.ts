@@ -6,6 +6,7 @@ export const Messages: { [key: string]: string } = {
     TEXT_RECEIVED: "return-text",
     GET_TEXT: "get-text",
     SET_ACTIVE_TAB: "set-active-tab",
+    GET_ACTIVE_TAB: "get-active-tab",
     CLOSE_LOGIN: "close-login",
     SET_PROJECT_FOLDER: "current-project-folder",
     SET_QORUS_INSTANCE: "current-qorus-instance",
