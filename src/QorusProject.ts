@@ -265,6 +265,12 @@ class QorusProjects {
         msg.log('code info update starter returned');
     }
 
+    updateResources() {
+        for (let project_folder in this.projects) {
+            this.projects[project_folder].code_info.updateResources();
+        }
+    }
+
     private getProjectFolder(uri?: vscode.Uri, use_current: boolean = true): string | undefined {
         if (!uri && use_current && this.current_project_folder) {
             return this.current_project_folder;

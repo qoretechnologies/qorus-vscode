@@ -193,19 +193,55 @@ export const service_fields = {
     },
     resource: {
         mandatory: false,
-        type: 'file-array'
+        type: 'file-array',
+        get_message: {
+            action: 'creator-get-resources',
+            object_type: 'resource'
+        },
+        return_message: {
+            action: 'creator-return-resources',
+            object_type: 'resource',
+            return_value: 'resources'
+        }
     },
     text_resource: {
         mandatory: false,
-        type: 'file-array'
+        type: 'file-array',
+        get_message: {
+            action: 'creator-get-resources',
+            object_type: 'text-resource'
+        },
+        return_message: {
+            action: 'creator-return-resources',
+            object_type: 'text-resource',
+            return_value: 'resources'
+        }
     },
     bin_resource: {
         mandatory: false,
-        type: 'file-array'
+        type: 'file-array',
+        get_message: {
+            action: 'creator-get-resources',
+            object_type: 'bin-resource'
+        },
+        return_message: {
+            action: 'creator-return-resources',
+            object_type: 'bin-resource',
+            return_value: 'resources'
+        }
     },
     template: {
         mandatory: false,
-        type: 'file-array'
+        type: 'file-array',
+        get_message: {
+            action: 'creator-get-resources',
+            object_type: 'template'
+        },
+        return_message: {
+            action: 'creator-return-resources',
+            object_type: 'template',
+            return_value: 'resources'
+        }
     },
     define_auth_label: {
         mandatory: false,
