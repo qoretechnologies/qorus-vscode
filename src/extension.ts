@@ -95,6 +95,7 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 // projects.updateCodeInfo();
+projects.updateResources();
 
 export function deactivate() {
 }

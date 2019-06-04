@@ -15,12 +15,13 @@ export class QorusProjectCodeInfo {
     private project: QorusProject;
     private pending: boolean = false;
     private code_info: any = {};
+    private file_tree: any = {};
 
     constructor(project: QorusProject) {
         this.project = project;
     }
 
-    getObjects(object_type: string, webview: vscode.Webview) {
+    getObjects(object_type: string, return_type: string, webview: vscode.Webview) {
         let objects: any[] = [];
         switch (object_type) {
             case 'base-class':
@@ -35,21 +36,29 @@ export class QorusProjectCodeInfo {
 //                objects = this.code_info[object_type];
                 objects = dummy_data[object_type];
                 break;
+            case 'resource':
+            case 'text-resource':
+            case 'bin-resource':
+            case 'template':
+                objects = this.file_tree;
+                break;
             default:
                 objects = [];
         }
 
         webview.postMessage({
-            action: 'creator-return-objects',
+            action: 'creator-return-' + return_type,
             object_type,
-            objects,
+            [return_type]: objects,
         });
     }
 
     update() {
+        this.updateResources();
+
         setTimeout(() => {
             this.project.validateConfigFileAndDo(file_data => {
-                this.doUpdate(file_data.source_directories);
+                this.updateObjects(file_data.source_directories);
             });
         }, 500);
 
@@ -57,8 +66,54 @@ export class QorusProjectCodeInfo {
         this.pending = true;
     }
 
-    private doUpdate(source_directories: string[]) {
-        msg.log('source_directories ' + source_directories);
+    updateResources() {
+        this.project.validateConfigFileAndDo(config_file_data => {
+            let file_tree: any = {
+                path: this.project.folder,
+                files: [],
+                dirs: []
+            };
+
+            for (let dir of config_file_data.source_directories) {
+                if (!fs.existsSync(dir)) {
+                    continue;
+                }
+
+                let dir_item = {
+                    path: path.join(this.project.folder, dir),
+                    files: [],
+                    dirs: []
+                };
+                file_tree.dirs.push(dir_item);
+                this.updateResourcesImpl(dir_item);
+            }
+
+            this.file_tree = file_tree;
+        });
+    }
+
+    private updateResourcesImpl(tree_item) {
+        const dir_entries: string[] = fs.readdirSync(tree_item.path);
+        for (let entry of dir_entries) {
+            const entry_path: string = path.join(tree_item.path, entry);
+            if (fs.lstatSync(entry_path).isDirectory()) {
+                let dir_item = {
+                    path: entry_path,
+                    files: [],
+                    dirs: []
+                };
+                tree_item.dirs.push(dir_item);
+                this.updateResourcesImpl(dir_item);
+            } else {
+                tree_item.files.push({
+                    path: tree_item.path,
+                    name: entry
+                });
+            }
+        }
+    }
+
+    private updateObjects(source_directories: string[]) {
         const spaceToDash = str => str.replace(/ /g, '-');
 
         const types = ['class', 'function', 'constant', 'mapper', 'value map'];
