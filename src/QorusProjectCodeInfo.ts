@@ -34,6 +34,7 @@ export class QorusProjectCodeInfo {
             case 'value-map':
 //                objects = this.code_info[object_type];
                 objects = dummy_data[object_type];
+                break;
             default:
                 objects = [];
         }
