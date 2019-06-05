@@ -67,14 +67,14 @@ export class QorusProjectCodeInfo {
     }
 
     updateResources() {
-        const dirItem = abs_path => ({
+        const dirItem = (abs_path: string, is_root: boolean = false) => ({
             abs_path,
-            rel_path: vscode.workspace.asRelativePath(abs_path, false),
+            rel_path: is_root ? '.' : vscode.workspace.asRelativePath(abs_path, false),
             files: [],
             dirs: []
         });
 
-        let file_tree: any = dirItem(this.project.folder);
+        let file_tree: any = dirItem(this.project.folder, true);
 
         const subDirRecursion = tree_item => {
             const dir_entries: string[] = fs.readdirSync(tree_item.abs_path);
@@ -106,6 +106,7 @@ export class QorusProjectCodeInfo {
             }
 
             this.file_tree = file_tree;
+//            msg.log('file_tree ' + JSON.stringify(file_tree, null, 4));
         });
     }
 
