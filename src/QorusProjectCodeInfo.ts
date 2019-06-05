@@ -67,50 +67,46 @@ export class QorusProjectCodeInfo {
     }
 
     updateResources() {
-        this.project.validateConfigFileAndDo(config_file_data => {
-            let file_tree: any = {
-                path: this.project.folder,
-                files: [],
-                dirs: []
-            };
+        const dirItem = abs_path => ({
+            abs_path,
+            rel_path: vscode.workspace.asRelativePath(abs_path, false),
+            files: [],
+            dirs: []
+        });
 
+        let file_tree: any = dirItem(this.project.folder);
+
+        const subDirRecursion = tree_item => {
+            const dir_entries: string[] = fs.readdirSync(tree_item.abs_path);
+            for (let entry of dir_entries) {
+                const entry_path: string = path.join(tree_item.abs_path, entry);
+                if (fs.lstatSync(entry_path).isDirectory()) {
+                    let dir_item = dirItem(entry_path);
+                    tree_item.dirs.push(dir_item);
+                    subDirRecursion(dir_item);
+                } else {
+                    tree_item.files.push({
+                        abs_path: tree_item.abs_path,
+                        rel_path: vscode.workspace.asRelativePath(tree_item.abs_path, false),
+                        name: entry
+                    });
+                }
+            }
+        };
+
+        this.project.validateConfigFileAndDo(config_file_data => {
             for (let dir of config_file_data.source_directories) {
                 if (!fs.existsSync(dir)) {
                     continue;
                 }
 
-                let dir_item = {
-                    path: path.join(this.project.folder, dir),
-                    files: [],
-                    dirs: []
-                };
+                let dir_item = dirItem(path.join(this.project.folder, dir));
                 file_tree.dirs.push(dir_item);
-                this.updateResourcesImpl(dir_item);
+                subDirRecursion(dir_item);
             }
 
             this.file_tree = file_tree;
         });
-    }
-
-    private updateResourcesImpl(tree_item) {
-        const dir_entries: string[] = fs.readdirSync(tree_item.path);
-        for (let entry of dir_entries) {
-            const entry_path: string = path.join(tree_item.path, entry);
-            if (fs.lstatSync(entry_path).isDirectory()) {
-                let dir_item = {
-                    path: entry_path,
-                    files: [],
-                    dirs: []
-                };
-                tree_item.dirs.push(dir_item);
-                this.updateResourcesImpl(dir_item);
-            } else {
-                tree_item.files.push({
-                    path: tree_item.path,
-                    name: entry
-                });
-            }
-        }
     }
 
     private updateObjects(source_directories: string[]) {
