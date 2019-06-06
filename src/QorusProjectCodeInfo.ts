@@ -6,15 +6,15 @@ import { QorusProject } from './QorusProject';
 import { filesInDir, canBeParsed } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
-import { dummy_data, dummy_base_classes } from './dummy_code_info';
+import { dummy_base_classes } from './dummy_code_info';
 
 
 const object_parser_command = 'qop.q';
-const object_chunk_length = 30;
+const object_chunk_length = 100;
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
-    private pending: boolean = false;
+    private pending: boolean = true;
     private code_info: any = {};
     private file_tree: any = {};
 
@@ -22,36 +22,50 @@ export class QorusProjectCodeInfo {
         this.project = project;
     }
 
-    getObjects(object_type: string, return_type: string, webview: vscode.Webview) {
-        let objects: any[] = [];
-        switch (object_type) {
-            case 'base-class':
-                objects = dummy_base_classes;
-                break;
-            case 'author':
-            case 'function':
-            case 'class':
-            case 'constant':
-            case 'mapper':
-            case 'value-map':
-//                objects = this.code_info[object_type];
-                objects = dummy_data[object_type];
-                break;
-            case 'resource':
-            case 'text-resource':
-            case 'bin-resource':
-            case 'template':
-                objects = this.file_tree;
-                break;
-            default:
-                objects = [];
+    getObjects(object_type: string, webview: vscode.Webview) {
+        let return_type: string;
+        let interval_id: any;
+
+        const getObjectsCheckPending = () => {
+            if (this.pending) {
+                return;
+            }
+
+            clearInterval(interval_id);
+
+            let objects: any[] = [];
+            switch (object_type) {
+                case 'base-class':
+                    objects = dummy_base_classes;
+                    break;
+                case 'author':
+                case 'function':
+                case 'class':
+                case 'constant':
+                case 'mapper':
+                case 'value-map':
+                    return_type = 'objects';
+                    objects = this.code_info[object_type];
+                    break;
+                case 'resource':
+                case 'text-resource':
+                case 'bin-resource':
+                case 'template':
+                    return_type = 'resources';
+                    objects = this.file_tree;
+                    break;
+                default:
+                    objects = [];
+            }
+
+            webview.postMessage({
+                action: 'creator-return-' + return_type,
+                object_type,
+                [return_type]: objects,
+            });
         }
 
-        webview.postMessage({
-            action: 'creator-return-' + return_type,
-            object_type,
-            [return_type]: objects,
-        });
+        interval_id = setInterval(getObjectsCheckPending, 200);
     }
 
     update() {
@@ -61,7 +75,7 @@ export class QorusProjectCodeInfo {
             this.project.validateConfigFileAndDo(file_data => {
                 this.updateObjects(file_data.source_directories);
             });
-        }, 500);
+        }, 100);
 
         msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
         this.pending = true;
@@ -107,7 +121,6 @@ export class QorusProjectCodeInfo {
             }
 
             this.file_tree = file_tree;
-//            msg.log('file_tree ' + JSON.stringify(file_tree, null, 4));
         });
     }
 
@@ -129,46 +142,47 @@ export class QorusProjectCodeInfo {
 
             let files = filesInDir(path.join(this.project.folder, dir), canBeParsed);
 
+            let num_pending = 0;
             while (files.length) {
+                this.pending = true;
+                num_pending++;
                 let command_parts = files.splice(0, object_chunk_length);
                 command_parts.unshift(object_parser_command);
                 const command: string = command_parts.join(' ');
 
-                const result: Buffer = child_process.execSync(command);
-                const objects: any[] = JSON.parse(result.toString());
+                child_process.exec(command, {maxBuffer: 99999999}, (_error, stdout, _stderr) => {
 
-                for (let obj of objects) {
-                    const author = obj.tags.author || obj.tags.serviceauthor;
-                    if (author) {
-                        code_info.author[author] = { name: author };
-                    }
+                    const objects: any[] = JSON.parse(stdout.toString());
 
-                    if (!types.includes(obj.type)) {
-                        continue;
-                    }
-                    if (obj.type === 'function' && obj.tags.type !== 'GENERIC') {
-                        continue;
-                    }
+                    for (let obj of objects) {
+                        const author = obj.tags.author || obj.tags.serviceauthor;
+                        if (author) {
+                            code_info.author[author] = { name: author };
+                        }
 
-                    code_info[spaceToDash(obj.type)][obj.tags.name] = {
-                        name: obj.tags.name,
-                        desc: obj.tags.desc,
-                    };
-                }
+                        if (!types.includes(obj.type)) {
+                            continue;
+                        }
+                        if (obj.type === 'function' && obj.tags.type !== 'GENERIC') {
+                            continue;
+                        }
+
+                        code_info[spaceToDash(obj.type)][obj.tags.name] = {
+                            name: obj.tags.name,
+                            desc: obj.tags.desc,
+                        };
+                    }
+                    if (--num_pending == 0) {
+                        this.code_info = {};
+                        for (let obj_type in code_info) {
+                            this.code_info[obj_type] = Object.keys(code_info[obj_type]).map(key => code_info[obj_type][key]);
+                        }
+
+                        this.pending = false;
+                        msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
+                    }
+                });
             }
         }
-
-        this.code_info = {};
-        for (let obj_type in code_info) {
-            this.code_info[obj_type] = Object.keys(code_info[obj_type]).map(key => code_info[obj_type][key]);
-        }
-//        msg.log(JSON.stringify(this.code_info, null, 4));
-
-        this.pending = false;
-        msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
-    }
-
-    get update_pending(): boolean {
-        return this.pending;
     }
 }

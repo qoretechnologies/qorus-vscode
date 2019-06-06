@@ -193,7 +193,7 @@ export const service_fields = {
     },
     resource: {
         mandatory: false,
-        type: 'file-array',
+        type: 'file-tree',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'resource'
@@ -206,7 +206,7 @@ export const service_fields = {
     },
     text_resource: {
         mandatory: false,
-        type: 'file-array',
+        type: 'file-tree',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'text-resource'
@@ -219,7 +219,7 @@ export const service_fields = {
     },
     bin_resource: {
         mandatory: false,
-        type: 'file-array',
+        type: 'file-tree',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'bin-resource'
@@ -232,7 +232,7 @@ export const service_fields = {
     },
     template: {
         mandatory: false,
-        type: 'file-array',
+        type: 'file-tree',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'template'
