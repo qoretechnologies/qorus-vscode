@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState, FormEvent } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
-import { size, map, filter, find, includes } from 'lodash';
+import { size, map, filter, find, includes, reduce } from 'lodash';
 import SidePanel from '../../components/SidePanel';
 import FieldSelector from '../../components/FieldSelector';
 import Content from '../../components/Content';
@@ -13,7 +13,7 @@ import Field from '../../components/Field';
 import FieldLabel from '../../components/FieldLabel';
 import styled from 'styled-components';
 import FieldActions from '../../components/FieldActions';
-import { InputGroup, Intent, ButtonGroup, Button } from '@blueprintjs/core';
+import { InputGroup, Intent, ButtonGroup, Button, Classes } from '@blueprintjs/core';
 import { validateField } from '../../helpers/validations';
 
 export interface IInterfaceCreatorPanel {
@@ -98,6 +98,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             setSelectedFields(preselectedFields);
             // Save the fields
             setFields(transformedFields);
+
+            console.log(transformedFields);
         });
         // Fetch the fields
         postMessage(Messages.GET_FIELDS, { iface_kind: type });
@@ -164,21 +166,37 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         );
     };
 
-    const handleResetClick: () => void = () => {
-        console.log('lel');
-        // Remove value from all of the fields
-        setSelectedFields(
-            (currentFields: IField[]): IField[] => {
-                return currentFields.map((field: IField) => ({
-                    ...field,
-                    value: undefined,
-                }));
+    // check if the form is valid
+    const isFormValid: () => boolean = () => selectedFields.every(({ isValid }: IField) => isValid);
+
+    const handleAddAll: () => void = () => {
+        // Add all remaning fields that are
+        // not yet selected
+        fields.forEach(
+            (field: IField): void => {
+                if (!field.selected) {
+                    addField(field.name);
+                }
             }
         );
     };
 
+    const handleSubmitClick: () => void = () => {
+        // Build the finished object
+        const data: { [key: string]: any } = reduce(
+            selectedFields,
+            (result: { [key: string]: any }, field: IField) => ({
+                ...result,
+                [field.name]: field.value,
+            }),
+            {}
+        );
+
+        console.log(data);
+    };
+
     if (!size(fields)) {
-        return <p> Loading fields... </p>;
+        return <p>{t('LoadingFields')}</p>;
     }
 
     // Filter out the selected fields
@@ -216,7 +234,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             <SidePanel>
                 <SearchWrapper>
                     <InputGroup
-                        placeholder={'Filter available fields...'}
+                        placeholder={t('FilterAvailableFields')}
                         value={query}
                         onChange={(event: FormEvent<HTMLInputElement>) => setQuery(event.currentTarget.value)}
                         leftIcon={'search'}
@@ -224,20 +242,26 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     />
                 </SearchWrapper>
                 <ContentWrapper>
-                    {map(fieldList, (field: any) => (
-                        <FieldSelector name={field.name} type={field.type} onClick={handleAddClick} />
-                    ))}
+                    {fieldList.length ? (
+                        map(fieldList, (field: any) => (
+                            <FieldSelector name={field.name} type={field.type} onClick={handleAddClick} />
+                        ))
+                    ) : (
+                        <p className={Classes.TEXT_MUTED}>No fields available</p>
+                    )}
                 </ContentWrapper>
-                <ActionsWrapper>
-                    <ButtonGroup fill>
-                        <Button text="Select all" icon="plus" />
-                    </ButtonGroup>
-                </ActionsWrapper>
+                {fieldList.length ? (
+                    <ActionsWrapper>
+                        <ButtonGroup fill>
+                            <Button text={t('SelectAll')} icon={'plus'} onClick={handleAddAll} />
+                        </ButtonGroup>
+                    </ActionsWrapper>
+                ) : null}
             </SidePanel>
             <Content>
                 <SearchWrapper>
                     <InputGroup
-                        placeholder={'Filter selected fields...'}
+                        placeholder={t('FilterSelectedFields')}
                         value={selectedQuery}
                         onChange={(event: FormEvent<HTMLInputElement>) => setSelectedQuery(event.currentTarget.value)}
                         leftIcon={'search'}
@@ -262,8 +286,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 </ContentWrapper>
                 <ActionsWrapper>
                     <ButtonGroup fill>
-                        <Button text="Reset" icon="refresh" onClick={handleResetClick} />
-                        <Button text="Submit" icon="tick" intent={Intent.SUCCESS} />
+                        <Button
+                            text={t('Submit')}
+                            disabled={!isFormValid()}
+                            icon={'tick'}
+                            intent={Intent.SUCCESS}
+                            onClick={handleSubmitClick}
+                        />
                     </ButtonGroup>
                 </ActionsWrapper>
             </Content>

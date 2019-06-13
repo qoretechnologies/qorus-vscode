@@ -7,6 +7,7 @@ import SelectField from './select';
 import MultiSelect from './multiSelect';
 import RadioField from './radioField';
 import MultiPairField from './multiPair';
+import MultiFileField from './fileArray';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 
 export interface IField {
@@ -14,6 +15,7 @@ export interface IField {
     name: string;
     t: TTranslator;
     fields: string[];
+    value?: any;
     onChange: IFieldChange;
 }
 
@@ -38,9 +40,17 @@ const Field: FunctionComponent<IField> = ({ type, ...rest }) => {
     if (type === 'select-array') {
         return <MultiSelect {...rest} />;
     }
+    // Simple array
+    if (type === 'array') {
+        return <MultiSelect simple {...rest} />;
+    }
     // Radio buttons
     if (type === 'enum') {
         return <RadioField {...rest} />;
+    }
+    // Files
+    if (type === 'file-tree') {
+        return <MultiFileField {...rest} />;
     }
 
     return <span> WIP </span>;

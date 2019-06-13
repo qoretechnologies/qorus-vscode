@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, ChangeEvent } from 'react';
+import React, { FunctionComponent, ChangeEvent } from 'react';
 import { InputGroup, ButtonGroup, Button, Classes } from '@blueprintjs/core';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
@@ -9,26 +9,15 @@ export interface IStringField {
     fill?: boolean;
 }
 
-const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({ name, onChange, t, fill }) => {
-    const [value, setValue] = useState<string>('');
-
+const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({ name, onChange, value, fill }) => {
     // When input value changes
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-        // Set the field value
-        setValue(event.target.value);
-        // Run the callback
-        if (onChange) {
-            onChange(name, event.target.value);
-        }
+        onChange(name, event.target.value);
     };
 
     // Clear the input on reset click
     const handleResetClick = (): void => {
-        setValue('');
-        // Run the callback
-        if (onChange) {
-            onChange(name, '');
-        }
+        onChange(name, '');
     };
 
     return (
@@ -37,9 +26,10 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({ 
             value={value}
             onChange={handleInputChange}
             rightElement={
+                value &&
                 value !== '' && (
                     <ButtonGroup minimal>
-                        <Button onClick={handleResetClick} icon="cross" />
+                        <Button onClick={handleResetClick} icon={'cross'} />
                     </ButtonGroup>
                 )
             }

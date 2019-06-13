@@ -5,10 +5,12 @@ import useMount from 'react-use/lib/useMount';
 import { includes } from 'lodash';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { TTranslator } from '../../App';
 
 export interface ISelectField {
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
+    t: TTranslator;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -18,9 +20,10 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     postMessage,
     name,
     onChange,
+    value,
+    t,
 }) => {
     const [items, setItems] = useState<any[]>([]);
-    const [selectedItem, setSelectedItem] = useState<any>(null);
     const [query, setQuery] = useState<string>('');
 
     useMount(() => {
@@ -33,13 +36,9 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         });
     });
 
-    useEffect(() => {
-        onChange(name, selectedItem);
-    }, [selectedItem]);
-
     const handleSelectClick: (item: any) => void = item => {
         // Set the selected item
-        setSelectedItem(item);
+        onChange(name, item.name);
     };
 
     const handleClick: () => void = () => {
@@ -57,21 +56,20 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             itemRenderer={(item, data) => (
                 <Tooltip content={item.desc}>
                     <MenuItem
-                        icon={selectedItem && item.name === selectedItem.name ? 'tick' : 'blank'}
+                        icon={value && item.name === value ? 'tick' : 'blank'}
                         text={item.name}
                         onClick={data.handleClick}
                     />
                 </Tooltip>
             )}
+            inputProps={{
+                placeholder: t('Filter'),
+            }}
             onItemSelect={(item: any) => handleSelectClick(item)}
             query={query}
             onQueryChange={(newQuery: string) => setQuery(newQuery)}
         >
-            <Button
-                text={selectedItem ? selectedItem.name : 'Please select'}
-                rightIcon="caret-down"
-                onClick={handleClick}
-            />
+            <Button text={value ? value : t('PleaseSelect')} rightIcon={'caret-down'} onClick={handleClick} />
         </Select>
     );
 };

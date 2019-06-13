@@ -15,17 +15,14 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     default_value,
     onChange,
     name,
+    value,
 }) => {
-    const [value, setValue] = useState<string>(default_value);
-
     useMount(() => {
         // Set the default value
         onChange(name, default_value);
     });
 
     const handleValueChange: (event: FormEvent<HTMLInputElement>) => void = event => {
-        // Set the current radio value
-        setValue(event.currentTarget.value);
         // Send the change
         onChange(name, event.currentTarget.value);
     };

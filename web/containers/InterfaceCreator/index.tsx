@@ -14,15 +14,15 @@ export interface ICreateInterface {
 
 const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, targetDir }) => (
     <Box fill>
-        <Tabs id="CreateInterfaceTabs" renderActiveTabPanelOnly className="fullHeightTabs">
+        <Tabs id={'CreateInterfaceTabs'} renderActiveTabPanelOnly className={'fullHeightTabs'}>
             <Tab
-                id="services"
+                id={'services'}
                 title={t('Services')}
-                className="flex-column flex-auto"
-                panel={<InterfaceCreatorPanel type="service" />}
+                className={'flex-column flex-auto'}
+                panel={<InterfaceCreatorPanel type={'service'} />}
             />
-            <Tab id="workflows" title={t('Workflows')} panel={<InterfaceCreatorPanel type="workflow" />} />
-            <Tab id="jobs" title={t('Jobs')} panel={<InterfaceCreatorPanel />} />
+            <Tab id={'workflows'} title={t('Workflows')} panel={<InterfaceCreatorPanel type={'workflow'} />} />
+            <Tab id={'jobs'} title={t('Jobs')} panel={<InterfaceCreatorPanel />} />
         </Tabs>
     </Box>
 );

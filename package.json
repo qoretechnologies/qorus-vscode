@@ -315,6 +315,7 @@
         "@types/react": "^16.8.15",
         "@types/react-dom": "^16.8.4",
         "@types/request-promise": "^4.1.42",
+        "@typescript-eslint/eslint-plugin": "^1.9.0",
         "babel-loader": "^8.0.4",
         "babel-plugin-syntax-jsx": "^6.18.0",
         "babel-plugin-ttag": "^1.4.0",

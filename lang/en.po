@@ -972,3 +972,25 @@ msgstr "Config file does not exist"
 
 msgid "CannotReadConfigFile"
 msgstr "Unable to read config file"
+
+msgid "PleaseSelect"
+msgstr "Please select"
+
+msgid "Submit"
+msgstr "Submit"
+
+msgid "Filter"
+msgstr "Filter..."
+
+msgid "FilterAvailableFields"
+msgstr "Filter available fields..."
+
+msgid "FilterSelectedFields"
+msgstr "Filter selected fields..."
+
+msgid "LoadingFields"
+msgstr "Loading fields..."
+
+msgid "SelectAll"
+msgstr "Select all"
+

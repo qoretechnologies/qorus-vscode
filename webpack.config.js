@@ -1,29 +1,29 @@
-const path = require("path");
-const webpack = require("webpack");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CompressionPlugin = require("compression-webpack-plugin");
-const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const merge = require("webpack-merge");
+const path = require('path');
+const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const merge = require('webpack-merge');
 
 // Root path
-const root = path.resolve(__dirname, "./");
+const root = path.resolve(__dirname, './');
 
 //*
 //* COMMON CONFIG
 //*
 let webpackConfig = {
-    name: "webview",
+    name: 'webview',
     context: `${root}/web`,
     cache: false,
     output: {
         path: `${root}/dist`,
-        filename: "[name].bundle.js",
-        chunkFilename: "[name].bundle.js",
-        publicPath: "http://localhost:9876/",
+        filename: '[name].bundle.js',
+        chunkFilename: '[name].bundle.js',
+        publicPath: 'http://localhost:9876/',
         pathinfo: false,
     },
     resolve: {
-        extensions: [".js", ".ts", ".tsx", ".json"],
+        extensions: ['.js', '.ts', '.tsx', '.json'],
     },
     module: {
         rules: [
@@ -31,7 +31,7 @@ let webpackConfig = {
                 test: /\.ts|tsx|js$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: "babel-loader",
+                    loader: 'babel-loader',
                     options: {
                         cacheDirectory: true,
                     },
@@ -41,29 +41,24 @@ let webpackConfig = {
                 test: /\.(html|svg|ico|eot)$/,
                 use: [
                     {
-                        loader: "file-loader",
+                        loader: 'file-loader',
                         options: {
-                            name: "[name].[ext]",
+                            name: '[name].[ext]',
                         },
                     },
                 ],
             },
             {
                 test: /\.(c|sc)ss$/,
-                use: [
-                    "style-loader",
-                    MiniCssExtractPlugin.loader,
-                    "css-loader",
-                    "sass-loader",
-                ],
+                use: ['style-loader', MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
             },
             {
                 test: /\.(png|jpg|gif|woff|woff2|mp3|obj|mtl|wav|babylon)$/,
                 use: [
                     {
-                        loader: "file-loader",
+                        loader: 'file-loader',
                         options: {
-                            name: "[name].[ext]",
+                            name: '[name].[ext]',
                         },
                     },
                 ],
@@ -76,9 +71,9 @@ let webpackConfig = {
             cacheGroups: {
                 vendors: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: "vendors",
+                    name: 'vendors',
                     enforce: true,
-                    chunks: "all",
+                    chunks: 'all',
                 },
             },
         },
@@ -86,25 +81,24 @@ let webpackConfig = {
     plugins: [
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
         new MiniCssExtractPlugin({
-            filename: "css/[name].css",
-            chunkFilename: "css/[name].css",
+            filename: 'css/[name].css',
+            chunkFilename: 'css/[name].css',
         }),
         new webpack.DefinePlugin({
-            "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         }),
         new webpack.ProvidePlugin({
-            fetch:
-                "imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch",
+            fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch',
         }),
     ],
 };
 
 //* DEVELOPMENT CONFIG
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === 'development') {
     webpackConfig = merge(webpackConfig, {
         entry: {
             webview: [
-                "webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr",
+                'webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr',
                 `${root}/web/index.js`,
             ],
         },
@@ -114,9 +108,9 @@ if (process.env.NODE_ENV === "development") {
                     test: /\.(ttf)$/,
                     use: [
                         {
-                            loader: "file-loader",
+                            loader: 'file-loader',
                             options: {
-                                name: "[name].[ext]",
+                                name: '[name].[ext]',
                             },
                         },
                     ],
@@ -124,12 +118,9 @@ if (process.env.NODE_ENV === "development") {
             ],
         },
         cache: true,
-        mode: "development",
-        devtool: "eval-source-map",
-        plugins: [
-            new webpack.HotModuleReplacementPlugin(),
-            new webpack.NoEmitOnErrorsPlugin(),
-        ],
+        mode: 'development',
+        devtool: 'eval-source-map',
+        plugins: [new webpack.HotModuleReplacementPlugin(), new webpack.NoEmitOnErrorsPlugin()],
     });
 
     //* PRODUCTION CONFIG
@@ -138,7 +129,7 @@ if (process.env.NODE_ENV === "development") {
         entry: {
             webview: [`${root}/web/index.js`],
         },
-        mode: "production",
+        mode: 'production',
         devtool: false,
         stats: {
             colors: false,
@@ -156,9 +147,9 @@ if (process.env.NODE_ENV === "development") {
                     test: /\.(ttf)$/,
                     use: [
                         {
-                            loader: "file-loader",
+                            loader: 'file-loader',
                             options: {
-                                name: "fonts/[name].[ext]",
+                                name: 'fonts/[name].[ext]',
                             },
                         },
                     ],
@@ -168,10 +159,7 @@ if (process.env.NODE_ENV === "development") {
         plugins: [
             new OptimizeCssAssetsPlugin({
                 cssProcessorPluginOptions: {
-                    preset: [
-                        "default",
-                        { discardComments: { removeAll: true } },
-                    ],
+                    preset: ['default', { discardComments: { removeAll: true } }],
                 },
                 canPrint: true,
             }),

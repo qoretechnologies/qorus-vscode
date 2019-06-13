@@ -24,7 +24,7 @@ const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, r
         <FieldLabelControls>
             <ButtonGroup minimal>
                 <Tooltip content={desc}>
-                    <Button icon="info-sign" />
+                    <Button icon={'info-sign'} />
                 </Tooltip>
                 <Button icon={'trash'} disabled={!removable} onClick={() => onClick && onClick(name)} />
             </ButtonGroup>

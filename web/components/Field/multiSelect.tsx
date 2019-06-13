@@ -1,9 +1,14 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
+import compose from 'recompose/compose';
 import { Select, MultiSelect } from '@blueprintjs/select';
 import { MenuItem, Button, Tooltip, Tag } from '@blueprintjs/core';
 import useMount from 'react-use/lib/useMount';
 import { includes, size } from 'lodash';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import { IField } from '.';
+import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { TTranslator } from '../../App';
+import withTextContext from '../../hocomponents/withTextContext';
 
 export interface IMultiSelectField {
     get_message: { action: string; object_type: string };
@@ -11,41 +16,45 @@ export interface IMultiSelectField {
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
     name: string;
-    onChange: (fieldName: string, value: any) => void;
+    t: TTranslator;
+    simple: boolean;
 }
 
-const MultiSelectField: FunctionComponent<IMultiSelectField> = ({
+const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldChange> = ({
     get_message,
     return_message,
     addMessageListener,
     postMessage,
     onChange,
     name,
+    value = [],
+    t,
+    simple,
 }) => {
     const [items, setItems] = useState<any[]>([]);
-    const [selectedItems, setSelectedItems] = useState<any>([]);
-    const [query, setQuery] = useState<string>('');
 
     useMount(() => {
-        //
-        postMessage(get_message.action, { object_type: get_message.object_type });
-        addMessageListener(return_message.action, (data: any) => {
-            // Check if this is the correct
-            // object type
-            if (data.object_type === return_message.object_type) {
-                setItems(data[return_message.return_value]);
-            }
-        });
+        if (!simple) {
+            //
+            postMessage(get_message.action, { object_type: get_message.object_type });
+            addMessageListener(return_message.action, (data: any) => {
+                // Check if this is the correct
+                // object type
+                if (data.object_type === return_message.object_type) {
+                    setItems(data[return_message.return_value]);
+                }
+            });
+        }
     });
 
-    useEffect(() => {
+    const setSelectedItems = (newValue: string[]) => {
         // Send the selected items whenever they change
-        onChange(name, selectedItems.map(item => item.name));
-    }, [selectedItems]);
+        onChange(name, newValue);
+    };
 
     const handleSelectClick: (item: any) => void = item => {
         // Check if this item is selected
-        const isSelected: boolean = !!selectedItems.find((selectedItem: any) => selectedItem.name === item.name);
+        const isSelected: boolean = !!value.find((selectedItem: any) => selectedItem.name === item.name);
         // Remove the item if it's selected
         if (isSelected) {
             deselectItem(item.name);
@@ -57,7 +66,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField> = ({
                 setItems(currentItems => [...currentItems, item]);
             }
             // Set the selected item
-            setSelectedItems((currentItems: any[]) => [...currentItems, item]);
+            setSelectedItems([...value, item]);
         }
     };
 
@@ -70,32 +79,26 @@ const MultiSelectField: FunctionComponent<IMultiSelectField> = ({
     };
 
     const deselectItem: (name: string) => void = name => {
-        setSelectedItems((currentItems: any[]) => currentItems.filter((item: any) => item.name !== name));
+        setSelectedItems(value.filter((item: any) => item.name !== name));
     };
 
-    // Filter the items
-    const filteredItems: any[] =
-        query === '' ? items : items.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
-
     // Clear button
-    const ClearButton = size(selectedItems) ? <Button icon="cross" minimal onClick={handleClearClick} /> : undefined;
+    const ClearButton = size(value) ? <Button icon={'cross'} minimal onClick={handleClearClick} /> : undefined;
+
+    console.log(value);
 
     return (
         <MultiSelect
-            items={filteredItems}
+            items={items}
             createNewItemFromQuery={(query: string) => ({
                 name: query,
             })}
             createNewItemRenderer={(query, _active, handleClick) => (
-                <MenuItem icon="add" text={`Add new ${query}`} onClick={handleClick} />
+                <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
             )}
             itemRenderer={(item, { handleClick }) => (
                 <Tooltip content={item.desc}>
-                    <MenuItem
-                        icon={includes(selectedItems, item) ? 'tick' : 'blank'}
-                        text={item.name}
-                        onClick={handleClick}
-                    />
+                    <MenuItem icon={includes(value, item) ? 'tick' : 'blank'} text={item.name} onClick={handleClick} />
                 </Tooltip>
             )}
             popoverProps={{ targetClassName: 'select-popover' }}
@@ -109,7 +112,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField> = ({
                     minimal: true,
                 },
             }}
-            selectedItems={selectedItems}
+            selectedItems={value}
             onItemSelect={(item: any) => handleSelectClick(item)}
             resetOnQuery
             resetOnSelect
@@ -118,4 +121,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField> = ({
     );
 };
 
-export default withMessageHandler()(MultiSelectField);
+export default compose(
+    withTextContext(),
+    withMessageHandler()
+)(MultiSelectField);
