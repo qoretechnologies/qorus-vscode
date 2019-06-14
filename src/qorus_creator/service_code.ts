@@ -50,8 +50,8 @@ export const service_fields = {
     target_file: {
     },
     class_name: {
-        prefill: service,
-        style: PascalCase
+        prefill: 'service',
+        style: 'PascalCase'
     },
     base_class_name: {
         type: 'select-string',
