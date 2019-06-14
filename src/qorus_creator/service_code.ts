@@ -50,6 +50,8 @@ export const service_fields = {
     target_file: {
     },
     class_name: {
+        prefill: service,
+        style: PascalCase
     },
     base_class_name: {
         type: 'select-string',
@@ -69,12 +71,6 @@ export const service_fields = {
         default_value: 'qore'
     },
     service: {
-        prefill: {
-            function: {
-                name: 'camelToDash',
-                args: ['class_name']
-            }
-        }
     },
     serviceversion: {
     },
