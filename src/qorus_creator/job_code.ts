@@ -39,14 +39,6 @@ export const defaultJobHeaders = data => {
 };
 
 
-export const default_job_parse_options = "\
-%new-style\n\
-%require-types\n\
-%strict-args\n\
-%enable-all-warnings\n\
-";
-
-
 export const job_fields = {
     name:               {mandatory: true,  type: 'string'},
     version:            {mandatory: true,  type: 'string'},

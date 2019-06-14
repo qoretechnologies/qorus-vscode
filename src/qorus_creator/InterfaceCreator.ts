@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { fillTemplate, createHeaders, suffix, comment_chars } from './creator_common';
+import { fillTemplate, createHeaders, suffix, comment_chars, default_parse_options } from './creator_common';
 import { service_template, service_fields, defaultServiceHeaders } from './service_code';
-import { job_template, defaultJobHeaders, default_job_parse_options } from './job_code';
+import { job_template, defaultJobHeaders } from './job_code';
 
 
 class InterfaceCreator {
@@ -16,62 +16,92 @@ class InterfaceCreator {
     createInterface(data: any) {
         const {iface_kind, ...other_data} = data;
         switch (iface_kind) {
-            case 'service': this.createService(other_data); break;
-            case 'job': this.createJob(other_data); break;
+            case 'service':
+                this.createService(other_data);
+                this.createServiceOldFormat(other_data);
+                break;
+            case 'job':
+                this.createJobOldFormat(other_data);
+                break;
         }
     }
 
     private createService(data: any) {
-        const {lang = 'qore', ...other_data} = data;
-        const {headers, code, target_path} = this.headersAndCode(
+        const {lang = 'qore', target_dir, possible_target_file, ...other_data} = data;
+        const target_file_base = possible_target_file
+            ? path.basename(possible_target_file, '.qsd')
+            : `${other_data.service}-${other_data.serviceversion}`;
+
+        const file_name = `${target_file_base}.qsd${suffix[lang]}`;
+
+        const {headers, code} = this.codeParts(
             lang,
             other_data,
-            `${other_data.service}-${other_data.serviceversion}.qsd${suffix[lang]}`,
-            defaultServiceHeaders(other_data),
+            {type: 'service', code: file_name},
             service_template[lang]
         );
 
         fs.writeFileSync(
-            target_path,
+            path.join(target_dir, `${target_file_base}.yaml`),
+            headers
+        );
+
+        fs.writeFileSync(
+            path.join(target_dir, file_name),
+            (lang === 'qore' ? default_parse_options + '\n' : '') + code
+        );
+    }
+
+    private createServiceOldFormat(data: any) {
+        const {lang = 'qore', target_dir, possible_target_file, ...other_data} = data;
+        const target_file = possible_target_file
+            || `${other_data.service}-${other_data.serviceversion}.old.qsd${suffix[lang]}`;
+
+        const {headers, code} = this.codeParts(
+            lang,
+            other_data,
+            defaultServiceHeaders(other_data),
+            service_template[lang],
+            true
+        );
+
+        fs.writeFileSync(
+            path.join(target_dir, target_file),
             headers + `${comment_chars[lang]} ENDSERVICE\n\n` + code
         );
     }
 
-    private createJob(data: any) {
-        const {lang = 'qore', ...other_data} = data;
-        const {headers, code, target_path} = this.headersAndCode(
+    private createJobOldFormat(data: any) {
+        const {lang = 'qore', target_dir, possible_target_file, ...other_data} = data;
+        const target_file = possible_target_file
+            || `${other_data.name}-${other_data.version}.old.qjob${suffix[lang]}`;
+
+        const {headers, code} = this.codeParts(
             lang,
             other_data,
-            `${other_data.name}-${other_data.version}.qjob${suffix[lang]}`,
             defaultJobHeaders(other_data),
-            job_template[lang]
+            job_template[lang],
+            true
         );
 
         fs.writeFileSync(
-            target_path,
-            headers + (lang === 'qore' ? default_job_parse_options : '') + '\n'
+            path.join(target_dir, target_file),
+            headers + (lang === 'qore' ? default_parse_options : '') + '\n'
                     + code + comment_chars[lang] + ' END\n'
         );
     }
 
-    private headersAndCode(lang, data, default_file_name, default_header_vars, template): any {
-        const {
-            target_dir,
-            target_file = default_file_name,
-            class_name,
-            base_class_name,
-            ...header_vars
-        } = data;
+    private codeParts(lang: string, data: any, default_header_vars: any, template: string, old_format = false): any {
+        const { class_name, base_class_name, ...header_vars } = data;
 
         const headers = createHeaders(
             Object.assign({}, header_vars, default_header_vars, header_vars),
-            lang
+            lang,
+            old_format
         );
         const code = fillTemplate(template, {class_name, base_class_name});
 
-        const target_path = path.join(target_dir, target_file);
-
-        return {headers, code, target_path};
+        return {headers, code};
     }
 }
 

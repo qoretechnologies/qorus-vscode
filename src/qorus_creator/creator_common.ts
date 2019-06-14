@@ -12,7 +12,79 @@ export const comment_chars = {
     qore: '#',
 };
 
-export function createHeaders(headers: any, lang: string = 'qore'): string {
+export const default_parse_options = "\
+%new-style\n\
+%strict-args\n\
+%require-types\n\
+%enable-all-warnings\n\
+";
+
+export function createHeaders(headers: any, lang: string = 'qore', old_format: boolean = false): string {
+    return old_format
+        ? createHeadersOldFormat(headers, lang)
+        : createHeadersYaml(headers)
+};
+
+function createHeadersYaml(headers: any): string {
+    const list_indent = '  - ';
+    const indent = '    ';
+    let result: string = '';
+
+    for (let key in headers) {
+        const value = headers[key];
+        if (!value) {
+            continue;
+        }
+
+        const tag = key.replace(/_/g, '-');
+
+        if (Array.isArray(value)) {
+            switch (key) {
+                case 'groups':
+                    result += 'groups:\n';
+                    for (let item of value) {
+                        result += `${list_indent}${item.name}\n`;
+                    }
+                    break;
+                case 'TAG':
+                case 'tags':
+                    result += 'tags:\n';
+                    for (let item of value) {
+                        result += `${indent}${item.key}: ${item.value}\n`;
+                    }
+                    break;
+                case 'define_auth_label':
+                    result += `${tag}:\n`;
+                    for (let item of value) {
+                        result += `${indent}${item.label}: ${item.value}\n`;
+                    }
+                    break;
+                case 'resource':
+                case 'text_resource':
+                case 'bin_resource':
+                case 'template':
+                    result += `${tag}:\n`;
+                    for (let item of value) {
+                        result += `${list_indent}${item}\n`;
+                    }
+                    break;
+            }
+        }
+        else {
+            switch (key) {
+                case 'serviceauthor':
+                    result += `author: ${value}\n`;
+                    break;
+                default:
+                    result += `${tag}: ${value}\n`;
+            }
+        }
+    }
+
+    return result;
+};
+
+function createHeadersOldFormat(headers: any, lang: string = 'qore'): string {
     let result: string = '';
 
     let comment: string = comment_chars[lang];
@@ -26,14 +98,24 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
         const tag = key.replace(/_/g, '-');
 
         if (Array.isArray(value)) {
-            let names: string[] = [];
             switch (key) {
                 case 'groups':
-                    for (let group of value) {
-                        names.push(group.name);
-                        result += `${comment} define-group: ${group.name}: ${group.desc}\n`;
+                    let names: string[] = [];
+                    for (let item of value) {
+                        names.push(item.name);
+                        result += `${comment} define-group: ${item.name}: ${item.desc}\n`;
                     }
                     result += `${comment} groups: ${names.join(', ')}\n`;
+                    break;
+                case 'define_auth_label':
+                    for (let item of value) {
+                        result += `${comment} ${tag}: ${item.label}=${item.value}\n`;
+                    }
+                    break;
+                case 'TAG':
+                    for (let item of value) {
+                        result += `${comment} ${tag}: ${item.key}: ${item.value}\n`;
+                    }
                     break;
                 case 'author':
                 case 'serviceauthor':
@@ -51,12 +133,6 @@ export function createHeaders(headers: any, lang: string = 'qore'): string {
         }
         else {
             switch (key) {
-                case 'define_auth_label':
-                    result += `${comment} ${tag}: ${value.label}=${value.value}`;
-                    break;
-                case 'TAG':
-                    result += `${comment} ${tag}: ${value.key}: ${value.value}`;
-                    break;
                 default:
                     result += `${comment} ${tag}: ${value}`;
             }

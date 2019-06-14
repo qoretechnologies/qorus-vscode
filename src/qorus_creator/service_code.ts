@@ -144,9 +144,6 @@ export const service_fields = {
         mandatory: false,
         type: 'array'
     },
-    lock: {
-        mandatory: false,
-    },
     autostart: {
         mandatory: false,
         type: 'boolean'
@@ -270,8 +267,8 @@ export const fake_service_data = {
         name: 'GROUP2',
         desc: 'example group 2'
     }],
-    TAG: {
+    TAG: [{
         key: 'example-code',
         value: 'true'
-    }
+    }]
 };
