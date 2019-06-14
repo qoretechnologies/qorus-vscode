@@ -39,7 +39,6 @@ export const defaultServiceHeaders = data => {
 
 export const service_fields = {
     target_dir: {
-        type: 'string',
         get_message: {
             action: 'get-opening-path',
         },
@@ -49,9 +48,6 @@ export const service_fields = {
         }
     },
     target_file: {
-        prefill: {
-            formula: '`${service}-${version}.qsd`'
-        }
     },
     class_name: {
     },
