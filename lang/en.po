@@ -994,3 +994,5 @@ msgstr "Loading fields..."
 msgid "SelectAll"
 msgstr "Select all"
 
+msgid "UnknownWebviewMessage ${ msg }"
+msgstr "Unknown webview message ${ msg }"

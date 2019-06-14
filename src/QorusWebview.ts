@@ -176,6 +176,8 @@ class QorusWebview {
                         case 'creator-create-interface':
                             creator.createInterface(message.data);
                             break;
+                        default:
+                            msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4))}`;
                     }
                 });
             },
