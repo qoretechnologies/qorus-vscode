@@ -36,6 +36,7 @@ export class QorusProjectCodeInfo {
             let objects: any[] = [];
             switch (object_type) {
                 case 'base-class':
+                    return_type = 'objects';
                     objects = dummy_base_classes;
                     break;
                 case 'author':
@@ -63,7 +64,7 @@ export class QorusProjectCodeInfo {
                 object_type,
                 [return_type]: objects,
             });
-        }
+        };
 
         interval_id = setInterval(getObjectsCheckPending, 200);
     }
