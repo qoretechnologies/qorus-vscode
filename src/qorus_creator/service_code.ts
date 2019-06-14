@@ -39,11 +39,13 @@ export const defaultServiceHeaders = data => {
 
 export const service_fields = {
     target_dir: {
-        prefill: {
-            message: {
-                action: 'return-opening-path',
-                value: 'path'
-            }
+        type: 'string',
+        get_message: {
+            action: 'get-opening-path',
+        },
+        return_message: {
+            action: 'return-opening-path',
+            return_value: 'path'
         }
     },
     target_file: {
