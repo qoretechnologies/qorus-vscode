@@ -72,6 +72,15 @@ function createHeadersYaml(headers: any): string {
         }
         else {
             switch (key) {
+                case 'service':
+                    result += `name: ${value}\n`;
+                    break;
+                case 'serviceversion':
+                    result += `version: ${value}\n`;
+                    break;
+                case 'servicedesc':
+                    result += `desc: ${value}\n`;
+                    break;
                 case 'serviceauthor':
                     result += `author: ${value}\n`;
                     break;
