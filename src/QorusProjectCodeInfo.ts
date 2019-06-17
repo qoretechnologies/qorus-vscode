@@ -46,7 +46,7 @@ export class QorusProjectCodeInfo {
                 case 'mapper':
                 case 'value-map':
                     return_type = 'objects';
-                    objects = this.code_info[object_type];
+                    objects = this.code_info[object_type] || [];
                     break;
                 case 'resource':
                 case 'text-resource':
@@ -136,22 +136,39 @@ export class QorusProjectCodeInfo {
         }
         code_info.author = {};
 
+        let child_process_failed: boolean = false;
+
         for (let dir of source_directories) {
             if (!fs.existsSync(dir)) {
                 continue;
+            }
+            if (child_process_failed) {
+                break;
             }
 
             let files = filesInDir(path.join(this.project.folder, dir), canBeParsed);
 
             let num_pending = 0;
             while (files.length) {
-                this.pending = true;
+                if (child_process_failed) {
+                    break;
+                }
                 num_pending++;
                 let command_parts = files.splice(0, object_chunk_length);
                 command_parts.unshift(object_parser_command);
                 const command: string = command_parts.join(' ');
 
-                child_process.exec(command, {maxBuffer: 99999999}, (_error, stdout, _stderr) => {
+                child_process.exec(command, {maxBuffer: 99999999}, (error, stdout, stderr) => {
+
+                    if (error) {
+                        msg.error(t`QopError ${error}`);
+                        if (stderr) {
+                            msg.error(stderr);
+                        }
+                        this.pending = false;
+                        child_process_failed = true;
+                        return;
+                    }
 
                     const objects: any[] = JSON.parse(stdout.toString());
 
