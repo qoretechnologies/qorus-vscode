@@ -37,6 +37,7 @@ export interface IField {
     fields?: string[];
     value?: any;
     isValid: boolean;
+    hasValueSet?: boolean;
 }
 
 export declare interface IFieldChange {
@@ -98,8 +99,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             setSelectedFields(preselectedFields);
             // Save the fields
             setFields(transformedFields);
-
-            console.log(transformedFields);
         });
         // Fetch the fields
         postMessage(Messages.GET_FIELDS, { iface_kind: type });
@@ -141,12 +140,32 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         addField(fieldName);
     };
 
-    const handleFieldChange: (fieldName: string, value: any) => void = (fieldName, value) => {
+    const handleFieldChange: (fieldName: string, value: any, explicit?: boolean) => void = (
+        fieldName,
+        value,
+        explicit
+    ) => {
         setSelectedFields(
             (currentFields: IField[]): IField[] => {
                 return currentFields.reduce((newFields: IField[], currentField: IField): IField[] => {
                     // Check if the field matches
                     if (currentField.name === fieldName) {
+                        // Check if this field prefills any other fields
+                        const prefills: IField[] = currentFields.filter((field: IField) => field.prefill === fieldName);
+                        // Update the value of all of the prefill field
+                        // But only if they did not set the value themselves
+                        if (prefills.length) {
+                            prefills.forEach((field: IField) => {
+                                // Check if the field already has a value set
+                                // by its self
+                                if (!field.hasValueSet) {
+                                    // Modify the field
+                                    setTimeout(() => {
+                                        handleFieldChange(field.name, value, true);
+                                    }, 300);
+                                }
+                            });
+                        }
                         // Run the validation for this type
                         const isValid: boolean = validateField(currentField.type || 'string', value, currentField);
                         // Add the value
@@ -155,6 +174,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             {
                                 ...currentField,
                                 value,
+                                hasValueSet: !explicit,
                                 isValid,
                             },
                         ];
@@ -192,7 +212,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
         );
 
-        console.log(data);
+        postMessage(Messages.CREATE_INTERFACE, { data });
     };
 
     if (!size(fields)) {
@@ -273,7 +293,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         <FieldWrapper key={field.name}>
                             <FieldLabel label={t(`field-label-${field.name}`)} isValid={field.isValid} />
                             <FieldInputWrapper>
-                                <Field {...field} onChange={handleFieldChange} />
+                                <Field
+                                    {...field}
+                                    onChange={handleFieldChange}
+                                    prefill={
+                                        field.prefill &&
+                                        selectedFieldList.find((preField: IField) => preField.name === field.prefill)
+                                    }
+                                />
                             </FieldInputWrapper>
                             <FieldActions
                                 desc={t(`field-desc-${field.name}`)}

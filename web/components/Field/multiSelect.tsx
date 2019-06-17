@@ -35,7 +35,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
     useMount(() => {
         if (!simple) {
-            //
             postMessage(get_message.action, { object_type: get_message.object_type });
             addMessageListener(return_message.action, (data: any) => {
                 // Check if this is the correct
@@ -84,8 +83,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
     // Clear button
     const ClearButton = size(value) ? <Button icon={'cross'} minimal onClick={handleClearClick} /> : undefined;
-
-    console.log(value);
 
     return (
         <MultiSelect

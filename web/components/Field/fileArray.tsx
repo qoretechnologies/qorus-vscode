@@ -122,7 +122,6 @@ const MultiFileField: FunctionComponent<IMultiFileField & IField & IFieldChange>
         addMessageListener(return_message.action, (data: any) => {
             // Check if this is the correct
             // object type
-            console.log(data.object_type, return_message.object_type);
             if (data.object_type === return_message.object_type) {
                 setItems([
                     {
