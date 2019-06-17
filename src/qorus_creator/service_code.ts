@@ -49,10 +49,6 @@ export const service_fields = {
     },
     target_file: {
     },
-    class_name: {
-        prefill: 'service',
-        style: 'PascalCase'
-    },
     base_class_name: {
         type: 'select-string',
         get_message: {
@@ -64,11 +60,6 @@ export const service_fields = {
             object_type: 'base-class',
             return_value: 'objects'
         }
-    },
-    lang: {
-        type: 'enum',
-        values: ['qore', 'java'],
-        default_value: 'qore'
     },
     service: {
     },
@@ -88,6 +79,15 @@ export const service_fields = {
             object_type: 'author',
             return_value: 'objects'
         }
+    },
+    lang: {
+        type: 'enum',
+        values: ['qore', 'java'],
+        default_value: 'qore'
+    },
+    class_name: {
+        prefill: 'service',
+        style: 'PascalCase'
     },
     patch: {
         mandatory: false,

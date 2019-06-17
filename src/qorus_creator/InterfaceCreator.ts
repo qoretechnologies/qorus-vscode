@@ -27,19 +27,17 @@ class InterfaceCreator {
     }
 
     private createService(data: any) {
-        const {lang = 'qore', target_dir, possible_target_file, ...other_data} = data;
+        const { lang = 'qore', target_dir, possible_target_file,
+                class_name, base_class_name, ...header_vars } = data;
+
         const target_file_base = possible_target_file
             ? path.basename(possible_target_file, '.qsd')
-            : `${other_data.service}-${other_data.serviceversion}`;
+            : `${data.service}-${data.serviceversion}`;
 
         const file_name = `${target_file_base}.qsd${suffix[lang]}`;
 
-        const {headers, code} = this.codeParts(
-            lang,
-            other_data,
-            {type: 'service', code: file_name},
-            service_template[lang]
-        );
+        const headers = createHeaders(Object.assign({type: 'service'}, header_vars, {code: file_name}), lang);
+        const code = fillTemplate(service_template[lang], {class_name, base_class_name});
 
         fs.writeFileSync(
             path.join(target_dir, `${target_file_base}.yaml`),
