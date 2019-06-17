@@ -72,14 +72,19 @@ export class QorusProjectCodeInfo {
     update() {
         this.updateResources();
 
-        setTimeout(() => {
-            this.project.validateConfigFileAndDo(file_data => {
-                this.updateObjects(file_data.source_directories);
-            });
-        }, 100);
+        this.project.validateConfigFileAndDo(file_data => {
+            if (file_data.source_directories.length === 0) {
+                this.pending = false;
+                return;
+            }
 
-        msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
-        this.pending = true;
+            setTimeout(() => {
+                this.updateObjects(file_data.source_directories);
+            }, 100);
+
+            msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
+            this.pending = true;
+        });
     }
 
     updateResources() {
@@ -136,6 +141,7 @@ export class QorusProjectCodeInfo {
         }
         code_info.author = {};
 
+        let num_pending = 0;
         let child_process_failed: boolean = false;
 
         for (let dir of source_directories) {
@@ -148,12 +154,14 @@ export class QorusProjectCodeInfo {
 
             let files = filesInDir(path.join(this.project.folder, dir), canBeParsed);
 
-            let num_pending = 0;
             while (files.length) {
                 if (child_process_failed) {
                     break;
                 }
+
+                this.pending = true;
                 num_pending++;
+
                 let command_parts = files.splice(0, object_chunk_length);
                 command_parts.unshift(object_parser_command);
                 const command: string = command_parts.join(' ');

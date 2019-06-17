@@ -27,10 +27,10 @@ class InterfaceCreator {
     }
 
     private createService(data: any) {
-        const { target_dir, possible_target_file, class_name, base_class_name, ...header_vars } = data;
+        const { target_dir, target_file, class_name, base_class_name, ...header_vars } = data;
 
-        const target_file_base = possible_target_file
-            ? path.basename(possible_target_file, '.qsd')
+        const target_file_base = target_file
+            ? path.basename(target_file, '.qsd')
             : `${data.service}-${data.serviceversion}`;
 
         const file_name = `${target_file_base}.qsd${suffix[data.lang]}`;
@@ -50,7 +50,7 @@ class InterfaceCreator {
     }
 
     private createServiceOldFormat(data: any) {
-        const {lang = 'qore', target_dir, possible_target_file, ...other_data} = data;
+        const {lang = 'qore', target_dir, target_file: possible_target_file, ...other_data} = data;
         const target_file = possible_target_file
             || `${other_data.service}-${other_data.serviceversion}.old.qsd${suffix[lang]}`;
 
@@ -69,7 +69,7 @@ class InterfaceCreator {
     }
 
     private createJobOldFormat(data: any) {
-        const {lang = 'qore', target_dir, possible_target_file, ...other_data} = data;
+        const {lang = 'qore', target_dir, target_file: possible_target_file, ...other_data} = data;
         const target_file = possible_target_file
             || `${other_data.name}-${other_data.version}.old.qjob${suffix[lang]}`;
 
