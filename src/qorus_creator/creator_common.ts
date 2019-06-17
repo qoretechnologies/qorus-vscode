@@ -59,6 +59,11 @@ function createHeadersYaml(headers: any): string {
                         result += `${indent}${item.label}: ${item.value}\n`;
                     }
                     break;
+                case 'classes':
+                case 'constants':
+                case 'functions':
+                case 'vmaps':
+                case 'mappers':
                 case 'resource':
                 case 'text_resource':
                 case 'bin_resource':

@@ -89,9 +89,6 @@ export const service_fields = {
         prefill: 'service',
         style: 'PascalCase'
     },
-    patch: {
-        mandatory: false,
-    },
     remote: {
         mandatory: false,
         type: 'boolean'
@@ -145,14 +142,6 @@ export const service_fields = {
         type: 'array'
     },
     autostart: {
-        mandatory: false,
-        type: 'boolean'
-    },
-    internal: {
-        mandatory: false,
-        type: 'boolean'
-    },
-    write: {
         mandatory: false,
         type: 'boolean'
     },
@@ -251,15 +240,18 @@ export const fake_service_data = {
     target_dir: os.homedir(),
 //    target_file: 
     iface_kind: 'service',
-//    lang: 'java',
-    class_name: 'ExampleService',
-    base_class_name: 'QorusService',
 
     service: 'example-service',
     serviceversion: '1.0',
     servicedesc: 'example service',
     serviceauthor: ['first author', 'second author'],
+    lang: 'qore',
+    class_name: 'ExampleService',
+    base_class_name: 'QorusService',
     classes: ['ExampleClass1', 'ExampleClass2'],
+    mappers: ['Mapper1', 'Mapper2', 'Mapper3'],
+    remote: true,
+    autostart: true,
     groups: [{
         name: 'GROUP1',
         desc: 'example group 1'
