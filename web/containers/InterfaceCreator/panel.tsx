@@ -87,9 +87,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     useEffectOnce(() => {
         addMessageListener(Messages.FIELDS_FETCHED, ({ fields }: { fields: { [key: string]: IField } }) => {
             // Mark the selected fields
-            const transformedFields: IField[] = map(fields, (field: IField, fieldName: string) => ({
+            const transformedFields: IField[] = map(fields, (field: IField) => ({
                 ...field,
-                name: fieldName,
                 selected: field.mandatory !== false,
                 isValid: false,
             }));
