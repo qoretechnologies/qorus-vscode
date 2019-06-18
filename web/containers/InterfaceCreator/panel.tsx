@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState, FormEvent } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
-import { size, map, filter, find, includes, reduce } from 'lodash';
+import { size, map, filter, find, includes, reduce, camelCase, upperFirst } from 'lodash';
 import SidePanel from '../../components/SidePanel';
 import FieldSelector from '../../components/FieldSelector';
 import Content from '../../components/Content';
@@ -166,6 +166,20 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 }
                             });
                         }
+                        // Check if this field needs style changes
+                        if (currentField.style) {
+                            // Modify the value based on the style
+                            switch (currentField.style) {
+                                case 'PascalCase':
+                                    value = upperFirst(camelCase(value));
+                                    break;
+                                case 'camelCase':
+                                    value = camelCase(value);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                         // Run the validation for this type
                         const isValid: boolean = validateField(currentField.type || 'string', value, currentField);
                         // Add the value
@@ -212,7 +226,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
         );
 
-        postMessage(Messages.CREATE_INTERFACE, { data });
+        postMessage(Messages.CREATE_INTERFACE, { iface_kind: type, data });
     };
 
     if (!size(fields)) {

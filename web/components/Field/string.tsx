@@ -48,25 +48,10 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
         onChange(name, '');
     };
 
-    const transformValueStyle: () => string = () => {
-        if (style) {
-            switch (style) {
-                case 'PascalCase':
-                    return upperFirst(camelCase(value));
-                case 'camelCase':
-                    return camelCase(value);
-                default:
-                    return value;
-            }
-        }
-
-        return value;
-    };
-
     return (
         <InputGroup
             className={fill && Classes.FILL}
-            value={transformValueStyle()}
+            value={value}
             onChange={handleInputChange}
             rightElement={
                 value &&
