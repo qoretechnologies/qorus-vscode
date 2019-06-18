@@ -50,6 +50,16 @@ export class QorusProject {
                 this.writeConfig(file_data);
             }
 
+            for (let dir of file_data.source_directories) {
+                if (!fs.existsSync(path.join(this.folder, dir))) {
+                    msg.error(t`DirInConfigDoesNotExist ${dir}`);
+                    if (onError) {
+                        onError();
+                    }
+                    return;
+                }
+            }
+
             validator.validateModel(file_data, 'qorus_config').then(
                 result => {
                     if (result.errors == undefined || result.errors.length == 0) {

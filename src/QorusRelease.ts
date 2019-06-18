@@ -46,10 +46,11 @@ class QorusRelease {
     private setAllFiles() {
         this.files = [];
         for (let dir of this.source_directories) {
-            if (!fs.existsSync(dir)) {
+            const full_dir = path.join(this.project_folder, dir);
+            if (!fs.existsSync(full_dir)) {
                 continue;
             }
-            for (let file of filesInDir(path.join(this.project_folder, dir))) {
+            for (let file of filesInDir(full_dir)) {
                 this.files.push(vscode.workspace.asRelativePath(file, false));
             }
         }

@@ -145,14 +145,16 @@ export class QorusProjectCodeInfo {
         let child_process_failed: boolean = false;
 
         for (let dir of source_directories) {
-            if (!fs.existsSync(dir)) {
-                continue;
-            }
             if (child_process_failed) {
                 break;
             }
 
-            let files = filesInDir(path.join(this.project.folder, dir), canBeParsed);
+            const full_dir = path.join(this.project.folder, dir);
+            if (!fs.existsSync(full_dir)) {
+                continue;
+            }
+
+            let files = filesInDir(full_dir, canBeParsed);
 
             while (files.length) {
                 if (child_process_failed) {

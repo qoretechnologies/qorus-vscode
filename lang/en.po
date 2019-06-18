@@ -999,3 +999,6 @@ msgstr "Unknown webview message ${ msg }"
 
 msgid "QopError ${ msg }"
 msgstr "Running Qorus object parser failed: ${ msg }"
+
+msgid "DirInConfigDoesNotExist ${ dir }"
+msgstr "Directory ${ dir } in project configuration does not exist"
