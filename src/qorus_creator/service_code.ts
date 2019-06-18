@@ -37,8 +37,9 @@ export const defaultServiceHeaders = data => {
 };
 
 
-export const service_fields = {
-    target_dir: {
+export const service_fields = [
+    {
+        name: 'target_dir',
         get_message: {
             action: 'get-opening-path',
         },
@@ -47,9 +48,11 @@ export const service_fields = {
             return_value: 'path'
         }
     },
-    target_file: {
+    {
+        name: 'target_file'
     },
-    base_class_name: {
+    {
+        name: 'base_class_name',
         type: 'select-string',
         get_message: {
             action: 'creator-get-objects',
@@ -61,13 +64,17 @@ export const service_fields = {
             return_value: 'objects'
         }
     },
-    service: {
+    {
+        name: 'service'
     },
-    serviceversion: {
+    {
+        name: 'serviceversion'
     },
-    servicedesc: {
+    {
+        name: 'servicedesc'
     },
-    serviceauthor: {
+    {
+        name: 'serviceauthor',
         mandatory: false,
         type: 'select-array',
         get_message: {
@@ -80,25 +87,30 @@ export const service_fields = {
             return_value: 'objects'
         }
     },
-    lang: {
+    {
+        name: 'lang',
         type: 'enum',
         values: ['qore', 'java'],
         default_value: 'qore'
     },
-    class_name: {
+    {
+        name: 'class_name',
         prefill: 'service',
         style: 'PascalCase'
     },
-    remote: {
+    {
+        name: 'remote',
         mandatory: false,
         type: 'boolean'
     },
-    groups: {
+    {
+        name: 'groups',
         mandatory: false,
         type: 'array-of-pairs',
         fields: ['name', 'desc']
     },
-    constants: {
+    {
+        name: 'constants',
         mandatory: false,
         type: 'select-array',
         get_message: {
@@ -111,7 +123,8 @@ export const service_fields = {
             return_value: 'objects'
         }
     },
-    classes: {
+    {
+        name: 'classes',
         mandatory: false,
         type: 'select-array',
         get_message: {
@@ -124,7 +137,8 @@ export const service_fields = {
             return_value: 'objects'
         }
     },
-    functions: {
+    {
+        name: 'functions',
         mandatory: false,
         type: 'select-array',
         get_message: {
@@ -137,15 +151,18 @@ export const service_fields = {
             return_value: 'objects'
         }
     },
-    service_modules: {
+    {
+        name: 'service_modules',
         mandatory: false,
         type: 'array'
     },
-    autostart: {
+    {
+        name: 'autostart',
         mandatory: false,
         type: 'boolean'
     },
-    mappers: {
+    {
+        name: 'mappers',
         mandatory: false,
         type: 'select-array',
         get_message: {
@@ -158,7 +175,8 @@ export const service_fields = {
             return_value: 'objects'
         }
     },
-    vmaps: {
+    {
+        name: 'vmaps',
         mandatory: false,
         type: 'select-array',
         get_message: {
@@ -171,7 +189,8 @@ export const service_fields = {
             return_value: 'objects'
         }
     },
-    resource: {
+    {
+        name: 'resource',
         mandatory: false,
         type: 'file-tree',
         get_message: {
@@ -184,7 +203,8 @@ export const service_fields = {
             return_value: 'resources'
         }
     },
-    text_resource: {
+    {
+        name: 'text_resource',
         mandatory: false,
         type: 'file-tree',
         get_message: {
@@ -197,7 +217,8 @@ export const service_fields = {
             return_value: 'resources'
         }
     },
-    bin_resource: {
+    {
+        name: 'bin_resource',
         mandatory: false,
         type: 'file-tree',
         get_message: {
@@ -210,7 +231,8 @@ export const service_fields = {
             return_value: 'resources'
         }
     },
-    template: {
+    {
+        name: 'template',
         mandatory: false,
         type: 'file-tree',
         get_message: {
@@ -223,17 +245,19 @@ export const service_fields = {
             return_value: 'resources'
         }
     },
-    define_auth_label: {
+    {
+        name: 'define_auth_label',
         mandatory: false,
         type: 'array-of-pairs',
         fields: ['label', 'value']
     },
-    TAG: {
+    {
+        name: 'TAG',
         mandatory: false,
         type: 'array-of-pairs',
         fields: ['key', 'value']
     },
-};
+];
 
 
 export const fake_service_data = {

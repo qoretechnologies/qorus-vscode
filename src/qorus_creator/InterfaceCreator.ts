@@ -8,9 +8,10 @@ import { job_template, defaultJobHeaders } from './job_code';
 class InterfaceCreator {
 
     getFields(iface_kind: string): any {
-         switch (iface_kind) {
-            case 'service': return service_fields; break;
-         }
+        switch (iface_kind) {
+            case 'service':
+                return service_fields;
+        }
     }
 
     createInterface(iface_kind: string, data: any) {
