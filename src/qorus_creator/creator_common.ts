@@ -64,6 +64,11 @@ function createHeadersYaml(headers: any): string {
                 case 'functions':
                 case 'vmaps':
                 case 'mappers':
+                    result += `${tag}:\n`;
+                    for (let item of value) {
+                        result += `${list_indent}${item.name}\n`;
+                    }
+                    break;
                 case 'resource':
                 case 'text_resource':
                 case 'bin_resource':
@@ -140,6 +145,19 @@ function createHeadersOldFormat(headers: any, lang: string = 'qore'): string {
                     for (let item of value) {
                         result += `${comment} ${tag}: ${item}\n`;
                     }
+                    break;
+                case 'classes':
+                case 'constants':
+                case 'functions':
+                case 'vmaps':
+                case 'mappers':
+                    result += `${comment} ${tag}: `;
+                    let separator = '';
+                    for (let item of value) {
+                        result += `${separator}${item.name}`;
+                        separator = ', ';
+                    }
+                    result += '\n';
                     break;
                 default:
                     result += `${comment} ${tag}: ${value.join(', ')}\n`;
