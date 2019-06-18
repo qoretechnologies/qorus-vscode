@@ -174,7 +174,7 @@ class QorusWebview {
                             project.code_info.getObjects(message.object_type, this.panel.webview);
                             break;
                         case 'creator-create-interface':
-                            creator.createInterface(message.data);
+                            creator.createInterface(message.iface_kind, message.data);
                             break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);

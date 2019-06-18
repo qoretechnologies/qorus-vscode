@@ -13,15 +13,14 @@ class InterfaceCreator {
          }
     }
 
-    createInterface(data: any) {
-        const {iface_kind, ...other_data} = data;
+    createInterface(iface_kind: string, data: any) {
         switch (iface_kind) {
             case 'service':
-                this.createService(other_data);
-                this.createServiceOldFormat(other_data);
+                this.createService(data);
+                this.createServiceOldFormat(data);
                 break;
             case 'job':
-                this.createJobOldFormat(other_data);
+                this.createJobOldFormat(data);
                 break;
         }
     }
