@@ -2,14 +2,14 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
         "email": "vscode@qoretechnologies.com"
     },
     "engines": {
-        "vscode": "^1.25.0"
+        "vscode": "^1.35.0"
     },
     "license": "SEE LICENSE IN LICENSE.txt",
     "homepage": "https://github.com/qoretechnologies/qorus-vscode",
@@ -277,7 +277,126 @@
                     "default": false
                 }
             }
-        }
+        },
+        "breakpoints": [
+            {
+                "language": "qore"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "qorus",
+                "label": "Qorus Debug",
+                "languages": [
+                    "qore"
+                ],
+                "variables": {
+                    "AskForInterface": "extension.qorus-vscode.getInterface"
+                },
+                "configurationSnippets": [
+                    {
+                        "label": "Qorus Debug: Workflow",
+                        "description": "A new configuration for debugging Qorus workflow",
+                        "body": {
+                            "type": "qorus",
+                            "request": "attach",
+                            "name": "${2: Qorus workflow}",
+                            "kind": "workflow",
+                            "interface": "${command:AskForInterface}"
+                        }
+                    },
+                    {
+                        "label": "Qorus Debug: Service",
+                        "description": "A new configuration for debugging Qorus service",
+                        "body": {
+                            "type": "qorus",
+                            "request": "attach",
+                            "name": "${2: Qorus service}",
+                            "kind": "service",
+                            "interface": "${command:AskForInterface}"
+                        }
+                    },
+                    {
+                        "label": "Qorus Debug: Job",
+                        "description": "A new configuration for debugging Qorus job",
+                        "body": {
+                            "type": "qorus",
+                            "request": "attach",
+                            "name": "${2: Qorus job}",
+                            "kind": "job",
+                            "interface": "${command:AskForInterface}"
+                        }
+                    }
+                ],
+                "configurationAttributes": {
+                    "attach": {
+                        "required": [
+                            "kind",
+                            "interface"
+                        ],
+                        "properties": {
+                            "kind": {
+                                "enum": ["workflow", "service", "job"],
+                                "description": "Interface type, i.e. workflow, service or job"
+                            },
+                            "interface": {
+                                "type": ["string", "number"],
+                                "description": "Interface name to debug in form 'name', name:version' or interface id"
+                            },
+
+                            "logFilename": {
+                                "type": "string",
+                                "description": "Logging filename"
+                            },
+                            "appendToLog": {
+                                "type": "boolean",
+                                "description": "Append to log file",
+                                "default": false
+                            },
+                            "fullException": {
+                                "type": "boolean",
+                                "description": "Provide full decription info",
+                                "default": false
+                            },
+                            "verbosity": {
+                                "type": "integer",
+                                "description": "Verbosity level of Debug Adapter Protocol.",
+                                "default": 0
+                            },
+                            "maxRedir": {
+                                "type": "integer",
+                                "description": "The maximum number of redirects before throwing an exception (the default is 5)"
+                            },
+                            "proxy": {
+                                "type": "string",
+                                "description": "The proxy URL for connecting through a proxy"
+                            },
+                            "timeout": {
+                                "type": "integer",
+                                "description": "The HTTP timeout in ms"
+                            },
+                            "connTimeout": {
+                                "type": "integer",
+                                "description": "The timeout for establishing a new socket connection"
+                            },
+                            "respTimeout": {
+                                "type": "integer",
+                                "description": "The timeout to wait for websocket response"
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "qorus",
+                        "request": "attach",
+                        "name": "Ask for interface",
+                        "kind": "workflow",
+                        "interface": "${command:AskForInterface}"
+                    }
+                ]
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile && npm run build",
@@ -327,8 +446,11 @@
         "moment": "^2.24.0",
         "request": "^2.88.0",
         "request-promise": "^4.2.2",
-        "swagger-object-validator": "^1.1.7",
+        "swagger-object-validator": "^1.2.1",
         "ttag": "^1.4.0",
         "vsce": "^1.52.0"
-    }
+    },
+    "extensionDependencies": [
+        "qoretechnologies.qore-vscode"
+    ]
 }
