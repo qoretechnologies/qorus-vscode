@@ -50,9 +50,11 @@ class InterfaceCreator {
     }
 
     private createServiceOldFormat(data: any) {
-        const {lang = 'qore', target_dir, target_file: possible_target_file, ...other_data} = data;
-        const target_file = possible_target_file
-            || `${other_data.service}-${other_data.serviceversion}.old.qsd${suffix[lang]}`;
+        const {lang = 'qore', target_dir, target_file, ...other_data} = data;
+
+        const target_file_base = target_file
+            ? path.basename(target_file, '.qsd')
+            : `${data.service}-${data.serviceversion}`;
 
         const {headers, code} = this.codeParts(
             lang,
@@ -63,7 +65,7 @@ class InterfaceCreator {
         );
 
         fs.writeFileSync(
-            path.join(target_dir, target_file),
+            path.join(target_dir, `${target_file_base}.old.qsd`),
             headers + `${comment_chars[lang]} ENDSERVICE\n\n` + code
         );
     }

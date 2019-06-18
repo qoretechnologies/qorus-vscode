@@ -9,7 +9,7 @@ import * as msg from './qorus_message';
 import { dummy_base_classes } from './dummy_code_info';
 
 
-const object_parser_command = 'qop.q';
+const object_parser_command = 'qop.q -i';
 const object_chunk_length = 100;
 
 export class QorusProjectCodeInfo {
