@@ -94,7 +94,16 @@ export const serviceFields = default_target_dir => [
     {
         name: 'lang',
         type: 'enum',
-        values: ['qore', 'java'],
+        items: [
+            {
+                value: 'qore',
+                icon_path: '../images/qore-106x128.png'
+            },
+            {
+                value: 'java',
+                icon_path: '../images/java-96x128.png'
+            }
+        ],
         default_value: 'qore'
     },
     {
