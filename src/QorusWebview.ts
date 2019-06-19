@@ -84,12 +84,6 @@ class QorusWebview {
                                 text: gettext(message.text_id)
                             });
                             break;
-                        case 'get-opening-path':
-                            this.panel.webview.postMessage({
-                                action: 'return-opening-path',
-                                path: opening_uri ? opening_uri.fsPath : t`Unknown`
-                            });
-                            break;
                         case 'get-active-tab':
                             this.setActiveTab(active_tab);
                             break;
@@ -166,11 +160,13 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
-                                fields: creator.getFields(message.iface_kind)
+                                fields: creator.getFields(message.iface_kind,
+                                                          opening_uri ? opening_uri.fsPath : '')
                             });
                             break;
                         case 'creator-get-objects':
                         case 'creator-get-resources':
+                        case 'creator-get-directories':
                             project.code_info.getObjects(message.object_type, this.panel.webview);
                             break;
                         case 'creator-create-interface':

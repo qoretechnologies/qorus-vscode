@@ -17,6 +17,7 @@ export class QorusProjectCodeInfo {
     private pending: boolean = true;
     private code_info: any = {};
     private file_tree: any = {};
+    private dir_tree: any = {};
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -55,6 +56,10 @@ export class QorusProjectCodeInfo {
                     return_type = 'resources';
                     objects = this.file_tree;
                     break;
+                case 'target-dir':
+                    return_type = 'directories';
+                    objects = this.dir_tree;
+                    break;
                 default:
                     objects = [];
             }
@@ -62,7 +67,7 @@ export class QorusProjectCodeInfo {
             webview.postMessage({
                 action: 'creator-return-' + return_type,
                 object_type,
-                [return_type]: objects,
+                [return_type]: objects
             });
         };
 
@@ -70,7 +75,7 @@ export class QorusProjectCodeInfo {
     }
 
     update() {
-        this.updateResources();
+        this.updateFileTree();
 
         this.project.validateConfigFileAndDo(file_data => {
             if (file_data.source_directories.length === 0) {
@@ -87,25 +92,23 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    updateResources() {
-        const dirItem = (abs_path: string, is_root: boolean = false) => ({
+    private updateFileTree() {
+        const dirItem = (abs_path: string, only_dirs: boolean, is_root: boolean = false) => ({
             abs_path,
             rel_path: is_root ? '.' : vscode.workspace.asRelativePath(abs_path, false),
-            files: [],
-            dirs: []
+            dirs: [],
+            ... only_dirs ? {} : { files: [] }
         });
 
-        let file_tree: any = dirItem(this.project.folder, true);
-
-        const subDirRecursion = tree_item => {
+        const subDirRecursion = (tree_item: any, only_dirs: boolean) => {
             const dir_entries: string[] = fs.readdirSync(tree_item.abs_path);
             for (let entry of dir_entries) {
                 const entry_path: string = path.join(tree_item.abs_path, entry);
                 if (fs.lstatSync(entry_path).isDirectory()) {
-                    let dir_item = dirItem(entry_path);
+                    let dir_item = dirItem(entry_path, only_dirs);
                     tree_item.dirs.push(dir_item);
-                    subDirRecursion(dir_item);
-                } else {
+                    subDirRecursion(dir_item, only_dirs);
+                } else if (!only_dirs) {
                     tree_item.files.push({
                         abs_path: tree_item.abs_path,
                         rel_path: vscode.workspace.asRelativePath(tree_item.abs_path, false),
@@ -116,17 +119,22 @@ export class QorusProjectCodeInfo {
         };
 
         this.project.validateConfigFileAndDo(config_file_data => {
-            for (let dir of config_file_data.source_directories) {
-                if (!fs.existsSync(dir)) {
-                    continue;
-                }
+            let file_tree: any = dirItem(this.project.folder, false, true);
+            let dir_tree: any = dirItem(this.project.folder, true, true);
 
-                let dir_item = dirItem(path.join(this.project.folder, dir));
-                file_tree.dirs.push(dir_item);
-                subDirRecursion(dir_item);
+            for (let dir of config_file_data.source_directories) {
+
+                let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
+                file_tree.dirs.push(file_tree_root);
+                subDirRecursion(file_tree_root, false);
+
+                let dir_tree_root = dirItem(path.join(this.project.folder, dir), true);
+                dir_tree.dirs.push(dir_tree_root);
+                subDirRecursion(dir_tree_root, true);
             }
 
             this.file_tree = file_tree;
+            this.dir_tree = dir_tree;
         });
     }
 

@@ -37,15 +37,19 @@ export const defaultServiceHeaders = data => {
 };
 
 
-export const service_fields = [
+export const serviceFields = default_target_dir => [
     {
         name: 'target_dir',
+        type: 'file-string',
+        default_value: default_target_dir,
         get_message: {
-            action: 'get-opening-path',
+            action: 'creator-get-directories',
+            object_type: 'target-dir'
         },
         return_message: {
-            action: 'return-opening-path',
-            return_value: 'path'
+            action: 'creator-return-directories',
+            object_type: 'target-dir',
+            return_value: 'directories',
         }
     },
     {
@@ -192,7 +196,7 @@ export const service_fields = [
     {
         name: 'resource',
         mandatory: false,
-        type: 'file-tree',
+        type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'resource'
@@ -206,7 +210,7 @@ export const service_fields = [
     {
         name: 'text_resource',
         mandatory: false,
-        type: 'file-tree',
+        type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'text-resource'
@@ -220,7 +224,7 @@ export const service_fields = [
     {
         name: 'bin_resource',
         mandatory: false,
-        type: 'file-tree',
+        type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'bin-resource'
@@ -234,7 +238,7 @@ export const service_fields = [
     {
         name: 'template',
         mandatory: false,
-        type: 'file-tree',
+        type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
             object_type: 'template'

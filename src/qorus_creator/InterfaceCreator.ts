@@ -1,16 +1,16 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { fillTemplate, createHeaders, suffix, comment_chars, default_parse_options } from './creator_common';
-import { service_template, service_fields, defaultServiceHeaders } from './service_code';
+import { service_template, serviceFields, defaultServiceHeaders } from './service_code';
 import { job_template, defaultJobHeaders } from './job_code';
 
 
 class InterfaceCreator {
 
-    getFields(iface_kind: string): any {
+    getFields(iface_kind: string, default_target_dir: string): any {
         switch (iface_kind) {
             case 'service':
-                return service_fields;
+                return serviceFields(default_target_dir);
         }
     }
 
