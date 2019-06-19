@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.9
+
+* feature: debugging support
+* dependency on qore-vscode
+
 ## 0.0.8
 
 * fix: release packager page does not remember its initial state

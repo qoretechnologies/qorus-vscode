@@ -7,6 +7,7 @@ https://qoretechnologies.com/qorus_integration_engine/
 ## Features
 
 The extension makes possible remote deployment of edited Qorus source files directly from the VSCode editor.
+Qorus server can be attached and interface code debugged.
 
 ## How to use
 
@@ -98,3 +99,54 @@ The **context menus** over the *Qorus instance tree node*s offer also the follow
 - Login without setting the instance active
 - Logout (if the instance was active it becomes inactive, of course)
 - Set the instance inactive, but stay logged in
+
+### Debugging
+
+The sessions are configured in `launch.json` file referenced from `Debug` view.
+Extension implements *qorus* debugging type.
+Both local and remote interfaces of *workflow* / *job* / *service* kind are supported.
+`Interface` name (i.e. program) may be specified by *name*, *name:version*, *id* or pickup from
+selection box *${command:AskForInterface}* when starting debugging session. 
+
+To start debugging prepare launch file, select a configuration from drop box and 
+click `Start debugging`. The debugging is performed for current active *Qorus instance*.
+When specified interface code (program) is executed in Qorus then VSCode extension
+is notified, program interrupted and user can start stepping code e.g.`F11`, inspecting stack, variables, etc.
+To leave program stepping press `F5`. The source code is downloaded from Qorus. The code openned in editor
+has no file extension so no language is detected. To show coloring and enable breakpoints change language type manually to *Qore*.
+
+The launch file data structure is explained by the following example:
+
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "type": "qorus",
+                "request": "attach",
+                "name": "Attach job",
+                "kind": "job",
+                "interface": "${command:AskForInterface}",
+            },
+            {
+                "type": "qorus",
+                "request": "attach",
+                "name": "Attach job_id: #1",
+                "kind": "service",
+                "interface": 1
+            },
+            {
+                "type": "qorus",
+                "request": "attach",
+                "name": "Attach test-debug_job",
+                "kind": "job",
+                "interface": "test-debug_job"
+            },
+            {
+                "type": "qorus",
+                "request": "attach",
+                "name": "Attach test-debug_job:1.0",
+                "kind": "job",
+                "interface": "test-debug_job:1.0"
+            }
+        ]
+    }
