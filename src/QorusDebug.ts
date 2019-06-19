@@ -31,7 +31,7 @@ export function pickInterface(config: DebugConfiguration) {
             msg.log(t`requestResponse ${JSON.stringify(response)}`);
             return vscode.window.showQuickPick(items, {
                 canPickMany: false,
-                placeHolder: t`Please enter the name of a ${config.kind} or ${config.kind}_id`,
+                placeHolder: t`PickInterfacePlaceHolder ${config.kind} ${config.kind}`,
             }).then( name => {
                 return name;
             } );
@@ -92,7 +92,7 @@ export class QorusDebugAdapterDescriptorFactory implements vscode.DebugAdapterDe
                     if (response.process !== null) {
                         qoreConfig.connection = qoreConfig.connection + "/" + response.process.id;
                     } else {
-                        throw new Error(t`Cannot get remote process URL`);
+                        throw new Error(t`CannotGetRemoteUrl`);
                     }
                 }
                 for (const key of ["logFilename", "appendToLog", "fullException", "verbosity", "maxRedir",
@@ -101,7 +101,7 @@ export class QorusDebugAdapterDescriptorFactory implements vscode.DebugAdapterDe
                         qoreConfig[key] = config[key];
                     }
                 }
-                msg.info(t`Connecting: ${qoreConfig.connection}`);
+                msg.info(t`Connecting ${qoreConfig.connection}`);
                 qoreConfig.program = response.name+":"+response.version;
                 let s: string = config.kind + " #" + response[config.kind + "id"] + ": " + qoreConfig.program;
                 msg.info(s);
