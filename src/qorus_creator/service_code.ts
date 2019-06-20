@@ -1,5 +1,4 @@
 import * as os from 'os';
-// import { SQLAuthorLen, SQLDescLen, SQLVersionLen, SQLNameLen, SQLPatchLen } from './creator_common';
 
 
 let template: any = {};
@@ -271,32 +270,3 @@ export const serviceFields = default_target_dir => [
         fields: ['key', 'value']
     },
 ];
-
-
-export const fake_service_data = {
-    target_dir: os.homedir(),
-    iface_kind: 'service',
-
-    service: 'example-service',
-    serviceversion: '1.0',
-    servicedesc: 'example service',
-    serviceauthor: ['first author', 'second author'],
-    lang: 'qore',
-    class_name: 'ExampleService',
-    base_class_name: 'QorusService',
-    classes: ['ExampleClass1', 'ExampleClass2'],
-    mappers: ['Mapper1', 'Mapper2', 'Mapper3'],
-    remote: true,
-    autostart: true,
-    groups: [{
-        name: 'GROUP1',
-        desc: 'example group 1'
-    }, {
-        name: 'GROUP2',
-        desc: 'example group 2'
-    }],
-    TAG: [{
-        key: 'example-code',
-        value: 'true'
-    }]
-};
