@@ -9,10 +9,10 @@ import useMount from 'react-use/lib/useMount';
 import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomponents/withMessageHandler';
 
 export interface IStringField {
-    t: TTranslator;
+    t?: TTranslator;
     fill?: boolean;
-    postMessage: TPostMessage;
-    addMessageListener: TMessageListener;
+    postMessage?: TPostMessage;
+    addMessageListener?: TMessageListener;
 }
 
 const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
@@ -20,7 +20,6 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     onChange,
     value,
     fill,
-    style,
     postMessage,
     addMessageListener,
     get_message,
@@ -68,4 +67,4 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
 export default compose(
     withMessageHandler(),
     withTextContext()
-)(StringField) as FunctionComponent<IStringField>;
+)(StringField) as FunctionComponent<IStringField & IField & IFieldChange>;

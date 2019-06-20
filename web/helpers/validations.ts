@@ -4,6 +4,7 @@ export const validateField: (type: string, value: any, field: IField) => boolean
     switch (type) {
         case 'string':
         case 'select-string':
+        case 'file-string':
             // Strings cannot be empty
             return value !== null && value !== '';
         case 'array-of-pairs': {

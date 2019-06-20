@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const merge = require('webpack-merge');
 
 // Root path
@@ -90,6 +91,7 @@ let webpackConfig = {
         new webpack.ProvidePlugin({
             fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch',
         }),
+        new CopyPlugin([{ from: '../images', to: 'images' }]),
     ],
 };
 

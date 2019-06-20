@@ -29,14 +29,14 @@ export interface IField {
     style?: string;
     type?: string;
     default_value?: string;
-    values?: string[];
+    items?: { value: string; icon_filename: string }[];
     prefill?: any;
     name: string;
     mandatory?: boolean;
     selected?: boolean;
     fields?: string[];
     value?: any;
-    isValid: boolean;
+    isValid?: boolean;
     hasValueSet?: boolean;
 }
 
@@ -261,6 +261,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             return false;
         }
     });
+
+    console.log(selectedFieldList);
 
     return (
         <>

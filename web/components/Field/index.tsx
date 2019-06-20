@@ -8,6 +8,7 @@ import MultiSelect from './multiSelect';
 import RadioField from './radioField';
 import MultiPairField from './multiPair';
 import MultiFileField from './fileArray';
+import FileField from './fileString';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 
 export interface IField {
@@ -49,8 +50,12 @@ const Field: FunctionComponent<IField> = ({ type, ...rest }) => {
         return <RadioField {...rest} />;
     }
     // Files
-    if (type === 'file-tree') {
+    if (type === 'file-array') {
         return <MultiFileField {...rest} />;
+    }
+
+    if (type === 'file-string') {
+        return <FileField {...rest} />;
     }
 
     return <span> WIP </span>;
