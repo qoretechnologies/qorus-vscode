@@ -99,11 +99,20 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory(
                                                     'qorus', new QorusDebugAdapterDescriptorFactory()));
 
-    context.subscriptions.push(vscode.debug.onDidStartDebugSession(_session => {
+    context.subscriptions.push(vscode.debug.onDidStartDebugSession(session => {
+        if (session.type == "qorus") {
+            msg.info(t`SessionStarted ${session.configuration.program}`);
+        }
     }));
-    context.subscriptions.push(vscode.debug.onDidTerminateDebugSession(_session => {
+    context.subscriptions.push(vscode.debug.onDidTerminateDebugSession(session => {
+        if (session.type == "qorus") {
+            msg.info(t`SessionTerminated ${session.configuration.program}`);
+        }
     }));
-    context.subscriptions.push(vscode.debug.onDidChangeActiveDebugSession(_session => {
+    context.subscriptions.push(vscode.debug.onDidChangeActiveDebugSession(session => {
+        if (session !== undefined && session.type == "qorus") {
+            //msg.info(t`SessionChanged ${session.configuration.program}`);
+        }
     }));
     context.subscriptions.push(vscode.debug.onDidReceiveDebugSessionCustomEvent(_event => {
     }));
