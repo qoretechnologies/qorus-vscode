@@ -97,11 +97,11 @@ export const serviceFields = default_target_dir => [
         items: [
             {
                 value: 'qore',
-                icon_path: '../images/qore-106x128.png'
+                icon_filename: 'qore-106x128.png'
             },
             {
                 value: 'java',
-                icon_path: '../images/java-96x128.png'
+                icon_filename: 'java-96x128.png'
             }
         ],
         default_value: 'qore'
@@ -275,7 +275,6 @@ export const serviceFields = default_target_dir => [
 
 export const fake_service_data = {
     target_dir: os.homedir(),
-//    target_file: 
     iface_kind: 'service',
 
     service: 'example-service',
