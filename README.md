@@ -106,9 +106,9 @@ The sessions are configured in `launch.json` file referenced from `Debug` view.
 Extension implements *qorus* debugging type.
 Both local and remote interfaces of *workflow* / *job* / *service* kind are supported.
 `Interface` name (i.e. program) may be specified by *name*, *name:version*, *id* or pickup from
-selection box *${command:AskForInterface}* when starting debugging session. 
+selection box *${command:AskForInterface}* when starting debugging session.
 
-To start debugging prepare launch file, select a configuration from drop box and 
+To start debugging prepare launch file, select a configuration from drop box and
 click `Start debugging`. The debugging is performed for current active *Qorus instance*.
 When specified interface code (program) is executed in Qorus then VSCode extension
 is notified, program interrupted and user can start stepping code e.g.`F11`, inspecting stack, variables, etc.

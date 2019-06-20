@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "0.0.9",
+    "version": "0.0.8",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -336,14 +336,20 @@
                         ],
                         "properties": {
                             "kind": {
-                                "enum": ["workflow", "service", "job"],
+                                "enum": [
+                                    "workflow",
+                                    "service",
+                                    "job"
+                                ],
                                 "description": "Interface type, i.e. workflow, service or job"
                             },
                             "interface": {
-                                "type": ["string", "number"],
+                                "type": [
+                                    "string",
+                                    "number"
+                                ],
                                 "description": "Interface name to debug in form 'name', name:version' or interface id"
                             },
-
                             "logFilename": {
                                 "type": "string",
                                 "description": "Logging filename"

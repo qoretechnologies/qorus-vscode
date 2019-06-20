@@ -26,7 +26,7 @@ export function pickInterface(config: DebugConfiguration) {
         (response: any) => {
             let items: string[] = [];
             for (let iface of response) {
-                items.push(iface.name + ":" + iface.version);
+                items.push(iface.name + ':' + iface.version);
             }
             msg.log(t`requestResponse ${JSON.stringify(response)}`);
             return vscode.window.showQuickPick(items, {
@@ -48,7 +48,10 @@ export class QorusConfigurationProvider implements vscode.DebugConfigurationProv
         e.g. add all missing attributes to the debug configuration.
         Commands ${command:xxx} are invoked by vscode and value is substituted
      */
-    resolveDebugConfiguration(_folder: WorkspaceFolder | undefined, config: DebugConfiguration, _token?: CancellationToken): ProviderResult<DebugConfiguration> {
+    resolveDebugConfiguration(_folder: WorkspaceFolder | undefined,
+                              config: DebugConfiguration,
+                              _token?: CancellationToken): ProviderResult<DebugConfiguration>
+    {
         const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             throw new Error(t`Aborted`);
@@ -61,7 +64,9 @@ export class QorusConfigurationProvider implements vscode.DebugConfigurationProv
 
 export class QorusDebugAdapterDescriptorFactory implements vscode.DebugAdapterDescriptorFactory {
 
-    createDebugAdapterDescriptor(session: vscode.DebugSession, _executable: vscode.DebugAdapterExecutable | undefined): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
+    createDebugAdapterDescriptor(session: vscode.DebugSession, _executable: vscode.DebugAdapterExecutable | undefined)
+                                                    : vscode.ProviderResult<vscode.DebugAdapterDescriptor>
+    {
         let config = session.configuration;
         // prepare qore-vscode configuration, mainly we need resolve URL for remote interface
 
@@ -80,30 +85,31 @@ export class QorusDebugAdapterDescriptorFactory implements vscode.DebugAdapterDe
         return request(options).then(
             (response: any) => {
                 let qoreConfig = <DebugConfiguration>{};
-                qoreConfig.type = "qore";
+                qoreConfig.type = 'qore';
                 qoreConfig.name = config.name;
-                qoreConfig.request = "attach";
-                qoreConfig.connection = config.active_instance.url.replace(/^http/i, "ws") + "/debug";
+                qoreConfig.request = 'attach';
+                qoreConfig.connection = config.active_instance.url.replace(/^http/i, 'ws') + '/debug';
                 if (config.token) {
-                    qoreConfig.headers = [ {"name": "qorus-token", "value": config.token} ];
+                    qoreConfig.headers = [ {'name': 'qorus-token', 'value': config.token} ];
                 }
 
                 if (response.remote) {
                     if (response.process !== null) {
-                        qoreConfig.connection = qoreConfig.connection + "/" + response.process.id;
+                        qoreConfig.connection = qoreConfig.connection + '/' + response.process.id;
                     } else {
                         throw new Error(t`CannotGetRemoteUrl`);
                     }
                 }
-                for (const key of ["logFilename", "appendToLog", "fullException", "verbosity", "maxRedir",
-                    "proxy", "timeout", "connTimeout", "respTimeout"]) {
-                    if (typeof config[key] !== "undefined") {
+                for (const key of ['logFilename', 'appendToLog', 'fullException', 'verbosity', 'maxRedir',
+                                   'proxy', 'timeout', 'connTimeout', 'respTimeout'])
+                {
+                    if (typeof config[key] !== 'undefined') {
                         qoreConfig[key] = config[key];
                     }
                 }
                 msg.info(t`Connecting ${qoreConfig.connection}`);
-                qoreConfig.program = response.name+":"+response.version;
-                let s: string = config.kind + " #" + response[config.kind + "id"] + ": " + qoreConfig.program;
+                qoreConfig.program = response.name + ':' + response.version;
+                let s: string = config.kind + ' #' + response[config.kind + 'id'] + ': ' + qoreConfig.program;
                 msg.info(s);
                 let qoreExecutable = qore_vscode.exports.getQoreExecutable();
                 let args: string[] = qore_vscode.exports.getExecutableArguments(qoreConfig);
@@ -115,9 +121,9 @@ export class QorusDebugAdapterDescriptorFactory implements vscode.DebugAdapterDe
                 in attach request
                 */
                 session.configuration.program = qoreConfig.program;
-                args.push("--program");
+                args.push('--program');
                 args.push(qoreConfig.program);
-                console.log(qoreExecutable + " " + args.join(" "));
+                console.log(qoreExecutable + ' ' + args.join(' '));
                 console.log(s);
                 return new vscode.DebugAdapterExecutable(qoreExecutable, args);
             },

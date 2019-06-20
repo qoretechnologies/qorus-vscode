@@ -762,4 +762,3 @@ msgstr "Cannot get remote process URL"
 
 msgid "Connecting ${ connection }";
 msgstr "Connecting: ${ connection }"
-

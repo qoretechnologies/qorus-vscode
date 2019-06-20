@@ -53,10 +53,6 @@ export class QorusAuth {
         return url === this.active_url;
     }
 
-    getActive(): string | undefined {
-        return this.active_url;
-    }
-
     isLoggedIn(url: string): boolean {
         return !!this.tokens[url];
     }

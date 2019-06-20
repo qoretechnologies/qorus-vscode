@@ -94,8 +94,10 @@ export async function activate(context: vscode.ExtensionContext) {
         return pickInterface(config);
     }));
 
-    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider('qorus', new QorusConfigurationProvider()));
-    context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory('qorus', new QorusDebugAdapterDescriptorFactory()));
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider(
+                                                    'qorus', new QorusConfigurationProvider()));
+    context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory(
+                                                    'qorus', new QorusDebugAdapterDescriptorFactory()));
 
     context.subscriptions.push(vscode.debug.onDidStartDebugSession(_session => {
     }));
@@ -187,7 +189,7 @@ function setLocale() {
     }
 
     if (!po_file) {
-        msg.error("Language file not found");
+        msg.error('Language file not found');
         return;
     }
 
