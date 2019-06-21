@@ -814,6 +814,9 @@ msgstr "Service"
 msgid "field-desc-service"
 msgstr "The name of the service"
 
+msgid "field-label-version"
+msgstr "Version"
+
 msgid "field-label-serviceversion"
 msgstr "Version"
 
@@ -825,6 +828,9 @@ msgstr "Description"
 
 msgid "field-desc-servicedesc"
 msgstr "Description of the service object"
+
+msgid "field-label-author"
+msgstr "Author"
 
 msgid "field-label-serviceauthor"
 msgstr "Author"
