@@ -11,6 +11,7 @@ import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
 import * as fs from 'fs';
 import * as gettext_parser from 'gettext-parser';
+import { QorusConfigurationProvider, QorusDebugAdapterDescriptorFactory, pickInterface } from './QorusDebug';
 
 setLocale();
 
@@ -88,11 +89,37 @@ export async function activate(context: vscode.ExtensionContext) {
             updateQorusTree(document.uri);
         }
     }, null, context.subscriptions);
+
+    context.subscriptions.push(vscode.commands.registerCommand('extension.qorus-vscode.getInterface', config => {
+        return pickInterface(config);
+    }));
+
+    context.subscriptions.push(vscode.debug.registerDebugConfigurationProvider(
+                                                    'qorus', new QorusConfigurationProvider()));
+    context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory(
+                                                    'qorus', new QorusDebugAdapterDescriptorFactory()));
+
+    context.subscriptions.push(vscode.debug.onDidStartDebugSession(session => {
+        if (session.type == "qorus") {
+            msg.info(t`SessionStarted ${session.configuration.program}`);
+        }
+    }));
+    context.subscriptions.push(vscode.debug.onDidTerminateDebugSession(session => {
+        if (session.type == "qorus") {
+            msg.info(t`SessionTerminated ${session.configuration.program}`);
+        }
+    }));
+    context.subscriptions.push(vscode.debug.onDidChangeActiveDebugSession(session => {
+        if (session !== undefined && session.type == "qorus") {
+            //msg.info(t`SessionChanged ${session.configuration.program}`);
+        }
+    }));
+    context.subscriptions.push(vscode.debug.onDidReceiveDebugSessionCustomEvent(_event => {
+    }));
 }
 
 export function deactivate() {
 }
-
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
 

@@ -750,3 +750,24 @@ msgstr "Active Qorus instance"
 
 msgid "N/A"
 msgstr "N/A"
+
+msgid "Aborted"
+msgstr "Aborted"
+
+msgid "PickInterfacePlaceHolder ${ kind } ${ kind2 }"
+msgstr "Please enter the name of a ${ kind } or ${ kind2 }_id"
+
+msgid "CannotGetRemoteUrl"
+msgstr "Cannot get remote process URL"
+
+msgid "Connecting ${ connection }";
+msgstr "Connecting: ${ connection }"
+
+msgid "SessionStarted ${ program }"
+msgstr "Session started: ${ program }"
+
+msgid "SessionTerminated ${ program }"
+msgstr "Session terminated: ${ program }"
+
+msgid "SessionChanged ${ program }"
+msgstr "Session changed: ${ program }"
