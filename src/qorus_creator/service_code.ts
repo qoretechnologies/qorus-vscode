@@ -1,24 +1,37 @@
 import { comment_chars } from './creator_common';
 
-let template: any = {};
 
-template.qore =
+let class_template: any = {};
+let method_template: any = {};
+
+class_template.qore =
 "\
 class ${this.class_name} inherits ${this.base_class_name} {\n\
-    init() {\n\
-    }\n\
+${this.methods}\
 }\n\
 ";
 
-template.java =
+class_template.java =
 "\
 class ${this.class_name} extends ${this.base_class_name} {\n\
-    public void init() {\n\
-    }\n\
+${this.methods}\
 }\n\
 ";
 
-export const service_template = template;
+method_template.qore =
+"\
+    ${this.name}() {\n\
+    }\n\
+";
+
+method_template.java =
+"\
+    public void ${this.name}() {\n\
+    }\n\
+";
+
+export const service_class_template = class_template;
+export const service_method_template = method_template;
 
 
 export const serviceFields = default_target_dir => [
@@ -249,7 +262,7 @@ export const serviceFields = default_target_dir => [
         fields: ['label', 'value']
     },
     {
-        name: 'TAG',
+        name: 'tags',
         mandatory: false,
         type: 'array-of-pairs',
         fields: ['key', 'value']
@@ -327,9 +340,9 @@ export const createOldServiceHeaders = (headers: any, lang: string = 'qore'): st
                         result += `${comment} ${tag}: ${item.label}=${item.value}\n`;
                     }
                     break;
-                case 'TAG':
+                case 'tags':
                     for (let item of value) {
-                        result += `${comment} ${tag}: ${item.key}: ${item.value}\n`;
+                        result += `${comment} TAG: ${item.key}: ${item.value}\n`;
                     }
                     break;
                 case 'author':

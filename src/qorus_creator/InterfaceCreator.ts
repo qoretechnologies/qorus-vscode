@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { fillTemplate, createHeaders, suffix, comment_chars, default_parse_options } from './creator_common';
-import { service_template, serviceFields, service_methods,
+import { fillTemplate, createHeaders, createMethodHeaders, suffix,
+         comment_chars, default_parse_options } from './creator_common';
+import { service_class_template, service_method_template, serviceFields, service_methods,
          defaultOldServiceHeaders, createOldServiceHeaders } from './service_code';
 
 
@@ -26,7 +27,7 @@ class InterfaceCreator {
     }
 
     private createService(data: any) {
-        const {target_dir, target_file, class_name, base_class_name, ...header_vars} = data;
+        const {target_dir, target_file, ...other_data} = data;
 
         const target_file_base = target_file
             ? path.basename(target_file, '.qsd')
@@ -40,12 +41,12 @@ class InterfaceCreator {
             code: file_name
         };
 
+        const {code, remaining_data: header_vars} = this.serviceCode(other_data);
         const headers = createHeaders(Object.assign(headers_begin, header_vars, headers_end));
-        const code = fillTemplate(service_template[data.lang], {class_name, base_class_name});
 
         fs.writeFileSync(
             path.join(target_dir, `${target_file_base}.yaml`),
-            headers
+            headers + createMethodHeaders(data.methods)
         );
 
         fs.writeFileSync(
@@ -55,26 +56,38 @@ class InterfaceCreator {
     }
 
     private createServiceOldFormat(data: any) {
-        const {lang = 'qore', target_dir, target_file, ...other_data} = data;
+        const {target_dir, target_file, ...other_data} = data;
 
         const target_file_base = target_file
             ? path.basename(target_file, '.qsd')
-            : `${data.service}-${data.serviceversion}`;
+            : `${data.name}-${data.service}`;
 
         const default_header_vars = defaultOldServiceHeaders(other_data);
 
-        const {class_name, base_class_name, ... header_vars} = other_data;
-
+        const {code, remaining_data: header_vars} = this.serviceCode(other_data);
         const headers = createOldServiceHeaders(
             Object.assign({}, header_vars, default_header_vars, header_vars),
-            lang);
-
-        const code = fillTemplate(service_template[lang], {class_name, base_class_name});
+            data.lang);
 
         fs.writeFileSync(
-            path.join(target_dir, `${target_file_base}.old.qsd`),
-            headers + `${comment_chars[lang]} ENDSERVICE\n\n` + code
+            path.join(target_dir, `${target_file_base}.old.qsd${suffix[data.lang]}`),
+            headers + `${comment_chars[data.lang]} ENDSERVICE\n\n` + code
         );
+    }
+
+    private serviceCode(data: any): any {
+        const {lang, class_name, base_class_name, methods: method_objects, ...other_data} = data;
+
+        let method_strings = [];
+        for (let method of method_objects) {
+            method_strings.push(fillTemplate(service_method_template[lang], {name: method.name}));
+        }
+        const methods = method_strings.join('\n');
+
+        return {
+            code: fillTemplate(service_class_template[lang], {class_name, base_class_name, methods}),
+            remaining_data: other_data
+        };
     }
 }
 

@@ -40,7 +40,6 @@ export const createHeaders = (headers: any): string => {
                         result += `${list_indent}${item.name}\n`;
                     }
                     break;
-                case 'TAG':
                 case 'tags':
                     result += 'tags:\n';
                     for (let item of value) {
@@ -81,6 +80,29 @@ export const createHeaders = (headers: any): string => {
             switch (key) {
                 default:
                     result += `${tag}: ${value}\n`;
+            }
+        }
+    }
+
+    return result;
+};
+
+export const createMethodHeaders = (methods: any) => {
+    const list_indent = '  - ';
+    const indent = '    ';
+    let result: string = 'methods:\n';
+
+    for (let method of methods) {
+        result += `${list_indent}name: ${method.name}\n`
+        for (let tag in method) {
+            switch (tag) {
+                case 'name':
+                    break;
+                case 'author':
+                    result += `${indent}author: ${method.author.map(author => author.name).join(', ')}\n`
+                    break;
+                default:
+                    result += `${indent}${tag}: ${method[tag]}\n`
             }
         }
     }
