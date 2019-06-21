@@ -28,6 +28,11 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
 }) => {
     // Fetch data on mount
     useMount(() => {
+        // Populate default value
+        if (default_value) {
+            onChange(name, default_value);
+        }
+        // Get backend data
         if (get_message && return_message) {
             postMessage(get_message.action);
             addMessageListener(return_message.action, (data: any) => {
