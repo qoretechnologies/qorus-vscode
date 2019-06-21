@@ -93,7 +93,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [show, setShow] = useState<boolean>(false);
 
     useEffectOnce(() => {
-        console.log('TYPE IN USE EFFECT ONCE OMFG PICO', type);
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
             ({ fields: newFields }: { newFields: { [key: string]: IField } }) => {
@@ -119,7 +118,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         postMessage(Messages.GET_FIELDS, { iface_kind: type });
 
         return () => {
-            console.log('unmounting');
             messageListenerHandler();
         };
     });
@@ -381,6 +379,5 @@ export default compose(
         selectedQuery: selectedQuery[type],
         type,
         ...rest,
-    })),
-    onlyUpdateForKeys(['fields', 'selectedFields', 'query', 'selectedQuery'])
+    }))
 )(InterfaceCreatorPanel);
