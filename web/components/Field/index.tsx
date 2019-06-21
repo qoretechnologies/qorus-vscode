@@ -17,6 +17,7 @@ export interface IField {
     t: TTranslator;
     fields: string[];
     value?: any;
+    default_value?: any;
     onChange: IFieldChange;
 }
 

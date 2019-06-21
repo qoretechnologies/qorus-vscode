@@ -19,6 +19,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     name,
     onChange,
     value,
+    default_value,
     fill,
     postMessage,
     addMessageListener,
@@ -50,7 +51,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     return (
         <InputGroup
             className={fill && Classes.FILL}
-            value={value}
+            value={value || default_value}
             onChange={handleInputChange}
             rightElement={
                 value &&

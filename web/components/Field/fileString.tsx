@@ -20,10 +20,16 @@ const Spacer = styled.div`
     margin: 5px;
 `;
 
-const FileField: FunctionComponent<IFileField & IField & IFieldChange> = ({ onChange, name, value, ...rest }) => {
+const FileField: FunctionComponent<IFileField & IField & IFieldChange> = ({
+    onChange,
+    name,
+    value,
+    default_value,
+    ...rest
+}) => {
     return (
         <>
-            <String name={name} onChange={onChange} value={value} />
+            <String name={name} onChange={onChange} value={value} default_value={default_value} />
             <Spacer />
             <TreeField single onChange={onChange} name={name} value={value} {...rest} />
         </>
