@@ -48,8 +48,6 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
         onChange(name, value);
     };
 
-    console.log(value);
-
     return (
         <div>
             {items.map((v: { value: string; icon_filename: string }) => (

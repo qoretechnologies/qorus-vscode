@@ -6,6 +6,7 @@ import compose from 'recompose/compose';
 import withTargetDir from '../../hocomponents/withTargetDir';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
+import withFields from '../../hocomponents/withFields';
 
 export interface ICreateInterface {
     targetDir: string;
@@ -22,7 +23,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, targetDir }) 
                 panel={<InterfaceCreatorPanel type={'service'} />}
             />
             <Tab id={'workflows'} title={t('Workflows')} panel={<InterfaceCreatorPanel type={'workflow'} />} />
-            <Tab id={'jobs'} title={t('Jobs')} panel={<InterfaceCreatorPanel />} />
+            <Tab id={'jobs'} title={t('Jobs')} panel={<InterfaceCreatorPanel type={'job'} />} />
         </Tabs>
     </Box>
 );

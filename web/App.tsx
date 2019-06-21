@@ -15,6 +15,7 @@ import useEffectOnce from 'react-use/lib/useEffectOnce';
 import { Messages } from './constants/messages';
 import { TextContext } from './context/text';
 import compose from 'recompose/compose';
+import withFields from './hocomponents/withFields';
 
 const StyledApp = styled.div`
     display: flex;
@@ -215,6 +216,7 @@ export default hot(
         connect(
             mapStateToProps,
             mapDispatchToProps
-        )
+        ),
+        withFields()
     )(App)
 );

@@ -10,7 +10,7 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
         // Adds a new message listener
         const addMessageListener: TMessageListener = (action, callback) => {
             // Register the listener
-            window.addEventListener('message', (event: MessageEvent) => {
+            const messageListener = (event: MessageEvent) => {
                 // Check if the action is equal
                 if (event.data.action === action) {
                     // Run the callback with the action data
@@ -18,8 +18,15 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
                         callback(event.data);
                     }
                 }
-            });
+            };
+
+            window.addEventListener('message', messageListener);
+
+            return () => {
+                window.removeEventListener('message', messageListener);
+            };
         };
+
         // Send message
         const postMessage: TPostMessage = (action, data = {}) => {
             vscode.postMessage({
