@@ -33,6 +33,13 @@ method_template.java =
 export const service_class_template = class_template;
 export const service_method_template = method_template;
 
+export const default_service_methods = [
+    {
+        name: 'init',
+        desc: 'init method'
+    }
+];
+
 
 export const serviceFields = default_target_dir => [
     {

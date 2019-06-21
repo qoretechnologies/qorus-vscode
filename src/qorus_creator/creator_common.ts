@@ -87,7 +87,7 @@ export const createHeaders = (headers: any): string => {
     return result;
 };
 
-export const createMethodHeaders = (methods: any) => {
+export const createMethodHeaders = (methods: any): string => {
     const list_indent = '  - ';
     const indent = '    ';
     let result: string = 'methods:\n';

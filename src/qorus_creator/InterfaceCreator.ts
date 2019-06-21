@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { fillTemplate, createHeaders, createMethodHeaders, suffix,
          comment_chars, default_parse_options } from './creator_common';
 import { service_class_template, service_method_template, serviceFields, service_methods,
-         defaultOldServiceHeaders, createOldServiceHeaders } from './service_code';
+         defaultOldServiceHeaders, createOldServiceHeaders, default_service_methods } from './service_code';
 
 
 class InterfaceCreator {
@@ -27,6 +27,10 @@ class InterfaceCreator {
     }
 
     private createService(data: any) {
+        if (!data.methods || !data.methods.length) {
+            data.methods = default_service_methods;
+        }
+
         const {target_dir, target_file, ...other_data} = data;
 
         const target_file_base = target_file
