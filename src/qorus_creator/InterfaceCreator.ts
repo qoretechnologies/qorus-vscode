@@ -37,7 +37,13 @@ class InterfaceCreator {
 
         const file_name = `${target_file_base}.qsd${suffix[data.lang]}`;
 
-        const headers = createHeaders(Object.assign({type: 'service'}, header_vars, {code: file_name}), data.lang);
+        const headers_begin = {type: 'service'};
+        const headers_end = {
+            servicetype: 'USER',
+            code: file_name
+        };
+
+        const headers = createHeaders(Object.assign(headers_begin, header_vars, headers_end), data.lang);
         const code = fillTemplate(service_template[data.lang], {class_name, base_class_name});
 
         fs.writeFileSync(

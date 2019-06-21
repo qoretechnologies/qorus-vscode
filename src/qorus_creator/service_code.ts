@@ -291,7 +291,7 @@ export const service_methods = [
         type: 'boolean'
     },
     {
-        name: 'intenal',
+        name: 'internal',
         mandatory: false,
         type: 'boolean'
     }
