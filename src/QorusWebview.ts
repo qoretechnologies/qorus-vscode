@@ -43,7 +43,8 @@ class QorusWebview {
                     t`QorusWebviewTitle`,
                     vscode.ViewColumn.One,
                     {
-                        enableScripts: true
+                        enableScripts: true,
+                        retainContextWhenHidden: true
                     }
                 );
                 this.panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
