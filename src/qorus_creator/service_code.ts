@@ -1,6 +1,3 @@
-import * as os from 'os';
-
-
 let template: any = {};
 
 template.qore =
@@ -269,4 +266,33 @@ export const serviceFields = default_target_dir => [
         type: 'array-of-pairs',
         fields: ['key', 'value']
     },
+];
+
+
+export const service_methods = [
+    {
+        name: 'name'
+    },
+    {
+        name: 'desc'
+    },
+    {
+        name: 'author',
+        mandatory: false,
+        type: 'select-array'
+    },
+    {
+        name: 'lock',
+        mandatory: false
+    },
+    {
+        name: 'write',
+        mandatory: false,
+        type: 'boolean'
+    },
+    {
+        name: 'intenal',
+        mandatory: false,
+        type: 'boolean'
+    }
 ];

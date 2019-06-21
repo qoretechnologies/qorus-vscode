@@ -161,7 +161,7 @@ class QorusWebview {
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
                                 fields: creator.getFields(message.iface_kind,
-                                                          opening_uri ? opening_uri.fsPath : '')
+                                                          opening_uri ? opening_uri.fsPath : undefined)
                             });
                             break;
                         case 'creator-get-objects':
