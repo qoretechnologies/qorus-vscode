@@ -1,34 +1,29 @@
 import { comment_chars } from './creator_common';
 
-
 let class_template: any = {};
 let method_template: any = {};
 
-class_template.qore =
-"\
+class_template.qore = '\
 class ${this.class_name} inherits ${this.base_class_name} {\n\
 ${this.methods}\
 }\n\
-";
+';
 
-class_template.java =
-"\
+class_template.java = '\
 class ${this.class_name} extends ${this.base_class_name} {\n\
 ${this.methods}\
 }\n\
-";
+';
 
-method_template.qore =
-"\
+method_template.qore = '\
     ${this.name}() {\n\
     }\n\
-";
+';
 
-method_template.java =
-"\
+method_template.java = '\
     public void ${this.name}() {\n\
     }\n\
-";
+';
 
 export const service_class_template = class_template;
 export const service_method_template = method_template;
@@ -36,10 +31,9 @@ export const service_method_template = method_template;
 export const default_service_methods = [
     {
         name: 'init',
-        desc: 'init method'
-    }
+        desc: 'init method',
+    },
 ];
-
 
 export const serviceFields = default_target_dir => [
     {
@@ -48,38 +42,38 @@ export const serviceFields = default_target_dir => [
         default_value: default_target_dir,
         get_message: {
             action: 'creator-get-directories',
-            object_type: 'target-dir'
+            object_type: 'target-dir',
         },
         return_message: {
             action: 'creator-return-directories',
             object_type: 'target-dir',
             return_value: 'directories',
-        }
+        },
     },
     {
-        name: 'target_file'
+        name: 'target_file',
     },
     {
         name: 'base_class_name',
         type: 'select-string',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'base-class'
+            object_type: 'base-class',
         },
         return_message: {
             action: 'creator-return-objects',
             object_type: 'base-class',
-            return_value: 'objects'
-        }
+            return_value: 'objects',
+        },
     },
     {
-        name: 'name'
+        name: 'name',
     },
     {
-        name: 'version'
+        name: 'version',
     },
     {
-        name: 'desc'
+        name: 'desc',
     },
     {
         name: 'author',
@@ -87,13 +81,13 @@ export const serviceFields = default_target_dir => [
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'author'
+            object_type: 'author',
         },
         return_message: {
             action: 'creator-return-objects',
             object_type: 'author',
-            return_value: 'objects'
-        }
+            return_value: 'objects',
+        },
     },
     {
         name: 'lang',
@@ -101,30 +95,30 @@ export const serviceFields = default_target_dir => [
         items: [
             {
                 value: 'qore',
-                icon_filename: 'qore-106x128.png'
+                icon_filename: 'qore-106x128.png',
             },
             {
                 value: 'java',
-                icon_filename: 'java-96x128.png'
-            }
+                icon_filename: 'java-96x128.png',
+            },
         ],
-        default_value: 'qore'
+        default_value: 'qore',
     },
     {
         name: 'class_name',
         prefill: 'name',
-        style: 'PascalCase'
+        style: 'PascalCase',
     },
     {
         name: 'remote',
         mandatory: false,
-        type: 'boolean'
+        type: 'boolean',
     },
     {
         name: 'groups',
         mandatory: false,
         type: 'array-of-pairs',
-        fields: ['name', 'desc']
+        fields: ['name', 'desc'],
     },
     {
         name: 'constants',
@@ -132,13 +126,13 @@ export const serviceFields = default_target_dir => [
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'constant'
+            object_type: 'constant',
         },
         return_message: {
             action: 'creator-return-objects',
             object_type: 'constant',
-            return_value: 'objects'
-        }
+            return_value: 'objects',
+        },
     },
     {
         name: 'classes',
@@ -146,13 +140,13 @@ export const serviceFields = default_target_dir => [
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'class'
+            object_type: 'class',
         },
         return_message: {
             action: 'creator-return-objects',
             object_type: 'class',
-            return_value: 'objects'
-        }
+            return_value: 'objects',
+        },
     },
     {
         name: 'functions',
@@ -160,23 +154,23 @@ export const serviceFields = default_target_dir => [
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'function'
+            object_type: 'function',
         },
         return_message: {
             action: 'creator-return-objects',
             object_type: 'function',
-            return_value: 'objects'
-        }
+            return_value: 'objects',
+        },
     },
     {
         name: 'service_modules',
         mandatory: false,
-        type: 'array'
+        type: 'array',
     },
     {
         name: 'autostart',
         mandatory: false,
-        type: 'boolean'
+        type: 'boolean',
     },
     {
         name: 'mappers',
@@ -184,13 +178,13 @@ export const serviceFields = default_target_dir => [
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'mapper'
+            object_type: 'mapper',
         },
         return_message: {
             action: 'creator-return-objects',
             object_type: 'mapper',
-            return_value: 'objects'
-        }
+            return_value: 'objects',
+        },
     },
     {
         name: 'vmaps',
@@ -198,13 +192,13 @@ export const serviceFields = default_target_dir => [
         type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'value-map'
+            object_type: 'value-map',
         },
         return_message: {
             action: 'creator-return-objects',
             object_type: 'value-map',
-            return_value: 'objects'
-        }
+            return_value: 'objects',
+        },
     },
     {
         name: 'resource',
@@ -212,13 +206,13 @@ export const serviceFields = default_target_dir => [
         type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
-            object_type: 'resource'
+            object_type: 'resource',
         },
         return_message: {
             action: 'creator-return-resources',
             object_type: 'resource',
-            return_value: 'resources'
-        }
+            return_value: 'resources',
+        },
     },
     {
         name: 'text_resource',
@@ -226,13 +220,13 @@ export const serviceFields = default_target_dir => [
         type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
-            object_type: 'text-resource'
+            object_type: 'text-resource',
         },
         return_message: {
             action: 'creator-return-resources',
             object_type: 'text-resource',
-            return_value: 'resources'
-        }
+            return_value: 'resources',
+        },
     },
     {
         name: 'bin_resource',
@@ -240,13 +234,13 @@ export const serviceFields = default_target_dir => [
         type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
-            object_type: 'bin-resource'
+            object_type: 'bin-resource',
         },
         return_message: {
             action: 'creator-return-resources',
             object_type: 'bin-resource',
-            return_value: 'resources'
-        }
+            return_value: 'resources',
+        },
     },
     {
         name: 'template',
@@ -254,68 +248,77 @@ export const serviceFields = default_target_dir => [
         type: 'file-array',
         get_message: {
             action: 'creator-get-resources',
-            object_type: 'template'
+            object_type: 'template',
         },
         return_message: {
             action: 'creator-return-resources',
             object_type: 'template',
-            return_value: 'resources'
-        }
+            return_value: 'resources',
+        },
     },
     {
         name: 'define_auth_label',
         mandatory: false,
         type: 'array-of-pairs',
-        fields: ['label', 'value']
+        fields: ['label', 'value'],
     },
     {
         name: 'tags',
         mandatory: false,
         type: 'array-of-pairs',
-        fields: ['key', 'value']
+        fields: ['key', 'value'],
     },
 ];
 
-
 export const service_methods = [
     {
-        name: 'name'
+        name: 'name',
     },
     {
-        name: 'desc'
+        name: 'desc',
     },
     {
         name: 'author',
         mandatory: false,
-        type: 'select-array'
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'author',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'author',
+            return_value: 'objects',
+        },
     },
     {
         name: 'lock',
-        mandatory: false
+        mandatory: false,
     },
     {
         name: 'write',
         mandatory: false,
-        type: 'boolean'
+        type: 'boolean',
     },
     {
         name: 'internal',
         mandatory: false,
-        type: 'boolean'
-    }
+        type: 'boolean',
+    },
 ];
-
 
 export const defaultOldServiceHeaders = data => {
     switch (data.lang) {
-        case 'java': return {
-            'class-name': data.class_name,
-        };
-        default: return {
-            'class-based': true,
-            'class-name': data.class_name,
-            'parse-options': ['PO_NEW_STYLE', 'PO_STRICT_ARGS', 'PO_REQUIRE_TYPES'],
-        };
+        case 'java':
+            return {
+                'class-name': data.class_name,
+            };
+        default:
+            return {
+                'class-based': true,
+                'class-name': data.class_name,
+                'parse-options': ['PO_NEW_STYLE', 'PO_STRICT_ARGS', 'PO_REQUIRE_TYPES'],
+            };
     }
 };
 
@@ -381,18 +384,17 @@ export const createOldServiceHeaders = (headers: any, lang: string = 'qore'): st
                 default:
                     result += `${comment} ${tag}: ${value.join(', ')}\n`;
             }
-        }
-        else {
+        } else {
             switch (key) {
                 case 'name':
                     result += `${comment} service: ${value}`;
-                    break
+                    break;
                 case 'desc':
                     result += `${comment} servicedesc: ${value}`;
-                    break
+                    break;
                 case 'version':
                     result += `${comment} serviceversion: ${value}`;
-                    break
+                    break;
                 default:
                     result += `${comment} ${tag}: ${value}`;
             }
@@ -401,4 +403,4 @@ export const createOldServiceHeaders = (headers: any, lang: string = 'qore'): st
     }
 
     return result;
-}
+};

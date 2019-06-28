@@ -7,21 +7,25 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [fields, setLocalFields] = useState<{ [key: string]: IField[] }>({
             service: [],
+            ['service-methods']: [],
             workflow: [],
             job: [],
         });
         const [selectedFields, setLocalSelectedFields] = useState<{ [key: string]: IField[] }>({
             service: [],
+            ['service-methods']: [],
             workflow: [],
             job: [],
         });
         const [query, setLocalQuery] = useState<{ [key: string]: string }>({
             service: '',
+            ['service-methods']: '',
             workflow: '',
             job: '',
         });
         const [selectedQuery, setLocalSelectedQuery] = useState<{ [key: string]: string }>({
             service: '',
+            ['service-methods']: '',
             workflow: '',
             job: '',
         });

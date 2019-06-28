@@ -985,6 +985,9 @@ msgstr "Please select"
 msgid "Submit"
 msgstr "Submit"
 
+msgid "Reset"
+msgstr "Reset"
+
 msgid "Filter"
 msgstr "Filter..."
 

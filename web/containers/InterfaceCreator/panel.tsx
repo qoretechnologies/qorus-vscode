@@ -23,6 +23,7 @@ export interface IInterfaceCreatorPanel {
     type: string;
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
+    onSubmit: () => void;
     t: TTranslator;
 }
 
@@ -89,13 +90,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     setQuery,
     selectedQuery,
     setSelectedQuery,
+    onSubmit,
 }) => {
     const [show, setShow] = useState<boolean>(false);
 
     useEffectOnce(() => {
-        const messageListenerHandler = addMessageListener(
+        const messageListenerHandler: () => void = addMessageListener(
             Messages.FIELDS_FETCHED,
-            ({ fields: newFields }: { newFields: { [key: string]: IField } }) => {
+            ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField } }) => {
                 if (!fields.length) {
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
@@ -240,17 +242,21 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     const handleSubmitClick: () => void = () => {
-        // Build the finished object
-        const data: { [key: string]: any } = reduce(
-            selectedFields,
-            (result: { [key: string]: any }, field: IField) => ({
-                ...result,
-                [field.name]: field.value,
-            }),
-            {}
-        );
+        if (onSubmit) {
+            onSubmit();
+        } else {
+            // Build the finished object
+            const data: { [key: string]: any } = reduce(
+                selectedFields,
+                (result: { [key: string]: any }, field: IField) => ({
+                    ...result,
+                    [field.name]: field.value,
+                }),
+                {}
+            );
 
-        postMessage(Messages.CREATE_INTERFACE, { iface_kind: type, data });
+            postMessage(Messages.CREATE_INTERFACE, { iface_kind: type, data });
+        }
     };
 
     if (!size(fields) || !show) {
@@ -353,7 +359,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 </ContentWrapper>
                 <ActionsWrapper>
                     <ButtonGroup fill>
-                        <Button text={t('reset')} icon={'history'} onClick={resetFields} />
+                        <Button text={t('Reset')} icon={'history'} onClick={resetFields} />
                         <Button
                             text={t('Submit')}
                             disabled={!isFormValid()}

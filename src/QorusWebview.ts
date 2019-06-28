@@ -9,14 +9,13 @@ import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreator';
 
-
 class QorusWebview {
     private panel: vscode.WebviewPanel | undefined = undefined;
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
 
     open(active_tab?: string, opening_uri?: vscode.Uri) {
-        if(this.panel) {
+        if (this.panel) {
             if (opening_uri) {
                 if (projects.updateCurrentWorkspaceFolder(opening_uri)) {
                     this.dispose();
@@ -44,7 +43,7 @@ class QorusWebview {
                     vscode.ViewColumn.One,
                     {
                         enableScripts: true,
-                        retainContextWhenHidden: true
+                        retainContextWhenHidden: true,
                     }
                 );
                 this.panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
@@ -58,7 +57,7 @@ class QorusWebview {
                     }
                     msg.warning(t`ProjectConfigFileHasChangedOnDisk`);
                     this.panel.webview.postMessage({
-                        action: 'config-changed-on-disk'
+                        action: 'config-changed-on-disk',
                     });
                 });
 
@@ -82,7 +81,7 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'return-text',
                                 text_id: message.text_id,
-                                text: gettext(message.text_id)
+                                text: gettext(message.text_id),
                             });
                             break;
                         case 'get-active-tab':
@@ -91,24 +90,22 @@ class QorusWebview {
                         case 'get-current-project-folder':
                             this.panel.webview.postMessage({
                                 action: 'current-project-folder',
-                                folder: path.basename(project.folder)
+                                folder: path.basename(project.folder),
                             });
                             break;
                         case 'login-get-data':
                             this.panel.webview.postMessage({
                                 action: 'login-return-data',
-                                qorus_instance: qorus_request.loginQorusInstance()
+                                qorus_instance: qorus_request.loginQorusInstance(),
                             });
                             break;
                         case 'login-submit':
-                            qorus_request.loginPost(message.username,
-                                                    message.password,
-                                                    this.panel.webview);
+                            qorus_request.loginPost(message.username, message.password, this.panel.webview);
                             break;
                         case 'login-cancel':
                             msg.info(t`LoginCancelled`);
                             this.panel.webview.postMessage({
-                                action: 'close-login'
+                                action: 'close-login',
                             });
                             break;
                         case 'config-get-data':
@@ -127,14 +124,10 @@ class QorusWebview {
                             project.removeSourceDir(message.dir, this.panel.webview);
                             break;
                         case 'get-interfaces':
-                            deleter.getInterfaces(message.iface_kind,
-                                                  message.columns,
-                                                  this.panel.webview);
+                            deleter.getInterfaces(message.iface_kind, message.columns, this.panel.webview);
                             break;
                         case 'delete-interfaces':
-                            deleter.deleteInterfaces(message.iface_kind,
-                                                     message.ids,
-                                                     this.panel.webview);
+                            deleter.deleteInterfaces(message.iface_kind, message.ids, this.panel.webview);
                             break;
                         case 'release-get-branch':
                             releaser.makeRelease(this.panel.webview);
@@ -158,11 +151,15 @@ class QorusWebview {
                             releaser.savePackage(this.panel.webview);
                             break;
                         case 'creator-get-fields':
+                            console.log(creator.getFields(message.iface_kind));
+
                             this.panel.webview.postMessage({
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
-                                fields: creator.getFields(message.iface_kind,
-                                                          opening_uri ? opening_uri.fsPath : undefined)
+                                fields: creator.getFields(
+                                    message.iface_kind,
+                                    opening_uri ? opening_uri.fsPath : undefined
+                                ),
                             });
                             break;
                         case 'creator-get-objects':
@@ -200,7 +197,7 @@ class QorusWebview {
 
         this.panel.webview.postMessage({
             action: 'current-project-folder',
-            folder: project_folder
+            folder: project_folder,
         });
     }
 
@@ -211,7 +208,7 @@ class QorusWebview {
         }
         this.panel.webview.postMessage({
             action: 'current-qorus-instance',
-            qorus_instance: qorus_instance
+            qorus_instance: qorus_instance,
         });
     }
 
@@ -221,7 +218,7 @@ class QorusWebview {
         }
         this.panel.webview.postMessage({
             action: 'set-active-tab',
-            active_tab: active_tab
+            active_tab: active_tab,
         });
     }
 }

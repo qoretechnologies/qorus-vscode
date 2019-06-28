@@ -16,6 +16,8 @@ import { Messages } from './constants/messages';
 import { TextContext } from './context/text';
 import compose from 'recompose/compose';
 import withFields from './hocomponents/withFields';
+import Panel from './containers/InterfaceCreator/panel';
+import Box from './components/Box';
 
 const StyledApp = styled.div`
     display: flex;
@@ -172,11 +174,22 @@ const App: FunctionComponent<IApp> = ({
             </Navbar>
             <TextContext.Provider value={t}>
                 <StyledApp>
-                    {active_tab == 'Login' && <Login />}
-                    {active_tab == 'ProjectConfig' && <ProjectConfig />}
-                    {active_tab == 'ReleasePackage' && <ReleasePackage />}
-                    {active_tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                    {active_tab == 'CreateInterface' && <InterfaceCreator />}
+                    <>
+                        {active_tab == 'Method' && (
+                            <Box fill>
+                                <div className={'fullHeightTabs'} style={{ display: 'flex', flex: 1 }}>
+                                    <div className={'bp3-tab-panel flex-column flex-auto'}>
+                                        <Panel type={'service-methods'} />
+                                    </div>
+                                </div>
+                            </Box>
+                        )}
+                        {active_tab == 'Login' && <Login />}
+                        {active_tab == 'ProjectConfig' && <ProjectConfig />}
+                        {active_tab == 'ReleasePackage' && <ReleasePackage />}
+                        {active_tab == 'DeleteInterfaces' && <DeleteInterfaces />}
+                        {active_tab == 'CreateInterface' && <InterfaceCreator />}
+                    </>
                 </StyledApp>
             </TextContext.Provider>
         </>
