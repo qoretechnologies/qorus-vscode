@@ -1,22 +1,10 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import {
-    fillTemplate,
-    createHeaders,
-    createMethodHeaders,
-    suffix,
-    comment_chars,
-    default_parse_options,
-} from './creator_common';
-import {
-    service_class_template,
-    service_method_template,
-    serviceFields,
-    service_methods,
-    defaultOldServiceHeaders,
-    createOldServiceHeaders,
-    default_service_methods,
-} from './service_code';
+import { fillTemplate, createHeaders, createMethodHeaders, suffix,
+         comment_chars, default_parse_options, } from './creator_common';
+import { service_class_template, service_method_template, serviceFields, service_methods,
+         defaultOldServiceHeaders, createOldServiceHeaders, default_service_methods, } from './service_code';
+
 
 class InterfaceCreator {
     getFields(iface_kind: string, default_target_dir?: string): any {

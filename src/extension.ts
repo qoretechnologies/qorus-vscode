@@ -7,6 +7,8 @@ import { qorus_webview } from './QorusWebview';
 import { deployer } from './QorusDeploy';
 import { tester } from './QorusTest';
 import { tree } from './QorusTree';
+import { QorusCodeLensProvider } from './QorusCodeLensProvider';
+import { QorusHoverProvider } from './QorusHoverProvider';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
 import * as fs from 'fs';
@@ -15,9 +17,8 @@ import * as gettext_parser from 'gettext-parser';
 setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
-    let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile', () =>
-        deployer.deployCurrentFile()
-    );
+    let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
+                                                               () => deployer.deployCurrentFile());
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.deployFile', (uri: vscode.Uri) => deployer.deployFile(uri));
@@ -34,35 +35,32 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) => tester.testDir(uri));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.setActiveInstance', (tree_item: string | vscode.TreeItem) =>
-        qorus_request.setActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
+                                                 (tree_item: string | vscode.TreeItem) =>
+                                                        qorus_request.setActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.setActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance',
+                                                 (tree_item: vscode.TreeItem) =>
+                                                        qorus_request.setActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.logout', (tree_item: vscode.TreeItem) =>
-        qorus_request.logout(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.logout',
+                                                 (tree_item: vscode.TreeItem) => qorus_request.logout(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.loginAndStayInactiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.login(tree_item, false)
-    );
+    disposable = vscode.commands.registerCommand('qorus.loginAndStayInactiveInstance',
+                                                 (tree_item: vscode.TreeItem) => qorus_request.login(tree_item, false));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand(
-        'qorus.setInactiveInstanceStayLoggedIn',
-        (tree_item: vscode.TreeItem) => qorus_request.unsetActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.setInactiveInstanceStayLoggedIn',
+                                                 (tree_item: vscode.TreeItem) =>
+                                                        qorus_request.unsetActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.setInactiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.unsetActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.setInactiveInstance',
+                                                 (tree_item: vscode.TreeItem) =>
+                                                        qorus_request.unsetActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
@@ -71,14 +69,12 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.createInterface', (uri: vscode.Uri) =>
-        qorus_webview.open('CreateInterface', uri)
-    );
+    disposable = vscode.commands.registerCommand('qorus.createInterface',
+                                                 (uri: vscode.Uri) => qorus_webview.open('CreateInterface', uri));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.manageMethods', (uri: vscode.Uri) =>
-        qorus_webview.open('Method', uri)
-    );
+    disposable = vscode.commands.registerCommand('qorus.manageMethods',
+                                                 (uri: vscode.Uri) => qorus_webview.open('Method', uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
@@ -122,98 +118,6 @@ export async function activate(context: vscode.ExtensionContext) {
 projects.updateCodeInfo();
 
 export function deactivate() {}
-
-class QorusHoverProvider implements vscode.HoverProvider {
-    async provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.ProviderResult<vscode.Hover> {
-        const fileContents: string = document.getText();
-        const regEx = /I am a method/g;
-        let match;
-        let lenses: vscode.Range[] = [];
-
-        while ((match = regEx.exec(fileContents))) {
-            const startPos = document.positionAt(match.index);
-            const endPos = document.positionAt(match.index + match[0].length);
-            const range: vscode.Range = await new vscode.Range(startPos, endPos);
-            lenses.push(range);
-        }
-
-        // lenses = Promise.resolve(lenses);
-
-        if (lenses.find((lens: vscode.Range) => lens.start.line === position.line)) {
-            const markdown = new vscode.MarkdownString(
-                '| | | | \n' +
-                    '|---|---|---|  \n' +
-                    '|Name|some name|[Edit](command:qorus.createInterface)|  \n' +
-                    '|Description|some description|[Edit](command:qorus.createInterface)|  \n  \n  \n' +
-                    '[Edit method](command:qorus.createInterface) [Delete method](command:qorus.createInterface)</div>'
-            );
-            markdown.isTrusted = true;
-            return new vscode.Hover(markdown);
-        }
-
-        return null;
-    }
-}
-
-class QorusCodeLensProvider implements vscode.CodeLensProvider {
-    public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
-        let lenses = [...this.createMethodLenses(document), ...this.createServiceLenses(document)];
-
-        return Promise.resolve(lenses);
-    }
-
-    public createServiceLenses(document: vscode.TextDocument): vscode.CodeLens[] {
-        const fileContents: string = document.getText();
-        const regEx = /I am a service/g;
-        let match;
-        const lenses = [];
-
-        while ((match = regEx.exec(fileContents))) {
-            const startPos = document.positionAt(match.index);
-            const endPos = document.positionAt(match.index + match[0].length);
-            const range: vscode.Range = new vscode.Range(startPos, endPos);
-            const addCmd: vscode.Command = {
-                title: 'Add method',
-                command: 'qorus.manageMethods',
-            };
-            const editCmd: vscode.Command = {
-                title: 'Edit service',
-                command: 'qorus.createInterface',
-            };
-
-            lenses.push(new vscode.CodeLens(range, addCmd));
-            lenses.push(new vscode.CodeLens(range, editCmd));
-        }
-
-        return lenses;
-    }
-
-    public createMethodLenses(document: vscode.TextDocument): vscode.CodeLens[] {
-        const fileContents: string = document.getText();
-        const regEx = /I am a method/g;
-        let match;
-        const lenses = [];
-
-        while ((match = regEx.exec(fileContents))) {
-            const startPos = document.positionAt(match.index);
-            const endPos = document.positionAt(match.index + match[0].length);
-            const range: vscode.Range = new vscode.Range(startPos, endPos);
-            const editCmd: vscode.Command = {
-                title: 'Edit method',
-                command: 'qorus.manageMethods',
-            };
-
-            const deleteCmd: vscode.Command = {
-                title: 'Delete method',
-                command: 'qorus.manageMethods',
-            };
-            lenses.push(new vscode.CodeLens(range, editCmd));
-            lenses.push(new vscode.CodeLens(range, deleteCmd));
-        }
-
-        return lenses;
-    }
-}
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
     const workspace_folder_changed_or_unset = projects.updateCurrentWorkspaceFolder(uri);
