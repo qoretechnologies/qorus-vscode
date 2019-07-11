@@ -1,61 +1,60 @@
 import * as vscode from 'vscode';
+import { qore_vscode } from './qore_vscode';
 
 export class QorusCodeLensProvider implements vscode.CodeLensProvider {
-    public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
-        let lenses = [...this.createMethodLenses(document), ...this.createServiceLenses(document)];
+
+    public async provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
+        let methodLenses = await this.createMethodLenses(document);
+        let serviceLenses = await this.createServiceLenses(document);
+        let lenses = [...methodLenses, ...serviceLenses];
 
         return Promise.resolve(lenses);
     }
 
-    public createServiceLenses(document: vscode.TextDocument): vscode.CodeLens[] {
-        const fileContents: string = document.getText();
-        const regEx = /I am a service/g;
-        let match;
-        const lenses = [];
+    public async createServiceLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
+        const lenses: vscode.CodeLens[] = [];
 
-        while ((match = regEx.exec(fileContents))) {
-            const startPos = document.positionAt(match.index);
-            const endPos = document.positionAt(match.index + match[0].length);
-            const range: vscode.Range = new vscode.Range(startPos, endPos);
-            const addCmd: vscode.Command = {
-                title: 'Add method',
-                command: 'qorus.manageMethods',
-            };
-            const editCmd: vscode.Command = {
-                title: 'Edit service',
-                command: 'qorus.createInterface',
-            };
+        const addCmd: vscode.Command = {
+            title: 'Add method',
+            command: 'qorus.manageMethods',
+        };
+        const editCmd: vscode.Command = {
+            title: 'Edit service',
+            command: 'qorus.createInterface',
+        };
 
-            lenses.push(new vscode.CodeLens(range, addCmd));
-            lenses.push(new vscode.CodeLens(range, editCmd));
-        }
+        let symbols = await qore_vscode.exports.getDocumentSymbols(document);
+        symbols.forEach(symbol => {
+            if (symbol.kind === 5) { // && name == servicename
+                lenses.push(new vscode.CodeLens(symbol.location.range, addCmd));
+                lenses.push(new vscode.CodeLens(symbol.location.range, editCmd));
+            }
+        });
 
-        return lenses;
+        return Promise.resolve(lenses);
     }
 
-    public createMethodLenses(document: vscode.TextDocument): vscode.CodeLens[] {
-        const fileContents: string = document.getText();
-        const regEx = /I am a method/g;
-        let match;
-        const lenses = [];
+    public async createMethodLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
+        const lenses: vscode.CodeLens[] = [];
 
-        while ((match = regEx.exec(fileContents))) {
-            const startPos = document.positionAt(match.index);
-            const endPos = document.positionAt(match.index + match[0].length);
-            const range: vscode.Range = new vscode.Range(startPos, endPos);
-            const editCmd: vscode.Command = {
-                title: 'Edit method',
-                command: 'qorus.manageMethods',
-            };
+        const editCmd: vscode.Command = {
+            title: 'Edit method',
+            command: 'qorus.manageMethods',
+        };
 
-            const deleteCmd: vscode.Command = {
-                title: 'Delete method',
-                command: 'qorus.manageMethods',
-            };
-            lenses.push(new vscode.CodeLens(range, editCmd));
-            lenses.push(new vscode.CodeLens(range, deleteCmd));
-        }
+        const deleteCmd: vscode.Command = {
+            title: 'Delete method',
+            command: 'qorus.manageMethods',
+        };
 
-        return lenses;
+        let symbols = await qore_vscode.exports.getDocumentSymbols(document);
+        symbols.forEach(symbol => {
+            if (symbol.kind === 6) { // && name == methodname
+                lenses.push(new vscode.CodeLens(symbol.location.range, editCmd));
+                lenses.push(new vscode.CodeLens(symbol.location.range, deleteCmd));
+            }
+        });
+
+        return Promise.resolve(lenses);
     }
 }
