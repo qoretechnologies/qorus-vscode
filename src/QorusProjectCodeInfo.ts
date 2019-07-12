@@ -2,10 +2,12 @@ import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as yaml from 'yamljs';
 import { QorusProject } from './QorusProject';
 import { filesInDir, canBeParsed } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
+import { getSuffix } from './qorus_utils';
 import { dummy_base_classes } from './dummy_code_info';
 
 
@@ -16,6 +18,7 @@ export class QorusProjectCodeInfo {
     private project: QorusProject;
     private pending: boolean = true;
     private code_info: any = {};
+    private yaml_info: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
 
@@ -83,6 +86,8 @@ export class QorusProjectCodeInfo {
                 return;
             }
 
+            this.updateYamlInfo(file_data.source_directories);
+
             setTimeout(() => {
                 this.updateObjects(file_data.source_directories);
             }, 100);
@@ -90,6 +95,26 @@ export class QorusProjectCodeInfo {
             msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
             this.pending = true;
         });
+    }
+
+    private updateYamlInfo(source_directories: string[]) {
+        for (let dir of source_directories) {
+            const full_dir = path.join(this.project.folder, dir);
+            if (!fs.existsSync(full_dir)) {
+                continue;
+            }
+
+            let files = filesInDir(full_dir, path => getSuffix(path) === 'yaml');
+//            msg.log('yaml files ' + JSON.stringify(files, null, 4));
+            for (let file of files) {
+                const yaml_data = yaml.load(file);
+                if (yaml_data.code) {
+                    const src = path.join(this.project.folder, yaml_data.code);
+                    this.yaml_info[src] = yaml_data;
+                }
+            }
+        }
+//        msg.log('yaml_info ' + JSON.stringify(this.yaml_info, null, 4));
     }
 
     private updateFileTree() {
