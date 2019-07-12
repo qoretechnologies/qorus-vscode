@@ -31,6 +31,10 @@ export function getSuffix(file_path: string): string | undefined {
     return file_path.split('.').pop();
 };
 
+export function methodName(full_method_name: string): string | undefined {
+    return full_method_name.split('::').pop();
+};
+
 // returns all files in the directory and its subdirecories satisfying filter condition (if provided)
 // filter: function accepting a filename as an argument and returning a boolean value
 export function filesInDir(dir: string, filter?: Function): string[] {

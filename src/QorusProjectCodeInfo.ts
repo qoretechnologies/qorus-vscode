@@ -18,12 +18,16 @@ export class QorusProjectCodeInfo {
     private project: QorusProject;
     private pending: boolean = true;
     private code_info: any = {};
-    private yaml_info: any = {};
+    private yaml_data: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
 
     constructor(project: QorusProject) {
         this.project = project;
+    }
+
+    get yaml_info(): any {
+        return this.yaml_data;
     }
 
     getObjects(object_type: string, webview: vscode.Webview) {
@@ -109,12 +113,12 @@ export class QorusProjectCodeInfo {
             for (let file of files) {
                 const yaml_data = yaml.load(file);
                 if (yaml_data.code) {
-                    const src = path.join(this.project.folder, yaml_data.code);
-                    this.yaml_info[src] = yaml_data;
+                    const src = path.join(path.dirname(file), yaml_data.code);
+                    this.yaml_data[src] = yaml_data;
                 }
             }
         }
-//        msg.log('yaml_info ' + JSON.stringify(this.yaml_info, null, 4));
+//        msg.log('yaml_data ' + JSON.stringify(this.yaml_data, null, 4));
     }
 
     private updateFileTree() {
