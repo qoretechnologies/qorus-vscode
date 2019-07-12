@@ -139,6 +139,10 @@
                 "title": "Qorus: Execute test file"
             },
             {
+                "command": "qorus.openService",
+                "title": "Qorus: Open service in the webview"
+            },
+            {
                 "command": "qorus.testDir",
                 "title": "Qorus: Execute test files from directory"
             },
@@ -193,6 +197,11 @@
                 {
                     "when": "resourceScheme == file && !explorerResourceIsFolder",
                     "command": "qorus.testFile",
+                    "group": "2_workspace"
+                },
+                {
+                    "when": "resourceScheme == file && !explorerResourceIsFolder && resourceExtname == .qsd",
+                    "command": "qorus.openService",
                     "group": "2_workspace"
                 },
                 {
