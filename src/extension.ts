@@ -76,11 +76,23 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.createInterface',
-                                                 (uri: vscode.Uri) => qorus_webview.open('CreateInterface', uri));
+                                                 (uri: vscode.Uri) => qorus_webview.open('CreateInterface', { uri }));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.manageMethods',
-                                                 (uri: vscode.Uri) => qorus_webview.open('Method', uri));
+    disposable = vscode.commands.registerCommand('qorus.addInterfaceService',
+                                                 (method_data: any) => qorus_webview.open('CreateInterface', { method_data }));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.editInterfaceService',
+                                                 (method_data: any) => qorus_webview.open('CreateInterface', { method_data }));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.editInterfaceMethod',
+                                                 (method_data: any) => qorus_webview.open('Method', { method_data }));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.deleteInterfaceMethod',
+                                                 (method_data: any) => qorus_webview.open('Method', { method_data }));
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);

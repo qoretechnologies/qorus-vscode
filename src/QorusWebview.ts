@@ -14,13 +14,16 @@ class QorusWebview {
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
 
-    open(active_tab?: string, opening_uri?: vscode.Uri) {
+    open(active_tab?: string, opening_data?: any) {
+//        msg.log('opening data ' + JSON.stringify(opening_data, null, 4));
+        opening_data = opening_data || {};
+
         if (this.panel) {
-            if (opening_uri) {
-                if (projects.updateCurrentWorkspaceFolder(opening_uri)) {
+            if (opening_data.uri) {
+                if (projects.updateCurrentWorkspaceFolder(opening_data.uri)) {
                     this.dispose();
                     msg.warning(t`WorkspaceFolderChangedResetWebview`);
-                    return this.open(active_tab, opening_uri);
+                    return this.open(active_tab, opening_data.uri);
                 }
                 if (!projects.getProject()) {
                     this.dispose();
@@ -151,14 +154,12 @@ class QorusWebview {
                             releaser.savePackage(this.panel.webview);
                             break;
                         case 'creator-get-fields':
-                            console.log(creator.getFields(message.iface_kind));
-
                             this.panel.webview.postMessage({
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
                                 fields: creator.getFields(
                                     message.iface_kind,
-                                    opening_uri ? opening_uri.fsPath : undefined
+                                    opening_data.uri ? opening_data.uri.fsPath : undefined
                                 ),
                             });
                             break;
@@ -166,6 +167,12 @@ class QorusWebview {
                         case 'creator-get-resources':
                         case 'creator-get-directories':
                             project.code_info.getObjects(message.object_type, this.panel.webview);
+                            break;
+                        case 'creator-get-method':
+                            this.panel.webview.postMessage({
+                                action: 'creator-return-method',
+                                data: opening_data.method_data,
+                            });
                             break;
                         case 'creator-create-interface':
                             creator.createInterface(message.iface_kind, message.data);

@@ -1011,3 +1011,18 @@ msgstr "Running Qorus object parser failed: ${ msg }"
 
 msgid "DirInConfigDoesNotExist ${ dir }"
 msgstr "Directory ${ dir } in project configuration does not exist"
+
+msgid "AddMethod"
+msgstr "Add method"
+
+msgid "EditMethod"
+msgstr "Edit method"
+
+msgid "DeleteMethod"
+msgstr "Delete method"
+
+msgid "EditService"
+msgstr "Edit service"
+
+msgid "SrcAndYamlMismatch ${ field } ${ src_file } ${ value1 } ${ value2 }"
+msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1 }, yaml info: ${ value2 }"
