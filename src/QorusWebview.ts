@@ -15,7 +15,6 @@ class QorusWebview {
     private message_on_config_file_change: boolean = true;
 
     open(active_tab?: string, opening_data?: any) {
-//        msg.log('opening data ' + JSON.stringify(opening_data, null, 4));
         opening_data = opening_data || {};
 
         if (this.panel) {

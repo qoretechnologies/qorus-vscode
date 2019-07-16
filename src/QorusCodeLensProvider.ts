@@ -7,26 +7,25 @@ import * as msg from './qorus_message';
 
 export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
-    public async provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
+    public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
         const yaml_info = projects.getProject().code_info.yaml_info;
-        const symbols = await qore_vscode.exports.getDocumentSymbols(document);
-//        msg.log('yaml_info ' + JSON.stringify(yaml_info, null, 4));
-//        msg.log('symbols ' + JSON.stringify(symbols, null, 4));
+        return qore_vscode.exports.getDocumentSymbols(document).then(symbols => {
+            let lenses: vscode.CodeLens[] = [];
 
-        let lenses: vscode.CodeLens[] = [];
-        symbols.forEach(symbol => {
-            const yaml_data = yaml_info[symbol.location.uri.substr(5)];
-            switch (symbol.kind) {
-                case 5:
-                    this.addServiceLens(lenses, symbol, yaml_data);
-                    break;
-                case 6:
-                    this.addMethodLens(lenses, symbol, yaml_data);
-                    break;
-            }
+            symbols.forEach(symbol => {
+                const yaml_data = yaml_info[symbol.location.uri.substr(5)];
+                switch (symbol.kind) {
+                    case 5:
+                        this.addServiceLens(lenses, symbol, yaml_data);
+                        break;
+                    case 6:
+                        this.addMethodLens(lenses, symbol, yaml_data);
+                        break;
+                }
+            });
+
+            return lenses;
         });
-
-        return Promise.resolve(lenses);
     }
 
     private addServiceLens(lenses: vscode.CodeLens[], symbol: any, yaml_data: any) {
