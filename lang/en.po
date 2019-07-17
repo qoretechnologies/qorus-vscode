@@ -1055,7 +1055,7 @@ msgid "FillDataTitle"
 msgstr "2. Fill Data"
 
 msgid "FillDataThirdStep"
-msgstr "3. Select Fields"
+msgstr "3. Fill Data"
 
 msgid "AddMethod"
 msgstr "Add Method"
