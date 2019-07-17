@@ -23,7 +23,6 @@ class InterfaceCreator {
         switch (iface_kind) {
             case 'service':
                 this.createService(data);
-//                this.createServiceOldFormat(data);
                 break;
         }
     }
@@ -81,25 +80,6 @@ class InterfaceCreator {
         if (!is_error) {
             msg.info(t`2FilesCreatedInDir ${file_name} ${yaml_file_name} ${target_dir}`);
         }
-    }
-
-    private createServiceOldFormat(data: any) {
-        const { target_dir, target_file, ...other_data } = data;
-
-        const target_file_base = target_file ? path.basename(target_file, '.qsd') : `${data.name}-${data.service}`;
-
-        const default_header_vars = defaultOldServiceHeaders(other_data);
-
-        const { code, remaining_data: header_vars } = this.serviceCode(other_data);
-        const headers = createOldServiceHeaders(
-            Object.assign({}, header_vars, default_header_vars, header_vars),
-            data.lang
-        );
-
-        fs.writeFileSync(
-            path.join(target_dir, `${target_file_base}.old.qsd${suffix[data.lang]}`),
-            headers + `${comment_chars[data.lang]} ENDSERVICE\n\n` + code
-        );
     }
 
     private serviceCode(data: any): any {
