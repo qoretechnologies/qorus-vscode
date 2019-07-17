@@ -1,3 +1,4 @@
+import { workspace, window } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { fillTemplate, createHeaders, createMethodHeaders, suffix,
@@ -54,12 +55,13 @@ class InterfaceCreator {
 
         const write_params = [
             {
-                file: path.join(target_dir, `${yaml_file_name}`),
-                data: headers + createMethodHeaders(data.methods),
-            },
-            {
                 file: path.join(target_dir, file_name),
                 data: (data.lang === 'qore' ? default_parse_options + '\n' : '') + code,
+                open: true,
+            },
+            {
+                file: path.join(target_dir, `${yaml_file_name}`),
+                data: headers + createMethodHeaders(data.methods),
             },
         ];
 
@@ -68,6 +70,10 @@ class InterfaceCreator {
                 if (err) {
                     msg.error(t`WriteFileError ${ params.file } ${ err.toString() }`);
                     is_error = true;
+                    return;
+                }
+                if (params.open) {
+                    workspace.openTextDocument(params.file).then(doc => window.showTextDocument(doc));
                 }
             });
         }
