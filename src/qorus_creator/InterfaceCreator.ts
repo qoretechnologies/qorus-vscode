@@ -4,6 +4,8 @@ import { fillTemplate, createHeaders, createMethodHeaders, suffix,
          comment_chars, default_parse_options, } from './creator_common';
 import { service_class_template, service_method_template, serviceFields, service_methods,
          defaultOldServiceHeaders, createOldServiceHeaders, default_service_methods, } from './service_code';
+import { t } from 'ttag';
+import * as msg from '../qorus_message';
 
 
 class InterfaceCreator {
@@ -20,7 +22,7 @@ class InterfaceCreator {
         switch (iface_kind) {
             case 'service':
                 this.createService(data);
-                this.createServiceOldFormat(data);
+//                this.createServiceOldFormat(data);
                 break;
         }
     }
@@ -37,6 +39,7 @@ class InterfaceCreator {
             : `${data.service}-${data.serviceversion}`;
 
         const file_name = `${target_file_base}.qsd${suffix[data.lang]}`;
+        const yaml_file_name = `${target_file_base}.yaml`;
 
         const headers_begin = { type: 'service' };
         const headers_end = {
@@ -47,15 +50,31 @@ class InterfaceCreator {
         const { code, remaining_data: header_vars } = this.serviceCode(other_data);
         const headers = createHeaders(Object.assign(headers_begin, header_vars, headers_end));
 
-        fs.writeFileSync(
-            path.join(target_dir, `${target_file_base}.yaml`),
-            headers + createMethodHeaders(data.methods)
-        );
+        let is_error = false;
 
-        fs.writeFileSync(
-            path.join(target_dir, file_name),
-            (data.lang === 'qore' ? default_parse_options + '\n' : '') + code
-        );
+        const write_params = [
+            {
+                file: path.join(target_dir, `${yaml_file_name}`),
+                data: headers + createMethodHeaders(data.methods),
+            },
+            {
+                file: path.join(target_dir, file_name),
+                data: (data.lang === 'qore' ? default_parse_options + '\n' : '') + code,
+            },
+        ];
+
+        for (let params of write_params) {
+            fs.writeFile(params.file, params.data, err => {
+                if (err) {
+                    msg.error(t`WriteFileError ${ params.file } ${ err.toString() }`);
+                    is_error = true;
+                }
+            });
+        }
+
+        if (!is_error) {
+            msg.info(t`2FilesCreatedInDir ${file_name} ${yaml_file_name} ${target_dir}`);
+        }
     }
 
     private createServiceOldFormat(data: any) {
