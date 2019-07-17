@@ -1,7 +1,5 @@
 import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
-import { upperFirst, replace } from 'lodash';
-import { Tooltip, Position } from '@blueprintjs/core';
 import { TextContext } from '../../context/text';
 
 const StyledFieldSelector = styled.div`
@@ -18,7 +16,7 @@ const StyledFieldSelector = styled.div`
     position: relative;
 
     &:hover {
-        border-color: #ccc;
+        border-color: #137cbd;
 
         div {
             opacity: 0.7;

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, FormEvent } from 'react';
+import React, { FunctionComponent, useState, FormEvent, useEffect } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
@@ -15,7 +15,7 @@ import Field from '../../components/Field';
 import FieldLabel from '../../components/FieldLabel';
 import styled from 'styled-components';
 import FieldActions from '../../components/FieldActions';
-import { InputGroup, Intent, ButtonGroup, Button, Classes } from '@blueprintjs/core';
+import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip } from '@blueprintjs/core';
 import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
@@ -61,18 +61,18 @@ const FieldInputWrapper = styled.div`
     flex: 1 auto;
 `;
 
-const SearchWrapper = styled.div`
+export const SearchWrapper = styled.div`
     flex: 0;
     margin-bottom: 10px;
 `;
-const ContentWrapper = styled.div`
+export const ContentWrapper = styled.div`
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 10px;
 `;
 
-const ActionsWrapper = styled.div`
+export const ActionsWrapper = styled.div`
     flex: 0;
     margin-top: 10px;
 `;
@@ -91,14 +91,26 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     selectedQuery,
     setSelectedQuery,
     onSubmit,
+    activeId,
+    onNameChange,
+    isFormValid,
+    stepOneTitle = 'SelectFieldsTitle',
+    stepTwoTitle = 'FillDataTitle',
+    submitLabel = 'Submit',
+    onBackClick,
+    allSelectedFields,
 }) => {
     const [show, setShow] = useState<boolean>(false);
+    const [messageListener, setMessageListener] = useState(null);
 
-    useEffectOnce(() => {
-        const messageListenerHandler: () => void = addMessageListener(
+    useEffect(() => {
+        // Remove the message listener if it exists
+        messageListener && messageListener();
+        // Create a message listener for this activeId
+        const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
             ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField } }) => {
-                if (!fields.length) {
+                if (!fields || !fields.length) {
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
@@ -108,57 +120,105 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
                     // Save preselected fields
-                    setSelectedFields(type, preselectedFields);
+                    setSelectedFields(type, preselectedFields, activeId);
                     // Save the fields
-                    setFields(type, transformedFields);
+                    setFields(type, transformedFields, activeId);
                 }
                 // Set show
                 setShow(true);
             }
         );
+        // Set the new message listener
+        setMessageListener(() => messageListenerHandler);
         // Fetch the fields
         postMessage(Messages.GET_FIELDS, { iface_kind: type });
-
+        // Cleanup on unmount
         return () => {
+            // Remove the message listener if it exists
             messageListenerHandler();
         };
-    });
+    }, [activeId]);
 
-    const resetFields: () => void = () => {
+    const resetFields: (newActiveId: number) => void = newActiveId => {
+        // Hide the fields until they are fetched
         setShow(false);
+        // Change the name if needed
+        if (onNameChange) {
+            onNameChange(newActiveId, null);
+        }
+        // Remove the message listener if it exists
+        messageListener && messageListener();
+        // Create a message listener for this activeId
+        const messageListenerHandler = addMessageListener(
+            Messages.FIELDS_FETCHED,
+            ({ fields: newFields }: { newFields: { [key: string]: IField } }) => {
+                // Mark the selected fields
+                const transformedFields: IField[] = map(newFields, (field: IField) => ({
+                    ...field,
+                    selected: field.mandatory !== false,
+                    isValid: false,
+                }));
+                // Pull the pre-selected fields
+                const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
+                // Save preselected fields
+                setSelectedFields(type, preselectedFields, newActiveId);
+                // Save the fields
+                setFields(type, transformedFields, newActiveId);
+
+                // Set show
+                setShow(true);
+            }
+        );
+        // Set the new message listener
+        setMessageListener(() => messageListenerHandler);
+        // Fetch the fields
         postMessage(Messages.GET_FIELDS, { iface_kind: type });
     };
 
     const addField: (fieldName: string) => void = fieldName => {
         // Remove the field
-        setFields(type, (current: IField[]) =>
-            map(current, (field: IField) => ({
-                ...field,
-                selected: fieldName === field.name ? true : field.selected,
-            }))
+        setFields(
+            type,
+            (current: IField[]) =>
+                map(current, (field: IField) => ({
+                    ...field,
+                    selected: fieldName === field.name ? true : field.selected,
+                })),
+            activeId
         );
         // Get the field
         const field: IField = find(fields, (field: IField) => field.name === fieldName);
         // Add the field to selected list
-        setSelectedFields(type, (current: IField[]) => [
-            ...current,
-            {
-                ...field,
-                selected: true,
-            },
-        ]);
+        setSelectedFields(
+            type,
+            (current: IField[]) => [
+                ...current,
+                {
+                    ...field,
+                    selected: true,
+                },
+            ],
+            activeId
+        );
     };
 
     const removeField: (fieldName: string) => void = fieldName => {
         // Remove the field
-        setFields(type, (current: IField[]) =>
-            map(current, (field: IField) => ({
-                ...field,
-                selected: fieldName === field.name ? false : field.selected,
-            }))
+        setFields(
+            type,
+            (current: IField[]) =>
+                map(current, (field: IField) => ({
+                    ...field,
+                    selected: fieldName === field.name ? false : field.selected,
+                })),
+            activeId
         );
         // Add the field to selected list
-        setSelectedFields(type, (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName));
+        setSelectedFields(
+            type,
+            (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName),
+            activeId
+        );
     };
 
     const handleAddClick: (fieldName: string) => void = fieldName => {
@@ -208,6 +268,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         }
                         // Run the validation for this type
                         const isValid: boolean = validateField(currentField.type || 'string', value, currentField);
+                        // Check if we should change the name of the
+                        // method
+                        if (fieldName === 'name' && onNameChange) {
+                            // Change the method name in the side panel
+                            onNameChange(activeId, value);
+                        }
                         // Add the value
                         return [
                             ...newFields,
@@ -222,12 +288,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Return unchanged fields
                     return [...newFields, { ...currentField }];
                 }, []);
-            }
+            },
+            activeId
         );
     };
-
-    // check if the form is valid
-    const isFormValid: () => boolean = () => selectedFields.every(({ isValid }: IField) => isValid);
 
     const handleAddAll: () => void = () => {
         // Add all remaning fields that are
@@ -245,16 +309,40 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmit) {
             onSubmit();
         } else {
-            // Build the finished object
-            const data: { [key: string]: any } = reduce(
-                selectedFields,
-                (result: { [key: string]: any }, field: IField) => ({
-                    ...result,
-                    [field.name]: field.value,
-                }),
-                {}
-            );
-
+            let data: { [key: string]: any };
+            // If this is service methods
+            if (type === 'service-methods') {
+                // Get the service data
+                data = reduce(
+                    allSelectedFields.service,
+                    (result: { [key: string]: any }, field: IField) => ({
+                        ...result,
+                        [field.name]: field.value,
+                    }),
+                    {}
+                );
+                // Add the methods
+                data.methods = map(allSelectedFields['service-methods'], serviceMethod => {
+                    return reduce(
+                        serviceMethod,
+                        (result: { [key: string]: any }, field: IField) => ({
+                            ...result,
+                            [field.name]: field.value,
+                        }),
+                        {}
+                    );
+                });
+            } else {
+                // Build the finished object
+                data = reduce(
+                    selectedFields,
+                    (result: { [key: string]: any }, field: IField) => ({
+                        ...result,
+                        [field.name]: field.value,
+                    }),
+                    {}
+                );
+            }
             postMessage(Messages.CREATE_INTERFACE, { iface_kind: type, data });
         }
     };
@@ -295,7 +383,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     return (
         <>
-            <SidePanel>
+            <SidePanel title={t(stepOneTitle)}>
                 <SearchWrapper>
                     <InputGroup
                         placeholder={t('FilterAvailableFields')}
@@ -317,12 +405,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 {fieldList.length ? (
                     <ActionsWrapper>
                         <ButtonGroup fill>
-                            <Button text={t('SelectAll')} icon={'plus'} onClick={handleAddAll} />
+                            <Tooltip content={t('SelectAllTooltip')}>
+                                <Button text={t('SelectAll')} icon={'plus'} onClick={handleAddAll} />
+                            </Tooltip>
                         </ButtonGroup>
                     </ActionsWrapper>
                 ) : null}
             </SidePanel>
-            <Content>
+            <Content title={t(stepTwoTitle)}>
                 <SearchWrapper>
                     <InputGroup
                         placeholder={t('FilterSelectedFields')}
@@ -342,6 +432,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 <Field
                                     {...field}
                                     onChange={handleFieldChange}
+                                    activeId={activeId}
                                     prefill={
                                         field.prefill &&
                                         selectedFieldList.find((preField: IField) => preField.name === field.prefill)
@@ -359,10 +450,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 </ContentWrapper>
                 <ActionsWrapper>
                     <ButtonGroup fill>
-                        <Button text={t('Reset')} icon={'history'} onClick={resetFields} />
+                        {onBackClick && (
+                            <Tooltip content={'BackToooltip'}>
+                                <Button text={t('Back')} icon={'undo'} onClick={() => onBackClick()} />
+                            </Tooltip>
+                        )}
+                        <Tooltip content={t('ResetTooltip')}>
+                            <Button text={t('Reset')} icon={'history'} onClick={() => resetFields(activeId)} />
+                        </Tooltip>
                         <Button
-                            text={t('Submit')}
-                            disabled={!isFormValid()}
+                            text={t(submitLabel)}
+                            disabled={!isFormValid(type)}
                             icon={'tick'}
                             intent={Intent.SUCCESS}
                             onClick={handleSubmitClick}
@@ -378,12 +476,14 @@ export default compose(
     withTextContext(),
     withMessageHandler(),
     withFieldsConsumer(),
-    mapProps(({ type, fields, selectedFields, query, selectedQuery, ...rest }) => ({
-        fields: fields[type],
-        selectedFields: selectedFields[type],
+    mapProps(({ type, fields, selectedFields, query, selectedQuery, activeId, ...rest }) => ({
+        fields: activeId ? fields[type][activeId] : fields[type],
+        selectedFields: activeId ? selectedFields[type][activeId] : selectedFields[type],
         query: query[type],
         selectedQuery: selectedQuery[type],
+        allSelectedFields: selectedFields,
         type,
+        activeId,
         ...rest,
     }))
 )(InterfaceCreatorPanel);

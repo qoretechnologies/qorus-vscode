@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import compose from 'recompose/compose';
+import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { Select, MultiSelect } from '@blueprintjs/select';
 import { MenuItem, Button, Tooltip, Tag } from '@blueprintjs/core';
 import useMount from 'react-use/lib/useMount';
@@ -30,9 +31,9 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     value = [],
     t,
     simple,
+    activeId,
 }) => {
     const [items, setItems] = useState<any[]>([]);
-
     useMount(() => {
         if (!simple) {
             postMessage(get_message.action, { object_type: get_message.object_type });
@@ -86,6 +87,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
     return (
         <MultiSelect
+            key={activeId}
             items={items}
             createNewItemFromQuery={(query: string) => ({
                 name: query,
@@ -109,7 +111,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                     minimal: true,
                 },
             }}
-            selectedItems={value}
+            selectedItems={value || ''}
             onItemSelect={(item: any) => handleSelectClick(item)}
             resetOnQuery
             resetOnSelect
@@ -120,5 +122,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
 export default compose(
     withTextContext(),
-    withMessageHandler()
+    withMessageHandler(),
+    onlyUpdateForKeys(['value', 'activeId'])
 )(MultiSelectField);

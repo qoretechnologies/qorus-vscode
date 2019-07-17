@@ -18,6 +18,7 @@ import compose from 'recompose/compose';
 import withFields from './hocomponents/withFields';
 import Panel from './containers/InterfaceCreator/panel';
 import Box from './components/Box';
+import withMethods from './hocomponents/withMethods';
 
 const StyledApp = styled.div`
     display: flex;
@@ -230,6 +231,7 @@ export default hot(
             mapStateToProps,
             mapDispatchToProps
         ),
-        withFields()
+        withFields(),
+        withMethods()
     )(App)
 );

@@ -56,7 +56,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     return (
         <InputGroup
             className={fill && Classes.FILL}
-            value={value || default_value}
+            value={!value ? default_value || '' : value}
             onChange={handleInputChange}
             rightElement={
                 value &&

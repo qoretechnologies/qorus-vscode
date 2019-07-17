@@ -4,13 +4,28 @@ import styled from 'styled-components';
 const StyledSidePanel = styled.div`
     width: 250px;
     height: 100%;
-    padding-right: 15px;
-    border-right: 2px solid #d7d7d7;
+    padding: 0 15px;
+
+    &:first-child {
+        padding-left: 0;
+    }
+
+    border-right: 1px solid #eee;
     overflow: none;
     display: flex;
     flex-flow: column;
+
+    h3 {
+        margin: 0;
+        margin-bottom: 15px;
+    }
 `;
 
-const SidePanel: FunctionComponent = ({ children }) => <StyledSidePanel>{children}</StyledSidePanel>;
+const SidePanel: FunctionComponent = ({ children, title }) => (
+    <StyledSidePanel>
+        {title && <h3>{title}</h3>}
+        {children}
+    </StyledSidePanel>
+);
 
 export default SidePanel;

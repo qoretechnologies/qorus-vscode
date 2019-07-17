@@ -34,13 +34,14 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     t,
     items,
     default_value,
+    hasValueSet,
     onChange,
     name,
     value,
 }) => {
     useMount(() => {
         // Set the default value
-        onChange(name, default_value);
+        onChange(name, hasValueSet ? value : default_value);
     });
 
     const handleValueChange: (value: string) => void = value => {

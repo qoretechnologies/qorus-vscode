@@ -400,6 +400,9 @@ msgstr "Add new"
 msgid "Edit"
 msgstr "Edit"
 
+msgid "Next"
+msgstr "Next"
+
 msgid "MoveUp"
 msgstr "Move up one position"
 
@@ -994,6 +997,9 @@ msgstr "Filter..."
 msgid "FilterAvailableFields"
 msgstr "Filter available fields..."
 
+msgid "FilterAvailableMethods"
+msgstr "Filter methods..."
+
 msgid "FilterSelectedFields"
 msgstr "Filter selected fields..."
 
@@ -1002,6 +1008,9 @@ msgstr "Loading fields..."
 
 msgid "SelectAll"
 msgstr "Select all"
+
+msgid "AddMethod"
+msgstr "Add new method"
 
 msgid "UnknownWebviewMessage ${ msg }"
 msgstr "Unknown webview message ${ msg }"
@@ -1032,3 +1041,33 @@ msgstr "Files ${ file1 } and ${ file2 } have been created in ${ dir }"
 
 msgid "WriteFileError ${ file } ${ error }"
 msgstr "Writing file ${ file } failed: ${ error }"
+
+msgid "AddMethodsTitle"
+msgstr "1. Add Methods"
+
+msgid "SelectFieldsTitle"
+msgstr "1. Select Fields"
+
+msgid "SelectFieldsSecondStep"
+msgstr "2. Select Fields"
+
+msgid "FillDataTitle"
+msgstr "2. Fill Data"
+
+msgid "FillDataThirdStep"
+msgstr "3. Select Fields"
+
+msgid "AddMethod"
+msgstr "Add Method"
+
+msgid "AddMethodTooltip"
+msgstr "Add new method to the current service."
+
+msgid "BackTooltip"
+msgstr "Go to previous step."
+
+msgid "ResetTooltip"
+msgstr "Reset all forms to their initial state."
+
+msgid "SelectAllTooltip"
+msgstr "Add all fields"

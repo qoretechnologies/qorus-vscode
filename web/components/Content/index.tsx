@@ -8,12 +8,22 @@ const StyledContent = styled.div`
     flex: 1;
     height: 100%;
     padding: 0 0 0 15px;
+
+    h3 {
+        margin: 0;
+        margin-bottom: 15px;
+    }
 `;
 
 export interface IContent {
     children: ReactNode;
 }
 
-const Content: FunctionComponent<IContent> = ({ children }) => <StyledContent>{children}</StyledContent>;
+const Content: FunctionComponent<IContent> = ({ children, title }) => (
+    <StyledContent>
+        {title && <h3>{title}</h3>}
+        {children}
+    </StyledContent>
+);
 
 export default Content;
