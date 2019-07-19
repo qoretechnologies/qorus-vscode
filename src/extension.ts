@@ -14,8 +14,6 @@ import { t, addLocale, useLocale } from 'ttag';
 import * as fs from 'fs';
 import * as gettext_parser from 'gettext-parser';
 
-import { parse_code } from './trial_code';
-
 setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -32,9 +30,6 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () => tester.testCurrentFile());
 
     disposable = vscode.commands.registerCommand('qorus.testFile', (uri: vscode.Uri) => tester.testFile(uri));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.openService', (uri: vscode.Uri) => parse_code(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) => tester.testDir(uri));
