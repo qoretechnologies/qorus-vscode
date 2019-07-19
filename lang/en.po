@@ -1071,3 +1071,15 @@ msgstr "Reset all forms to their initial state."
 
 msgid "SelectAllTooltip"
 msgstr "Add all fields"
+
+msgid "CreateServiceTipTitle"
+msgstr "Creating a service"
+
+msgid "CreateServiceTip"
+msgstr "To create a service, select all the desired fields and fill them lorem ipsum dolor star wars"
+
+msgid "CreateMethodsTipTitle"
+msgstr "Creating service methods"
+
+msgid "CreateMethodTip"
+msgstr "Every service needs its methods, otherwise it's a pretty useless service. Add methods, select fields and fill it with data and Bobs your uncle. Same old, same old..."

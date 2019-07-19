@@ -5,7 +5,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
 import styled from 'styled-components';
-import { ButtonGroup, Button } from '@blueprintjs/core';
+import { ButtonGroup, Button, Callout } from '@blueprintjs/core';
 import { MethodsContext } from '../../context/methods';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
@@ -101,6 +101,18 @@ const RemoveButton = styled.div`
     }
 `;
 
+const PanelWrapper = styled.div`
+    margin-top: 10px;
+    display: flex;
+    flex: 1;
+`;
+
+const CreatorWrapper = styled.div`
+    display: flex;
+    flex: 1;
+    flex-flow: column;
+`;
+
 export interface IServicesView {
     targetDir: string;
     t: TTranslator;
@@ -120,73 +132,86 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid }) =>
                 handleAddMethodClick,
                 setShowMethods,
             }) => (
-                <>
-                    {!showMethods && (
-                        <InterfaceCreatorPanel
-                            type={'service'}
-                            submitLabel={t('Next')}
-                            onSubmit={() => setShowMethods(true)}
-                        />
-                    )}
-                    {showMethods && (
-                        <>
-                            <SidePanel title={t('AddMethodsTitle')}>
-                                <ContentWrapper>
-                                    {methods.map((method: { id: number; name?: string }, index: number) => (
-                                        <MethodSelector
-                                            key={method.id}
-                                            active={method.id === activeMethod}
-                                            valid={isMethodValid(method.id)}
-                                            onClick={() => setActiveMethod(method.id)}
-                                        >
-                                            {method.name || `${t('Method')} ${method.id}`}
-                                            {method.id === activeMethod && (
-                                                <>
-                                                    <Selected />
-                                                </>
-                                            )}
-                                            {methodsCount !== 1 && (
-                                                <RemoveButton
-                                                    onClick={() => {
-                                                        setMethods(current =>
-                                                            current.filter(
-                                                                currentMethod => currentMethod.id !== method.id
-                                                            )
-                                                        );
-                                                        setMethodsCount((current: number) => current - 1);
-                                                    }}
-                                                />
-                                            )}
-                                        </MethodSelector>
-                                    ))}
-                                </ContentWrapper>
-                                <ActionsWrapper>
-                                    <ButtonGroup fill>
-                                        <Button text={t('AddMethod')} icon={'plus'} onClick={handleAddMethodClick} />
-                                    </ButtonGroup>
-                                </ActionsWrapper>
-                            </SidePanel>
+                <CreatorWrapper>
+                    <Callout
+                        icon="info-sign"
+                        title={showMethods ? t('CreateMethodsTipTitle') : t('CreateServiceTipTitle')}
+                        intent="primary"
+                    >
+                        {showMethods ? t('CreateMethodsTip') : t('CreateServiceTip')}
+                    </Callout>
+                    <PanelWrapper>
+                        {!showMethods && (
                             <InterfaceCreatorPanel
-                                stepOneTitle={t('SelectFieldsSecondStep')}
-                                stepTwoTitle={t('FillDataThirdStep')}
-                                onBackClick={() => setShowMethods(false)}
-                                type={'service-methods'}
-                                activeId={activeMethod}
-                                onNameChange={(methodId: number, name: string) => {
-                                    setMethods((currentMethods: { id: number; name: string }[]) =>
-                                        currentMethods.reduce((cur, method: { id: number; name: string }) => {
-                                            if (methodId === method.id) {
-                                                method.name = name;
-                                            }
-
-                                            return [...cur, method];
-                                        }, [])
-                                    );
-                                }}
+                                type={'service'}
+                                submitLabel={t('Next')}
+                                onSubmit={() => setShowMethods(true)}
                             />
-                        </>
-                    )}
-                </>
+                        )}
+                        {showMethods && (
+                            <>
+                                <SidePanel title={t('AddMethodsTitle')}>
+                                    <ContentWrapper>
+                                        {methods.map((method: { id: number; name?: string }, index: number) => (
+                                            <MethodSelector
+                                                key={method.id}
+                                                active={method.id === activeMethod}
+                                                valid={isMethodValid(method.id)}
+                                                onClick={() => setActiveMethod(method.id)}
+                                            >
+                                                {method.name || `${t('Method')} ${method.id}`}
+                                                {method.id === activeMethod && (
+                                                    <>
+                                                        <Selected />
+                                                    </>
+                                                )}
+                                                {methodsCount !== 1 && (
+                                                    <RemoveButton
+                                                        onClick={() => {
+                                                            setMethods(current =>
+                                                                current.filter(
+                                                                    currentMethod => currentMethod.id !== method.id
+                                                                )
+                                                            );
+                                                            setMethodsCount((current: number) => current - 1);
+                                                        }}
+                                                    />
+                                                )}
+                                            </MethodSelector>
+                                        ))}
+                                    </ContentWrapper>
+                                    <ActionsWrapper>
+                                        <ButtonGroup fill>
+                                            <Button
+                                                text={t('AddMethod')}
+                                                icon={'plus'}
+                                                onClick={handleAddMethodClick}
+                                            />
+                                        </ButtonGroup>
+                                    </ActionsWrapper>
+                                </SidePanel>
+                                <InterfaceCreatorPanel
+                                    stepOneTitle={t('SelectFieldsSecondStep')}
+                                    stepTwoTitle={t('FillDataThirdStep')}
+                                    onBackClick={() => setShowMethods(false)}
+                                    type={'service-methods'}
+                                    activeId={activeMethod}
+                                    onNameChange={(methodId: number, name: string) => {
+                                        setMethods((currentMethods: { id: number; name: string }[]) =>
+                                            currentMethods.reduce((cur, method: { id: number; name: string }) => {
+                                                if (methodId === method.id) {
+                                                    method.name = name;
+                                                }
+
+                                                return [...cur, method];
+                                            }, [])
+                                        );
+                                    }}
+                                />
+                            </>
+                        )}
+                    </PanelWrapper>
+                </CreatorWrapper>
             )}
         </MethodsContext.Consumer>
     );

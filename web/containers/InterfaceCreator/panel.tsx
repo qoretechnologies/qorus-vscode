@@ -343,7 +343,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
             }
-            postMessage(Messages.CREATE_INTERFACE, { iface_kind: type, data });
+            postMessage(Messages.CREATE_INTERFACE, { iface_kind: type === 'service-methods' ? 'service' : type, data });
         }
     };
 
