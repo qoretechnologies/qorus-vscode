@@ -30,6 +30,10 @@ export class QorusProjectCodeInfo {
         return this.yaml_data;
     }
 
+    getYamlInfo(file: string): any {
+        return this.yaml_data[file];
+    }
+
     getObjects(object_type: string, webview: vscode.Webview) {
         let return_type: string;
         let interval_id: any;

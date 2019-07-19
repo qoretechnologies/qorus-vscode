@@ -40,13 +40,13 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }
 
         lenses.push(new vscode.CodeLens(symbol.location.range, {
-            title: t`AddService`,
-            command: 'qorus.addInterfaceService',
+            title: t`EditService`,
+            command: 'qorus.editService',
             arguments: [yaml_data],
         }));
         lenses.push(new vscode.CodeLens(symbol.location.range, {
-            title: t`EditService`,
-            command: 'qorus.editInterfaceService',
+            title: t`AddMethod`,
+            command: 'qorus.addServiceMethod',
             arguments: [yaml_data],
         }));
     }
@@ -69,12 +69,12 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         if (method_data) {
             lenses.push(new vscode.CodeLens(symbol.location.range, {
                 title: t`EditMethod`,
-                command: 'qorus.editInterfaceMethod',
+                command: 'qorus.editServiceMethod',
                 arguments: [method_data],
             }));
             lenses.push(new vscode.CodeLens(symbol.location.range, {
                 title: t`DeleteMethod`,
-                command: 'qorus.deleteInterfaceMethod',
+                command: 'qorus.deleteServiceMethod',
                 arguments: [method_data],
             }));
         }
