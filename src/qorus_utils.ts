@@ -23,6 +23,10 @@ export function isService(file_path: string): boolean {
     return getSuffix(file_path) === 'qsd';
 };
 
+export function isServiceClass(file_path: string): boolean {
+    return hasOneOfSuffixes(file_path, ['qsd', 'qclass']);
+};
+
 export function isVersion3(version?: string): boolean {
     return !!version && version.toString().substr(0, 1) == '3';
 };

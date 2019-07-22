@@ -3,12 +3,12 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'yamljs';
+import { qore_vscode } from './qore_vscode';
 import { QorusProject } from './QorusProject';
-import { filesInDir, canBeParsed } from './qorus_utils';
+import { filesInDir, canBeParsed, isServiceClass } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
 import { getSuffix } from './qorus_utils';
-import { dummy_base_classes } from './dummy_code_info';
 
 
 const object_parser_command = 'qop.q -i';
@@ -21,6 +21,10 @@ export class QorusProjectCodeInfo {
     private yaml_data: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
+    private inheritance_pairs: any = {};
+    private service_classes = ['QorusService'];
+    private job_classes = ['QorusJob'];
+    private workflow_classes = ['QorusWorkflow'];
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -47,9 +51,9 @@ export class QorusProjectCodeInfo {
 
             let objects: any[] = [];
             switch (object_type) {
-                case 'base-class':
+                case 'service-base-class':
                     return_type = 'objects';
-                    objects = dummy_base_classes;
+                    objects = this.addDescToBaseClasses(this.service_classes);
                     break;
                 case 'author':
                 case 'function':
@@ -96,6 +100,8 @@ export class QorusProjectCodeInfo {
 
             this.updateYamlInfo(file_data.source_directories);
 
+            this.updateBaseClassesInfo(file_data.source_directories);
+
             setTimeout(() => {
                 this.updateObjects(file_data.source_directories);
             }, 100);
@@ -113,7 +119,6 @@ export class QorusProjectCodeInfo {
             }
 
             let files = filesInDir(full_dir, path => getSuffix(path) === 'yaml');
-//            msg.log('yaml files ' + JSON.stringify(files, null, 4));
             for (let file of files) {
                 const yaml_data = yaml.load(file);
                 if (yaml_data.code) {
@@ -122,7 +127,81 @@ export class QorusProjectCodeInfo {
                 }
             }
         }
-//        msg.log('yaml_data ' + JSON.stringify(this.yaml_data, null, 4));
+    }
+
+    private async updateBaseClassesInfo(source_directories: string[]) {
+        await this.makeInheritancePairs(source_directories);
+
+        const baseClasses = (base_classes: string[], inheritance_pairs) => {
+            let any_new = true;
+            while (any_new) {
+                any_new = false;
+                for (let name in inheritance_pairs) {
+                    if (base_classes.includes(inheritance_pairs[name])) {
+                        base_classes.push(name);
+                        delete inheritance_pairs[name];
+                        any_new = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        baseClasses(this.service_classes, Object.assign({}, this.inheritance_pairs));
+        baseClasses(this.job_classes, Object.assign({}, this.inheritance_pairs));
+        baseClasses(this.workflow_classes, Object.assign({}, this.inheritance_pairs));
+    }
+
+    private addDescToBaseClasses(base_classes: string[]): any[] {
+        let ret_val = [];
+        for (const base_class of base_classes) {
+            ret_val.push({name: base_class, desc: 'description of ' + base_class});
+        }
+        return ret_val;
+    }
+
+    private async makeInheritancePairs(source_directories: string[]) {
+        let num_pending = 0;
+        for (let dir of source_directories) {
+            const full_dir = path.join(this.project.folder, dir);
+            if (!fs.existsSync(full_dir)) {
+                continue;
+            }
+
+            let files = filesInDir(full_dir, isServiceClass);
+            for (let file of files) {
+                num_pending++;
+
+                const file_content = fs.readFileSync(file);
+                const buffer: Buffer = Buffer.from(file_content);
+                const contents = buffer.toString();
+
+                const data = {
+                    uri: 'file:' + file,
+                    text: contents,
+                    languageId: 'qore',
+                    version: 1
+                };
+
+                qore_vscode.exports.getDocumentSymbols(data, 'node_info').then(symbols => {
+                    symbols.forEach(symbol => {
+                        if (symbol.name && symbol.name.name && symbol.inherits && symbol.inherits.length) {
+                            const name = symbol.name.name;
+                            const inherited = symbol.inherits[0];
+                            if (inherited.name && inherited.name.name) {
+                                this.inheritance_pairs[name] = inherited.name.name;
+                            }
+                        }
+                    });
+                    num_pending--;
+                });
+            }
+        }
+
+        let n = 500;
+        while (num_pending && --n) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
     }
 
     private updateFileTree() {

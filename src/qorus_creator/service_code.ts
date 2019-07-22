@@ -58,11 +58,11 @@ export const serviceFields = default_target_dir => [
         type: 'select-string',
         get_message: {
             action: 'creator-get-objects',
-            object_type: 'base-class',
+            object_type: 'service-base-class',
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'base-class',
+            object_type: 'service-base-class',
             return_value: 'objects',
         },
     },
