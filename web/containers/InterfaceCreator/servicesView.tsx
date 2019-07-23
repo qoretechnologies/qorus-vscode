@@ -118,7 +118,7 @@ export interface IServicesView {
     t: TTranslator;
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid }) => {
+const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, removeMethodFromFields }) => {
     return (
         <MethodsContext.Consumer>
             {({
@@ -173,6 +173,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid }) =>
                                                                     currentMethod => currentMethod.id !== method.id
                                                                 )
                                                             );
+                                                            removeMethodFromFields(method.id);
                                                             setMethodsCount((current: number) => current - 1);
                                                         }}
                                                     />

@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState } from 'react';
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
 import { isArray } from 'util';
-import { every } from 'lodash';
+import { every, reduce } from 'lodash';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -101,6 +101,28 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 selectedFields['service-methods'][methodId].every(({ isValid }: IField) => isValid)
             );
         };
+        // Remove method from the methods
+        const removeMethod: (methodId: number) => void = methodId => {
+            setLocalSelectedFields(current => {
+                const newResult = { ...current };
+                // Remove the method with the provided id
+                newResult['service-methods'] = reduce(
+                    newResult['service-methods'],
+                    (newMethods, methodData, id) => {
+                        let result = { ...newMethods };
+                        // The id does not match so add the method
+                        if (methodId !== parseInt(id, 10)) {
+                            result = { ...result, [id]: methodData };
+                        }
+                        // Return new methods
+                        return result;
+                    },
+                    {}
+                );
+                // Return new data
+                return newResult;
+            });
+        };
 
         return (
             <FieldContext.Provider
@@ -115,6 +137,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     selectedQuery,
                     isFormValid,
                     isMethodValid,
+                    removeMethodFromFields: removeMethod,
                 }}
             >
                 <Component {...props} />
