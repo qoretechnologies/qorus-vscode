@@ -14,15 +14,13 @@ class QorusWebview {
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
 
-    open(active_tab?: string, opening_data?: any) {
-        opening_data = opening_data || {};
-
+    open(opening_data: any = {}) {
         if (this.panel) {
             if (opening_data.uri) {
                 if (projects.updateCurrentWorkspaceFolder(opening_data.uri)) {
                     this.dispose();
                     msg.warning(t`WorkspaceFolderChangedResetWebview`);
-                    return this.open(active_tab, opening_data.uri);
+                    return this.open(opening_data);
                 }
                 if (!projects.getProject()) {
                     this.dispose();
@@ -32,7 +30,7 @@ class QorusWebview {
             }
 
             this.panel.reveal(vscode.ViewColumn.One);
-            this.setActiveTab(active_tab);
+            this.setActiveTab(opening_data.active_tab);
             return;
         }
 
@@ -87,7 +85,7 @@ class QorusWebview {
                             });
                             break;
                         case 'get-active-tab':
-                            this.setActiveTab(active_tab);
+                            this.setActiveTab(opening_data.active_tab);
                             break;
                         case 'get-current-project-folder':
                             this.panel.webview.postMessage({

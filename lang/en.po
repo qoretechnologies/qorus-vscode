@@ -1036,6 +1036,9 @@ msgstr "Edit service"
 msgid "SrcAndYamlMismatch ${ field } ${ src_file } ${ value1 } ${ value2 }"
 msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1 }, yaml info: ${ value2 }"
 
+msgid "SrcMethodNotInYaml ${ method } ${ src_file }"
+msgstr "Mismatch in source and yaml file: method ${ method } in ${ src_file } is not present in the yaml file"
+
 msgid "2FilesCreatedInDir ${ file1 } ${ file2 } ${ dir }"
 msgstr "Files ${ file1 } and ${ file2 } have been created in ${ dir }"
 

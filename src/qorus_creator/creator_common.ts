@@ -109,3 +109,16 @@ export const createMethodHeaders = (methods: any): string => {
 
     return result;
 };
+
+export const authorsToArray = (data: any) => {
+    if (data.author) {
+        const author = data.author.split(',').map(value => ({ name: value.trim() }));
+        data.author = author;
+    }
+    for (const method of data.methods || []) {
+        if (method.author) {
+            const author = method.author.split(',').map(value => ({ name: value.trim() }));
+            method.author = author;
+        }
+    }
+}

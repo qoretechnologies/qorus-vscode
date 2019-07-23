@@ -4,6 +4,7 @@ import { projects } from './QorusProject';
 import { methodName } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
+import { authorsToArray } from './qorus_creator/creator_common';
 
 export interface QoreTextDocument {
     uri: string,
@@ -54,44 +55,55 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             yaml_data['class-name'] = symbol.name;
         }
 
+        let data = JSON.parse(JSON.stringify(yaml_data));
+        delete data.code;
+        authorsToArray(data);
+
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`EditService`,
             command: 'qorus.editService',
-            arguments: [yaml_data],
+            arguments: [data],
         }));
+
+        let methods = data.methods;
+        methods = [...methods, {name: '', desc: ''}];
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`AddMethod`,
-            command: 'qorus.addServiceMethod',
-            arguments: [yaml_data],
+            command: 'qorus.editService',
+            arguments: [{ ...data, active_method: methods.length }],
         }));
     }
 
     private addMethodLens(lenses: vscode.CodeLens[], symbol: any, yaml_data: any) {
-        const findMethod = (yaml_data: any, name: string): any => {
-            if (!yaml_data.methods) {
-                return undefined;
-            }
-            for (const method_data of yaml_data.methods) {
+        const checkMethodName = (yaml_data: any, name: string): boolean => {
+            for (const method_data of yaml_data.methods || []) {
                 if (method_data.name === name) {
-                    return method_data;
+                    return true;
                 }
             }
-            return undefined;
+            return false;
         };
 
+        let data = JSON.parse(JSON.stringify(yaml_data));
+        delete data.code;
+        authorsToArray(data);
+
         const method_name = methodName(symbol.name);
-        const method_data = findMethod(yaml_data, method_name);
-        if (method_data) {
-            lenses.push(new vscode.CodeLens(symbol.location.range, {
-                title: t`EditMethod`,
-                command: 'qorus.editServiceMethod',
-                arguments: [method_data],
-            }));
-            lenses.push(new vscode.CodeLens(symbol.location.range, {
-                title: t`DeleteMethod`,
-                command: 'qorus.deleteServiceMethod',
-                arguments: [method_data],
-            }));
+        if (!checkMethodName(data, method_name)) {
+            msg.error(t`SrcMethodNotInYaml ${method_name} ${yaml_data.code}`);
+            return;
         }
+
+        lenses.push(new vscode.CodeLens(symbol.location.range, {
+            title: t`EditMethod`,
+            command: 'qorus.editService',
+            arguments: [{ ...data, active_method: method_name }],
+        }));
+
+        lenses.push(new vscode.CodeLens(symbol.location.range, {
+            title: t`DeleteMethod`,
+            command: 'qorus.deleteServiceMethod',
+            arguments: [{service: data.name, method: method_name}],
+        }));
     }
 }

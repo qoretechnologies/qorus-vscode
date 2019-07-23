@@ -32,9 +32,10 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.testFile', (uri: vscode.Uri) => tester.testFile(uri));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.openService', (uri: vscode.Uri) =>
-        qorus_webview.open('CreateInterface',
-                           { service_data: projects.getProject().code_info.getYamlInfo(uri.fsPath) }));
+    disposable = vscode.commands.registerCommand('qorus.openService', (uri: vscode.Uri) => qorus_webview.open({
+        tab: 'CreateInterface',
+        service_data: projects.getProject().code_info.getYamlInfo(uri.fsPath)
+    }));
 
     context.subscriptions.push(disposable);
 
@@ -76,26 +77,20 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.createInterface',
-                                                 (uri: vscode.Uri) => qorus_webview.open('CreateInterface', { uri }));
+    disposable = vscode.commands.registerCommand('qorus.createInterface', (uri: vscode.Uri) => qorus_webview.open({
+        tab: 'CreateInterface',
+        uri,
+    }));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.editService',
-                                                 (service_data: any) =>
-                                                        qorus_webview.open('CreateInterface', { service_data }));
+    disposable = vscode.commands.registerCommand('qorus.editService', (data: any) => qorus_webview.open({
+        tab: 'CreateInterface',
+        subtab: 'service',
+        data: { service: data },
+    }));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.addServiceMethod',
-                                                 (service_data: any) =>
-                                                        qorus_webview.open('Method', { service_data }));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.editServiceMethod',
-                                                 (method_data: any) => qorus_webview.open('Method', { method_data }));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod',
-                                                 (method_data: any) => qorus_webview.open('Method', { method_data }));
+    disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod', (_data: any) => {});
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
