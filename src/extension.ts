@@ -32,11 +32,6 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.testFile', (uri: vscode.Uri) => tester.testFile(uri));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.openService', (uri: vscode.Uri) => qorus_webview.open({
-        tab: 'CreateInterface',
-        service_data: projects.getProject().code_info.getYamlInfo(uri.fsPath)
-    }));
-
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) => tester.testDir(uri));
