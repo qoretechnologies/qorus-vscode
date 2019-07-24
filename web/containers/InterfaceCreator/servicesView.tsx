@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { ButtonGroup, Button, Callout } from '@blueprintjs/core';
 import { MethodsContext } from '../../context/methods';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import { omit } from 'lodash';
 
 const MethodSelector = styled.div`
     width: 100%;
@@ -116,9 +117,12 @@ const CreatorWrapper = styled.div`
 export interface IServicesView {
     targetDir: string;
     t: TTranslator;
+    isMethodValid: boolean;
+    removeMethodFromFields: (id: string) => void;
+    service: any;
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, removeMethodFromFields }) => {
+const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, removeMethodFromFields, service }) => {
     return (
         <MethodsContext.Consumer>
             {({
@@ -131,6 +135,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                 setMethodsCount,
                 handleAddMethodClick,
                 setShowMethods,
+                methodsData,
             }) => (
                 <CreatorWrapper>
                     <Callout
@@ -146,6 +151,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                                 type={'service'}
                                 submitLabel={t('Next')}
                                 onSubmit={() => setShowMethods(true)}
+                                data={service && omit(service, 'methods')}
                             />
                         )}
                         {showMethods && (
@@ -197,6 +203,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                                     onBackClick={() => setShowMethods(false)}
                                     type={'service-methods'}
                                     activeId={activeMethod}
+                                    data={methodsData.find(method => method.id === activeMethod)}
                                     onNameChange={(methodId: number, name: string) => {
                                         setMethods((currentMethods: { id: number; name: string }[]) =>
                                             currentMethods.reduce((cur, method: { id: number; name: string }) => {

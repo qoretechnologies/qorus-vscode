@@ -99,6 +99,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     submitLabel = 'Submit',
     onBackClick,
     allSelectedFields,
+    data,
 }) => {
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
@@ -114,8 +115,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
-                        selected: field.mandatory !== false,
-                        isValid: false,
+                        selected: (data && data[field.name]) || field.mandatory !== false,
+                        isValid:
+                            data && data[field.name]
+                                ? validateField(field.type || 'string', data[field.name], field)
+                                : false,
+                        value: data ? data[field.name] : null,
                     }));
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
@@ -157,6 +162,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     ...field,
                     selected: field.mandatory !== false,
                     isValid: false,
+                    value: data ? data[field.name] : null,
                 }));
                 // Pull the pre-selected fields
                 const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);

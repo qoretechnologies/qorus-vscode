@@ -19,6 +19,7 @@ import withFields from './hocomponents/withFields';
 import Panel from './containers/InterfaceCreator/panel';
 import Box from './components/Box';
 import withMethods from './hocomponents/withMethods';
+import withInitialData from './hocomponents/withInitialData';
 
 const StyledApp = styled.div`
     display: flex;
@@ -38,11 +39,11 @@ const Tabs = {
 export interface IApp {
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
-    active_tab: string;
+    tab: string;
     project_folder: string;
     qorus_instance: any;
     login_visible: boolean;
-    setActiveTab: (activeTab: string) => void;
+    changeTab: (activeTab: string) => void;
     openLogin: () => void;
     closeLogin: () => void;
     setCurrentQorusInstance: (inst: string) => void;
@@ -54,12 +55,12 @@ export type TTranslator = (id: string) => string;
 const App: FunctionComponent<IApp> = ({
     addMessageListener,
     postMessage,
-    setActiveTab,
+    changeTab,
     openLogin,
     closeLogin,
     setCurrentQorusInstance,
     setCurrentProjectFolder,
-    active_tab,
+    tab,
     project_folder,
     qorus_instance,
     login_visible,
@@ -83,16 +84,6 @@ const App: FunctionComponent<IApp> = ({
                     // Return current state
                     return currentTexts;
                 });
-            }
-        );
-        // Set the active tab
-        addMessageListener(
-            Messages.SET_ACTIVE_TAB,
-            (data: any): void => {
-                setActiveTab(data.active_tab);
-                if (data.active_tab === 'Login') {
-                    openLogin();
-                }
             }
         );
         // Close login
@@ -119,8 +110,6 @@ const App: FunctionComponent<IApp> = ({
                 setCurrentQorusInstance(data.qorus_instance);
             }
         );
-        // Get the current active tab
-        postMessage(Messages.GET_ACTIVE_TAB);
         // Get the current project folder
         postMessage(Messages.GET_PROJECT_FOLDER);
     });
@@ -147,8 +136,8 @@ const App: FunctionComponent<IApp> = ({
                                     minimal={true}
                                     icon={Tabs[tab_key]}
                                     key={tab_key}
-                                    active={tab_key == active_tab}
-                                    onClick={() => setActiveTab(tab_key)}
+                                    active={tab_key == tab}
+                                    onClick={() => changeTab(tab_key)}
                                     text={t(tab_key + '-buttonText')}
                                     title={t(tab_key + '-buttonTitle')}
                                 />
@@ -176,20 +165,11 @@ const App: FunctionComponent<IApp> = ({
             <TextContext.Provider value={t}>
                 <StyledApp>
                     <>
-                        {active_tab == 'Method' && (
-                            <Box fill>
-                                <div className={'fullHeightTabs'} style={{ display: 'flex', flex: 1 }}>
-                                    <div className={'bp3-tab-panel flex-column flex-auto'}>
-                                        <Panel type={'service-methods'} />
-                                    </div>
-                                </div>
-                            </Box>
-                        )}
-                        {active_tab == 'Login' && <Login />}
-                        {active_tab == 'ProjectConfig' && <ProjectConfig />}
-                        {active_tab == 'ReleasePackage' && <ReleasePackage />}
-                        {active_tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                        {active_tab == 'CreateInterface' && <InterfaceCreator />}
+                        {tab == 'Login' && <Login />}
+                        {tab == 'ProjectConfig' && <ProjectConfig />}
+                        {tab == 'ReleasePackage' && <ReleasePackage />}
+                        {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
+                        {tab == 'CreateInterface' && <InterfaceCreator />}
                     </>
                 </StyledApp>
             </TextContext.Provider>
@@ -198,16 +178,12 @@ const App: FunctionComponent<IApp> = ({
 };
 
 const mapStateToProps = state => ({
-    active_tab: state.active_tab_queue[0],
     project_folder: state.current_project_folder,
     qorus_instance: state.current_qorus_instance,
     login_visible: state.login_visible,
 });
 
 const mapDispatchToProps = dispatch => ({
-    setActiveTab: tab_key => {
-        dispatch({ type: 'active_tab', active_tab: tab_key });
-    },
     setCurrentProjectFolder: folder => {
         dispatch({ type: 'current_project_folder', current_project_folder: folder });
     },
@@ -231,6 +207,7 @@ export default hot(
             mapStateToProps,
             mapDispatchToProps
         ),
+        withInitialData(),
         withFields(),
         withMethods()
     )(App)
