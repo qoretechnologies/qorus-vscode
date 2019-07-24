@@ -7,34 +7,12 @@ import { Messages } from '../constants/messages';
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [initialData, setInitialData] = useState<any>({
-            tab: 'CreateInterface',
-            active_method: 2,
-            service: {
-                name: 'test',
-                target_dir: 'test',
-                version: '1.0',
-                desc: 'test',
-                lang: 'java',
-                class_name: 'Test',
-                base_class_name: 'muhaha',
-                target_file: 'this_file_lol',
-                author: [{ name: 'filip' }, { name: 'filipek' }],
-                autostart: true,
-                methods: [
-                    {
-                        name: 'test method',
-                        desc: 'lol',
-                    },
-                    {
-                        name: 'test method 2',
-                        desc: 'lol',
-                    },
-                ],
-            },
+            tab: 'ProjectConfig',
         });
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, data => {
+                console.log(data);
                 setInitialData(data);
             });
 

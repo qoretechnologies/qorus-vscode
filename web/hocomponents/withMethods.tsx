@@ -47,13 +47,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     };
 
     return mapProps(({ service, ...rest }) => ({
-        initialMethods: service.methods
-            ? service.methods.map((method, i) => ({ name: method.name, id: i + 1 }))
-            : [{ id: 1 }],
-        initialCount: size(service.methods) || 1,
+        initialMethods:
+            service && service.methods
+                ? service.methods.map((method, i) => ({ name: method.name, id: i + 1 }))
+                : [{ id: 1 }],
+        initialCount: service && service.methods ? size(service.methods) : 1,
         // Set the last method ID to the methods
         // count + 1 if methods exist
-        initialId: service.methods ? size(service.methods) + 1 : 1,
+        initialId: service && service.methods ? size(service.methods) + 1 : 1,
         // If method is being edited, switch to it
         initialActiveId: rest.active_method || 1,
         // Set to show methods if active method
@@ -62,7 +63,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         // Map the ids to the current method data
         // to know which method belongs to which id
         // in the method selector
-        methodsData: service.methods && service.methods.map((method, i) => ({ ...method, id: i + 1 })),
+        methodsData: service && service.methods && service.methods.map((method, i) => ({ ...method, id: i + 1 })),
         service,
         ...rest,
     }))(EnhancedComponent);
