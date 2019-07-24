@@ -86,7 +86,7 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.editService', (data: any) => qorus_webview.open({
         tab: 'CreateInterface',
         subtab: 'service',
-        data: { service: data },
+        service: data,
     }));
     context.subscriptions.push(disposable);
 

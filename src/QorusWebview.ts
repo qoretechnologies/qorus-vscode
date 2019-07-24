@@ -165,10 +165,10 @@ class QorusWebview {
                         case 'creator-get-directories':
                             project.code_info.getObjects(message.object_type, this.panel.webview);
                             break;
-                        case 'creator-get-method':
+                        case 'get-initial-data':
                             this.panel.webview.postMessage({
-                                action: 'creator-return-method',
-                                data: opening_data.method_data,
+                                action: 'return-initial-data',
+                                data: opening_data,
                             });
                             break;
                         case 'creator-create-interface':
