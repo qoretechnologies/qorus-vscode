@@ -4,7 +4,7 @@ import { projects } from './QorusProject';
 import { methodName } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
-import { authorsToArray } from './qorus_creator/creator_common';
+import { authorsToArray, dashToUnderscoreInKeys } from './qorus_creator/creator_common';
 
 export interface QoreTextDocument {
     uri: string,
@@ -55,7 +55,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             yaml_data['class-name'] = symbol.name;
         }
 
-        let data = JSON.parse(JSON.stringify(yaml_data));
+        let data = dashToUnderscoreInKeys(yaml_data);
         delete data.code;
         authorsToArray(data);
 
@@ -84,7 +84,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return false;
         };
 
-        let data = JSON.parse(JSON.stringify(yaml_data));
+        let data = dashToUnderscoreInKeys(yaml_data);
         delete data.code;
         authorsToArray(data);
 

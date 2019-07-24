@@ -121,4 +121,14 @@ export const authorsToArray = (data: any) => {
             method.author = author;
         }
     }
-}
+};
+
+export const dashToUnderscoreInKeys = (obj: any): any => {
+    let clone = JSON.parse(JSON.stringify(obj));
+    let ret_obj = {};
+    for (const key in clone) {
+        const fixed_key = key.replace(/-/, '_');
+        ret_obj[fixed_key] = clone[key];
+    }
+    return ret_obj;
+};
