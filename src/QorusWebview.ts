@@ -14,13 +14,21 @@ class QorusWebview {
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
 
-    open(opening_data: any = {}) {
+    open(initial_data: any = {}) {
+
+        const postInitialData = () => {
+            this.panel.webview.postMessage({
+                action: 'return-initial-data',
+                data: initial_data,
+            });
+        };
+
         if (this.panel) {
-            if (opening_data.uri) {
-                if (projects.updateCurrentWorkspaceFolder(opening_data.uri)) {
+            if (initial_data.uri) {
+                if (projects.updateCurrentWorkspaceFolder(initial_data.uri)) {
                     this.dispose();
                     msg.warning(t`WorkspaceFolderChangedResetWebview`);
-                    return this.open(opening_data);
+                    return this.open(initial_data);
                 }
                 if (!projects.getProject()) {
                     this.dispose();
@@ -30,7 +38,7 @@ class QorusWebview {
             }
 
             this.panel.reveal(vscode.ViewColumn.One);
-            this.setActiveTab(opening_data.active_tab);
+            postInitialData();
             return;
         }
 
@@ -85,7 +93,7 @@ class QorusWebview {
                             });
                             break;
                         case 'get-active-tab':
-                            this.setActiveTab(opening_data.active_tab);
+                            this.setActiveTab(initial_data.tab);
                             break;
                         case 'get-current-project-folder':
                             this.panel.webview.postMessage({
@@ -156,7 +164,7 @@ class QorusWebview {
                                 iface_kind: message.iface_kind,
                                 fields: creator.getFields(
                                     message.iface_kind,
-                                    opening_data.uri ? opening_data.uri.fsPath : undefined
+                                    initial_data.uri ? initial_data.uri.fsPath : undefined
                                 ),
                             });
                             break;
@@ -166,10 +174,7 @@ class QorusWebview {
                             project.code_info.getObjects(message.object_type, this.panel.webview);
                             break;
                         case 'get-initial-data':
-                            this.panel.webview.postMessage({
-                                action: 'return-initial-data',
-                                data: opening_data,
-                            });
+                            postInitialData();
                             break;
                         case 'creator-create-interface':
                             creator.createInterface(message.iface_kind, message.data);
@@ -216,13 +221,13 @@ class QorusWebview {
         });
     }
 
-    private setActiveTab(active_tab?: string) {
-        if (!active_tab || !this.panel) {
+    private setActiveTab(tab?: string) {
+        if (!tab || !this.panel) {
             return;
         }
         this.panel.webview.postMessage({
             action: 'set-active-tab',
-            active_tab: active_tab,
+            tab,
         });
     }
 }
