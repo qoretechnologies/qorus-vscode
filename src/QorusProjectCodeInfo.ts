@@ -38,6 +38,10 @@ export class QorusProjectCodeInfo {
         return this.yaml_data[file];
     }
 
+    baseClassName(class_name: string): string | undefined {
+        return this.inheritance_pairs[class_name];
+    }
+
     getObjects(object_type: string, webview: vscode.Webview) {
         let return_type: string;
         let interval_id: any;

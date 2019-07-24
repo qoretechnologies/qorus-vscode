@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { qore_vscode } from './qore_vscode';
 import { projects } from './QorusProject';
-import { methodName } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
 import { authorsToArray, dashToUnderscoreInKeys } from './qorus_creator/creator_common';
@@ -15,11 +15,18 @@ export interface QoreTextDocument {
 
 export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
+    private code_info: any = undefined;
+
     public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
-        const yaml_info = projects.getProject().code_info.yaml_info;
+        const file_path = document.uri.fsPath;
+        const dir_path = path.dirname(file_path);
+        const file_name = path.basename(file_path);
+
+        this.code_info = projects.getProject().code_info;
+        const yaml_info = this.code_info.yaml_info[file_path];
 
         const doc: QoreTextDocument = {
-            uri: 'file:' + document.uri.path,
+            uri: 'file:' + file_path,
             text: document.getText(),
             languageId: document.languageId,
             version: document.version
@@ -29,13 +36,18 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             let lenses: vscode.CodeLens[] = [];
 
             symbols.forEach(symbol => {
-                const yaml_data = yaml_info[symbol.location.uri.substr(5)];
+                const data = {
+                    target_dir: dir_path,
+                    target_file: file_name,
+                    ...yaml_info
+                };
+
                 switch (symbol.kind) {
                     case 5:
-                        this.addServiceLens(lenses, symbol, yaml_data);
+                        this.addServiceLens(lenses, symbol, data);
                         break;
                     case 6:
-                        this.addMethodLens(lenses, symbol, yaml_data);
+                        this.addMethodLens(lenses, symbol, data);
                         break;
                 }
             });
@@ -44,20 +56,18 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         });
     }
 
-    private addServiceLens(lenses: vscode.CodeLens[], symbol: any, yaml_data: any) {
-        const class_name = yaml_data['class-name'];
+    private addServiceLens(lenses: vscode.CodeLens[], symbol: any, data: any) {
+        const class_name = data['class-name'];
         if (class_name) {
             if(class_name !== symbol.name) {
-                msg.error(t`SrcAndYamlMismatch ${'class-name'} ${yaml_data.code} ${symbol.name} ${class_name}`);
+                msg.error(t`SrcAndYamlMismatch ${'class-name'} ${data.code} ${symbol.name} ${class_name}`);
             }
         }
         else {
-            yaml_data['class-name'] = symbol.name;
+            data['class-name'] = symbol.name;
         }
 
-        let data = dashToUnderscoreInKeys(yaml_data);
-        delete data.code;
-        authorsToArray(data);
+        data = this.fixData(data);
 
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`EditService`,
@@ -74,9 +84,9 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }));
     }
 
-    private addMethodLens(lenses: vscode.CodeLens[], symbol: any, yaml_data: any) {
-        const checkMethodName = (yaml_data: any, name: string): boolean => {
-            for (const method_data of yaml_data.methods || []) {
+    private addMethodLens(lenses: vscode.CodeLens[], symbol: any, data: any) {
+        const checkMethodName = (data: any, name: string): boolean => {
+            for (const method_data of data.methods || []) {
                 if (method_data.name === name) {
                     return true;
                 }
@@ -84,15 +94,19 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return false;
         };
 
-        let data = dashToUnderscoreInKeys(yaml_data);
-        delete data.code;
-        authorsToArray(data);
-
-        const method_name = methodName(symbol.name);
-        if (!checkMethodName(data, method_name)) {
-            msg.error(t`SrcMethodNotInYaml ${method_name} ${yaml_data.code}`);
+        if (symbol.name.split('::').length !== 2) {
+            msg.error(t`UnrecognizedMethodName ${symbol.name}`);
             return;
         }
+        const [class_name, method_name] = symbol.name.split('::');
+        if (!checkMethodName(data, method_name)) {
+            msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code}`);
+            return;
+        }
+
+        data['class-name'] = class_name;
+
+        data = this.fixData(data);
 
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`EditMethod`,
@@ -105,5 +119,13 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             command: 'qorus.deleteServiceMethod',
             arguments: [{service: data.name, method: method_name}],
         }));
+    }
+
+    private fixData(data_to_fix: any): any {
+        let data = dashToUnderscoreInKeys(data_to_fix);
+        data.base_class_name = this.code_info.baseClassName(data.class_name);
+        delete data.code;
+        authorsToArray(data);
+        return data;
     }
 }

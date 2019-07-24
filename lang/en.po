@@ -1086,3 +1086,6 @@ msgstr "Creating service methods"
 
 msgid "CreateMethodTip"
 msgstr "Every service needs its methods, otherwise it's a pretty useless service. Add methods, select fields and fill it with data and Bobs your uncle. Same old, same old..."
+
+msgid "UnrecognizedMethodName ${ name }"
+msgstr "Unrecognized method name: ${ name }"
