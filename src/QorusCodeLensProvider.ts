@@ -23,7 +23,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         const file_name = path.basename(file_path);
 
         this.code_info = projects.getProject().code_info;
-        const yaml_info = this.code_info.yaml_info[file_path];
+        const yaml_info = this.code_info.yaml_info_by_file[file_path];
 
         const doc: QoreTextDocument = {
             uri: 'file:' + file_path,
@@ -75,12 +75,12 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             arguments: [data],
         }));
 
-        let methods = data.methods;
-        data.methods = [...methods, {name: '', desc: ''}];
+        let cloned_data = JSON.parse(JSON.stringify(data));
+        cloned_data.methods = [...cloned_data.methods, {name: '', desc: ''}];
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`AddMethod`,
             command: 'qorus.editService',
-            arguments: [{ ...data, active_method: data.methods.length }],
+            arguments: [{ ...cloned_data, active_method: cloned_data.methods.length }],
         }));
     }
 
