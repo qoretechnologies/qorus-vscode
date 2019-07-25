@@ -85,13 +85,13 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
     }
 
     private addMethodLens(lenses: vscode.CodeLens[], symbol: any, data: any) {
-        const checkMethodName = (data: any, name: string): boolean => {
-            for (const method_data of data.methods || []) {
-                if (method_data.name === name) {
-                    return true;
+        const methodIndex = (data: any, method_name: string): number => {
+            for (let i = 0; i < (data.methods || []).length; i++) {
+                if (data.methods[i].name === method_name) {
+                    return i;
                 }
             }
-            return false;
+            return -1;
         };
 
         if (symbol.name.split('::').length !== 2) {
@@ -99,7 +99,8 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
         const [class_name, method_name] = symbol.name.split('::');
-        if (!checkMethodName(data, method_name)) {
+        const method_index = methodIndex(data, method_name);
+        if (method_index === -1) {
             msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code}`);
             return;
         }
@@ -111,13 +112,13 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`EditMethod`,
             command: 'qorus.editService',
-            arguments: [{ ...data, active_method: method_name }],
+            arguments: [{ ...data, active_method: method_index + 1 }],
         }));
 
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`DeleteMethod`,
             command: 'qorus.deleteServiceMethod',
-            arguments: [{service: data.name, method: method_name}],
+            arguments: [{service: data.name, method: method_index + 1}],
         }));
     }
 
