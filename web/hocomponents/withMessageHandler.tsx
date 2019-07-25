@@ -29,7 +29,7 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
 
         // Send message
         const postMessage: TPostMessage = (action, data = {}) => {
-            console.log(action, data);
+            console.log(action, JSON.stringify(data));
             vscode.postMessage({
                 action,
                 ...data,

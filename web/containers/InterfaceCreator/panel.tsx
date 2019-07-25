@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState, FormEvent, useEffect, useRef } from
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
-import { size, map, filter, find, includes, reduce, camelCase, upperFirst } from 'lodash';
+import { size, map, filter, find, includes, reduce, camelCase, upperFirst, omit } from 'lodash';
 import SidePanel from '../../components/SidePanel';
 import FieldSelector from '../../components/FieldSelector';
 import Content from '../../components/Content';
@@ -103,6 +103,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     data,
     onDataFinishLoading,
     isEditing,
+    allMethodsData,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -129,7 +130,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
                     // Add original name field
-                    if (data) {
+                    if (isEditing) {
                         preselectedFields.push({
                             name: 'orig_name',
                             value: data.name,
@@ -340,7 +341,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmit) {
             onSubmit();
         } else {
-            console.log(allSelectedFields);
             let newData: { [key: string]: any };
             // If this is service methods
             if (type === 'service-methods') {
@@ -363,6 +363,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         }),
                         {}
                     );
+                });
+                // Add missing methods
+                allMethodsData.forEach(method => {
+                    // Check if this method exists in the
+                    // data hash
+                    if (!newData.methods.find(m => m.orig_name === method.name)) {
+                        // Add this method
+                        newData.methods.push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
+                    }
                 });
             } else {
                 // Build the finished object
