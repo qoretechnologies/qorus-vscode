@@ -46,8 +46,8 @@ class InterfaceCreator {
             code: file_name,
         };
 
-        const { code, remaining_data: header_vars } = this.serviceCode(other_data);
-        const headers = createHeaders(Object.assign(headers_begin, header_vars, headers_end));
+        const { code, header_data } = this.serviceCode(other_data);
+        const headers = createHeaders(Object.assign(headers_begin, header_data, headers_end));
 
         let is_error = false;
 
@@ -82,17 +82,21 @@ class InterfaceCreator {
     }
 
     private serviceCode(data: any): any {
-        const { lang, class_name, base_class_name, methods: method_objects, ...other_data } = data;
+        const { methods: method_objects, ...header_data } = data;
 
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(fillTemplate(service_method_template[lang], { name: method.name }));
+            method_strings.push(fillTemplate(service_method_template[data.lang], { name: method.name }));
         }
         const methods = method_strings.join('\n');
 
         return {
-            code: fillTemplate(service_class_template[lang], { class_name, base_class_name, methods }),
-            remaining_data: other_data,
+            code: fillTemplate(service_class_template[data.lang], {
+                class_name: data.class_name,
+                base_class_name: data.base_class_name,
+                methods
+            }),
+            header_data
         };
     }
 }
