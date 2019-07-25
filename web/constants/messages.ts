@@ -14,4 +14,5 @@ export const Messages: { [key: string]: string } = {
     SET_QORUS_INSTANCE: 'current-qorus-instance',
     GET_PROJECT_FOLDER: 'get-current-project-folder',
     CREATE_INTERFACE: 'creator-create-interface',
+    EDIT_INTERFACE: 'creator-edit-interface',
 };

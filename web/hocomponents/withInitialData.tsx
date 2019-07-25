@@ -10,8 +10,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
-                console.log(data);
-
                 setInitialData(data);
             });
 

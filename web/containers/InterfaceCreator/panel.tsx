@@ -115,6 +115,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
+                        orig_name: field.name === 'name' && field.name,
                         selected: (data && data[field.name]) || field.mandatory !== false,
                         isValid:
                             data && data[field.name]
@@ -160,8 +161,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // Mark the selected fields
                 const transformedFields: IField[] = map(newFields, (field: IField) => ({
                     ...field,
-                    selected: field.mandatory !== false,
-                    isValid: false,
+                    orig_name: field.name === 'name' && field.name,
+                    selected: (data && data[field.name]) || field.mandatory !== false,
+                    isValid:
+                        data && data[field.name]
+                            ? validateField(field.type || 'string', data[field.name], field)
+                            : false,
                     value: data ? data[field.name] : null,
                 }));
                 // Pull the pre-selected fields
@@ -315,11 +320,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmit) {
             onSubmit();
         } else {
-            let data: { [key: string]: any };
+            let newData: { [key: string]: any };
             // If this is service methods
             if (type === 'service-methods') {
                 // Get the service data
-                data = reduce(
+                newData = reduce(
                     allSelectedFields.service,
                     (result: { [key: string]: any }, field: IField) => ({
                         ...result,
@@ -328,7 +333,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
                 // Add the methods
-                data.methods = map(allSelectedFields['service-methods'], serviceMethod => {
+                newData.methods = map(allSelectedFields['service-methods'], serviceMethod => {
                     return reduce(
                         serviceMethod,
                         (result: { [key: string]: any }, field: IField) => ({
@@ -340,7 +345,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 });
             } else {
                 // Build the finished object
-                data = reduce(
+                newData = reduce(
                     selectedFields,
                     (result: { [key: string]: any }, field: IField) => ({
                         ...result,
@@ -349,7 +354,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
             }
-            postMessage(Messages.CREATE_INTERFACE, { iface_kind: type === 'service-methods' ? 'service' : type, data });
+
+            console.log(data);
+
+            postMessage(data ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
+                iface_kind: type === 'service-methods' ? 'service' : type,
+                data,
+            });
         }
     };
 

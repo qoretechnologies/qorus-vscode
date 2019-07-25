@@ -17,8 +17,6 @@ const BooleanField: FunctionComponent<IField & IFieldChange> = ({ name, onChange
         }
     };
 
-    console.log('BOOLEAN VAL', value);
-
     return <Switch checked={value} large onChange={handleEnabledChange} />;
 };
 
