@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, FormEvent, useEffect } from 'react';
+import React, { FunctionComponent, useState, FormEvent, useEffect, useRef } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
@@ -42,6 +42,7 @@ export interface IField {
     value?: any;
     isValid?: boolean;
     hasValueSet?: boolean;
+    internal?: boolean;
 }
 
 export declare interface IFieldChange {
@@ -100,7 +101,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     onBackClick,
     allSelectedFields,
     data,
+    onDataFinishLoading,
+    isEditing,
 }) => {
+    const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
 
@@ -115,7 +119,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
-                        orig_name: field.name === 'name' && field.name,
                         selected: (data && data[field.name]) || field.mandatory !== false,
                         isValid:
                             data && data[field.name]
@@ -125,10 +128,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     }));
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
+                    // Add original name field
+                    if (data) {
+                        preselectedFields.push({
+                            name: 'orig_name',
+                            value: data.name,
+                            isValid: true,
+                            selected: true,
+                            internal: true,
+                        });
+                    }
                     // Save preselected fields
                     setSelectedFields(type, preselectedFields, activeId);
                     // Save the fields
                     setFields(type, transformedFields, activeId);
+                }
+                // Check if onDataFinish function is set
+                // only do this on initial mount
+                if (onDataFinishLoading && isInitialMount.current) {
+                    // Run the callback
+                    onDataFinishLoading();
+                    // Set the mount to false
+                    isInitialMount.current = false;
                 }
                 // Set show
                 setShow(true);
@@ -161,7 +182,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // Mark the selected fields
                 const transformedFields: IField[] = map(newFields, (field: IField) => ({
                     ...field,
-                    orig_name: field.name === 'name' && field.name,
                     selected: (data && data[field.name]) || field.mandatory !== false,
                     isValid:
                         data && data[field.name]
@@ -320,6 +340,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmit) {
             onSubmit();
         } else {
+            console.log(allSelectedFields);
             let newData: { [key: string]: any };
             // If this is service methods
             if (type === 'service-methods') {
@@ -355,11 +376,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 );
             }
 
-            console.log(data);
-
-            postMessage(data ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
+            postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                 iface_kind: type === 'service-methods' ? 'service' : type,
-                data,
+                data: newData,
             });
         }
     };
@@ -442,28 +461,34 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     />
                 </SearchWrapper>
                 <ContentWrapper>
-                    {map(selectedFieldList, (field: IField) => (
-                        <FieldWrapper key={field.name}>
-                            <FieldLabel label={t(`field-label-${field.name}`)} isValid={field.isValid} />
-                            <FieldInputWrapper>
-                                <Field
-                                    {...field}
-                                    onChange={handleFieldChange}
-                                    activeId={activeId}
-                                    prefill={
-                                        field.prefill &&
-                                        selectedFieldList.find((preField: IField) => preField.name === field.prefill)
-                                    }
-                                />
-                            </FieldInputWrapper>
-                            <FieldActions
-                                desc={t(`field-desc-${field.name}`)}
-                                name={field.name}
-                                onClick={removeField}
-                                removable={field.mandatory === false}
-                            />
-                        </FieldWrapper>
-                    ))}
+                    {map(
+                        selectedFieldList,
+                        (field: IField) =>
+                            !field.internal && (
+                                <FieldWrapper key={field.name}>
+                                    <FieldLabel label={t(`field-label-${field.name}`)} isValid={field.isValid} />
+                                    <FieldInputWrapper>
+                                        <Field
+                                            {...field}
+                                            onChange={handleFieldChange}
+                                            activeId={activeId}
+                                            prefill={
+                                                field.prefill &&
+                                                selectedFieldList.find(
+                                                    (preField: IField) => preField.name === field.prefill
+                                                )
+                                            }
+                                        />
+                                    </FieldInputWrapper>
+                                    <FieldActions
+                                        desc={t(`field-desc-${field.name}`)}
+                                        name={field.name}
+                                        onClick={removeField}
+                                        removable={field.mandatory === false}
+                                    />
+                                </FieldWrapper>
+                            )
+                    )}
                 </ContentWrapper>
                 <ActionsWrapper>
                     <ButtonGroup fill>

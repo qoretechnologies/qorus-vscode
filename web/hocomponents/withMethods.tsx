@@ -8,11 +8,11 @@ import { size } from 'lodash';
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const isInitialMount = useRef(true);
-        const [showMethods, setShowMethods] = useState<boolean>(props.initialShowMethods);
+        const [showMethods, setShowMethods] = useState<boolean>(false);
         const [methods, setMethods] = useState<any[]>(props.initialMethods);
         const [methodsCount, setMethodsCount] = useState<number>(props.initialCount);
         const [lastMethodId, setLastMethodId] = useState<number>(props.initialId);
-        const [activeMethod, setActiveMethod] = useState<any>(props.initialActiveId);
+        const [activeMethod, setActiveMethod] = useState<any>(props.initialActiveId || null);
 
         useEffect(() => {
             // Some kind of hack to force this function
@@ -63,7 +63,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         // count + 1 if methods exist
         initialId: service && service.methods ? size(service.methods) : 1,
         // If method is being edited, switch to it
-        initialActiveId: (service && service.active_method) || 1,
+        initialActiveId: (service && service.active_method) || null,
         // Set to show methods if active method
         // is being edited
         initialShowMethods: !!(service && service.active_method),

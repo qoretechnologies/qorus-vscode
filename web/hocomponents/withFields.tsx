@@ -96,10 +96,12 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         // Checks if method is valid
         const isMethodValid: (methodId: number) => boolean = methodId => {
-            return (
-                selectedFields['service-methods'][methodId] &&
-                selectedFields['service-methods'][methodId].every(({ isValid }: IField) => isValid)
-            );
+            if (methodId) {
+                return (
+                    selectedFields['service-methods'][methodId] &&
+                    selectedFields['service-methods'][methodId].every(({ isValid }: IField) => isValid)
+                );
+            }
         };
         // Remove method from the methods
         const removeMethod: (methodId: number) => void = methodId => {

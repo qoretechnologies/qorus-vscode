@@ -150,8 +150,18 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                             <InterfaceCreatorPanel
                                 type={'service'}
                                 submitLabel={t('Next')}
-                                onSubmit={() => setShowMethods(true)}
+                                onSubmit={() => {
+                                    setActiveMethod(1);
+                                    setShowMethods(true);
+                                }}
                                 data={service && omit(service, 'methods')}
+                                onDataFinishLoading={
+                                    service && activeMethod
+                                        ? () => {
+                                              setShowMethods(true);
+                                          }
+                                        : null
+                                }
                             />
                         )}
                         {showMethods && (
@@ -200,10 +210,14 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                                 <InterfaceCreatorPanel
                                     stepOneTitle={t('SelectFieldsSecondStep')}
                                     stepTwoTitle={t('FillDataThirdStep')}
-                                    onBackClick={() => setShowMethods(false)}
+                                    onBackClick={() => {
+                                        setActiveMethod(null);
+                                        setShowMethods(false);
+                                    }}
                                     type={'service-methods'}
                                     activeId={activeMethod}
-                                    data={methodsData.find(method => method.id === activeMethod)}
+                                    isEditing={!!service}
+                                    data={methodsData && methodsData.find(method => method.id === activeMethod)}
                                     onNameChange={(methodId: number, name: string) => {
                                         setMethods((currentMethods: { id: number; name: string }[]) =>
                                             currentMethods.reduce((cur, method: { id: number; name: string }) => {
