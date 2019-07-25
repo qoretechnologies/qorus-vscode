@@ -111,7 +111,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                     minimal: true,
                 },
             }}
-            selectedItems={value || ''}
+            selectedItems={value || []}
             onItemSelect={(item: any) => handleSelectClick(item)}
             resetOnQuery
             resetOnSelect
