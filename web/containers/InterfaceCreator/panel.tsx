@@ -365,14 +365,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     );
                 });
                 // Add missing methods
-                allMethodsData.forEach(method => {
-                    // Check if this method exists in the
-                    // data hash
-                    if (!newData.methods.find(m => m.orig_name === method.name)) {
-                        // Add this method
-                        newData.methods.push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
-                    }
-                });
+                if (allMethodsData) {
+                    allMethodsData.forEach(method => {
+                        // Check if this method exists in the
+                        // data hash
+                        if (!newData.methods.find(m => m.orig_name === method.name)) {
+                            // Add this method
+                            newData.methods.push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
+                        }
+                    });
+                }
             } else {
                 // Build the finished object
                 newData = reduce(
