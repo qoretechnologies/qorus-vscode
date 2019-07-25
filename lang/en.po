@@ -1089,3 +1089,12 @@ msgstr "Every service needs its methods, otherwise it's a pretty useless service
 
 msgid "UnrecognizedMethodName ${ name }"
 msgstr "Unrecognized method name: ${ name }"
+
+msgid "RootServiceDesc"
+msgstr "The base class for Qorus services"
+
+msgid "RootJobDesc"
+msgstr "The abstract class for Qorus jobs"
+
+msgid "RootWorkflowDesc"
+msgstr "Base class for workflow classes"

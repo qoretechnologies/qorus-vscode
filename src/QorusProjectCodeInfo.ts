@@ -13,29 +13,33 @@ import { getSuffix } from './qorus_utils';
 
 const object_parser_command = 'qop.q -i';
 const object_chunk_length = 100;
+const root_service = 'QorusService';
+const root_job = 'QorusJob';
+const root_workflow = 'QorusWorkflow';
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
     private pending: boolean = true;
     private code_info: any = {};
-    private yaml_data: any = {};
+    private yaml_data_by_file: any = {};
+    private yaml_data_by_class: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
-    private service_classes = ['QorusService'];
-    private job_classes = ['QorusJob'];
-    private workflow_classes = ['QorusWorkflow'];
+    private service_classes = [root_service];
+    private job_classes = [root_job];
+    private workflow_classes = [root_workflow];
 
     constructor(project: QorusProject) {
         this.project = project;
     }
 
-    get yaml_info(): any {
-        return this.yaml_data;
+    get yaml_info_by_file(): any {
+        return this.yaml_data_by_file;
     }
 
-    getYamlInfo(file: string): any {
-        return this.yaml_data[file];
+    get yaml_info_by_class(): any {
+        return this.yaml_data_by_class;
     }
 
     baseClassName(class_name: string): string | undefined {
@@ -127,7 +131,10 @@ export class QorusProjectCodeInfo {
                 const yaml_data = yaml.load(file);
                 if (yaml_data.code) {
                     const src = path.join(path.dirname(file), yaml_data.code);
-                    this.yaml_data[src] = yaml_data;
+                    this.yaml_data_by_file[src] = yaml_data;
+                }
+                if (yaml_data['class-name']) {
+                    this.yaml_data_by_class[yaml_data['class-name']] = yaml_data;
                 }
             }
         }
@@ -159,7 +166,12 @@ export class QorusProjectCodeInfo {
     private addDescToBaseClasses(base_classes: string[]): any[] {
         let ret_val = [];
         for (const base_class of base_classes) {
-            ret_val.push({name: base_class, desc: 'description of ' + base_class});
+            const desc = base_class === root_service
+                ? t`RootServiceDesc`
+                : this.yaml_data_by_class[base_class]
+                    ? this.yaml_data_by_class[base_class].desc
+                    : undefined;
+            ret_val.push({name: base_class, desc});
         }
         return ret_val;
     }

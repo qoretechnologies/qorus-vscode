@@ -23,7 +23,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         const file_name = path.basename(file_path);
 
         this.code_info = projects.getProject().code_info;
-        const yaml_info = this.code_info.yaml_info[file_path];
+        const yaml_info = this.code_info.yaml_info_by_file[file_path];
 
         const doc: QoreTextDocument = {
             uri: 'file:' + file_path,
