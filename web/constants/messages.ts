@@ -6,6 +6,7 @@ export const Messages: { [key: string]: string } = {
     TEXT_RECEIVED: 'return-text',
     GET_TEXT: 'get-text',
     GET_INITIAL_DATA: 'get-initial-data',
+    RETURN_INITIAL_DATA: 'return-initial-data',
     SET_ACTIVE_TAB: 'set-active-tab',
     GET_ACTIVE_TAB: 'get-active-tab',
     CLOSE_LOGIN: 'close-login',

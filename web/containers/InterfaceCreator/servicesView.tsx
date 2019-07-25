@@ -117,8 +117,8 @@ const CreatorWrapper = styled.div`
 export interface IServicesView {
     targetDir: string;
     t: TTranslator;
-    isMethodValid: boolean;
-    removeMethodFromFields: (id: string) => void;
+    isMethodValid: (id: number) => boolean;
+    removeMethodFromFields: (id: number) => void;
     service: any;
 }
 

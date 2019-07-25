@@ -56,10 +56,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         // count + 1 if methods exist
         initialId: service && service.methods ? size(service.methods) + 1 : 1,
         // If method is being edited, switch to it
-        initialActiveId: rest.active_method || 1,
+        initialActiveId: (service && service.active_method) || 1,
         // Set to show methods if active method
         // is being edited
-        initialShowMethods: !!rest.active_method,
+        initialShowMethods: !!(service && service.active_method),
         // Map the ids to the current method data
         // to know which method belongs to which id
         // in the method selector
