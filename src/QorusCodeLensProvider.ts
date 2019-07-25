@@ -76,7 +76,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }));
 
         let methods = data.methods;
-        methods = [...methods, {name: '', desc: ''}];
+        data.methods = [...methods, {name: '', desc: ''}];
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`AddMethod`,
             command: 'qorus.editService',
