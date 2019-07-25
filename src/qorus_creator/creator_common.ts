@@ -78,6 +78,8 @@ export const createHeaders = (headers: any): string => {
         }
         else {
             switch (key) {
+                case 'orig_name':
+                    break;
                 default:
                     result += `${tag}: ${value}\n`;
             }
@@ -97,6 +99,7 @@ export const createMethodHeaders = (methods: any): string => {
         for (let tag in method) {
             switch (tag) {
                 case 'name':
+                case 'orig_name':
                     break;
                 case 'author':
                     result += `${indent}author: ${method.author.map(author => author.name).join(', ')}\n`

@@ -177,6 +177,7 @@ class QorusWebview {
                             postInitialData();
                             break;
                         case 'creator-create-interface':
+                        case 'creator-edit-interface':
                             creator.createInterface(message.iface_kind, message.data);
                             break;
                         default:
