@@ -52,6 +52,7 @@ export const serviceFields = default_target_dir => [
     },
     {
         name: 'target_file',
+        mandatory: false,
     },
     {
         name: 'base_class_name',

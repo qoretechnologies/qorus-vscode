@@ -35,7 +35,7 @@ class InterfaceCreator {
 
         const target_file_base = target_file
             ? path.basename(target_file, '.qsd')
-            : `${data.service}-${data.serviceversion}`;
+            : `${data.name}-${data.version}`;
 
         const file_name = `${target_file_base}.qsd${suffix[data.lang]}`;
         const yaml_file_name = `${target_file_base}.yaml`;
