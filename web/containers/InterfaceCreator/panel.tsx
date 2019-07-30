@@ -133,7 +133,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     if (isEditing) {
                         preselectedFields.push({
                             name: 'orig_name',
-                            value: data.name,
+                            value: data && data.name,
                             isValid: true,
                             selected: true,
                             internal: true,
