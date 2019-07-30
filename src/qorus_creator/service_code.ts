@@ -54,6 +54,7 @@ export const serviceFields = default_target_dir => [
         name: 'autostart',
         mandatory: false,
         type: 'boolean',
+        default_value: false,
     },
     {
         name: 'resource',
@@ -143,16 +144,19 @@ export const service_methods = [
     {
         name: 'lock',
         mandatory: false,
+        default_value: 'none',
     },
     {
         name: 'write',
         mandatory: false,
         type: 'boolean',
+        default_value: false,
     },
     {
         name: 'internal',
         mandatory: false,
         type: 'boolean',
+        default_value: false,
     },
 ];
 

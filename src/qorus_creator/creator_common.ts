@@ -196,6 +196,7 @@ export const commonFields = default_target_dir => [
         name: 'remote',
         mandatory: false,
         type: 'boolean',
+        default_value: true,
     },
     {
         name: 'class_name',

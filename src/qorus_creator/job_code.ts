@@ -56,16 +56,19 @@ export const jobFields = default_target_dir => [
         name: 'active',
         mandatory: false,
         type: 'boolean',
+        default_value: true,
     },
     {
         name: 'run_skipped',
         mandatory: false,
         type: 'boolean',
+        default_value: false,
     },
     {
         name: 'single_instance',
         mandatory: false,
         type: 'boolean',
+        default_value: false,
     },
     {
         name: 'expiry_date',
