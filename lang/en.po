@@ -880,6 +880,9 @@ msgstr "An optional list of functions to load into the service program object"
 msgid "field-label-service_modules"
 msgstr "Service modules"
 
+msgid "field-label-modules"
+msgstr "Modules"
+
 msgid "field-desc-service_modules"
 msgstr "lists modules providing base classes for class-based services"
 

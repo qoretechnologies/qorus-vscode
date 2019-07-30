@@ -1,4 +1,4 @@
-import { comment_chars } from './creator_common';
+import { comment_chars, commonFields } from './creator_common';
 
 let class_template: any = {};
 let method_template: any = {};
@@ -36,24 +36,7 @@ export const default_service_methods = [
 ];
 
 export const serviceFields = default_target_dir => [
-    {
-        name: 'target_dir',
-        type: 'file-string',
-        default_value: default_target_dir,
-        get_message: {
-            action: 'creator-get-directories',
-            object_type: 'target-dir',
-        },
-        return_message: {
-            action: 'creator-return-directories',
-            object_type: 'target-dir',
-            return_value: 'directories',
-        },
-    },
-    {
-        name: 'target_file',
-        mandatory: false,
-    },
+    ... commonFields(default_target_dir),
     {
         name: 'base_class_name',
         type: 'select-string',
@@ -68,138 +51,9 @@ export const serviceFields = default_target_dir => [
         },
     },
     {
-        name: 'name',
-    },
-    {
-        name: 'version',
-    },
-    {
-        name: 'desc',
-    },
-    {
-        name: 'author',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'author',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'author',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'lang',
-        type: 'enum',
-        items: [
-            {
-                value: 'qore',
-                icon_filename: 'qore-106x128.png',
-            },
-            {
-                value: 'java',
-                icon_filename: 'java-96x128.png',
-            },
-        ],
-        default_value: 'qore',
-    },
-    {
-        name: 'class_name',
-        prefill: 'name',
-        style: 'PascalCase',
-    },
-    {
-        name: 'remote',
-        mandatory: false,
-        type: 'boolean',
-    },
-    {
-        name: 'groups',
-        mandatory: false,
-        type: 'array-of-pairs',
-        fields: ['name', 'desc'],
-    },
-    {
-        name: 'constants',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'constant',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'constant',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'classes',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'class',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'class',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'functions',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'function',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'function',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'service_modules',
-        mandatory: false,
-        type: 'array',
-    },
-    {
         name: 'autostart',
         mandatory: false,
         type: 'boolean',
-    },
-    {
-        name: 'mappers',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'mapper',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'mapper',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'vmaps',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'value-map',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'value-map',
-            return_value: 'objects',
-        },
     },
     {
         name: 'resource',
@@ -262,12 +116,6 @@ export const serviceFields = default_target_dir => [
         mandatory: false,
         type: 'array-of-pairs',
         fields: ['label', 'value'],
-    },
-    {
-        name: 'tags',
-        mandatory: false,
-        type: 'array-of-pairs',
-        fields: ['key', 'value'],
     },
 ];
 

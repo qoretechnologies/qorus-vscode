@@ -1,4 +1,4 @@
-import * as os from 'os';
+import { commonFields } from './creator_common';
 
 
 let template: any = {};
@@ -23,7 +23,6 @@ class ${this.class_name} extends ${this.base_class_name} {\n\
 
 export const job_template = template;
 
-
 export const defaultJobHeaders = data => {
     switch (data.lang) {
         case 'java': return {
@@ -38,44 +37,44 @@ export const defaultJobHeaders = data => {
     }
 };
 
-
-export const job_fields = {
-    name:               {mandatory: true,  type: 'string'},
-    version:            {mandatory: true,  type: 'string'},
-    desc:               {mandatory: true,  type: 'string'},
-    'class-name':       {mandatory: true,  type: 'string'},
-    schedule:           {mandatory: true,  type: 'string'},
-    remote:             {mandatory: false, type: 'boolean'},
-    active:             {mandatory: false, type: 'boolean'},
-    'run-skipped':      {mandatory: false, type: 'boolean'},
-    'single-instance':  {mandatory: false, type: 'boolean'},
-    author:             {mandatory: false, type: 'array'},
-    groups:             {mandatory: false, type: 'array-of-pairs'},
-    constants:          {mandatory: false, type: 'array'},
-    classes:            {mandatory: false, type: 'array'},
-    functions:          {mandatory: false, type: 'array'},
-    'job-modules':      {mandatory: false, type: 'array'},
-    mappers:            {mandatory: false, type: 'array'},
-    vmaps:              {mandatory: false, type: 'array'},
-    TAG:                {mandatory: false, type: 'array-of-pairs'},
-};
-
-
-export const fake_job_data = {
-    target_dir: os.homedir(),
-    iface_kind: 'job',
-    lang: 'java',
-    class_name: 'ExampleJob',
-    base_class_name: 'QorusJob',
-
-    name: 'example-job',
-    version: '1.0',
-    desc: 'example job',
-    groups: [{
-        name: 'GROUP1',
-        desc: 'example group 1'
-    }, {
-        name: 'GROUP2',
-        desc: 'example group 2'
-    }]
-}
+export const jobFields = default_target_dir => [
+    ... commonFields(default_target_dir),
+    {
+        name: 'base_class_name',
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'job-base-class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'sjobbase-class',
+            return_value: 'objects',
+        },
+    },
+    {
+        name: 'active',
+        mandatory: false,
+        type: 'boolean',
+    },
+    {
+        name: 'run_skipped',
+        mandatory: false,
+        type: 'boolean',
+    },
+    {
+        name: 'single_instance',
+        mandatory: false,
+        type: 'boolean',
+    },
+    {
+        name: 'expiry_date',
+        mandatory: false,
+        type: 'date',
+    },
+    {
+        name: 'schedule',
+        mandatory: false,
+        type: 'cron',
+    },
+];

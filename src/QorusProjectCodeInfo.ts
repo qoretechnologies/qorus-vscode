@@ -63,12 +63,19 @@ export class QorusProjectCodeInfo {
                     return_type = 'objects';
                     objects = this.addDescToBaseClasses(this.service_classes);
                     break;
+                case 'job-base-class':
+                    return_type = 'objects';
+                    objects = this.addDescToBaseClasses(this.job_classes);
+                    break;
                 case 'author':
                 case 'function':
                 case 'class':
                 case 'constant':
                 case 'mapper':
                 case 'value-map':
+                case 'module':
+                case 'group':
+                case 'tag':
                     return_type = 'objects';
                     objects = this.code_info[object_type] || [];
                     break;
