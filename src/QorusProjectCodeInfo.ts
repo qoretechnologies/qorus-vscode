@@ -326,8 +326,8 @@ export class QorusProjectCodeInfo {
                     const objects: any[] = JSON.parse(stdout.toString());
 
                     for (let obj of objects) {
-                        const author = obj.tags.author || obj.tags.serviceauthor;
-                        if (author) {
+                        const authors = obj.tags.author || obj.tags.serviceauthor || [];
+                        for (const author of authors) {
                             code_info.author[author] = { name: author };
                         }
 
