@@ -952,10 +952,10 @@ msgstr "Define auth label"
 msgid "field-desc-define_auth_label"
 msgstr "Defines an authentication label with an associated value"
 
-msgid "field-label-TAG"
-msgstr "Tag"
+msgid "field-label-tags"
+msgstr "Tags"
 
-msgid "field-desc-TAG"
+msgid "field-desc-tags"
 msgstr "Option tag definition in the format \"key: value\"; for Java services, entries in the classpath can be added here by adding a colon-separated list of path names to the \"classpath\" tag; note also that $OMQ_DIR (or any other server-side environment variable) can be used in classpath entries and will be resolved to the Qorus directory"
 
 msgid "field-label-name"

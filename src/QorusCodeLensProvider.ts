@@ -4,7 +4,7 @@ import { qore_vscode } from './qore_vscode';
 import { projects } from './QorusProject';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
-import { authorsToArray, dashToUnderscoreInKeys } from './qorus_creator/creator_common';
+import { dashToUnderscoreInKeys } from './qorus_creator/creator_common';
 
 export interface QoreTextDocument {
     uri: string,
@@ -126,7 +126,6 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         let data = dashToUnderscoreInKeys(data_to_fix);
         data.base_class_name = this.code_info.baseClassName(data.class_name);
         delete data.code;
-        authorsToArray(data);
         return data;
     }
 }

@@ -53,8 +53,6 @@ export const createHeaders = (headers: any): string => {
                     }
                     break;
                 case 'author':
-                    result += `author: ${value.map(author => author.name).join(', ')}\n`;
-                    break;
                 case 'classes':
                 case 'constants':
                 case 'functions':
@@ -102,7 +100,10 @@ export const createMethodHeaders = (methods: any): string => {
                 case 'orig_name':
                     break;
                 case 'author':
-                    result += `${indent}author: ${method.author.map(author => author.name).join(', ')}\n`
+                    result += `${indent}author:\n`;
+                    for (let author of method.author) {
+                        result += `${list_indent}${author.name}\n`;
+                    }
                     break;
                 default:
                     result += `${indent}${tag}: ${method[tag]}\n`
