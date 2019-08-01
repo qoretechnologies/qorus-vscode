@@ -4,7 +4,6 @@ import { qore_vscode } from './qore_vscode';
 import { projects } from './QorusProject';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
-import { dashToUnderscoreInKeys } from './qorus_creator/creator_common';
 
 export interface QoreTextDocument {
     uri: string,
@@ -32,16 +31,16 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             version: document.version
         };
 
+        const data = {
+            target_dir: dir_path,
+            target_file: file_name,
+            ...yaml_info
+        };
+
         return qore_vscode.exports.getDocumentSymbols(doc).then(symbols => {
             let lenses: vscode.CodeLens[] = [];
 
             symbols.forEach(symbol => {
-                const data = {
-                    target_dir: dir_path,
-                    target_file: file_name,
-                    ...yaml_info
-                };
-
                 switch (symbol.kind) {
                     case 5:
                         this.addServiceLens(lenses, symbol, data);
@@ -123,9 +122,28 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
     }
 
     private fixData(data_to_fix: any): any {
-        let data = dashToUnderscoreInKeys(data_to_fix);
-        data.base_class_name = this.code_info.baseClassName(data.class_name);
+        const clone = JSON.parse(JSON.stringify(data_to_fix));
+        const fields_to_complexify = ['classes', 'functions', 'constants', 'mappers', 'value_maps', 'author'];
+
+        let data: any = {};
+        for (const key in clone) {
+            const fixed_key = key.replace(/-/g, '_');
+            data[fixed_key] = clone[key];
+            if (fields_to_complexify.includes(fixed_key)) {
+                data[fixed_key] = data[fixed_key].map(value => ({ name: value }));
+            }
+        }
+        for (const method of data.methods || []) {
+            if (method.author) {
+                method.author = method.author.map(value => ({ name: value }));
+            }
+        }
+
+        if (!data.base_class_name) {
+            data.base_class_name = this.code_info.baseClassName(data.class_name);
+        }
         delete data.code;
+
         return data;
     }
 }

@@ -102,7 +102,7 @@ export const createMethodHeaders = (methods: any): string => {
                 case 'author':
                     result += `${indent}author:\n`;
                     for (let author of method.author) {
-                        result += `${list_indent}${author.name}\n`;
+                        result += `${indent}${list_indent}${author.name}\n`;
                     }
                     break;
                 default:
@@ -125,16 +125,6 @@ export const authorsToArray = (data: any) => {
             method.author = author;
         }
     }
-};
-
-export const dashToUnderscoreInKeys = (obj: any): any => {
-    let clone = JSON.parse(JSON.stringify(obj));
-    let ret_obj = {};
-    for (const key in clone) {
-        const fixed_key = key.replace(/-/, '_');
-        ret_obj[fixed_key] = clone[key];
-    }
-    return ret_obj;
 };
 
 export const commonFields = default_target_dir => [
