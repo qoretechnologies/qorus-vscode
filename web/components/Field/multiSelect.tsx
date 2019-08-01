@@ -42,14 +42,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                 // Check if this is the correct
                 // object type
                 if (data.object_type === return_message.object_type) {
-                    setItems([
-                        {
-                            name: 'Test1',
-                        },
-                        {
-                            name: 'Kekekkekkekek',
-                        },
-                    ]);
+                    setItems(data[return_message.return_value]);
                 }
             });
         }
@@ -62,7 +55,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
     const handleSelectClick: (item: any) => void = item => {
         // Check if this item is selected
-        const isSelected: boolean = value && !!value.find((selectedItem: any) => selectedItem.name === item.name);
+        const isSelected: boolean = !!value.find((selectedItem: any) => selectedItem.name === item.name);
         // Remove the item if it's selected
         if (isSelected) {
             deselectItem(item.name);
@@ -92,6 +85,8 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
     // Clear button
     const ClearButton = size(value) ? <Button icon={'cross'} minimal onClick={handleClearClick} /> : undefined;
+
+    console.log(value);
 
     return (
         <MultiSelect
