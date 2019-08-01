@@ -86,8 +86,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     // Clear button
     const ClearButton = size(value) ? <Button icon={'cross'} minimal onClick={handleClearClick} /> : undefined;
 
-    console.log(value);
-
     return (
         <MultiSelect
             key={activeId}
