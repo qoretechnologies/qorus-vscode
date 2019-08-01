@@ -75,7 +75,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }));
 
         let cloned_data = JSON.parse(JSON.stringify(data));
-        cloned_data.methods = [...cloned_data.methods, {name: '', desc: ''}];
+        cloned_data.methods = [...cloned_data.methods || [], {name: '', desc: ''}];
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`AddMethod`,
             command: 'qorus.editService',
@@ -100,7 +100,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         const [class_name, method_name] = symbol.name.split('::');
         const method_index = methodIndex(data, method_name);
         if (method_index === -1) {
-            msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code}`);
+            msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
             return;
         }
 

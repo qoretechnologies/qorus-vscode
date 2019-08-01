@@ -126,6 +126,17 @@ export class QorusProjectCodeInfo {
         });
     }
 
+    addSingleYamlInfo(file: string) {
+        const yaml_data = yaml.load(file);
+        if (yaml_data.code) {
+            const src = path.join(path.dirname(file), yaml_data.code);
+            this.yaml_data_by_file[src] = yaml_data;
+        }
+        if (yaml_data['class-name']) {
+            this.yaml_data_by_class[yaml_data['class-name']] = yaml_data;
+        }
+    }
+
     private updateYamlInfo(source_directories: string[]) {
         for (let dir of source_directories) {
             const full_dir = path.join(this.project.folder, dir);
@@ -135,14 +146,7 @@ export class QorusProjectCodeInfo {
 
             let files = filesInDir(full_dir, path => getSuffix(path) === 'yaml');
             for (let file of files) {
-                const yaml_data = yaml.load(file);
-                if (yaml_data.code) {
-                    const src = path.join(path.dirname(file), yaml_data.code);
-                    this.yaml_data_by_file[src] = yaml_data;
-                }
-                if (yaml_data['class-name']) {
-                    this.yaml_data_by_class[yaml_data['class-name']] = yaml_data;
-                }
+                this.addSingleYamlInfo(file);
             }
         }
     }

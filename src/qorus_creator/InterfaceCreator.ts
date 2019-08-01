@@ -1,6 +1,7 @@
 import { workspace, window } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { projects } from '../QorusProject';
 import { fillTemplate, createHeaders, createMethodHeaders, suffix, default_parse_options, } from './creator_common';
 import { service_class_template, service_method_template, serviceFields,
          service_methods, default_service_methods, } from './service_code';
@@ -63,8 +64,9 @@ class InterfaceCreator {
                 open: true,
             },
             {
-                file: path.join(target_dir, `${yaml_file_name}`),
+                file: path.join(target_dir, yaml_file_name),
                 data: headers + createMethodHeaders(data.methods),
+                update_yaml_info: true,
             },
         ];
 
@@ -77,6 +79,9 @@ class InterfaceCreator {
                 }
                 if (params.open) {
                     workspace.openTextDocument(params.file).then(doc => window.showTextDocument(doc));
+                }
+                if (params.update_yaml_info) {
+                    projects.getProject().code_info.addSingleYamlInfo(params.file);
                 }
             });
         }
