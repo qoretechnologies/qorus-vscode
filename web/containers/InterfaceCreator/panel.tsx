@@ -125,7 +125,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             data && data[field.name]
                                 ? validateField(field.type || 'string', data[field.name], field)
                                 : false,
-                        value: data ? data[field.name] : null,
+                        value: data ? data[field.name] : undefined,
                     }));
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
@@ -188,7 +188,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         data && data[field.name]
                             ? validateField(field.type || 'string', data[field.name], field)
                             : false,
-                    value: data ? data[field.name] : null,
+                    value: data ? data[field.name] : undefined,
                 }));
                 // Pull the pre-selected fields
                 const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
@@ -196,7 +196,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 setSelectedFields(type, preselectedFields, newActiveId);
                 // Save the fields
                 setFields(type, transformedFields, newActiveId);
-
                 // Set show
                 setShow(true);
             }

@@ -19,6 +19,7 @@ export interface IMultiSelectField {
     name: string;
     t: TTranslator;
     simple: boolean;
+    activeId: number;
 }
 
 const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldChange> = ({
@@ -41,7 +42,14 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                 // Check if this is the correct
                 // object type
                 if (data.object_type === return_message.object_type) {
-                    setItems(data[return_message.return_value]);
+                    setItems([
+                        {
+                            name: 'Test1',
+                        },
+                        {
+                            name: 'Kekekkekkekek',
+                        },
+                    ]);
                 }
             });
         }
@@ -54,7 +62,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
     const handleSelectClick: (item: any) => void = item => {
         // Check if this item is selected
-        const isSelected: boolean = !!value.find((selectedItem: any) => selectedItem.name === item.name);
+        const isSelected: boolean = value && !!value.find((selectedItem: any) => selectedItem.name === item.name);
         // Remove the item if it's selected
         if (isSelected) {
             deselectItem(item.name);
