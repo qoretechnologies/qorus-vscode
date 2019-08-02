@@ -13,8 +13,15 @@ class QorusWebview {
     private panel: vscode.WebviewPanel | undefined = undefined;
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
+    private initial_data: any = {};
+
+    get opening_data(): any {
+        return this.initial_data
+    }
 
     open(initial_data: any = {}) {
+
+        this.initial_data = initial_data;
 
         const postInitialData = () => {
             this.panel.webview.postMessage({

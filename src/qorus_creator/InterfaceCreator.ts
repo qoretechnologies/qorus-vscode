@@ -1,6 +1,7 @@
 import { workspace, window } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { qorus_webview } from '../QorusWebview';
 import { projects } from '../QorusProject';
 import { fillTemplate, createHeaders, createMethodHeaders, suffix, default_parse_options, } from './creator_common';
 import { service_class_template, service_method_template, serviceFields,
@@ -46,6 +47,9 @@ class InterfaceCreator {
         const file_name = `${target_file_base}.qsd${suffix[data.lang]}`;
         const yaml_file_name = `${target_file_base}.yaml`;
 
+        const file_path = path.join(target_dir, file_name);
+        const yaml_file_path = path.join(target_dir, yaml_file_name);
+
         const headers_begin = { type: 'service' };
         const headers_end = {
             servicetype: 'USER',
@@ -59,35 +63,63 @@ class InterfaceCreator {
 
         const write_params = [
             {
-                file: path.join(target_dir, file_name),
+                file: file_path,
                 data: (data.lang === 'qore' ? default_parse_options + '\n' : '') + code,
                 open: true,
             },
             {
-                file: path.join(target_dir, yaml_file_name),
+                file: yaml_file_path,
                 data: headers + createMethodHeaders(data.methods),
                 update_yaml_info: true,
             },
         ];
 
+        const code_info = projects.currentProjectCodeInfo();
+
         for (let params of write_params) {
             fs.writeFile(params.file, params.data, err => {
                 if (err) {
-                    msg.error(t`WriteFileError ${ params.file } ${ err.toString() }`);
+                    msg.error(t`WriteFileError ${params.file} ${err.toString()}`);
                     is_error = true;
                     return;
                 }
                 if (params.open) {
                     workspace.openTextDocument(params.file).then(doc => window.showTextDocument(doc));
                 }
-                if (params.update_yaml_info) {
-                    projects.getProject().code_info.addSingleYamlInfo(params.file);
+                if (params.update_yaml_info && code_info) {
+                    code_info.addSingleYamlInfo(params.file);
                 }
             });
         }
 
         if (!is_error) {
             msg.info(t`2FilesCreatedInDir ${file_name} ${yaml_file_name} ${target_dir}`);
+
+            const initial_data = qorus_webview.opening_data;
+            if (initial_data.service && initial_data.service.target_dir && initial_data.service.target_file) {
+                const orig_file = path.join(initial_data.service.target_dir, initial_data.service.target_file);
+
+                if (orig_file === file_path) {
+                    return;
+                }
+
+                const yaml_info = code_info.yaml_info_by_file[orig_file];
+                const orig_yaml_file = yaml_info && yaml_info.yaml_file;
+
+                for (const file of [orig_file, orig_yaml_file]) {
+                    if (!file) {
+                        continue;
+                    }
+                    fs.unlink(file, err => {
+                        if (err) {
+                            msg.error(t`RemoveFileError ${file} ${err.toString()}`);
+                        }
+                        else {
+                            msg.info(t`OrigFileRemoved ${file}`);
+                        }
+                    });
+                }
+            }
         }
     }
 

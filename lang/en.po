@@ -1048,6 +1048,12 @@ msgstr "Files ${ file1 } and ${ file2 } have been created in ${ dir }"
 msgid "WriteFileError ${ file } ${ error }"
 msgstr "Writing file ${ file } failed: ${ error }"
 
+msgid "RemoveFileError ${ file } ${ error }"
+msgstr "Removing file ${ file } failed: ${ error }"
+
+msgid "OrigFileRemoved ${ file }"
+msgstr "Original file ${ file } has been removed"
+
 msgid "AddMethodsTitle"
 msgstr "1. Add Methods"
 
