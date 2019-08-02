@@ -185,7 +185,7 @@ class QorusWebview {
                             break;
                         case 'creator-create-interface':
                         case 'creator-edit-interface':
-                            creator.createInterface(message.iface_kind, message.data);
+                            creator.editInterface(message.iface_kind, message.data);
                             break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);

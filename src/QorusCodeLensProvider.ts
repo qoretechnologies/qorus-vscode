@@ -117,7 +117,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         lenses.push(new vscode.CodeLens(symbol.location.range, {
             title: t`DeleteMethod`,
             command: 'qorus.deleteServiceMethod',
-            arguments: [{service: data.name, method: method_index + 1}],
+            arguments: [{ ...data, method_index }],
         }));
     }
 

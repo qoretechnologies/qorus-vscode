@@ -1107,3 +1107,15 @@ msgstr "The abstract class for Qorus jobs"
 
 msgid "RootWorkflowDesc"
 msgstr "Base class for workflow classes"
+
+msgid "CannotDeleteTheOnlyOneServiceMethod"
+msgstr "Cannot delete service method since it is the only one and each service must have at least one method"
+
+msgid "InvalidDeletedMethodIndex"
+msgstr "Invalid index of the method to be deleted"
+
+msgid "ServiceMethodHasBeenDeleted ${ method }"
+msgstr "Service method ${ method } has been deleted"
+
+msgid "ConfirmDeleteMethod ${ method }"
+msgstr "Do you really want to delete method ${ method }?"

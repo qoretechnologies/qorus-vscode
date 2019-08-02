@@ -9,6 +9,7 @@ import { tester } from './QorusTest';
 import { tree } from './QorusTree';
 import { QorusCodeLensProvider } from './QorusCodeLensProvider';
 import { QorusHoverProvider } from './QorusHoverProvider';
+import { creator } from './qorus_creator/InterfaceCreator';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
 import * as fs from 'fs';
@@ -85,7 +86,8 @@ export async function activate(context: vscode.ExtensionContext) {
     }));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod', (_data: any) => {});
+    disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod',
+                                                 (data: any) => creator.deleteServiceMethod(data));
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
