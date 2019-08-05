@@ -958,6 +958,36 @@ msgstr "Tags"
 msgid "field-desc-tags"
 msgstr "Option tag definition in the format \"key: value\"; for Java services, entries in the classpath can be added here by adding a colon-separated list of path names to the \"classpath\" tag; note also that $OMQ_DIR (or any other server-side environment variable) can be used in classpath entries and will be resolved to the Qorus directory"
 
+msgid "field-label-active"
+msgstr "Active"
+
+msgid "field-desc-active"
+msgstr "A boolean value giving the active status of the job; if not present, the default is True"
+
+msgid "field-label-run_skipped"
+msgstr "Run skipped"
+
+msgid "field-desc-run_skipped"
+msgstr "A boolean value telling the system if the job should be run immediately if the last scheduled run was missed due to system downtime; if not present, the default is True"
+
+msgid "field-label-single_instance"
+msgstr "Single instance"
+
+msgid "field-desc-single_instance"
+msgstr "A boolean value telling the system if the job can only be run on one Qorus instance at a time; if not present, the default is False"
+
+msgid "field-label-expiry_date"
+msgstr "Expiry date"
+
+msgid "field-desc-expiry_date"
+msgstr "An optional expiration date; the job will not be run (and will be automatically set to inactive) when the expiration date is reached"
+
+msgid "field-label-schedule"
+msgstr "Schedule"
+
+msgid "field-desc-schedule"
+msgstr "Defines the periodicity for running the job"
+
 msgid "field-label-name"
 msgstr "Name"
 
