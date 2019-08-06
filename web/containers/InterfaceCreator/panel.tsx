@@ -25,6 +25,7 @@ export interface IInterfaceCreatorPanel {
     postMessage: TPostMessage;
     onSubmit: () => void;
     t: TTranslator;
+    methodsList: { id: number; name: string }[];
 }
 
 export interface IField {
@@ -104,6 +105,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     onDataFinishLoading,
     isEditing,
     allMethodsData,
+    methodsList,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -367,12 +369,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 if (allMethodsData) {
                     allMethodsData.forEach(method => {
                         // Check if this method exists in the
-                        // data hash
+                        // data hash also check if the method has been deleted
                         if (!newData.methods.find(m => m.orig_name === method.name)) {
                             // Add this method
                             newData.methods.push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
                         }
                     });
+                }
+                // Filter deleted methods
+                if (methodsList) {
+                    newData.methods = newData.methods.filter(m => methodsList.find(ml => ml.name === m.name));
                 }
             } else {
                 // Build the finished object

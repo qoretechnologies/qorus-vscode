@@ -6,11 +6,18 @@ import { Messages } from '../constants/messages';
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
-        const [initialData, setInitialData] = useState<any>(null);
+        const [initialData, setInitialData] = useState<any>({
+            tab: 'ProjectConfig',
+        });
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
                 setInitialData(null);
+
+                if (!data.tab) {
+                    data.tab = 'ProjectConfig';
+                }
+
                 setInitialData(data);
             });
 

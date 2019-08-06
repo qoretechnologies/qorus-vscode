@@ -169,7 +169,7 @@ const App: FunctionComponent<IApp> = ({
                         {tab == 'ProjectConfig' && <ProjectConfig />}
                         {tab == 'ReleasePackage' && <ReleasePackage />}
                         {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                        {tab == 'CreateInterface' && <InterfaceCreator />}
+                        {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
                     </>
                 </StyledApp>
             </TextContext.Provider>

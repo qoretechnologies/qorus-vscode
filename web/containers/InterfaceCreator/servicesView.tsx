@@ -218,6 +218,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                                     activeId={activeMethod}
                                     isEditing={!!service}
                                     allMethodsData={methodsData}
+                                    methodsList={methods}
                                     data={methodsData && methodsData.find(method => method.id === activeMethod)}
                                     onNameChange={(methodId: number, name: string) => {
                                         setMethods((currentMethods: { id: number; name: string }[]) =>

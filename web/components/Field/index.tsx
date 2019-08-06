@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import withTextContext from '../../hocomponents/withTextContext';
 import StringField from './string';
+import DateField from './date';
 import { TTranslator } from '../../App';
 import BooleanField from './boolean';
 import SelectField from './select';
@@ -10,6 +11,7 @@ import MultiPairField from './multiPair';
 import MultiFileField from './fileArray';
 import FileField from './fileString';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import Cron from './cron';
 
 export interface IField {
     type: string;
@@ -57,6 +59,14 @@ const Field: FunctionComponent<IField> = ({ type, ...rest }) => {
 
     if (type === 'file-string') {
         return <FileField {...rest} />;
+    }
+    // Date
+    if (type === 'date') {
+        return <DateField {...rest} />;
+    }
+    // Cron
+    if (type === 'cron') {
+        return <Cron {...rest} />;
     }
 
     return <span> WIP </span>;

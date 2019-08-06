@@ -18,7 +18,12 @@ export interface ICreateInterface {
 const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }) => {
     return (
         <Box fill>
-            <Tabs id={'CreateInterfaceTabs'} renderActiveTabPanelOnly className={'fullHeightTabs'}>
+            <Tabs
+                defaultSelectedTabId={'services'}
+                id={'CreateInterfaceTabs'}
+                renderActiveTabPanelOnly
+                className={'fullHeightTabs'}
+            >
                 <Tab
                     id={'services'}
                     title={t('Services')}
