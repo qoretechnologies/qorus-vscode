@@ -106,7 +106,11 @@ class ServiceCreator {
             msg.info(message);
         }
 
-        qorus_webview.opening_data = data;
+        qorus_webview.opening_data = {
+            tab: 'CreateInterface',
+            subtab: 'service',
+            service: data
+        };
 
         if (initial_data.service && initial_data.service.target_dir && initial_data.service.target_file) {
             const orig_file = path.join(initial_data.service.target_dir, initial_data.service.target_file);

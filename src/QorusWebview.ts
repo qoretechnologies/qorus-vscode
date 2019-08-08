@@ -21,9 +21,9 @@ class QorusWebview {
 
     set opening_data(data: any) {
         this.initial_data = data;
-//        if (this.panel) {
-//            this.postInitialData();
-//        }
+        if (this.panel) {
+            this.postInitialData();
+        }
     }
 
     private postInitialData = () => {
