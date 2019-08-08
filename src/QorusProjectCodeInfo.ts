@@ -17,6 +17,14 @@ const root_service = 'QorusService';
 const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
 
+
+export interface QoreTextDocument {
+    uri: string,
+    text: string,
+    languageId: string,
+    version: number
+};
+
 export class QorusProjectCodeInfo {
     private project: QorusProject;
     private pending: boolean = true;
@@ -26,6 +34,7 @@ export class QorusProjectCodeInfo {
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
+    private service_info: any = {};
     private service_classes = [root_service];
     private job_classes = [root_job];
     private workflow_classes = [root_workflow];
@@ -40,6 +49,41 @@ export class QorusProjectCodeInfo {
 
     get yaml_info_by_class(): any {
         return this.yaml_data_by_class;
+    }
+
+    addServiceText(document: vscode.TextDocument) {
+        const file = document.uri.fsPath;
+        if (!this.service_info[file]) {
+            this.service_info[file] = {};
+        }
+        this.service_info[file].text_lines = [];
+        for (let i = 0; i < document.lineCount; i++) {
+            this.service_info[file].text_lines.push(document.lineAt(i).text);
+        }
+    }
+
+    addServiceInfo(file: string, class_name_range: any, base_class_name_range: any) {
+        if (!this.service_info[file]) {
+            this.service_info[file] = {};
+        }
+        this.service_info[file].class_name_range = class_name_range;
+        this.service_info[file].base_class_name_range = base_class_name_range;
+    }
+
+    addServiceMethodInfo(file: string, method_name: string, decl_range: any, name_range: any) {
+        if (!this.service_info[file]) {
+            this.service_info[file] = {};
+        }
+        if (!this.service_info[file].method_decl_ranges) {
+            this.service_info[file].method_decl_ranges = {};
+            this.service_info[file].method_name_ranges = {};
+        }
+        this.service_info[file].method_decl_ranges[method_name] = decl_range;
+        this.service_info[file].method_name_ranges[method_name] = name_range;
+    }
+
+    serviceInfo(file: string) {
+        return this.service_info[file];
     }
 
     baseClassName(class_name: string): string | undefined {
@@ -203,14 +247,14 @@ export class QorusProjectCodeInfo {
                 const buffer: Buffer = Buffer.from(file_content);
                 const contents = buffer.toString();
 
-                const data = {
+                const doc: QoreTextDocument = {
                     uri: 'file:' + file,
                     text: contents,
                     languageId: 'qore',
                     version: 1
                 };
 
-                qore_vscode.exports.getDocumentSymbols(data, 'node_info').then(symbols => {
+                qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
                     symbols.forEach(symbol => {
                         if (symbol.name && symbol.name.name && symbol.inherits && symbol.inherits.length) {
                             const name = symbol.name.name;

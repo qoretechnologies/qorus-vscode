@@ -48,7 +48,7 @@ export const jobFields = default_target_dir => [
         },
         return_message: {
             action: 'creator-return-objects',
-            object_type: 'sjobbase-class',
+            object_type: 'job-base-class',
             return_value: 'objects',
         },
     },

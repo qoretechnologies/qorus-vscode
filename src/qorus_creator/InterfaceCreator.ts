@@ -17,10 +17,10 @@ class InterfaceCreator {
         }
     }
 
-    editInterface(iface_kind: string, data: any) {
+    editInterface(iface_kind: string, edit_type: string, data: any) {
         switch (iface_kind) {
             case 'service':
-                service_creator.edit(data);
+                service_creator.edit(data, edit_type);
                 break;
         }
     }

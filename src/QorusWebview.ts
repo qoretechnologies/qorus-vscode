@@ -19,16 +19,23 @@ class QorusWebview {
         return this.initial_data
     }
 
+    set opening_data(data: any) {
+        this.initial_data = data;
+//        if (this.panel) {
+//            this.postInitialData();
+//        }
+    }
+
+    private postInitialData = () => {
+        this.panel.webview.postMessage({
+            action: 'return-initial-data',
+            data: this.initial_data,
+        });
+    };
+
     open(initial_data: any = {}) {
 
         this.initial_data = initial_data;
-
-        const postInitialData = () => {
-            this.panel.webview.postMessage({
-                action: 'return-initial-data',
-                data: initial_data,
-            });
-        };
 
         if (this.panel) {
             if (initial_data.uri) {
@@ -45,7 +52,7 @@ class QorusWebview {
             }
 
             this.panel.reveal(vscode.ViewColumn.One);
-            postInitialData();
+            this.postInitialData();
             return;
         }
 
@@ -181,11 +188,13 @@ class QorusWebview {
                             project.code_info.getObjects(message.object_type, this.panel.webview);
                             break;
                         case 'get-initial-data':
-                            postInitialData();
+                            this.postInitialData();
                             break;
                         case 'creator-create-interface':
+                            creator.editInterface(message.iface_kind, 'create', message.data);
+                            break;
                         case 'creator-edit-interface':
-                            creator.editInterface(message.iface_kind, message.data);
+                            creator.editInterface(message.iface_kind, 'edit', message.data);
                             break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
