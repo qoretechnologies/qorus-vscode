@@ -1,6 +1,5 @@
 import { commonFields } from './creator_common';
 
-
 let template: any = {};
 
 template.qore =
@@ -22,20 +21,6 @@ class ${this.class_name} extends ${this.base_class_name} {\n\
 ";
 
 export const job_template = template;
-
-export const defaultJobHeaders = data => {
-    switch (data.lang) {
-        case 'java': return {
-            'active': true,
-            'class-name': data.class_name,
-        };
-        default: return {
-            'active': true,
-            'class-based': true,
-            'class-name': data.class_name,
-        };
-    }
-};
 
 export const jobFields = default_target_dir => [
     ... commonFields(default_target_dir),
@@ -77,7 +62,6 @@ export const jobFields = default_target_dir => [
     },
     {
         name: 'schedule',
-        mandatory: false,
         type: 'cron',
     },
 ];

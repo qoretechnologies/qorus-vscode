@@ -1,45 +1,31 @@
-import { workspace, window, Position } from 'vscode';
+import { window, Position } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { qorus_webview } from '../QorusWebview';
-import { projects } from '../QorusProject';
-import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
-import { fillTemplate, createHeaders, createMethodHeaders, suffix, default_parse_options, } from './creator_common';
-import { service_class_template, service_method_template, default_service_methods, } from './service_code';
+import { InterfaceCreator } from './InterfaceCreator';
+import { fillTemplate } from './creator_common';
+import { service_class_template, service_method_template } from './service_code';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
 
-class ServiceCreator {
+class ServiceCreator extends InterfaceCreator {
+    constructor() {
+        super('.qsd');
+    }
 
     edit(data: any, edit_type: string) {
         if (!data.methods || !data.methods.length) {
-            data.methods = default_service_methods;
+            data.methods = [{
+                name: 'init',
+                desc: t`DefaultInitMethodDesc`,
+            }];
         }
 
-        const { target_dir, target_file, methods, ...header_data } = data;
+        const other_data = this.init(data);
+        const { methods, ...header_data } = other_data;
 
-        const target_file_base = target_file
-            ? path.basename(target_file, '.qsd')
-            : `${data.name}-${data.version}`;
-
-        const file_name = `${target_file_base}.qsd${suffix[data.lang]}`;
-        const yaml_file_name = `${target_file_base}.yaml`;
-
-        const file_path = path.join(target_dir, file_name);
-        const yaml_file_path = path.join(target_dir, yaml_file_name);
-
-        const headers_begin = { type: 'service' };
-        const headers_end = {
-            servicetype: 'USER',
-            code: file_name,
-        };
-
-        const headers = createHeaders(Object.assign(headers_begin, header_data, headers_end));
-
-        const code_info: QorusProjectCodeInfo = projects.currentProjectCodeInfo();
-        const service_info = code_info.serviceInfo(file_path);
-
+        const service_info = this.code_info.serviceInfo(this.file_path);
         const initial_data = qorus_webview.opening_data;
 
         let contents: string;
@@ -57,14 +43,13 @@ class ServiceCreator {
                 code_lines = this.renameClassAndBaseClass(code_lines, service_info, initial_data, header_data);
                 code_lines = this.renameServiceMethods(code_lines, service_info, method_renaming_map.renamed);
                 code_lines = this.removeServiceMethods(code_lines, service_info, method_renaming_map.removed);
-                contents = this.addServiceMethods(code_lines, data.lang, method_renaming_map.added);
+                contents = this.addServiceMethods(code_lines, method_renaming_map.added);
                 break;
             case 'create':
-                const code = this.code(data, methods);
-                contents = (data.lang === 'qore' ? default_parse_options + '\n' : '') + code;
-                message = t`2FilesCreatedInDir ${file_name} ${yaml_file_name} ${target_dir}`;
+                contents = this.code(data, methods);
+                message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
-            case 'delete':
+            case 'delete-method':
                 if (typeof(data.method_index) === 'undefined') {
                     break;
                 }
@@ -86,21 +71,15 @@ class ServiceCreator {
                 return;
         }
 
-        fs.writeFile(file_path, contents, err => {
-            if (err) {
-                msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
-                return;
-            }
-            workspace.openTextDocument(file_path).then(doc => window.showTextDocument(doc));
-        });
+        const headers_begin = { type: 'service' };
+        const headers_end = {
+            servicetype: 'USER',
+            code: this.file_name,
+        };
 
-        fs.writeFile(yaml_file_path, headers + createMethodHeaders(data.methods), err => {
-            if (err) {
-                msg.error(t`WriteFileError ${yaml_file_path} ${err.toString()}`);
-                return;
-            }
-            code_info.addSingleYamlInfo(yaml_file_path);
-        });
+        const headers = ServiceCreator.createHeaders(Object.assign(headers_begin, header_data, headers_end));
+
+        this.writeFiles(contents, headers + ServiceCreator.createMethodHeaders(data.methods));
 
         if (message) {
             msg.info(message);
@@ -115,11 +94,11 @@ class ServiceCreator {
         if (initial_data.service && initial_data.service.target_dir && initial_data.service.target_file) {
             const orig_file = path.join(initial_data.service.target_dir, initial_data.service.target_file);
 
-            if (orig_file === file_path) {
+            if (orig_file === this.file_path) {
                 return;
             }
 
-            const yaml_info = code_info.yaml_info_by_file[orig_file];
+            const yaml_info = this.code_info.yaml_info_by_file[orig_file];
             const orig_yaml_file = yaml_info && yaml_info.yaml_file;
 
             for (const file of [orig_file, orig_yaml_file]) {
@@ -240,13 +219,13 @@ class ServiceCreator {
         return lines;
     }
 
-    private addServiceMethods(lines: string[], lang: string, added: string[]): string {
+    private addServiceMethods(lines: string[], added: string[]): string {
         while (lines[lines.length - 1].trim() === '') {
             lines.pop();
         }
         let code = lines.splice(0, lines.length - 1).join('\n') + '\n';
         for (let name of added) {
-            code += '\n' + fillTemplate(service_method_template[lang], { name });
+            code += '\n' + fillTemplate(service_method_template, this.lang, false, { name });
         }
         code += lines[0] + '\n';
         return code;
@@ -273,22 +252,49 @@ class ServiceCreator {
                 return;
             }
 
-            this.edit(data, 'delete');
+            this.edit(data, 'delete-method');
         });
     }
 
     private code(data: any, method_objects: any[]): any {
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(fillTemplate(service_method_template[data.lang], { name: method.name }));
+            method_strings.push(fillTemplate(service_method_template, this.lang, false, { name: method.name }));
         }
         const methods = method_strings.join('\n');
 
-        return fillTemplate(service_class_template[data.lang], {
+        return fillTemplate(service_class_template, this.lang, true, {
             class_name: data.class_name,
             base_class_name: data.base_class_name,
             methods
         });
+    }
+
+    protected static createMethodHeaders = (methods: any): string => {
+        const list_indent = '  - ';
+        const indent = '    ';
+        let result: string = 'methods:\n';
+
+        for (let method of methods) {
+            result += `${list_indent}name: ${method.name}\n`
+            for (let tag in method) {
+                switch (tag) {
+                    case 'name':
+                    case 'orig_name':
+                        break;
+                    case 'author':
+                        result += `${indent}author:\n`;
+                        for (let author of method.author) {
+                            result += `${indent}${list_indent}${author.name}\n`;
+                        }
+                        break;
+                    default:
+                        result += `${indent}${tag}: ${method[tag]}\n`
+                }
+            }
+        }
+
+        return result;
     }
 }
 

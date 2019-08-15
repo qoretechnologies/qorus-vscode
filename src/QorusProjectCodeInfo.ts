@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as yaml from 'yamljs';
 import { qore_vscode } from './qore_vscode';
 import { QorusProject } from './QorusProject';
-import { filesInDir, canBeParsed, isServiceClass } from './qorus_utils';
+import { filesInDir, canBeParsed, isServiceClass, suffixToIfaceKind } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
 import { getSuffix } from './qorus_utils';
@@ -28,13 +28,13 @@ export interface QoreTextDocument {
 export class QorusProjectCodeInfo {
     private project: QorusProject;
     private pending: boolean = true;
-    private code_info: any = {};
+    private object_info: any = {};
     private yaml_data_by_file: any = {};
     private yaml_data_by_class: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
-    private service_info: any = {};
+    private code_info: any = {service: {}, job: {}};
     private service_classes = [root_service];
     private job_classes = [root_job];
     private workflow_classes = [root_workflow];
@@ -51,39 +51,43 @@ export class QorusProjectCodeInfo {
         return this.yaml_data_by_class;
     }
 
-    addServiceText(document: vscode.TextDocument) {
+    addText(document: vscode.TextDocument) {
         const file = document.uri.fsPath;
-        if (!this.service_info[file]) {
-            this.service_info[file] = {};
+        const iface_kind = suffixToIfaceKind(path.extname(file));
+
+        if (!this.code_info[iface_kind][file]) {
+            this.code_info[iface_kind][file] = {};
         }
-        this.service_info[file].text_lines = [];
+        this.code_info[iface_kind][file].text_lines = [];
         for (let i = 0; i < document.lineCount; i++) {
-            this.service_info[file].text_lines.push(document.lineAt(i).text);
+            this.code_info[iface_kind][file].text_lines.push(document.lineAt(i).text);
         }
     }
 
-    addServiceInfo(file: string, class_name_range: any, base_class_name_range: any) {
-        if (!this.service_info[file]) {
-            this.service_info[file] = {};
+    addClassInfo(file: string, class_name_range: any, base_class_name_range: any) {
+        const iface_kind = suffixToIfaceKind(path.extname(file));
+
+        if (!this.code_info[iface_kind][file]) {
+            this.code_info[iface_kind][file] = {};
         }
-        this.service_info[file].class_name_range = class_name_range;
-        this.service_info[file].base_class_name_range = base_class_name_range;
+        this.code_info[iface_kind][file].class_name_range = class_name_range;
+        this.code_info[iface_kind][file].base_class_name_range = base_class_name_range;
     }
 
     addServiceMethodInfo(file: string, method_name: string, decl_range: any, name_range: any) {
-        if (!this.service_info[file]) {
-            this.service_info[file] = {};
+        if (!this.code_info.service[file]) {
+            this.code_info.service[file] = {};
         }
-        if (!this.service_info[file].method_decl_ranges) {
-            this.service_info[file].method_decl_ranges = {};
-            this.service_info[file].method_name_ranges = {};
+        if (!this.code_info.service[file].method_decl_ranges) {
+            this.code_info.service[file].method_decl_ranges = {};
+            this.code_info.service[file].method_name_ranges = {};
         }
-        this.service_info[file].method_decl_ranges[method_name] = decl_range;
-        this.service_info[file].method_name_ranges[method_name] = name_range;
+        this.code_info.service[file].method_decl_ranges[method_name] = decl_range;
+        this.code_info.service[file].method_name_ranges[method_name] = name_range;
     }
 
     serviceInfo(file: string) {
-        return this.service_info[file];
+        return this.code_info.service[file];
     }
 
     baseClassName(class_name: string): string | undefined {
@@ -121,7 +125,7 @@ export class QorusProjectCodeInfo {
                 case 'group':
                 case 'tag':
                     return_type = 'objects';
-                    objects = this.code_info[object_type] || [];
+                    objects = this.object_info[object_type] || [];
                     break;
                 case 'resource':
                 case 'text-resource':
@@ -326,11 +330,11 @@ export class QorusProjectCodeInfo {
 
         const types = ['class', 'function', 'constant', 'mapper', 'value map'];
 
-        let code_info: any = {};
+        let object_info: any = {};
         for (let type of types) {
-            code_info[spaceToDash(type)] = {};
+            object_info[spaceToDash(type)] = {};
         }
-        code_info.author = {};
+        object_info.author = {};
 
         let num_pending = 0;
         let child_process_failed: boolean = false;
@@ -376,7 +380,7 @@ export class QorusProjectCodeInfo {
                     for (let obj of objects) {
                         const authors = obj.tags.author || obj.tags.serviceauthor || [];
                         for (const author of authors) {
-                            code_info.author[author] = { name: author };
+                            object_info.author[author] = { name: author };
                         }
 
                         if (!types.includes(obj.type)) {
@@ -386,15 +390,15 @@ export class QorusProjectCodeInfo {
                             continue;
                         }
 
-                        code_info[spaceToDash(obj.type)][obj.tags.name] = {
+                        object_info[spaceToDash(obj.type)][obj.tags.name] = {
                             name: obj.tags.name,
                             desc: obj.tags.desc,
                         };
                     }
                     if (--num_pending == 0) {
-                        this.code_info = {};
-                        for (let obj_type in code_info) {
-                            this.code_info[obj_type] = Object.keys(code_info[obj_type]).map(key => code_info[obj_type][key]);
+                        this.object_info = {};
+                        for (let obj_type in object_info) {
+                            this.object_info[obj_type] = Object.keys(object_info[obj_type]).map(key => object_info[obj_type][key]);
                         }
 
                         this.pending = false;

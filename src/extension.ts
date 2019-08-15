@@ -9,7 +9,7 @@ import { tester } from './QorusTest';
 import { tree } from './QorusTree';
 import { QorusCodeLensProvider } from './QorusCodeLensProvider';
 import { QorusHoverProvider } from './QorusHoverProvider';
-import { creator } from './qorus_creator/InterfaceCreator';
+import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import * as msg from './qorus_message';
 import { t, addLocale, useLocale } from 'ttag';
 import * as fs from 'fs';
@@ -73,16 +73,25 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.createInterface', (uri: vscode.Uri) => qorus_webview.open({
+    disposable = vscode.commands.registerCommand('qorus.createService', (uri: vscode.Uri) => qorus_webview.open({
         tab: 'CreateInterface',
+        subtab: 'service',
         uri,
     }));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.editService', (data: any) => qorus_webview.open({
+    disposable = vscode.commands.registerCommand('qorus.createJob', (uri: vscode.Uri) => qorus_webview.open({
         tab: 'CreateInterface',
-        subtab: 'service',
-        service: data,
+        subtab: 'job',
+        uri,
+    }));
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.editInterface',
+                                                 (data: any, iface_kind: string) => qorus_webview.open({
+        tab: 'CreateInterface',
+        subtab: iface_kind,
+        [iface_kind]: data,
     }));
     context.subscriptions.push(disposable);
 

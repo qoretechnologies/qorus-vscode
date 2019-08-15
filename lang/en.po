@@ -1066,6 +1066,9 @@ msgstr "Delete method"
 msgid "EditService"
 msgstr "Edit service"
 
+msgid "EditJob"
+msgstr "Edit job"
+
 msgid "SrcAndYamlMismatch ${ field } ${ src_file } ${ value1 } ${ value2 }"
 msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1 }, yaml info: ${ value2 }"
 
@@ -1149,3 +1152,6 @@ msgstr "Service method ${ method } has been deleted"
 
 msgid "ConfirmDeleteMethod ${ method }"
 msgstr "Do you really want to delete method ${ method }?"
+
+msgid "DefaultInitMethodDesc"
+msgstr "The init method"

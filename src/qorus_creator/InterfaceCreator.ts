@@ -1,33 +1,148 @@
-import { service_creator } from './ServiceCreator';
-import { serviceFields, service_methods } from './service_code';
-import { jobFields } from './job_code';
+import { workspace, window } from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
+import { projects } from '../QorusProject';
+import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { lang_suffix } from './creator_common';
+import { t } from 'ttag';
+import * as msg from '../qorus_message';
 
 
-class InterfaceCreator {
-    getFields(iface_kind: string, default_target_dir?: string): any[] {
-        switch (iface_kind) {
-            case 'service':
-                return serviceFields(default_target_dir);
-            case 'service-methods':
-                return service_methods;
-            case 'job':
-                return jobFields(default_target_dir);
-            default:
-                return [];
+export abstract class InterfaceCreator {
+    protected suffix: string;
+    protected lang: string;
+    protected target_dir: string;
+    protected target_file_base: string;
+    protected code_info: QorusProjectCodeInfo;
+
+    protected constructor(suffix: string) {
+        this.suffix = suffix;
+    }
+
+    protected init(data: any): any {
+        const { target_dir, target_file, ...other_data } = data;
+
+        this.target_dir = target_dir;
+        this.lang = data.lang || 'qore';
+
+        this.target_file_base = target_file
+            ? path.basename(target_file, this.suffix)
+            : `${data.name}-${data.version}`;
+
+        this.code_info = projects.currentProjectCodeInfo();
+        return other_data;
+    }
+
+    protected get file_name() {
+        return `${this.target_file_base}${this.suffix}${lang_suffix[this.lang]}`;
+    }
+
+    protected get yaml_file_name() {
+        return `${this.file_name}.yaml`;
+    }
+
+    protected get file_path() {
+        return path.join(this.target_dir, this.file_name);
+    }
+
+    protected get yaml_file_path() {
+        return path.join(this.target_dir, this.yaml_file_name);
+    }
+
+    protected writeFiles(contents: string, headers: string) {
+        fs.writeFile(this.file_path, contents, err => {
+            if (err) {
+                msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
+                return;
+            }
+            workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+        });
+
+        fs.writeFile(this.yaml_file_path, headers, err => {
+            if (err) {
+                msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
+                return;
+            }
+            this.code_info.addSingleYamlInfo(this.yaml_file_path);
+        });
+    }
+
+    protected static createHeaders = (headers: any): string => {
+        const list_indent = '  - ';
+        const indent = '    ';
+        let result: string = '';
+
+        for (let key in headers) {
+            const value = headers[key];
+            if (!value) {
+                continue;
+            }
+
+            const tag = key.replace(/_/g, '-');
+
+            if (Array.isArray(value)) {
+                switch (key) {
+                    case 'groups':
+                        result += 'groups:\n';
+                        for (let item of value) {
+                            result += `${list_indent}${item.name}\n`;
+                        }
+                        break;
+                    case 'tags':
+                        result += 'tags:\n';
+                        for (let item of value) {
+                            result += `${indent}${item.key}: ${item.value}\n`;
+                        }
+                        break;
+                    case 'define_auth_label':
+                        result += `${tag}:\n`;
+                        for (let item of value) {
+                            result += `${indent}${item.label}: ${item.value}\n`;
+                        }
+                        break;
+                    case 'author':
+                    case 'classes':
+                    case 'constants':
+                    case 'functions':
+                    case 'vmaps':
+                    case 'mappers':
+                        result += `${tag}:\n`;
+                        for (let item of value) {
+                            result += `${list_indent}${item.name}\n`;
+                        }
+                        break;
+                    case 'resource':
+                    case 'text_resource':
+                    case 'bin_resource':
+                    case 'template':
+                        result += `${tag}:\n`;
+                        for (let item of value) {
+                            result += `${list_indent}${item}\n`;
+                        }
+                        break;
+                }
+            }
+            else {
+                switch (key) {
+                    case 'orig_name':
+                        break;
+                    case 'schedule':
+                        const cron_values = value.split(' ');
+                        if (cron_values.length !== 5) {
+                            break;
+                        }
+                        const cron_items = ['minutes', 'hours', 'days', 'months', 'dow'];
+                        result += `${tag}:\n`;
+                        for (let i = 0; i < 5; i++) {
+                            result += `${indent}${cron_items[i]}: "${cron_values[i]}"\n`;
+                        }
+                        break;
+                    default:
+                        result += `${tag}: ${value}\n`;
+                }
+            }
         }
-    }
 
-    editInterface(iface_kind: string, edit_type: string, data: any) {
-        switch (iface_kind) {
-            case 'service':
-                service_creator.edit(data, edit_type);
-                break;
-        }
+        return result;
     }
-
-    deleteServiceMethod(data: any) {
-        service_creator.deleteMethod(data);
-    }
-}
-
-export const creator = new InterfaceCreator();
+};

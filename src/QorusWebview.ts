@@ -7,7 +7,7 @@ import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
-import { creator } from './qorus_creator/InterfaceCreator';
+import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
 
 class QorusWebview {
     private panel: vscode.WebviewPanel | undefined = undefined;
