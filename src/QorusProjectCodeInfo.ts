@@ -86,8 +86,8 @@ export class QorusProjectCodeInfo {
         this.code_info.service[file].method_name_ranges[method_name] = name_range;
     }
 
-    serviceInfo(file: string) {
-        return this.code_info.service[file];
+    codeInfo(iface_kind: string, file: string) {
+        return this.code_info[iface_kind][file];
     }
 
     baseClassName(class_name: string): string | undefined {

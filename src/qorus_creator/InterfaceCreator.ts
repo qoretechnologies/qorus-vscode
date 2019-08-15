@@ -1,4 +1,4 @@
-import { workspace, window } from 'vscode';
+import { workspace, window, Position } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { projects } from '../QorusProject';
@@ -65,6 +65,28 @@ export abstract class InterfaceCreator {
             }
             this.code_info.addSingleYamlInfo(this.yaml_file_path);
         });
+    }
+
+    protected renameClassAndBaseClass(lines: string[], code_info: any, initial_data: any, header_data): string[] {
+        const {
+            class_name: orig_class_name,
+            base_class_name: orig_base_class_name
+        } = initial_data.service;
+        const { class_name, base_class_name } = header_data;
+
+        const replace = (position: Position, orig_name: string, name: string) => {
+            let chars = lines[position.line].split('');
+            chars.splice(position.character, orig_name.length, name);
+            lines[position.line] = chars.join('');
+        }
+
+        if (base_class_name !== orig_base_class_name) {
+            replace(code_info.base_class_name_range.start, orig_base_class_name, base_class_name);
+        }
+        if (class_name !== orig_class_name) {
+            replace(code_info.class_name_range.start, orig_class_name, class_name);
+        }
+        return lines;
     }
 
     protected static createHeaders = (headers: any): string => {

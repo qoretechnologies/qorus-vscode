@@ -1,4 +1,4 @@
-import { window, Position } from 'vscode';
+import { window } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { qorus_webview } from '../QorusWebview';
@@ -25,7 +25,7 @@ class ServiceCreator extends InterfaceCreator {
         const other_data = this.init(data);
         const { methods, ...header_data } = other_data;
 
-        const service_info = this.code_info.serviceInfo(this.file_path);
+        const service_info = this.code_info.codeInfo('service', this.file_path);
         const initial_data = qorus_webview.opening_data;
 
         let contents: string;
@@ -148,28 +148,6 @@ class ServiceCreator extends InterfaceCreator {
         }
 
         return mapping;
-    }
-
-    private renameClassAndBaseClass(lines: string[], service_info: any, initial_data: any, header_data): string[] {
-        const {
-            class_name: orig_class_name,
-            base_class_name: orig_base_class_name
-        } = initial_data.service;
-        const { class_name, base_class_name } = header_data;
-
-        const replace = (position: Position, orig_name: string, name: string) => {
-            let chars = lines[position.line].split('');
-            chars.splice(position.character, orig_name.length, name);
-            lines[position.line] = chars.join('');
-        }
-
-        if (base_class_name !== orig_base_class_name) {
-            replace(service_info.base_class_name_range.start, orig_base_class_name, base_class_name);
-        }
-        if (class_name !== orig_class_name) {
-            replace(service_info.class_name_range.start, orig_class_name, class_name);
-        }
-        return lines;
     }
 
     private renameServiceMethods(lines: string[], service_info: any, renaming: any): string[] {
