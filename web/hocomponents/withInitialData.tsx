@@ -7,16 +7,16 @@ import { Messages } from '../constants/messages';
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [initialData, setInitialData] = useState<any>({
-            tab: 'CreateInterface',
-            subtab: 'workflows',
+            tab: 'ProjectConfig',
         });
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
                 setInitialData(null);
 
-                data.tab = 'CreateInterface';
-                data.subtab = 'workflows';
+                if (!data.tab) {
+                    data.tab = 'ProjectConfig';
+                }
 
                 setInitialData(data);
             });

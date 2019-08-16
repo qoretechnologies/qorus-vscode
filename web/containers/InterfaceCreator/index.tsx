@@ -8,6 +8,7 @@ import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
 import ServicesView from './servicesView';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+// import StepsCreator from './stepsCreator';
 
 export interface ICreateInterface {
     targetDir: string;
@@ -19,7 +20,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
     return (
         <Box fill>
             <Tabs
-                defaultSelectedTabId={'services'}
+                defaultSelectedTabId={initialData.subtab}
                 id={'CreateInterfaceTabs'}
                 renderActiveTabPanelOnly
                 className={'fullHeightTabs'}
@@ -30,6 +31,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                     className={'flex-column flex-auto'}
                     panel={<ServicesView service={initialData.service} />}
                 />
+                {/*<Tab id={'testing'} title={t('Workflows')} panel={<StepsCreator />} />*/}
                 <Tab
                     id={'workflows'}
                     title={t('Workflows')}
@@ -38,7 +40,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                 <Tab
                     id={'jobs'}
                     title={t('Jobs')}
-                    panel={<InterfaceCreatorPanel type={'job'} data={initialData.job} />}
+                    panel={<InterfaceCreatorPanel type={'job'} data={initialData.job} isEditing={!!initialData.job} />}
                 />
             </Tabs>
         </Box>
