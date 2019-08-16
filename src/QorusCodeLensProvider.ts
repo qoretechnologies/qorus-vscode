@@ -129,8 +129,8 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 cloned_data.methods = [...cloned_data.methods || [], {name: '', desc: ''}];
                 lenses.push(new vscode.CodeLens(range, {
                     title: t`AddMethod`,
-                    command: 'qorus.editService',
-                    arguments: [{ ...cloned_data, active_method: cloned_data.methods.length }],
+                    command: 'qorus.editInterface',
+                    arguments: [{ ...cloned_data, active_method: cloned_data.methods.length }, 'service'],
                 }));
                 break;
             case 'job':
@@ -161,8 +161,8 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         lenses.push(new vscode.CodeLens(loc, {
             title: t`EditMethod`,
-            command: 'qorus.editService',
-            arguments: [{ ...data, active_method: method_index + 1 }],
+            command: 'qorus.editInterface',
+            arguments: [{ ...data, active_method: method_index + 1 }, 'service'],
         }));
 
         lenses.push(new vscode.CodeLens(loc, {
