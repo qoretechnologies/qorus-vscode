@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as yaml from 'yamljs';
 import { qore_vscode } from './qore_vscode';
 import { QorusProject } from './QorusProject';
-import { filesInDir, canBeParsed, isServiceClass, suffixToIfaceKind } from './qorus_utils';
+import { filesInDir, canBeParsed, isInterfaceClass, suffixToIfaceKind } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
 import { getSuffix } from './qorus_utils';
@@ -243,7 +243,7 @@ export class QorusProjectCodeInfo {
                 continue;
             }
 
-            let files = filesInDir(full_dir, isServiceClass);
+            let files = filesInDir(full_dir, isInterfaceClass);
             for (let file of files) {
                 num_pending++;
 
