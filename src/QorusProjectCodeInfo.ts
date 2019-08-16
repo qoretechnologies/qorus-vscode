@@ -109,11 +109,15 @@ export class QorusProjectCodeInfo {
             switch (object_type) {
                 case 'service-base-class':
                     return_type = 'objects';
-                    objects = this.addDescToBaseClasses(this.service_classes);
+                    objects = this.addDescToBaseClasses(this.service_classes, root_service, t`RootServiceDesc`);
                     break;
                 case 'job-base-class':
                     return_type = 'objects';
-                    objects = this.addDescToBaseClasses(this.job_classes);
+                    objects = this.addDescToBaseClasses(this.job_classes, root_job, t`RootJobDesc`);
+                    break;
+                case 'workflow-base-class':
+                    return_type = 'objects';
+                    objects = this.addDescToBaseClasses(this.workflow_classes, root_job, t`RootWorkflowDesc`);
                     break;
                 case 'author':
                 case 'function':
@@ -153,21 +157,18 @@ export class QorusProjectCodeInfo {
     }
 
     update() {
-        this.updateFileTree();
-
         this.project.validateConfigFileAndDo(file_data => {
             if (file_data.source_directories.length === 0) {
                 this.pending = false;
                 return;
             }
 
-            this.updateYamlInfo(file_data.source_directories);
-
-            this.updateBaseClassesInfo(file_data.source_directories);
-
             setTimeout(() => {
+                this.updateFileTree(file_data.source_directories);
+                this.updateYamlInfo(file_data.source_directories);
+                this.updateBaseClassesInfo(file_data.source_directories);
                 this.updateObjects(file_data.source_directories);
-            }, 100);
+            }, 0);
 
             msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
             this.pending = true;
@@ -222,11 +223,11 @@ export class QorusProjectCodeInfo {
         baseClasses(this.workflow_classes, Object.assign({}, this.inheritance_pairs));
     }
 
-    private addDescToBaseClasses(base_classes: string[]): any[] {
+    private addDescToBaseClasses(base_classes: string[], root_class: string, root_class_desc: string): any[] {
         let ret_val = [];
         for (const base_class of base_classes) {
-            const desc = base_class === root_service
-                ? t`RootServiceDesc`
+            const desc = base_class === root_class
+                ? root_class_desc
                 : this.yaml_data_by_class[base_class]
                     ? this.yaml_data_by_class[base_class].desc
                     : undefined;
@@ -279,7 +280,7 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    private updateFileTree() {
+    private updateFileTree(source_directories: string[]) {
         const dirItem = (abs_path: string, only_dirs: boolean, is_root: boolean = false) => ({
             abs_path,
             rel_path: is_root ? '.' : vscode.workspace.asRelativePath(abs_path, false),
@@ -305,24 +306,21 @@ export class QorusProjectCodeInfo {
             }
         };
 
-        this.project.validateConfigFileAndDo(config_file_data => {
-            let file_tree: any = dirItem(this.project.folder, false, true);
-            let dir_tree: any = dirItem(this.project.folder, true, true);
+        let file_tree: any = dirItem(this.project.folder, false, true);
+        let dir_tree: any = dirItem(this.project.folder, true, true);
 
-            for (let dir of config_file_data.source_directories) {
+        for (let dir of source_directories) {
+            let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
+            file_tree.dirs.push(file_tree_root);
+            subDirRecursion(file_tree_root, false);
 
-                let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
-                file_tree.dirs.push(file_tree_root);
-                subDirRecursion(file_tree_root, false);
+            let dir_tree_root = dirItem(path.join(this.project.folder, dir), true);
+            dir_tree.dirs.push(dir_tree_root);
+            subDirRecursion(dir_tree_root, true);
+        }
 
-                let dir_tree_root = dirItem(path.join(this.project.folder, dir), true);
-                dir_tree.dirs.push(dir_tree_root);
-                subDirRecursion(dir_tree_root, true);
-            }
-
-            this.file_tree = file_tree;
-            this.dir_tree = dir_tree;
-        });
+        this.file_tree = file_tree;
+        this.dir_tree = dir_tree;
     }
 
     private updateObjects(source_directories: string[]) {
