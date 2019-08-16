@@ -20,7 +20,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
     return (
         <Box fill>
             <Tabs
-                defaultSelectedTabId={initialData.subtab}
+                defaultSelectedTabId={initialData.subtab || 'services'}
                 id={'CreateInterfaceTabs'}
                 renderActiveTabPanelOnly
                 className={'fullHeightTabs'}
