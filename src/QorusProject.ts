@@ -88,7 +88,7 @@ export class QorusProject {
         }
     }
 
-    addSourceDir(webview: vscode.Webview) {
+    addSourceDir() {
         this.validateConfigFileAndDo(file_data => {
             vscode.window.showOpenDialog({
                 canSelectFiles: false,
@@ -109,25 +109,25 @@ export class QorusProject {
                     return;
                 }
                 file_data.source_directories.push(dir);
-                this.writeConfig(file_data, webview);
+                this.writeConfig(file_data);
             });
         });
     }
 
-    removeSourceDir(dir: string, webview: vscode.Webview) {
+    removeSourceDir(dir: string) {
         this.validateConfigFileAndDo(file_data => {
             const index = file_data.source_directories.indexOf(dir);
             if (index > -1) {
                 file_data.source_directories.splice(index, 1);
-                this.writeConfig(file_data, webview);
+                this.writeConfig(file_data);
             }
         });
     }
 
-    getConfigForWebview(webview: vscode.Webview) {
+    getConfigForWebview() {
         this.createConfigFileIfNotExists();
         this.validateConfigFileAndDo(file_data => {
-            webview.postMessage({
+            qorus_webview.postMessage({
                 action: 'config-return-data',
                 data: QorusProject.file2data(file_data)
             });
@@ -140,14 +140,12 @@ export class QorusProject {
         this.writeConfig(file_data);
     }
 
-    private writeConfig(file_data: any, webview: vscode.Webview = undefined) {
+    private writeConfig(file_data: any) {
         fs.writeFileSync(this.config_file, JSON.stringify(file_data, null, 4) + '\n');
-        if (webview) {
-            webview.postMessage({
-                action: 'config-return-data',
-                data: QorusProject.file2data(file_data)
-            });
-        }
+        qorus_webview.postMessage({
+            action: 'config-return-data',
+            data: QorusProject.file2data(file_data)
+        });
     }
 
     static file2data(file_data?: any): any {

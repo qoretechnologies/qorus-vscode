@@ -21,13 +21,11 @@ class QorusWebview {
 
     set opening_data(data: any) {
         this.initial_data = data;
-        if (this.panel) {
-            this.postInitialData();
-        }
+        this.postInitialData();
     }
 
     private postInitialData = () => {
-        this.panel.webview.postMessage({
+        this.postMessage({
             action: 'return-initial-data',
             data: this.initial_data,
         });
@@ -122,7 +120,7 @@ class QorusWebview {
                             });
                             break;
                         case 'login-submit':
-                            qorus_request.loginPost(message.username, message.password, this.panel.webview);
+                            qorus_request.loginPost(message.username, message.password);
                             break;
                         case 'login-cancel':
                             msg.info(t`LoginCancelled`);
@@ -131,7 +129,7 @@ class QorusWebview {
                             });
                             break;
                         case 'config-get-data':
-                            project.getConfigForWebview(this.panel.webview);
+                            project.getConfigForWebview();
                             break;
                         case 'config-update-data':
                             this.message_on_config_file_change = false;
@@ -139,38 +137,38 @@ class QorusWebview {
                             break;
                         case 'config-add-dir':
                             this.message_on_config_file_change = false;
-                            project.addSourceDir(this.panel.webview);
+                            project.addSourceDir();
                             break;
                         case 'config-remove-dir':
                             this.message_on_config_file_change = false;
-                            project.removeSourceDir(message.dir, this.panel.webview);
+                            project.removeSourceDir(message.dir);
                             break;
                         case 'get-interfaces':
-                            deleter.getInterfaces(message.iface_kind, message.columns, this.panel.webview);
+                            deleter.getInterfaces(message.iface_kind, message.columns);
                             break;
                         case 'delete-interfaces':
-                            deleter.deleteInterfaces(message.iface_kind, message.ids, this.panel.webview);
+                            deleter.deleteInterfaces(message.iface_kind, message.ids);
                             break;
                         case 'release-get-branch':
-                            releaser.makeRelease(this.panel.webview);
+                            releaser.makeRelease();
                             break;
                         case 'release-get-commits':
-                            releaser.getCommits(this.panel.webview, message.filters);
+                            releaser.getCommits(message.filters);
                             break;
                         case 'release-get-diff':
-                            releaser.getDiff(this.panel.webview, message.commit);
+                            releaser.getDiff(message.commit);
                             break;
                         case 'release-create-package':
-                            releaser.createPackage(this.panel.webview, message.full);
+                            releaser.createPackage(message.full);
                             break;
                         case 'release-deploy-package':
-                            releaser.deployPackage(this.panel.webview);
+                            releaser.deployPackage();
                             break;
                         case 'release-get-package':
-                            releaser.getPackage(this.panel.webview);
+                            releaser.getPackage();
                             break;
                         case 'release-save-package':
-                            releaser.savePackage(this.panel.webview);
+                            releaser.savePackage();
                             break;
                         case 'creator-get-fields':
                             this.panel.webview.postMessage({
@@ -185,7 +183,7 @@ class QorusWebview {
                         case 'creator-get-objects':
                         case 'creator-get-resources':
                         case 'creator-get-directories':
-                            project.code_info.getObjects(message.object_type, this.panel.webview);
+                            project.code_info.getObjects(message.object_type);
                             break;
                         case 'get-initial-data':
                             this.postInitialData();
@@ -208,6 +206,19 @@ class QorusWebview {
         );
     }
 
+    postMessage(message: any) {
+        this.postMessages([message]);
+    }
+
+    postMessages(messages: any[]) {
+        if (!this.panel) {
+            return;
+        }
+        for (const message of messages) {
+            this.panel.webview.postMessage(message);
+        }
+    }
+
     dispose() {
         if (this.panel) {
             this.panel.dispose();
@@ -217,11 +228,7 @@ class QorusWebview {
     }
 
     setCurrentProjectFolder(project_folder: string | undefined) {
-        if (!this.panel) {
-            return;
-        }
-
-        this.panel.webview.postMessage({
+        this.postMessage({
             action: 'current-project-folder',
             folder: project_folder,
         });
@@ -232,17 +239,17 @@ class QorusWebview {
         if (url) {
             qorus_instance = tree.getQorusInstance(url);
         }
-        this.panel.webview.postMessage({
+        this.postMessage({
             action: 'current-qorus-instance',
             qorus_instance: qorus_instance,
         });
     }
 
     private setActiveTab(tab?: string) {
-        if (!tab || !this.panel) {
+        if (!tab) {
             return;
         }
-        this.panel.webview.postMessage({
+        this.postMessage({
             action: 'set-active-tab',
             tab,
         });

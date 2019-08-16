@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as yaml from 'yamljs';
 import { qore_vscode } from './qore_vscode';
 import { QorusProject } from './QorusProject';
+import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, isInterfaceClass, suffixToIfaceKind } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
@@ -94,7 +95,7 @@ export class QorusProjectCodeInfo {
         return this.inheritance_pairs[class_name];
     }
 
-    getObjects(object_type: string, webview: vscode.Webview) {
+    getObjects(object_type: string) {
         let return_type: string;
         let interval_id: any;
 
@@ -146,7 +147,7 @@ export class QorusProjectCodeInfo {
                     objects = [];
             }
 
-            webview.postMessage({
+            qorus_webview.postMessage({
                 action: 'creator-return-' + return_type,
                 object_type,
                 [return_type]: objects

@@ -7,6 +7,7 @@ import { projects, QorusProject } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
 import { deployer } from './QorusDeploy';
+import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
 import { filesInDir, isDeployable } from './qorus_utils';
 import { t } from 'ttag';
@@ -20,7 +21,7 @@ class QorusRelease {
     private files: string[] = [];
     private package_path = null;
 
-    makeRelease(webview?: vscode.Webview) {
+    makeRelease() {
         const project: QorusProject | undefined = projects.getProject();
         if (!project || !project.configFileExists()) {
             msg.error(t`QorusProjectNotSet`);
@@ -34,7 +35,7 @@ class QorusRelease {
 
             this.repository.init(this.project_folder).then(
                 () => {
-                    this.getCurrentBranch(webview);
+                    this.getCurrentBranch();
                 },
                 (error: string) => {
                     msg.error(error);
@@ -56,7 +57,7 @@ class QorusRelease {
         }
     }
 
-    private createReleaseFile(webview?: vscode.Webview): any {
+    private createReleaseFile(): any {
         const timestamp = moment().format('YYYYMMDDHHmmss');
         const tmp_dir = require('os-tmpdir')();
         const project = path.basename(this.project_folder);
@@ -81,12 +82,10 @@ class QorusRelease {
             fs.writeFileSync(path_tarbz2, compressed);
             fs.unlinkSync(path_tar);
             fs.unlinkSync(path_qrf);
-            if (webview) {
-                webview.postMessage({
-                    action: 'release-package-created',
-                    package_path: path_tarbz2
-                });
-            }
+            qorus_webview.postMessage({
+                action: 'release-package-created',
+                package_path: path_tarbz2
+            });
         });
         archiver.pipe(tar_output);
 
@@ -99,61 +98,59 @@ class QorusRelease {
         archiver.finalize();
     }
 
-    private checkUpToDate(webview?: vscode.Webview) {
+    private checkUpToDate() {
         const branch = this.repository.currentBranch();
         if (!branch.up_to_date) {
-            if (webview) {
-                webview.postMessage({
-                    action: 'release-branch-not-up-to-date',
-                    branch: branch
-                });
-            }
+            qorus_webview.postMessage({
+                action: 'release-branch-not-up-to-date',
+                branch: branch
+            });
             return false;
         }
         return true;
     }
 
-    getCurrentBranch(webview: vscode.Webview) {
-        if (this.checkUpToDate(webview)) {
-            webview.postMessage({
+    getCurrentBranch() {
+        if (this.checkUpToDate()) {
+            qorus_webview.postMessage({
                 action: 'release-return-branch',
                 branch: this.repository.currentBranch()
             });
         }
     }
 
-    getCommits(webview: vscode.Webview, filters: any) {
-        webview.postMessage({
+    getCommits(filters: any) {
+        qorus_webview.postMessage({
             action: 'release-return-commits',
             commits: this.repository.commits(filters.hash, filters.branch, filters.tag)
         });
     }
 
-    getDiff(webview: vscode.Webview, commit: any) {
+    getDiff(commit: any) {
         this.repository.changedFiles(commit,
                                      this.project_folder,
                                      this.source_directories)
         .then(
             (files: string[]) => {
                 this.files = files;
-                webview.postMessage({action: 'release-return-diff', commit, files});
+                qorus_webview.postMessage({action: 'release-return-diff', commit, files});
             }
         );
     }
 
-    createPackage(webview: vscode.Webview, full: boolean = true) {
-        if (this.checkUpToDate(webview)) {
+    createPackage(full: boolean = true) {
+        if (this.checkUpToDate()) {
             if (full) {
                 this.setAllFiles();
             }
-            this.createReleaseFile(webview);
+            this.createReleaseFile();
         }
     }
 
-    deployPackage(webview: vscode.Webview) {
-        if (this.checkUpToDate(webview)) {
+    deployPackage() {
+        if (this.checkUpToDate()) {
             deployer.deployPackage(this.package_path).then(result => {
-                webview.postMessage({
+                qorus_webview.postMessage({
                     action: 'release-deployment-result',
                     result: result
                 });
@@ -161,7 +158,7 @@ class QorusRelease {
         }
     }
 
-    getPackage(webview: vscode.Webview) {
+    getPackage() {
         vscode.window.showOpenDialog({
             filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']}
         }).then(files => {
@@ -169,14 +166,14 @@ class QorusRelease {
                 return;
             }
             this.package_path = files[0].fsPath;
-            webview.postMessage({
+            qorus_webview.postMessage({
                 action: 'release-return-package',
                 package_path: this.package_path
             });
         });
     }
 
-    savePackage(webview: vscode.Webview) {
+    savePackage() {
         vscode.window.showSaveDialog({
             filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']},
             defaultUri: vscode.Uri.file(path.join(os.homedir(), path.basename(this.package_path)))
@@ -186,7 +183,7 @@ class QorusRelease {
                     msg.error(t`ReleaseFileSaveError ${error}`);
                     return;
                 }
-                webview.postMessage({
+                qorus_webview.postMessage({
                     action: 'release-package-saved',
                     saved_path: file.fsPath
                 });

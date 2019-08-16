@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 import * as request from 'request-promise';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
+import { qorus_webview } from './QorusWebview';
 import { t } from 'ttag';
 
 
 class QorusDelete {
     private interfaces = {};
 
-    deleteInterfaces(iface_kind: string, ids: string[], webview: vscode.Webview = null) {
+    deleteInterfaces(iface_kind: string, ids: string[]) {
         const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             return;
@@ -64,19 +65,17 @@ class QorusDelete {
         };
 
         qorus_request.doRequestAndCheckResult(options, texts, () => {
-            if (webview) {
-                webview.postMessage({
-                    action: 'deletion-finished',
-                    iface_kind: iface_kind
-                });
-            }
+            qorus_webview.postMessage({
+                action: 'deletion-finished',
+                iface_kind: iface_kind
+            });
         });
     }
 
-    getInterfaces(iface_kind: string, keys: string[], webview: vscode.Webview) {
+    getInterfaces(iface_kind: string, keys: string[]) {
         const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
-            webview.postMessage({
+            qorus_webview.postMessage({
                 action: 'return-interfaces',
                 iface_kind: iface_kind,
                 data: []
@@ -133,7 +132,7 @@ class QorusDelete {
             json: true
         }).then(
             (full_data: any) => {
-                webview.postMessage({
+                qorus_webview.postMessage({
                     action: 'return-interfaces',
                     iface_kind: iface_kind,
                     data: iface_kind === 'services'

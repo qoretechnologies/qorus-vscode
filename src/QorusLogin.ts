@@ -35,7 +35,7 @@ export class QorusLogin extends QorusAuth {
         qorus_webview.open('Login');
     }
 
-    loginPost(username: string, password: string, webview: vscode.Webview = null) {
+    loginPost(username: string, password: string) {
         if (!this.current_login_params.qorus_instance) {
             return;
         }
@@ -56,21 +56,17 @@ export class QorusLogin extends QorusAuth {
                 this.addToken(qorus_instance.url, token, set_active);
                 tree.refresh();
                 msg.info(t`LoginSuccessful`);
-                if (webview) {
-                    webview.postMessage({
-                        action: 'close-login',
-                        qorus_instance: set_active ? qorus_instance : null
-                    });
-                }
+                qorus_webview.postMessage({
+                    action: 'close-login',
+                    qorus_instance: set_active ? qorus_instance : null
+                });
             },
             error => {
                 this.requestError(error, t`LoginError`);
-                if (webview) {
-                    webview.postMessage({
-                        action: 'login-error',
-                        error: t`AuthFailed`
-                    });
-                }
+                qorus_webview.postMessage({
+                    action: 'login-error',
+                    error: t`AuthFailed`
+                });
             }
         );
     }
