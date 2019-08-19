@@ -34,7 +34,8 @@ class JobCreator extends InterfaceCreator {
                     return;
                 }
                 code_lines = job_info.text_lines;
-                code_lines = this.renameClassAndBaseClass(code_lines, job_info, initial_data, header_data);
+                code_lines = this.renameClassAndBaseClass(code_lines, job_info, initial_data.job, header_data);
+                contents = code_lines.join('\n') + '\n';
                 break;
             default:
                 msg.error(t`UnknownEditType`);

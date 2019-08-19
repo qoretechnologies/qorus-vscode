@@ -71,7 +71,7 @@ export abstract class InterfaceCreator {
         const {
             class_name: orig_class_name,
             base_class_name: orig_base_class_name
-        } = initial_data.service;
+        } = initial_data;
         const { class_name, base_class_name } = header_data;
 
         const replace = (position: Position, orig_name: string, name: string) => {
