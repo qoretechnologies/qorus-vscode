@@ -1,6 +1,4 @@
 import { window } from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { fillTemplate } from './creator_common';
@@ -25,8 +23,8 @@ class ServiceCreator extends InterfaceCreator {
         const other_data = this.init(data);
         const { methods, ...header_data } = other_data;
 
-        const service_info = this.code_info.codeInfo('service', this.file_path);
         const initial_data = qorus_webview.opening_data;
+        const service_info = this.code_info.codeInfo('service', this.origPath(initial_data.service) || this.file_path);
 
         let contents: string;
         let message: string;
@@ -61,9 +59,6 @@ class ServiceCreator extends InterfaceCreator {
                 data.methods.splice(data.method_index, 1);
 
                 data.active_method = data.methods.length - 1;
-                delete data.method_index;
-                delete data.servicetype;
-                delete data.yaml_file;
 
                 break;
             default:
@@ -85,36 +80,16 @@ class ServiceCreator extends InterfaceCreator {
             msg.info(message);
         }
 
+        delete data.method_index;
+        delete data.servicetype;
+        delete data.yaml_file;
         qorus_webview.opening_data = {
             tab: 'CreateInterface',
             subtab: 'service',
             service: data
         };
 
-        if (initial_data.service && initial_data.service.target_dir && initial_data.service.target_file) {
-            const orig_file = path.join(initial_data.service.target_dir, initial_data.service.target_file);
-
-            if (orig_file === this.file_path) {
-                return;
-            }
-
-            const yaml_info = this.code_info.yaml_info_by_file[orig_file];
-            const orig_yaml_file = yaml_info && yaml_info.yaml_file;
-
-            for (const file of [orig_file, orig_yaml_file]) {
-                if (!file) {
-                    continue;
-                }
-                fs.unlink(file, err => {
-                    if (err) {
-                        msg.error(t`RemoveFileError ${file} ${err.toString()}`);
-                    }
-                    else {
-                        msg.info(t`OrigFileRemoved ${file}`);
-                    }
-                });
-            }
-        }
+        this.deleteOrigFilesIfDifferent(initial_data.service);
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {

@@ -14,8 +14,8 @@ class JobCreator extends InterfaceCreator {
     edit(data: any, edit_type: string) {
         const header_data = this.init(data);
 
-        const job_info = this.code_info.codeInfo('job', this.file_path);
         const initial_data = qorus_webview.opening_data;
+        const job_info = this.code_info.codeInfo('job', this.origPath(initial_data.job) || this.file_path);
 
         let contents: string;
         let message: string;
@@ -51,6 +51,15 @@ class JobCreator extends InterfaceCreator {
         if (message) {
             msg.info(message);
         }
+
+        delete data.yaml_file;
+        qorus_webview.opening_data = {
+            tab: 'CreateInterface',
+            subtab: 'job',
+            job: data
+        };
+
+        this.deleteOrigFilesIfDifferent(initial_data.job);
     }
 }
 

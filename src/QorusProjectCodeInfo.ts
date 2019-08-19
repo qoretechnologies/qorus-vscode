@@ -96,7 +96,6 @@ export class QorusProjectCodeInfo {
     }
 
     getObjects(object_type: string) {
-        let return_type: string;
         let interval_id: any;
 
         const getObjectsCheckPending = () => {
@@ -106,6 +105,7 @@ export class QorusProjectCodeInfo {
 
             clearInterval(interval_id);
 
+            let return_type: string;
             let objects: any[] = [];
             switch (object_type) {
                 case 'service-base-class':

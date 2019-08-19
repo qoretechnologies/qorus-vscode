@@ -167,4 +167,37 @@ export abstract class InterfaceCreator {
 
         return result;
     }
+
+    protected deleteOrigFilesIfDifferent(initial_data: any) {
+        const orig_file = this.origPath(initial_data);
+
+        if (!orig_file || orig_file === this.file_path) {
+            return;
+        }
+
+        const yaml_info = this.code_info.yaml_info_by_file[orig_file];
+        const orig_yaml_file = yaml_info && yaml_info.yaml_file;
+
+        for (const file of [orig_file, orig_yaml_file]) {
+            if (!file) {
+                continue;
+            }
+            fs.unlink(file, err => {
+                if (err) {
+                    msg.error(t`RemoveFileError ${file} ${err.toString()}`);
+                }
+                else {
+                    msg.info(t`OrigFileRemoved ${file}`);
+                }
+            });
+        }
+    }
+
+    protected origPath(initial_data: any): string | undefined {
+        if (!initial_data || !initial_data.target_dir || !initial_data.target_file) {
+            return undefined;
+        }
+
+        return path.join(initial_data.target_dir, initial_data.target_file);
+    }
 };
