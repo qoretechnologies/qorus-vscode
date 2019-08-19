@@ -652,6 +652,15 @@ msgstr "Services"
 msgid "Jobs"
 msgstr "Jobs"
 
+msgid "Workflow"
+msgstr "Workflow"
+
+msgid "Service"
+msgstr "Service"
+
+msgid "Job"
+msgstr "Job"
+
 msgid "Classes"
 msgstr "Classes"
 

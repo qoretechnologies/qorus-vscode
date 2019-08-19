@@ -20,26 +20,26 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
     return (
         <Box fill>
             <Tabs
-                defaultSelectedTabId={initialData.subtab || 'services'}
+                defaultSelectedTabId={initialData.subtab || 'service'}
                 id={'CreateInterfaceTabs'}
                 renderActiveTabPanelOnly
                 className={'fullHeightTabs'}
             >
                 <Tab
-                    id={'services'}
-                    title={t('Services')}
+                    id={'service'}
+                    title={t('Service')}
                     className={'flex-column flex-auto'}
                     panel={<ServicesView service={initialData.service} />}
                 />
                 {/*<Tab id={'testing'} title={t('Workflows')} panel={<StepsCreator />} />*/}
                 <Tab
-                    id={'workflows'}
-                    title={t('Workflows')}
+                    id={'workflow'}
+                    title={t('Workflow')}
                     panel={<InterfaceCreatorPanel type={'workflow'} data={initialData.workflow} />}
                 />
                 <Tab
-                    id={'jobs'}
-                    title={t('Jobs')}
+                    id={'job'}
+                    title={t('Job')}
                     panel={<InterfaceCreatorPanel type={'job'} data={initialData.job} isEditing={!!initialData.job} />}
                 />
             </Tabs>
