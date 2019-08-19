@@ -1162,5 +1162,29 @@ msgstr "Service method ${ method } has been deleted"
 msgid "ConfirmDeleteMethod ${ method }"
 msgstr "Do you really want to delete method ${ method }?"
 
+msgid "CodeInfoUpdateTimedOut"
+msgstr "Code information cache update timed out, pending: "
+
 msgid "DefaultInitMethodDesc"
 msgstr "The init method"
+
+msgid "file_tree_info_update_pending"
+msgstr "getting file tree information"
+
+msgid "yaml_info_update_pending"
+msgstr "getting information from yaml files"
+
+msgid "base_classes_info_update_pending"
+msgstr "getting information from language server"
+
+msgid "objects_info_update_pending"
+msgstr "getting information from qorus object parser"
+
+msgid "pending"
+msgstr "pending"
+
+msgid "finished"
+msgstr "finished"
+
+msgid "updateStatus"
+msgstr "update status:"

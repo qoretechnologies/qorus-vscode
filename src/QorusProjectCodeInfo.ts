@@ -7,7 +7,7 @@ import { qore_vscode } from './qore_vscode';
 import { QorusProject } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, isInterfaceClass, suffixToIfaceKind } from './qorus_utils';
-import { t } from 'ttag';
+import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
 import { getSuffix } from './qorus_utils';
 
@@ -28,7 +28,10 @@ export interface QoreTextDocument {
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
-    private pending: boolean = true;
+    private file_tree_info_update_pending: boolean = true;
+    private yaml_info_update_pending: boolean = true;
+    private base_classes_info_update_pending: boolean = true;
+    private objects_info_update_pending: boolean = true;
     private object_info: any = {};
     private yaml_data_by_file: any = {};
     private yaml_data_by_class: any = {};
@@ -95,84 +98,139 @@ export class QorusProjectCodeInfo {
         return this.inheritance_pairs[class_name];
     }
 
-    getObjects(object_type: string) {
-        let interval_id: any;
+    private async waitForPending(updates_base_str: string[], timeout: number = 30000) {
+        const updates = updates_base_str.map(update => update + '_info_update_pending')
 
-        const getObjectsCheckPending = () => {
-            if (this.pending) {
-                return;
+        const anyPending = (): boolean => {
+            for (const update of updates) {
+                if (this[update]) {
+                    return true;
+                }
             }
-
-            clearInterval(interval_id);
-
-            let return_type: string;
-            let objects: any[] = [];
-            switch (object_type) {
-                case 'service-base-class':
-                    return_type = 'objects';
-                    objects = this.addDescToBaseClasses(this.service_classes, root_service, t`RootServiceDesc`);
-                    break;
-                case 'job-base-class':
-                    return_type = 'objects';
-                    objects = this.addDescToBaseClasses(this.job_classes, root_job, t`RootJobDesc`);
-                    break;
-                case 'workflow-base-class':
-                    return_type = 'objects';
-                    objects = this.addDescToBaseClasses(this.workflow_classes, root_job, t`RootWorkflowDesc`);
-                    break;
-                case 'author':
-                case 'function':
-                case 'class':
-                case 'constant':
-                case 'mapper':
-                case 'value-map':
-                case 'module':
-                case 'group':
-                case 'tag':
-                    return_type = 'objects';
-                    objects = this.object_info[object_type] || [];
-                    break;
-                case 'resource':
-                case 'text-resource':
-                case 'bin-resource':
-                case 'template':
-                    return_type = 'resources';
-                    objects = this.file_tree;
-                    break;
-                case 'target-dir':
-                    return_type = 'directories';
-                    objects = this.dir_tree;
-                    break;
-                default:
-                    objects = [];
-            }
-
-            qorus_webview.postMessage({
-                action: 'creator-return-' + return_type,
-                object_type,
-                [return_type]: objects
-            });
+            return false;
         };
 
-        interval_id = setInterval(getObjectsCheckPending, 200);
+        const interval = 100;
+        let n = timeout/interval;
+        while (anyPending() && --n) {
+            await new Promise(resolve => setTimeout(resolve, interval));
+        }
+        if (!n) {
+            const pending_list = updates.filter(update => this[update]).map(update => gettext(update)).join(', ');
+            msg.error(t`CodeInfoUpdateTimedOut` + pending_list);
+        }
+    }
+
+    getObjects(object_type: string) {
+        let return_type: string;
+        let objects: any[] = [];
+        switch (object_type) {
+            case 'service-base-class':
+                this.waitForPending(['base_classes']);
+                return_type = 'objects';
+                objects = this.addDescToBaseClasses(this.service_classes, root_service, t`RootServiceDesc`);
+                break;
+            case 'job-base-class':
+                this.waitForPending(['base_classes']);
+                return_type = 'objects';
+                objects = this.addDescToBaseClasses(this.job_classes, root_job, t`RootJobDesc`);
+                break;
+            case 'workflow-base-class':
+                this.waitForPending(['base_classes']);
+                return_type = 'objects';
+                objects = this.addDescToBaseClasses(this.workflow_classes, root_job, t`RootWorkflowDesc`);
+                break;
+            case 'author':
+            case 'function':
+            case 'class':
+            case 'constant':
+            case 'mapper':
+            case 'value-map':
+            case 'module':
+            case 'group':
+            case 'tag':
+                this.waitForPending(['objects', 'yaml']);
+                return_type = 'objects';
+                objects = this.object_info[object_type] || [];
+                break;
+            case 'resource':
+            case 'text-resource':
+            case 'bin-resource':
+            case 'template':
+                this.waitForPending(['file_tree']);
+                return_type = 'resources';
+                objects = this.file_tree;
+                break;
+            case 'target-dir':
+                this.waitForPending(['file_tree']);
+                return_type = 'directories';
+                objects = this.dir_tree;
+                break;
+            default:
+                objects = [];
+        }
+
+        qorus_webview.postMessage({
+            action: 'creator-return-' + return_type,
+            object_type,
+            [return_type]: objects
+        });
+    }
+
+    private setAllPending(pending: boolean = true) {
+        this.file_tree_info_update_pending = pending;
+        this.yaml_info_update_pending = pending;
+        this.base_classes_info_update_pending = pending;
+        this.objects_info_update_pending = pending;
+    }
+
+    private reportPending() {
+        let interval_id: any;
+
+        const printPending = () => {
+            msg.log(t`updateStatus`);
+            for (const update_base_str of ['file_tree', 'yaml', 'base_classes', 'objects']) {
+                const update_key = update_base_str + '_info_update_pending';
+                const update = gettext(update_key);
+                msg.log('  ' + update + ': ' + ' '.repeat(45 - update.length)
+                        + (this[update_key] ? t`pending` : t`finished`));
+            }
+
+            if (![this.file_tree_info_update_pending,
+                  this.yaml_info_update_pending,
+                  this.base_classes_info_update_pending,
+                  this.objects_info_update_pending].some(value => value))
+            {
+                msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
+                clearInterval(interval_id);
+            }
+        }
+
+        interval_id = setInterval(printPending, 1000);
     }
 
     update() {
         this.project.validateConfigFileAndDo(file_data => {
             if (file_data.source_directories.length === 0) {
-                this.pending = false;
+                this.setAllPending(false);
                 return;
             }
 
             setTimeout(() => {
                 this.updateFileTree(file_data.source_directories);
+            }, 0);
+            setTimeout(() => {
                 this.updateYamlInfo(file_data.source_directories);
+            }, 0);
+            setTimeout(() => {
                 this.updateBaseClassesInfo(file_data.source_directories);
+            }, 0);
+            setTimeout(() => {
                 this.updateObjects(file_data.source_directories);
             }, 0);
 
             msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
-            this.pending = true;
+            this.reportPending();
         });
     }
 
@@ -188,6 +246,7 @@ export class QorusProjectCodeInfo {
     }
 
     private updateYamlInfo(source_directories: string[]) {
+        this.yaml_info_update_pending = true;
         for (let dir of source_directories) {
             const full_dir = path.join(this.project.folder, dir);
             if (!fs.existsSync(full_dir)) {
@@ -199,9 +258,11 @@ export class QorusProjectCodeInfo {
                 this.addSingleYamlInfo(file);
             }
         }
+        this.yaml_info_update_pending = false;
     }
 
     private async updateBaseClassesInfo(source_directories: string[]) {
+        this.base_classes_info_update_pending = true;
         await this.makeInheritancePairs(source_directories);
 
         const baseClasses = (base_classes: string[], inheritance_pairs) => {
@@ -222,6 +283,7 @@ export class QorusProjectCodeInfo {
         baseClasses(this.service_classes, Object.assign({}, this.inheritance_pairs));
         baseClasses(this.job_classes, Object.assign({}, this.inheritance_pairs));
         baseClasses(this.workflow_classes, Object.assign({}, this.inheritance_pairs));
+        this.base_classes_info_update_pending = false;
     }
 
     private addDescToBaseClasses(base_classes: string[], root_class: string, root_class_desc: string): any[] {
@@ -282,6 +344,7 @@ export class QorusProjectCodeInfo {
     }
 
     private updateFileTree(source_directories: string[]) {
+        this.file_tree_info_update_pending = true;
         const dirItem = (abs_path: string, only_dirs: boolean, is_root: boolean = false) => ({
             abs_path,
             rel_path: is_root ? '.' : vscode.workspace.asRelativePath(abs_path, false),
@@ -322,9 +385,11 @@ export class QorusProjectCodeInfo {
 
         this.file_tree = file_tree;
         this.dir_tree = dir_tree;
+        this.file_tree_info_update_pending = false;
     }
 
     private updateObjects(source_directories: string[]) {
+        this.objects_info_update_pending = true;
         const spaceToDash = str => str.replace(/ /g, '-');
 
         const types = ['class', 'function', 'constant', 'mapper', 'value map'];
@@ -355,7 +420,7 @@ export class QorusProjectCodeInfo {
                     break;
                 }
 
-                this.pending = true;
+                this.objects_info_update_pending = true;
                 num_pending++;
 
                 let command_parts = files.splice(0, object_chunk_length);
@@ -369,7 +434,7 @@ export class QorusProjectCodeInfo {
                         if (stderr) {
                             msg.error(stderr);
                         }
-                        this.pending = false;
+                        this.objects_info_update_pending = false;
                         child_process_failed = true;
                         return;
                     }
@@ -400,8 +465,7 @@ export class QorusProjectCodeInfo {
                             this.object_info[obj_type] = Object.keys(object_info[obj_type]).map(key => object_info[obj_type][key]);
                         }
 
-                        this.pending = false;
-                        msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
+                        this.objects_info_update_pending = false;
                     }
                 });
             }
