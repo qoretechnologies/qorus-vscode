@@ -58,7 +58,8 @@ export abstract class InterfaceCreator {
             workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
         });
 
-        fs.writeFile(this.yaml_file_path, headers, err => {
+        const generated_file_info = '# This is a generated file, don\'t edit!\n';
+        fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
             if (err) {
                 msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
                 return;
