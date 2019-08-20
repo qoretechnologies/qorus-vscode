@@ -926,7 +926,7 @@ msgid "field-desc-mappers"
 msgstr "An optional list of mappers to register with the service so they are available with the UserApi::getMapper() call"
 
 msgid "field-label-vmaps"
-msgstr "Vmaps"
+msgstr "Value maps"
 
 msgid "field-desc-vmaps"
 msgstr "An optional list of value maps to register with the service so they can be used with the UserApi::getValueMap() call"

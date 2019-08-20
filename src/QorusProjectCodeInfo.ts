@@ -42,9 +42,11 @@ export class QorusProjectCodeInfo {
     private service_classes = [root_service];
     private job_classes = [root_job];
     private workflow_classes = [root_workflow];
+    private object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
 
     constructor(project: QorusProject) {
         this.project = project;
+        this.initObjectInfo();
     }
 
     get yaml_info_by_file(): any {
@@ -96,6 +98,12 @@ export class QorusProjectCodeInfo {
 
     baseClassName(class_name: string): string | undefined {
         return this.inheritance_pairs[class_name];
+    }
+
+    private initObjectInfo() {
+        for (const type of this.object_info_types) {
+            this.object_info[type] = {};
+        }
     }
 
     private async waitForPending(updates_base_str: string[], timeout: number = 30000) {
@@ -151,7 +159,7 @@ export class QorusProjectCodeInfo {
             case 'tag':
                 this.waitForPending(['objects', 'yaml']);
                 return_type = 'objects';
-                objects = this.object_info[object_type] || [];
+                objects = Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]);
                 break;
             case 'resource':
             case 'text-resource':
@@ -390,16 +398,6 @@ export class QorusProjectCodeInfo {
 
     private updateObjects(source_directories: string[]) {
         this.objects_info_update_pending = true;
-        const spaceToDash = str => str.replace(/ /g, '-');
-
-        const types = ['class', 'function', 'constant', 'mapper', 'value map'];
-
-        let object_info: any = {};
-        for (let type of types) {
-            object_info[spaceToDash(type)] = {};
-        }
-        object_info.author = {};
-
         let num_pending = 0;
         let child_process_failed: boolean = false;
 
@@ -444,27 +442,24 @@ export class QorusProjectCodeInfo {
                     for (let obj of objects) {
                         const authors = obj.tags.author || obj.tags.serviceauthor || [];
                         for (const author of authors) {
-                            object_info.author[author] = { name: author };
+                            this.object_info.author[author] = { name: author };
                         }
 
-                        if (!types.includes(obj.type)) {
+                        obj.type = obj.type.replace(/ /g, '-');
+
+                        if (!this.object_info_types.includes(obj.type)) {
                             continue;
                         }
                         if (obj.type === 'function' && obj.tags.type !== 'GENERIC') {
                             continue;
                         }
 
-                        object_info[spaceToDash(obj.type)][obj.tags.name] = {
+                        this.object_info[obj.type][obj.tags.name] = {
                             name: obj.tags.name,
                             desc: obj.tags.desc,
                         };
                     }
                     if (--num_pending == 0) {
-                        this.object_info = {};
-                        for (let obj_type in object_info) {
-                            this.object_info[obj_type] = Object.keys(object_info[obj_type]).map(key => object_info[obj_type][key]);
-                        }
-
                         this.objects_info_update_pending = false;
                     }
                 });
