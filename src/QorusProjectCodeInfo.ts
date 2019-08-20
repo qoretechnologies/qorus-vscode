@@ -194,14 +194,20 @@ export class QorusProjectCodeInfo {
 
     reportPending() {
         let interval_id: any;
+        let update_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
+        let n = 0;
 
         const printPending = () => {
-            msg.log(t`updateStatus`);
-            for (const update_base_str of ['file_tree', 'yaml', 'base_classes', 'objects']) {
-                const update_key = update_base_str + '_info_update_pending';
-                const update = gettext(update_key);
+            msg.log(t`updateStatus` + ' ' + t`seconds ${++n}`);
+            for (const update_key of [...update_keys]) {
+                const pending_name = update_key + '_info_update_pending';
+                const update = gettext(pending_name);
+                const is_updated = !this[pending_name];
                 msg.log('  ' + update + ': ' + ' '.repeat(45 - update.length)
-                        + (this[update_key] ? t`pending` : t`finished`));
+                        + (is_updated ? t`finished` : t`pending`));
+                if (is_updated) {
+                    update_keys.splice(update_keys.indexOf(update_key), 1);
+                }
             }
 
             if (![this.file_tree_info_update_pending,
