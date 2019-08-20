@@ -192,7 +192,7 @@ export class QorusProjectCodeInfo {
         this.objects_info_update_pending = pending;
     }
 
-    private reportPending() {
+    reportPending() {
         let interval_id: any;
 
         const printPending = () => {
@@ -248,8 +248,34 @@ export class QorusProjectCodeInfo {
             const src = path.join(path.dirname(file), yaml_data.code);
             this.yaml_data_by_file[src] = yaml_data;
         }
-        if (yaml_data['class-name']) {
-            this.yaml_data_by_class[yaml_data['class-name']] = yaml_data;
+        const class_name = yaml_data['class-name'];
+        if (class_name) {
+            this.yaml_data_by_class[class_name] = yaml_data;
+        }
+
+        const addObjectName = (type: string, name: string) => {
+            if (!this.object_info[type][name]) {
+                this.object_info[type][name] = { name };
+            }
+        };
+        const types = {
+            author: 'author',
+            classes: 'class',
+            functions: 'function',
+            constants: 'constant',
+            mappers: 'mapper',
+            vmaps: 'value-map'
+        };
+        for (const key of Object.keys(types)) {
+            for (const name of yaml_data[key] || []) {
+                addObjectName(types[key], name);
+            }
+        }
+        if (class_name) {
+            addObjectName('class', class_name);
+            if (yaml_data.desc) {
+                this.object_info.class[class_name].desc = yaml_data.desc;
+            }
         }
     }
 
