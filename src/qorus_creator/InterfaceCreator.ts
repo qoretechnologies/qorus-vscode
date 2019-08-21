@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { qorus_webview } from '../QorusWebview';
 import { lang_suffix } from './creator_common';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -55,16 +56,19 @@ export abstract class InterfaceCreator {
                 msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
                 return;
             }
-            workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
-        });
 
-        const generated_file_info = '# This is a generated file, don\'t edit!\n';
-        fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
-            if (err) {
-                msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
-                return;
-            }
-            this.code_info.addSingleYamlInfo(this.yaml_file_path);
+            const generated_file_info = '# This is a generated file, don\'t edit!\n';
+            fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
+                if (err) {
+                    msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
+                    return;
+                }
+
+                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+                this.code_info.addSingleYamlInfo(this.yaml_file_path);
+                this.code_info.update(['base_classes', 'file_tree']);
+                qorus_webview.dispose();
+            });
         });
     }
 
@@ -179,16 +183,23 @@ export abstract class InterfaceCreator {
         const yaml_info = this.code_info.yaml_info_by_file[orig_file];
         const orig_yaml_file = yaml_info && yaml_info.yaml_file;
 
-        for (const file of [orig_file, orig_yaml_file]) {
-            if (!file) {
-                continue;
-            }
-            fs.unlink(file, err => {
+        if (orig_file) {
+            fs.unlink(orig_file, err => {
                 if (err) {
-                    msg.error(t`RemoveFileError ${file} ${err.toString()}`);
+                    msg.error(t`RemoveFileError ${orig_file} ${err.toString()}`);
+                    return;
                 }
-                else {
-                    msg.info(t`OrigFileRemoved ${file}`);
+                msg.info(t`OrigFileRemoved ${orig_file}`);
+                if (orig_yaml_file) {
+                    fs.unlink(orig_yaml_file, err => {
+                        if (err) {
+                            msg.error(t`RemoveFileError ${orig_yaml_file} ${err.toString()}`);
+                        }
+                        else {
+                            msg.info(t`OrigFileRemoved ${orig_yaml_file}`);
+                        }
+                        this.code_info.update(['base_classes', 'file_tree', 'yaml']);
+                    });
                 }
             });
         }
