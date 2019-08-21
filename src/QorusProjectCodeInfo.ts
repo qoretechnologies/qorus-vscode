@@ -40,7 +40,7 @@ export class QorusProjectCodeInfo {
     private job_classes = [root_job];
     private workflow_classes = [root_workflow];
     private object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
-    private update_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
+    private info_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -185,30 +185,30 @@ export class QorusProjectCodeInfo {
     }
 
     private setAllPending(pending: boolean = true) {
-        for (const key of this.update_keys) {
+        for (const key of this.info_keys) {
             this.info_update_pending[key] = pending;
         }
     }
 
     reportPending() {
         let interval_id: any;
-        let update_keys = [...this.update_keys];
+        let info_keys = [...this.info_keys];
         let n = 0;
 
         const printPending = () => {
             msg.log(t`updateStatus` + ' ' + t`seconds ${++n}`);
-            for (const update_key of [...update_keys]) {
-                const pending_name = update_key + '_info_update_pending';
+            for (const info_key of [...info_keys]) {
+                const pending_name = info_key + '_info_update_pending';
                 const update = gettext(pending_name);
-                const is_updated = !this.info_update_pending[update_key];
+                const is_updated = !this.info_update_pending[info_key];
                 msg.log('  ' + update + ': ' + ' '.repeat(45 - update.length)
                         + (is_updated ? t`finished` : t`pending`));
                 if (is_updated) {
-                    update_keys.splice(update_keys.indexOf(update_key), 1);
+                    info_keys.splice(info_keys.indexOf(info_key), 1);
                 }
             }
 
-            if (!this.update_keys.map(key => this.info_update_pending[key]).some(value => value)) {
+            if (!this.info_keys.map(key => this.info_update_pending[key]).some(value => value)) {
                 msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
                 clearInterval(interval_id);
             }
@@ -217,25 +217,33 @@ export class QorusProjectCodeInfo {
         interval_id = setInterval(printPending, 1000);
     }
 
-    update() {
+    update(info_list: string[] = this.info_keys) {
         this.project.validateConfigFileAndDo(file_data => {
             if (file_data.source_directories.length === 0) {
                 this.setAllPending(false);
                 return;
             }
 
-            setTimeout(() => {
-                this.updateFileTree(file_data.source_directories);
-            }, 0);
-            setTimeout(() => {
-                this.updateYamlInfo(file_data.source_directories);
-            }, 0);
-            setTimeout(() => {
-                this.updateBaseClassesInfo(file_data.source_directories);
-            }, 0);
-            setTimeout(() => {
-                this.updateObjects(file_data.source_directories);
-            }, 0);
+            if (info_list.includes('file_tree')) {
+                setTimeout(() => {
+                    this.updateFileTree(file_data.source_directories);
+                }, 0);
+            }
+            if (info_list.includes('yaml')) {
+                setTimeout(() => {
+                    this.updateYamlInfo(file_data.source_directories);
+                }, 0);
+            }
+            if (info_list.includes('base_classes')) {
+                setTimeout(() => {
+                    this.updateBaseClassesInfo(file_data.source_directories);
+                }, 0);
+            }
+            if (info_list.includes('objects')) {
+                setTimeout(() => {
+                    this.updateObjects(file_data.source_directories);
+                }, 0);
+            }
 
             msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
             this.reportPending();
