@@ -28,10 +28,7 @@ export interface QoreTextDocument {
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
-    private file_tree_info_update_pending: boolean = true;
-    private yaml_info_update_pending: boolean = true;
-    private base_classes_info_update_pending: boolean = true;
-    private objects_info_update_pending: boolean = true;
+    private info_update_pending: any = {};
     private object_info: any = {};
     private yaml_data_by_file: any = {};
     private yaml_data_by_class: any = {};
@@ -43,10 +40,12 @@ export class QorusProjectCodeInfo {
     private job_classes = [root_job];
     private workflow_classes = [root_workflow];
     private object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
+    private update_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
 
     constructor(project: QorusProject) {
         this.project = project;
         this.initObjectInfo();
+        this.setAllPending(true);
     }
 
     get yaml_info_by_file(): any {
@@ -186,15 +185,14 @@ export class QorusProjectCodeInfo {
     }
 
     private setAllPending(pending: boolean = true) {
-        this.file_tree_info_update_pending = pending;
-        this.yaml_info_update_pending = pending;
-        this.base_classes_info_update_pending = pending;
-        this.objects_info_update_pending = pending;
+        for (const key of this.update_keys) {
+            this.info_update_pending[key] = pending;
+        }
     }
 
     reportPending() {
         let interval_id: any;
-        let update_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
+        let update_keys = [...this.update_keys];
         let n = 0;
 
         const printPending = () => {
@@ -202,7 +200,7 @@ export class QorusProjectCodeInfo {
             for (const update_key of [...update_keys]) {
                 const pending_name = update_key + '_info_update_pending';
                 const update = gettext(pending_name);
-                const is_updated = !this[pending_name];
+                const is_updated = !this.info_update_pending[update_key];
                 msg.log('  ' + update + ': ' + ' '.repeat(45 - update.length)
                         + (is_updated ? t`finished` : t`pending`));
                 if (is_updated) {
@@ -210,11 +208,7 @@ export class QorusProjectCodeInfo {
                 }
             }
 
-            if (![this.file_tree_info_update_pending,
-                  this.yaml_info_update_pending,
-                  this.base_classes_info_update_pending,
-                  this.objects_info_update_pending].some(value => value))
-            {
+            if (!this.update_keys.map(key => this.info_update_pending[key]).some(value => value)) {
                 msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
                 clearInterval(interval_id);
             }
@@ -286,7 +280,7 @@ export class QorusProjectCodeInfo {
     }
 
     private updateYamlInfo(source_directories: string[]) {
-        this.yaml_info_update_pending = true;
+        this.info_update_pending['yaml'] = true;
         for (let dir of source_directories) {
             const full_dir = path.join(this.project.folder, dir);
             if (!fs.existsSync(full_dir)) {
@@ -298,11 +292,11 @@ export class QorusProjectCodeInfo {
                 this.addSingleYamlInfo(file);
             }
         }
-        this.yaml_info_update_pending = false;
+        this.info_update_pending['yaml'] = false;
     }
 
     private async updateBaseClassesInfo(source_directories: string[]) {
-        this.base_classes_info_update_pending = true;
+        this.info_update_pending['base_classes'] = true;
         await this.makeInheritancePairs(source_directories);
 
         const baseClasses = (base_classes: string[], inheritance_pairs) => {
@@ -323,7 +317,7 @@ export class QorusProjectCodeInfo {
         baseClasses(this.service_classes, Object.assign({}, this.inheritance_pairs));
         baseClasses(this.job_classes, Object.assign({}, this.inheritance_pairs));
         baseClasses(this.workflow_classes, Object.assign({}, this.inheritance_pairs));
-        this.base_classes_info_update_pending = false;
+        this.info_update_pending['base_classes'] = false;
     }
 
     private addDescToBaseClasses(base_classes: string[], root_class: string, root_class_desc: string): any[] {
@@ -384,7 +378,8 @@ export class QorusProjectCodeInfo {
     }
 
     private updateFileTree(source_directories: string[]) {
-        this.file_tree_info_update_pending = true;
+        this.waitForPending(['file_tree']);
+        this.info_update_pending['file_tree'] = true;
         const dirItem = (abs_path: string, only_dirs: boolean, is_root: boolean = false) => ({
             abs_path,
             rel_path: is_root ? '.' : vscode.workspace.asRelativePath(abs_path, false),
@@ -425,11 +420,11 @@ export class QorusProjectCodeInfo {
 
         this.file_tree = file_tree;
         this.dir_tree = dir_tree;
-        this.file_tree_info_update_pending = false;
+        this.info_update_pending['file_tree'] = false;
     }
 
     private updateObjects(source_directories: string[]) {
-        this.objects_info_update_pending = true;
+        this.info_update_pending['objects'] = true;
         let num_pending = 0;
         let child_process_failed: boolean = false;
 
@@ -450,7 +445,7 @@ export class QorusProjectCodeInfo {
                     break;
                 }
 
-                this.objects_info_update_pending = true;
+                this.info_update_pending['objects'] = true;
                 num_pending++;
 
                 let command_parts = files.splice(0, object_chunk_length);
@@ -464,7 +459,7 @@ export class QorusProjectCodeInfo {
                         if (stderr) {
                             msg.error(stderr);
                         }
-                        this.objects_info_update_pending = false;
+                        this.info_update_pending['objects'] = false;
                         child_process_failed = true;
                         return;
                     }
@@ -492,7 +487,7 @@ export class QorusProjectCodeInfo {
                         };
                     }
                     if (--num_pending == 0) {
-                        this.objects_info_update_pending = false;
+                        this.info_update_pending['objects'] = false;
                     }
                 });
             }
