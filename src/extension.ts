@@ -137,8 +137,6 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 }
 
-projects.updateCodeInfo();
-
 export function deactivate() {}
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {

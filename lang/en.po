@@ -1057,6 +1057,9 @@ msgstr "Add new method"
 msgid "UnknownWebviewMessage ${ msg }"
 msgstr "Unknown webview message ${ msg }"
 
+msgid "UnknownInterfaceProperty ${ property }"
+msgstr "Unknown Qorus interface property: ${ property }"
+
 msgid "QopError ${ msg }"
 msgstr "Running Qorus object parser failed: ${ msg }"
 

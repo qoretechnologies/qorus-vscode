@@ -65,8 +65,6 @@ export abstract class InterfaceCreator {
                 }
 
                 workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
-                this.code_info.addSingleYamlInfo(this.yaml_file_path);
-                this.code_info.update(['base_classes', 'file_tree']);
                 qorus_webview.dispose();
             });
         });
@@ -198,7 +196,6 @@ export abstract class InterfaceCreator {
                         else {
                             msg.info(t`OrigFileRemoved ${orig_yaml_file}`);
                         }
-                        this.code_info.update(['base_classes', 'file_tree', 'yaml']);
                     });
                 }
             });
