@@ -901,11 +901,17 @@ msgstr "Lock"
 msgid "field-desc-lock"
 msgstr "Must be either none, read, or write (default none), to determine how the service's RWLock will be grabbed before the method is executed"
 
-msgid "field-label-autostart"
+msgid "field-label-service_autostart"
 msgstr "Autostart"
 
-msgid "field-desc-autostart"
+msgid "field-desc-service_autostart"
 msgstr "The value of the autostart property of the service (default: False, managed by operations)"
+
+msgid "field-label-workflow_autostart"
+msgstr "Autostart"
+
+msgid "field-desc-workflow_autostart"
+msgstr "The number of workflow execution instances to start when the system starts"
 
 msgid "field-label-internal"
 msgstr "Internal"
@@ -999,6 +1005,69 @@ msgstr "Defines the periodicity for running the job"
 
 msgid "field-label-name"
 msgstr "Name"
+
+msgid "field-label-sla_threshold"
+msgstr "SLA threshold"
+
+msgid "field-desc-sla_threshold"
+msgstr "The amount of time as an integer in seconds in which each workflow order should get a final status"
+
+msgid "field-label-max_instances"
+msgstr "Max instances"
+
+msgid "field-desc-max_instances"
+msgstr "The maximum number of workflow execution instances that can be started"
+
+msgid "field-label-attach"
+msgstr "Attach"
+
+msgid "field-desc-attach"
+msgstr "Attach function description (ex: \"my_attach:1.0\"); cannot be supplied if \"class\" is used"
+
+msgid "field-label-detach"
+msgstr "Detach"
+
+msgid "field-desc-detach"
+msgstr "Detach function description (ex: \"my_detach:1.0\"); cannot be supplied if \"class\" is used"
+
+msgid "field-label-onetimeinit"
+msgstr "One-time init"
+
+msgid "field-desc-onetimeinit"
+msgstr "One time initialization function description (ex: \"my_workflow_init:1.0\"); cannot be supplied if \"class\" is used"
+
+msgid "field-label-error_handler"
+msgstr "Error handler"
+
+msgid "field-desc-error_handler"
+msgstr "Error handler function description (ex: \"my_error_handler:1.0\"); cannot be supplied if \"class\" is used"
+
+msgid "field-label-errorfunction"
+msgstr "Error function"
+
+msgid "field-desc-errorfunction"
+msgstr "Error function description (ex: \"my_error_func:1.0\"); cannot be supplied if \"class\" is used"
+
+msgid "field-label-options"
+msgstr "Options"
+
+msgid "field-desc-options"
+msgstr "A hash defining valid workflow options"
+
+msgid "field-label-key_list"
+msgstr "Key list"
+
+msgid "field-desc-key_list"
+msgstr "A list of valid workflow keys"
+
+msgid "field-label-statuses"
+msgstr "Statuses"
+
+msgid "field-desc-statuses"
+msgstr "A hash defining extended custom statuses descriptions as a single character key - string description"
+
+msgid "field-label-code"
+msgstr "Code"
 
 msgid "field-label-desc"
 msgstr "Description"

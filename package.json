@@ -151,6 +151,10 @@
                 "title": "Qorus: Create Qorus job"
             },
             {
+                "command": "qorus.createWorkflow",
+                "title": "Qorus: Create Qorus workflow"
+            },
+            {
                 "command": "qorus.webview",
                 "title": "Qorus: webview",
                 "icon": "images/qorus_logo_28.png"
@@ -212,6 +216,11 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createJob",
+                    "group": "2_workspace"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createWorkflow",
                     "group": "2_workspace"
                 }
             ],

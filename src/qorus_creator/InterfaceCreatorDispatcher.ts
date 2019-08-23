@@ -2,6 +2,7 @@ import { service_creator } from './ServiceCreator';
 import { job_creator } from './JobCreator';
 import { serviceFields, service_methods } from './service_code';
 import { jobFields } from './job_code';
+import { workflowFields } from './workflow_code';
 
 
 class InterfaceCreatorDispatcher {
@@ -13,6 +14,8 @@ class InterfaceCreatorDispatcher {
                 return service_methods;
             case 'job':
                 return jobFields(default_target_dir);
+            case 'workflow':
+                return workflowFields(default_target_dir);
             default:
                 return [];
         }

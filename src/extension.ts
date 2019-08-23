@@ -87,6 +87,13 @@ export async function activate(context: vscode.ExtensionContext) {
     }));
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.createWorkflow', (uri: vscode.Uri) => qorus_webview.open({
+        tab: 'CreateInterface',
+        subtab: 'workflow',
+        uri,
+    }));
+    context.subscriptions.push(disposable);
+
     disposable = vscode.commands.registerCommand('qorus.editInterface',
                                                  (data: any, iface_kind: string) => qorus_webview.open({
         tab: 'CreateInterface',

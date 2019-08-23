@@ -99,7 +99,7 @@ export abstract class InterfaceCreator {
 
         for (let key in headers) {
             const value = headers[key];
-            if (!value) {
+            if (typeof(value) === 'undefined') {
                 continue;
             }
 
@@ -161,6 +161,10 @@ export abstract class InterfaceCreator {
                         for (let i = 0; i < 5; i++) {
                             result += `${indent}${cron_items[i]}: "${cron_values[i]}"\n`;
                         }
+                        break;
+                    case 'service_autostart':
+                    case 'workflow_autostart':
+                        result += `autostart: ${value}\n`;
                         break;
                     default:
                         result += `${tag}: ${value}\n`;

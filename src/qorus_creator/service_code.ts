@@ -44,7 +44,7 @@ export const serviceFields = default_target_dir => [
         },
     },
     {
-        name: 'autostart',
+        name: 'service_autostart',
         mandatory: false,
         type: 'boolean',
         default_value: false,

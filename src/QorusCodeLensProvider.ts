@@ -178,7 +178,10 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         let data: any = {};
         for (const key in clone) {
-            const fixed_key = key.replace(/-/g, '_');
+            let fixed_key = key.replace(/-/g, '_');
+            if (fixed_key === 'autostart') {
+                fixed_key = clone.type + '_autostart';
+            }
             data[fixed_key] = clone[key];
             if (fields_to_complexify.includes(fixed_key)) {
                 data[fixed_key] = data[fixed_key].map(value => ({ name: value }));
