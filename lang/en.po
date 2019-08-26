@@ -1159,6 +1159,9 @@ msgstr "Mismatch in source and yaml file: method ${ method } in ${ src_file } is
 msgid "2FilesCreatedInDir ${ file1 } ${ file2 } ${ dir }"
 msgstr "Files ${ file1 } and ${ file2 } have been created in ${ dir }"
 
+msgid "3FilesCreatedInDir ${ file1 } ${ file2 } ${ file3 } ${ dir }"
+msgstr "Files ${ file1 }, ${ file2 } and ${ file3 } have been created in ${ dir }"
+
 msgid "WriteFileError ${ file } ${ error }"
 msgstr "Writing file ${ file } failed: ${ error }"
 

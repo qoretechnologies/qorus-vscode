@@ -1,5 +1,6 @@
 import { service_creator } from './ServiceCreator';
 import { job_creator } from './JobCreator';
+import { workflow_creator } from './WorkflowCreator';
 import { serviceFields, service_methods } from './service_code';
 import { jobFields } from './job_code';
 import { workflowFields } from './workflow_code';
@@ -28,6 +29,9 @@ class InterfaceCreatorDispatcher {
                 break;
             case 'job':
                 job_creator.edit(data, edit_type);
+                break;
+            case 'workflow':
+                workflow_creator.edit(data, edit_type);
                 break;
         }
     }
