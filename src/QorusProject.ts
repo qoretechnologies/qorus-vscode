@@ -234,7 +234,7 @@ class QorusProjects {
     private projects: any = {};
 
     constructor() {
-        for (const workspace_folder of vscode.workspace.workspaceFolders) {
+        for (const workspace_folder of vscode.workspace.workspaceFolders || []) {
             this.getProject(workspace_folder.uri);
         }
     }

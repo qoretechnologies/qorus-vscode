@@ -16,7 +16,7 @@ const object_chunk_length = 100;
 const root_service = 'QorusService';
 const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
-const log_update_messages = true;
+const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
 
@@ -214,6 +214,9 @@ export class QorusProjectCodeInfo {
     }
 
     private logUpdateMessage(info_key: string) {
+        if (!log_update_messages) {
+            return;
+        }
         const pending_name = info_key + '_info_update_pending';
         const update = gettext(pending_name);
         const is_pending = this.info_update_pending[info_key];
@@ -248,13 +251,15 @@ export class QorusProjectCodeInfo {
                 }, 0);
             }
 
-            if (log_update_messages && is_initial_update) {
+            if (is_initial_update) {
                 msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
 
                 let interval_id: any;
                 let sec = 0;
                 const checkPending = () => {
-                    msg.log(t`seconds ${++sec}`);
+                    if (log_update_messages) {
+                        msg.log(t`seconds ${++sec}`);
+                    }
                     if (!info_keys.map(key => this.info_update_pending[key]).some(value => value)) {
                         msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
                         clearInterval(interval_id);
@@ -380,17 +385,19 @@ export class QorusProjectCodeInfo {
                     version: 1
                 };
 
-                qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-                    symbols.forEach(symbol => {
-                        if (symbol.name && symbol.name.name && symbol.inherits && symbol.inherits.length) {
-                            const name = symbol.name.name;
-                            const inherited = symbol.inherits[0];
-                            if (inherited.name && inherited.name.name) {
-                                this.inheritance_pairs[name] = inherited.name.name;
+                qore_vscode.activate().then(() => {
+                    qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+                        symbols.forEach(symbol => {
+                            if (symbol.name && symbol.name.name && symbol.inherits && symbol.inherits.length) {
+                                const name = symbol.name.name;
+                                const inherited = symbol.inherits[0];
+                                if (inherited.name && inherited.name.name) {
+                                    this.inheritance_pairs[name] = inherited.name.name;
+                                }
                             }
-                        }
+                        });
+                        num_pending--;
                     });
-                    num_pending--;
                 });
             }
         }
@@ -404,9 +411,7 @@ export class QorusProjectCodeInfo {
     private setPending(info_key: string, value: boolean) {
         const doSetPending = () => {
             this.info_update_pending[info_key] = value;
-            if (log_update_messages) {
-                this.logUpdateMessage(info_key);
-            }
+            this.logUpdateMessage(info_key);
         }
 
         if (value && this.info_update_pending[info_key]) {
