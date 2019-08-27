@@ -19,6 +19,7 @@ const root_workflow = 'QorusWorkflow';
 const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
+const default_version = '1.0';
 
 export interface QoreTextDocument {
     uri: string,
@@ -34,6 +35,7 @@ export class QorusProjectCodeInfo {
     private object_info: any = {};
     private yaml_data_by_file: any = {};
     private yaml_data_by_class: any = {};
+    private yaml_wf_class_data_by_name_version: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
@@ -60,6 +62,15 @@ export class QorusProjectCodeInfo {
 
     get yaml_info_by_class(): any {
         return this.yaml_data_by_class;
+    }
+
+    wfYamlInfoByFile(path: string): any {
+        const class_yaml = this.yaml_data_by_file[path];
+        if (!class_yaml.name) {
+            return undefined;
+        }
+        const name_version = `${class_yaml.name}:${class_yaml.version || default_version}`;
+        return this.yaml_wf_class_data_by_name_version[name_version];
     }
 
     addText(document: vscode.TextDocument) {
@@ -280,6 +291,12 @@ export class QorusProjectCodeInfo {
         const class_name = yaml_data['class-name'];
         if (class_name) {
             this.yaml_data_by_class[class_name] = yaml_data;
+        }
+
+        if (yaml_data.type === 'workflow' && yaml_data.class && yaml_data.class.split(/:/) < 3) {
+            let [name, version] = yaml_data.class.split(/:/);
+            const name_version = `${name}:${version || default_version}`;
+            this.yaml_wf_class_data_by_name_version[name_version] = yaml_data;
         }
 
         const addObjectName = (type: string, name: string) => {
