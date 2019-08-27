@@ -70,7 +70,7 @@ export const SearchWrapper = styled.div`
 export const ContentWrapper = styled.div`
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: ${props => (props.scrollX ? 'auto' : 'hidden')};
     padding-right: 10px;
 `;
 
@@ -329,13 +329,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const handleAddAll: () => void = () => {
         // Add all remaning fields that are
         // not yet selected
-        fields.forEach(
-            (field: IField): void => {
-                if (!field.selected) {
-                    addField(field.name);
-                }
+        fields.forEach((field: IField): void => {
+            if (!field.selected) {
+                addField(field.name);
             }
-        );
+        });
     };
 
     const handleSubmitClick: () => void = () => {
