@@ -20,12 +20,14 @@ import Panel from './containers/InterfaceCreator/panel';
 import Box from './components/Box';
 import withMethods from './hocomponents/withMethods';
 import withInitialData from './hocomponents/withInitialData';
+import withSteps from './hocomponents/withSteps';
 
 const StyledApp = styled.div`
     display: flex;
     flex-flow: column;
     margin-top: 50px;
     flex: 1 auto;
+    overflow: hidden;
 `;
 
 const Tabs = {
@@ -69,47 +71,35 @@ const App: FunctionComponent<IApp> = ({
 
     useEffectOnce(() => {
         // New text was received
-        addMessageListener(
-            Messages.TEXT_RECEIVED,
-            (data: any): void => {
-                setTexts(currentTexts => {
-                    // Do not modify state if the text alread
-                    // exists
-                    if (!currentTexts[data.text_id]) {
-                        return {
-                            ...currentTexts,
-                            [data.text_id]: data.text,
-                        };
-                    }
-                    // Return current state
-                    return currentTexts;
-                });
-            }
-        );
-        // Close login
-        addMessageListener(
-            Messages.CLOSE_LOGIN,
-            (data: any): void => {
-                closeLogin();
-                if (data.qorus_instance) {
-                    setCurrentQorusInstance(data.qorus_instance);
+        addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
+            setTexts(currentTexts => {
+                // Do not modify state if the text alread
+                // exists
+                if (!currentTexts[data.text_id]) {
+                    return {
+                        ...currentTexts,
+                        [data.text_id]: data.text,
+                    };
                 }
-            }
-        );
-        // Set project folder
-        addMessageListener(
-            Messages.SET_PROJECT_FOLDER,
-            (data: any): void => {
-                setCurrentProjectFolder(data.folder);
-            }
-        );
-        // Set instance
-        addMessageListener(
-            Messages.SET_QORUS_INSTANCE,
-            (data: any): void => {
+                // Return current state
+                return currentTexts;
+            });
+        });
+        // Close login
+        addMessageListener(Messages.CLOSE_LOGIN, (data: any): void => {
+            closeLogin();
+            if (data.qorus_instance) {
                 setCurrentQorusInstance(data.qorus_instance);
             }
-        );
+        });
+        // Set project folder
+        addMessageListener(Messages.SET_PROJECT_FOLDER, (data: any): void => {
+            setCurrentProjectFolder(data.folder);
+        });
+        // Set instance
+        addMessageListener(Messages.SET_QORUS_INSTANCE, (data: any): void => {
+            setCurrentQorusInstance(data.qorus_instance);
+        });
         // Get the current project folder
         postMessage(Messages.GET_PROJECT_FOLDER);
     });
@@ -209,6 +199,7 @@ export default hot(
         ),
         withInitialData(),
         withFields(),
-        withMethods()
+        withMethods(),
+        withSteps()
     )(App)
 );
