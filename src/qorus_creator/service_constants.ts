@@ -1,4 +1,4 @@
-import { comment_chars, commonFields } from './creator_common';
+import { comment_chars, commonFields } from './common_constants';
 
 let class_template: any = {};
 let method_template: any = {};

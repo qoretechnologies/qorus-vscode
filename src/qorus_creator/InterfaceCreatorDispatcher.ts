@@ -1,9 +1,9 @@
 import { service_creator } from './ServiceCreator';
 import { job_creator } from './JobCreator';
 import { workflow_creator } from './WorkflowCreator';
-import { serviceFields, service_methods } from './service_code';
-import { jobFields } from './job_code';
-import { workflowFields } from './workflow_code';
+import { serviceFields, service_methods } from './service_constants';
+import { jobFields } from './job_constants';
+import { workflowFields } from './workflow_constants';
 
 
 class InterfaceCreatorDispatcher {

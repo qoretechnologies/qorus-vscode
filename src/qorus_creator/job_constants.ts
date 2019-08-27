@@ -1,4 +1,4 @@
-import { commonFields } from './creator_common';
+import { commonFields } from './common_constants';
 
 let template: any = {};
 

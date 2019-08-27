@@ -1,20 +1,4 @@
-import { commonFields } from './creator_common';
-
-let template: any = {};
-
-template.qore =
-"\
-class ${this.class_name} inherits ${this.base_class_name} {\n\
-}\n\
-";
-
-template.java =
-"\
-class ${this.class_name} extends ${this.base_class_name} {\n\
-}\n\
-";
-
-export const workflow_template = template;
+import { commonFields } from './common_constants';
 
 export const workflowFields = default_target_dir => [
     ... commonFields(default_target_dir),

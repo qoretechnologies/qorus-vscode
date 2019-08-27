@@ -22,7 +22,7 @@ const default_parse_options = "\
 %enable-all-warnings\n\n\
 ";
 
-export const commonFields = default_target_dir => [
+export const basicFields = default_target_dir => [
     {
         name: 'target_dir',
         type: 'file-string',
@@ -64,6 +64,10 @@ export const commonFields = default_target_dir => [
             return_value: 'objects',
         },
     },
+];
+
+export const commonFields = default_target_dir => [
+    ... basicFields(default_target_dir),
     {
         name: 'modules',
         mandatory: false,

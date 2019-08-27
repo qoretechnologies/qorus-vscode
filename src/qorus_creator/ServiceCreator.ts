@@ -1,8 +1,8 @@
 import { window } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { fillTemplate } from './creator_common';
-import { service_class_template, service_method_template } from './service_code';
+import { fillTemplate } from './common_constants';
+import { service_class_template, service_method_template } from './service_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 

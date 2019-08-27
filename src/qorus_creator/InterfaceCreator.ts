@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
-import { lang_suffix } from './creator_common';
+import { lang_suffix } from './common_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 

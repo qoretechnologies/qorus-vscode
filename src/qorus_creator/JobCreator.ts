@@ -1,7 +1,7 @@
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { fillTemplate } from './creator_common';
-import { job_template } from './job_code';
+import { fillTemplate } from './common_constants';
+import { job_template } from './job_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
