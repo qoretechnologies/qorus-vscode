@@ -406,7 +406,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Only included unselected fields
         if (!field.selected) {
             // Check if the query is set
-            if (query !== '') {
+            if (query && query !== '') {
                 return includes(field.name.toLowerCase(), query.toLowerCase());
             } else {
                 return true;
@@ -421,7 +421,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Only included unselected fields
         if (field.selected) {
             // Check if the query is set
-            if (selectedQuery !== '') {
+            if (selectedQuery && selectedQuery !== '') {
                 return includes(field.name.toLowerCase(), selectedQuery.toLowerCase());
             } else {
                 return true;
