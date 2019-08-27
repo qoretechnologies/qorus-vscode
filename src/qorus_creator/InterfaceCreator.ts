@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
-import { lang_suffix } from './common_constants';
+import { lang_suffix, default_parse_options } from './common_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -223,4 +223,8 @@ export abstract class InterfaceCreator {
 
         return path.join(initial_data.target_dir, initial_data.target_file);
     }
+
+    protected fillTemplate = (template: string, vars: any, add_default_parse_options: boolean = true): string =>
+        (add_default_parse_options && this.lang === 'qore' ? default_parse_options : '')
+            + new Function('return `' + template[this.lang] + '`;').call(vars);
 };

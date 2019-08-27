@@ -1,7 +1,6 @@
 import { window } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { fillTemplate } from './common_constants';
 import { service_class_template, service_method_template } from './service_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -66,13 +65,12 @@ class ServiceCreator extends InterfaceCreator {
                 return;
         }
 
-        const headers_begin = { type: 'service' };
-        const headers_end = {
+        const headers = ServiceCreator.createHeaders({
+            type: 'service',
+            ...header_data,
             servicetype: 'USER',
-            code: this.file_name,
-        };
-
-        const headers = ServiceCreator.createHeaders(Object.assign(headers_begin, header_data, headers_end));
+            code: this.file_name
+        });
 
         this.writeFiles(contents, headers + ServiceCreator.createMethodHeaders(data.methods));
 
@@ -178,7 +176,7 @@ class ServiceCreator extends InterfaceCreator {
         }
         let code = lines.splice(0, lines.length - 1).join('\n') + '\n';
         for (let name of added) {
-            code += '\n' + fillTemplate(service_method_template, this.lang, false, { name });
+            code += '\n' + this.fillTemplate(service_method_template, { name }, false);
         }
         code += lines[0] + '\n';
         return code;
@@ -212,11 +210,11 @@ class ServiceCreator extends InterfaceCreator {
     private code(data: any, method_objects: any[]): any {
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(fillTemplate(service_method_template, this.lang, false, { name: method.name }));
+            method_strings.push(this.fillTemplate(service_method_template, { name: method.name }, false));
         }
         const methods = method_strings.join('\n');
 
-        return fillTemplate(service_class_template, this.lang, true, {
+        return this.fillTemplate(service_class_template, {
             class_name: data.class_name,
             base_class_name: data.base_class_name,
             methods

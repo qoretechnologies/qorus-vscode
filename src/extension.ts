@@ -73,26 +73,13 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.createService', (uri: vscode.Uri) => qorus_webview.open({
-        tab: 'CreateInterface',
-        subtab: 'service',
-        uri,
-    }));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.createJob', (uri: vscode.Uri) => qorus_webview.open({
-        tab: 'CreateInterface',
-        subtab: 'job',
-        uri,
-    }));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.createWorkflow', (uri: vscode.Uri) => qorus_webview.open({
-        tab: 'CreateInterface',
-        subtab: 'workflow',
-        uri,
-    }));
-    context.subscriptions.push(disposable);
+    ['service', 'job', 'workflow', 'class'].forEach(subtab => {
+        const command = 'qorus.create' + subtab[0].toUpperCase() + subtab.substr(1);
+        disposable = vscode.commands.registerCommand(command, (uri: vscode.Uri) => qorus_webview.open({
+            tab: 'CreateInterface', subtab, uri
+        }));
+        context.subscriptions.push(disposable);
+    });
 
     disposable = vscode.commands.registerCommand('qorus.editInterface',
                                                  (data: any, iface_kind: string) => qorus_webview.open({

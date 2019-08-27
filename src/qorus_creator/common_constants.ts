@@ -1,10 +1,3 @@
-export const fillTemplate = (template: string,
-                             lang: string,
-                             add_default_parse_options: boolean,
-                             vars: any): string =>
-    (add_default_parse_options && lang === 'qore' ? default_parse_options : '')
-        + new Function('return `' + template[lang] + '`;').call(vars);
-
 export const lang_suffix = {
     java: '.java',
     qore: '',
@@ -15,14 +8,32 @@ export const comment_chars = {
     qore: '#',
 };
 
-const default_parse_options = "\
+export const default_parse_options = "\
 %new-style\n\
 %strict-args\n\
 %require-types\n\
 %enable-all-warnings\n\n\
 ";
 
-export const basicFields = default_target_dir => [
+
+let class_templ: any = {};
+
+class_templ.qore =
+"\
+class ${this.class_name} {\n\
+}\n\
+";
+
+class_templ.java =
+"\
+class ${this.class_name} {\n\
+}\n\
+";
+
+export const class_template = class_templ;
+
+
+export const classFields = default_target_dir => [
     {
         name: 'target_dir',
         type: 'file-string',
@@ -67,7 +78,7 @@ export const basicFields = default_target_dir => [
 ];
 
 export const commonFields = default_target_dir => [
-    ... basicFields(default_target_dir),
+    ... classFields(default_target_dir),
     {
         name: 'modules',
         mandatory: false,

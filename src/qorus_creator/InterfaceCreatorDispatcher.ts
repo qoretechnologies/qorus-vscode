@@ -1,9 +1,11 @@
 import { service_creator } from './ServiceCreator';
 import { job_creator } from './JobCreator';
 import { workflow_creator } from './WorkflowCreator';
+import { class_creator } from './ClassCreator';
 import { serviceFields, service_methods } from './service_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
+import { classFields } from './common_constants';
 
 
 class InterfaceCreatorDispatcher {
@@ -17,6 +19,8 @@ class InterfaceCreatorDispatcher {
                 return jobFields(default_target_dir);
             case 'workflow':
                 return workflowFields(default_target_dir);
+            case 'class':
+                return classFields(default_target_dir);
             default:
                 return [];
         }
@@ -32,6 +36,9 @@ class InterfaceCreatorDispatcher {
                 break;
             case 'workflow':
                 workflow_creator.edit(data, edit_type);
+                break;
+            case 'class':
+                class_creator.edit(data, edit_type);
                 break;
         }
     }

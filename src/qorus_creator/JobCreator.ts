@@ -1,6 +1,5 @@
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { fillTemplate } from './common_constants';
 import { job_template } from './job_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -22,7 +21,7 @@ class JobCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
-                contents = fillTemplate(job_template, this.lang, true, {
+                contents = this.fillTemplate(job_template, {
                     class_name: data.class_name,
                     base_class_name: data.base_class_name,
                 });
@@ -42,9 +41,11 @@ class JobCreator extends InterfaceCreator {
                 return;
         }
 
-        const headers_begin = { type: 'job' };
-        const headers_end = { code: this.file_name };
-        const headers = JobCreator.createHeaders(Object.assign(headers_begin, header_data, headers_end));
+        const headers = JobCreator.createHeaders({
+            type: 'job',
+            ...header_data,
+            code: this.file_name
+        });
 
         this.writeFiles(contents, headers);
 
