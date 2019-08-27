@@ -80,7 +80,12 @@ export abstract class InterfaceCreator {
         });
     }
 
-    protected renameClassAndBaseClass(lines: string[], code_info: any, initial_data: any, header_data): string[] {
+    protected static renameClassAndBaseClass(
+            lines: string[],
+            code_info: any,
+            initial_data: any,
+            header_data): string[]
+    {
         const {
             class_name: orig_class_name,
             base_class_name: orig_base_class_name
@@ -186,7 +191,7 @@ export abstract class InterfaceCreator {
     }
 
     protected deleteOrigFilesIfDifferent(initial_data: any) {
-        const orig_file = this.origPath(initial_data);
+        const orig_file = InterfaceCreator.origPath(initial_data);
 
         if (!orig_file || orig_file === this.file_path) {
             return;
@@ -216,7 +221,7 @@ export abstract class InterfaceCreator {
         }
     }
 
-    protected origPath(initial_data: any): string | undefined {
+    protected static origPath(initial_data: any): string | undefined {
         if (!initial_data || !initial_data.target_dir || !initial_data.target_file) {
             return undefined;
         }

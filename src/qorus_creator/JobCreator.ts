@@ -14,7 +14,7 @@ class JobCreator extends InterfaceCreator {
         const header_data = this.init(data);
 
         const initial_data = qorus_webview.opening_data;
-        const job_info = this.code_info.codeInfo('job', this.origPath(initial_data.job) || this.file_path);
+        const job_info = this.code_info.codeInfo('job', JobCreator.origPath(initial_data.job) || this.file_path);
 
         let contents: string;
         let message: string;
@@ -33,7 +33,7 @@ class JobCreator extends InterfaceCreator {
                     return;
                 }
                 code_lines = job_info.text_lines;
-                code_lines = this.renameClassAndBaseClass(code_lines, job_info, initial_data.job, header_data);
+                code_lines = JobCreator.renameClassAndBaseClass(code_lines, job_info, initial_data.job, header_data);
                 contents = code_lines.join('\n') + '\n';
                 break;
             default:

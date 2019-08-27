@@ -23,7 +23,9 @@ class ServiceCreator extends InterfaceCreator {
         const { methods, ...header_data } = other_data;
 
         const initial_data = qorus_webview.opening_data;
-        const service_info = this.code_info.codeInfo('service', this.origPath(initial_data.service) || this.file_path);
+        const service_info = this.code_info.codeInfo(
+                'service',
+                ServiceCreator.origPath(initial_data.service) || this.file_path);
 
         let contents: string;
         let message: string;
@@ -37,9 +39,10 @@ class ServiceCreator extends InterfaceCreator {
                 const initial_methods: string[] = (initial_data.service.methods || []).map(method => method.name);
                 const method_renaming_map = this.methodRenamingMap(initial_methods, methods);
                 code_lines = service_info.text_lines;
-                code_lines = this.renameClassAndBaseClass(code_lines, service_info, initial_data.service, header_data);
-                code_lines = this.renameServiceMethods(code_lines, service_info, method_renaming_map.renamed);
-                code_lines = this.removeServiceMethods(code_lines, service_info, method_renaming_map.removed);
+                code_lines = ServiceCreator.renameClassAndBaseClass(
+                        code_lines, service_info, initial_data.service, header_data);
+                code_lines = ServiceCreator.renameServiceMethods(code_lines, service_info, method_renaming_map.renamed);
+                code_lines = ServiceCreator.removeServiceMethods(code_lines, service_info, method_renaming_map.removed);
                 contents = this.addServiceMethods(code_lines, method_renaming_map.added);
                 break;
             case 'create':
@@ -51,7 +54,7 @@ class ServiceCreator extends InterfaceCreator {
                     break;
                 }
                 const method_name = methods[data.method_index].name;
-                code_lines = this.removeServiceMethods(service_info.text_lines, service_info, [method_name]);
+                code_lines = ServiceCreator.removeServiceMethods(service_info.text_lines, service_info, [method_name]);
                 contents = code_lines.join('\n') + '\n';
                 message = t`ServiceMethodHasBeenDeleted ${method_name}`;
 
@@ -123,7 +126,7 @@ class ServiceCreator extends InterfaceCreator {
         return mapping;
     }
 
-    private renameServiceMethods(lines: string[], service_info: any, renaming: any): string[] {
+    private static renameServiceMethods(lines: string[], service_info: any, renaming: any): string[] {
         let lines_with_renaming = {};
         for (const name of Object.keys(renaming)) {
             const range = service_info.method_name_ranges[name];
@@ -149,14 +152,13 @@ class ServiceCreator extends InterfaceCreator {
         });
     }
 
-    private removeServiceMethods(lines: string[], service_info: any, removed: string[]): string[] {
+    private static removeServiceMethods(lines: string[], service_info: any, removed: string[]): string[] {
         const removeRange = (lines, range) => {
             let rows = [];
             for (let i = 0; i < range.start.line; i++) {
                 rows.push(lines[i]);
             }
             rows.push(lines[range.start.line].substr(0, range.start.character));
-//            rows.push(lines[range.end.line].substr(range.end.character).trim());
             for (let i = range.end.line + 1; i < lines.length; i++) {
                 rows.push(lines[i]);
             }
