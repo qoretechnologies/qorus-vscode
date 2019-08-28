@@ -5,9 +5,12 @@ import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import useMount from 'react-use/lib/useMount';
 import styled from 'styled-components';
+import compose from 'recompose/compose';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
 export interface IRadioField {
     t: TTranslator;
+    initialData: any;
 }
 
 const StyledRadio = styled.div`
@@ -38,7 +41,9 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     onChange,
     name,
     value,
+    initialData,
 }) => {
+    console.log(initialData);
     useMount(() => {
         // Set the default value
         onChange(name, hasValueSet ? value : default_value);
@@ -63,7 +68,7 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
                             src={
                                 process.env.NODE_ENV === 'development'
                                     ? `http://localhost:9876/images/${v.icon_filename}`
-                                    : `vscode-resource:{{ path }}/images/${v.icon_filename}`
+                                    : `vscode-resource:${initialData.path}/images/${v.icon_filename}`
                             }
                         />
                     )}
@@ -73,4 +78,7 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     );
 };
 
-export default withTextContext()(RadioField);
+export default compose(
+    withInitialDataConsumer(),
+    withTextContext()
+)(RadioField);

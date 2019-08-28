@@ -66,6 +66,7 @@ const App: FunctionComponent<IApp> = ({
     project_folder,
     qorus_instance,
     login_visible,
+    path,
 }) => {
     const [texts, setTexts] = useState<{ [key: string]: string }>({});
 
@@ -118,7 +119,10 @@ const App: FunctionComponent<IApp> = ({
         <>
             <Navbar fixedToTop={true}>
                 <NavbarGroup>
-                    <img style={{ maxWidth: 30, maxHeight: 30, marginRight: 54 }} src={logo} />
+                    <img
+                        style={{ maxWidth: 30, maxHeight: 30, marginRight: 54 }}
+                        src={`vscode-resource:${path}images/qorus_logo_256.png`}
+                    />
                     {Object.keys(Tabs).map(
                         tab_key =>
                             (tab_key !== 'Login' || login_visible) && (
