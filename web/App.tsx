@@ -121,7 +121,7 @@ const App: FunctionComponent<IApp> = ({
                 <NavbarGroup>
                     <img
                         style={{ maxWidth: 30, maxHeight: 30, marginRight: 54 }}
-                        src={`vscode-resource:${path}images/qorus_logo_256.png`}
+                        src={`vscode-resource:${path}/images/qorus_logo_256.png`}
                     />
                     {Object.keys(Tabs).map(
                         tab_key =>
