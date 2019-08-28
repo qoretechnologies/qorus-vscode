@@ -9,6 +9,8 @@ import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
 
+const web_path = path.join(__dirname, '..', 'dist');
+
 class QorusWebview {
     private panel: vscode.WebviewPanel | undefined = undefined;
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
@@ -27,7 +29,7 @@ class QorusWebview {
     private postInitialData = () => {
         this.postMessage({
             action: 'return-initial-data',
-            data: this.initial_data,
+            data: { path: web_path, ...this.initial_data }
         });
     };
 
@@ -54,7 +56,6 @@ class QorusWebview {
             return;
         }
 
-        const web_path = path.join(__dirname, '..', 'dist');
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
             doc => {
                 this.panel = vscode.window.createWebviewPanel(
