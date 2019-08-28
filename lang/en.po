@@ -1204,14 +1204,20 @@ msgstr "Add all fields"
 msgid "CreateServiceTipTitle"
 msgstr "Creating a service"
 
+msgid "CreateStepsTipTitle"
+msgstr "Creating Workflow steps"
+
+msgid "CreateStepsTip"
+msgstr "This page serves to create the workflow diagram steps. Clicking on each button on a single step, you can either add a sequential, or parallel step"
+
 msgid "CreateServiceTip"
-msgstr "To create a service, select all the desired fields and fill them lorem ipsum dolor star wars"
+msgstr "To create a service, select all the desired fields and fill them"
 
 msgid "CreateMethodsTipTitle"
 msgstr "Creating service methods"
 
 msgid "CreateMethodTip"
-msgstr "Every service needs its methods, otherwise it's a pretty useless service. Add methods, select fields and fill it with data and Bobs your uncle. Same old, same old..."
+msgstr "Every service needs its methods, otherwise it's a pretty useless service. Add methods, select fields and fill it with data."
 
 msgid "UnrecognizedMethodName ${ name }"
 msgstr "Unrecognized method name: ${ name }"
@@ -1263,3 +1269,9 @@ msgstr "finished"
 
 msgid "updateStatus"
 msgstr "update status:"
+
+msgid "AddStepsTitle"
+msgstr "1. Add Workflow Steps"
+
+msgid "StepsDiagram"
+msgstr "2. Workflow Steps Diagram"

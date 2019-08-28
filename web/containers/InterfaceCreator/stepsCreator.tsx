@@ -11,21 +11,14 @@ export interface IStepsCreator {
     initialData: any;
 }
 
-const StepsCreator: FunctionComponent<IStepsCreator> = ({ t, initialData }) => (
-    <div style={{ width: '100%', display: 'flex', flex: '1 1 auto' }}>
-        <StepDiagram
-            steps={{
-                10: [],
-                20: [10],
-                30: [20],
-                40: [30],
-                50: [40],
-                60: [40],
-                110: [30],
-            }}
-        />
-    </div>
-);
+const StepsCreator: FunctionComponent<IStepsCreator> = ({ t, initialData, highlightedGroupSteps, steps }) => {
+    console.log(steps);
+    return (
+        <div style={{ width: '100%', display: 'flex', flex: '1 1 auto' }}>
+            <StepDiagram highlightedGroupSteps={highlightedGroupSteps} steps={steps} />
+        </div>
+    );
+};
 
 export default compose(
     withTextContext(),

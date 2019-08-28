@@ -13,10 +13,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
                 setInitialData(null);
-                /*
-                data.tab = 'CreateInterface';
-                data.subtab = 'workflow';
-                */
 
                 if (!data.tab) {
                     data.tab = 'ProjectConfig';

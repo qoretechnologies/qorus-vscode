@@ -78,19 +78,18 @@ export interface IStepDiagramProps {
     steps: { [key: string]: number[] };
 }
 
-@onlyUpdateForKeys(['steps'])
 export default class StepDiagram extends Component<IStepDiagramProps> {
     state = {
-        nodes: graph(this.getStepDeps()),
+        nodes: null,
         rows: null,
     };
 
-    getStepDeps(stepId?: number) {
-        const initIds = Object.keys(this.props.steps).filter(id => this.props.steps[id].length <= 0);
+    getStepDeps(stepId: number, steps) {
+        const initIds = Object.keys(steps).filter(id => steps[id].length <= 0);
 
         const initialDeps = initIds.map(initId => ({ [initId]: [ROOT_STEP_ID] }));
 
-        const deps = Object.assign({ [ROOT_STEP_ID]: [] }, this.props.steps, ...initialDeps);
+        const deps = Object.assign({ [ROOT_STEP_ID]: [] }, steps, ...initialDeps);
 
         return typeof stepId !== 'undefined' ? deps[stepId] : deps;
     }
@@ -110,12 +109,28 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see DIAGRAM_MIN_COLUMNS
      */
     componentDidMount() {
-        const cols = Math.max(DIAGRAM_MIN_COLUMNS, this.state.nodes.get(ROOT_STEP_ID).width) - 1;
+        this.setState({
+            nodes: graph(this.getStepDeps(undefined, this.props.steps)),
+            rows: this.buildRows(graph(this.getStepDeps(undefined, this.props.steps))),
+        });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.steps !== this.props.steps) {
+            this.setState({
+                nodes: graph(this.getStepDeps(undefined, nextProps.steps)),
+                rows: this.buildRows(graph(this.getStepDeps(undefined, nextProps.steps))),
+            });
+        }
+    }
+
+    buildRows = nodes => {
+        const cols = Math.max(DIAGRAM_MIN_COLUMNS, nodes.get(ROOT_STEP_ID).width) - 1;
         const rows = [];
         let newRows = [];
         const savedData = [];
 
-        for (const [id, n] of this.state.nodes) {
+        for (const [id, n] of nodes) {
             if (!rows[n.depth]) rows[n.depth] = new Array(cols);
             if (!newRows[n.depth]) newRows[n.depth] = {};
 
@@ -157,8 +172,8 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
             rows[n.depth][col] = id;
         }
 
-        this.setState({ rows: newRows });
-    }
+        return newRows;
+    };
 
     /**
      * Returns rows in a flat array suitable for iteration.
@@ -207,7 +222,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
         return this.getFlattenRows().reduce(
             (flatten, step) =>
                 flatten.concat(
-                    this.getStepDeps(step.stepId).map(depId => ({
+                    this.getStepDeps(step.stepId, this.props.steps).map(depId => ({
                         start: this.getStepArgs(depId),
                         end: step,
                     }))
@@ -279,8 +294,6 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
 
             return res;
         }, 0);
-
-        console.log(((lowestColumn - highestColumn) * -1) / 2 + 1);
 
         return ((lowestColumn - highestColumn) * -1) / 2 + 1;
     }
@@ -540,7 +553,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                 className={classNames({
                     diagram__box: true,
                 })}
-                fill="#fff"
+                fill={this.props.highlightedGroupSteps.includes(stepId) ? '#d7d7d7' : '#fff'}
                 stroke="#000"
                 transform={this.getBoxTransform(colIdx, rowIdx)}
             >
@@ -722,7 +735,6 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     };
 
     renderContent: Function = (diagramScale, diaWidth) => {
-        console.log(diaWidth, this.getLowestColumn());
         const leftViewBox = 125 * this.getLowestColumn();
 
         return (
