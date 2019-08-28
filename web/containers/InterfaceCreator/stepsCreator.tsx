@@ -12,7 +12,6 @@ export interface IStepsCreator {
 }
 
 const StepsCreator: FunctionComponent<IStepsCreator> = ({ t, initialData, highlightedGroupSteps, steps }) => {
-    console.log(steps);
     return (
         <div style={{ width: '100%', display: 'flex', flex: '1 1 auto' }}>
             <StepDiagram highlightedGroupSteps={highlightedGroupSteps} steps={steps} />

@@ -9,7 +9,6 @@ export default class WorkflowStepDependencyParser {
      */
     processStep(step, predecessors) {
         if (predecessors) {
-            console.log('PREDECESSORS', predecessors);
             if (!this.stepDependencyMap[step]) {
                 this.stepDependencyMap[step] = [];
             }

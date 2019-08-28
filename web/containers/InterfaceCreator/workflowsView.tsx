@@ -49,81 +49,79 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow }) => {
                 setHighlightedStepGroupIds,
                 handleStepInsert,
                 parsedSteps,
-            }) =>
-                console.log(highlightedStepGroupIds) || (
-                    <CreatorWrapper>
-                        <Callout
-                            icon="info-sign"
-                            title={showSteps ? t('CreateStepsTipTitle') : t('CreateWorkflowTipTitle')}
-                            intent="primary"
-                        >
-                            {showSteps ? t('CreateStepsTip') : t('CreateWorkflowTip')}
-                        </Callout>
-                        <PanelWrapper>
-                            {!showSteps && (
-                                <InterfaceCreatorPanel
-                                    type={'workflow'}
-                                    submitLabel={t('Next')}
-                                    onSubmit={() => {
-                                        setShowSteps(true);
-                                    }}
-                                    data={workflow && omit(workflow, 'steps')}
-                                    onDataFinishLoading={
-                                        workflow && showSteps
-                                            ? () => {
-                                                  setShowSteps(true);
-                                              }
-                                            : null
-                                    }
-                                />
-                            )}
-                            {showSteps && (
-                                <>
-                                    <SidePanel title={t('AddStepsTitle')}>
-                                        <ContentWrapper>
-                                            <StepList
-                                                steps={steps}
-                                                setSteps={setSteps}
-                                                highlightedSteps={highlightedSteps}
-                                                setHighlightedSteps={setHighlightedSteps}
-                                                highlightedStepGroupIds={highlightedStepGroupIds}
-                                                setHighlightedStepGroupIds={setHighlightedStepGroupIds}
-                                                handleStepInsert={handleStepInsert}
-                                            />
-                                        </ContentWrapper>
-                                    </SidePanel>
-                                    <Content title={t('StepsDiagram')}>
-                                        <ContentWrapper scrollX>
-                                            <StepsCreator
-                                                steps={parsedSteps}
-                                                highlightedGroupSteps={highlightedStepGroupIds || []}
-                                            />
-                                        </ContentWrapper>
+            }) => (
+                <CreatorWrapper>
+                    <Callout
+                        icon="info-sign"
+                        title={showSteps ? t('CreateStepsTipTitle') : t('CreateWorkflowTipTitle')}
+                        intent="primary"
+                    >
+                        {showSteps ? t('CreateStepsTip') : t('CreateWorkflowTip')}
+                    </Callout>
+                    <PanelWrapper>
+                        {!showSteps && (
+                            <InterfaceCreatorPanel
+                                type={'workflow'}
+                                submitLabel={t('Next')}
+                                onSubmit={() => {
+                                    setShowSteps(true);
+                                }}
+                                data={workflow && omit(workflow, 'steps')}
+                                onDataFinishLoading={
+                                    workflow && showSteps
+                                        ? () => {
+                                              setShowSteps(true);
+                                          }
+                                        : null
+                                }
+                            />
+                        )}
+                        {showSteps && (
+                            <>
+                                <SidePanel title={t('AddStepsTitle')}>
+                                    <ContentWrapper>
+                                        <StepList
+                                            steps={steps}
+                                            setSteps={setSteps}
+                                            highlightedSteps={highlightedSteps}
+                                            setHighlightedSteps={setHighlightedSteps}
+                                            highlightedStepGroupIds={highlightedStepGroupIds}
+                                            setHighlightedStepGroupIds={setHighlightedStepGroupIds}
+                                            handleStepInsert={handleStepInsert}
+                                        />
+                                    </ContentWrapper>
+                                </SidePanel>
+                                <Content title={t('StepsDiagram')}>
+                                    <ContentWrapper scrollX>
+                                        <StepsCreator
+                                            steps={parsedSteps}
+                                            highlightedGroupSteps={highlightedStepGroupIds || []}
+                                        />
+                                    </ContentWrapper>
 
-                                        <ActionsWrapper>
-                                            <ButtonGroup fill>
-                                                <Tooltip content={'BackToooltip'}>
-                                                    <Button
-                                                        text={t('Back')}
-                                                        icon={'undo'}
-                                                        onClick={() => setShowSteps(false)}
-                                                    />
-                                                </Tooltip>
+                                    <ActionsWrapper>
+                                        <ButtonGroup fill>
+                                            <Tooltip content={'BackToooltip'}>
                                                 <Button
-                                                    text={t('Submit')}
-                                                    disabled={false}
-                                                    icon={'tick'}
-                                                    intent={Intent.SUCCESS}
+                                                    text={t('Back')}
+                                                    icon={'undo'}
+                                                    onClick={() => setShowSteps(false)}
                                                 />
-                                            </ButtonGroup>
-                                        </ActionsWrapper>
-                                    </Content>
-                                </>
-                            )}
-                        </PanelWrapper>
-                    </CreatorWrapper>
-                )
-            }
+                                            </Tooltip>
+                                            <Button
+                                                text={t('Submit')}
+                                                disabled={false}
+                                                icon={'tick'}
+                                                intent={Intent.SUCCESS}
+                                            />
+                                        </ButtonGroup>
+                                    </ActionsWrapper>
+                                </Content>
+                            </>
+                        )}
+                    </PanelWrapper>
+                </CreatorWrapper>
+            )}
         </StepsContext.Consumer>
     );
 };

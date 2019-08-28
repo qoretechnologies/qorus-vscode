@@ -43,7 +43,6 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     value,
     initialData,
 }) => {
-    console.log(initialData);
     useMount(() => {
         // Set the default value
         onChange(name, hasValueSet ? value : default_value);
