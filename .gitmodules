@@ -1,0 +1,3 @@
+[submodule "qorus-object-parser"]
+	path = qorus-object-parser
+	url = git@git.qoretechnologies.com:qorus/qorus-object-parser.git
