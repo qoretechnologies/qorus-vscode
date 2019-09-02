@@ -50,7 +50,7 @@ export declare interface IFieldChange {
     onChange: (fieldName: string, value: any) => void;
 }
 
-const FieldWrapper = styled.div`
+export const FieldWrapper = styled.div`
     display: flex;
     flex-flow: row;
     &:not(:first-child) {
@@ -59,7 +59,7 @@ const FieldWrapper = styled.div`
     flex: none;
 `;
 
-const FieldInputWrapper = styled.div`
+export const FieldInputWrapper = styled.div`
     flex: 1 auto;
 `;
 

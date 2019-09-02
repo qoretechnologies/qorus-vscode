@@ -49,6 +49,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow }) => {
                 setHighlightedStepGroupIds,
                 handleStepInsert,
                 parsedSteps,
+                stepsData,
             }) => (
                 <CreatorWrapper>
                     <Callout
@@ -88,6 +89,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow }) => {
                                             highlightedStepGroupIds={highlightedStepGroupIds}
                                             setHighlightedStepGroupIds={setHighlightedStepGroupIds}
                                             handleStepInsert={handleStepInsert}
+                                            stepsData={stepsData}
                                         />
                                     </ContentWrapper>
                                 </SidePanel>
@@ -96,6 +98,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow }) => {
                                         <StepsCreator
                                             steps={parsedSteps}
                                             highlightedGroupSteps={highlightedStepGroupIds || []}
+                                            stepsData={stepsData}
                                         />
                                     </ContentWrapper>
 

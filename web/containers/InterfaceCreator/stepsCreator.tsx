@@ -11,10 +11,16 @@ export interface IStepsCreator {
     initialData: any;
 }
 
-const StepsCreator: FunctionComponent<IStepsCreator> = ({ t, initialData, highlightedGroupSteps, steps }) => {
+const StepsCreator: FunctionComponent<IStepsCreator> = ({
+    t,
+    initialData,
+    highlightedGroupSteps,
+    steps,
+    stepsData,
+}) => {
     return (
         <div style={{ width: '100%', display: 'flex', flex: '1 1 auto' }}>
-            <StepDiagram highlightedGroupSteps={highlightedGroupSteps} steps={steps} />
+            <StepDiagram highlightedGroupSteps={highlightedGroupSteps} steps={steps} stepsData={stepsData} />
         </div>
     );
 };

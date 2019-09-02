@@ -10,8 +10,13 @@ const stepsParser = new WorkflowStepDependencyParser();
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
-        const [showSteps, setShowSteps] = useState<boolean>(false);
+        const [showSteps, setShowSteps] = useState<boolean>(true);
         const [steps, setSteps] = useState<any[]>(props.initialSteps);
+        const [stepsData, setStepsData] = useState({
+            1: {
+                name: 'Initial step',
+            },
+        });
         const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(props.initialSteps));
         const [highlightedSteps, setHighlightedSteps] = useState<{ level: number; groupId: string }>(null);
         const [highlightedStepGroupIds, setHighlightedStepGroupIds] = useState<number[]>(null);
@@ -63,7 +68,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return newSteps;
         };
 
-        const handleStepInsert = (targetStep: number, before?: boolean, parallel?: boolean) => {
+        const handleStepInsert = (data: any, targetStep: number, before?: boolean, parallel?: boolean) => {
             // Set new stepid
             setLastStepId((current: number) => {
                 const stepId = current + 1;
@@ -73,6 +78,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setParsedSteps(stepsParser.processSteps(steps));
                     return steps;
                 });
+                setStepsData(current => ({
+                    ...current,
+                    [stepId]: data,
+                }));
 
                 return stepId;
             });
@@ -91,6 +100,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setHighlightedStepGroupIds,
                     handleStepInsert,
                     parsedSteps,
+                    stepsData,
                 }}
             >
                 <Component {...props} />

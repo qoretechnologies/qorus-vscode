@@ -6,11 +6,14 @@ import { includes } from 'lodash';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { TTranslator } from '../../App';
+import withTextContext from '../../hocomponents/withTextContext';
+import { compose } from 'recompose';
 
 export interface ISelectField {
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
     t: TTranslator;
+    defaultItems?: any[];
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -21,19 +24,23 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     name,
     onChange,
     value,
+    defaultItems,
     t,
 }) => {
-    const [items, setItems] = useState<any[]>([]);
+    const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
 
     useMount(() => {
-        addMessageListener(return_message.action, (data: any) => {
-            // Check if this is the correct
-            // object type
-            if (data.object_type === return_message.object_type) {
-                setItems(data[return_message.return_value]);
-            }
-        });
+        console.log(return_message);
+        if (return_message) {
+            addMessageListener(return_message.action, (data: any) => {
+                // Check if this is the correct
+                // object type
+                if (data.object_type === return_message.object_type) {
+                    setItems(data[return_message.return_value]);
+                }
+            });
+        }
     });
 
     const handleSelectClick: (item: any) => void = item => {
@@ -42,8 +49,11 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     };
 
     const handleClick: () => void = () => {
-        // Get the list of items from backend
-        postMessage(get_message.action, { object_type: get_message.object_type });
+        console.log(get_message);
+        if (get_message) {
+            // Get the list of items from backend
+            postMessage(get_message.action, { object_type: get_message.object_type });
+        }
     };
 
     // Filter the items
@@ -74,4 +84,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     );
 };
 
-export default withMessageHandler()(SelectField);
+export default compose(
+    withTextContext(),
+    withMessageHandler()
+)(SelectField);

@@ -548,12 +548,13 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see getTextParams
      */
     renderDefaultBox(stepId, colIdx, row, rowIdx) {
+        const { stepsData, highlightedGroupSteps } = this.props;
         return (
             <g
                 className={classNames({
                     diagram__box: true,
                 })}
-                fill={this.props.highlightedGroupSteps.includes(stepId) ? '#d7d7d7' : '#fff'}
+                fill={highlightedGroupSteps.includes(stepId) ? '#d7d7d7' : '#fff'}
                 stroke="#000"
                 transform={this.getBoxTransform(colIdx, rowIdx)}
             >
@@ -569,7 +570,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                                 wordBreak: 'break-word',
                             }}
                         >
-                            {stepId}
+                            {stepsData[stepId].name}
                         </div>
                     </div>
                 </foreignObject>
