@@ -5,6 +5,7 @@ import { class_creator } from './ClassCreator';
 import { serviceFields, service_methods } from './service_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
+import { stepFields } from './step_constants';
 import { classFields } from './common_constants';
 
 
@@ -21,6 +22,8 @@ class InterfaceCreatorDispatcher {
                 return workflowFields(default_target_dir);
             case 'class':
                 return classFields(default_target_dir);
+            case 'step':
+                return stepFields(default_target_dir);
             default:
                 return [];
         }

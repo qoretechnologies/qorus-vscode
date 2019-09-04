@@ -13,9 +13,11 @@ import { getSuffix } from './qorus_utils';
 
 const object_parser_command = 'qop.q -i';
 const object_chunk_length = 100;
-const root_service = 'QorusService';
-const root_job = 'QorusJob';
-const root_workflow = 'QorusWorkflow';
+const root_services = ['QorusService'];
+const root_jobs = ['QorusJob'];
+const root_workflows = ['QorusWorkflow'];
+const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
+      'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
 const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
@@ -40,9 +42,10 @@ export class QorusProjectCodeInfo {
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
     private code_info: any = {service: {}, job: {}};
-    private service_classes = [root_service];
-    private job_classes = [root_job];
-    private workflow_classes = [root_workflow];
+    private service_classes = root_services;
+    private job_classes = root_jobs;
+    private workflow_classes = root_workflows;
+    private step_classes = root_steps;
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -180,17 +183,34 @@ export class QorusProjectCodeInfo {
         }
 
         switch (object_type) {
+            case 'workflow-step':
+            case 'workflow-steps':
+                postMessage('objects', [
+                    {
+                        name: 'step 1',
+                        desc: 'step 1 desc',
+                    },
+                    {
+                        name: 'step 2',
+                        desc: 'step 2 desc',
+                    }
+                ]);
+                break;
             case 'service-base-class':
                 this.waitForPending(['base_classes']).then(() => postMessage('objects',
-                    this.addDescToBaseClasses(this.service_classes, root_service, t`RootServiceDesc`)));
+                    this.addDescToBaseClasses(this.service_classes, root_services)));
                 break;
             case 'job-base-class':
                 this.waitForPending(['base_classes']).then(() => postMessage('objects',
-                    this.addDescToBaseClasses(this.job_classes, root_job, t`RootJobDesc`)));
+                    this.addDescToBaseClasses(this.job_classes, root_jobs)));
                 break;
             case 'workflow-base-class':
                 this.waitForPending(['base_classes']).then(() => postMessage('objects',
-                    this.addDescToBaseClasses(this.workflow_classes, root_job, t`RootWorkflowDesc`)));
+                    this.addDescToBaseClasses(this.workflow_classes, root_workflows)));
+                break;
+            case 'step-base-class':
+                this.waitForPending(['base_classes']).then(() => postMessage('objects',
+                    this.addDescToBaseClasses(this.step_classes, root_steps)));
                 break;
             case 'author':
             case 'function':
@@ -345,7 +365,7 @@ export class QorusProjectCodeInfo {
         this.setPending('base_classes', true);
         await this.makeInheritancePairs(source_directories);
 
-        const baseClasses = (base_classes: string[], inheritance_pairs) => {
+        const baseClasses = (base_classes: string[], inheritance_pairs: any) => {
             let any_new = true;
             while (any_new) {
                 any_new = false;
@@ -360,17 +380,18 @@ export class QorusProjectCodeInfo {
             }
         }
 
-        baseClasses(this.service_classes, Object.assign({}, this.inheritance_pairs));
-        baseClasses(this.job_classes, Object.assign({}, this.inheritance_pairs));
-        baseClasses(this.workflow_classes, Object.assign({}, this.inheritance_pairs));
+        baseClasses(this.service_classes, {...this.inheritance_pairs});
+        baseClasses(this.job_classes, {...this.inheritance_pairs});
+        baseClasses(this.workflow_classes, {...this.inheritance_pairs});
+        baseClasses(this.step_classes, {...this.inheritance_pairs});
         this.setPending('base_classes', false);
     }
 
-    private addDescToBaseClasses(base_classes: string[], root_class: string, root_class_desc: string): any[] {
+    private addDescToBaseClasses(base_classes: string[], root_classes: string[]): any[] {
         let ret_val = [];
         for (const base_class of base_classes) {
-            const desc = base_class === root_class
-                ? root_class_desc
+            const desc = root_classes.includes(base_class)
+                ? gettext(`${base_class}Desc`)
                 : this.yaml_data_by_class[base_class]
                     ? this.yaml_data_by_class[base_class].desc
                     : undefined;

@@ -1222,14 +1222,38 @@ msgstr "Every service needs its methods, otherwise it's a pretty useless service
 msgid "UnrecognizedMethodName ${ name }"
 msgstr "Unrecognized method name: ${ name }"
 
-msgid "RootServiceDesc"
+msgid "QorusServiceDesc"
 msgstr "The base class for Qorus services"
 
-msgid "RootJobDesc"
+msgid "QorusJobDesc"
 msgstr "The abstract class for Qorus jobs"
 
-msgid "RootWorkflowDesc"
+msgid "QorusWorkflowDesc"
 msgstr "Base class for workflow classes"
+
+msgid "QorusAsyncStepDesc"
+msgstr "The abstract class for asynchronous steps"
+
+msgid "QorusEventStepDesc"
+msgstr "The abstract class for workflow synchronization event steps"
+
+msgid "QorusNormalStepDesc"
+msgstr "The abstract class for normal steps"
+
+msgid "QorusSubworkflowStepDesc"
+msgstr "The abstract class for subworkflow steps"
+
+msgid "QorusAsyncArrayStepDesc"
+msgstr "The abstract class for asynchronous array steps"
+
+msgid "QorusEventArrayStepDesc"
+msgstr "The abstract class for workflow synchronization event array steps"
+
+msgid "QorusNormalArrayStepDesc"
+msgstr "The abstract class for normal array steps"
+
+msgid "QorusSubworkflowArrayStepDesc"
+msgstr "The abstract class for subworkflow array steps"
 
 msgid "CannotDeleteTheOnlyOneServiceMethod"
 msgstr "Cannot delete service method since it is the only one and each service must have at least one method"
