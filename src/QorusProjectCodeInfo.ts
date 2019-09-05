@@ -9,7 +9,7 @@ import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
-import { getSuffix } from './qorus_utils';
+import { hasSuffix } from './qorus_utils';
 
 const object_parser_command = 'qop.q -i';
 const object_chunk_length = 100;
@@ -20,7 +20,7 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
       'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
 const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
-const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects'];
+const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects', 'modules'];
 const default_version = '1.0';
 
 export interface QoreTextDocument {
@@ -42,6 +42,7 @@ export class QorusProjectCodeInfo {
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
     private code_info: any = {service: {}, job: {}};
+    private modules: string[] = [];
     private service_classes = root_services;
     private job_classes = root_jobs;
     private workflow_classes = root_workflows;
@@ -147,14 +148,14 @@ export class QorusProjectCodeInfo {
         this.parsable_files_watcher.onDidDelete(() => this.update(['objects']));
     }
 
-    private waitForPending(info_keys: string[], timeout: number = 30000): Promise<void> {
+    private waitForPending(info_list: string[], timeout: number = 30000): Promise<void> {
         let interval_id: any;
         const interval = 100;
         let n = timeout/interval;
 
         return new Promise((resolve, reject) => {
             const checkPending = () => {
-                const pending_list = info_keys.filter(key => this.info_update_pending[key]);
+                const pending_list = info_list.filter(key => this.info_update_pending[key]);
                 if (!pending_list.length || !--n) {
                     clearInterval(interval_id);
                     if (n > 0) {
@@ -218,11 +219,12 @@ export class QorusProjectCodeInfo {
             case 'constant':
             case 'mapper':
             case 'value-map':
-            case 'module':
-            case 'group':
-            case 'tag':
                 this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key])));
+                break;
+            case 'module':
+                this.waitForPending(['modules']).then(() => postMessage('objects',
+                    this.modules.map(name => {name})));
                 break;
             case 'resource':
             case 'text-resource':
@@ -248,8 +250,7 @@ export class QorusProjectCodeInfo {
         if (!log_update_messages) {
             return;
         }
-        const pending_name = info_key + '_info_update_pending';
-        const update = gettext(pending_name);
+        const update = gettext(info_key + '_info_update_pending');
         const is_pending = this.info_update_pending[info_key];
         msg.log(update + ': ' + ' '.repeat(45 - update.length) + (is_pending ? t`pending` : t`finished`));
     }
@@ -279,6 +280,11 @@ export class QorusProjectCodeInfo {
             if (info_list.includes('objects')) {
                 setTimeout(() => {
                     this.updateObjects(file_data.source_directories);
+                }, 0);
+            }
+            if (info_list.includes('modules')) {
+                setTimeout(() => {
+                    this.updateModuleInfo(file_data.source_directories);
                 }, 0);
             }
 
@@ -353,12 +359,30 @@ export class QorusProjectCodeInfo {
                 continue;
             }
 
-            let files = filesInDir(full_dir, path => getSuffix(path) === 'yaml');
+            let files = filesInDir(full_dir, path => hasSuffix(path, 'yaml'));
             for (let file of files) {
                 this.addSingleYamlInfo(file);
             }
         }
         this.setPending('yaml', false);
+    }
+
+    private updateModuleInfo(source_directories: string[]) {
+        this.setPending('modules', true);
+        let modules: any = {};
+        for (let dir of source_directories) {
+            const full_dir = path.join(this.project.folder, dir);
+            if (!fs.existsSync(full_dir)) {
+                continue;
+            }
+
+            let files = filesInDir(full_dir, path => hasSuffix(path, 'qm'));
+            for (let file of files) {
+                modules[file] = true;
+            }
+        }
+        this.modules = Object.keys(modules);
+        this.setPending('modules', false);
     }
 
     private async updateBaseClassesInfo(source_directories: string[]) {
@@ -401,6 +425,18 @@ export class QorusProjectCodeInfo {
     }
 
     private async makeInheritancePairs(source_directories: string[]) {
+        await this.processDocumentSymbols(source_directories, canDefineInterfaceBaseClass, symbol => {
+            if (symbol.name && symbol.name.name && symbol.inherits && symbol.inherits.length) {
+                const name = symbol.name.name;
+                const inherited = symbol.inherits[0];
+                if (inherited.name && inherited.name.name) {
+                    this.inheritance_pairs[name] = inherited.name.name;
+                }
+            }
+        });
+    }
+
+    private async processDocumentSymbols(source_directories: string[], file_filter: Function, process: Function) {
         let num_pending = 0;
         for (let dir of source_directories) {
             const full_dir = path.join(this.project.folder, dir);
@@ -408,7 +444,7 @@ export class QorusProjectCodeInfo {
                 continue;
             }
 
-            let files = filesInDir(full_dir, canDefineInterfaceBaseClass);
+            let files = filesInDir(full_dir, file_filter);
             for (let file of files) {
                 num_pending++;
 
@@ -426,13 +462,7 @@ export class QorusProjectCodeInfo {
                 qore_vscode.activate().then(() => {
                     qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
                         symbols.forEach(symbol => {
-                            if (symbol.name && symbol.name.name && symbol.inherits && symbol.inherits.length) {
-                                const name = symbol.name.name;
-                                const inherited = symbol.inherits[0];
-                                if (inherited.name && inherited.name.name) {
-                                    this.inheritance_pairs[name] = inherited.name.name;
-                                }
-                            }
+                            process(symbol);
                         });
                         num_pending--;
                     });

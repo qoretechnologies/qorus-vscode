@@ -8,7 +8,11 @@ export const isDeployable = (file_path: string): boolean =>
 export const canBeParsed = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qsd', 'qjob', 'qclass', 'qconst', 'qmapper', 'qvmap', 'java']);
 
-const hasOneOfSuffixes = (file_path: string, suffixes): boolean => {
+export const hasSuffix = (file_path: string, suffix: string): boolean => {
+    return hasOneOfSuffixes(file_path, [suffix]);
+}
+
+const hasOneOfSuffixes = (file_path: string, suffixes: string[]): boolean => {
     const suffix: string | undefined = getSuffix(file_path);
     return suffix ? suffixes.includes(suffix) : false;
 }
@@ -23,7 +27,7 @@ export const canDefineInterfaceBaseClass = (file_path: string): boolean =>
 export const isVersion3 = (version?: string): boolean =>
     !!version && version.toString().substr(0, 1) == '3';
 
-export const getSuffix = (file_path: string): string | undefined => file_path.split('.').pop();
+const getSuffix = (file_path: string): string | undefined => file_path.split('.').pop();
 
 export const suffixToIfaceKind = (suffix: string): string | undefined => {
     switch (suffix) {
