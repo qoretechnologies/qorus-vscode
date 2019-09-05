@@ -16,6 +16,18 @@
                             "$ref": "#/definitions/qorus_instance"
                         }
                     }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "wiki": {
+                    "type": "string"
+                },
+                "issue_tracker": {
+                    "type": "string"
                 }
             },
             "required": ["source_directories", "qorus_instances"]
