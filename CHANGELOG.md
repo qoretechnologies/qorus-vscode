@@ -2,9 +2,11 @@
 
 ## 0.0.8
 
+* new feature: delete interfaces
+* now there is only one webview page with a navbar instead of separate pages for individual actions
 * fix: release packager page does not remember its initial state
   https://github.com/qoretechnologies/qorus-vscode/issues/55
-* feature: debugging support
+* new feature: debugging support
 * dependency on qore-vscode
 
 ## 0.0.7
