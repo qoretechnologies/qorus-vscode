@@ -52,6 +52,7 @@ export class QorusProjectCodeInfo {
     private yaml_files_watcher: vscode.FileSystemWatcher;
     private base_classes_files_watcher: vscode.FileSystemWatcher;
     private parsable_files_watcher: vscode.FileSystemWatcher;
+    private module_files_watcher: vscode.FileSystemWatcher;
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -146,6 +147,10 @@ export class QorusProjectCodeInfo {
         this.parsable_files_watcher.onDidCreate(() => this.update(['objects']));
         this.parsable_files_watcher.onDidChange(() => this.update(['objects']));
         this.parsable_files_watcher.onDidDelete(() => this.update(['objects']));
+
+        this.module_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.qm');
+        this.module_files_watcher.onDidCreate(() => this.update(['modules']));
+        this.module_files_watcher.onDidDelete(() => this.update(['modules']));
     }
 
     private waitForPending(info_list: string[], timeout: number = 30000): Promise<void> {
@@ -185,7 +190,6 @@ export class QorusProjectCodeInfo {
 
         switch (object_type) {
             case 'workflow-step':
-            case 'workflow-steps':
                 postMessage('objects', [
                     {
                         name: 'step 1',
@@ -224,7 +228,7 @@ export class QorusProjectCodeInfo {
                 break;
             case 'module':
                 this.waitForPending(['modules']).then(() => postMessage('objects',
-                    this.modules.map(name => {name})));
+                    this.modules.map(name => ({name}))));
                 break;
             case 'resource':
             case 'text-resource':
@@ -381,7 +385,7 @@ export class QorusProjectCodeInfo {
                 modules[file] = true;
             }
         }
-        this.modules = Object.keys(modules);
+        this.modules = Object.keys(modules).map(file_path => path.basename(file_path, '.qm'));
         this.setPending('modules', false);
     }
 

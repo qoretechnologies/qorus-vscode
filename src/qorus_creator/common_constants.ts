@@ -82,7 +82,7 @@ export const commonFields = default_target_dir => [
     {
         name: 'modules',
         mandatory: false,
-        type: 'array',
+        type: 'select-array',
         get_message: {
             action: 'creator-get-objects',
             object_type: 'module',
