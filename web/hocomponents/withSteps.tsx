@@ -12,11 +12,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [showSteps, setShowSteps] = useState<boolean>(true);
         const [steps, setSteps] = useState<any[]>(props.initialSteps);
-        const [stepsData, setStepsData] = useState({
-            1: {
-                name: 'Initial step',
-            },
-        });
+        const [stepsData, setStepsData] = useState(null);
         const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(props.initialSteps));
         const [highlightedSteps, setHighlightedSteps] = useState<{ level: number; groupId: string }>(null);
         const [highlightedStepGroupIds, setHighlightedStepGroupIds] = useState<number[]>(null);
@@ -74,7 +70,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 const stepId = current + 1;
 
                 setSteps(current => {
-                    const steps = insertNewStep(stepId, targetStep, current, before, parallel);
+                    let steps;
+                    // If target step is not defined, simply
+                    // push the step at the end of the list
+                    if (!targetStep) {
+                        steps = [...current, stepId];
+                    } else {
+                        steps = insertNewStep(stepId, targetStep, current, before, parallel);
+                    }
                     setParsedSteps(stepsParser.processSteps(steps));
                     return steps;
                 });
@@ -109,7 +112,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     };
 
     return mapProps(({ workflow, ...rest }) => ({
-        initialSteps: (workflow && workflow.steps) || [1],
+        initialSteps: (workflow && workflow.steps) || [],
         workflow,
         ...rest,
     }))(EnhancedComponent);

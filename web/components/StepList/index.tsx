@@ -8,46 +8,9 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../../containers/InterfaceCreator/panel';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import compose from 'recompose/compose';
+import { FieldType } from '../FieldSelector';
 
-const StyledStep = styled.div`
-    margin-left: ${({ isEven }) => (isEven ? '20px' : 0)};
-    position: relative;
-    box-sizing: border-box;
-
-    ${({ isHovered }) =>
-        isHovered &&
-        css`
-            outline: 2px dashed blue;
-            outline-offset: 2px;
-        `}
-`;
-
-const StyledStepName = styled.div`
-    display: block;
-    padding: 5px 0;
-    position: relative;
-
-    &:hover {
-        div:not(.steprWrapper) {
-            display: flex;
-        }
-        div.stepWrapper > span {
-            margin: 2px;
-        }
-    }
-
-    div.stepWrapper {
-        display: flex;
-        flex-flow: row;
-        span.stepName {
-            border: 1px solid #d7d7d7;
-            border-radius: 3px;
-            display: block;
-            padding: 5px;
-            flex: 2;
-        }
-    }
-
+const StyledStepWrapper = styled.div`
     .bp3-popover-wrapper {
         display: block;
         width: 100%;
@@ -57,6 +20,50 @@ const StyledStepName = styled.div`
     .bp3-popover-target {
         width: 100%;
     }
+`;
+
+const StyledStep = styled.div`
+    margin-left: ${({ isEven }) => (isEven ? '20px' : 0)};
+    position: relative;
+    box-sizing: border-box;
+
+    ${({ isHovered }) =>
+        isHovered &&
+        css`
+            outline: 2px dashed #137cbd;
+            outline-offset: 2px;
+        `}
+`;
+
+const StepNameWrapper = styled.div`
+    border: 1px solid #eee;
+    border-radius: 3px;
+    display: flex;
+    flex-flow: column;
+`;
+
+const StepContentWrapper = styled.div`
+    display: flex;
+`;
+
+const StyledStepName = styled.div`
+    display: block;
+    position: relative;
+    padding-bottom: 3px;
+
+    div.stepWrapper {
+        display: flex;
+        flex-flow: column;
+        flex: 1;
+        padding: 3px 6px;
+        .stepName {
+            display: block;
+            margin: 0;
+            flex: 2;
+            line-height: 20px;
+            color: #333;
+        }
+    }
 
     ${({ isEven }) =>
         isEven
@@ -65,11 +72,11 @@ const StyledStepName = styled.div`
                       content: '';
                       display: table;
                       position: absolute;
-                      width: 2px;
+                      width: 1px;
                       left: -11px;
-                      top: -5px;
-                      height: 27px;
-                      background-color: #d7d7d7;
+                      top: -1px;
+                      height: 37.5px;
+                      background-color: #eee;
                   }
 
                   &:after {
@@ -78,16 +85,16 @@ const StyledStepName = styled.div`
                       position: absolute;
                       width: 10px;
                       left: -10px;
-                      top: 20px;
-                      height: 2px;
-                      background-color: #d7d7d7;
+                      top: 35px;
+                      height: 1px;
+                      background-color: #eee;
                   }
 
                   ${({ isLast }) =>
                       !isLast &&
                       css`
                           &:before {
-                              height: 40px;
+                              height: 75px;
                           }
                       `}
               `
@@ -96,24 +103,22 @@ const StyledStepName = styled.div`
                       content: '';
                       display: table;
                       position: absolute;
-                      width: 2px;
+                      width: 1px;
                       left: 10px;
                       top: -5px;
                       height: 10px;
-                      background-color: #d7d7d7;
+                      background-color: #eee;
                   }
               `}
 `;
 
 const StyledStepButton = styled.div`
-    display: none;
+    display: flex;
     cursor: pointer;
-    width: ${({ top, bottom }) => (top || bottom ? '100%' : '15px')};
-    height: ${({ top, bottom }) => (top || bottom ? '10px' : '30px')};
-    margin-top: ${({ left, right }) => (left || right ? '2px' : 0)};
-    background-color: #eee;
-    color: #a9a9a9;
-    border-radius: 2px;
+    width: ${({ top, bottom }) => (top || bottom ? '100%' : '12px')};
+    height: ${({ top, bottom, big }) => (top || bottom ? (big ? '20px' : '12px') : '46px')};
+    color: #ccc;
+    background-color: #f6f6f6;
     line-height: 15px;
     font-size: 16px;
     justify-content: center;
@@ -121,6 +126,7 @@ const StyledStepButton = styled.div`
 
     &:hover {
         background-color: #ddd;
+        color: #bbb;
     }
 `;
 
@@ -149,102 +155,142 @@ const StepList = ({
         }
     }, [highlightedSteps]);
 
-    return steps.map((step, index) => (
-        <StyledStep
-            isEven={level % 2 === 0}
-            isHovered={isArray(step) && highlightedSteps && groupId + index.toString() === highlightedSteps.groupId}
-            isGroup={isArray(step)}
-        >
-            {isArray(step) ? (
-                <StepList
-                    steps={step}
-                    level={level + 1}
-                    highlightedSteps={highlightedSteps}
-                    setHighlightedSteps={setHighlightedSteps}
-                    groupId={groupId + index.toString()}
-                    setHighlightedStepGroupIds={setHighlightedStepGroupIds}
-                    handleStepInsert={handleStepInsert}
-                    stepsData={stepsData}
-                />
-            ) : (
-                <StyledStepName
-                    onMouseEnter={() => groupId !== 1 && setHighlightedSteps({ groupId })}
-                    onMouseLeave={() => setHighlightedSteps(null)}
-                    isEven={level % 2 !== 1 || index === 0}
-                    isLast={(level % 2 === 1 && index === 0) || index === steps.length - 1}
+    return (
+        <StyledStepWrapper>
+            {steps.map((step, index) => (
+                <StyledStep
+                    isEven={level % 2 === 0}
+                    isHovered={
+                        isArray(step) && highlightedSteps && groupId + index.toString() === highlightedSteps.groupId
+                    }
+                    isGroup={isArray(step)}
+                >
+                    {isArray(step) ? (
+                        <StepList
+                            steps={step}
+                            level={level + 1}
+                            highlightedSteps={highlightedSteps}
+                            setHighlightedSteps={setHighlightedSteps}
+                            groupId={groupId + index.toString()}
+                            setHighlightedStepGroupIds={setHighlightedStepGroupIds}
+                            handleStepInsert={handleStepInsert}
+                            stepsData={stepsData}
+                        />
+                    ) : (
+                        <StyledStepName
+                            onMouseEnter={() => groupId !== 1 && setHighlightedSteps({ groupId })}
+                            onMouseLeave={() => setHighlightedSteps(null)}
+                            isEven={level % 2 !== 1 || index === 0}
+                            isLast={(level % 2 === 1 && index === 0) || index === steps.length - 1}
+                        >
+                            <Popover
+                                isOpen={popover.isOpen && popover.step === step}
+                                position={popover.position}
+                                content={
+                                    <NewStepPopover
+                                        {...popover}
+                                        onCancel={() => setPopover({ isOpen: false })}
+                                        onStepInsert={handleStepInsert}
+                                        onSubmit={() => setPopover({ isOpen: false })}
+                                    />
+                                }
+                            >
+                                <StepNameWrapper>
+                                    <StyledStepButton
+                                        top
+                                        onClick={() =>
+                                            setPopover({
+                                                isOpen: true,
+                                                position: Position.TOP,
+                                                step,
+                                                before: true,
+                                            })
+                                        }
+                                    >
+                                        <Icon icon="chevron-up" />
+                                    </StyledStepButton>
+                                    <StepContentWrapper>
+                                        <StyledStepButton
+                                            left
+                                            onClick={() =>
+                                                setPopover({
+                                                    isOpen: true,
+                                                    position: Position.LEFT,
+                                                    step,
+                                                    before: true,
+                                                    parallel: true,
+                                                })
+                                            }
+                                        >
+                                            <Icon icon="chevron-left" />
+                                        </StyledStepButton>
+                                        <div className="stepWrapper">
+                                            <h4 className="stepName">{stepsData[step].name}</h4>
+                                            <FieldType>{`<normal-step>`}</FieldType>
+                                        </div>
+                                        <StyledStepButton
+                                            right
+                                            onClick={() =>
+                                                setPopover({
+                                                    isOpen: true,
+                                                    position: Position.RIGHT,
+                                                    step,
+                                                    parallel: true,
+                                                })
+                                            }
+                                        >
+                                            <Icon icon="chevron-right" />
+                                        </StyledStepButton>
+                                    </StepContentWrapper>
+                                    <StyledStepButton
+                                        bottom
+                                        onClick={() =>
+                                            setPopover({
+                                                isOpen: true,
+                                                position: Position.BOTTOM,
+                                                step,
+                                            })
+                                        }
+                                    >
+                                        <Icon icon="chevron-down" />
+                                    </StyledStepButton>
+                                </StepNameWrapper>
+                            </Popover>
+                        </StyledStepName>
+                    )}
+                </StyledStep>
+            ))}
+            {level === 1 && (
+                <Popover
+                    isOpen={popover.isOpen && !popover.step}
+                    position={popover.position}
+                    content={
+                        <NewStepPopover
+                            {...popover}
+                            onCancel={() => setPopover({ isOpen: false })}
+                            onStepInsert={handleStepInsert}
+                            onSubmit={() => setPopover({ isOpen: false })}
+                        />
+                    }
                 >
                     <StyledStepButton
-                        top
-                        onClick={() =>
-                            setPopover({
-                                isOpen: true,
-                                position: Position.TOP,
-                                step,
-                                before: true,
-                            })
-                        }
-                    >
-                        <Icon icon="chevron-up" />
-                    </StyledStepButton>
-                    <div className="stepWrapper">
-                        <StyledStepButton
-                            left
-                            onClick={() =>
-                                setPopover({
-                                    isOpen: true,
-                                    position: Position.LEFT,
-                                    step,
-                                    before: true,
-                                    parallel: true,
-                                })
-                            }
-                        >
-                            <Icon icon="chevron-left" />
-                        </StyledStepButton>
-                        <Popover
-                            isOpen={popover.isOpen && popover.step === step}
-                            position={popover.position}
-                            content={
-                                <NewStepPopover
-                                    {...popover}
-                                    onCancel={() => setPopover({ isOpen: false })}
-                                    onStepInsert={handleStepInsert}
-                                    onSubmit={() => setPopover({ isOpen: false })}
-                                />
-                            }
-                        >
-                            <span className="stepName">{stepsData[step].name}</span>
-                        </Popover>
-                        <StyledStepButton
-                            right
-                            onClick={() =>
-                                setPopover({
-                                    isOpen: true,
-                                    position: Position.RIGHT,
-                                    step,
-                                    parallel: true,
-                                })
-                            }
-                        >
-                            <Icon icon="chevron-right" />
-                        </StyledStepButton>
-                    </div>
-                    <StyledStepButton
                         bottom
+                        visible
+                        big
                         onClick={() =>
                             setPopover({
                                 isOpen: true,
                                 position: Position.BOTTOM,
-                                step,
+                                step: null,
                             })
                         }
                     >
-                        <Icon icon="chevron-down" />
+                        <Icon icon="add" />
                     </StyledStepButton>
-                </StyledStepName>
+                </Popover>
             )}
-        </StyledStep>
-    ));
+        </StyledStepWrapper>
+    );
 };
 
 const NewStepPopover = compose(
