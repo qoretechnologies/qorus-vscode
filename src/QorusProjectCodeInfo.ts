@@ -192,11 +192,11 @@ export class QorusProjectCodeInfo {
             case 'workflow-step':
                 postMessage('objects', [
                     {
-                        name: 'step 1',
+                        name: 'step 1:1.0',
                         desc: 'step 1 desc',
                     },
                     {
-                        name: 'step 2',
+                        name: 'step 2:1.0',
                         desc: 'step 2 desc',
                     }
                 ]);

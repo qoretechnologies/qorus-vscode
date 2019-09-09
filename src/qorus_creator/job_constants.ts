@@ -2,23 +2,21 @@ import { commonFields } from './common_constants';
 
 let template: any = {};
 
-template.qore =
-"\
+template.qore = '\
 class ${this.class_name} inherits ${this.base_class_name} {\n\
     run() {\n\
         log(LL_INFO, \"job info: %y\", getInfo());\n\
     }\n\
 }\n\
-";
+';
 
-template.java =
-"\
+template.java = '\
 class ${this.class_name} extends ${this.base_class_name} {\n\
     public void run() throws Throwable {\n\
         log(LL_INFO, \"job info: %y\", getInfo());\n\
     }\n\
 }\n\
-";
+';
 
 export const job_template = template;
 

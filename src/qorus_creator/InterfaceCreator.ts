@@ -121,21 +121,19 @@ export abstract class InterfaceCreator {
             const tag = key.replace(/_/g, '-');
 
             if (Array.isArray(value)) {
+                result += `${tag}:\n`;
                 switch (key) {
                     case 'groups':
-                        result += 'groups:\n';
                         for (let item of value) {
                             result += `${list_indent}${item.name}\n`;
                         }
                         break;
                     case 'tags':
-                        result += 'tags:\n';
                         for (let item of value) {
                             result += `${indent}${item.key}: ${item.value}\n`;
                         }
                         break;
                     case 'define_auth_label':
-                        result += `${tag}:\n`;
                         for (let item of value) {
                             result += `${indent}${item.label}: ${item.value}\n`;
                         }
@@ -146,7 +144,6 @@ export abstract class InterfaceCreator {
                     case 'functions':
                     case 'vmaps':
                     case 'mappers':
-                        result += `${tag}:\n`;
                         for (let item of value) {
                             result += `${list_indent}${item.name}\n`;
                         }
@@ -155,9 +152,14 @@ export abstract class InterfaceCreator {
                     case 'text_resource':
                     case 'bin_resource':
                     case 'template':
-                        result += `${tag}:\n`;
                         for (let item of value) {
                             result += `${list_indent}${item}\n`;
+                        }
+                        break;
+                    case 'steps':
+                        const lines = JSON.stringify(value, null, 4).split('\n');
+                        for (let line of lines) {
+                            result += `${indent}${line}\n`;
                         }
                         break;
                 }

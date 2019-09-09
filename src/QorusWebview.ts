@@ -8,6 +8,7 @@ import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
+//import { fake_create_data } from './qorus_creator/workflow_constants';
 
 const web_path = path.join(__dirname, '..', 'dist');
 
@@ -34,6 +35,7 @@ class QorusWebview {
     };
 
     open(initial_data: any = {}) {
+//        creator.editInterface('workflow', 'create', fake_create_data);
 
         this.initial_data = initial_data;
 
