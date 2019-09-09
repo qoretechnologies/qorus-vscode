@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { graph } from '../../helpers/diagram';
 import { reduce, map, size, forEach } from 'lodash';
+import { FieldName, FieldType } from '../FieldSelector';
 
 /**
  * Typical list of arguments for step-specific functions.
@@ -504,7 +505,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
         const transform = `translate(${left} ${this.getBoxLeftCoord(rowIdx)})`;
         return (
             <g className={`diagram__box`} transform={transform}>
-                <circle cx="22" cy="22" r="22" fill="#000" />
+                <circle cx="22" cy="22" r="22" fill="#ddd" />
             </g>
         );
     }
@@ -554,8 +555,8 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                 className={classNames({
                     diagram__box: true,
                 })}
-                fill={highlightedGroupSteps.includes(stepId) ? '#d7d7d7' : '#fff'}
-                stroke="#000"
+                stroke={highlightedGroupSteps.includes(stepId) ? '#137cbd' : '#ddd'}
+                fill="#fff"
                 transform={this.getBoxTransform(colIdx, rowIdx)}
             >
                 <rect {...this.getDefaultParams()} />
@@ -570,7 +571,8 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                                 wordBreak: 'break-word',
                             }}
                         >
-                            {stepsData[stepId].name}
+                            <FieldName>{stepsData[stepId].name}</FieldName>
+                            <FieldType>{'<normal-step>'}</FieldType>
                         </div>
                     </div>
                 </foreignObject>
@@ -632,20 +634,19 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see BOX_MARGIN
      */
     renderPath(start, end) {
-        const startX = start.leftStart ? start.leftStart : this.getBoxHorizontalCenter(start.colIdx) + 1;
-        const startY = this.getBoxVerticalCenter(start.rowIdx) + 2;
+        const startX = start.leftStart ? start.leftStart : this.getBoxHorizontalCenter(start.colIdx);
+        const startY = this.getBoxVerticalCenter(start.rowIdx);
 
-        const endX = this.getBoxHorizontalCenter(end.colIdx) + 1;
-        const endY = this.getBoxVerticalCenter(end.rowIdx) + 2;
+        const endX = this.getBoxHorizontalCenter(end.colIdx);
+        const endY = this.getBoxVerticalCenter(end.rowIdx);
 
-        const joint = Math.max(startY, endY) - this.getBoxHeight() / 2 - BOX_MARGIN / 2 + 1;
+        const joint = Math.max(startY, endY) - this.getBoxHeight() / 2 - BOX_MARGIN / 2;
 
         return (
             <path
                 fill="none"
-                stroke="#000"
+                stroke="#ddd"
                 d={`M${startX},${startY} ` + `L${startX},${joint} ` + `L${endX},${joint} ` + `L${endX},${endY}`}
-                className="diagram__path"
             />
         );
     }

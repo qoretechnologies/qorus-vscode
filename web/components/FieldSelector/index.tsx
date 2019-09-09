@@ -30,14 +30,14 @@ const StyledFieldSelector = styled.div`
     }
 `;
 
-const FieldName = styled.h4`
+export const FieldName = styled.h4`
     margin: 0;
     padding: 0;
     color: #333;
     line-height: 20px;
 `;
 
-const FieldType = styled.p`
+export const FieldType = styled.p`
     margin: 0;
     padding: 0;
     color: #aaa;
