@@ -23,6 +23,10 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                 id={'CreateInterfaceTabs'}
                 renderActiveTabPanelOnly
                 className={'fullHeightTabs'}
+                onChange={(newTabId: string): void => {
+                    initialData.changeTab('CreateInterface', newTabId);
+                }}
+                selectedTabId={initialData.subtab}
             >
                 <Tab
                     id={'service'}
@@ -44,6 +48,26 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                             type={'class'}
                             data={initialData.class}
                             isEditing={!!initialData.class}
+                        />
+                    }
+                />
+                <Tab
+                    id={'step'}
+                    title={t('Step')}
+                    panel={
+                        <InterfaceCreatorPanel
+                            type={'step'}
+                            data={initialData.step}
+                            isEditing={!!initialData.step}
+                            onSubmit={
+                                initialData.stepCallback
+                                    ? fields => {
+                                          const nameField = fields.find(field => field.name === 'name');
+                                          initialData.stepCallback(nameField.value);
+                                      }
+                                    : null
+                            }
+                            forceSubmit
                         />
                     }
                 />

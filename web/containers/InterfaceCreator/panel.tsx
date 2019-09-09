@@ -23,9 +23,11 @@ export interface IInterfaceCreatorPanel {
     type: string;
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
-    onSubmit: () => void;
+    onSubmit: (fields: any) => void;
     t: TTranslator;
     methodsList: { id: number; name: string }[];
+    forceSubmit?: boolean;
+    resetFields: (type: string) => void;
 }
 
 export interface IField {
@@ -106,6 +108,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     isEditing,
     allMethodsData,
     methodsList,
+    forceSubmit,
+    resetFields,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -169,7 +173,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         };
     }, [activeId]);
 
-    const resetFields: (newActiveId: number) => void = newActiveId => {
+    const resetLocalFields: (newActiveId: number) => void = newActiveId => {
         // Hide the fields until they are fetched
         setShow(false);
         // Change the name if needed
@@ -338,8 +342,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     const handleSubmitClick: () => void = () => {
         if (onSubmit) {
-            onSubmit();
-        } else {
+            onSubmit(selectedFields);
+        }
+
+        if (!onSubmit || forceSubmit) {
             let newData: { [key: string]: any };
             // If this is service methods
             if (type === 'service-methods') {
@@ -394,6 +400,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 iface_kind: type === 'service-methods' ? 'service' : type,
                 data: newData,
             });
+            // Reset the fields
+            resetFields(type);
         }
     };
 
@@ -512,7 +520,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             </Tooltip>
                         )}
                         <Tooltip content={t('ResetTooltip')}>
-                            <Button text={t('Reset')} icon={'history'} onClick={() => resetFields(activeId)} />
+                            <Button text={t('Reset')} icon={'history'} onClick={() => resetLocalFields(activeId)} />
                         </Tooltip>
                         <Button
                             text={t(submitLabel)}

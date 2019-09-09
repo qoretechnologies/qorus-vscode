@@ -18,6 +18,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
+                data.tab = 'CreateInterface';
+                data.subtab = 'workflow';
+
                 setInitialData(data);
             });
 
@@ -32,6 +35,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }));
         };
 
+        const setStepSubmitCallback: (callback: () => any) => void = (callback): void => {
+            setInitialData(current => ({
+                ...current,
+                stepCallback: callback,
+            }));
+        };
+
         if (!initialData) {
             return null;
         }
@@ -41,6 +51,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 value={{
                     ...initialData,
                     changeTab,
+                    setStepSubmitCallback,
                 }}
             >
                 <InitialContext.Consumer>

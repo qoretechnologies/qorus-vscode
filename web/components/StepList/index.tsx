@@ -2,11 +2,12 @@ import React, { FunctionComponent, useState, useRef, createRef, useEffect } from
 import styled, { css } from 'styled-components';
 import { isArray, flattenDeep } from 'lodash';
 import { Icon, Popover, ButtonGroup, Button, Position, PopoverInteractionKind } from '@blueprintjs/core';
-import shortid from 'shortid';
 import String from '../Field/string';
 import SelectField from '../Field/select';
 import withTextContext from '../../hocomponents/withTextContext';
 import { FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../../containers/InterfaceCreator/panel';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import compose from 'recompose/compose';
 
 const StyledStep = styled.div`
     margin-left: ${({ isEven }) => (isEven ? '20px' : 0)};
@@ -246,10 +247,13 @@ const StepList = ({
     ));
 };
 
-const NewStepPopover = withTextContext()(({ t, onStepInsert, step, before, parallel, onSubmit, onCancel }) => {
+const NewStepPopover = compose(
+    withInitialDataConsumer(),
+    withTextContext()
+)(({ t, onStepInsert, step, before, parallel, onSubmit, onCancel, initialData }) => {
     const [name, setName] = useState<string>('');
 
-    const handleNameChange: (name: string, value: string) => void = (name, value) => {
+    const handleNameChange: (name: string, value: string) => void = (_name, value) => {
         setName(value);
     };
 
@@ -257,8 +261,19 @@ const NewStepPopover = withTextContext()(({ t, onStepInsert, step, before, paral
         <StyledPopover>
             <FieldWrapper>
                 <FieldInputWrapper>
-                    <p>Create new step</p>
-                    <String onChange={handleNameChange} name="name" value={name} />
+                    <ButtonGroup>
+                        <Button
+                            text={t('CreateNewStep')}
+                            icon="add"
+                            onClick={() => {
+                                initialData.changeTab('CreateInterface', 'step');
+                                initialData.setStepSubmitCallback(stepName => {
+                                    onStepInsert({ name: stepName }, step, before, parallel);
+                                    initialData.changeTab('CreateInterface', 'workflow');
+                                });
+                            }}
+                        />
+                    </ButtonGroup>
                 </FieldInputWrapper>
             </FieldWrapper>
             <FieldWrapper>
@@ -267,11 +282,11 @@ const NewStepPopover = withTextContext()(({ t, onStepInsert, step, before, paral
                     <SelectField
                         get_message={{
                             action: 'creator-get-objects',
-                            object_type: 'workflow-steps',
+                            object_type: 'workflow-step',
                         }}
                         return_message={{
                             action: 'creator-return-objects',
-                            object_type: 'workflow-steps',
+                            object_type: 'workflow-step',
                             return_value: 'objects',
                         }}
                         defaultItems={[
@@ -280,6 +295,7 @@ const NewStepPopover = withTextContext()(({ t, onStepInsert, step, before, paral
                                 desc: 'This is an existing step',
                             },
                         ]}
+                        value={name}
                         onChange={handleNameChange}
                         name="name"
                     />

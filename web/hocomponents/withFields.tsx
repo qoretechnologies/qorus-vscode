@@ -12,6 +12,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             ['service-methods']: {},
             workflow: [],
             job: [],
+            class: [],
+            step: [],
         });
         const [selectedFields, setLocalSelectedFields] = useState<{
             [key: string]: IField[] | { [key: string]: IField[] };
@@ -20,19 +22,41 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             ['service-methods']: {},
             workflow: [],
             job: [],
+            class: [],
+            step: [],
         });
         const [query, setLocalQuery] = useState<{ [key: string]: string }>({
             service: '',
             ['service-methods']: '',
             workflow: '',
             job: '',
+            class: '',
+            step: '',
         });
         const [selectedQuery, setLocalSelectedQuery] = useState<{ [key: string]: string }>({
             service: '',
             ['service-methods']: '',
             workflow: '',
             job: '',
+            class: '',
+            step: '',
         });
+
+        const resetFields: (type: string) => void = type => {
+            setLocalFields(current => {
+                const newResult = { ...current };
+                // Reset the fields
+                newResult[type] = type === 'service-methods' ? {} : [];
+                return newResult;
+            });
+
+            setLocalSelectedFields(current => {
+                const newResult = { ...current };
+                // Reset the fields
+                newResult[type] = type === 'service-methods' ? {} : [];
+                return newResult;
+            });
+        };
 
         const setFields = (type, value, activeId) => {
             setLocalFields(current => {
@@ -140,6 +164,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     isFormValid,
                     isMethodValid,
                     removeMethodFromFields: removeMethod,
+                    resetFields,
                 }}
             >
                 <Component {...props} />
