@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { InterfaceCreator } from './InterfaceCreator';
-import { workflow_template } from './workflow_constants';
+import { subclass_template } from './common_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -25,7 +25,7 @@ class WorkflowCreator extends InterfaceCreator {
         let message: string;
         switch (edit_type) {
             case 'create':
-                contents = this.fillTemplate(workflow_template, {
+                contents = this.fillTemplate(subclass_template, {
                     class_name: data.class_name,
                     base_class_name: data.base_class_name,
                 });

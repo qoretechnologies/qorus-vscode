@@ -155,6 +155,10 @@
                 "title": "Qorus: Create Qorus workflow"
             },
             {
+                "command": "qorus.createStep",
+                "title": "Qorus: Create Qorus workflow step"
+            },
+            {
                 "command": "qorus.createClass",
                 "title": "Qorus: Create class"
             },
@@ -225,6 +229,11 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createWorkflow",
+                    "group": "2_workspace"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createStep",
                     "group": "2_workspace"
                 },
                 {

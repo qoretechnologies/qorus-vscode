@@ -41,6 +41,7 @@ class InterfaceCreatorDispatcher {
                 workflow_creator.edit(data, edit_type);
                 break;
             case 'class':
+            case 'step':
                 class_creator.edit(data, edit_type);
                 break;
         }
