@@ -8,29 +8,25 @@ export const comment_chars = {
     qore: '#',
 };
 
-export const default_parse_options = "\
+
+export const default_parse_options = '\
 %new-style\n\
 %strict-args\n\
 %require-types\n\
 %enable-all-warnings\n\n\
-";
+';
 
 
-let class_templ: any = {};
+export const class_template = {
+    qore: 'class ${this.class_name} {\n}\n',
+    java: 'class ${this.class_name} {\n}\n',
+};
 
-class_templ.qore =
-"\
-class ${this.class_name} {\n\
-}\n\
-";
 
-class_templ.java =
-"\
-class ${this.class_name} {\n\
-}\n\
-";
-
-export const class_template = class_templ;
+export const subclass_template = {
+    qore: 'class ${this.class_name} inherits ${this.base_class_name} {\n}\n',
+    java: 'class ${this.class_name} extends ${this.base_class_name} {\n}\n',
+};
 
 
 export const classFields = default_target_dir => [
@@ -60,6 +56,11 @@ export const classFields = default_target_dir => [
     },
     {
         name: 'desc',
+    },
+    {
+        name: 'class_name',
+        prefill: 'name',
+        style: 'PascalCase',
     },
     {
         name: 'author',
@@ -98,11 +99,6 @@ export const commonFields = default_target_dir => [
         mandatory: false,
         type: 'boolean',
         default_value: true,
-    },
-    {
-        name: 'class_name',
-        prefill: 'name',
-        style: 'PascalCase',
     },
     {
         name: 'lang',

@@ -229,7 +229,7 @@ export abstract class InterfaceCreator {
         return path.join(initial_data.target_dir, initial_data.target_file);
     }
 
-    protected fillTemplate = (template: string, vars: any, add_default_parse_options: boolean = true): string =>
+    protected fillTemplate = (template: any, vars: any, add_default_parse_options: boolean = true): string =>
         (add_default_parse_options && this.lang === 'qore' ? default_parse_options : '')
             + new Function('return `' + template[this.lang] + '`;').call(vars);
 };
