@@ -121,7 +121,7 @@ export abstract class InterfaceCreator {
             const tag = key.replace(/_/g, '-');
 
             if (Array.isArray(value)) {
-                result += `${tag}:\n`;
+                result += key === 'steps' ? `${tag}: >-\n` : `${tag}:\n`;
                 switch (key) {
                     case 'groups':
                         for (let item of value) {
