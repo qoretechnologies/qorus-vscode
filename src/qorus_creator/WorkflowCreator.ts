@@ -6,7 +6,7 @@ import * as msg from '../qorus_message';
 
 class WorkflowCreator extends InterfaceCreator {
     constructor() {
-        super('.qclass');
+        super('.qwf');
     }
 
     edit(data: any, edit_type: string) {

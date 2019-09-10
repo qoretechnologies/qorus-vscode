@@ -17,11 +17,11 @@ class ClassCreator extends InterfaceCreator {
         switch (edit_type) {
             case 'create':
                 contents = data.base_class_name
-                    ? this.fillTemplate(subclass_template, {
-                        class_name: data.class_name,
-                        base_class_name: data.base_class_name
+                    ?   this.fillTemplate(subclass_template, {
+                            class_name: data.class_name,
+                            base_class_name: data.base_class_name
                         })
-                    : this.fillTemplate(class_template, { class_name: data.class_name });
+                    :   this.fillTemplate(class_template, { class_name: data.class_name });
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             default:
