@@ -29,6 +29,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Only set initial data if we are
                 // switching tabs
                 if (data.tab) {
+                    setInitialData(null);
                     // Get the interface data without the noise
                     const interfaceData = omit(data, ['iface_kind', 'tab', 'subtab']);
                     // Set the interface data
