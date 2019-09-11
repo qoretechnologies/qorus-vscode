@@ -1255,6 +1255,30 @@ msgstr "The abstract class for normal array steps"
 msgid "QorusSubworkflowArrayStepDesc"
 msgstr "The abstract class for subworkflow array steps"
 
+msgid "QorusAsyncStep"
+msgstr "Asynchronous Step"
+
+msgid "QorusEventStep"
+msgstr "Synchronization Event Step"
+
+msgid "QorusNormalStep"
+msgstr "Normal Step"
+
+msgid "QorusSubworkflowStep"
+msgstr "Subworkflow Step"
+
+msgid "QorusAsyncArrayStep"
+msgstr "Array Asynchronous Step"
+
+msgid "QorusEventArrayStep"
+msgstr "Array Synchronization Event Step"
+
+msgid "QorusNormalArrayStep"
+msgstr "Array Normal Step"
+
+msgid "QorusSubworkflowArrayStep"
+msgstr "Array Subworkflow Step"
+
 msgid "CannotDeleteTheOnlyOneServiceMethod"
 msgstr "Cannot delete service method since it is the only one and each service must have at least one method"
 

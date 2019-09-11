@@ -16,11 +16,8 @@ export abstract class InterfaceCreator {
     protected file_base: string;
     protected code_info: QorusProjectCodeInfo;
 
-    protected constructor(suffix: string) {
+    protected init(data: any, suffix: string): any {
         this.suffix = suffix;
-    }
-
-    protected init(data: any): any {
         const { target_dir, target_file, ...other_data } = data;
 
         this.target_dir = target_dir;

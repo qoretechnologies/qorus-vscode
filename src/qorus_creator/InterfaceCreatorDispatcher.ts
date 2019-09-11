@@ -42,7 +42,7 @@ class InterfaceCreatorDispatcher {
                 break;
             case 'class':
             case 'step':
-                class_creator.edit(data, edit_type);
+                class_creator.edit(data, edit_type, iface_kind);
                 break;
         }
     }

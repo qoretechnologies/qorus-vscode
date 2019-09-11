@@ -5,12 +5,8 @@ import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    constructor() {
-        super('.qclass');
-    }
-
-    edit(data: any, edit_type: string) {
-        const header_data = this.init(data);
+    edit(data: any, edit_type: string, iface_kind: string) {
+        const header_data = this.init(data, '.q' + iface_kind);
 
         let contents: string;
         let message: string;
@@ -30,7 +26,7 @@ class ClassCreator extends InterfaceCreator {
         }
 
         const headers = ClassCreator.createHeaders({
-            type: 'class',
+            type: iface_kind,
             ...header_data,
             code: this.file_name
         });

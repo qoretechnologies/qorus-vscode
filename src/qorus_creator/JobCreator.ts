@@ -6,12 +6,8 @@ import * as msg from '../qorus_message';
 
 
 class JobCreator extends InterfaceCreator {
-    constructor() {
-        super('.qjob');
-    }
-
     edit(data: any, edit_type: string) {
-        const header_data = this.init(data);
+        const header_data = this.init(data, '.qjob');
 
         const initial_data = qorus_webview.opening_data;
         const job_info = this.code_info.codeInfo('job', JobCreator.origPath(initial_data.job) || this.file_path);

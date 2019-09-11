@@ -122,8 +122,8 @@ export const fake_create_data = {
     "steps": [
         'step 1:1.0',
         [
-          'step 2:1.0',
-          ['step 3:1.0', 'step 4:1.0']
+            'step 2:1.0',
+            ['step 3:1.0', 'step 4:1.0']
         ],
         'step 5:1.0',
     ]

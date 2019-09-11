@@ -7,10 +7,6 @@ import * as msg from '../qorus_message';
 
 
 class ServiceCreator extends InterfaceCreator {
-    constructor() {
-        super('.qsd');
-    }
-
     edit(data: any, edit_type: string) {
         if (!data.methods || !data.methods.length) {
             data.methods = [{
@@ -19,7 +15,7 @@ class ServiceCreator extends InterfaceCreator {
             }];
         }
 
-        const other_data = this.init(data);
+        const other_data = this.init(data, '.qsd');
         const { methods, ...header_data } = other_data;
 
         const initial_data = qorus_webview.opening_data;
