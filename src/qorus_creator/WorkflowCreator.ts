@@ -6,7 +6,6 @@ import * as msg from '../qorus_message';
 
 class WorkflowCreator extends InterfaceCreator {
     edit(data: any, edit_type: string) {
-        msg.debug({data});
         const header_data = this.init(data, '.qwf');
 
         let contents: string;
