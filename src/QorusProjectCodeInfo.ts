@@ -66,10 +66,6 @@ export class QorusProjectCodeInfo {
         return this.yaml_data_by_file;
     }
 
-    get yaml_info_by_class(): any {
-        return this.yaml_data_by_class;
-    }
-
     addText(document: vscode.TextDocument) {
         const file = document.uri.fsPath;
         const iface_kind = suffixToIfaceKind(path.extname(file));

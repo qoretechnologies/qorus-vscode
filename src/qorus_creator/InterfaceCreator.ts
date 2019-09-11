@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
-import { qorus_webview } from '../QorusWebview';
 import { lang_suffix, default_parse_options } from './common_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -72,7 +71,6 @@ export abstract class InterfaceCreator {
                 }
 
                 workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
-                qorus_webview.dispose();
             });
         });
     }
