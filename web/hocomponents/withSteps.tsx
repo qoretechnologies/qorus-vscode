@@ -64,6 +64,23 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return newSteps;
         };
 
+        const removeStep: (stepId: number, steps: any[]) => any[] = stepId => {
+            const newSteps: (number | number[])[] = [];
+            // Build the new steps
+            steps.forEach((step: number | number[]): void => {
+                if (isArray(step)) {
+                    // Push the recurse
+                    newSteps.push(removeStep(stepId, step));
+                }
+                // Else push the step back
+                else if (step !== stepId) {
+                    newSteps.push(step);
+                }
+            });
+            // Save the steps
+            return newSteps;
+        };
+
         const handleStepInsert = (data: any, targetStep: number, before?: boolean, parallel?: boolean) => {
             // Set new stepid
             setLastStepId((current: number) => {
@@ -94,6 +111,16 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
+        const handleStepRemove = (stepId: number) => {
+            setSteps(current => {
+                const steps = removeStep(stepId, current);
+
+                setParsedSteps(stepsParser.processSteps(steps));
+
+                return steps;
+            });
+        };
+
         return (
             <StepsContext.Provider
                 value={{
@@ -106,6 +133,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     highlightedStepGroupIds,
                     setHighlightedStepGroupIds,
                     handleStepInsert,
+                    handleStepRemove,
                     parsedSteps,
                     stepsData,
                 }}
@@ -117,7 +145,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
     return mapProps(({ workflow, ...rest }) => ({
         initialSteps: (workflow && workflow.steps) || [],
-        initialShowSteps: (workflow && workflow.show_steps) || true,
+        initialShowSteps: (workflow && workflow.show_steps) || false,
         workflow,
         ...rest,
     }))(EnhancedComponent);

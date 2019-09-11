@@ -51,6 +51,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, s
                 highlightedStepGroupIds,
                 setHighlightedStepGroupIds,
                 handleStepInsert,
+                handleStepRemove,
                 parsedSteps,
                 stepsData,
             }) => (
@@ -92,7 +93,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, s
                                             highlightedStepGroupIds={highlightedStepGroupIds}
                                             setHighlightedStepGroupIds={setHighlightedStepGroupIds}
                                             handleStepInsert={handleStepInsert}
+                                            onStepRemove={handleStepRemove}
                                             stepsData={stepsData}
+                                            stepsCount={steps.length}
                                         />
                                     </ContentWrapper>
                                 </SidePanel>
@@ -116,7 +119,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, s
                                             </Tooltip>
                                             <Button
                                                 text={t('Submit')}
-                                                disabled={false}
+                                                disabled={steps.length === 0}
                                                 icon={'tick'}
                                                 intent={Intent.SUCCESS}
                                                 onClick={() => {

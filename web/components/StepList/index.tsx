@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { isArray, flattenDeep, size } from 'lodash';
+import { isArray, flattenDeep, size, some } from 'lodash';
 import { Icon, Popover, ButtonGroup, Button, Position, Classes } from '@blueprintjs/core';
 import SelectField from '../Field/select';
 import withTextContext from '../../hocomponents/withTextContext';
 import { FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../../containers/InterfaceCreator/panel';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import compose from 'recompose/compose';
-import { FieldType } from '../FieldSelector';
+import { FieldType, FieldName } from '../FieldSelector';
 
 const StyledStepWrapper = styled.div`
     .bp3-popover-wrapper {
@@ -55,6 +55,12 @@ const StyledStepName = styled.div`
     display: block;
     position: relative;
     padding-bottom: 3px;
+
+    &:hover {
+        div {
+            opacity: 1;
+        }
+    }
 
     div.stepWrapper {
         display: flex;
@@ -153,6 +159,15 @@ const StyledSeparator = styled.div`
     margin: 3px 0;
 `;
 
+const StyledStepActions = styled.div`
+    opacity: 0;
+    transition: all 0.2s ease-out;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+`;
+
 const StepList = ({
     level = 1,
     steps,
@@ -162,6 +177,8 @@ const StepList = ({
     setHighlightedStepGroupIds,
     handleStepInsert,
     stepsData,
+    onStepRemove,
+    stepsCount,
     t,
 }) => {
     const [popover, setPopover] = useState({});
@@ -201,6 +218,7 @@ const StepList = ({
                                     position: Position.TOP,
                                     before: true,
                                     step: null,
+                                    stepsData,
                                 })
                             }
                         >
@@ -229,6 +247,7 @@ const StepList = ({
                                 setHighlightedStepGroupIds={setHighlightedStepGroupIds}
                                 handleStepInsert={handleStepInsert}
                                 stepsData={stepsData}
+                                onStepRemove={onStepRemove}
                             />
                         ) : (
                             <StyledStepName
@@ -258,6 +277,7 @@ const StepList = ({
                                                     position: Position.TOP,
                                                     step,
                                                     before: true,
+                                                    stepsData,
                                                 })
                                             }
                                         >
@@ -273,6 +293,7 @@ const StepList = ({
                                                         step,
                                                         before: true,
                                                         parallel: true,
+                                                        stepsData,
                                                     })
                                                 }
                                             >
@@ -281,6 +302,16 @@ const StepList = ({
                                             <div className="stepWrapper">
                                                 <h4 className="stepName">{stepsData[step].name}</h4>
                                                 <FieldType>{`<normal-step>`}</FieldType>
+                                                <StyledStepActions>
+                                                    <ButtonGroup minimal>
+                                                        <Button icon="edit" />
+                                                        <Button
+                                                            icon="remove"
+                                                            disabled={stepsCount === 1}
+                                                            onClick={() => onStepRemove(step)}
+                                                        />
+                                                    </ButtonGroup>
+                                                </StyledStepActions>
                                             </div>
                                             <StyledStepButton
                                                 right
@@ -290,6 +321,7 @@ const StepList = ({
                                                         position: Position.RIGHT,
                                                         step,
                                                         parallel: true,
+                                                        stepsData,
                                                     })
                                                 }
                                             >
@@ -303,6 +335,7 @@ const StepList = ({
                                                     isOpen: true,
                                                     position: Position.BOTTOM,
                                                     step,
+                                                    stepsData,
                                                 })
                                             }
                                         >
@@ -341,6 +374,7 @@ const StepList = ({
                                     isOpen: true,
                                     position: Position.BOTTOM,
                                     step: null,
+                                    stepsData,
                                 })
                             }
                         >
@@ -356,71 +390,58 @@ const StepList = ({
 const NewStepPopover = compose(
     withInitialDataConsumer(),
     withTextContext()
-)(({ t, onStepInsert, step, before, parallel, onSubmit, onCancel, initialData }) => {
-    const [name, setName] = useState<string>('');
-
-    const handleNameChange: (name: string, value: string) => void = (_name, value) => {
-        setName(value);
+)(({ t, onStepInsert, step, before, parallel, onSubmit, onCancel, initialData, stepsData }) => {
+    const handleInsert: (name: string) => void = name => {
+        onStepInsert({ name }, step, before, parallel);
+        onSubmit();
     };
 
     return (
         <StyledPopover>
-            <FieldWrapper>
+            <FieldName>
+                {t('AddNewStep')} {before ? t('Before') : t('After')} {step ? stepsData[step].name : 'all steps'}
+            </FieldName>
+            <ActionsWrapper>
                 <FieldInputWrapper>
-                    <ButtonGroup>
+                    <ButtonGroup fill>
                         <Button
-                            text={t('CreateNewStep')}
+                            intent="success"
                             icon="add"
                             onClick={() => {
                                 initialData.changeTab('CreateInterface', 'step');
                                 initialData.setStepSubmitCallback(stepName => {
-                                    onStepInsert({ name: stepName }, step, before, parallel);
+                                    handleInsert(stepName);
                                     initialData.changeTab('CreateInterface', 'workflow');
                                 });
                             }}
                         />
+                        <SelectField
+                            get_message={{
+                                action: 'creator-get-objects',
+                                object_type: 'workflow-step',
+                            }}
+                            return_message={{
+                                action: 'creator-return-objects',
+                                object_type: 'workflow-step',
+                                return_value: 'objects',
+                            }}
+                            predicate={(name: string) => !some(stepsData, item => item.name === name)}
+                            value={name}
+                            onChange={(_name, value) => {
+                                handleInsert(value);
+                            }}
+                            placeholder={t('OrSelectExisting')}
+                            name="name"
+                        />
                     </ButtonGroup>
                 </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper>
-                <FieldInputWrapper>
-                    <p>Or select existing one</p>
-                    <SelectField
-                        get_message={{
-                            action: 'creator-get-objects',
-                            object_type: 'workflow-step',
-                        }}
-                        return_message={{
-                            action: 'creator-return-objects',
-                            object_type: 'workflow-step',
-                            return_value: 'objects',
-                        }}
-                        defaultItems={[
-                            {
-                                name: 'Existing step 1',
-                                desc: 'This is an existing step',
-                            },
-                        ]}
-                        value={name}
-                        onChange={handleNameChange}
-                        name="name"
-                    />
-                </FieldInputWrapper>
-            </FieldWrapper>
+            </ActionsWrapper>
             <ActionsWrapper>
                 <ButtonGroup fill>
                     <Button
                         text={t('Cancel')}
                         onClick={() => {
                             onCancel();
-                        }}
-                    />
-                    <Button
-                        text={t('Save')}
-                        intent="success"
-                        onClick={() => {
-                            onStepInsert({ name }, step, before, parallel);
-                            onSubmit();
                         }}
                     />
                 </ButtonGroup>

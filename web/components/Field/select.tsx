@@ -14,6 +14,8 @@ export interface ISelectField {
     postMessage: TPostMessage;
     t: TTranslator;
     defaultItems?: any[];
+    predicate: (name: string) => boolean;
+    placeholder: string;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -26,6 +28,8 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     value,
     defaultItems,
     t,
+    predicate,
+    placeholder,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -55,8 +59,15 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     };
 
     // Filter the items
-    const filteredItems: any[] =
+    let filteredItems: any[] =
         query === '' ? items : items.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
+
+    // If we should run the items thru predicate
+    if (predicate) {
+        filteredItems = filteredItems.filter(item => predicate(item.name));
+    }
+
+    console.log(filteredItems);
 
     return (
         <Select
@@ -73,11 +84,16 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             inputProps={{
                 placeholder: t('Filter'),
             }}
+            className="select-field"
             onItemSelect={(item: any) => handleSelectClick(item)}
             query={query}
             onQueryChange={(newQuery: string) => setQuery(newQuery)}
         >
-            <Button text={value ? value : t('PleaseSelect')} rightIcon={'caret-down'} onClick={handleClick} />
+            <Button
+                text={value ? value : placeholder || t('PleaseSelect')}
+                rightIcon={'caret-down'}
+                onClick={handleClick}
+            />
         </Select>
     );
 };

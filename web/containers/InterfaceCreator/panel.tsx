@@ -28,6 +28,7 @@ export interface IInterfaceCreatorPanel {
     methodsList: { id: number; name: string }[];
     forceSubmit?: boolean;
     resetFields: (type: string) => void;
+    openFileOnSubmit: boolean;
 }
 
 export interface IField {
@@ -110,6 +111,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     methodsList,
     forceSubmit,
     resetFields,
+    openFileOnSubmit,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -399,6 +401,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                 iface_kind: type === 'service-methods' ? 'service' : type,
                 data: newData,
+                open_file_on_success: openFileOnSubmit,
             });
             // Reset the fields
             resetFields(type);

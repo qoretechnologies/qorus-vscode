@@ -1323,3 +1323,24 @@ msgstr "1. Add Workflow Steps"
 
 msgid "StepsDiagram"
 msgstr "2. Workflow Steps Diagram"
+
+msgid "NoStepsAdded"
+msgstr "No steps added"
+
+msgid "DiagramIsEmpty"
+msgstr "Diagram is empty"
+
+msgid "DiagramEmptyDescription"
+msgstr "Start by adding steps in the left column"
+
+msgid "Before"
+msgstr "before"
+
+msgid "After"
+msgstr "after"
+
+msgid "AddNewStep"
+msgstr "Add new step"
+
+msgid "OrSelectExisting"
+msgstr "Select existing"

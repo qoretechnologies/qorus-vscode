@@ -58,6 +58,12 @@ body {
     width: 100%;
 }
 
+.select-field,
+.select-field div,
+.select-field button {
+    width: 100%;
+}
+
 $navbar_offset: 54px;
 
 .navbar-offset {

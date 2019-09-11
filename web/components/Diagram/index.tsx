@@ -83,6 +83,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     state = {
         nodes: null,
         rows: null,
+        highlightedSteps: this.props.highlightedGroupSteps || [],
     };
 
     getStepDeps(stepId: number, steps) {
@@ -121,6 +122,12 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
             this.setState({
                 nodes: graph(this.getStepDeps(undefined, nextProps.steps)),
                 rows: this.buildRows(graph(this.getStepDeps(undefined, nextProps.steps))),
+            });
+        }
+
+        if (nextProps.highlightedGroupSteps !== this.props.highlightedGroupSteps) {
+            this.setState({
+                highlightedSteps: nextProps.highlightedGroupSteps,
             });
         }
     }
@@ -549,19 +556,38 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see getTextParams
      */
     renderDefaultBox(stepId, colIdx, row, rowIdx) {
-        const { stepsData, highlightedGroupSteps } = this.props;
+        const { stepsData, steps } = this.props;
+        const { highlightedSteps } = this.state;
         return (
             <g
                 className={classNames({
                     diagram__box: true,
                 })}
-                stroke={highlightedGroupSteps.includes(stepId) ? '#137cbd' : '#ddd'}
+                stroke={highlightedSteps.includes(stepId) ? '#137cbd' : '#ddd'}
                 fill="#fff"
                 transform={this.getBoxTransform(colIdx, rowIdx)}
             >
                 <rect {...this.getDefaultParams()} />
                 <foreignObject x={0} y={0} width={this.getBoxWidth()} height={this.getBoxHeight()}>
-                    <div style={{ height: '100%', padding: '5px' }}>
+                    <div
+                        style={{ height: '100%', padding: '5px' }}
+                        onMouseEnter={() => {
+                            // Get the step dependencies
+                            const deps: number[] = steps[stepId];
+                            // Check if the step has any dependencies
+                            if (deps.length) {
+                                // Add the deps and this step to highlights
+                                this.setState({
+                                    highlightedSteps: [...deps, stepId],
+                                });
+                            }
+                        }}
+                        onMouseLeave={() => {
+                            this.setState({
+                                highlightedSteps: [],
+                            });
+                        }}
+                    >
                         <div
                             style={{
                                 justifyContent: 'center',
