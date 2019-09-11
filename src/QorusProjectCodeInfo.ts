@@ -21,7 +21,7 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
 const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects', 'modules'];
-const iface_kinds = ['service', 'job'];
+const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
 const default_version = '1.0';
 
 export interface QoreTextDocument {
@@ -38,6 +38,7 @@ export class QorusProjectCodeInfo {
     private object_info: any = {};
     private yaml_data_by_file: any = {};
     private yaml_data_by_class: any = {};
+    private yaml_data_by_name: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
@@ -57,9 +58,7 @@ export class QorusProjectCodeInfo {
 
     constructor(project: QorusProject) {
         this.project = project;
-        this.initObjectInfo();
-        this.initCodeInfo();
-        this.initIfaceClassesInfo();
+        this.initInfo();
         this.initFileWatchers();
         this.update(undefined, true);
     }
@@ -115,19 +114,16 @@ export class QorusProjectCodeInfo {
         return this.inheritance_pairs[class_name];
     }
 
-    private initObjectInfo() {
+    private initInfo() {
         for (const type of object_info_types) {
             this.object_info[type] = {};
         }
-    }
 
-    private initCodeInfo() {
         for (const iface_kind of iface_kinds) {
             this.code_info[iface_kind] = {};
+            this.yaml_data_by_name[iface_kind] = {};
         }
-    }
 
-    private initIfaceClassesInfo() {
         this.service_classes = {[root_service]: true};
         this.job_classes = {[root_job]: true};
         this.workflow_classes = {[root_workflow]: true};
@@ -347,7 +343,7 @@ export class QorusProjectCodeInfo {
         }
 
         const name_version = `${yaml_data.name}:${yaml_data.version || default_version}`;
-        this.steps_by_name[name_version] = {...yaml_data, type: step_type};
+        this.steps_by_name[name_version] = {...yaml_data, step_type};
     }
 
     addSingleYamlInfo(file: string) {
@@ -363,6 +359,17 @@ export class QorusProjectCodeInfo {
         const class_name = yaml_data['class-name'];
         if (class_name) {
             this.yaml_data_by_class[class_name] = yaml_data;
+        }
+
+        if (yaml_data.name && yaml_data.type) {
+            const name_version = `${yaml_data.name}:${yaml_data.version || default_version}`;
+            this.yaml_data_by_name[yaml_data.type][name_version] = yaml_data;
+            if (!yaml_data['base-class-name']) {
+                const step_type = this.stepType(yaml_data['base-class-name']);
+                if (step_type) {
+                    this.yaml_data_by_name[yaml_data.type][name_version].step_type = step_type;
+                }
+            }
         }
 
         this.possiblyAddStepInfo(yaml_data);
