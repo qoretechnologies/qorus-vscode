@@ -48,7 +48,6 @@ export class QorusProjectCodeInfo {
     private job_classes = {};
     private workflow_classes = {};
     private step_classes = {};
-    private steps_by_name = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -204,10 +203,11 @@ export class QorusProjectCodeInfo {
 
         switch (object_type) {
             case 'workflow-step':
+                const steps = this.yaml_data_by_name.step;
                 this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
-                    Object.keys(this.steps_by_name).map(key => ({
+                    Object.keys(steps).map(key => ({
                         name: key,
-                        desc: this.steps_by_name[key].desc
+                        desc: steps[key].desc
                     }))));
                 break;
             case 'service-base-class':
@@ -332,20 +332,6 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
-    private possiblyAddStepInfo = (yaml_data: any) => {
-        if (!yaml_data['base-class-name']) {
-            return;
-        }
-
-        const step_type = this.stepType(yaml_data['base-class-name']);
-        if (!step_type) {
-            return;
-        }
-
-        const name_version = `${yaml_data.name}:${yaml_data.version || default_version}`;
-        this.steps_by_name[name_version] = {...yaml_data, step_type};
-    }
-
     addSingleYamlInfo(file: string) {
         const yaml_data = { ...yaml.load(file), yaml_file: file };
         if (yaml_data.steps) {
@@ -371,8 +357,6 @@ export class QorusProjectCodeInfo {
                 }
             }
         }
-
-        this.possiblyAddStepInfo(yaml_data);
 
         const addObjectName = (type: string, name: string) => {
             if (!this.object_info[type][name]) {
