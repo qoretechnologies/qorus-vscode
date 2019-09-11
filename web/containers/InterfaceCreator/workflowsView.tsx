@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
-import InterfaceCreatorPanel, { SearchWrapper, ContentWrapper, ActionsWrapper } from './panel';
+import InterfaceCreatorPanel, { SearchWrapper, ContentWrapper, ActionsWrapper, IField } from './panel';
 import compose from 'recompose/compose';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
@@ -13,8 +13,10 @@ import { StepsContext } from '../../context/steps';
 import Content from '../../components/Content';
 import StepList from '../../components/StepList';
 import StepsCreator from './stepsCreator';
-import { isArray } from 'lodash';
+import { isArray, reduce } from 'lodash';
 import WorkflowStepDependencyParser from '../../helpers/StepDependencyParser';
+import { Messages } from '../../constants/messages';
+import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 
 const PanelWrapper = styled.div`
     margin-top: 10px;
@@ -33,13 +35,14 @@ export interface IServicesView {
     targetDir: string;
     t: TTranslator;
     workflow: any;
+    postMessage: TPostMessage;
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow }) => {
+const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, selectedFields, postMessage }) => {
     return (
         <StepsContext.Consumer>
             {({
-                showSteps = true,
+                showSteps,
                 setShowSteps,
                 highlightedSteps,
                 setHighlightedSteps,
@@ -116,6 +119,41 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow }) => {
                                                 disabled={false}
                                                 icon={'tick'}
                                                 intent={Intent.SUCCESS}
+                                                onClick={() => {
+                                                    function processSteps(steps): any[] {
+                                                        const result = [];
+
+                                                        steps.forEach(step => {
+                                                            if (isArray(step)) {
+                                                                result.push(processSteps(step));
+                                                            } else {
+                                                                result.push(stepsData[step].name);
+                                                            }
+                                                        });
+
+                                                        return result;
+                                                    }
+                                                    // Build the finished object
+                                                    const newData = reduce(
+                                                        selectedFields.workflow,
+                                                        (result: { [key: string]: any }, field: IField) => ({
+                                                            ...result,
+                                                            [field.name]: field.value,
+                                                        }),
+                                                        {}
+                                                    );
+                                                    newData.steps = processSteps(steps);
+
+                                                    postMessage(
+                                                        !!workflow
+                                                            ? Messages.EDIT_INTERFACE
+                                                            : Messages.CREATE_INTERFACE,
+                                                        {
+                                                            iface_kind: 'workflow',
+                                                            data: newData,
+                                                        }
+                                                    );
+                                                }}
                                             />
                                         </ButtonGroup>
                                     </ActionsWrapper>
@@ -131,5 +169,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow }) => {
 
 export default compose(
     withTextContext(),
-    withFieldsConsumer()
+    withFieldsConsumer(),
+    withMessageHandler()
 )(ServicesView);

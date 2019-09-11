@@ -1,8 +1,7 @@
-import React, { FunctionComponent, useState, useRef, createRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { isArray, flattenDeep } from 'lodash';
-import { Icon, Popover, ButtonGroup, Button, Position, PopoverInteractionKind } from '@blueprintjs/core';
-import String from '../Field/string';
+import { isArray, flattenDeep, size } from 'lodash';
+import { Icon, Popover, ButtonGroup, Button, Position, Classes } from '@blueprintjs/core';
 import SelectField from '../Field/select';
 import withTextContext from '../../hocomponents/withTextContext';
 import { FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../../containers/InterfaceCreator/panel';
@@ -15,10 +14,16 @@ const StyledStepWrapper = styled.div`
         display: block;
         width: 100%;
         height: 100%;
+        line-height: 1;
     }
 
     .bp3-popover-target {
         width: 100%;
+    }
+
+    p.bp3-text-muted {
+        margin: 0;
+        line-height: 30px;
     }
 `;
 
@@ -124,6 +129,13 @@ const StyledStepButton = styled.div`
     justify-content: center;
     align-items: center;
 
+    ${({ big }) =>
+        big &&
+        css`
+            border: 1px solid #eee;
+            border-radius: 3px;
+        `}
+
     &:hover {
         background-color: #ddd;
         color: #bbb;
@@ -132,6 +144,13 @@ const StyledStepButton = styled.div`
 
 const StyledPopover = styled.div`
     padding: 10px;
+`;
+
+const StyledSeparator = styled.div`
+    height: 1px;
+    width: 100%;
+    border-top: 1px dashed #eee;
+    margin: 3px 0;
 `;
 
 const StepList = ({
@@ -143,6 +162,7 @@ const StepList = ({
     setHighlightedStepGroupIds,
     handleStepInsert,
     stepsData,
+    t,
 }) => {
     const [popover, setPopover] = useState({});
     useEffect(() => {
@@ -157,137 +177,177 @@ const StepList = ({
 
     return (
         <StyledStepWrapper>
-            {steps.map((step, index) => (
-                <StyledStep
-                    isEven={level % 2 === 0}
-                    isHovered={
-                        isArray(step) && highlightedSteps && groupId + index.toString() === highlightedSteps.groupId
-                    }
-                    isGroup={isArray(step)}
-                >
-                    {isArray(step) ? (
-                        <StepList
-                            steps={step}
-                            level={level + 1}
-                            highlightedSteps={highlightedSteps}
-                            setHighlightedSteps={setHighlightedSteps}
-                            groupId={groupId + index.toString()}
-                            setHighlightedStepGroupIds={setHighlightedStepGroupIds}
-                            handleStepInsert={handleStepInsert}
-                            stepsData={stepsData}
-                        />
-                    ) : (
-                        <StyledStepName
-                            onMouseEnter={() => groupId !== 1 && setHighlightedSteps({ groupId })}
-                            onMouseLeave={() => setHighlightedSteps(null)}
-                            isEven={level % 2 !== 1 || index === 0}
-                            isLast={(level % 2 === 1 && index === 0) || index === steps.length - 1}
-                        >
-                            <Popover
-                                isOpen={popover.isOpen && popover.step === step}
-                                position={popover.position}
-                                content={
-                                    <NewStepPopover
-                                        {...popover}
-                                        onCancel={() => setPopover({ isOpen: false })}
-                                        onStepInsert={handleStepInsert}
-                                        onSubmit={() => setPopover({ isOpen: false })}
-                                    />
-                                }
-                            >
-                                <StepNameWrapper>
-                                    <StyledStepButton
-                                        top
-                                        onClick={() =>
-                                            setPopover({
-                                                isOpen: true,
-                                                position: Position.TOP,
-                                                step,
-                                                before: true,
-                                            })
-                                        }
-                                    >
-                                        <Icon icon="chevron-up" />
-                                    </StyledStepButton>
-                                    <StepContentWrapper>
-                                        <StyledStepButton
-                                            left
-                                            onClick={() =>
-                                                setPopover({
-                                                    isOpen: true,
-                                                    position: Position.LEFT,
-                                                    step,
-                                                    before: true,
-                                                    parallel: true,
-                                                })
-                                            }
-                                        >
-                                            <Icon icon="chevron-left" />
-                                        </StyledStepButton>
-                                        <div className="stepWrapper">
-                                            <h4 className="stepName">{stepsData[step].name}</h4>
-                                            <FieldType>{`<normal-step>`}</FieldType>
-                                        </div>
-                                        <StyledStepButton
-                                            right
-                                            onClick={() =>
-                                                setPopover({
-                                                    isOpen: true,
-                                                    position: Position.RIGHT,
-                                                    step,
-                                                    parallel: true,
-                                                })
-                                            }
-                                        >
-                                            <Icon icon="chevron-right" />
-                                        </StyledStepButton>
-                                    </StepContentWrapper>
-                                    <StyledStepButton
-                                        bottom
-                                        onClick={() =>
-                                            setPopover({
-                                                isOpen: true,
-                                                position: Position.BOTTOM,
-                                                step,
-                                            })
-                                        }
-                                    >
-                                        <Icon icon="chevron-down" />
-                                    </StyledStepButton>
-                                </StepNameWrapper>
-                            </Popover>
-                        </StyledStepName>
-                    )}
-                </StyledStep>
-            ))}
             {level === 1 && (
-                <Popover
-                    isOpen={popover.isOpen && !popover.step}
-                    position={popover.position}
-                    content={
-                        <NewStepPopover
-                            {...popover}
-                            onCancel={() => setPopover({ isOpen: false })}
-                            onStepInsert={handleStepInsert}
-                            onSubmit={() => setPopover({ isOpen: false })}
-                        />
-                    }
-                >
-                    <StyledStepButton
-                        bottom
-                        visible
-                        big
-                        onClick={() =>
-                            setPopover({
-                                isOpen: true,
-                                position: Position.BOTTOM,
-                                step: null,
-                            })
+                <>
+                    <Popover
+                        isOpen={popover.isOpen && !popover.step && popover.before}
+                        position={popover.position}
+                        content={
+                            <NewStepPopover
+                                {...popover}
+                                onCancel={() => setPopover({ isOpen: false })}
+                                onStepInsert={handleStepInsert}
+                                onSubmit={() => setPopover({ isOpen: false })}
+                            />
                         }
                     >
-                        <Icon icon="add" />
-                    </StyledStepButton>
-                </Popover>
+                        <StyledStepButton
+                            bottom
+                            visible
+                            big
+                            onClick={() =>
+                                setPopover({
+                                    isOpen: true,
+                                    position: Position.TOP,
+                                    before: true,
+                                    step: null,
+                                })
+                            }
+                        >
+                            <Icon icon="add" />
+                        </StyledStepButton>
+                    </Popover>
+                    <StyledSeparator />
+                </>
+            )}
+            {size(steps) ? (
+                steps.map((step, index) => (
+                    <StyledStep
+                        isEven={level % 2 === 0}
+                        isHovered={
+                            isArray(step) && highlightedSteps && groupId + index.toString() === highlightedSteps.groupId
+                        }
+                        isGroup={isArray(step)}
+                    >
+                        {isArray(step) ? (
+                            <StepList
+                                steps={step}
+                                level={level + 1}
+                                highlightedSteps={highlightedSteps}
+                                setHighlightedSteps={setHighlightedSteps}
+                                groupId={groupId + index.toString()}
+                                setHighlightedStepGroupIds={setHighlightedStepGroupIds}
+                                handleStepInsert={handleStepInsert}
+                                stepsData={stepsData}
+                            />
+                        ) : (
+                            <StyledStepName
+                                onMouseEnter={() => groupId !== 1 && setHighlightedSteps({ groupId })}
+                                onMouseLeave={() => setHighlightedSteps(null)}
+                                isEven={level % 2 !== 1 || index === 0}
+                                isLast={(level % 2 === 1 && index === 0) || index === steps.length - 1}
+                            >
+                                <Popover
+                                    isOpen={popover.isOpen && popover.step === step}
+                                    position={popover.position}
+                                    content={
+                                        <NewStepPopover
+                                            {...popover}
+                                            onCancel={() => setPopover({ isOpen: false })}
+                                            onStepInsert={handleStepInsert}
+                                            onSubmit={() => setPopover({ isOpen: false })}
+                                        />
+                                    }
+                                >
+                                    <StepNameWrapper>
+                                        <StyledStepButton
+                                            top
+                                            onClick={() =>
+                                                setPopover({
+                                                    isOpen: true,
+                                                    position: Position.TOP,
+                                                    step,
+                                                    before: true,
+                                                })
+                                            }
+                                        >
+                                            <Icon icon="chevron-up" />
+                                        </StyledStepButton>
+                                        <StepContentWrapper>
+                                            <StyledStepButton
+                                                left
+                                                onClick={() =>
+                                                    setPopover({
+                                                        isOpen: true,
+                                                        position: Position.LEFT,
+                                                        step,
+                                                        before: true,
+                                                        parallel: true,
+                                                    })
+                                                }
+                                            >
+                                                <Icon icon="chevron-left" />
+                                            </StyledStepButton>
+                                            <div className="stepWrapper">
+                                                <h4 className="stepName">{stepsData[step].name}</h4>
+                                                <FieldType>{`<normal-step>`}</FieldType>
+                                            </div>
+                                            <StyledStepButton
+                                                right
+                                                onClick={() =>
+                                                    setPopover({
+                                                        isOpen: true,
+                                                        position: Position.RIGHT,
+                                                        step,
+                                                        parallel: true,
+                                                    })
+                                                }
+                                            >
+                                                <Icon icon="chevron-right" />
+                                            </StyledStepButton>
+                                        </StepContentWrapper>
+                                        <StyledStepButton
+                                            bottom
+                                            onClick={() =>
+                                                setPopover({
+                                                    isOpen: true,
+                                                    position: Position.BOTTOM,
+                                                    step,
+                                                })
+                                            }
+                                        >
+                                            <Icon icon="chevron-down" />
+                                        </StyledStepButton>
+                                    </StepNameWrapper>
+                                </Popover>
+                            </StyledStepName>
+                        )}
+                    </StyledStep>
+                ))
+            ) : (
+                <p className={Classes.TEXT_MUTED}>{t('NoStepsAdded')}</p>
+            )}
+            {level === 1 && (
+                <>
+                    <StyledSeparator />
+                    <Popover
+                        isOpen={popover.isOpen && !popover.step && !popover.before}
+                        position={popover.position}
+                        content={
+                            <NewStepPopover
+                                {...popover}
+                                onCancel={() => setPopover({ isOpen: false })}
+                                onStepInsert={handleStepInsert}
+                                onSubmit={() => setPopover({ isOpen: false })}
+                            />
+                        }
+                    >
+                        <StyledStepButton
+                            bottom
+                            visible
+                            big
+                            onClick={() =>
+                                setPopover({
+                                    isOpen: true,
+                                    position: Position.BOTTOM,
+                                    step: null,
+                                })
+                            }
+                        >
+                            <Icon icon="add" />
+                        </StyledStepButton>
+                    </Popover>
+                </>
             )}
         </StyledStepWrapper>
     );
@@ -369,4 +429,4 @@ const NewStepPopover = compose(
     );
 });
 
-export default StepList;
+export default withTextContext()(StepList);

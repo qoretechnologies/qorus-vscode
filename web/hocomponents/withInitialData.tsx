@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState } from 'react';
 import { InitialContext } from '../context/init';
 import useMount from 'react-use/lib/useMount';
 import { Messages } from '../constants/messages';
+import omit from 'lodash/omit';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -22,6 +23,19 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 data.subtab = 'workflow';
 
                 setInitialData(data);
+            });
+
+            props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+                // Only set initial data if we are
+                // switching tabs
+                if (data.tab) {
+                    // Get the interface data without the noise
+                    const interfaceData = omit(data, ['iface_kind', 'tab', 'subtab']);
+                    // Set the interface data
+                    data[data.iface_kind] = interfaceData;
+                    // Set the data
+                    setInitialData(data);
+                }
             });
 
             props.postMessage(Messages.GET_INITIAL_DATA);

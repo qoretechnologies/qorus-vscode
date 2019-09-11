@@ -31,7 +31,6 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     const [query, setQuery] = useState<string>('');
 
     useMount(() => {
-        console.log(return_message);
         if (return_message) {
             addMessageListener(return_message.action, (data: any) => {
                 // Check if this is the correct
@@ -49,7 +48,6 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     };
 
     const handleClick: () => void = () => {
-        console.log(get_message);
         if (get_message) {
             // Get the list of items from backend
             postMessage(get_message.action, { object_type: get_message.object_type });

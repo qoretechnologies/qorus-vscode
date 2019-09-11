@@ -10,7 +10,7 @@ const stepsParser = new WorkflowStepDependencyParser();
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
-        const [showSteps, setShowSteps] = useState<boolean>(true);
+        const [showSteps, setShowSteps] = useState<boolean>(props.initialShowSteps);
         const [steps, setSteps] = useState<any[]>(props.initialSteps);
         const [stepsData, setStepsData] = useState(null);
         const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(props.initialSteps));
@@ -74,7 +74,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     // If target step is not defined, simply
                     // push the step at the end of the list
                     if (!targetStep) {
-                        steps = [...current, stepId];
+                        if (before) {
+                            steps = [stepId, ...current];
+                        } else {
+                            steps = [...current, stepId];
+                        }
                     } else {
                         steps = insertNewStep(stepId, targetStep, current, before, parallel);
                     }
@@ -113,6 +117,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
     return mapProps(({ workflow, ...rest }) => ({
         initialSteps: (workflow && workflow.steps) || [],
+        initialShowSteps: (workflow && workflow.show_steps) || true,
         workflow,
         ...rest,
     }))(EnhancedComponent);
