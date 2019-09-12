@@ -344,7 +344,12 @@ export class QorusProjectCodeInfo {
     }
 
     addSingleYamlInfo(file: string) {
-        const yaml_data = { ...yaml.load(file), yaml_file: file };
+        const yaml_data = {
+            ...yaml.load(file),
+            yaml_file: file,
+            target_dir: path.dirname(file)
+        };
+
         if (yaml_data.steps) {
             yaml_data.steps = JSON.parse(yaml_data.steps);
         }
