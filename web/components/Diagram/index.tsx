@@ -328,7 +328,9 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see BOX_MARGIN
      */
     getDiagramWidth() {
-        const columns = this.getDiagramColumns() < 2 ? 2 : this.getDiagramColumns();
+        const columns = this.getDiagramColumns();
+        console.log(this.getDiagramColumns());
+
         return columns * this.getBoxWidth();
     }
 
@@ -507,7 +509,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     renderStartBox(stepId, colIdx, row, rowIdx) {
         const lowestColumn = this.getLowestColumn();
         const half = this.getDiagramColumns() / 2;
-        const left = this.getBoxWidth() * half - 22 - 125 * (lowestColumn * -1);
+        const left = this.getBoxWidth() * half - 22 - (BOX_MIN_WIDTH / 2) * (lowestColumn * -1);
 
         const transform = `translate(${left} ${this.getBoxLeftCoord(rowIdx)})`;
         return (
@@ -563,14 +565,22 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                 className={classNames({
                     diagram__box: true,
                 })}
-                stroke={highlightedSteps.includes(stepId) ? '#137cbd' : '#ddd'}
-                fill="#fff"
+                fill="transparent"
                 transform={this.getBoxTransform(colIdx, rowIdx)}
             >
                 <rect {...this.getDefaultParams()} />
                 <foreignObject x={0} y={0} width={this.getBoxWidth()} height={this.getBoxHeight()}>
                     <div
-                        style={{ height: '100%', padding: '5px' }}
+                        style={{
+                            height: '100%',
+                            margin: '0 10px',
+                            padding: '7px',
+                            backgroundColor: '#fff',
+                            border: highlightedSteps.includes(stepId) ? '2px dashed #137cbd' : '1px solid #eee',
+                            borderRadius: '5px',
+                            transform: `scale(${highlightedSteps.includes(stepId) ? 1.05 : 1})`,
+                            boxShadow: `0 0 ${highlightedSteps.includes(stepId) ? 15 : 2}px 0px #ccc`,
+                        }}
                         onMouseEnter={() => {
                             // Get the step dependencies
                             const deps: number[] = steps[stepId];
@@ -716,7 +726,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
             if (start.stepId === 0) {
                 const lowestColumn = this.getLowestColumn();
                 const half = this.getDiagramColumns() / 2;
-                const left = this.getBoxWidth() * half - 125 * (lowestColumn * -1);
+                const left = this.getBoxWidth() * half - (BOX_MIN_WIDTH / 2) * (lowestColumn * -1);
 
                 return this.renderPath(
                     {
@@ -763,7 +773,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     };
 
     renderContent: Function = (diagramScale, diaWidth) => {
-        const leftViewBox = 125 * this.getLowestColumn();
+        const leftViewBox = (BOX_MIN_WIDTH / 2) * this.getLowestColumn();
 
         return (
             <div

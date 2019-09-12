@@ -1348,5 +1348,8 @@ msgstr "after"
 msgid "AddNewStep"
 msgstr "Add new step"
 
+msgid "AddNewParallelStep"
+msgstr "Add new parallel step"
+
 msgid "OrSelectExisting"
 msgstr "Select existing"

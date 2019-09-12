@@ -17,6 +17,7 @@ import { isArray, reduce } from 'lodash';
 import WorkflowStepDependencyParser from '../../helpers/StepDependencyParser';
 import { Messages } from '../../constants/messages';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
 const PanelWrapper = styled.div`
     margin-top: 10px;
@@ -38,7 +39,14 @@ export interface IServicesView {
     postMessage: TPostMessage;
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, selectedFields, postMessage }) => {
+const ServicesView: FunctionComponent<IServicesView> = ({
+    t,
+    workflow,
+    fields,
+    selectedFields,
+    postMessage,
+    initialData,
+}) => {
     return (
         <StepsContext.Consumer>
             {({
@@ -52,6 +60,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, s
                 setHighlightedStepGroupIds,
                 handleStepInsert,
                 handleStepRemove,
+                handleStepUpdate,
                 parsedSteps,
                 stepsData,
             }) => (
@@ -94,13 +103,23 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, s
                                             setHighlightedStepGroupIds={setHighlightedStepGroupIds}
                                             handleStepInsert={handleStepInsert}
                                             onStepRemove={handleStepRemove}
+                                            onStepUpdate={handleStepUpdate}
                                             stepsData={stepsData}
                                             stepsCount={steps.length}
                                         />
                                     </ContentWrapper>
                                 </SidePanel>
                                 <Content title={t('StepsDiagram')}>
-                                    <ContentWrapper scrollX>
+                                    <ContentWrapper
+                                        scrollX
+                                        style={{
+                                            background: `url(${
+                                                process.env.NODE_ENV === 'development'
+                                                    ? `http://localhost:9876/images/tiny_grid.png`
+                                                    : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
+                                            }`,
+                                        }}
+                                    >
                                         <StepsCreator
                                             steps={parsedSteps}
                                             highlightedGroupSteps={highlightedStepGroupIds || []}
@@ -173,5 +192,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, workflow, fields, s
 export default compose(
     withTextContext(),
     withFieldsConsumer(),
-    withMessageHandler()
+    withMessageHandler(),
+    withInitialDataConsumer()
 )(ServicesView);

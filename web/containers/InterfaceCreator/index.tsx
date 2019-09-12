@@ -67,7 +67,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                                       }
                                     : null
                             }
-                            openFileOnSubmit={!!initialData.stepCallback}
+                            openFileOnSubmit={!!!initialData.stepCallback}
                             forceSubmit
                         />
                     }

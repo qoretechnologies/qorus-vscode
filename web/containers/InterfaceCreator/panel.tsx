@@ -18,6 +18,7 @@ import FieldActions from '../../components/FieldActions';
 import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip } from '@blueprintjs/core';
 import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -112,6 +113,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     forceSubmit,
     resetFields,
     openFileOnSubmit,
+    initialData,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -405,6 +407,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             });
             // Reset the fields
             resetFields(type);
+            // Reset the interface data
+            initialData.resetInterfaceData(type);
         }
     };
 
@@ -543,6 +547,7 @@ export default compose(
     withTextContext(),
     withMessageHandler(),
     withFieldsConsumer(),
+    withInitialDataConsumer(),
     mapProps(({ type, fields, selectedFields, query, selectedQuery, activeId, ...rest }) => ({
         fields: activeId ? fields[type][activeId] : fields[type],
         selectedFields: activeId ? selectedFields[type][activeId] : selectedFields[type],

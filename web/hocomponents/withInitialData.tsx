@@ -19,8 +19,25 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
-                /*data.tab = 'CreateInterface';
-                data.subtab = 'workflow';*/
+                data.tab = 'CreateInterface';
+                data.subtab = 'workflow';
+                data.workflow = {
+                    steps: ['test-step:1.0', ['test-step2:1.0', 'test-step3:1.0']],
+                    stepsInfo: {
+                        'test-step:1.0': {
+                            name: 'test-step:1.0',
+                            type: 'normal-step',
+                        },
+                        'test-step2:1.0': {
+                            name: 'test-step2:1.0',
+                            type: 'normal-step',
+                        },
+                        'test-step3:1.0': {
+                            name: 'test-step3:1.0',
+                            type: 'normal-step',
+                        },
+                    },
+                };
 
                 setInitialData(data);
             });
@@ -29,9 +46,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Only set initial data if we are
                 // switching tabs
                 if (data.tab) {
-                    setInitialData(null);
-                    // Set the data
-                    setInitialData(data);
+                    console.log(data);
+                    setInitialData(current => ({
+                        ...current,
+                        ...data,
+                    }));
                 }
             });
 
@@ -53,6 +72,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }));
         };
 
+        const resetInterfaceData: (iface: string) => void = iface => {
+            setInitialData(current => ({
+                ...current,
+                [iface]: null,
+            }));
+        };
+
         if (!initialData) {
             return null;
         }
@@ -63,6 +89,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     ...initialData,
                     changeTab,
                     setStepSubmitCallback,
+                    resetInterfaceData,
                 }}
             >
                 <InitialContext.Consumer>

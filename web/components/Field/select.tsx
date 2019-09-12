@@ -67,8 +67,6 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         filteredItems = filteredItems.filter(item => predicate(item.name));
     }
 
-    console.log(filteredItems);
-
     return (
         <Select
             items={filteredItems}

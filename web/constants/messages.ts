@@ -16,4 +16,5 @@ export const Messages: { [key: string]: string } = {
     CREATE_INTERFACE: 'creator-create-interface',
     EDIT_INTERFACE: 'creator-edit-interface',
     RETURN_INTERFACE_DATA: 'return-interface-data',
+    GET_INTERFACE_DATA: 'get-interface-data',
 };

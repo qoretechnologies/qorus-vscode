@@ -3,6 +3,7 @@ import { StepsContext } from '../context/steps';
 import mapProps from 'recompose/mapProps';
 import { size } from 'lodash';
 import { isArray } from 'lodash';
+import { transformSteps } from '../helpers/steps';
 import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
 
 const stepsParser = new WorkflowStepDependencyParser();
@@ -12,7 +13,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [showSteps, setShowSteps] = useState<boolean>(props.initialShowSteps);
         const [steps, setSteps] = useState<any[]>(props.initialSteps);
-        const [stepsData, setStepsData] = useState(null);
+        const [stepsData, setStepsData] = useState(props.initialStepsData);
         const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(props.initialSteps));
         const [highlightedSteps, setHighlightedSteps] = useState<{ level: number; groupId: string }>(null);
         const [highlightedStepGroupIds, setHighlightedStepGroupIds] = useState<number[]>(null);
@@ -64,7 +65,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return newSteps;
         };
 
-        const removeStep: (stepId: number, steps: any[]) => any[] = stepId => {
+        const removeStep: (stepId: number, steps: any[]) => any[] = (stepId, steps) => {
             const newSteps: (number | number[])[] = [];
             // Build the new steps
             steps.forEach((step: number | number[]): void => {
@@ -79,6 +80,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
             // Save the steps
             return newSteps;
+        };
+
+        const handleStepUpdate: (stepId: number, data: any) => void = (stepId, data) => {
+            setStepsData(current => {
+                current[stepId] = data;
+
+                return current;
+            });
         };
 
         const handleStepInsert = (data: any, targetStep: number, before?: boolean, parallel?: boolean) => {
@@ -134,6 +143,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setHighlightedStepGroupIds,
                     handleStepInsert,
                     handleStepRemove,
+                    handleStepUpdate,
                     parsedSteps,
                     stepsData,
                 }}
@@ -144,8 +154,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     };
 
     return mapProps(({ workflow, ...rest }) => ({
-        initialSteps: (workflow && workflow.steps) || [],
-        initialShowSteps: (workflow && workflow.show_steps) || false,
+        initialSteps: (workflow && transformSteps(workflow.steps, workflow.stepsInfo).steps) || [],
+        initialStepsData: (workflow && transformSteps(workflow.steps, workflow.stepsInfo).stepsData) || {},
+        initialShowSteps: (workflow && workflow.show_steps) || true,
         workflow,
         ...rest,
     }))(EnhancedComponent);
