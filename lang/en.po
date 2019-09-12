@@ -790,16 +790,16 @@ msgstr "Webview has been closed because current workspace has changed or has not
 msgid "WorkspaceFolderUnsetCloseWebview"
 msgstr "Webview has been closed because current workspace has not been set"
 
-msgid "field-label-target-dir"
+msgid "field-label-target_dir"
 msgstr "Target directory"
 
-msgid "field-desc-target-dir"
+msgid "field-desc-target_dir"
 msgstr "Directory where the code will be saved"
 
-msgid "field-label-target-file"
+msgid "field-label-target_file"
 msgstr "Target file"
 
-msgid "field-desc-target-file"
+msgid "field-desc-target_file"
 msgstr "Name of the file the code will be saved as"
 
 msgid "field-label-class-name"
