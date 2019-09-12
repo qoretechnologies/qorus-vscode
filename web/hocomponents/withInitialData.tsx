@@ -19,7 +19,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
-                data.tab = 'CreateInterface';
+                /*data.tab = 'CreateInterface';
                 data.subtab = 'workflow';
                 data.workflow = {
                     steps: ['test-step:1.0', ['test-step2:1.0', 'test-step3:1.0']],
@@ -37,7 +37,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                             type: 'normal-step',
                         },
                     },
-                };
+                };*/
 
                 setInitialData(data);
             });
@@ -46,7 +46,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Only set initial data if we are
                 // switching tabs
                 if (data.tab) {
-                    console.log(data);
                     setInitialData(current => ({
                         ...current,
                         ...data,
