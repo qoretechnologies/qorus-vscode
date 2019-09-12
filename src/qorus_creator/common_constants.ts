@@ -36,11 +36,11 @@ export const classFields = default_target_dir => [
         default_value: default_target_dir,
         get_message: {
             action: 'creator-get-directories',
-            object_type: 'target-dir',
+            object_type: 'target_dir',
         },
         return_message: {
             action: 'creator-return-directories',
-            object_type: 'target-dir',
+            object_type: 'target_dir',
             return_value: 'directories',
         },
     },
@@ -58,7 +58,7 @@ export const classFields = default_target_dir => [
         name: 'desc',
     },
     {
-        name: 'class_name',
+        name: 'class-name',
         prefill: 'name',
         style: 'PascalCase',
     },

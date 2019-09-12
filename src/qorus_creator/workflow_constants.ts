@@ -3,7 +3,7 @@ import { commonFields } from './common_constants';
 export const workflowFields = default_target_dir => [
     ... commonFields(default_target_dir),
     {
-        name: 'base_class_name',
+        name: 'base-class-name',
         type: 'select-string',
         get_message: {
             action: 'creator-get-objects',
@@ -16,7 +16,7 @@ export const workflowFields = default_target_dir => [
         },
     },
     {
-        name: 'workflow_autostart',
+        name: 'workflow-autostart',
         type: 'number',
         mandatory: false,
         default_value: 1,
@@ -59,7 +59,7 @@ export const workflowFields = default_target_dir => [
         mandatory: false,
     },
     {
-        name: 'key_list',
+        name: 'keylist',
         type: 'array',
         mandatory: false,
     },

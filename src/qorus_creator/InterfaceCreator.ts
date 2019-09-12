@@ -81,11 +81,10 @@ export abstract class InterfaceCreator {
             initial_data: any,
             header_data): string[]
     {
-        const {
-            class_name: orig_class_name,
-            base_class_name: orig_base_class_name
-        } = initial_data;
-        const { class_name, base_class_name } = header_data;
+        const orig_class_name = initial_data['class-name'];
+        const orig_base_class_name = initial_data['base-class-name'];
+        const class_name = header_data['class-name'];
+        const base_class_name = header_data['base-class-name'];
 
         const replace = (position: Position, orig_name: string, name: string) => {
             let chars = lines[position.line].split('');
@@ -107,17 +106,15 @@ export abstract class InterfaceCreator {
         const indent = '    ';
         let result: string = '';
 
-        for (let key in headers) {
-            const value = headers[key];
+        for (const tag in headers) {
+            const value = headers[tag];
             if (typeof(value) === 'undefined') {
                 continue;
             }
 
-            const tag = key.replace(/_/g, '-');
-
             if (Array.isArray(value)) {
-                result += key === 'steps' ? `${tag}: >-\n` : `${tag}:\n`;
-                switch (key) {
+                result += tag === 'steps' ? `${tag}: >-\n` : `${tag}:\n`;
+                switch (tag) {
                     case 'groups':
                         for (let item of value) {
                             result += `${list_indent}${item.name}\n`;
@@ -128,7 +125,7 @@ export abstract class InterfaceCreator {
                             result += `${indent}${item.key}: ${item.value}\n`;
                         }
                         break;
-                    case 'define_auth_label':
+                    case 'define-auth-label':
                         for (let item of value) {
                             result += `${indent}${item.label}: ${item.value}\n`;
                         }
@@ -144,8 +141,8 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'resource':
-                    case 'text_resource':
-                    case 'bin_resource':
+                    case 'text-resource':
+                    case 'bin-resource':
                     case 'template':
                         for (let item of value) {
                             result += `${list_indent}${item}\n`;
@@ -160,7 +157,7 @@ export abstract class InterfaceCreator {
                 }
             }
             else {
-                switch (key) {
+                switch (tag) {
                     case 'orig_name':
                         break;
                     case 'schedule':
@@ -174,8 +171,8 @@ export abstract class InterfaceCreator {
                             result += `${indent}${cron_items[i]}: "${cron_values[i]}"\n`;
                         }
                         break;
-                    case 'service_autostart':
-                    case 'workflow_autostart':
+                    case 'service-autostart':
+                    case 'workflow-autostart':
                         result += `autostart: ${value}\n`;
                         break;
                     default:

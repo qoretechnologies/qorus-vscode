@@ -173,18 +173,18 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
     }
 
     private fixData(data_to_fix: any): any {
-        const clone = JSON.parse(JSON.stringify(data_to_fix));
         const fields_to_complexify = ['classes', 'functions', 'constants', 'mappers', 'value_maps', 'author'];
 
         let data: any = {};
-        for (const key in clone) {
-            let fixed_key = key.replace(/-/g, '_');
-            if (fixed_key === 'autostart') {
-                fixed_key = clone.type + '_autostart';
+        for (const tag in data_to_fix) {
+            if (tag === 'autostart') {
+                data[data_to_fix.type + '-autostart'] = data_to_fix.autostart;
             }
-            data[fixed_key] = clone[key];
-            if (fields_to_complexify.includes(fixed_key)) {
-                data[fixed_key] = data[fixed_key].map(value => ({ name: value }));
+            else {
+                data[tag] = data_to_fix[tag];
+            }
+            if (fields_to_complexify.includes(tag)) {
+                data[tag] = data[tag].map(value => ({ name: value }));
             }
         }
         for (const method of data.methods || []) {
@@ -193,8 +193,8 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             }
         }
 
-        if (!data.base_class_name) {
-            data.base_class_name = this.code_info.baseClassName(data.class_name);
+        if (!data['base-class-name']) {
+            data['base-class-name'] = this.code_info.baseClassName(data['class-name']);
         }
 
         if (data.schedule) {

@@ -13,8 +13,8 @@ class WorkflowCreator extends InterfaceCreator {
         switch (edit_type) {
             case 'create':
                 contents = this.fillTemplate(subclass_template, {
-                    class_name: data.class_name,
-                    base_class_name: data.base_class_name,
+                    class_name: data['class-name'],
+                    base_class_name: data['base-class-name'],
                 });
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;

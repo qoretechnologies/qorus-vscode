@@ -253,7 +253,7 @@ export class QorusProjectCodeInfo {
             case 'template':
                 this.waitForPending(['file_tree']).then(() => postMessage('resources', this.file_tree));
                 break;
-            case 'target-dir':
+            case 'target_dir':
                 this.waitForPending(['file_tree']).then(() => postMessage('directories', this.dir_tree));
                 break;
             default:

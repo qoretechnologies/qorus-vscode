@@ -31,7 +31,7 @@ export const service_method_template = method_template;
 export const serviceFields = default_target_dir => [
     ... commonFields(default_target_dir),
     {
-        name: 'base_class_name',
+        name: 'base-class-name',
         type: 'select-string',
         get_message: {
             action: 'creator-get-objects',
@@ -44,7 +44,7 @@ export const serviceFields = default_target_dir => [
         },
     },
     {
-        name: 'service_autostart',
+        name: 'service-autostart',
         mandatory: false,
         type: 'boolean',
         default_value: false,
@@ -64,7 +64,7 @@ export const serviceFields = default_target_dir => [
         },
     },
     {
-        name: 'text_resource',
+        name: 'text-resource',
         mandatory: false,
         type: 'file-array',
         get_message: {
@@ -78,7 +78,7 @@ export const serviceFields = default_target_dir => [
         },
     },
     {
-        name: 'bin_resource',
+        name: 'bin-resource',
         mandatory: false,
         type: 'file-array',
         get_message: {
@@ -106,7 +106,7 @@ export const serviceFields = default_target_dir => [
         },
     },
     {
-        name: 'define_auth_label',
+        name: 'define-auth-label',
         mandatory: false,
         type: 'array-of-pairs',
         fields: ['label', 'value'],
@@ -157,12 +157,12 @@ export const defaultOldServiceHeaders = data => {
     switch (data.lang) {
         case 'java':
             return {
-                'class-name': data.class_name,
+                'class-name': data['class-name'],
             };
         default:
             return {
                 'class-based': true,
-                'class-name': data.class_name,
+                'class-name': data['class-name'],
                 'parse-options': ['PO_NEW_STYLE', 'PO_STRICT_ARGS', 'PO_REQUIRE_TYPES'],
             };
     }
@@ -173,16 +173,14 @@ export const createOldServiceHeaders = (headers: any, lang: string = 'qore'): st
 
     let comment: string = comment_chars[lang];
 
-    for (let key in headers) {
-        const value = headers[key];
+    for (let tag in headers) {
+        const value = headers[tag];
         if (!value) {
             continue;
         }
 
-        const tag = key.replace(/_/g, '-');
-
         if (Array.isArray(value)) {
-            switch (key) {
+            switch (tag) {
                 case 'groups':
                     let names: string[] = [];
                     for (let item of value) {
@@ -191,7 +189,7 @@ export const createOldServiceHeaders = (headers: any, lang: string = 'qore'): st
                     }
                     result += `${comment} groups: ${names.join(', ')}\n`;
                     break;
-                case 'define_auth_label':
+                case 'define-auth-label':
                     for (let item of value) {
                         result += `${comment} ${tag}: ${item.label}=${item.value}\n`;
                     }
@@ -207,8 +205,8 @@ export const createOldServiceHeaders = (headers: any, lang: string = 'qore'): st
                     }
                     break;
                 case 'resource':
-                case 'text_resource':
-                case 'bin_resource':
+                case 'text-resource':
+                case 'bin-resource':
                 case 'template':
                     for (let item of value) {
                         result += `${comment} ${tag}: ${item}\n`;
@@ -231,7 +229,7 @@ export const createOldServiceHeaders = (headers: any, lang: string = 'qore'): st
                     result += `${comment} ${tag}: ${value.join(', ')}\n`;
             }
         } else {
-            switch (key) {
+            switch (tag) {
                 case 'name':
                     result += `${comment} service: ${value}`;
                     break;

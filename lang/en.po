@@ -790,28 +790,28 @@ msgstr "Webview has been closed because current workspace has changed or has not
 msgid "WorkspaceFolderUnsetCloseWebview"
 msgstr "Webview has been closed because current workspace has not been set"
 
-msgid "field-label-target_dir"
+msgid "field-label-target-dir"
 msgstr "Target directory"
 
-msgid "field-desc-target_dir"
+msgid "field-desc-target-dir"
 msgstr "Directory where the code will be saved"
 
-msgid "field-label-target_file"
+msgid "field-label-target-file"
 msgstr "Target file"
 
-msgid "field-desc-target_file"
+msgid "field-desc-target-file"
 msgstr "Name of the file the code will be saved as"
 
-msgid "field-label-class_name"
+msgid "field-label-class-name"
 msgstr "Class name"
 
-msgid "field-desc-class_name"
+msgid "field-desc-class-name"
 msgstr "Class name"
 
-msgid "field-label-base_class_name"
+msgid "field-label-base-class-name"
 msgstr "Base class name"
 
-msgid "field-desc-base_class_name"
+msgid "field-desc-base-class-name"
 msgstr "Inherited class name"
 
 msgid "field-label-lang"
@@ -901,16 +901,16 @@ msgstr "Lock"
 msgid "field-desc-lock"
 msgstr "Must be either none, read, or write (default none), to determine how the service's RWLock will be grabbed before the method is executed"
 
-msgid "field-label-service_autostart"
+msgid "field-label-service-autostart"
 msgstr "Autostart"
 
-msgid "field-desc-service_autostart"
+msgid "field-desc-service-autostart"
 msgstr "The value of the autostart property of the service (default: False, managed by operations)"
 
-msgid "field-label-workflow_autostart"
+msgid "field-label-workflow-autostart"
 msgstr "Autostart"
 
-msgid "field-desc-workflow_autostart"
+msgid "field-desc-workflow-autostart"
 msgstr "The number of workflow execution instances to start when the system starts"
 
 msgid "field-label-internal"
@@ -943,16 +943,16 @@ msgstr "Resource"
 msgid "field-desc-resource"
 msgstr "Each resource line describes one or more files (if wildcards are used) that will be loaded into the database as service file resources for use in serivces that provide HTML UI services; using this tag the resource type will be derived from the file name (either \"text\", \"binary\", or \"template\")"
 
-msgid "field-label-text_resource"
+msgid "field-label-text-resource"
 msgstr "Text resource"
 
-msgid "field-desc-text_resource"
+msgid "field-desc-text-resource"
 msgstr "Defines text file resources (accepts wildcards)"
 
-msgid "field-label-bin_resource"
+msgid "field-label-bin-resource"
 msgstr "Bin resource"
 
-msgid "field-desc-bin_resource"
+msgid "field-desc-bin-resource"
 msgstr "Defines binary file resources (accepts wildcards)"
 
 msgid "field-label-template"
@@ -961,10 +961,10 @@ msgstr "Template"
 msgid "field-desc-template"
 msgstr "Defines template file resources (accepts wildcards)"
 
-msgid "field-label-define_auth_label"
+msgid "field-label-define-auth_label"
 msgstr "Define auth label"
 
-msgid "field-desc-define_auth_label"
+msgid "field-desc-define-auth_label"
 msgstr "Defines an authentication label with an associated value"
 
 msgid "field-label-tags"
@@ -979,22 +979,22 @@ msgstr "Active"
 msgid "field-desc-active"
 msgstr "A boolean value giving the active status of the job; if not present, the default is True"
 
-msgid "field-label-run_skipped"
+msgid "field-label-run-skipped"
 msgstr "Run skipped"
 
-msgid "field-desc-run_skipped"
+msgid "field-desc-run-skipped"
 msgstr "A boolean value telling the system if the job should be run immediately if the last scheduled run was missed due to system downtime; if not present, the default is True"
 
-msgid "field-label-single_instance"
+msgid "field-label-single-instance"
 msgstr "Single instance"
 
-msgid "field-desc-single_instance"
+msgid "field-desc-single-instance"
 msgstr "A boolean value telling the system if the job can only be run on one Qorus instance at a time; if not present, the default is False"
 
-msgid "field-label-expiry_date"
+msgid "field-label-expiry-date"
 msgstr "Expiry date"
 
-msgid "field-desc-expiry_date"
+msgid "field-desc-expiry-date"
 msgstr "An optional expiration date; the job will not be run (and will be automatically set to inactive) when the expiration date is reached"
 
 msgid "field-label-schedule"
@@ -1054,10 +1054,10 @@ msgstr "Options"
 msgid "field-desc-options"
 msgstr "A hash defining valid workflow options"
 
-msgid "field-label-key_list"
+msgid "field-label-keylist"
 msgstr "Key list"
 
-msgid "field-desc-key_list"
+msgid "field-desc-keylist"
 msgstr "A list of valid workflow keys"
 
 msgid "field-label-statuses"

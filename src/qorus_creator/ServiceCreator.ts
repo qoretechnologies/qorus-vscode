@@ -213,8 +213,8 @@ class ServiceCreator extends InterfaceCreator {
         const methods = method_strings.join('\n');
 
         return this.fillTemplate(service_class_template, {
-            class_name: data.class_name,
-            base_class_name: data.base_class_name,
+            class_name: data['class-name'],
+            base_class_name: data['base-class-name'],
             methods
         });
     }

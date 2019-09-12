@@ -23,7 +23,7 @@ export const job_template = template;
 export const jobFields = default_target_dir => [
     ... commonFields(default_target_dir),
     {
-        name: 'base_class_name',
+        name: 'base-class-name',
         type: 'select-string',
         get_message: {
             action: 'creator-get-objects',
@@ -42,19 +42,19 @@ export const jobFields = default_target_dir => [
         default_value: true,
     },
     {
-        name: 'run_skipped',
+        name: 'run-skipped',
         mandatory: false,
         type: 'boolean',
         default_value: false,
     },
     {
-        name: 'single_instance',
+        name: 'single-instance',
         mandatory: false,
         type: 'boolean',
         default_value: false,
     },
     {
-        name: 'expiry_date',
+        name: 'expiry-date',
         mandatory: false,
         type: 'date',
     },
