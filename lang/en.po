@@ -1129,6 +1129,9 @@ msgstr "Unknown webview message ${ msg }"
 msgid "UnknownInterfaceProperty ${ property }"
 msgstr "Unknown Qorus interface property: ${ property }"
 
+msgid "UnknownInterfaceKind ${ kind }"
+msgstr "Unknown Qorus interface kind: ${ kind }"
+
 msgid "QopError ${ msg }"
 msgstr "Running Qorus object parser failed: ${ msg }"
 
@@ -1149,6 +1152,9 @@ msgstr "Edit service"
 
 msgid "EditJob"
 msgstr "Edit job"
+
+msgid "EditStep"
+msgstr "Edit step"
 
 msgid "SrcAndYamlMismatch ${ field } ${ src_file } ${ value1 } ${ value2 }"
 msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1 }, yaml info: ${ value2 }"

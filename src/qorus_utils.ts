@@ -37,6 +37,15 @@ export const suffixToIfaceKind = (suffix: string): string | undefined => {
         case 'qjob':
         case '.qjob':
             return 'job';
+        case 'qwf':
+        case '.qwf':
+            return 'workflow';
+        case 'qstep':
+        case '.qstep':
+            return 'step';
+        case 'qclass':
+        case '.qclass':
+            return 'class';
         default:
             return undefined;
     }

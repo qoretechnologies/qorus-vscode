@@ -174,7 +174,7 @@ export class QorusProjectCodeInfo {
         this.module_files_watcher.onDidDelete(() => this.update(['modules']));
     }
 
-    private waitForPending(info_list: string[], timeout: number = 30000): Promise<void> {
+    waitForPending(info_list: string[], timeout: number = 30000): Promise<void> {
         let interval_id: any;
         const interval = 100;
         let n = timeout/interval;
@@ -282,6 +282,7 @@ export class QorusProjectCodeInfo {
                 this.setAllPending(false);
                 return;
             }
+            this.setAllPending(true);
 
             if (info_list.includes('file_tree')) {
                 setTimeout(() => {
@@ -521,17 +522,8 @@ export class QorusProjectCodeInfo {
     }
 
     private setPending(info_key: string, value: boolean) {
-        const doSetPending = () => {
-            this.info_update_pending[info_key] = value;
-            this.logUpdateMessage(info_key);
-        }
-
-        if (value && this.info_update_pending[info_key]) {
-            this.waitForPending([info_key]).then(doSetPending);
-        }
-        else {
-            doSetPending();
-        }
+        this.info_update_pending[info_key] = value;
+        this.logUpdateMessage(info_key);
     }
 
     private updateFileTree(source_directories: string[]) {

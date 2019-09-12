@@ -20,6 +20,11 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
     private code_info: QorusProjectCodeInfo = undefined;
 
     public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
+        this.code_info = projects.currentProjectCodeInfo();
+        return this.code_info.waitForPending(['yaml']).then(() => this.provideCodeLensesImpl(document));
+    }
+
+    private provideCodeLensesImpl(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
         const file_path = document.uri.fsPath;
         const dir_path = path.dirname(file_path);
         const file_name = path.basename(file_path);
@@ -29,7 +34,6 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return Promise.resolve([]);
         }
 
-        this.code_info = projects.currentProjectCodeInfo();
         const yaml_info = this.code_info.yaml_info_by_file[file_path];
 
         const doc: QoreTextDocument = {
