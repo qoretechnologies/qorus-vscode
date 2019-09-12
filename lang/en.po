@@ -1129,8 +1129,8 @@ msgstr "Unknown webview message ${ msg }"
 msgid "UnknownInterfaceProperty ${ property }"
 msgstr "Unknown Qorus interface property: ${ property }"
 
-msgid "UnknownInterfaceKind ${ kind }"
-msgstr "Unknown Qorus interface kind: ${ kind }"
+msgid "InvalidIfaceKind ${ kind } ${ context }"
+msgstr "Invalid Qorus interface kind '${ kind }'; context: ${ context }"
 
 msgid "QopError ${ msg }"
 msgstr "Running Qorus object parser failed: ${ msg }"

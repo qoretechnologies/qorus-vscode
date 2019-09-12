@@ -282,7 +282,9 @@ export class QorusProjectCodeInfo {
                 this.setAllPending(false);
                 return;
             }
-            this.setAllPending(true);
+            if (is_initial_update) {
+                this.setAllPending(true);
+            }
 
             if (info_list.includes('file_tree')) {
                 setTimeout(() => {
