@@ -18,8 +18,6 @@ export const transformSteps: (
         }
     });
 
-    console.log(result, stepsData);
-
     if (!deep) {
         return {
             steps: result,

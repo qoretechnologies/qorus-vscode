@@ -119,6 +119,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
 
+    console.log('PANEL DATA', data);
+
     useEffect(() => {
         // Remove the message listener if it exists
         messageListener && messageListener();

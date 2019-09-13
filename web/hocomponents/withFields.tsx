@@ -150,6 +150,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
+        console.log(selectedFields.step);
+
         return (
             <FieldContext.Provider
                 value={{

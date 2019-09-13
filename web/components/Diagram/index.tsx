@@ -329,7 +329,6 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      */
     getDiagramWidth() {
         const columns = this.getDiagramColumns();
-        console.log(this.getDiagramColumns());
 
         return columns * this.getBoxWidth();
     }

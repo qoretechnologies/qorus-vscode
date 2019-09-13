@@ -11,6 +11,7 @@ import { FieldType, FieldName } from '../FieldSelector';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
 import { AddStepButton } from '../AddStepButton';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
 const StyledStepWrapper = styled.div`
     .bp3-popover-wrapper {
@@ -162,6 +163,7 @@ const StepList = compose(
         stepsCount,
         initialData,
         postMessage,
+        resetFields,
         t,
     }) => {
         const [popover, setPopover] = useState({});
@@ -262,7 +264,7 @@ const StepList = compose(
                                                 />
                                                 <div className="stepWrapper">
                                                     <h4 className="stepName">{stepsData[step].name}</h4>
-                                                    <FieldType>{`<normal-step>`}</FieldType>
+                                                    <FieldType>{t(stepsData[step].type)}</FieldType>
                                                     <StyledStepActions>
                                                         <ButtonGroup minimal>
                                                             <Tooltip content={t('EditStep')}>
@@ -281,6 +283,7 @@ const StepList = compose(
                                                                                 );
                                                                             }
                                                                         );
+                                                                        resetFields('step');
                                                                         postMessage(Messages.GET_INTERFACE_DATA, {
                                                                             iface_kind: 'step',
                                                                             name: stepsData[step].name,
@@ -348,66 +351,86 @@ const StepList = compose(
 
 const NewStepPopover = compose(
     withInitialDataConsumer(),
-    withTextContext()
-)(({ t, onStepInsert, step, before, parallel, onSubmit, onCancel, initialData, stepsData }) => {
-    const handleInsert: (name: string) => void = name => {
-        onStepInsert({ name }, step, before, parallel);
-        onSubmit();
-    };
+    withTextContext(),
+    withFieldsConsumer()
+)(
+    ({
+        t,
+        onStepInsert,
+        step,
+        before,
+        parallel,
+        onSubmit,
+        onCancel,
+        initialData,
+        stepsData,
+        resetFields,
+        resetInterfaceData,
+    }) => {
+        const handleInsert: (name: string, type: string) => void = (name, type) => {
+            onStepInsert({ name, type }, step, before, parallel);
+            onSubmit();
+        };
 
-    return (
-        <StyledPopover>
-            <FieldName>
-                {t('AddNewStep')} {before ? t('Before') : t('After')} {step ? stepsData[step].name : 'all steps'}
-            </FieldName>
-            <ActionsWrapper>
-                <FieldInputWrapper>
+        return (
+            <StyledPopover>
+                <FieldName>
+                    {t('AddNewStep')} {before ? t('Before') : t('After')} {step ? stepsData[step].name : 'all steps'}
+                </FieldName>
+                <ActionsWrapper>
+                    <FieldInputWrapper>
+                        <ButtonGroup fill>
+                            <Button
+                                intent="success"
+                                icon="add"
+                                onClick={() => {
+                                    resetFields('step');
+                                    initialData.resetInterfaceData('step');
+                                    initialData.changeTab('CreateInterface', 'step');
+                                    initialData.setStepSubmitCallback((stepName, stepType) => {
+                                        handleInsert(stepName, stepType);
+                                        initialData.changeTab('CreateInterface', 'workflow');
+                                        initialData.setStepSubmitCallback(null);
+                                    });
+                                }}
+                            />
+                            <SelectField
+                                get_message={{
+                                    action: 'creator-get-objects',
+                                    object_type: 'workflow-step',
+                                }}
+                                return_message={{
+                                    action: 'creator-return-objects',
+                                    object_type: 'workflow-step',
+                                    return_value: 'objects',
+                                }}
+                                predicate={(name: string) => !some(stepsData, item => item.name === name)}
+                                value={name}
+                                onChange={(_name, value) => {
+                                    handleInsert(value);
+                                }}
+                                placeholder={t('OrSelectExisting')}
+                                name="name"
+                            />
+                        </ButtonGroup>
+                    </FieldInputWrapper>
+                </ActionsWrapper>
+                <ActionsWrapper>
                     <ButtonGroup fill>
                         <Button
-                            intent="success"
-                            icon="add"
+                            text={t('Cancel')}
                             onClick={() => {
-                                initialData.changeTab('CreateInterface', 'step');
-                                initialData.setStepSubmitCallback(stepName => {
-                                    handleInsert(stepName);
-                                    initialData.changeTab('CreateInterface', 'workflow');
-                                    initialData.setStepSubmitCallback(null);
-                                });
+                                onCancel();
                             }}
-                        />
-                        <SelectField
-                            get_message={{
-                                action: 'creator-get-objects',
-                                object_type: 'workflow-step',
-                            }}
-                            return_message={{
-                                action: 'creator-return-objects',
-                                object_type: 'workflow-step',
-                                return_value: 'objects',
-                            }}
-                            predicate={(name: string) => !some(stepsData, item => item.name === name)}
-                            value={name}
-                            onChange={(_name, value) => {
-                                handleInsert(value);
-                            }}
-                            placeholder={t('OrSelectExisting')}
-                            name="name"
                         />
                     </ButtonGroup>
-                </FieldInputWrapper>
-            </ActionsWrapper>
-            <ActionsWrapper>
-                <ButtonGroup fill>
-                    <Button
-                        text={t('Cancel')}
-                        onClick={() => {
-                            onCancel();
-                        }}
-                    />
-                </ButtonGroup>
-            </ActionsWrapper>
-        </StyledPopover>
-    );
-});
+                </ActionsWrapper>
+            </StyledPopover>
+        );
+    }
+);
 
-export default withTextContext()(StepList);
+export default compose(
+    withFieldsConsumer(),
+    withTextContext()
+)(StepList);
