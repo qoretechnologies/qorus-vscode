@@ -189,10 +189,10 @@ class QorusWebview {
                             this.postInitialData();
                             break;
                         case 'creator-create-interface':
-                            creator.editInterface(message.iface_kind, 'create', message.data);
+                            creator.editInterface({...message, edit_type: 'create'});
                             break;
                         case 'creator-edit-interface':
-                            creator.editInterface(message.iface_kind, 'edit', message.data);
+                            creator.editInterface({...message, edit_type: 'edit'});
                             break;
                         case 'get-interface-data':
                             project.code_info.getInterfaceData(message);

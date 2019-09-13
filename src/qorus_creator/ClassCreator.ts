@@ -7,7 +7,7 @@ import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    edit(data: any, edit_type: string, iface_kind: string) {
+    edit({data, edit_type, iface_kind, open_file_on_success = true}) {
         let template: any;
         let suffix: string;
         switch (iface_kind) {
@@ -69,7 +69,7 @@ class ClassCreator extends InterfaceCreator {
             code: this.file_name
         });
 
-        this.writeFiles(contents, headers);
+        this.writeFiles(contents, headers, open_file_on_success);
 
         if (message) {
             msg.info(message);

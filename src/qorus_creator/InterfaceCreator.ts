@@ -46,7 +46,7 @@ export abstract class InterfaceCreator {
         return path.join(this.target_dir, this.yaml_file_name);
     }
 
-    protected writeFiles(contents: string, headers: string, wf_headers?: string, wf_yaml_file_path?: string) {
+    protected writeFiles(contents: string, headers: string, open_file_on_success: boolean = true) {
         fs.writeFile(this.file_path, contents, err => {
             if (err) {
                 msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
@@ -55,22 +55,15 @@ export abstract class InterfaceCreator {
 
             const generated_file_info = '# This is a generated file, don\'t edit!\n';
 
-            if (wf_headers) {
-                fs.writeFile(wf_yaml_file_path, generated_file_info + wf_headers, err => {
-                    if (err) {
-                        msg.error(t`WriteFileError ${wf_yaml_file_path} ${err.toString()}`);
-                        return;
-                    }
-                });
-            }
-
             fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
                 if (err) {
                     msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
                     return;
                 }
 
-                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+                if (open_file_on_success) {
+                    workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+                }
             });
         });
     }

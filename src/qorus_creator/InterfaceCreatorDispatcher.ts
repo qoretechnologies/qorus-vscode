@@ -28,18 +28,18 @@ class InterfaceCreatorDispatcher {
         }
     }
 
-    editInterface(iface_kind: string, edit_type: string, data: any) {
-        switch (iface_kind) {
+    editInterface(params) {
+        switch (params.iface_kind) {
             case 'service':
-                service_creator.edit(data, edit_type);
+                service_creator.edit(params);
                 break;
             case 'workflow':
-                workflow_creator.edit(data, edit_type);
+                workflow_creator.edit(params);
                 break;
             case 'job':
             case 'class':
             case 'step':
-                class_creator.edit(data, edit_type, iface_kind);
+                class_creator.edit(params);
                 break;
         }
     }

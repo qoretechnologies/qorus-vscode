@@ -7,7 +7,7 @@ import * as msg from '../qorus_message';
 
 
 class ServiceCreator extends InterfaceCreator {
-    edit(data: any, edit_type: string) {
+    edit({data, edit_type}) {
         if (!data.methods || !data.methods.length) {
             data.methods = [{
                 name: 'init',
@@ -15,8 +15,7 @@ class ServiceCreator extends InterfaceCreator {
             }];
         }
 
-        const other_data = this.init(data, '.qsd');
-        const { methods, ...header_data } = other_data;
+        const { methods, ...header_data } = this.init(data, '.qsd');
 
         const initial_data = qorus_webview.opening_data;
         const service_info = this.code_info.codeInfo(
@@ -201,7 +200,7 @@ class ServiceCreator extends InterfaceCreator {
                 return;
             }
 
-            this.edit(data, 'delete-method');
+            this.edit({data, edit_type: 'delete-method'});
         });
     }
 
