@@ -9,7 +9,7 @@ import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
-import { hasSuffix } from './qorus_utils';
+import { hasSuffix, flatten } from './qorus_utils';
 
 const object_parser_command = 'qop.q -i';
 const object_chunk_length = 100;
@@ -120,6 +120,11 @@ export class QorusProjectCodeInfo {
             }
         }));
     }
+
+    stepData = (step_structure: any[]): any[] => {
+        const step_names: string[] = flatten(step_structure);
+        return step_names.map(name => this.yaml_data_by_name.step[name]);
+    };
 
     private initInfo() {
         for (const type of object_info_types) {

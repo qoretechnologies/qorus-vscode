@@ -1156,6 +1156,9 @@ msgstr "Edit job"
 msgid "EditStep"
 msgstr "Edit step"
 
+msgid "EditWorkflow"
+msgstr "Edit workflow"
+
 msgid "SrcAndYamlMismatch ${ field } ${ src_file } ${ value1 } ${ value2 }"
 msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1 }, yaml info: ${ value2 }"
 

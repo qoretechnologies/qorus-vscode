@@ -70,3 +70,15 @@ const filesInDirImpl = (dir: string, files: string[], filter?: Function) => {
         }
     }
 };
+
+export const flatten = orig_arr => {
+    let arr = [...orig_arr];
+    let length = arr.length;
+    while (true) {
+        arr = [].concat(...arr);
+        if (length === arr.length) {
+            return arr;
+        }
+        length = arr.length;
+    }
+}

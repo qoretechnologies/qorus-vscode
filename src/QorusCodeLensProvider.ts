@@ -30,7 +30,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         const file_name = path.basename(file_path);
 
         const iface_kind = suffixToIfaceKind(path.extname(file_path));
-        if (!['service', 'job', 'step'].includes(iface_kind)) {
+        if (!['service', 'job', 'step', 'workflow'].includes(iface_kind)) {
             return Promise.resolve([]);
         }
 
@@ -149,6 +149,14 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                     title: t`EditStep`,
                     command: 'qorus.editInterface',
                     arguments: [data, 'step'],
+                }));
+                break;
+            case 'workflow':
+                const steps: string[] | undefined = data.steps ? this.code_info.stepData(data.steps) : undefined;
+                lenses.push(new vscode.CodeLens(range, {
+                    title: t`EditWorkflow`,
+                    command: 'qorus.editInterface',
+                    arguments: [data, 'workflow', steps ? {steps} : undefined],
                 }));
                 break;
             default:
