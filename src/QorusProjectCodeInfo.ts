@@ -121,9 +121,13 @@ export class QorusProjectCodeInfo {
         }));
     }
 
-    stepData = (step_structure: any[]): any[] => {
+    stepData = (step_structure: any[]): any => {
         const step_names: string[] = flatten(step_structure);
-        return step_names.map(name => this.yaml_data_by_name.step[name]);
+        let step_data = {};
+        step_names.forEach(name => {
+            step_data[name] = this.yaml_data_by_name.step[name]
+        });
+        return step_data;
     };
 
     private initInfo() {
