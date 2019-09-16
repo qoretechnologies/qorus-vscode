@@ -54,6 +54,8 @@ export interface IApp {
 
 export type TTranslator = (id: string) => string;
 
+const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
+
 const App: FunctionComponent<IApp> = ({
     addMessageListener,
     postMessage,
@@ -69,14 +71,14 @@ const App: FunctionComponent<IApp> = ({
     path,
 }) => {
     const [texts, setTexts] = useState<{ [key: string]: string }>({});
-
     useEffectOnce(() => {
         // New text was received
         addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
             setTexts(currentTexts => {
-                // Do not modify state if the text alread
+                // Do not modify state if the text already
                 // exists
                 if (!currentTexts[data.text_id]) {
+                    pastTexts[data.text_id] = { isTranslated: true, text: data.text };
                     return {
                         ...currentTexts,
                         [data.text_id]: data.text,
@@ -106,13 +108,21 @@ const App: FunctionComponent<IApp> = ({
     });
 
     const t: TTranslator = text_id => {
-        // Return the text if it was found
-        if (texts[text_id]) {
-            return texts[text_id];
+        if (!text_id) {
+            return 'Missing text id';
         }
-        // Otherwise ask for it
-        postMessage(Messages.GET_TEXT, { text_id });
-        return '';
+        // Return the text if it was found
+        if (!pastTexts[text_id]) {
+            // Save the text
+            pastTexts[text_id] = { isTranslated: false, text: text_id };
+            // Otherwise ask for it
+            postMessage(Messages.GET_TEXT, { text_id });
+        } else if (!pastTexts[text_id].isTranslated) {
+            // Ask for the translation again
+            postMessage(Messages.GET_TEXT, { text_id });
+        }
+        // Return the text
+        return pastTexts[text_id].text;
     };
 
     return (
