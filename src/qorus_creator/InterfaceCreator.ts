@@ -99,6 +99,8 @@ export abstract class InterfaceCreator {
         const indent = '    ';
         let result: string = '';
 
+        delete headers['base-class-name'];
+
         for (const tag in headers) {
             const value = headers[tag];
             if (typeof(value) === 'undefined') {
