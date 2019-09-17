@@ -126,6 +126,7 @@ export class QorusProjectCodeInfo {
         let step_data = {};
         step_names.forEach(name => {
             step_data[name] = this.yaml_data_by_name.step[name]
+            delete step_data[name].type;
         });
         return step_data;
     };

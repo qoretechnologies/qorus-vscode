@@ -158,7 +158,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 lenses.push(new vscode.CodeLens(range, {
                     title: t`EditWorkflow`,
                     command: 'qorus.editInterface',
-                    arguments: [data, 'workflow', steps ? {steps} : undefined],
+                    arguments: [data, 'workflow', steps ? {'steps-info': steps} : undefined],
                 }));
                 break;
             default:
