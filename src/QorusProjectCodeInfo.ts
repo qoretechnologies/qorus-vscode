@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'yamljs';
 import { qore_vscode } from './qore_vscode';
+import { QorusExtension } from './qorus_vscode';
 import { QorusProject } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
@@ -11,7 +12,7 @@ import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
 import { hasSuffix, flatten } from './qorus_utils';
 
-const object_parser_command = 'qop.q -i';
+const object_parser_subpath = path.join('qorus-object-parser', 'qop.q -i');
 const object_chunk_length = 100;
 const root_service = 'QorusService';
 const root_job = 'QorusJob';
@@ -25,11 +26,11 @@ const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
 const default_version = '1.0';
 
 export interface QoreTextDocument {
-    uri: string,
-    text: string,
-    languageId: string,
-    version: number
-};
+    uri: string;
+    text: string;
+    languageId: string;
+    version: number;
+}
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
@@ -125,11 +126,11 @@ export class QorusProjectCodeInfo {
         const step_names: string[] = flatten(step_structure);
         let step_data = {};
         step_names.forEach(name => {
-            step_data[name] = this.yaml_data_by_name.step[name]
+            step_data[name] = this.yaml_data_by_name.step[name];
             delete step_data[name].yaml_file;
         });
         return step_data;
-    };
+    }
 
     private initInfo() {
         for (const type of object_info_types) {
@@ -217,7 +218,7 @@ export class QorusProjectCodeInfo {
                 object_type,
                 [return_type]: objects
             });
-        }
+        };
 
         switch (object_type) {
             case 'workflow-step':
@@ -337,7 +338,7 @@ export class QorusProjectCodeInfo {
                         msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
                         clearInterval(interval_id);
                     }
-                }
+                };
 
                 interval_id = setInterval(checkPending, 1000);
             }
@@ -462,7 +463,7 @@ export class QorusProjectCodeInfo {
                 }
             }
             return base_classes;
-        }
+        };
 
         baseClasses(this.service_classes, {...this.inheritance_pairs});
         baseClasses(this.job_classes, {...this.inheritance_pairs});
@@ -589,6 +590,7 @@ export class QorusProjectCodeInfo {
     }
 
     private updateObjects(source_directories: string[]) {
+        const object_parser_path = path.join(QorusExtension.context.extensionPath, object_parser_subpath);
         this.setPending('objects', true);
         let num_pending = 0;
         let child_process_failed: boolean = false;
@@ -614,7 +616,7 @@ export class QorusProjectCodeInfo {
                 num_pending++;
 
                 let command_parts = files.splice(0, object_chunk_length);
-                command_parts.unshift(object_parser_command);
+                command_parts.unshift(object_parser_path);
                 const command: string = command_parts.join(' ');
 
                 child_process.exec(command, {maxBuffer: 99999999}, (error, stdout, stderr) => {
