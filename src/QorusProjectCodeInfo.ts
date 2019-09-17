@@ -110,14 +110,16 @@ export class QorusProjectCodeInfo {
         return this.inheritance_pairs[class_name];
     }
 
-    getInterfaceData = ({iface_kind, name}) => {
+    getInterfaceData = ({iface_kind, name, include_tabs}) => {
         this.waitForPending(['yaml']).then(() => qorus_webview.postMessage({
             action: 'return-interface-data',
             data: {
                 iface_kind: iface_kind,
-                tab: 'CreateInterface',
-                subtab: iface_kind,
-                [iface_kind]: this.yaml_data_by_name[iface_kind][name]
+                [iface_kind]: this.yaml_data_by_name[iface_kind][name],
+                ... include_tabs ? {
+                    tab: 'CreateInterface',
+                    subtab: iface_kind
+                } : {}
             }
         }));
     }
