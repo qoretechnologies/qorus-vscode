@@ -2,8 +2,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 export const isDeployable = (file_path: string): boolean =>
-    hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn',
-                                 'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java']);
+    hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep',
+                                 'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java', 'yaml']);
 
 export const canBeParsed = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qsd', 'qjob', 'qclass', 'qconst', 'qmapper', 'qvmap', 'java']);
