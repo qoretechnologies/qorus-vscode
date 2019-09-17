@@ -12,7 +12,8 @@ import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
 import { hasSuffix, flatten } from './qorus_utils';
 
-const object_parser_subpath = path.join('qorus-object-parser', 'qop.q -i');
+const object_parser_subdir = 'qorus-object-parser';
+const object_parser_script = 'qop.q -i';
 const object_chunk_length = 100;
 const root_service = 'QorusService';
 const root_job = 'QorusJob';
@@ -592,7 +593,8 @@ export class QorusProjectCodeInfo {
     }
 
     private updateObjects(source_directories: string[]) {
-        const object_parser_path = path.join(QorusExtension.context.extensionPath, object_parser_subpath);
+        const object_parser_dir = path.join(QorusExtension.context.extensionPath, object_parser_subdir);
+        const object_parser_path = path.join(object_parser_dir, object_parser_script);
         this.setPending('objects', true);
         let num_pending = 0;
         let child_process_failed: boolean = false;
@@ -620,8 +622,14 @@ export class QorusProjectCodeInfo {
                 let command_parts = files.splice(0, object_chunk_length);
                 command_parts.unshift(object_parser_path);
                 const command: string = command_parts.join(' ');
+                const options = {
+                    maxBuffer: 99999999,
+                    env: {
+                        QORE_MODULE_DIR: object_parser_dir
+                    }
+                };
 
-                child_process.exec(command, {maxBuffer: 99999999}, (error, stdout, stderr) => {
+                child_process.exec(command, options, (error, stdout, stderr) => {
 
                     if (error) {
                         msg.error(t`QopError ${error}`);
