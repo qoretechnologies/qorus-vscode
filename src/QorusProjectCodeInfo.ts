@@ -634,6 +634,7 @@ export class QorusProjectCodeInfo {
                 const options = {
                     maxBuffer: 99999999,
                     env: {
+                        ... process.env,
                         QORE_MODULE_DIR: object_parser_dir
                     }
                 };
