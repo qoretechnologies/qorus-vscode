@@ -22,6 +22,9 @@ msgstr "Qorus project has not been set"
 msgid "QorusProjectNotFound"
 msgstr "Qorus project definition not found"
 
+msgid "UnableFindPairFile ${ file }"
+msgstr "Unable to find the pair file for ${ file }"
+
 msgid "UnableToDetermineProjectPath"
 msgstr "Unable to determine project configuration file location"
 
@@ -1356,3 +1359,6 @@ msgstr "Add new parallel step"
 
 msgid "OrSelectExisting"
 msgstr "Select existing"
+
+msgid "MissingEditData"
+msgstr "Missing edit data"

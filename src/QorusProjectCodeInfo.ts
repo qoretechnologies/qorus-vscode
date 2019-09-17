@@ -41,6 +41,7 @@ export class QorusProjectCodeInfo {
     private yaml_data_by_file: any = {};
     private yaml_data_by_class: any = {};
     private yaml_data_by_name: any = {};
+    private yaml_2_src: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
@@ -125,11 +126,18 @@ export class QorusProjectCodeInfo {
         }));
     }
 
+    pairFile = (file: string): string | undefined => {
+        if (hasSuffix(file, 'yaml')) {
+            return this.yaml_2_src[file];
+        }
+        return this.yaml_data_by_file[file] && this.yaml_data_by_file[file].yaml_file;
+    }
+
     stepData = (step_structure: any[]): any => {
         const step_names: string[] = flatten(step_structure);
         let step_data = {};
         step_names.forEach(name => {
-            step_data[name] = this.yaml_data_by_name.step[name];
+            step_data[name] = { ...this.yaml_data_by_name.step[name] };
             delete step_data[name].yaml_file;
         });
         return step_data;
@@ -371,6 +379,7 @@ export class QorusProjectCodeInfo {
         if (yaml_data.code) {
             const src = path.join(path.dirname(file), yaml_data.code);
             this.yaml_data_by_file[src] = yaml_data;
+            this.yaml_2_src[file] = src;
         }
         const class_name = yaml_data['class-name'];
         if (class_name) {

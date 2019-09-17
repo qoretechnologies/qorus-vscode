@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
+import { projects } from './QorusProject';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
@@ -42,7 +43,16 @@ class QorusDeploy {
             return;
         }
 
-        this.doDeploy([file_path]);
+        const project = projects.getProject(uri);
+        const code_info = project && project.code_info;
+        const pair_file_path = code_info.pairFile(file_path);
+
+        if (!pair_file_path) {
+            msg.error(t`UnableFindPairFile ${file_path}`);
+            return;
+        }
+
+        this.doDeploy([file_path, pair_file_path]);
     }
 
     deployDir(uri: vscode.Uri) {
