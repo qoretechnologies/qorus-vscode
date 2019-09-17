@@ -961,10 +961,10 @@ msgstr "Template"
 msgid "field-desc-template"
 msgstr "Defines template file resources (accepts wildcards)"
 
-msgid "field-label-define-auth_label"
+msgid "field-label-define-auth-label"
 msgstr "Define auth label"
 
-msgid "field-desc-define-auth_label"
+msgid "field-desc-define-auth-label"
 msgstr "Defines an authentication label with an associated value"
 
 msgid "field-label-tags"

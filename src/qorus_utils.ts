@@ -10,12 +10,12 @@ export const canBeParsed = (file_path: string): boolean =>
 
 export const hasSuffix = (file_path: string, suffix: string): boolean => {
     return hasOneOfSuffixes(file_path, [suffix]);
-}
+};
 
 const hasOneOfSuffixes = (file_path: string, suffixes: string[]): boolean => {
     const suffix: string | undefined = getSuffix(file_path);
     return suffix ? suffixes.includes(suffix) : false;
-}
+};
 
 export const isTest = (file_path: string): boolean => getSuffix(file_path) === 'qtest';
 
@@ -81,4 +81,4 @@ export const flatten = orig_arr => {
         }
         length = arr.length;
     }
-}
+};
