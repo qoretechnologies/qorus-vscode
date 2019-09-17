@@ -21,23 +21,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
                 /*data.tab = 'CreateInterface';
                 data.subtab = 'workflow';
-                data.workflow = {
-                    steps: ['test-step:1.0', ['test-step2:1.0', 'test-step3:1.0']],
-                    stepsInfo: {
-                        'test-step:1.0': {
-                            name: 'test-step:1.0',
-                            type: 'normal-step',
-                        },
-                        'test-step2:1.0': {
-                            name: 'test-step2:1.0',
-                            type: 'normal-step',
-                        },
-                        'test-step3:1.0': {
-                            name: 'test-step3:1.0',
-                            type: 'normal-step',
-                        },
-                    },
-                };*/
+                data.workflow = { steps: [] };*/
 
                 setInitialData(data);
             });

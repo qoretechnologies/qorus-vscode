@@ -11,7 +11,6 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
         const addMessageListener: TMessageListener = (action, callback) => {
             // Register the listener
             const messageListener = (event: MessageEvent) => {
-                console.log(event);
                 // Check if the action is equal
                 if (event.data.action === action) {
                     // Run the callback with the action data

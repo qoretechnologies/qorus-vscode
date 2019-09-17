@@ -1,11 +1,14 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import classNames from 'classnames';
 
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { graph } from '../../helpers/diagram';
 import { reduce, map, size, forEach } from 'lodash';
 import { FieldName, FieldType } from '../FieldSelector';
+import withTextContext from '../../hocomponents/withTextContext';
+import withMessageHandler from '../../hocomponents/withMessageHandler';
+import { Messages } from '../../constants/messages';
 
 /**
  * Typical list of arguments for step-specific functions.
@@ -79,6 +82,8 @@ export interface IStepDiagramProps {
     steps: { [key: string]: number[] };
 }
 
+@withTextContext()
+@onlyUpdateForKeys(['highlightedGroupSteps', 'steps', 'stepsData'])
 export default class StepDiagram extends Component<IStepDiagramProps> {
     state = {
         nodes: null,
@@ -557,7 +562,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see getTextParams
      */
     renderDefaultBox(stepId, colIdx, row, rowIdx) {
-        const { stepsData, steps } = this.props;
+        const { stepsData, steps, t } = this.props;
         const { highlightedSteps } = this.state;
         return (
             <g
@@ -569,23 +574,16 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
             >
                 <rect {...this.getDefaultParams()} />
                 <foreignObject x={0} y={0} width={this.getBoxWidth()} height={this.getBoxHeight()}>
-                    <div
-                        style={{
-                            height: '100%',
-                            margin: '0 10px',
-                            padding: '7px',
-                            backgroundColor: '#fff',
-                            border: highlightedSteps.includes(stepId) ? '2px dashed #137cbd' : '1px solid #eee',
-                            borderRadius: '5px',
-                            transform: `scale(${highlightedSteps.includes(stepId) ? 1.05 : 1})`,
-                            boxShadow: `0 0 ${highlightedSteps.includes(stepId) ? 15 : 2}px 0px #ccc`,
-                        }}
+                    <StepBox
+                        stepsData={stepsData}
+                        t={t}
+                        highlightedSteps={highlightedSteps}
+                        stepId={stepId}
                         onMouseEnter={() => {
                             // Get the step dependencies
                             const deps: number[] = steps[stepId];
                             // Check if the step has any dependencies
                             if (deps.length) {
-                                // Add the deps and this step to highlights
                                 this.setState({
                                     highlightedSteps: [...deps, stepId],
                                 });
@@ -596,20 +594,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                                 highlightedSteps: [],
                             });
                         }}
-                    >
-                        <div
-                            style={{
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                clear: 'both',
-                                textAlign: 'center',
-                                wordBreak: 'break-word',
-                            }}
-                        >
-                            <FieldName>{stepsData[stepId].name}</FieldName>
-                            <FieldType>{'<normal-step>'}</FieldType>
-                        </div>
-                    </div>
+                    />
                 </foreignObject>
             </g>
         );
@@ -812,3 +797,64 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
         );
     }
 }
+
+const StepBox = withMessageHandler()(
+    ({ highlightedSteps, stepId, onMouseLeave, onMouseEnter, stepsData, t, addMessageListener, postMessage }) => {
+        const [stepData, setStepData] = useState({
+            name: 'Unknown step',
+            type: 'Unknown step type',
+        });
+
+        useEffect(() => {
+            // Wait for the interface data message
+            const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+                if (data.step && stepsData[stepId].name === `${data.step.name}:${data.step.version}`) {
+                    setStepData({
+                        name: `${data.step.name}:${data.step.version}`,
+                        type: data.step['base-class-name'],
+                    });
+                }
+            });
+            // Ask for the interface data on every change to
+            // this step
+            postMessage(Messages.GET_INTERFACE_DATA, {
+                iface_kind: 'step',
+                name: stepsData[stepId].name,
+                include_tabs: false,
+            });
+            // Remove the listener when unmounted
+            return () => {
+                msgListener();
+            };
+        }, [stepId, stepsData]);
+        return (
+            <div
+                style={{
+                    height: '100%',
+                    margin: '0 10px',
+                    padding: '7px',
+                    backgroundColor: '#fff',
+                    border: highlightedSteps.includes(stepId) ? '2px dashed #137cbd' : '1px solid #eee',
+                    borderRadius: '5px',
+                    transform: `scale(${highlightedSteps.includes(stepId) ? 1.05 : 1})`,
+                    boxShadow: `0 0 ${highlightedSteps.includes(stepId) ? 15 : 2}px 0px #ccc`,
+                }}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
+                <div
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        clear: 'both',
+                        textAlign: 'center',
+                        wordBreak: 'break-word',
+                    }}
+                >
+                    <FieldName>{stepData.name}</FieldName>
+                    <FieldType>{t(stepData.type)}</FieldType>
+                </div>
+            </div>
+        );
+    }
+);
