@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState, useEffect, useRef } from 'react';
 import { StepsContext } from '../context/steps';
 import mapProps from 'recompose/mapProps';
 import { size } from 'lodash';
-import { isArray } from 'lodash';
+import { isArray, filter, reduce } from 'lodash';
 import { transformSteps } from '../helpers/steps';
 import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
 
@@ -124,7 +124,25 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setSteps(current => {
                 const steps = removeStep(stepId, current);
 
-                setParsedSteps(stepsParser.processSteps(steps));
+                setParsedSteps(() => {
+                    setStepsData(current => {
+                        const stepsdata = reduce(
+                            current,
+                            (newStepsData, item, key) =>
+                                parseInt(key, 10) === stepId
+                                    ? newStepsData
+                                    : {
+                                          ...newStepsData,
+                                          [key]: item,
+                                      },
+                            {}
+                        );
+
+                        return stepsdata;
+                    });
+
+                    return stepsParser.processSteps(steps);
+                });
 
                 return steps;
             });
