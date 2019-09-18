@@ -32,7 +32,7 @@ export class QorusLogin extends QorusAuth {
             set_active
         }
 
-        qorus_webview.open('Login');
+        qorus_webview.open({tab: 'Login'});
     }
 
     loginPost(username: string, password: string) {
