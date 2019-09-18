@@ -399,10 +399,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
             }
-
             postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                 iface_kind: type === 'service-methods' ? 'service' : type,
                 data: newData,
+                orig_data: data,
                 open_file_on_success: openFileOnSubmit,
             });
             // Reset the fields
