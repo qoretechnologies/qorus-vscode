@@ -455,10 +455,19 @@ export class QorusProjectCodeInfo {
         if (yaml_data.name && yaml_data.type) {
             const name_version = `${yaml_data.name}:${yaml_data.version || default_version}`;
             this.yaml_data_by_name[yaml_data.type][name_version] = yaml_data;
-            if (!yaml_data['base-class-name']) {
-                const step_type = this.stepType(yaml_data['base-class-name']);
-                if (step_type) {
-                    this.yaml_data_by_name[yaml_data.type][name_version].step_type = step_type;
+
+            if (class_name) {
+                const base_class_name = this.baseClassName(class_name);
+
+                if (base_class_name) {
+                    this.yaml_data_by_name[yaml_data.type][name_version]['base-class-name'] = base_class_name;
+
+                    if (yaml_data.type === 'step' && base_class_name) {
+                        const step_type = this.stepType(base_class_name);
+                        if (step_type) {
+                            this.yaml_data_by_name.step[name_version]['step-type'] = step_type;
+                        }
+                    }
                 }
             }
         }

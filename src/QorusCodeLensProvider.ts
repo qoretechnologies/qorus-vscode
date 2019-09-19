@@ -15,7 +15,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
     public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
         this.code_info = projects.currentProjectCodeInfo();
-        return this.code_info.waitForPending(['yaml']).then(() => this.provideCodeLensesImpl(document));
+        return this.code_info.waitForPending(['yaml', 'base_classes']).then(() => this.provideCodeLensesImpl(document));
     }
 
     private provideCodeLensesImpl(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
@@ -190,10 +190,6 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             if (method.author) {
                 method.author = method.author.map(value => ({ name: value }));
             }
-        }
-
-        if (!data['base-class-name']) {
-            data['base-class-name'] = this.code_info.baseClassName(data['class-name']);
         }
 
         if (data.schedule) {
