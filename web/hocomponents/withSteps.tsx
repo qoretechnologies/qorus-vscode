@@ -172,8 +172,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     };
 
     return mapProps(({ workflow, ...rest }) => ({
-        initialSteps: (workflow && transformSteps(workflow.steps, workflow.stepsInfo).steps) || [],
-        initialStepsData: (workflow && transformSteps(workflow.steps, workflow.stepsInfo).stepsData) || {},
+        initialSteps: (workflow && transformSteps(workflow.steps, workflow['steps-info']).steps) || [],
+        initialStepsData: (workflow && transformSteps(workflow.steps, workflow['steps-info']).stepsData) || {},
         initialShowSteps: (workflow && workflow.show_steps) || false,
         workflow,
         ...rest,
