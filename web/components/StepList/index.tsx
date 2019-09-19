@@ -298,16 +298,18 @@ const Step = ({
 }) => {
     const [stepData, setStepData] = useState({
         name: 'Unknown step',
+        version: 0,
         type: 'Unknown step type',
     });
 
     useEffect(() => {
         // Wait for the interface data message
         const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-            if (data.step && stepsData[step].name === `${data.step.name}:${data.step.version}`) {
+            if (data.step && stepsData[step].name === data.step.name && stepsData[step].version == data.step.version) {
                 setStepData({
-                    name: `${data.step.name}:${data.step.version}`,
+                    name: data.step.name,
                     type: data.step['base-class-name'],
+                    version: data.step.version,
                 });
             }
         });
@@ -315,7 +317,7 @@ const Step = ({
         // this step
         postMessage(Messages.GET_INTERFACE_DATA, {
             iface_kind: 'step',
-            name: stepsData[step].name,
+            name: `${stepsData[step].name}:${stepsData[step].version}`,
             include_tabs: false,
         });
         // Remove the listener when unmounted
@@ -364,7 +366,9 @@ const Step = ({
                             icon="chevron-left"
                         />
                         <div className="stepWrapper">
-                            <h4 className="stepName">{stepData.name}</h4>
+                            <h4 className="stepName">
+                                {stepData.name}:{stepData.version}
+                            </h4>
                             <FieldType>{t(stepData.type)}</FieldType>
                             <StyledStepActions>
                                 <ButtonGroup minimal>
@@ -372,9 +376,10 @@ const Step = ({
                                         <Button
                                             icon="edit"
                                             onClick={() => {
-                                                initialData.setStepSubmitCallback((stepName, stepType) => {
+                                                initialData.setStepSubmitCallback((stepName, stepVersion, stepType) => {
                                                     onStepUpdate(step, {
                                                         name: stepName,
+                                                        version: stepVersion,
                                                         type: stepType,
                                                     });
                                                     initialData.changeTab('CreateInterface', 'workflow');
@@ -382,7 +387,7 @@ const Step = ({
                                                 resetFields('step');
                                                 postMessage(Messages.GET_INTERFACE_DATA, {
                                                     iface_kind: 'step',
-                                                    name: stepData.name,
+                                                    name: `${stepData.name}:${stepData.version}`,
                                                     include_tabs: true,
                                                 });
                                             }}
@@ -421,8 +426,8 @@ const NewStepPopover = compose(
     withTextContext(),
     withFieldsConsumer()
 )(({ t, onStepInsert, step, before, parallel, onSubmit, onCancel, initialData, stepsData, resetFields }) => {
-    const handleInsert: (name: string, type: string) => void = (name, type) => {
-        onStepInsert({ name, type }, step, before, parallel);
+    const handleInsert: (name: string, type: string, version: string) => void = (name, type, version) => {
+        onStepInsert({ name, type, version }, step, before, parallel);
         onSubmit();
     };
 
@@ -441,8 +446,8 @@ const NewStepPopover = compose(
                                 resetFields('step');
                                 initialData.resetInterfaceData('step');
                                 initialData.changeTab('CreateInterface', 'step');
-                                initialData.setStepSubmitCallback((stepName, stepType) => {
-                                    handleInsert(stepName, stepType);
+                                initialData.setStepSubmitCallback((stepName, stepVersion, stepType) => {
+                                    handleInsert(stepName, stepType, stepVersion);
                                     initialData.changeTab('CreateInterface', 'workflow');
                                     initialData.setStepSubmitCallback(null);
                                 });
@@ -461,7 +466,9 @@ const NewStepPopover = compose(
                             predicate={(name: string) => !some(stepsData, item => item.name === name)}
                             value={name}
                             onChange={(_name, value) => {
-                                handleInsert(value);
+                                const [name, version] = value.split(':');
+                                
+                                handleInsert(name, null, version);
                             }}
                             placeholder={t('OrSelectExisting')}
                             name="name"

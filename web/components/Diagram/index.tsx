@@ -83,7 +83,7 @@ export interface IStepDiagramProps {
 }
 
 @withTextContext()
-@onlyUpdateForKeys(['highlightedGroupSteps', 'steps', 'stepsData'])
+@onlyUpdateForKeys(['highlightedGroupSteps', 'steps', 'stepsData', 't'])
 export default class StepDiagram extends Component<IStepDiagramProps> {
     state = {
         nodes: null,
@@ -802,15 +802,21 @@ const StepBox = withMessageHandler()(
     ({ highlightedSteps, stepId, onMouseLeave, onMouseEnter, stepsData, t, addMessageListener, postMessage }) => {
         const [stepData, setStepData] = useState({
             name: 'Unknown step',
+            version: 0,
             type: 'Unknown step type',
         });
 
         useEffect(() => {
             // Wait for the interface data message
             const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                if (data.step && stepsData[stepId].name === `${data.step.name}:${data.step.version}`) {
+                if (
+                    data.step &&
+                    stepsData[stepId].name === data.step.name &&
+                    stepsData[stepId].version == data.step.version
+                ) {
                     setStepData({
-                        name: `${data.step.name}:${data.step.version}`,
+                        name: data.step.name,
+                        version: data.step.version,
                         type: data.step['base-class-name'],
                     });
                 }
@@ -819,7 +825,7 @@ const StepBox = withMessageHandler()(
             // this step
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'step',
-                name: stepsData[stepId].name,
+                name: `${stepsData[stepId].name}:${stepsData[stepId].version}`,
                 include_tabs: false,
             });
             // Remove the listener when unmounted
@@ -851,7 +857,9 @@ const StepBox = withMessageHandler()(
                         wordBreak: 'break-word',
                     }}
                 >
-                    <FieldName>{stepData.name}</FieldName>
+                    <FieldName>
+                        {stepData.name}:{stepData.version}
+                    </FieldName>
                     <FieldType>{t(stepData.type)}</FieldType>
                 </div>
             </div>

@@ -72,7 +72,8 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                                           const versionField = fields.find(field => field.name === 'version');
                                           const typeField = fields.find(field => field.name === 'base-class-name');
                                           initialData.stepCallback(
-                                              `${nameField.value}:${versionField.value}`,
+                                              nameField.value,
+                                              versionField.value,
                                               typeField.value
                                           );
                                       }
