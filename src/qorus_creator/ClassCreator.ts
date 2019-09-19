@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
@@ -7,7 +8,7 @@ import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    edit({data, edit_type, iface_kind, open_file_on_success = true}) {
+    editImpl({data, orig_data, edit_type, iface_kind, open_file_on_success}) {
         let template: any;
         let suffix: string;
         switch (iface_kind) {
@@ -29,13 +30,10 @@ class ClassCreator extends InterfaceCreator {
 
         const header_data = this.init(data, suffix);
 
-        const initial_data = qorus_webview.opening_data;
-        const iface_info = this.code_info.codeInfo(iface_kind,
-                                                   ClassCreator.origPath(initial_data[iface_kind]) || this.file_path);
-
         let contents: string;
         let message: string;
         let code_lines: string[];
+        let orig_file_path: string;
         switch (edit_type) {
             case 'create':
                 contents = data['base-class-name']
@@ -47,16 +45,16 @@ class ClassCreator extends InterfaceCreator {
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
-                if (!initial_data[iface_kind]) {
-                    msg.error(t`MissingEditData`);
-                    return;
-                }
+                const {target_dir: orig_target_dir, target_file: orig_target_file, ...other_orig_data} = orig_data;
+                orig_file_path = path.join(orig_target_dir, orig_target_file);
+                const iface_info = this.code_info.codeInfo(iface_kind, orig_file_path);
+
                 code_lines = iface_info.text_lines;
                 code_lines = ClassCreator.renameClassAndBaseClass(code_lines,
                                                                   iface_info,
-                                                                  initial_data[iface_kind],
+                                                                  other_orig_data,
                                                                   header_data);
-                contents = code_lines.join('\n') + '\n';
+                contents = code_lines.join('\n');
                 break;
             default:
                 msg.error(t`UnknownEditType`);
@@ -82,7 +80,7 @@ class ClassCreator extends InterfaceCreator {
             [iface_kind]: data
         };
 
-        this.deleteOrigFilesIfDifferent(initial_data[iface_kind]);
+        this.deleteOrigFilesIfDifferent(orig_file_path);
     }
 }
 

@@ -8,6 +8,7 @@ import { QorusExtension } from './qorus_vscode';
 import { QorusProject } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
+import { QoreTextDocument, qoreTextDocument, loc2range } from './QoreTextDocument';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
 import { hasSuffix, flatten } from './qorus_utils';
@@ -25,13 +26,6 @@ const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 
 const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
 const default_version = '1.0';
-
-export interface QoreTextDocument {
-    uri: string;
-    text: string;
-    languageId: string;
-    version: number;
-}
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
@@ -82,6 +76,15 @@ export class QorusProjectCodeInfo {
         }
     }
 
+    addTextLines(file: string, contents: string) {
+        const iface_kind = suffixToIfaceKind(path.extname(file));
+
+        if (!this.code_info[iface_kind][file]) {
+            this.code_info[iface_kind][file] = {};
+        }
+        this.code_info[iface_kind][file].text_lines = contents.split(/\r?\n/);
+    }
+
     addClassInfo(file: string, class_name_range: any, base_class_name_range: any) {
         const iface_kind = suffixToIfaceKind(path.extname(file));
 
@@ -93,6 +96,7 @@ export class QorusProjectCodeInfo {
     }
 
     addServiceMethodInfo(file: string, method_name: string, decl_range: any, name_range: any) {
+
         if (!this.code_info.service[file]) {
             this.code_info.service[file] = {};
         }
@@ -102,6 +106,68 @@ export class QorusProjectCodeInfo {
         }
         this.code_info.service[file].method_decl_ranges[method_name] = decl_range;
         this.code_info.service[file].method_name_ranges[method_name] = name_range;
+    }
+
+    addSymbolCodeInfo = (file: string, symbol: any): boolean => {
+        if (symbol.nodetype !== 1 || symbol.kind !== 1 || ! symbol.inherits) { // declaration && class
+            return false;
+        }
+
+        this.addClassInfo(
+            file,
+            loc2range(symbol.name.loc, 'class '),
+            loc2range(symbol.inherits[0].name.loc)
+        );
+
+        return true;
+    }
+
+    addSymbolDeclCodeInfo = (file: string, decl: any): boolean => {
+        if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
+            return false;
+        }
+
+        if (decl.modifiers.indexOf('private') > -1) {
+            return false;
+        }
+
+        const method_name = decl.name.name;
+        const decl_range = loc2range(decl.loc);
+        const name_range = loc2range(decl.name.loc);
+
+        this.addServiceMethodInfo(
+            file,
+            method_name,
+            decl_range,
+            name_range
+        );
+
+        return true;
+    }
+
+    addFileCodeInfo(file: string, force: boolean = true): Promise<void> {
+        const iface_kind = suffixToIfaceKind(path.extname(file));
+        if (this.code_info[iface_kind][file] && !force) {
+            return Promise.resolve();
+        }
+
+        const doc: QoreTextDocument = qoreTextDocument(file);
+        this.addTextLines(file, doc.text);
+
+        return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+            symbols.forEach(symbol => {
+                this.addSymbolCodeInfo(file, symbol);
+
+                if (iface_kind !== 'service') {
+                    return;
+                }
+
+                for (let decl of symbol.declarations || []) {
+                    this.addSymbolDeclCodeInfo(file, decl);
+                }
+            });
+            return Promise.resolve();
+        });
     }
 
     codeInfo(iface_kind: string, file: string) {
@@ -523,17 +589,7 @@ export class QorusProjectCodeInfo {
             for (let file of files) {
                 num_pending++;
 
-                const file_content = fs.readFileSync(file);
-                const buffer: Buffer = Buffer.from(file_content);
-                const contents = buffer.toString();
-
-                const doc: QoreTextDocument = {
-                    uri: 'file:' + file,
-                    text: contents,
-                    languageId: 'qore',
-                    version: 1
-                };
-
+                const doc: QoreTextDocument = qoreTextDocument(file);
                 qore_vscode.activate().then(() => {
                     qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
                         symbols.forEach(symbol => {

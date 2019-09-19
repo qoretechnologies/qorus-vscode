@@ -1,4 +1,5 @@
 import { window } from 'vscode';
+import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { service_class_template, service_method_template } from './service_constants';
@@ -7,7 +8,7 @@ import * as msg from '../qorus_message';
 
 
 class ServiceCreator extends InterfaceCreator {
-    edit({data, edit_type}) {
+    editImpl({data, orig_data, edit_type, open_file_on_success}) {
         if (!data.methods || !data.methods.length) {
             data.methods = [{
                 name: 'init',
@@ -17,32 +18,39 @@ class ServiceCreator extends InterfaceCreator {
 
         const { methods, ...header_data } = this.init(data, '.qsd');
 
-        const initial_data = qorus_webview.opening_data;
-        const service_info = this.code_info.codeInfo(
-                'service',
-                ServiceCreator.origPath(initial_data.service) || this.file_path);
+        const {
+            target_dir: orig_target_dir,
+            target_file: orig_target_file,
+            methods: orig_methods,
+            ...other_orig_data
+        } = orig_data;
+
+        let orig_file_path: string;
+        let service_info: any;
+
+        if (['edit', 'delete-method'].includes(edit_type)) {
+            orig_file_path = path.join(orig_target_dir, orig_target_file);
+            service_info = this.code_info.codeInfo('service', orig_file_path);
+        }
 
         let contents: string;
         let message: string;
         let code_lines: string[];
         switch (edit_type) {
-            case 'edit':
-                if (!initial_data.service) {
-                    msg.error(t`MissingEditData`);
-                    return;
-                }
-                const initial_methods: string[] = (initial_data.service.methods || []).map(method => method.name);
-                const method_renaming_map = this.methodRenamingMap(initial_methods, methods);
-                code_lines = service_info.text_lines;
-                code_lines = ServiceCreator.renameClassAndBaseClass(
-                        code_lines, service_info, initial_data.service, header_data);
-                code_lines = ServiceCreator.renameServiceMethods(code_lines, service_info, method_renaming_map.renamed);
-                code_lines = ServiceCreator.removeServiceMethods(code_lines, service_info, method_renaming_map.removed);
-                contents = this.addServiceMethods(code_lines, method_renaming_map.added);
-                break;
             case 'create':
                 contents = this.code(data, methods);
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
+                break;
+            case 'edit':
+                const orig_method_names: string[] = (orig_methods || []).map(method => method.name);
+                const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
+
+                code_lines = service_info.text_lines;
+                code_lines = ServiceCreator.renameClassAndBaseClass(
+                        code_lines, service_info, other_orig_data, header_data);
+                code_lines = ServiceCreator.renameServiceMethods(code_lines, service_info, method_renaming_map.renamed);
+                code_lines = ServiceCreator.removeServiceMethods(code_lines, service_info, method_renaming_map.removed);
+                contents = this.addServiceMethods(code_lines, method_renaming_map.added);
                 break;
             case 'delete-method':
                 if (typeof(data.method_index) === 'undefined') {
@@ -50,7 +58,7 @@ class ServiceCreator extends InterfaceCreator {
                 }
                 const method_name = methods[data.method_index].name;
                 code_lines = ServiceCreator.removeServiceMethods(service_info.text_lines, service_info, [method_name]);
-                contents = code_lines.join('\n') + '\n';
+                contents = code_lines.join('\n');
                 message = t`ServiceMethodHasBeenDeleted ${method_name}`;
 
                 data.methods.splice(data.method_index, 1);
@@ -70,7 +78,7 @@ class ServiceCreator extends InterfaceCreator {
             code: this.file_name
         });
 
-        this.writeFiles(contents, headers + ServiceCreator.createMethodHeaders(data.methods));
+        this.writeFiles(contents, headers + ServiceCreator.createMethodHeaders(data.methods), open_file_on_success);
 
         if (message) {
             msg.info(message);
@@ -85,7 +93,7 @@ class ServiceCreator extends InterfaceCreator {
             service: data
         };
 
-        this.deleteOrigFilesIfDifferent(initial_data.service);
+        this.deleteOrigFilesIfDifferent(orig_file_path);
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {
@@ -200,7 +208,7 @@ class ServiceCreator extends InterfaceCreator {
                 return;
             }
 
-            this.edit({data, edit_type: 'delete-method'});
+            this.edit({data, edit_type: 'delete-method', orig_data: undefined, open_file_on_success : false});
         });
     }
 

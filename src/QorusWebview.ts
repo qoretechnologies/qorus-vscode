@@ -26,9 +26,10 @@ class QorusWebview {
     }
 
     private postInitialData = () => {
+        const {uri, ...other_data} = this.initial_data;
         this.postMessage({
             action: 'return-initial-data',
-            data: { path: web_path, ...this.initial_data }
+            data: { path: web_path, ...other_data }
         });
     };
 

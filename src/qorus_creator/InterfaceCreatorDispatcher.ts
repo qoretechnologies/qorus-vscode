@@ -6,6 +6,8 @@ import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
 import { classFields } from './common_constants';
+import { t } from 'ttag';
+import * as msg from '../qorus_message';
 
 
 class InterfaceCreatorDispatcher {
@@ -29,6 +31,10 @@ class InterfaceCreatorDispatcher {
     }
 
     editInterface(params) {
+        if (params.edit_type === 'edit' && !params.orig_data) {
+            msg.error(t`MissingEditData`);
+            return;
+        }
         switch (params.iface_kind) {
             case 'service':
                 service_creator.edit(params);

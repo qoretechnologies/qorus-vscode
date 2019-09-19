@@ -1,19 +1,13 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { qore_vscode } from './qore_vscode';
-import { QoreTextDocument, QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import { projects } from './QorusProject';
 import { suffixToIfaceKind } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
 
-
-const loc2range = (loc: any, offset_string: string = ''): vscode.Range => new vscode.Range(
-    loc.start_line - 1,
-    loc.start_column - 1 + offset_string.length,
-    loc.end_line - 1,
-    loc.end_column - 1,
-);
 
 export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
@@ -30,7 +24,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         const file_name = path.basename(file_path);
 
         const iface_kind = suffixToIfaceKind(path.extname(file_path));
-        if (!['service', 'job', 'step', 'workflow'].includes(iface_kind)) {
+        if (!['service', 'job', 'step', 'workflow', 'class'].includes(iface_kind)) {
             return Promise.resolve([]);
         }
 
@@ -55,7 +49,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             let lenses: vscode.CodeLens[] = [];
 
             symbols.forEach(symbol => {
-                if (symbol.nodetype !== 1 || symbol.kind !== 1 || ! symbol.inherits) { // declaration && class
+                if (!this.code_info.addSymbolCodeInfo(file_path, symbol)) {
                     return;
                 }
 
@@ -64,35 +58,17 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                     return;
                 }
 
-                this.code_info.addClassInfo(
-                    file_path,
-                    loc2range(symbol.name.loc, 'class '),
-                    loc2range(symbol.inherits[0].name.loc)
-                );
-
                 if (iface_kind !== 'service') {
                     return;
                 }
 
                 for (let decl of symbol.declarations || []) {
-                    if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
-                        continue;
-                    }
-
-                    if (decl.modifiers.indexOf('private') > -1) {
+                    if (!this.code_info.addSymbolDeclCodeInfo(file_path, decl)) {
                         continue;
                     }
 
                     const method_name = decl.name.name;
-                    const decl_range = loc2range(decl.loc);
                     const name_range = loc2range(decl.name.loc);
-
-                    this.code_info.addServiceMethodInfo(
-                        file_path,
-                        method_name,
-                        decl_range,
-                        name_range
-                    );
                     this.addServiceMethodLenses(lenses, name_range, data, method_name);
                 }
             });
