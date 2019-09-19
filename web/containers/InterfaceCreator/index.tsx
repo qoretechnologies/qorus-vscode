@@ -34,7 +34,13 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                     className={'flex-column flex-auto'}
                     panel={<ServicesView service={initialData.service} />}
                 />
-                {<Tab id={'workflow'} title={t('Workflow')} panel={<WorkflowsView service={initialData.workflow} />} />}
+                {
+                    <Tab
+                        id={'workflow'}
+                        title={t('Workflow')}
+                        panel={<WorkflowsView workflow={initialData.workflow} />}
+                    />
+                }
                 <Tab
                     id={'job'}
                     title={t('Job')}
