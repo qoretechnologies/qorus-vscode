@@ -130,11 +130,10 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 }));
                 break;
             case 'workflow':
-                const steps: string[] | undefined = data.steps ? this.code_info.stepData(data.steps) : undefined;
                 lenses.push(new vscode.CodeLens(range, {
                     title: t`EditWorkflow`,
                     command: 'qorus.editInterface',
-                    arguments: [data, 'workflow', steps ? {'steps-info': steps} : undefined],
+                    arguments: [data, 'workflow'],
                 }));
                 break;
             default:
@@ -200,6 +199,10 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         if (data.schedule) {
             const ordered_values = ['minutes', 'hours', 'days', 'months', 'dow'].map(key => data.schedule[key]);
             data.schedule = ordered_values.join(' ');
+        }
+
+        if (data.steps) {
+            data['steps-info'] = this.code_info.stepData(data.steps);
         }
 
         delete data.code;

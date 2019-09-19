@@ -85,11 +85,10 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     disposable = vscode.commands.registerCommand('qorus.editInterface',
-                                                 (data: any, iface_kind: string, steps?: any) => qorus_webview.open({
+                                                 (data: any, iface_kind: string) => qorus_webview.open({
         tab: 'CreateInterface',
         subtab: iface_kind,
-        [iface_kind]: data,
-        ...steps
+        [iface_kind]: data
     }));
     context.subscriptions.push(disposable);
 
