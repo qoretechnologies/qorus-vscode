@@ -15,7 +15,7 @@ import Field from '../../components/Field';
 import FieldLabel from '../../components/FieldLabel';
 import styled from 'styled-components';
 import FieldActions from '../../components/FieldActions';
-import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip } from '@blueprintjs/core';
+import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip, Dialog } from '@blueprintjs/core';
 import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -118,6 +118,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
+    const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
 
     useEffect(() => {
         // Remove the message listener if it exists
@@ -402,7 +403,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                 iface_kind: type === 'service-methods' ? 'service' : type,
                 data: newData,
-                orig_data: data,
+                orig_data: type === 'service-methods' ? initialData.service : data,
                 open_file_on_success: openFileOnSubmit,
             });
             // Reset the fields
@@ -520,25 +521,43 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     )}
                 </ContentWrapper>
                 <ActionsWrapper>
-                    <ButtonGroup fill>
-                        {onBackClick && (
-                            <Tooltip content={'BackToooltip'}>
-                                <Button text={t('Back')} icon={'undo'} onClick={() => onBackClick()} />
+                    <div style={{ float: 'left', width: '48%' }}>
+                        <ButtonGroup fill>
+                            <Tooltip content={'ManageConfigItems'}>
+                                <Button
+                                    text={t('ManageConfigItems')}
+                                    icon={'cog'}
+                                    onClick={() => setShowConfigItemsManager(true)}
+                                />
                             </Tooltip>
-                        )}
-                        <Tooltip content={t('ResetTooltip')}>
-                            <Button text={t('Reset')} icon={'history'} onClick={() => resetLocalFields(activeId)} />
-                        </Tooltip>
-                        <Button
-                            text={t(submitLabel)}
-                            disabled={!isFormValid(type)}
-                            icon={'tick'}
-                            intent={Intent.SUCCESS}
-                            onClick={handleSubmitClick}
-                        />
-                    </ButtonGroup>
+                        </ButtonGroup>
+                    </div>
+                    <div style={{ float: 'right', width: '48%' }}>
+                        <ButtonGroup fill>
+                            {onBackClick && (
+                                <Tooltip content={'BackToooltip'}>
+                                    <Button text={t('Back')} icon={'undo'} onClick={() => onBackClick()} />
+                                </Tooltip>
+                            )}
+                            <Tooltip content={t('ResetTooltip')}>
+                                <Button text={t('Reset')} icon={'history'} onClick={() => resetLocalFields(activeId)} />
+                            </Tooltip>
+                            <Button
+                                text={t(submitLabel)}
+                                disabled={!isFormValid(type)}
+                                icon={'tick'}
+                                intent={Intent.SUCCESS}
+                                onClick={handleSubmitClick}
+                            />
+                        </ButtonGroup>
+                    </div>
                 </ActionsWrapper>
             </Content>
+            {showConfigItemsManager && (
+                <Dialog isOpen title={t('ConfigItemsManager')}>
+                    <p> Config items are managed here kek</p>
+                </Dialog>
+            )}
         </>
     );
 };
