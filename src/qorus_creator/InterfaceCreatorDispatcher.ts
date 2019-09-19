@@ -1,5 +1,4 @@
 import { service_creator } from './ServiceCreator';
-import { workflow_creator } from './WorkflowCreator';
 import { class_creator } from './ClassCreator';
 import { serviceFields, service_methods } from './service_constants';
 import { jobFields } from './job_constants';
@@ -40,8 +39,6 @@ class InterfaceCreatorDispatcher {
                 service_creator.edit(params);
                 break;
             case 'workflow':
-                workflow_creator.edit(params);
-                break;
             case 'job':
             case 'class':
             case 'step':
