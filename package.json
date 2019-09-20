@@ -387,6 +387,7 @@
     "dependencies": {
         "@blueprintjs/datetime": "^3.9.2",
         "@blueprintjs/select": "^3.8.0",
+        "@blueprintjs/table": "^3.7.1",
         "@types/styled-components": "^4.1.19",
         "archiver": "^3.1.1",
         "compressjs": "^1.0.3",
@@ -399,6 +400,7 @@
         "recompose": "^0.30.0",
         "request": "^2.88.0",
         "request-promise": "^4.2.4",
+        "resize-observer-polyfill": "^1.5.1",
         "styled-components": "^4.2.0",
         "swagger-object-validator": "^1.1.7",
         "ttag": "^1.7.18",

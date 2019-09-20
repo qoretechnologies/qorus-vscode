@@ -308,7 +308,7 @@ const Step = ({
             if (data.step && stepsData[step].name === data.step.name && stepsData[step].version == data.step.version) {
                 setStepData({
                     name: data.step.name,
-                    type: data.step['base-class-name'],
+                    type: data.step['step-type'],
                     version: data.step.version,
                 });
             }
@@ -467,7 +467,7 @@ const NewStepPopover = compose(
                             value={name}
                             onChange={(_name, value) => {
                                 const [name, version] = value.split(':');
-                                
+
                                 handleInsert(name, null, version);
                             }}
                             placeholder={t('OrSelectExisting')}

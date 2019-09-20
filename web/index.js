@@ -9,6 +9,7 @@ import { vscode } from './common/vscode';
 import 'normalize.css/normalize.css';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
+import '@blueprintjs/table/lib/css/table.css';
 
 require('./index.html');
 require('./webview.scss');

@@ -1,0 +1,17 @@
+.content-by-type {
+  display: inline-block;
+  line-height: 1;
+
+  &.string {
+    word-break: break-all;
+    color: inherit;
+  }
+
+  &.number {
+    color: $qore-info;
+  }
+
+  &.null {
+    color: inherit;
+  }
+}

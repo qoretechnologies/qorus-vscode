@@ -1,8 +1,7 @@
-import React, { FunctionComponent, useState, useEffect, useRef } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { StepsContext } from '../context/steps';
 import mapProps from 'recompose/mapProps';
-import { size } from 'lodash';
-import { isArray, filter, reduce } from 'lodash';
+import { isArray, reduce } from 'lodash';
 import { transformSteps } from '../helpers/steps';
 import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
 

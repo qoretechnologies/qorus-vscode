@@ -19,6 +19,7 @@ import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip, Dialog } fro
 import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import ConfigItemManager from '../ConfigItemManager';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -400,12 +401,32 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
             }
-            postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-                iface_kind: type === 'service-methods' ? 'service' : type,
-                data: newData,
-                orig_data: type === 'service-methods' ? initialData.service : data,
-                open_file_on_success: openFileOnSubmit,
-            });
+            // Add workflow data with step
+            if (type === 'step') {
+                // Get the service data
+                const workflow = reduce(
+                    allSelectedFields.workflow,
+                    (result: { [key: string]: any }, field: IField) => ({
+                        ...result,
+                        [field.name]: field.value,
+                    }),
+                    {}
+                );
+                postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
+                    iface_kind: type,
+                    data: newData,
+                    orig_data: data,
+                    workflow,
+                    open_file_on_success: openFileOnSubmit,
+                });
+            } else {
+                postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
+                    iface_kind: type === 'service-methods' ? 'service' : type,
+                    data: newData,
+                    orig_data: type === 'service-methods' ? initialData.service : data,
+                    open_file_on_success: openFileOnSubmit,
+                });
+            }
             // Reset the fields
             resetFields(type);
             // Reset the interface data
@@ -446,6 +467,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             return false;
         }
     });
+
+    const isBaseClassNameValid = selectedFields.find(
+        (field: IField) => field.name === 'base-class-name' && field.isValid
+    );
 
     return (
         <>
@@ -525,6 +550,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         <ButtonGroup fill>
                             <Tooltip content={'ManageConfigItems'}>
                                 <Button
+                                    disabled={!isBaseClassNameValid}
                                     text={t('ManageConfigItems')}
                                     icon={'cog'}
                                     onClick={() => setShowConfigItemsManager(true)}
@@ -554,8 +580,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 </ActionsWrapper>
             </Content>
             {showConfigItemsManager && (
-                <Dialog isOpen title={t('ConfigItemsManager')}>
-                    <p> Config items are managed here kek</p>
+                <Dialog
+                    isOpen
+                    title={t('ConfigItemsManager')}
+                    onClose={() => setShowConfigItemsManager(false)}
+                    style={{ width: '80vw', backgroundColor: '#fff' }}
+                >
+                    <ConfigItemManager />
                 </Dialog>
             )}
         </>

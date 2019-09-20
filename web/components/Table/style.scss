@@ -1,0 +1,137 @@
+.fixed-table-header,
+td,
+td *,
+td:first-child,
+th,
+th * {
+  vertical-align: middle !important;
+}
+
+table.text-table {
+  th,
+  td {
+    text-align: left !important;
+    padding: 5px !important;
+  }
+
+  th {
+    background-color: darken(#fff, 5);
+  }
+}
+
+/**
+ * Editable cell had two states:
+ *
+ * - ready state (only editable class)
+ * - editor state (both editable and editor classes)
+ *
+ * 1. The cell is interactive.
+ * 2. There is a pencil icon floating on the right to indicate
+ *    editability. It is hidden in editor state.
+ * 3. In editor state, the cell is highlighted and fully occupied by
+ *    text input. The input is shrinked.
+ */
+td.editable {
+  cursor: pointer; /* [1] */
+  vertical-align: middle;
+  white-space: nowrap;
+
+  &:not(.editor) {
+    padding-right: 30px !important;
+  }
+
+  input {
+    padding: 0 4px;
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .editable-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  & {
+    /* [2] */
+    position: relative;
+  }
+}
+
+div.sort,
+th.sort {
+  &:after {
+    font-family: Icons16;
+    margin-left: 0.4em;
+    color: $qore-cobalt;
+  }
+
+  &.sort-asc:after {
+    content: '\E696';
+    margin-top: 0.3em;
+  }
+
+  &.sort-desc:after {
+    content: '\E697';
+  }
+}
+
+div.history-sort,
+th.history-sort {
+  &:after {
+    font-family: Icons16;
+    margin-left: 0.4em;
+    opacity: 0.4;
+    color: $qore-cobalt;
+  }
+
+  &.history-sort-asc:after {
+    content: '\E696';
+    margin-top: 0.3em;
+  }
+
+  &.history-sort-desc:after {
+    content: '\E697';
+  }
+}
+
+div.has-sort:hover,
+th.has-sort:hover {
+  background-color: #f4f4f4;
+  cursor: pointer;
+}
+
+.fixed-table tr {
+  height: 26px;
+}
+
+.fixed-table-header {
+  display: inline-block;
+}
+
+.toolbar-row {
+  overflow: hidden;
+  padding-top: 0px;
+  padding-bottom: 3px;
+
+  &:first-of-type {
+    padding-top: 3px;
+  }
+}
+
+.separated-cell {
+  border-left: 1px solid $bgcolor;
+}
+
+table.text-table.table-clean {
+  th {
+    padding-left: 0 !important;
+    padding-right: 12px !important;
+    background-color: #fff;
+  }
+
+  td {
+    border-top: 0 !important;
+  }
+}
