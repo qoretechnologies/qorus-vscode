@@ -9,7 +9,7 @@ import { Table, Thead, Tr, Th, Tbody, Td, FixedRow } from '../../components/Tabl
 import Pull from '../../components/Pull';
 import ContentByType from '../../components/ContentByType';
 //import ConfigItemsModal from './modal';
-import Tree from '../../components/tree';
+import Tree from '../../components/Tree';
 import withState from 'recompose/withState';
 import withHandlers from 'recompose/withHandlers';
 import mapProps from 'recompose/mapProps';

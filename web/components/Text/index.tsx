@@ -3,7 +3,7 @@ import React from 'react';
 import compose from 'recompose/compose';
 import pure from 'recompose/onlyUpdateForKeys';
 import Flex from '../Flex';
-import Tree from '../tree';
+import Tree from '../Tree';
 import ContentByType from '../ContentByType';
 
 const Text = ({ text, hasAlerts, expanded, caseSensitiveTree, noControls }) =>
