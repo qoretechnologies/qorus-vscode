@@ -5,6 +5,7 @@ import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
 import { classFields } from './common_constants';
+import { configItemsFileFields, config_item_fields } from './config_item_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -24,16 +25,16 @@ class InterfaceCreatorDispatcher {
                 return classFields(default_target_dir);
             case 'step':
                 return stepFields(default_target_dir);
+            case 'config-item':
+                return config_item_fields;
+            case 'config-items-file':
+                return configItemsFileFields(default_target_dir);
             default:
                 return [];
         }
     }
 
     editInterface(params) {
-        if (params.edit_type === 'edit' && !params.orig_data) {
-            msg.error(t`MissingEditData`);
-            return;
-        }
         switch (params.iface_kind) {
             case 'service':
                 service_creator.edit(params);

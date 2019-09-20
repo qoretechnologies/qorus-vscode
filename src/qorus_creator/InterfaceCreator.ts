@@ -41,6 +41,10 @@ export abstract class InterfaceCreator {
             });
         }
         else {
+            if (params.edit_type === 'edit') {
+                msg.error(t`MissingEditData`);
+                return;
+            }
             this.editImpl(params);
         }
     }
