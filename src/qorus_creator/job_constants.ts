@@ -62,4 +62,23 @@ export const jobFields = default_target_dir => [
         name: 'schedule',
         type: 'cron',
     },
+    {
+        name: 'config_target_dir',
+        mandatory: false,
+        type: 'file-string',
+        default_value: default_target_dir,
+        get_message: {
+            action: 'creator-get-directories',
+            object_type: 'target_dir',
+        },
+        return_message: {
+            action: 'creator-return-directories',
+            object_type: 'target_dir',
+            return_value: 'directories',
+        },
+    },
+    {
+        name: 'config_target_file',
+        mandatory: false,
+    }
 ];

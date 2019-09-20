@@ -1,24 +1,3 @@
-export const configItemsFileFields = default_target_dir => [
-    {
-        name: 'target_dir',
-        type: 'file-string',
-        default_value: default_target_dir,
-        get_message: {
-            action: 'creator-get-directories',
-            object_type: 'target_dir',
-        },
-        return_message: {
-            action: 'creator-return-directories',
-            object_type: 'target_dir',
-            return_value: 'directories',
-        },
-    },
-    {
-        name: 'target_file',
-        mandatory: false,
-    }
-];
-
 export const config_item_fields = [
     {
         name: 'name',

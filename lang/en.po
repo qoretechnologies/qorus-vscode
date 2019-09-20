@@ -799,11 +799,23 @@ msgstr "Target directory"
 msgid "field-desc-target_dir"
 msgstr "Directory where the code will be saved"
 
+msgid "field-label-config_target_dir"
+msgstr "Configuration items target directory"
+
+msgid "field-desc-config_target_dir"
+msgstr "Directory where the configuration items will be saved"
+
 msgid "field-label-target_file"
 msgstr "Target file"
 
 msgid "field-desc-target_file"
 msgstr "Name of the file the code will be saved as"
+
+msgid "field-label-config_target_file"
+msgstr "Configuration items target file"
+
+msgid "field-desc-config_target_file"
+msgstr "Name of the file with the configuration items"
 
 msgid "field-label-class-name"
 msgstr "Class name"
