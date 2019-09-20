@@ -33,9 +33,11 @@ export abstract class InterfaceCreator {
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
         if (params.orig_data) {
+            this.code_info.setPending('code_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
             this.code_info.addFileCodeInfo(orig_file).then(() => {
                 this.editImpl(params);
+                this.code_info.setPending('code_info', false);
             });
         }
         else {

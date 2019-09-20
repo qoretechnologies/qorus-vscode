@@ -179,7 +179,7 @@ export class QorusProjectCodeInfo {
     }
 
     getInterfaceData = ({iface_kind, name, include_tabs}) => {
-        this.waitForPending(['yaml']).then(() => qorus_webview.postMessage({
+        this.waitForPending(['yaml', 'code_info']).then(() => qorus_webview.postMessage({
             action: 'return-interface-data',
             data: {
                 iface_kind: iface_kind,
@@ -432,11 +432,12 @@ export class QorusProjectCodeInfo {
     }
 
     addSingleYamlInfo(file: string) {
-        const yaml_data = {
+        let yaml_data = {
             ...yaml.load(file),
             yaml_file: file,
             target_dir: path.dirname(file)
         };
+        yaml_data.target_file = yaml_data.code;
 
         if (yaml_data.steps) {
             yaml_data.steps = JSON.parse(yaml_data.steps);
@@ -616,7 +617,7 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    private setPending(info_key: string, value: boolean) {
+    setPending(info_key: string, value: boolean) {
         this.info_update_pending[info_key] = value;
         this.logUpdateMessage(info_key);
     }
