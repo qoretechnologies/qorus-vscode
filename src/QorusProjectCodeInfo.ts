@@ -39,7 +39,7 @@ export class QorusProjectCodeInfo {
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
-    private code_info: any = {};
+    private edit_info: any = {};
     private modules: string[] = [];
     private service_classes = {};
     private job_classes = {};
@@ -67,45 +67,45 @@ export class QorusProjectCodeInfo {
         const file = document.uri.fsPath;
         const iface_kind = suffixToIfaceKind(path.extname(file));
 
-        if (!this.code_info[iface_kind][file]) {
-            this.code_info[iface_kind][file] = {};
+        if (!this.edit_info[iface_kind][file]) {
+            this.edit_info[iface_kind][file] = {};
         }
-        this.code_info[iface_kind][file].text_lines = [];
+        this.edit_info[iface_kind][file].text_lines = [];
         for (let i = 0; i < document.lineCount; i++) {
-            this.code_info[iface_kind][file].text_lines.push(document.lineAt(i).text);
+            this.edit_info[iface_kind][file].text_lines.push(document.lineAt(i).text);
         }
     }
 
     addTextLines(file: string, contents: string) {
         const iface_kind = suffixToIfaceKind(path.extname(file));
 
-        if (!this.code_info[iface_kind][file]) {
-            this.code_info[iface_kind][file] = {};
+        if (!this.edit_info[iface_kind][file]) {
+            this.edit_info[iface_kind][file] = {};
         }
-        this.code_info[iface_kind][file].text_lines = contents.split(/\r?\n/);
+        this.edit_info[iface_kind][file].text_lines = contents.split(/\r?\n/);
     }
 
     addClassInfo(file: string, class_name_range: any, base_class_name_range: any) {
         const iface_kind = suffixToIfaceKind(path.extname(file));
 
-        if (!this.code_info[iface_kind][file]) {
-            this.code_info[iface_kind][file] = {};
+        if (!this.edit_info[iface_kind][file]) {
+            this.edit_info[iface_kind][file] = {};
         }
-        this.code_info[iface_kind][file].class_name_range = class_name_range;
-        this.code_info[iface_kind][file].base_class_name_range = base_class_name_range;
+        this.edit_info[iface_kind][file].class_name_range = class_name_range;
+        this.edit_info[iface_kind][file].base_class_name_range = base_class_name_range;
     }
 
     addServiceMethodInfo(file: string, method_name: string, decl_range: any, name_range: any) {
 
-        if (!this.code_info.service[file]) {
-            this.code_info.service[file] = {};
+        if (!this.edit_info.service[file]) {
+            this.edit_info.service[file] = {};
         }
-        if (!this.code_info.service[file].method_decl_ranges) {
-            this.code_info.service[file].method_decl_ranges = {};
-            this.code_info.service[file].method_name_ranges = {};
+        if (!this.edit_info.service[file].method_decl_ranges) {
+            this.edit_info.service[file].method_decl_ranges = {};
+            this.edit_info.service[file].method_name_ranges = {};
         }
-        this.code_info.service[file].method_decl_ranges[method_name] = decl_range;
-        this.code_info.service[file].method_name_ranges[method_name] = name_range;
+        this.edit_info.service[file].method_decl_ranges[method_name] = decl_range;
+        this.edit_info.service[file].method_name_ranges[method_name] = name_range;
     }
 
     addSymbolCodeInfo = (file: string, symbol: any): boolean => {
@@ -147,7 +147,7 @@ export class QorusProjectCodeInfo {
 
     addFileCodeInfo(file: string, force: boolean = true): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
-        if (this.code_info[iface_kind][file] && !force) {
+        if (this.edit_info[iface_kind][file] && !force) {
             return Promise.resolve();
         }
 
@@ -171,7 +171,7 @@ export class QorusProjectCodeInfo {
     }
 
     codeInfo(iface_kind: string, file: string) {
-        return this.code_info[iface_kind][file];
+        return this.edit_info[iface_kind][file];
     }
 
     baseClassName(class_name: string): string | undefined {
@@ -179,7 +179,7 @@ export class QorusProjectCodeInfo {
     }
 
     getInterfaceData = ({iface_kind, name, include_tabs}) => {
-        this.waitForPending(['yaml', 'code_info']).then(() => qorus_webview.postMessage({
+        this.waitForPending(['yaml', 'edit_info']).then(() => qorus_webview.postMessage({
             action: 'return-interface-data',
             data: {
                 iface_kind: iface_kind,
@@ -215,7 +215,7 @@ export class QorusProjectCodeInfo {
         }
 
         for (const iface_kind of iface_kinds) {
-            this.code_info[iface_kind] = {};
+            this.edit_info[iface_kind] = {};
             this.yaml_data_by_name[iface_kind] = {};
         }
 
