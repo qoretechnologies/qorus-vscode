@@ -9,7 +9,7 @@ import Flex from '../Flex';
 import ContentByType from '../ContentByType';
 import { getType } from '../../helpers/functions';
 
-const getLineCount: Function = (value: string): number => {
+export const getLineCount: Function = (value: string): number => {
     try {
         return value.match(/[^\n]*\n[^\n]*/gi).length;
     } catch (e) {

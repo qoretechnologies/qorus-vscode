@@ -21,6 +21,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
                 /*data.tab = 'CreateInterface';
                 data.subtab = 'workflow';*/
+
                 setInitialData(data);
             });
 

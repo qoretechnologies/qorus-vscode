@@ -128,44 +128,50 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
             ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField } }) => {
-                if (!fields || !fields.length) {
-                    // Mark the selected fields
-                    const transformedFields: IField[] = map(newFields, (field: IField) => ({
-                        ...field,
-                        selected: (data && data[field.name]) || field.mandatory !== false,
-                        isValid:
-                            data && data[field.name]
-                                ? validateField(field.type || 'string', data[field.name], field)
-                                : false,
-                        value: data ? data[field.name] : undefined,
-                    }));
-                    // Pull the pre-selected fields
-                    const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
-                    // Add original name field
-                    if (isEditing) {
-                        preselectedFields.push({
-                            name: 'orig_name',
-                            value: data && data.name,
-                            isValid: true,
-                            selected: true,
-                            internal: true,
-                        });
+                // Register only for this interface
+                if (rest.iface_kind === type) {
+                    if (!fields || !fields.length) {
+                        // Mark the selected fields
+                        const transformedFields: IField[] = map(newFields, (field: IField) => ({
+                            ...field,
+                            selected: (data && data[field.name]) || field.mandatory !== false,
+                            isValid:
+                                data && data[field.name]
+                                    ? validateField(field.type || 'string', data[field.name], field)
+                                    : false,
+                            value: data ? data[field.name] : undefined,
+                        }));
+                        // Pull the pre-selected fields
+                        const preselectedFields: IField[] = filter(
+                            transformedFields,
+                            (field: IField) => field.selected
+                        );
+                        // Add original name field
+                        if (isEditing) {
+                            preselectedFields.push({
+                                name: 'orig_name',
+                                value: data && data.name,
+                                isValid: true,
+                                selected: true,
+                                internal: true,
+                            });
+                        }
+                        // Save preselected fields
+                        setSelectedFields(type, preselectedFields, activeId);
+                        // Save the fields
+                        setFields(type, transformedFields, activeId);
                     }
-                    // Save preselected fields
-                    setSelectedFields(type, preselectedFields, activeId);
-                    // Save the fields
-                    setFields(type, transformedFields, activeId);
+                    // Check if onDataFinish function is set
+                    // only do this on initial mount
+                    if (onDataFinishLoading && isInitialMount.current) {
+                        // Run the callback
+                        onDataFinishLoading();
+                        // Set the mount to false
+                        isInitialMount.current = false;
+                    }
+                    // Set show
+                    setShow(true);
                 }
-                // Check if onDataFinish function is set
-                // only do this on initial mount
-                if (onDataFinishLoading && isInitialMount.current) {
-                    // Run the callback
-                    onDataFinishLoading();
-                    // Set the mount to false
-                    isInitialMount.current = false;
-                }
-                // Set show
-                setShow(true);
             }
         );
         // Set the new message listener
@@ -191,25 +197,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Create a message listener for this activeId
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
-            ({ fields: newFields }: { newFields: { [key: string]: IField } }) => {
-                // Mark the selected fields
-                const transformedFields: IField[] = map(newFields, (field: IField) => ({
-                    ...field,
-                    selected: (data && data[field.name]) || field.mandatory !== false,
-                    isValid:
-                        data && data[field.name]
-                            ? validateField(field.type || 'string', data[field.name], field)
-                            : false,
-                    value: data ? data[field.name] : undefined,
-                }));
-                // Pull the pre-selected fields
-                const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
-                // Save preselected fields
-                setSelectedFields(type, preselectedFields, newActiveId);
-                // Save the fields
-                setFields(type, transformedFields, newActiveId);
-                // Set show
-                setShow(true);
+            ({ fields: newFields, iface_kind }: { newFields: { [key: string]: IField } }) => {
+                // Register only for this interface
+                if (iface_kind === type) {
+                    // Mark the selected fields
+                    const transformedFields: IField[] = map(newFields, (field: IField) => ({
+                        ...field,
+                        selected: (data && data[field.name]) || field.mandatory !== false,
+                        isValid:
+                            data && data[field.name]
+                                ? validateField(field.type || 'string', data[field.name], field)
+                                : false,
+                        value: data ? data[field.name] : undefined,
+                    }));
+                    // Pull the pre-selected fields
+                    const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
+                    // Save preselected fields
+                    setSelectedFields(type, preselectedFields, newActiveId);
+                    // Save the fields
+                    setFields(type, transformedFields, newActiveId);
+                    // Set show
+                    setShow(true);
+                }
             }
         );
         // Set the new message listener

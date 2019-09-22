@@ -679,6 +679,69 @@ div.table-name-popover {
     float: left;
 }
 
+div.configItemsEditor {
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #d7d7d7;
+    border-radius: 5px;
+
+    &.editorDisabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    &:not(:last-child) {
+        margin-bottom: 10px;
+    }
+
+    .header {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        border-bottom: 1px solid #d7d7d7;
+        padding: 0 10px;
+        font-size: 15px;
+        font-weight: bold;
+
+        .pt-icon-standard {
+            margin-right: 5px;
+        }
+    }
+
+    &.editorOverride {
+        border-color: $qore-green;
+
+        .header {
+            background-color: lighten($qore-green, 45);
+            border-bottom-color: $qore-green;
+        }
+    }
+
+    &:not(.editorOverride):hover {
+        cursor: pointer;
+        border-color: darken(#d7d7d7, 15);
+    }
+
+    .body {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+.white-box,
+.boxed-tabs > .pt-tab-list {
+    background-color: white;
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 3px;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
+    clear: both;
+}
+
 @import '../components/DataOrEmptyTable/style.scss';
 @import '../components/Tree/style.scss';
 @import '../components/ContentByType/style.scss';
+@import '../components/Datepicker/style.scss';
+@import '../components/Dropdown/style.scss';

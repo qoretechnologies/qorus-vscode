@@ -18,6 +18,7 @@ import map from 'lodash/map';
 import size from 'lodash/size';
 import { ButtonGroup, Button, Icon } from '@blueprintjs/core';
 import withTextContext from '../../hocomponents/withTextContext';
+import Modal from './modal';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -45,6 +46,15 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
         ) : (
             <ItemsTable {...props} configItemsData={props.configItems.data} />
         )}
+        {props.modalData && (
+            <Modal
+                onClose={props.handleModalToggle}
+                item={{ ...props.modalData.item }}
+                onSubmit={props.modalData.saveValue}
+                intrf={props.modalData.intrf}
+                levelType={props.modalData.levelType}
+            />
+        )}
     </React.Fragment>
 );
 
@@ -64,6 +74,7 @@ let ItemsTable: Function = ({
     configItemsData,
     title,
     groupName,
+    handleModalToggle,
     t,
 }: ConfigItemsTableProps) => (
     <React.Fragment>
@@ -119,13 +130,15 @@ let ItemsTable: Function = ({
                                     <ActionColumn>
                                         <ButtonGroup>
                                             <Button
+                                                small
                                                 icon="edit"
                                                 title={t('button.edit-this-value')}
                                                 onClick={() => {
-                                                    console.log('opening modal');
+                                                    handleModalToggle({ ...item }, saveValue, intrf, levelType);
                                                 }}
                                             />
                                             <Button
+                                                small
                                                 icon="cross"
                                                 title={t('button.remove-this-value')}
                                                 disabled={item.level ? !item.level.startsWith(levelType || '') : true}
@@ -151,9 +164,7 @@ let ItemsTable: Function = ({
                                     </Td>
                                     <Td className="medium">{item.level}</Td>
                                     {!title && <Td className="medium">{item.config_group}</Td>}
-                                    <Td className="narrow">
-                                        <code>{item.type}</code>
-                                    </Td>
+                                    <Td className="narrow">{`<${item.type}/>`}</Td>
                                 </Tr>
                                 {showDescription && (
                                     <Tr>
@@ -182,6 +193,21 @@ ItemsTable = compose(
 )(ItemsTable);
 
 export default compose(
+    withState('modalData', 'toggleModalData', null),
+    withHandlers({
+        handleModalToggle: ({ toggleModalData }) => (item, onSubmit, intrf, levelType) => {
+            toggleModalData(value =>
+                value
+                    ? null
+                    : {
+                          item,
+                          onSubmit,
+                          intrf,
+                          levelType,
+                      }
+            );
+        },
+    }),
     mapProps(({ configItems, ...rest }) => ({
         data: reduce(
             configItems.data,
@@ -199,5 +225,5 @@ export default compose(
         configItems,
         ...rest,
     })),
-    onlyUpdateForKeys(['configItems', 'showDescription', 'isGrouped'])
+    onlyUpdateForKeys(['configItems', 'showDescription', 'isGrouped', 'modalData'])
 )(ConfigItemsTable);

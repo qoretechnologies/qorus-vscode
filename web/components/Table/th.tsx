@@ -39,7 +39,7 @@ const Th = ({
             onClick={handleClick}
             title={title}
         >
-            {icon && <Icon icon={icon} className="header-icon" />}
+            {icon && <Icon iconSize={12} icon={icon} className="header-icon" />}
             {icon && ' '}
             <span>{children}</span>
         </div>
@@ -61,7 +61,7 @@ const Th = ({
             title={title}
             colSpan={colspan}
         >
-            {icon && <Icon icon={icon} className="header-icon" />}
+            {icon && <Icon iconSize={12} icon={icon} className="header-icon" />}
             {icon && ' '}
             {children}
         </th>

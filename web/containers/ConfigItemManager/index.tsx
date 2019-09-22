@@ -25,11 +25,52 @@ const StyledConfigWrapper = styled.div`
 `;
 
 const data = [
-    { name: 'Config item 1', value: 'test', type: 'string', local: false, level: 'default', config_group: 'test' },
-    { name: 'Config item 2', value: 'test', type: 'string', local: false, level: 'default', config_group: 'test' },
-    { name: 'Config item 3', value: 'test', type: 'string', local: false, level: 'default', config_group: 'test' },
-    { name: 'Config item 4', value: 'test', type: 'string', local: false, level: 'default', config_group: 'test' },
-    { name: 'Config item 5', value: 'test', type: 'string', local: false, level: 'default', config_group: 'test' },
+    {
+        name: 'Config item 1',
+        value: 'test',
+        type: 'string',
+        local: false,
+        level: 'default',
+        config_group: 'test',
+        yamlData: { value: 'test' },
+    },
+    {
+        name: 'Config item 2',
+        value: null,
+        type: 'date',
+        local: false,
+        level: 'default',
+        config_group: 'test',
+        yamlData: { value: null },
+    },
+    {
+        name: 'Config item 3',
+        value: null,
+        type: 'any',
+        local: false,
+        level: 'default',
+        config_group: 'test',
+        yamlData: { value: null },
+    },
+    {
+        name: 'Config item 4',
+        value: 'pepa',
+        type: 'string',
+        default_value: 'heh',
+        local: false,
+        level: 'default',
+        config_group: 'test',
+        yamlData: { value: 'test', allowed_values: ['pepa', 'zdepa', 'sel', 'do', 'sklepa'] },
+    },
+    {
+        name: 'Config item 5',
+        value: 'test',
+        type: 'string',
+        local: false,
+        level: 'default',
+        config_group: 'test',
+        yamlData: { value: 'test' },
+    },
 ];
 
 const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({ t }) => {
@@ -55,7 +96,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({ t }) => {
                     onClose={() => setShowConfigItemPanel(false)}
                 >
                     <StyledConfigWrapper>
-                        <InterfaceCreatorPanel type={'step'} />
+                        <InterfaceCreatorPanel type={'config-item'} />
                     </StyledConfigWrapper>
                 </Dialog>
             )}
