@@ -1081,6 +1081,36 @@ msgstr "Statuses"
 msgid "field-desc-statuses"
 msgstr "A hash defining extended custom statuses descriptions as a single character key - string description"
 
+msgid "field-label-type"
+msgstr "Type"
+
+msgid "field-desc-type"
+msgstr "The type of the configuration item"
+
+msgid "field-label-default_value"
+msgstr "Default value"
+
+msgid "field-desc-default_value"
+msgstr "The default value of the configuration item"
+
+msgid "field-label-strictly_local"
+msgstr "Strictly local"
+
+msgid "field-desc-strictly_local"
+msgstr "Allow the item to be overridden at the next level?"
+
+msgid "field-label-config_group"
+msgstr "Config group"
+
+msgid "field-desc-config_group"
+msgstr "The group of the configuration item"
+
+msgid "field-label-allowed_values"
+msgstr "Allowed values"
+
+msgid "field-desc-allowed_values"
+msgstr "The list of allowed values for the configuration item if defined"
+
 msgid "field-label-code"
 msgstr "Code"
 
