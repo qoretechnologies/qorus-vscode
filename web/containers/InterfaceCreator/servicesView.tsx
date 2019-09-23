@@ -150,6 +150,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                             <InterfaceCreatorPanel
                                 type={'service'}
                                 submitLabel={t('Next')}
+                                hasConfigManager
                                 onSubmit={() => {
                                     setActiveMethod(1);
                                     setShowMethods(true);

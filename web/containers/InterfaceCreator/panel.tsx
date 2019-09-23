@@ -31,6 +31,7 @@ export interface IInterfaceCreatorPanel {
     forceSubmit?: boolean;
     resetFields: (type: string) => void;
     openFileOnSubmit: boolean;
+    hasConfigManager?: boolean;
 }
 
 export interface IField {
@@ -115,6 +116,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     resetFields,
     openFileOnSubmit,
     initialData,
+    hasConfigManager,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -555,19 +557,21 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     )}
                 </ContentWrapper>
                 <ActionsWrapper>
-                    <div style={{ float: 'left', width: '48%' }}>
-                        <ButtonGroup fill>
-                            <Tooltip content={'ManageConfigItems'}>
-                                <Button
-                                    disabled={!isBaseClassNameValid}
-                                    text={t('ManageConfigItems')}
-                                    icon={'cog'}
-                                    onClick={() => setShowConfigItemsManager(true)}
-                                />
-                            </Tooltip>
-                        </ButtonGroup>
-                    </div>
-                    <div style={{ float: 'right', width: '48%' }}>
+                    {hasConfigManager && (
+                        <div style={{ float: 'left', width: '48%' }}>
+                            <ButtonGroup fill>
+                                <Tooltip content={'ManageConfigItems'}>
+                                    <Button
+                                        disabled={!isBaseClassNameValid}
+                                        text={t('ManageConfigItems')}
+                                        icon={'cog'}
+                                        onClick={() => setShowConfigItemsManager(true)}
+                                    />
+                                </Tooltip>
+                            </ButtonGroup>
+                        </div>
+                    )}
+                    <div style={{ float: 'right', width: hasConfigManager ? '48%' : '100%' }}>
                         <ButtonGroup fill>
                             {onBackClick && (
                                 <Tooltip content={'BackToooltip'}>
@@ -595,7 +599,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     onClose={() => setShowConfigItemsManager(false)}
                     style={{ width: '80vw', backgroundColor: '#fff' }}
                 >
-                    <ConfigItemManager />
+                    <ConfigItemManager type={type} />
                 </Dialog>
             )}
         </>

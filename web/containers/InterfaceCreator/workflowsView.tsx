@@ -75,6 +75,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                     <PanelWrapper>
                         {!showSteps && (
                             <InterfaceCreatorPanel
+                                hasConfigManager
                                 type={'workflow'}
                                 submitLabel={t('Next')}
                                 onSubmit={() => {

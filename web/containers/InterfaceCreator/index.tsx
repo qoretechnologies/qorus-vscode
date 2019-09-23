@@ -44,7 +44,14 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                 <Tab
                     id={'job'}
                     title={t('Job')}
-                    panel={<InterfaceCreatorPanel type={'job'} data={initialData.job} isEditing={!!initialData.job} />}
+                    panel={
+                        <InterfaceCreatorPanel
+                            hasConfigManager
+                            type={'job'}
+                            data={initialData.job}
+                            isEditing={!!initialData.job}
+                        />
+                    }
                 />
                 <Tab
                     id={'class'}
@@ -64,6 +71,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                         <InterfaceCreatorPanel
                             type={'step'}
                             data={initialData.step}
+                            hasConfigManager
                             isEditing={!!initialData.step}
                             onSubmit={
                                 initialData.stepCallback

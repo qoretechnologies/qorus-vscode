@@ -66,19 +66,19 @@ export default class ConfigItemsModal extends Component {
     templateKey?: string,
     tab: string,
   } = {
-    value: this.props.item.yamlData.value,
+    value: this.props.item && this.props.item.yamlData.value,
     item: this.props.item,
     error: false,
-    yamlData: this.props.item.yamlData,
+    yamlData: this.props.item && this.props.item.yamlData,
     type:
-      this.props.item.type === 'any'
+      this.props.item ? this.props.item.type === 'any'
         ? this.props.item.currentType || null
-        : this.props.item.type,
+        : this.props.item.type : null,
     useTemplate:
-      typeof this.props.item.value === 'string' &&
-      this.props.item.value.startsWith('$'),
-    templateType: this.getTemplateType(this.props.item.value),
-    templateKey: this.getTemplateKey(this.props.item.value),
+      this.props.item ? typeof this.props.item.value === 'string' &&
+      this.props.item.value.startsWith('$') : false,
+    templateType: this.props.item && this.getTemplateType(this.props.item.value),
+    templateKey: this.props.item && this.getTemplateKey(this.props.item.value),
     tab: 'custom',
   };
 
@@ -347,28 +347,27 @@ export default class ConfigItemsModal extends Component {
         onClose={onClose}
       >
         <Box top fill scrollY>
-            {item.desc && <Callout icon="info-sign">{item.desc}</Callout>}
+            {item && item.desc && <Callout icon="info-sign">{item.desc}</Callout>}
             {isGlobal && (
               <>
                 <Callout icon="warning-sign" intent="warning">
-                  {!item.name ? t('CreatingNew') : t('Editing')} {t('GlobalConfigAffectsAll')}
+                  {!item ? t('CreatingNew') : t('Editing')} {t('GlobalConfigAffectsAll')}
                 </Callout>
                 {!item && (
                   <>
                     <Dropdown>
-                      <DControl>{item.name || t('PleaseSelect')}</DControl>
-                      {map(globalConfigItems, data => (
+                      <DControl>{t('PleaseSelect')}</DControl>
+                      {map(globalConfig, data => (
                         <Item
                           title={data.name}
-                          onClick={async (event, name) => {
+                          onClick={(event, name) => {
                             // GET THE DATA OF THE CONFIG ITEM HERE
-
-                            /*this.setState({
+                            this.setState({
                               value: null,
                               item: { ...data, name },
                               type: data.type === 'any' ? null : data.type,
-                              yamlData,
-                            });*/
+                              yamlData: data.yamlData,
+                            });
                           }}
                         />
                       ))}
@@ -379,7 +378,7 @@ export default class ConfigItemsModal extends Component {
               </>
             )}
 
-            {!yamlData && <p> Loading... </p>}
+            {!yamlData && <p>{t('PleaseSelectConfigItem')}</p>}
             {yamlData ? (
               <Tabs
               defaultSelectedTabId={'custom'}
@@ -563,9 +562,7 @@ export default class ConfigItemsModal extends Component {
                     content={
                       <Box fill top style={{ width: '300px' }}>
                         <p>
-                          The value submitted is same as default value, but will
-                          not change when default value is changed in the
-                          future.
+                          {t('ConfigValueSameAsDefault')}
                         </p>
                         <ButtonGroup>
                           <Button

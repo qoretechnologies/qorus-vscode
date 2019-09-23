@@ -1414,7 +1414,7 @@ msgstr "Actions"
 msgid "button.show-descriptions"
 msgstr "Show descriptions"
 
-msgid "ConfiItemsManager"
+msgid "ConfigItemsManager"
 msgstr "Config items manager"
 
 msgid "SetCustomValue"
@@ -1443,3 +1443,11 @@ msgstr "Select from predefined values"
 
 msgid "ConfigPredefinedValues"
 msgstr "This config item can only be set from predefined values"
+
+msgid "ConfigValueSameAsDefault"
+msgstr "The value submitted is same as default value, but will
+                          not change when default value is changed in the
+                          future"
+
+msgid "PleaseSelectConfigItem"
+msgstr "Please select config item above"

@@ -84,9 +84,9 @@ let ItemsTable: Function = ({
                     <Th>
                         {groupName && (
                             <Pull>
-                                <h5 style={{ lineHeight: '30px' }}>
+                                <h3 style={{ margin: 0, padding: 0, lineHeight: '30px' }}>
                                     <Icon icon="group-objects" /> {t('Group')}: {groupName}
-                                </h5>
+                                </h3>
                             </Pull>
                         )}
                         <Pull right>
