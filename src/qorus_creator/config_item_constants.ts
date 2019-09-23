@@ -7,11 +7,23 @@ export const config_item_fields = [
     },
     {
         name: 'type',
+        type: 'enum',
+        items: [
+            { value: 'string' },
+            { value: 'int' },
+            { value: 'bool' },
+            { value: 'float' },
+            { value: 'date' },
+            { value: 'hash' },
+            { value: 'list' }
+        ],
+        default_value: 'string'
     },
     {
         name: 'default_value',
         mandatory: false,
-        type: 'any',
+        type: 'auto',
+        type-depends-on: 'type'
     },
     {
         name: 'strictly_local',
@@ -27,6 +39,7 @@ export const config_item_fields = [
     {
         name: 'allowed_values',
         mandatory: false,
-        type: 'array-of-any'
+        type: 'array-auto'
+        type-depends-on: 'type'
     },
 ];
