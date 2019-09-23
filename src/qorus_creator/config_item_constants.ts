@@ -23,7 +23,7 @@ export const config_item_fields = [
         name: 'default_value',
         mandatory: false,
         type: 'auto',
-        type-depends-on: 'type'
+        'type-depends-on': 'type'
     },
     {
         name: 'strictly_local',
@@ -39,7 +39,7 @@ export const config_item_fields = [
     {
         name: 'allowed_values',
         mandatory: false,
-        type: 'array-auto'
-        type-depends-on: 'type'
+        type: 'array-auto',
+        'type-depends-on': 'type'
     },
 ];
