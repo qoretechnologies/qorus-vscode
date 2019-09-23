@@ -1374,3 +1374,42 @@ msgstr "Select existing"
 
 msgid "MissingEditData"
 msgstr "Missing edit data"
+
+msgid "AddConfigItem"
+msgstr "Add new config item"
+
+msgid "table.actions"
+msgstr "Actions"
+
+msgid "button.show-descriptions"
+msgstr "Show descriptions"
+
+msgid "ConfiItemsManager"
+msgstr "Config items manager"
+
+msgid "SetCustomValue"
+msgstr "Set custom value or"
+
+msgid "SetDefaultValue"
+msgstr "Set default value"
+
+msgid "datetime.24h"
+msgstr "24h"
+
+msgid "datetime.all"
+msgstr "All"
+
+msgid "datetime.apply"
+msgstr "Apply"
+
+msgid "ConfigAnyType"
+msgstr "This config item can be set to any type"
+
+msgid "SelectConfigItemType"
+msgstr "Select config item type"
+
+msgid "ConfigSelectFromPredefined"
+msgstr "Select from predefined values"
+
+msgid "ConfigPredefinedValues"
+msgstr "This config item can only be set from predefined values"
