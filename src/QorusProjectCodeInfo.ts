@@ -23,7 +23,7 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
 const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
-const info_keys = ['file_tree', 'yaml', 'base_classes', 'objects', 'modules'];
+const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
 const default_version = '1.0';
 
@@ -36,6 +36,7 @@ export class QorusProjectCodeInfo {
     private yaml_data_by_class: any = {};
     private yaml_data_by_name: any = {};
     private yaml_2_src: any = {};
+    private class_2_src: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
     private inheritance_pairs: any = {};
@@ -247,9 +248,9 @@ export class QorusProjectCodeInfo {
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
         this.base_classes_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{qclass,qfd}');
-        this.base_classes_files_watcher.onDidCreate(() => this.update(['base_classes']));
-        this.base_classes_files_watcher.onDidChange(() => this.update(['base_classes']));
-        this.base_classes_files_watcher.onDidDelete(() => this.update(['base_classes']));
+        this.base_classes_files_watcher.onDidCreate(() => this.update(['lang_client']));
+        this.base_classes_files_watcher.onDidChange(() => this.update(['lang_client']));
+        this.base_classes_files_watcher.onDidDelete(() => this.update(['lang_client']));
 
         this.parsable_files_watcher
             = vscode.workspace.createFileSystemWatcher('**/*.{qfd,qsd,qjob,qclass,qconst,qmapper,qvmap,java}');
@@ -307,19 +308,19 @@ export class QorusProjectCodeInfo {
                     }))));
                 break;
             case 'service-base-class':
-                this.waitForPending(['base_classes']).then(() => postMessage('objects',
+                this.waitForPending(['yaml', 'lang_client']).then(() => postMessage('objects',
                     this.addDescToBaseClasses(this.service_classes, [root_service])));
                 break;
             case 'job-base-class':
-                this.waitForPending(['base_classes']).then(() => postMessage('objects',
+                this.waitForPending(['yaml', 'lang_client']).then(() => postMessage('objects',
                     this.addDescToBaseClasses(this.job_classes, [root_job])));
                 break;
             case 'workflow-base-class':
-                this.waitForPending(['base_classes']).then(() => postMessage('objects',
+                this.waitForPending(['yaml', 'lang_client']).then(() => postMessage('objects',
                     this.addDescToBaseClasses(this.workflow_classes, [root_workflow])));
                 break;
             case 'step-base-class':
-                this.waitForPending(['base_classes']).then(() => postMessage('objects',
+                this.waitForPending(['yaml', 'lang_client']).then(() => postMessage('objects',
                     this.addDescToBaseClasses(this.flattenedStepClasses(), root_steps)));
                 break;
             case 'author':
@@ -379,13 +380,13 @@ export class QorusProjectCodeInfo {
                     this.updateFileTree(file_data.source_directories);
                 }, 0);
             }
-            if (info_list.includes('base_classes')) {
+            if (info_list.includes('lang_client')) {
                 setTimeout(() => {
-                    this.updateBaseClassesInfo(file_data.source_directories);
+                    this.updateLanguageClientInfo(file_data.source_directories);
                 }, 0);
             }
             if (info_list.includes('yaml')) {
-                this.waitForPending(['base_classes']).then(() => {
+                this.waitForPending(['lang_client']).then(() => {
                     setTimeout(() => {
                         this.updateYamlInfo(file_data.source_directories);
                     }, 0);
@@ -533,10 +534,7 @@ export class QorusProjectCodeInfo {
         this.setPending('modules', false);
     }
 
-    private async updateBaseClassesInfo(source_directories: string[]) {
-        this.setPending('base_classes', true);
-        await this.makeInheritancePairs(source_directories);
-
+    private baseClassesFromInheritancePairs() {
         const baseClasses = (base_classes: any, inheritance_pairs: any): any => {
             let any_new = true;
             while (any_new) {
@@ -559,7 +557,30 @@ export class QorusProjectCodeInfo {
         for (const step_type of root_steps) {
             this.step_classes[step_type] = baseClasses(this.step_classes[step_type], {...this.inheritance_pairs});
         }
-        this.setPending('base_classes', false);
+    }
+
+    private updateLanguageClientInfo(source_directories: string[]) {
+        this.setPending('lang_client', true);
+        this.processDocumentSymbols(source_directories, canDefineInterfaceBaseClass, (symbol, file) => {
+            if (symbol.nodetype !== 1 || symbol.kind !== 1 || !symbol.name || !symbol.name.name) {
+                return;
+            }
+
+            const class_name = symbol.name.name;
+            this.class_2_src[class_name] = file;
+
+            if (!symbol.inherits || !symbol.inherits.length) {
+                return;
+            }
+
+            const inherited = symbol.inherits[0];
+            if (inherited.name && inherited.name.name) {
+                this.inheritance_pairs[class_name] = inherited.name.name;
+            }
+        }).then(() => {
+            this.baseClassesFromInheritancePairs();
+            this.setPending('lang_client', false);
+        });
     }
 
     private addDescToBaseClasses(base_classes: any, root_classes: string[]): any[] {
@@ -575,46 +596,48 @@ export class QorusProjectCodeInfo {
         return ret_val;
     }
 
-    private async makeInheritancePairs(source_directories: string[]) {
-        await this.processDocumentSymbols(source_directories, canDefineInterfaceBaseClass, symbol => {
-            if (symbol.name && symbol.name.name && symbol.inherits && symbol.inherits.length) {
-                const name = symbol.name.name;
-                const inherited = symbol.inherits[0];
-                if (inherited.name && inherited.name.name) {
-                    this.inheritance_pairs[name] = inherited.name.name;
+    private processDocumentSymbols(
+            source_directories: string[],
+            file_filter: Function,
+            process: Function): Promise<void>
+    {
+        return new Promise((resolve, reject) => {
+            let num_pending = 0;
+            for (let dir of source_directories) {
+                const full_dir = path.join(this.project.folder, dir);
+                if (!fs.existsSync(full_dir)) {
+                    continue;
+                }
+
+                let files = filesInDir(full_dir, file_filter);
+                for (let file of files) {
+                    num_pending++;
+
+                    const doc: QoreTextDocument = qoreTextDocument(file);
+                    qore_vscode.activate().then(() => {
+                        qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+                            symbols.forEach(symbol => {
+                                process(symbol, file);
+                            });
+                            num_pending--;
+                        });
+                    });
                 }
             }
+
+            let interval_id: any;
+            const interval = 200;
+            let n = 500;
+
+            const checkPending = () => {
+                if (!num_pending || !--n) {
+                    clearInterval(interval_id);
+                    n > 0 ? resolve() : reject(t`GettingDocSymbolsTimedOut`);
+                }
+            }
+
+            interval_id = setInterval(checkPending, interval);
         });
-    }
-
-    private async processDocumentSymbols(source_directories: string[], file_filter: Function, process: Function) {
-        let num_pending = 0;
-        for (let dir of source_directories) {
-            const full_dir = path.join(this.project.folder, dir);
-            if (!fs.existsSync(full_dir)) {
-                continue;
-            }
-
-            let files = filesInDir(full_dir, file_filter);
-            for (let file of files) {
-                num_pending++;
-
-                const doc: QoreTextDocument = qoreTextDocument(file);
-                qore_vscode.activate().then(() => {
-                    qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-                        symbols.forEach(symbol => {
-                            process(symbol);
-                        });
-                        num_pending--;
-                    });
-                });
-            }
-        }
-
-        let n = 500;
-        while (num_pending && --n) {
-            await new Promise(resolve => setTimeout(resolve, 200));
-        }
     }
 
     setPending(info_key: string, value: boolean) {

@@ -1451,3 +1451,6 @@ msgstr "The value submitted is same as default value, but will
 
 msgid "PleaseSelectConfigItem"
 msgstr "Please select config item above"
+
+msgid "GettingDocSymbolsTimedOut"
+msgstr "Getting document symbols timed out"
