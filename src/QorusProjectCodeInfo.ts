@@ -32,7 +32,8 @@ export class QorusProjectCodeInfo {
 
     private info_update_pending: any = {};
     private object_info: any = {};
-    private yaml_data_by_file: any = {};
+    private yaml_data_by_src_file: any = {};
+    private yaml_data_by_yaml_file: any = {};
     private yaml_data_by_class: any = {};
     private yaml_data_by_name: any = {};
     private yaml_2_src: any = {};
@@ -60,8 +61,8 @@ export class QorusProjectCodeInfo {
         this.update(undefined, true);
     }
 
-    get yaml_info_by_file(): any {
-        return this.yaml_data_by_file;
+    get yaml_info_by_src_file(): any {
+        return this.yaml_data_by_src_file;
     }
 
     addText(document: vscode.TextDocument) {
@@ -197,7 +198,7 @@ export class QorusProjectCodeInfo {
         if (hasSuffix(file, 'yaml')) {
             return this.yaml_2_src[file];
         }
-        return this.yaml_data_by_file[file] && this.yaml_data_by_file[file].yaml_file;
+        return this.yaml_data_by_src_file[file] && this.yaml_data_by_src_file[file].yaml_file;
     }
 
     stepData = (step_structure: any[]): any => {
@@ -440,13 +441,15 @@ export class QorusProjectCodeInfo {
         };
         yaml_data.target_file = yaml_data.code;
 
+        this.yaml_data_by_yaml_file[file] = yaml_data;
+
         if (yaml_data.steps) {
             yaml_data.steps = JSON.parse(yaml_data.steps);
         }
 
         if (yaml_data.code) {
             const src = path.join(path.dirname(file), yaml_data.code);
-            this.yaml_data_by_file[src] = yaml_data;
+            this.yaml_data_by_src_file[src] = yaml_data;
             this.yaml_2_src[file] = src;
         }
         const class_name = yaml_data['class-name'];
@@ -580,6 +583,35 @@ export class QorusProjectCodeInfo {
         }).then(() => {
             this.baseClassesFromInheritancePairs();
             this.setPending('lang_client', false);
+        });
+    }
+
+    getConfigItems({'base-class-name': base_class_name}) {
+        this.waitForPending(['yaml', 'lang_client']).then(() => {
+            const class_src_file = this.class_2_src[base_class_name];
+            const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
+            if (!class_yaml_data) {
+                msg.error(t`UnableFindYamlForClass ${base_class_name}`);
+                return;
+            }
+
+            if (!class_yaml_data['yaml_file'] || !class_yaml_data['config-items']) {
+                msg.error(t`UnableFindConfigItemsForClass ${base_class_name}`);
+                return;
+            }
+
+            const config_yaml_file = path.join(path.dirname(class_yaml_data['yaml_file']),
+                                               class_yaml_data['config-items']);
+
+            const config_yaml_data = this.yaml_data_by_yaml_file[config_yaml_file];
+
+            const message = {
+                action: 'return-config-items',
+                items: config_yaml_data['config-items'] || [],
+                file_name: config_yaml_file
+            };
+
+            qorus_webview.postMessage(message);
         });
     }
 
