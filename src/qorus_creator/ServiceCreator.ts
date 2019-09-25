@@ -23,7 +23,7 @@ class ServiceCreator extends InterfaceCreator {
             target_file: orig_target_file,
             methods: orig_methods,
             ...other_orig_data
-        } = orig_data;
+        } = orig_data || {};
 
         let orig_file_path: string;
         let service_info: any;
