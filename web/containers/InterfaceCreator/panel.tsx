@@ -438,14 +438,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     data: newData,
                     orig_data: data,
                     workflow,
-                    open_file_on_success: openFileOnSubmit,
+                    open_file_on_success: openFileOnSubmit !== false,
                 });
             } else {
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                     iface_kind: type === 'service-methods' ? 'service' : type,
                     data: newData,
                     orig_data: type === 'service-methods' ? initialData.service : data,
-                    open_file_on_success: openFileOnSubmit,
+                    open_file_on_success: openFileOnSubmit !== false,
                 });
             }
             // Reset the fields

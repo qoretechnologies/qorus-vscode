@@ -60,7 +60,6 @@ export default class Tr extends Component {
     };
 
     recalculateSizes: Function = (): void => {
-        console.log('recalculating sizes');
         if (this.props.first && this._el) {
             if (this._resizeTimeout) {
                 this._resizeTimeout = null;

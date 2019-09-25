@@ -294,7 +294,6 @@ export default class Dropdown extends Component {
 
     render() {
         const { onSubmit, submitOnBlur } = this.props;
-        console.log(this.state.showDropdown);
 
         return (
             <ButtonGroup className={`${this.props.className} qorus-dropdown`}>
