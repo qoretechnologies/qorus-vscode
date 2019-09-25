@@ -591,12 +591,12 @@ export class QorusProjectCodeInfo {
             const class_src_file = this.class_2_src[base_class_name];
             const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
             if (!class_yaml_data) {
-                msg.error(t`UnableFindYamlForClass ${base_class_name}`);
+                msg.log(t`UnableFindYamlForClass ${base_class_name}`);
                 return;
             }
 
             if (!class_yaml_data['yaml_file'] || !class_yaml_data['config-items']) {
-                msg.error(t`UnableFindConfigItemsForClass ${base_class_name}`);
+                msg.log(t`UnableFindConfigItemsForClass ${base_class_name}`);
                 return;
             }
 
@@ -605,9 +605,20 @@ export class QorusProjectCodeInfo {
 
             const config_yaml_data = this.yaml_data_by_yaml_file[config_yaml_file];
 
+            const addYamlDataTag = (config_item: any): any => {
+                let yaml_data_tag = {
+                    ... config_item.value ? {value: yaml.stringify(config_item.value)} : {},
+                    ... config_item.default_value ? {default_value: yaml.stringify(config_item.default_value)} : {},
+                    ... config_item.allowed_values
+                        ? {allowed_values: config_item.allowed_values.map(value => yaml.stringify(value))}
+                        : {}
+                };
+                return {...config_item, yamlData: yaml_data_tag};
+            };
+
             const message = {
                 action: 'return-config-items',
-                items: config_yaml_data['config-items'] || [],
+                items: (config_yaml_data['config-items'] || []).map(config_item => addYamlDataTag(config_item)),
                 file_name: config_yaml_file
             };
 
