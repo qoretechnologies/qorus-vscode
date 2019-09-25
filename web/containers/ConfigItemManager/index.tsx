@@ -7,10 +7,15 @@ import InterfaceCreatorPanel from '../InterfaceCreator/panel';
 import styled from 'styled-components';
 import ConfigItemsTable from './table';
 import GlobalTable from './globalTable';
+import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomponents/withMessageHandler';
+import { Messages } from '../../constants/messages';
+import useEffectOnce from 'react-use/lib/useEffectOnce';
 
 export interface IConfigItemManager {
     t: TTranslator;
     type: string;
+    postMessage: TPostMessage;
+    addMessageListener: TMessageListener;
 }
 
 const StyledConfigManagerWrapper = styled.div`
@@ -148,7 +153,7 @@ const data = [
         default_value: 'heh',
         local: false,
         level: 'default',
-        config_group: 'test',
+        config_group: 'maslo',
         yamlData: { value: 'test', allowed_values: ['pepa', 'zdepa', 'sel', 'do', 'sklepa'] },
     },
     {
@@ -162,23 +167,50 @@ const data = [
     },
 ];
 
-const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({ t, type }) => {
+const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({ t, type, postMessage, addMessageListener }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
+    const [configItems, setConfigItems] = useState<any>({
+        global_items: globalData,
+        workflow_items: workflowData,
+        items: data,
+        file_name: 'test',
+    });
+
+    useEffectOnce(() => {
+        const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, data => {
+            setConfigItems(data);
+        });
+
+        return () => {
+            messageHandler();
+        };
+    });
+
+    const handleSubmit: (name: string, value: string, remove: boolean) => void = (name, value, remove) => {
+        // Send message that the config item has been updated
+        postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
+            name,
+            value,
+            file_name: configItems.file_name,
+            remove,
+        });
+    };
 
     return (
         <>
             <StyledConfigManagerWrapper>
                 {/*<Button text={t('AddConfigItem')} onClick={() => setShowConfigItemPanel(true)} />*/}
                 <div>
-                    <GlobalTable configItems={globalData} />
+                    <GlobalTable configItems={configItems.global_items} onSubmit={handleSubmit} />
                     {type === 'step' || type === 'workflow' ? (
-                        <GlobalTable configItems={workflowData} workflow />
+                        <GlobalTable configItems={configItems.workflow_items} workflow onSubmit={handleSubmit} />
                     ) : null}
                     {type !== 'workflow' && (
                         <ConfigItemsTable
                             configItems={{
-                                data,
+                                data: configItems.items,
                             }}
+                            onSubmit={handleSubmit}
                         />
                     )}
                 </div>
@@ -199,4 +231,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({ t, type }) =
     );
 };
 
-export default compose(withTextContext())(ConfigItemManager);
+export default compose(
+    withTextContext(),
+    withMessageHandler()
+)(ConfigItemManager);

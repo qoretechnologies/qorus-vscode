@@ -20,6 +20,7 @@ import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import ConfigItemManager from '../ConfigItemManager';
+import ManageConfigButton from '../ConfigItemManager/manageButton';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -50,6 +51,7 @@ export interface IField {
     isValid?: boolean;
     hasValueSet?: boolean;
     internal?: boolean;
+    on_change?: string;
 }
 
 export declare interface IFieldChange {
@@ -328,6 +330,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             // Change the method name in the side panel
                             onNameChange(activeId, value);
                         }
+                        // Check if this field has an on_change message
+                        if (currentField.on_change) {
+                            // Post the message with this handler
+                            postMessage(currentField.on_change, {
+                                [currentField.name]: value,
+                                iface_kind: type,
+                            });
+                        }
                         // Add the value
                         return [
                             ...newFields,
@@ -537,6 +547,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                         <Field
                                             {...field}
                                             onChange={handleFieldChange}
+                                            iface_kind={type}
                                             activeId={activeId}
                                             prefill={
                                                 field.prefill &&
@@ -559,16 +570,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 <ActionsWrapper>
                     {hasConfigManager && (
                         <div style={{ float: 'left', width: '48%' }}>
-                            <ButtonGroup fill>
-                                <Tooltip content={'ManageConfigItems'}>
-                                    <Button
-                                        disabled={!isBaseClassNameValid}
-                                        text={t('ManageConfigItems')}
-                                        icon={'cog'}
-                                        onClick={() => setShowConfigItemsManager(true)}
-                                    />
-                                </Tooltip>
-                            </ButtonGroup>
+                            <ManageConfigButton
+                                disabled={!isBaseClassNameValid}
+                                onClick={() => setShowConfigItemsManager(true)}
+                            />
                         </div>
                     )}
                     <div style={{ float: 'right', width: hasConfigManager ? '48%' : '100%' }}>

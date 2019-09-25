@@ -39,6 +39,9 @@ export default class Tr extends Component {
 
             if (this.props.first) {
                 this.recalculateSizes();
+                setTimeout(() => {
+                    this.recalculateSizes();
+                }, 300);
                 const ro = new ResizeObserver(entries => {
                     for (const _entry of entries) {
                         this.recalculateSizes();

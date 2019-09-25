@@ -26,7 +26,7 @@ type ConfigItemsTableProps = {
     intrf: string;
     openModal: Function;
     closeModal: Function;
-    saveValue: Function;
+    onSubmit: Function;
     belongsTo: string;
     showDescription: boolean;
     levelType: string;
@@ -50,7 +50,7 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
             <Modal
                 onClose={props.handleModalToggle}
                 item={{ ...props.modalData.item }}
-                onSubmit={props.modalData.saveValue}
+                onSubmit={props.modalData.onSubmit}
                 intrf={props.modalData.intrf}
                 levelType={props.modalData.levelType}
             />
@@ -59,22 +59,16 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
 );
 
 let ItemsTable: Function = ({
-    configItems,
-    belongsTo,
-    openModal,
-    closeModal,
-    saveValue,
+    onSubmit,
     intrf,
-    intrfId,
     showDescription,
     handleToggleDescription,
-    dispatchAction,
     levelType,
-    stepId,
     configItemsData,
     title,
     groupName,
     handleModalToggle,
+    handleGroupedToggle,
     t,
 }: ConfigItemsTableProps) => (
     <React.Fragment>
@@ -91,6 +85,11 @@ let ItemsTable: Function = ({
                         )}
                         <Pull right>
                             <ButtonGroup>
+                                <Button
+                                    text={t(groupName ? 'button.ungroup' : 'button.group-up')}
+                                    icon={groupName ? 'ungroup-objects' : 'group-objects'}
+                                    onClick={handleGroupedToggle}
+                                />
                                 <Button
                                     text={t('button.show-descriptions')}
                                     icon="align-left"
@@ -134,7 +133,15 @@ let ItemsTable: Function = ({
                                                 icon="edit"
                                                 title={t('button.edit-this-value')}
                                                 onClick={() => {
-                                                    handleModalToggle({ ...item }, saveValue, intrf, levelType);
+                                                    handleModalToggle(
+                                                        { ...item },
+                                                        (name, value) => {
+                                                            onSubmit(name, value);
+                                                            handleModalToggle(null);
+                                                        },
+                                                        intrf,
+                                                        levelType
+                                                    );
                                                 }}
                                             />
                                             <Button
@@ -143,7 +150,7 @@ let ItemsTable: Function = ({
                                                 title={t('button.remove-this-value')}
                                                 disabled={item.level ? !item.level.startsWith(levelType || '') : true}
                                                 onClick={() => {
-                                                    console.log('delete config item');
+                                                    onSubmit(item.name, null, true);
                                                 }}
                                             />
                                         </ButtonGroup>
@@ -194,6 +201,7 @@ ItemsTable = compose(
 
 export default compose(
     withState('modalData', 'toggleModalData', null),
+    withState('isGrouped', 'setIsGrouped', null),
     withHandlers({
         handleModalToggle: ({ toggleModalData }) => (item, onSubmit, intrf, levelType) => {
             toggleModalData(value =>
@@ -206,6 +214,9 @@ export default compose(
                           levelType,
                       }
             );
+        },
+        handleGroupedToggle: ({ setIsGrouped }) => () => {
+            setIsGrouped(value => !value);
         },
     }),
     mapProps(({ configItems, ...rest }) => ({

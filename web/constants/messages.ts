@@ -17,4 +17,7 @@ export const Messages: { [key: string]: string } = {
     EDIT_INTERFACE: 'creator-edit-interface',
     RETURN_INTERFACE_DATA: 'return-interface-data',
     GET_INTERFACE_DATA: 'get-interface-data',
+    GET_CONFIG_ITEMS: 'get-config-items',
+    RETURN_CONFIG_ITEMS: 'return-config-items',
+    UPDATE_CONFIG_ITEM_VALUE: 'update-config-item-value',
 };

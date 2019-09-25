@@ -1454,3 +1454,28 @@ msgstr "Please select config item above"
 
 msgid "GettingDocSymbolsTimedOut"
 msgstr "Getting document symbols timed out"
+
+msgid "button.add-new"
+msgstr "Add new"
+
+msgid "ConfigItemValues"
+msgstr "Config items values"
+
+msgid "GlobalConfigAffectsAll"
+msgstr "a global config item will affect all interfaces using this value"
+
+msgid "SetItemValue"
+msgstr "Set item value"
+
+msgid "ConfigCustomTemplate"
+msgstr "Config item template"
+
+msgid "ConfigTemplatesForma"
+msgstr "Template config items are in format - "
+
+msgid "button.group-up"
+msgstr "Show grouped"
+
+msgid "button.ungroup"
+msgstr "Show All"
+

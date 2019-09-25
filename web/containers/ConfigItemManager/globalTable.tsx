@@ -18,7 +18,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 
 const WorkflowConfigItemsTable: Function = ({
     globalConfig,
-    saveValue,
+    onSubmit,
     globalItems,
     modalData,
     handleModalToggle,
@@ -53,7 +53,10 @@ const WorkflowConfigItemsTable: Function = ({
                                     title={t('button.add-new')}
                                     onClick={() => {
                                         handleModalToggle({
-                                            onSubmit: saveValue,
+                                            onSubmit: (name, value) => {
+                                                onSubmit(name, value);
+                                                handleModalToggle(null);
+                                            },
                                             globalConfig: globalItems,
                                             isGlobal: true,
                                         });
@@ -88,9 +91,11 @@ const WorkflowConfigItemsTable: Function = ({
                                                 small
                                                 title={t('button.edit-this-value')}
                                                 onClick={() => {
-                                                    console.log(item);
                                                     handleModalToggle({
-                                                        onSubmit: saveValue,
+                                                        onSubmit: (name, value) => {
+                                                            onSubmit(name, value);
+                                                            handleModalToggle(null);
+                                                        },
                                                         globalConfig: globalItems,
                                                         item,
                                                         isGlobal: true,
@@ -103,7 +108,7 @@ const WorkflowConfigItemsTable: Function = ({
                                                 title={t('button.remove-this-value')}
                                                 intent="danger"
                                                 onClick={() => {
-                                                    // DELETE VALUE
+                                                    onSubmit(item.name, null, true);
                                                 }}
                                             />
                                         </ButtonGroup>
