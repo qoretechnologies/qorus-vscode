@@ -1484,3 +1484,6 @@ msgstr "Unable to find yaml file for class ${ class }"
 
 msgid "UnableFindConfigItemsForClass ${ class }"
 msgstr "Unable to find config items file for class ${ class }"
+
+msgid "ManageConfigItems"
+msgstr "Manage config items "

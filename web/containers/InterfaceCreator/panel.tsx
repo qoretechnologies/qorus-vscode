@@ -604,7 +604,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     onClose={() => setShowConfigItemsManager(false)}
                     style={{ width: '80vw', backgroundColor: '#fff' }}
                 >
-                    <ConfigItemManager type={type} />
+                    <ConfigItemManager
+                        type={type}
+                        baseClassName={selectedFields.find((field: IField) => field.name === 'base-class-name').value}
+                    />
                 </Dialog>
             )}
         </>
