@@ -34,6 +34,7 @@ export const jobFields = default_target_dir => [
             object_type: 'job-base-class',
             return_value: 'objects',
         },
+        on_change: 'get-config-items'
     },
     {
         name: 'active',

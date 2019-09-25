@@ -42,6 +42,7 @@ export const serviceFields = default_target_dir => [
             object_type: 'service-base-class',
             return_value: 'objects',
         },
+        on_change: 'get-config-items'
     },
     {
         name: 'service-autostart',

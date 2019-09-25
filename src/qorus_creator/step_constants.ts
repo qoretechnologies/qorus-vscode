@@ -14,6 +14,7 @@ export const stepFields = default_target_dir => [
             object_type: 'step-base-class',
             return_value: 'objects',
         },
+        on_change: 'get-config-items'
     },
     {
         name: 'config_target_dir',
