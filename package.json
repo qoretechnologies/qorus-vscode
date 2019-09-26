@@ -396,6 +396,7 @@
         "fs-copy-file": "^2.1.2",
         "gettext-parser": "^2.0.0",
         "moment": "^2.24.0",
+        "react-scrollbar": "^0.5.6",
         "react-use": "^8.4.0",
         "recompose": "^0.30.0",
         "request": "^2.88.0",

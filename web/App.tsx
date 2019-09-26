@@ -21,13 +21,38 @@ import Box from './components/Box';
 import withMethods from './hocomponents/withMethods';
 import withInitialData from './hocomponents/withInitialData';
 import withSteps from './hocomponents/withSteps';
+import Menu from './components/Menu';
+import { MENU } from './constants/menu';
+import { Classes } from '@blueprintjs/select';
 
 const StyledApp = styled.div`
     display: flex;
-    flex-flow: column;
+    flex-flow: row;
     margin-top: 50px;
-    flex: 1 auto;
+    flex: 1 1 auto;
     overflow: hidden;
+`;
+
+const StyledInfo = styled.p`
+    display: inline-block;
+    line-height: 20px;
+    margin: 0;
+    font-family: 'NeoLight';
+    font-size: 18px;
+    padding: 0 10px;
+    font-weight: bold;
+    color: #fff;
+
+    span {
+        display: inline-block;
+        padding: 0 0 0 5px;
+        font-weight: normal;
+        color: unset;
+    }
+
+    &:first-of-type {
+        border-right: 1px solid #474c57;
+    }
 `;
 
 const Tabs = {
@@ -127,47 +152,23 @@ const App: FunctionComponent<IApp> = ({
 
     return (
         <>
-            <Navbar fixedToTop={true}>
+            <Navbar fixedToTop={true} className="dark">
                 <NavbarGroup>
                     <img
-                        style={{ maxWidth: 30, maxHeight: 30, marginRight: 54 }}
+                        style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }}
                         src={`vscode-resource:${path}/images/qorus_logo_256.png`}
                     />
-                    {Object.keys(Tabs).map(
-                        tab_key =>
-                            (tab_key !== 'Login' || login_visible) && (
-                                <Button
-                                    minimal={true}
-                                    icon={Tabs[tab_key]}
-                                    key={tab_key}
-                                    active={tab_key == tab}
-                                    onClick={() => changeTab(tab_key)}
-                                    text={t(tab_key + '-buttonText')}
-                                    title={t(tab_key + '-buttonTitle')}
-                                />
-                            )
-                    )}
-                </NavbarGroup>
-                <NavbarGroup align={Alignment.RIGHT} style={{ marginRight: 36 }}>
-                    <NavbarDivider />
-                    <HTMLTable condensed={true} className={'navbar-info-table'}>
-                        <tr>
-                            <td>{t('Project')}:</td>
-                            <td>
-                                <strong>{project_folder}</strong>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{t('ActiveQorusInstance')}:</td>
-                            <td>
-                                <strong>{qorus_instance ? qorus_instance.name : t('N/A')}</strong>
-                            </td>
-                        </tr>
-                    </HTMLTable>
+                    <StyledInfo>
+                        {t('Project')}: <span>{project_folder}</span>
+                    </StyledInfo>
+                    <StyledInfo>
+                        {t('ActiveQorusInstance')}: <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
+                    </StyledInfo>
                 </NavbarGroup>
             </Navbar>
             <TextContext.Provider value={t}>
                 <StyledApp>
+                    {tab !== 'Login' && <Menu menu={MENU} />}
                     <>
                         {tab == 'Login' && <Login />}
                         {tab == 'ProjectConfig' && <ProjectConfig />}

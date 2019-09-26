@@ -16,7 +16,7 @@ const StyledBox = styled.div`
     ${props =>
         props.fill
             ? css`
-                  height: 100%;
+                  height: calc(100vh - 80px);
               `
             : css`
                   height: auto;

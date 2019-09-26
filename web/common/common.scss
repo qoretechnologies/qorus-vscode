@@ -135,6 +135,11 @@ $qore-dark: #383c44;
 $bgcolor: #eee;
 $font-size-extra-small: 11px;
 
+@font-face {
+    font-family: 'NeoLight';
+    src: url('fonts/NeoLight.ttf') format('truetype');
+}
+
 div.sort,
 th.sort {
     &:after {
@@ -730,6 +735,11 @@ div.configItemsEditor {
     }
 }
 
+.dark {
+    background-color: #383c44;
+    color: #f5f8fa;
+}
+
 .white-box,
 .boxed-tabs > .pt-tab-list {
     background-color: white;
@@ -740,8 +750,17 @@ div.configItemsEditor {
     clear: both;
 }
 
+.sidebar.expanded .sidebarItem span.bp3-icon {
+    margin-right: 10px;
+}
+
+.sidebar .sidebarSection .bp3-popover-target {
+    width: 100%;
+}
+
 @import '../components/DataOrEmptyTable/style.scss';
 @import '../components/Tree/style.scss';
 @import '../components/ContentByType/style.scss';
 @import '../components/Datepicker/style.scss';
 @import '../components/Dropdown/style.scss';
+@import '../components/Menu/style.scss';

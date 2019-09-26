@@ -4,7 +4,7 @@ import { TextContext } from '../../context/text';
 
 const StyledFieldSelector = styled.div`
     width: 100%;
-    height: 50px;
+    min-height: 50px;
     padding: 5px;
     border: 1px solid #eee;
     border-radius: 3px;

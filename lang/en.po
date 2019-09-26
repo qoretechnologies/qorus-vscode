@@ -70,25 +70,25 @@ msgstr "Qorus Project Configuration"
 msgid "QorusProjectConfig"
 msgstr "Project configuration"
 
-msgid "ProjectConfig-buttonText"
-msgstr "Project configuration"
+msgid "ProjectConfig"
+msgstr "Project"
 
 msgid "ProjectConfig-buttonTitle"
 msgstr "Project configuration"
 
-msgid "ReleasePackage-buttonText"
+msgid "ReleasePackage"
 msgstr "Make release"
 
 msgid "ReleasePackage-buttonTitle"
 msgstr "Make a release package"
 
-msgid "DeleteInterfaces-buttonText"
+msgid "DeleteInterfaces"
 msgstr "Delete interfaces"
 
 msgid "DeleteInterfaces-buttonTitle"
 msgstr "Delete Qorus interfaces"
 
-msgid "CreateInterface-buttonText"
+msgid "CreateInterface"
 msgstr "Create interface"
 
 msgid "CreateInterface-buttonTitle"
