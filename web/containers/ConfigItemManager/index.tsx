@@ -212,7 +212,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                     {configItems.global_items && (
                         <GlobalTable configItems={configItems.global_items} onSubmit={handleSubmit} />
                     )}
-                    {type === 'step' || (type === 'workflow' && configItems.workflow_items) ? (
+                    {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
                         <GlobalTable configItems={configItems.workflow_items} workflow onSubmit={handleSubmit} />
                     ) : null}
                     {configItems.items && type !== 'workflow' ? (
