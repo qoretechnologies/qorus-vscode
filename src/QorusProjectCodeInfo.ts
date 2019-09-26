@@ -324,6 +324,17 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['yaml', 'lang_client']).then(() => postMessage('objects',
                     this.addDescToBaseClasses(this.flattenedStepClasses(), root_steps)));
                 break;
+            case 'base-class':
+                this.waitForPending(['yaml', 'lang_client']).then(() => {
+                    const classes = {...this.class_2_src};
+                    const current_class =
+                        qorus_webview.opening_data &&
+                        qorus_webview.opening_data.class &&
+                        qorus_webview.opening_data.class['class-name'];
+                    delete classes[current_class];
+                    postMessage('objects', this.addDescToBaseClasses(classes));
+                });
+                break;
             case 'author':
             case 'function':
             case 'class':
@@ -626,7 +637,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    private addDescToBaseClasses(base_classes: any, root_classes: string[]): any[] {
+    private addDescToBaseClasses(base_classes: any, root_classes: string[] = []): any[] {
         let ret_val = [];
         for (const base_class of Object.keys(base_classes)) {
             const desc = root_classes.includes(base_class)
@@ -677,7 +688,7 @@ export class QorusProjectCodeInfo {
                     clearInterval(interval_id);
                     n > 0 ? resolve() : reject(t`GettingDocSymbolsTimedOut`);
                 }
-            }
+            };
 
             interval_id = setInterval(checkPending, interval);
         });

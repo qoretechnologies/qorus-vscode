@@ -1201,6 +1201,9 @@ msgstr "Edit job"
 msgid "EditStep"
 msgstr "Edit step"
 
+msgid "EditClass"
+msgstr "Edit class"
+
 msgid "EditWorkflow"
 msgstr "Edit workflow"
 

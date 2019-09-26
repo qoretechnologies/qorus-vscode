@@ -29,7 +29,7 @@ export const subclass_template = {
 };
 
 
-export const classFields = default_target_dir => [
+export const basicFields = default_target_dir => [
     {
         name: 'target_dir',
         type: 'file-string',
@@ -78,8 +78,27 @@ export const classFields = default_target_dir => [
     },
 ];
 
+export const classFields = default_target_dir => [
+    ... basicFields(default_target_dir),
+    {
+        name: 'base-class-name',
+        mandatory: false,
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'base-class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'base-class',
+            return_value: 'objects',
+        },
+        on_change: 'get-config-items'
+    }
+];
+
 export const commonFields = default_target_dir => [
-    ... classFields(default_target_dir),
+    ... basicFields(default_target_dir),
     {
         name: 'modules',
         mandatory: false,

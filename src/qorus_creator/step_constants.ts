@@ -1,7 +1,7 @@
-import { classFields } from './common_constants';
+import { basicFields } from './common_constants';
 
 export const stepFields = default_target_dir => [
-    ... classFields(default_target_dir),
+    ... basicFields(default_target_dir),
     {
         name: 'base-class-name',
         type: 'select-string',
