@@ -33,7 +33,7 @@ class QorusDeploy {
             return;
         }
 
-        this.doDeploy([file_path]);
+        this.deployFileAndPairFile(editor.document.uri);
     }
 
     deployFile(uri: vscode.Uri) {
@@ -42,7 +42,11 @@ class QorusDeploy {
             msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
             return;
         }
+        this.deployFileAndPairFile(uri);
+    }
 
+    private deployFileAndPairFile = (uri: vscode.Uri) => {
+        const file_path: string = uri.fsPath;
         const project = projects.getProject(uri);
         const code_info = project && project.code_info;
         const pair_file_path = code_info.pairFile(file_path);
