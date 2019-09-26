@@ -191,6 +191,14 @@ export abstract class InterfaceCreator {
                     case 'workflow-autostart':
                         result += `autostart: ${value}\n`;
                         break;
+                    case 'version':
+                        if (parseFloat(value) == value) {
+                            result += `${tag}: "${value}"\n`;
+                        }
+                        else {
+                            result += `${tag}: ${value}\n`;
+                        }
+                        break;
                     default:
                         result += `${tag}: ${value}\n`;
                 }
