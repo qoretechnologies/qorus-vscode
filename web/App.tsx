@@ -1,13 +1,10 @@
 import React, { Component, FunctionComponent, useState } from 'react';
 import { connect } from 'react-redux';
 import { Alignment, Button, HTMLTable, Navbar, NavbarDivider, NavbarGroup } from '@blueprintjs/core';
-import { LoginContainer as Login } from './login/Login';
 import { ProjectConfigContainer as ProjectConfig } from './project_config/ProjectConfig';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import InterfaceCreator from './containers/InterfaceCreator';
-import { vscode } from './common/vscode';
-import logo from '../images/qorus_logo_256.png';
 import { hot } from 'react-hot-loader/root';
 import styled from 'styled-components';
 import withMessageHandler, { TMessageListener, TPostMessage } from './hocomponents/withMessageHandler';
@@ -16,14 +13,12 @@ import { Messages } from './constants/messages';
 import { TextContext } from './context/text';
 import compose from 'recompose/compose';
 import withFields from './hocomponents/withFields';
-import Panel from './containers/InterfaceCreator/panel';
-import Box from './components/Box';
 import withMethods from './hocomponents/withMethods';
 import withInitialData from './hocomponents/withInitialData';
 import withSteps from './hocomponents/withSteps';
 import Menu from './components/Menu';
 import { MENU } from './constants/menu';
-import { Classes } from '@blueprintjs/select';
+import { LoginContainer } from './login/Login';
 
 const StyledApp = styled.div`
     display: flex;
@@ -170,7 +165,7 @@ const App: FunctionComponent<IApp> = ({
                 <StyledApp>
                     {tab !== 'Login' && <Menu menu={MENU} />}
                     <>
-                        {tab == 'Login' && <Login />}
+                        {tab == 'Login' && <LoginContainer />}
                         {tab == 'ProjectConfig' && <ProjectConfig />}
                         {tab == 'ReleasePackage' && <ReleasePackage />}
                         {tab == 'DeleteInterfaces' && <DeleteInterfaces />}

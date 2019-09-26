@@ -20,22 +20,18 @@ const SidebarSection: Function = ({
     onSectionToggle,
     favoriteItems,
 }: SidebarSectionProps) =>
-    console.log('SECTION DATA', sectionData) || size(sectionData) ? (
+    size(sectionData) ? (
         <div className="sidebarSection">
-            {map(
-                sectionData,
-                (itemData: Object, key: number) =>
-                    console.log(itemData) || (
-                        <SidebarItem
-                            itemData={itemData}
-                            key={key}
-                            isCollapsed={isCollapsed}
-                            expandedSection={expandedSection}
-                            onSectionToggle={onSectionToggle}
-                            favoriteItems={favoriteItems}
-                        />
-                    )
-            )}
+            {map(sectionData, (itemData: Object, key: number) => (
+                <SidebarItem
+                    itemData={itemData}
+                    key={key}
+                    isCollapsed={isCollapsed}
+                    expandedSection={expandedSection}
+                    onSectionToggle={onSectionToggle}
+                    favoriteItems={favoriteItems}
+                />
+            ))}
         </div>
     ) : null;
 

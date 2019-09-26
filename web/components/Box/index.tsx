@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components';
 export interface IBox {
     children: ReactNode;
     fill: boolean;
+    style: { [key: string]: string | number };
 }
 
 const StyledBox = styled.div`
@@ -29,7 +30,11 @@ const StyledBoxContent = styled.div`
     overflow-y: auto;
 `;
 
-const Box: FunctionComponent<IBox> = ({ children, fill }) => <StyledBox fill>{children}</StyledBox>;
+const Box: FunctionComponent<IBox> = ({ children, fill, style }) => (
+    <StyledBox fill={fill} style={style}>
+        {children}
+    </StyledBox>
+);
 
 export { StyledBoxContent as BoxContent };
 export default Box;
