@@ -1132,6 +1132,15 @@ msgstr "Qore"
 msgid "field-label-java"
 msgstr "Java"
 
+msgid "field-label-none"
+msgstr "None"
+
+msgid "field-label-read"
+msgstr "Read"
+
+msgid "field-label-write"
+msgstr "Write"
+
 msgid "ConfigFileDoesNotExist"
 msgstr "Config file does not exist"
 

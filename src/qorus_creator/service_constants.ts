@@ -156,6 +156,12 @@ export const service_methods = [
     },
     {
         name: 'lock',
+        type: 'enum',
+        items: [
+            {value: 'none'},
+            {value: 'read'},
+            {value: 'write'}
+        ],
         mandatory: false,
         default_value: 'none',
     },
