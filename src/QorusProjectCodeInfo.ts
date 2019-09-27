@@ -49,6 +49,7 @@ export class QorusProjectCodeInfo {
     private job_classes = {};
     private workflow_classes = {};
     private step_classes = {};
+    private config_item_values = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -449,6 +450,26 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
+    private addConfigItemValues = (values: any[]) => {
+        values.forEach(value => {
+            if (!value.name || typeof(value.value) === 'undefined' ||
+                !value['interface-type'] || !value['interface-name'] || !value['interface-version'])
+            {
+                return;
+            }
+            const key = [value['interface-type'], value['interface-name'], value['interface-version']].join(':');
+            if (!this.config_item_values[key]) {
+                this.config_item_values[key] = {};
+            }
+            this.config_item_values[key][value.name] = value.value;
+        });
+    }
+
+    private getConfigItemValue = ({type, name, version}, config_item: string): any => {
+        const key = [type, name, version].join(':');
+        return this.config_item_values[key][config_item];
+    }
+
     addSingleYamlInfo(file: string) {
         let parsed_data: any;
         try {
@@ -456,6 +477,10 @@ export class QorusProjectCodeInfo {
         } catch (error) {
             msg.debug({file, error});
             return;
+        }
+
+        if (parsed_data.type === 'config-item-values') {
+            this.addConfigItemValues(parsed_data['config-item-values'] || []);
         }
 
         let yaml_data = {
@@ -468,8 +493,6 @@ export class QorusProjectCodeInfo {
         this.yaml_data_by_yaml_file[file] = yaml_data;
 
         if (yaml_data.steps) {
-            msg.debug({steps: yaml_data.steps});
-
             try {
                 yaml_data.steps = JSON.parse(yaml_data.steps);
             } catch (error) {
@@ -616,7 +639,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getConfigItems({'base-class-name': base_class_name}) {
+    getConfigItems({'base-class-name': base_class_name, orig_data}) {
         this.waitForPending(['yaml', 'lang_client']).then(() => {
             const class_src_file = this.class_2_src[base_class_name];
             const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
@@ -633,7 +656,12 @@ export class QorusProjectCodeInfo {
             const config_yaml_file = path.join(path.dirname(class_yaml_data.yaml_file),
                                                class_yaml_data['config-items']);
 
-            const config_yaml_data = this.yaml_data_by_yaml_file[config_yaml_file];
+            let config_items = [...this.yaml_data_by_yaml_file[config_yaml_file]['config-items']];
+            if (orig_data) {
+                config_items.forEach(config_item => {
+                    config_item.value = this.getConfigItemValue(orig_data, config_item.name);
+                });
+            }
 
             const addYamlDataTag = (config_item: any): any => {
                 let yaml_data_tag = {
@@ -648,7 +676,7 @@ export class QorusProjectCodeInfo {
 
             const message = {
                 action: 'return-config-items',
-                items: (config_yaml_data['config-items'] || []).map(config_item => addYamlDataTag(config_item)),
+                items: (config_items || []).map(config_item => addYamlDataTag(config_item)),
                 file_name: class_yaml_data.yaml_file
             };
 
