@@ -82,6 +82,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                     setShowSteps(true);
                                 }}
                                 data={workflow && omit(workflow, 'steps')}
+                                isEditing={!!workflow}
                                 onDataFinishLoading={
                                     workflow && showSteps
                                         ? () => {
