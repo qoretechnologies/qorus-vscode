@@ -174,10 +174,11 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
-                                fields: creator.getFields(
-                                    message.iface_kind,
-                                    initial_data.uri ? initial_data.uri.fsPath : undefined
-                                ),
+                                fields: creator.getFields({
+                                    iface_kind: message.iface_kind,
+                                    is_editing: message.is_editing || false,
+                                    default_target_dir: initial_data.uri && initial_data.uri.fsPath
+                                }),
                             });
                             break;
                         case 'creator-get-objects':

@@ -97,7 +97,7 @@ export const classFields = default_target_dir => [
     }
 ];
 
-export const commonFields = default_target_dir => [
+export const commonFields = ({default_target_dir, is_editing}) => [
     ... basicFields(default_target_dir),
     {
         name: 'modules',
@@ -133,6 +133,7 @@ export const commonFields = default_target_dir => [
             },
         ],
         default_value: 'qore',
+        disabled: is_editing,
     },
     {
         name: 'classes',

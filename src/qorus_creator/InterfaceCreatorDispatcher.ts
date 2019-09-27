@@ -9,20 +9,20 @@ import { config_item_fields } from './config_item_constants';
 
 
 class InterfaceCreatorDispatcher {
-    getFields(iface_kind: string, default_target_dir?: string): any[] {
-        switch (iface_kind) {
+    getFields(params: any): any[] {
+        switch (params.iface_kind) {
             case 'service':
-                return serviceFields(default_target_dir);
+                return serviceFields(params);
             case 'service-methods':
                 return service_methods;
             case 'job':
-                return jobFields(default_target_dir);
+                return jobFields(params);
             case 'workflow':
-                return workflowFields(default_target_dir);
+                return workflowFields(params);
             case 'class':
-                return classFields(default_target_dir);
+                return classFields(params);
             case 'step':
-                return stepFields(default_target_dir);
+                return stepFields(params);
             case 'config-item':
                 return config_item_fields;
             default:
