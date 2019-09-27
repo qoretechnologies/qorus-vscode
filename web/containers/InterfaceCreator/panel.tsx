@@ -607,6 +607,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <ConfigItemManager
                         type={type}
                         baseClassName={selectedFields.find((field: IField) => field.name === 'base-class-name').value}
+                        originalData={data}
                     />
                 </Dialog>
             )}

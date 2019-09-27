@@ -17,6 +17,8 @@ export interface IConfigItemManager {
     type: string;
     postMessage: TPostMessage;
     addMessageListener: TMessageListener;
+    baseClassName: string;
+    originalData: any;
 }
 
 const StyledConfigManagerWrapper = styled.div`
@@ -174,6 +176,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     baseClassName,
     postMessage,
     addMessageListener,
+    originalData,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItems, setConfigItems] = useState<any>({});
@@ -187,6 +190,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         postMessage(Messages.GET_CONFIG_ITEMS, {
             'base-class-name': baseClassName,
             iface_kind: type,
+            orig_data: originalData,
         });
 
         return () => {
