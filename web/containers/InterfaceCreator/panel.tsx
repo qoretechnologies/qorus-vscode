@@ -213,6 +213,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 ? validateField(field.type || 'string', data[field.name], field)
                                 : false,
                         value: data ? data[field.name] : undefined,
+                        hasValueSet: data && data[field.name],
                     }));
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
