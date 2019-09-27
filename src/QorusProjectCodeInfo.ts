@@ -445,8 +445,16 @@ export class QorusProjectCodeInfo {
     }
 
     addSingleYamlInfo(file: string) {
+        let parsed_data: any;
+        try {
+            parsed_data = yaml.load(file);
+        } catch (error) {
+            msg.debug({file, error});
+            return;
+        }
+
         let yaml_data = {
-            ...yaml.load(file),
+            ...parsed_data,
             yaml_file: file,
             target_dir: path.dirname(file)
         };
@@ -611,7 +619,7 @@ export class QorusProjectCodeInfo {
                 return;
             }
 
-            const config_yaml_file = path.join(path.dirname(class_yaml_data['yaml_file']),
+            const config_yaml_file = path.join(path.dirname(class_yaml_data.yaml_file),
                                                class_yaml_data['config-items']);
 
             const config_yaml_data = this.yaml_data_by_yaml_file[config_yaml_file];
@@ -630,7 +638,7 @@ export class QorusProjectCodeInfo {
             const message = {
                 action: 'return-config-items',
                 items: (config_yaml_data['config-items'] || []).map(config_item => addYamlDataTag(config_item)),
-                file_name: config_yaml_file
+                file_name: class_yaml_data.yaml_file
             };
 
             qorus_webview.postMessage(message);
