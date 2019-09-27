@@ -120,6 +120,13 @@ export abstract class InterfaceCreator {
         const indent = '    ';
         let result: string = '';
 
+        const base_class_name = headers['base-class-name'];
+        if (base_class_name) {
+            headers.classes = headers.classes || [];
+            if (!headers.classes.some(item => item.name === base_class_name)) {
+                headers.classes.unshift({name: base_class_name});
+            }
+        }
         delete headers['base-class-name'];
 
         for (const tag in headers) {
