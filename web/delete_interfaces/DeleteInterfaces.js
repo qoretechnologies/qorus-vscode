@@ -1,20 +1,32 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Checkbox, Classes, HTMLSelect, HTMLTable, Intent,
-         Popover, Radio, RadioGroup, Tabs, Tab, } from '@blueprintjs/core';
+import {
+    Button,
+    Checkbox,
+    Classes,
+    HTMLSelect,
+    HTMLTable,
+    Intent,
+    Popover,
+    Radio,
+    RadioGroup,
+    Tabs,
+    Tab,
+    ButtonGroup,
+} from '@blueprintjs/core';
 import { vscode } from '../common/vscode';
 import { Fg } from '../common/Fg';
-import Box from '../components/Box';
+import Box, { BoxContent } from '../components/Box';
 import compose from 'recompose/compose';
 import withTextContext from '../hocomponents/withTextContext';
 
 const columns = {
     workflows: ['name', 'version', 'workflowid', 'description'],
-    services:  ['name', 'version', 'serviceid'],
-    jobs:      ['name', 'version', 'jobid', 'description'],
-    classes:   ['name', 'version', 'classid', 'description', 'language'],
+    services: ['name', 'version', 'serviceid'],
+    jobs: ['name', 'version', 'jobid', 'description'],
+    classes: ['name', 'version', 'classid', 'description', 'language'],
     constants: ['name', 'version', 'constantid', 'description'],
-    mappers:   ['name', 'version', 'mapperid', 'desc', 'type'],
+    mappers: ['name', 'version', 'mapperid', 'desc', 'type'],
     functions: ['name', 'version', 'function_instanceid', 'description'],
 };
 
@@ -88,8 +100,7 @@ class DeleteInterfaces extends Component {
     };
 
     isChecked = id =>
-        (this.props.checked[this.props.iface_kind] &&
-         this.props.checked[this.props.iface_kind][id]) || false;
+        (this.props.checked[this.props.iface_kind] && this.props.checked[this.props.iface_kind][id]) || false;
 
     isAnyChecked = () => this.currentKindInterfaces().some(iface => this.isChecked(iface.id));
 
@@ -110,82 +121,88 @@ class DeleteInterfaces extends Component {
 
         const t = this.props.t;
 
-        const Interfaces =
-            <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }} className='iface-list'>
-                <thead>
-                    <tr>
-                        <td>
-                            <Checkbox style={{ margin: 0 }} checked={this.areAllChecked()} onChange={this.checkAll} />
-                        </td>
-                        {columns[this.props.iface_kind].map(column => (
-                            <td>
-                                <Fg text={t('ColumnHeader-' + column)} />
-                            </td>
-                        ))}
+        const Interfaces = (
+            <BoxContent>
+                <ButtonGroup className="pull-right">
+                    <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
+                        <Button icon="trash" disabled={!this.isAnyChecked()}>
+                            {t('DeleteSelected') + t(this.props.iface_kind)}
+                        </Button>
+                        <div>
+                            {t('ConfirmRemoveInterfaces') + t(this.props.iface_kind) + '?'}
 
-                        <Popover popoverClassName={Classes.POPOVER_CONTENT_SIZING}>
-                            <Button icon='trash' style={{ marginTop: -8, marginBottom: 8 }}
-                                disabled={!this.isAnyChecked()}
-                            >
-                                {t('DeleteSelected') + t(this.props.iface_kind)}
-                            </Button>
-                            <div>
-                                {t('ConfirmRemoveInterfaces') + t(this.props.iface_kind) + '?'}
-
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 27 }}>
-                                    <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
-                                        {t('ButtonCancel')}
-                                    </Button>
-                                    <Button
-                                        intent={Intent.DANGER}
-                                        className={Classes.POPOVER_DISMISS}
-                                        onClick={this.deleteSelected}
-                                    >
-                                        {t('ButtonDelete')}
-                                    </Button>
-                                </div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 27 }}>
+                                <Button className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
+                                    {t('ButtonCancel')}
+                                </Button>
+                                <Button
+                                    intent={Intent.DANGER}
+                                    className={Classes.POPOVER_DISMISS}
+                                    onClick={this.deleteSelected}
+                                >
+                                    {t('ButtonDelete')}
+                                </Button>
                             </div>
-                        </Popover>
+                        </div>
+                    </Popover>
 
-                        <Button icon='refresh' title={t('Refresh')} style={{ margin: '-8px 0 8px 12px' }}
-                            onClick={() => this.getInterfaces()}
-                        />
-                    </tr>
-                </thead>
-                <tbody>
-                    {this.currentKindInterfaces().map(iface => (
-                        <tr key={iface.name + iface.id}>
+                    <Button icon="refresh" title={t('Refresh')} onClick={() => this.getInterfaces()} />
+                </ButtonGroup>
+                <HTMLTable condensed={true} interactive={true} style={{ marginLeft: 24 }} className="iface-list">
+                    <thead>
+                        <tr>
                             <td>
-                                <Checkbox style={{ marginBottom: 0 }}
-                                    onChange={this.onCheckChange.bind(null, iface.id)}
-                                    checked={this.isChecked(iface.id)}
+                                <Checkbox
+                                    style={{ margin: 0 }}
+                                    checked={this.areAllChecked()}
+                                    onChange={this.checkAll}
                                 />
                             </td>
                             {columns[this.props.iface_kind].map(column => (
-                                <td className='iface-cell'>
-                                    <Fg text={iface[column]} />
+                                <td>
+                                    <Fg text={t('ColumnHeader-' + column)} />
                                 </td>
                             ))}
                         </tr>
-                    ))}
-                </tbody>
-            </HTMLTable>;
+                    </thead>
+                    <tbody>
+                        {this.currentKindInterfaces().map(iface => (
+                            <tr key={iface.name + iface.id}>
+                                <td>
+                                    <Checkbox
+                                        style={{ marginBottom: 0 }}
+                                        onChange={this.onCheckChange.bind(null, iface.id)}
+                                        checked={this.isChecked(iface.id)}
+                                    />
+                                </td>
+                                {columns[this.props.iface_kind].map(column => (
+                                    <td className="iface-cell">
+                                        <Fg text={iface[column]} />
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </HTMLTable>
+            </BoxContent>
+        );
 
         return (
             <Box>
                 <Tabs
-                    id='DeleteInterfacesTabs'
+                    id="DeleteInterfacesTabs"
                     onChange={this.onInterfaceKindChange}
                     selectedTabId={this.props.iface_kind}
                     renderActiveTabPanelOnly
+                    className={'fullHeightTabs'}
                 >
-                    <Tab id='workflows' title={t('Workflows')} panel={Interfaces} />
-                    <Tab id='services' title={t('Services')} panel={Interfaces} />
-                    <Tab id='jobs' title={t('Jobs')} panel={Interfaces} />
-                    <Tab id='classes' title={t('Classes')} panel={Interfaces} />
-                    <Tab id='constants' title={t('Constants')} panel={Interfaces} />
-                    <Tab id='mappers' title={t('Mappers')} panel={Interfaces} />
-                    <Tab id='functions' title={t('Functions')} panel={Interfaces} />
+                    <Tab id="workflows" title={t('Workflows')} panel={Interfaces} />
+                    <Tab id="services" title={t('Services')} panel={Interfaces} />
+                    <Tab id="jobs" title={t('Jobs')} panel={Interfaces} />
+                    <Tab id="classes" title={t('Classes')} panel={Interfaces} />
+                    <Tab id="constants" title={t('Constants')} panel={Interfaces} />
+                    <Tab id="mappers" title={t('Mappers')} panel={Interfaces} />
+                    <Tab id="functions" title={t('Functions')} panel={Interfaces} />
                 </Tabs>
             </Box>
         );
