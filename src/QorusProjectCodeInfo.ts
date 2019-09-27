@@ -25,6 +25,8 @@ const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
+const yaml_types = [...iface_kinds, 'config-item-values', 'config-items', 'connection', 'constant',
+                    'event', 'function', 'group', 'mapper', 'queue', 'value-map'];
 const default_version = '1.0';
 
 export class QorusProjectCodeInfo {
@@ -218,7 +220,10 @@ export class QorusProjectCodeInfo {
 
         for (const iface_kind of iface_kinds) {
             this.edit_info[iface_kind] = {};
-            this.yaml_data_by_name[iface_kind] = {};
+        }
+
+        for (const yaml_type of yaml_types) {
+            this.yaml_data_by_name[yaml_type] = {};
         }
 
         this.service_classes = {[root_service]: true};
@@ -463,7 +468,13 @@ export class QorusProjectCodeInfo {
         this.yaml_data_by_yaml_file[file] = yaml_data;
 
         if (yaml_data.steps) {
-            yaml_data.steps = JSON.parse(yaml_data.steps);
+            msg.debug({steps: yaml_data.steps});
+
+            try {
+                yaml_data.steps = JSON.parse(yaml_data.steps);
+            } catch (error) {
+                msg.debug({file, error});
+            }
         }
 
         if (yaml_data.code) {
