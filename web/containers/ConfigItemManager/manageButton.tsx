@@ -33,7 +33,7 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({ t, addMess
 
     return (
         <ButtonGroup fill>
-            <Tooltip content={'ManageConfigItems'}>
+            <Tooltip content={'ManageConfigItems'} disabled={disabled}>
                 <Button
                     disabled={disabled}
                     text={`${t('ManageConfigItems')}(${configCount})`}

@@ -156,6 +156,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                                     setShowMethods(true);
                                 }}
                                 data={service && omit(service, 'methods')}
+                                isEditing={!!service}
                                 onDataFinishLoading={
                                     service && activeMethod
                                         ? () => {
