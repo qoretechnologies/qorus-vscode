@@ -489,9 +489,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         }
     });
 
-    const isBaseClassNameValid = selectedFields.find(
-        (field: IField) => field.name === 'base-class-name' && field.isValid
-    );
+    const isBaseClassNameValid =
+        selectedFields && selectedFields.find((field: IField) => field.name === 'base-class-name' && field.isValid);
 
     return (
         <>
