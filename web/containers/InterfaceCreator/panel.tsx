@@ -181,7 +181,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Set the new message listener
         setMessageListener(() => messageListenerHandler);
         // Fetch the fields
-        postMessage(Messages.GET_FIELDS, { iface_kind: type });
+        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing });
         // Cleanup on unmount
         return () => {
             // Remove the message listener if it exists

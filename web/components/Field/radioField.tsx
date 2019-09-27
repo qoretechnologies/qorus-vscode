@@ -11,6 +11,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 export interface IRadioField {
     t: TTranslator;
     initialData: any;
+    disabled?: boolean;
 }
 
 const StyledRadio = styled.div`
@@ -42,6 +43,7 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     name,
     value,
     initialData,
+    disabled,
 }) => {
     useMount(() => {
         // Set the default value
@@ -56,10 +58,11 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     return (
         <div>
             {items.map((v: { value: string; icon_filename: string }) => (
-                <StyledRadio onClick={() => handleValueChange(v.value)}>
+                <StyledRadio onClick={() => !disabled && handleValueChange(v.value)}>
                     <Icon
                         icon={value === v.value ? 'selection' : 'circle'}
                         intent={value === v.value ? Intent.PRIMARY : Intent.NONE}
+                        color={disabled ? '#d7d7d7' : '#333'}
                     />
                     <p>{t(`field-label-${v.value}`)}</p>
                     {v.icon_filename && (
