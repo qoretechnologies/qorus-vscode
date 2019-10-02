@@ -477,7 +477,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     orig_data: type === 'service-methods' ? initialData.service : data,
                     open_file_on_success: openFileOnSubmit !== false,
                     parent,
-                    fileName,
+                    file_name: fileName,
                 });
             }
             // Reset the fields
