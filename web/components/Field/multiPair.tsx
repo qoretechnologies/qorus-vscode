@@ -12,7 +12,7 @@ type IPair = {
     [key: string]: string | number;
 };
 
-const StyledPairField = styled.div`
+export const StyledPairField = styled.div`
     margin-bottom: 10px;
 `;
 

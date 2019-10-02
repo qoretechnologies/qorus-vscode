@@ -12,6 +12,8 @@ import MultiFileField from './fileArray';
 import FileField from './fileString';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import Cron from './cron';
+import AutoField from './auto';
+import ArrayAutoField from './arrayAuto';
 
 export interface IField {
     type: string;
@@ -21,52 +23,60 @@ export interface IField {
     value?: any;
     default_value?: any;
     onChange: IFieldChange;
+    requestFieldData: (fieldName: string, fieldKey: string) => string | null;
 }
 
 const Field: FunctionComponent<IField> = ({ type, ...rest }) => {
     // Default type is string
     if (!type || type === 'string') {
-        return <StringField {...rest} />;
+        return <StringField {...rest} type={type} />;
     }
     // Boolean fields
     if (type === 'boolean') {
-        return <BooleanField {...rest} />;
+        return <BooleanField {...rest} type={type} />;
     }
     // Pair field
     if (type === 'array-of-pairs') {
-        return <MultiPairField {...rest} />;
+        return <MultiPairField {...rest} type={type} />;
     }
     // Select one item
     if (type === 'select-string') {
-        return <SelectField {...rest} />;
+        return <SelectField {...rest} type={type} />;
     }
     // Select multiple items
     if (type === 'select-array') {
-        return <MultiSelect {...rest} />;
+        return <MultiSelect {...rest} type={type} />;
     }
     // Simple array
     if (type === 'array') {
-        return <MultiSelect simple {...rest} />;
+        return <MultiSelect simple {...rest} type={type} />;
     }
     // Radio buttons
     if (type === 'enum') {
-        return <RadioField {...rest} />;
+        return <RadioField {...rest} type={type} />;
     }
     // Files
     if (type === 'file-array') {
-        return <MultiFileField {...rest} />;
+        return <MultiFileField {...rest} type={type} />;
     }
 
     if (type === 'file-string') {
-        return <FileField {...rest} />;
+        return <FileField {...rest} type={type} />;
     }
     // Date
     if (type === 'date') {
-        return <DateField {...rest} />;
+        return <DateField {...rest} type={type} />;
     }
     // Cron
     if (type === 'cron') {
-        return <Cron {...rest} />;
+        return <Cron {...rest} type={type} />;
+    }
+    // Auto field
+    if (type === 'auto') {
+        return <AutoField {...rest} type={type} />;
+    }
+    if (type === 'array-auto') {
+        return <ArrayAutoField {...rest} type={type} />;
     }
 
     return <span> WIP </span>;

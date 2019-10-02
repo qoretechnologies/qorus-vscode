@@ -182,7 +182,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     const [configItems, setConfigItems] = useState<any>({});
 
     useEffectOnce(() => {
-        const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, data => {
+        addMessageListener(Messages.RETURN_CONFIG_ITEMS, data => {
             setConfigItems(data);
         });
 
@@ -192,10 +192,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_kind: type,
             orig_data: originalData,
         });
-
-        return () => {
-            messageHandler();
-        };
     });
 
     const handleSubmit: (name: string, value: string, remove: boolean) => void = (name, value, remove) => {
@@ -211,7 +207,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     return (
         <>
             <StyledConfigManagerWrapper>
-                {/*<Button text={t('AddConfigItem')} onClick={() => setShowConfigItemPanel(true)} />*/}
+                {<Button text={t('AddConfigItem')} onClick={() => setShowConfigItemPanel(true)} />}
                 <div>
                     {configItems.global_items && (
                         <GlobalTable configItems={configItems.global_items} onSubmit={handleSubmit} />
@@ -237,7 +233,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                     onClose={() => setShowConfigItemPanel(false)}
                 >
                     <StyledConfigWrapper>
-                        <InterfaceCreatorPanel type={'config-item'} />
+                        <InterfaceCreatorPanel fileName={configItems.file_name} parent={type} type={'config-item'} />
                     </StyledConfigWrapper>
                 </Dialog>
             )}

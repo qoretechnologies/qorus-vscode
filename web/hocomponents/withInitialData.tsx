@@ -20,7 +20,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }
 
                 /*data.tab = 'CreateInterface';
-                data.subtab = 'workflow';*/
+                data.subtab = 'config-item';*/
 
                 setInitialData(data);
             });

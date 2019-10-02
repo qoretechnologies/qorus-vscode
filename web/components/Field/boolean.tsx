@@ -17,7 +17,7 @@ const BooleanField: FunctionComponent<IField & IFieldChange> = ({ name, onChange
         }
     };
 
-    return <Switch checked={value} large onChange={handleEnabledChange} />;
+    return <Switch checked={value || false} large onChange={handleEnabledChange} />;
 };
 
 export default BooleanField;

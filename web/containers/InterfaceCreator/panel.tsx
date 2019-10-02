@@ -21,6 +21,7 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import ConfigItemManager from '../ConfigItemManager';
 import ManageConfigButton from '../ConfigItemManager/manageButton';
+import { allowedTypes } from '../../components/Field/arrayAuto';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -33,6 +34,8 @@ export interface IInterfaceCreatorPanel {
     resetFields: (type: string) => void;
     openFileOnSubmit: boolean;
     hasConfigManager?: boolean;
+    parent?: string;
+    fileName?: string;
 }
 
 export interface IField {
@@ -119,6 +122,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     openFileOnSubmit,
     initialData,
     hasConfigManager,
+    parent,
+    fileName,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -324,8 +329,31 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                     break;
                             }
                         }
-                        // Run the validation for this type
-                        const isValid: boolean = validateField(currentField.type || 'string', value, currentField);
+                        // Validate the field
+                        let isValid;
+                        // If this is auto field
+                        if (currentField.type === 'auto' || currentField.type === 'array-auto') {
+                            // Get the type
+                            const fieldType = requestFieldData(currentField['type-depends-on'], 'value');
+                            // If this is a single field
+                            if (currentField.type === 'auto') {
+                                // Validate single field
+                                isValid = validateField(fieldType, value, currentField);
+                            } else {
+                                // Check if the type is in allowed types
+                                if (allowedTypes.includes(fieldType)) {
+                                    // Validate all values
+                                    isValid = value.every((val: string | number) =>
+                                        validateField(fieldType, val, currentField)
+                                    );
+                                } else {
+                                    isValid = false;
+                                }
+                            }
+                        } else {
+                            // Basic field with predefined type
+                            isValid = validateField(currentField.type, value, currentField);
+                        }
                         // Check if we should change the name of the
                         // method
                         if (fieldName === 'name' && onNameChange) {
@@ -448,6 +476,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     data: newData,
                     orig_data: type === 'service-methods' ? initialData.service : data,
                     open_file_on_success: openFileOnSubmit !== false,
+                    parent,
+                    fileName,
                 });
             }
             // Reset the fields
@@ -490,6 +520,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             return false;
         }
     });
+
+    const requestFieldData: (fieldName: string, fieldKey: string) => string = (fieldName, fieldKey) => {
+        // Find this field
+        const field: IField = selectedFields.find((field: IField) => field.name === fieldName);
+        // Check if this field exists & is selected
+        if (field) {
+            // Return the requested field property
+            return field[fieldKey];
+        }
+        // Return null
+        return null;
+    };
 
     const isBaseClassNameValid =
         selectedFields && selectedFields.find((field: IField) => field.name === 'base-class-name' && field.isValid);
@@ -548,6 +590,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                         <Field
                                             {...field}
                                             onChange={handleFieldChange}
+                                            requestFieldData={requestFieldData}
                                             iface_kind={type}
                                             activeId={activeId}
                                             prefill={
@@ -598,20 +641,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     </div>
                 </ActionsWrapper>
             </Content>
-            {showConfigItemsManager && (
+            {showConfigItemsManager && hasConfigManager ? (
                 <Dialog
                     isOpen
                     title={t('ConfigItemsManager')}
                     onClose={() => setShowConfigItemsManager(false)}
                     style={{ width: '80vw', backgroundColor: '#fff' }}
                 >
-                    <ConfigItemManager
-                        type={type}
-                        baseClassName={selectedFields.find((field: IField) => field.name === 'base-class-name').value}
-                        originalData={data}
-                    />
+                    <ConfigItemManager type={type} originalData={data} />
                 </Dialog>
-            )}
+            ) : null}
         </>
     );
 };
