@@ -14,6 +14,8 @@ import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import Cron from './cron';
 import AutoField from './auto';
 import ArrayAutoField from './arrayAuto';
+import useMount from 'react-use/lib/useMount';
+import withMessageHandler from '../../hocomponents/withMessageHandler';
 
 export interface IField {
     type: string;
@@ -26,7 +28,17 @@ export interface IField {
     requestFieldData: (fieldName: string, fieldKey: string) => string | null;
 }
 
-const Field: FunctionComponent<IField> = ({ type, ...rest }) => {
+const Field: FunctionComponent<IField> = withMessageHandler()(({ type, postMessage, ...rest }) => {
+    useMount(() => {
+        if (rest.value && rest.on_change) {
+            // Post the message with this handler
+            postMessage(rest.on_change, {
+                [rest.name]: rest.value,
+                iface_kind: type,
+            });
+        }
+    });
+
     // Default type is string
     if (!type || type === 'string') {
         return <StringField {...rest} type={type} />;
@@ -80,6 +92,6 @@ const Field: FunctionComponent<IField> = ({ type, ...rest }) => {
     }
 
     return <span> WIP </span>;
-};
+});
 
 export default withTextContext()(Field) as FunctionComponent<IField>;

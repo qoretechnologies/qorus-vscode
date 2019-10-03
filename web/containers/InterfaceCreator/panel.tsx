@@ -409,7 +409,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             }
                         } else {
                             // Basic field with predefined type
-                            isValid = validateField(currentField.type, value, currentField);
+                            isValid = validateField(currentField.type || 'string', value, currentField);
                         }
                         // Check if we should change the name of the
                         // method
