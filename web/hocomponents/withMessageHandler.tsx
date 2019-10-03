@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { vscode } from '../common/vscode';
+import { Messages } from '../constants/messages';
 
 export type TPostMessage = (action: string, data?: any) => void;
 export type TMessageListener = (action: string, callback: (data: any) => any) => () => void;

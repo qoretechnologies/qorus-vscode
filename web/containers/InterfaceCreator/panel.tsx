@@ -22,6 +22,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import ConfigItemManager from '../ConfigItemManager';
 import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { allowedTypes } from '../../components/Field/arrayAuto';
+import shortid from 'shortid';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -36,6 +37,29 @@ export interface IInterfaceCreatorPanel {
     hasConfigManager?: boolean;
     parent?: string;
     fileName?: string;
+    fields: IField[];
+    selectedFields: IField[];
+    setFields: (type: string, fields: IField[] | Function, activeId?: number) => void;
+    setSelectedFields: (type: string, fields: IField[] | Function, activeId?: number) => void;
+    query?: string;
+    setQuery: (type: string, value?: string) => void;
+    selectedQuery?: string;
+    setSelectedQuery: (type: string, value?: string) => void;
+    activeId?: number;
+    onNameChange?: (activeId: number, newName: string) => any;
+    isFormValid: boolean;
+    stepOneTitle?: string;
+    stepTwoTitle?: string;
+    submitLabel?: string;
+    onBackClick?: () => void;
+    allSelectedFields: { [type: string]: IField[] };
+    data?: any;
+    onDataFinishLoading?: () => any;
+    isEditing?: boolean;
+    allMethodsData?: any[];
+    initialData?: any;
+    interfaceId?: string;
+    setInterfaceId: (interfaceType: string, id: string) => void;
 }
 
 export interface IField {
@@ -124,6 +148,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     hasConfigManager,
     parent,
     fileName,
+    interfaceId,
+    setInterfaceId,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -179,6 +205,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         // Set the mount to false
                         isInitialMount.current = false;
                     }
+                    // Check if the interface id exists, which means user
+                    // has already been on this view
+                    if (!interfaceId) {
+                        // Create it if this is brand new interface
+                        setInterfaceId(type, data ? data.iface_id : shortid.generate());
+                    }
                     // Set show
                     setShow(true);
                 }
@@ -196,6 +228,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     }, [activeId]);
 
     const resetLocalFields: (newActiveId: number) => void = newActiveId => {
+        resetFields(type);
         // Hide the fields until they are fetched
         setShow(false);
         // Change the name if needed
@@ -207,9 +240,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Create a message listener for this activeId
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
-            ({ fields: newFields, iface_kind }: { newFields: { [key: string]: IField } }) => {
+            ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField } }) => {
                 // Register only for this interface
-                if (iface_kind === type) {
+                if (rest.iface_kind === type) {
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
@@ -223,13 +256,37 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     }));
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
+                    // Add original name field
+                    if (isEditing) {
+                        preselectedFields.push({
+                            name: 'orig_name',
+                            value: data && data.name,
+                            isValid: true,
+                            selected: true,
+                            internal: true,
+                        });
+                    }
                     // Save preselected fields
-                    setSelectedFields(type, preselectedFields, newActiveId);
+                    setSelectedFields(type, preselectedFields, activeId);
                     // Save the fields
-                    setFields(type, transformedFields, newActiveId);
-                    // Set show
-                    setShow(true);
+                    setFields(type, transformedFields, activeId);
                 }
+                // Check if onDataFinish function is set
+                // only do this on initial mount
+                if (onDataFinishLoading && isInitialMount.current) {
+                    // Run the callback
+                    onDataFinishLoading();
+                    // Set the mount to false
+                    isInitialMount.current = false;
+                }
+                // Check if the interface id exists, which means user
+                // has already been on this view
+                if (!interfaceId) {
+                    // Create it if this is brand new interface
+                    setInterfaceId(type, data ? data.iface_id : shortid.generate());
+                }
+                // Set show
+                setShow(true);
             }
         );
         // Set the new message listener
@@ -454,7 +511,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             // Add workflow data with step
             if (type === 'step') {
-                // Get the service data
+                // Get the workflow data
                 const workflow = reduce(
                     allSelectedFields.workflow,
                     (result: { [key: string]: any }, field: IField) => ({
@@ -469,6 +526,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     orig_data: data,
                     workflow,
                     open_file_on_success: openFileOnSubmit !== false,
+                    iface_id: interfaceId,
                 });
             } else {
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
@@ -476,8 +534,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     data: newData,
                     orig_data: type === 'service-methods' ? initialData.service : data,
                     open_file_on_success: openFileOnSubmit !== false,
-                    parent,
-                    file_name: fileName,
+                    iface_id: interfaceId,
                 });
             }
             // Reset the fields
@@ -648,7 +705,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     onClose={() => setShowConfigItemsManager(false)}
                     style={{ width: '80vw', backgroundColor: '#fff' }}
                 >
-                    <ConfigItemManager type={type} originalData={data} />
+                    <ConfigItemManager
+                        type={type}
+                        baseClassName={
+                            selectedFields &&
+                            selectedFields.find((field: IField) => field.name === 'base-class-name').value
+                        }
+                        interfaceId={interfaceId}
+                    />
                 </Dialog>
             ) : null}
         </>
@@ -660,12 +724,13 @@ export default compose(
     withMessageHandler(),
     withFieldsConsumer(),
     withInitialDataConsumer(),
-    mapProps(({ type, fields, selectedFields, query, selectedQuery, activeId, ...rest }) => ({
+    mapProps(({ type, fields, selectedFields, query, selectedQuery, activeId, interfaceId, ...rest }) => ({
         fields: activeId ? fields[type][activeId] : fields[type],
         selectedFields: activeId ? selectedFields[type][activeId] : selectedFields[type],
         query: query[type],
         selectedQuery: selectedQuery[type],
         allSelectedFields: selectedFields,
+        interfaceId: interfaceId[type],
         type,
         activeId,
         ...rest,

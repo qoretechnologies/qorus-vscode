@@ -7,6 +7,13 @@ import { every, reduce } from 'lodash';
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
+        const [interfaceId, _setInterfaceId] = useState<{ [key: string]: string }>({
+            service: null,
+            workflow: null,
+            job: null,
+            class: null,
+            step: null,
+        });
         const [fields, setLocalFields] = useState<{ [key: string]: IField[] | { [key: string]: IField[] } }>({
             service: [],
             ['service-methods']: {},
@@ -48,18 +55,32 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const resetFields: (type: string) => void = type => {
             setLocalFields(current => {
+                setLocalSelectedFields(current => {
+                    const newResult = { ...current };
+                    // Reset the fields
+                    newResult[type] = type === 'service-methods' ? {} : [];
+                    return newResult;
+                });
+                _setInterfaceId(current => {
+                    const newResult = { ...current };
+                    // Set the interface id to null
+                    newResult[type] = null;
+                    return newResult;
+                });
                 const newResult = { ...current };
                 // Reset the fields
                 newResult[type] = type === 'service-methods' ? {} : [];
                 return newResult;
             });
+        };
 
-            setLocalSelectedFields(current => {
-                const newResult = { ...current };
-                // Reset the fields
-                newResult[type] = type === 'service-methods' ? {} : [];
-                return newResult;
-            });
+        const setInterfaceId: (interfaceType: string, id: string) => void = (interfaceType, id) => {
+            // Sets the interface id, which is only used
+            // for config items management
+            _setInterfaceId(current => ({
+                ...current,
+                [interfaceType]: id,
+            }));
         };
 
         const setFields = (type, value, activeId) => {
@@ -169,6 +190,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     isMethodValid,
                     removeMethodFromFields: removeMethod,
                     resetFields,
+                    interfaceId,
+                    setInterfaceId,
                 }}
             >
                 <Component {...props} />
