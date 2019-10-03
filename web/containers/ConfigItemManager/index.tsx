@@ -200,6 +200,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             value,
             file_name: configItems.file_name,
             remove,
+            iface_id: interfaceId,
         });
     };
 
