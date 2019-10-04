@@ -1,7 +1,7 @@
 import { commonFields } from './common_constants';
 
-export const workflowFields = default_target_dir => [
-    ... commonFields(default_target_dir),
+export const workflowFields = params => [
+    ... commonFields(params),
     {
         name: 'base-class-name',
         type: 'select-string',

@@ -85,11 +85,16 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     disposable = vscode.commands.registerCommand('qorus.editInterface',
-                                                 (data: any, iface_kind: string) => qorus_webview.open({
-        tab: 'CreateInterface',
-        subtab: iface_kind,
-        [iface_kind]: data
-    }));
+                                                 (data: any, iface_kind: string) =>
+    {
+        const code_info = projects.currentProjectCodeInfo();
+        const iface_id = code_info.addIfaceById(data);
+        qorus_webview.open({
+            tab: 'CreateInterface',
+            subtab: iface_kind,
+            [iface_kind]: { ...data, iface_id }
+        })
+    });
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod',

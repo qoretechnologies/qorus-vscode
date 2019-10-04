@@ -28,8 +28,8 @@ method_template.java = '\
 export const service_class_template = class_template;
 export const service_method_template = method_template;
 
-export const serviceFields = default_target_dir => [
-    ... commonFields(default_target_dir),
+export const serviceFields = params => [
+    ... commonFields(params),
     {
         name: 'base-class-name',
         type: 'select-string',
@@ -111,25 +111,6 @@ export const serviceFields = default_target_dir => [
         mandatory: false,
         type: 'array-of-pairs',
         fields: ['label', 'value'],
-    },
-    {
-        name: 'config_target_dir',
-        mandatory: false,
-        type: 'file-string',
-        default_value: default_target_dir,
-        get_message: {
-            action: 'creator-get-directories',
-            object_type: 'target_dir',
-        },
-        return_message: {
-            action: 'creator-return-directories',
-            object_type: 'target_dir',
-            return_value: 'directories',
-        },
-    },
-    {
-        name: 'config_target_file',
-        mandatory: false,
     }
 ];
 
