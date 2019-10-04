@@ -196,6 +196,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     const handleSubmit: (name: string, value: string, parent?: string, remove?: boolean) => void = (
         name,
         value,
+        parent,
         remove
     ) => {
         // Send message that the config item has been updated
