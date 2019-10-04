@@ -423,6 +423,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             postMessage(currentField.on_change, {
                                 [currentField.name]: value,
                                 iface_kind: type,
+                                iface_id: interfaceId,
                             });
                         }
                         // Add the value

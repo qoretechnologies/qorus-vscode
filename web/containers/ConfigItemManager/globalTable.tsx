@@ -53,8 +53,8 @@ const WorkflowConfigItemsTable: Function = ({
                                     title={t('button.add-new')}
                                     onClick={() => {
                                         handleModalToggle({
-                                            onSubmit: (name, value) => {
-                                                onSubmit(name, value);
+                                            onSubmit: (name, value, parent) => {
+                                                onSubmit(name, value, parent);
                                                 handleModalToggle(null);
                                             },
                                             globalConfig: globalItems,
@@ -92,8 +92,8 @@ const WorkflowConfigItemsTable: Function = ({
                                                 title={t('button.edit-this-value')}
                                                 onClick={() => {
                                                     handleModalToggle({
-                                                        onSubmit: (name, value) => {
-                                                            onSubmit(name, value);
+                                                        onSubmit: (name, value, parent) => {
+                                                            onSubmit(name, value, parent);
                                                             handleModalToggle(null);
                                                         },
                                                         globalConfig: globalItems,
@@ -108,7 +108,7 @@ const WorkflowConfigItemsTable: Function = ({
                                                 title={t('button.remove-this-value')}
                                                 intent="danger"
                                                 onClick={() => {
-                                                    onSubmit(item.name, null, true);
+                                                    onSubmit(item.name, null, item.parent_class, true);
                                                 }}
                                             />
                                         </ButtonGroup>

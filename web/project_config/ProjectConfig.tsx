@@ -107,7 +107,7 @@ class ProjectConfig extends Component {
         );
 
         return (
-            <Box>
+            <>
                 {ConfigChangedOnDiskMsg}
                 <Tabs
                     id="ProjectConfigTabs"
@@ -160,7 +160,7 @@ class ProjectConfig extends Component {
                         }
                     />
                 </Tabs>
-            </Box>
+            </>
         );
     }
 

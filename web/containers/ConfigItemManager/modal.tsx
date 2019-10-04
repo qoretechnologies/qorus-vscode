@@ -121,6 +121,7 @@ export default class ConfigItemsModal extends Component {
     this.props.onSubmit(
       this.state.item.name,
       newValue,
+      this.state.item.parent_class,
     );
   };
 

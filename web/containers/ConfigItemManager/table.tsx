@@ -135,8 +135,8 @@ let ItemsTable: Function = ({
                                                 onClick={() => {
                                                     handleModalToggle(
                                                         { ...item },
-                                                        (name, value) => {
-                                                            onSubmit(name, value);
+                                                        (name, value, parent) => {
+                                                            onSubmit(name, value, parent);
                                                             handleModalToggle(null);
                                                         },
                                                         intrf,
@@ -150,7 +150,7 @@ let ItemsTable: Function = ({
                                                 title={t('button.remove-this-value')}
                                                 disabled={item.level ? !item.level.startsWith(levelType || '') : true}
                                                 onClick={() => {
-                                                    onSubmit(item.name, null, true);
+                                                    onSubmit(item.name, null, item.parent_class, true);
                                                 }}
                                             />
                                         </ButtonGroup>
