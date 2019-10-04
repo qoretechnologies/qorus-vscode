@@ -20,8 +20,8 @@ class ${this.class_name} extends ${this.base_class_name} {\n\
 
 export const job_template = template;
 
-export const jobFields = default_target_dir => [
-    ... commonFields(default_target_dir),
+export const jobFields = params => [
+    ... commonFields(params),
     {
         name: 'base-class-name',
         type: 'select-string',
@@ -62,24 +62,5 @@ export const jobFields = default_target_dir => [
     {
         name: 'schedule',
         type: 'cron',
-    },
-    {
-        name: 'config_target_dir',
-        mandatory: false,
-        type: 'file-string',
-        default_value: default_target_dir,
-        get_message: {
-            action: 'creator-get-directories',
-            object_type: 'target_dir',
-        },
-        return_message: {
-            action: 'creator-return-directories',
-            object_type: 'target_dir',
-            return_value: 'directories',
-        },
-    },
-    {
-        name: 'config_target_file',
-        mandatory: false,
     }
 ];
