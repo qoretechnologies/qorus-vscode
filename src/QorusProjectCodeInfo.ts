@@ -50,7 +50,6 @@ export class QorusProjectCodeInfo {
     private job_classes = {};
     private workflow_classes = {};
     private step_classes = {};
-    private config_item_values = {};
     private iface_by_id = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
@@ -192,6 +191,9 @@ export class QorusProjectCodeInfo {
     addIfaceById = (data: any): string => {
         const id = shortid.generate();
         this.iface_by_id[id] = data;
+        if (data['base-class-name']) {
+            this.addClassConfigItems(data['base-class-name'], id);
+        }
         return id;
     }
 
@@ -482,24 +484,6 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
-    private addConfigItemValues = (values: any[], file: string) => {
-        values.forEach(value => {
-            if (!value.name || typeof(value.value) === 'undefined' ||
-                !value['interface-type'] || !value['interface-name'] || !value['interface-version'])
-            {
-                return;
-            }
-            const key = [value['interface-type'], value['interface-name'], value['interface-version']].join(':');
-            if (!this.config_item_values[key]) {
-                this.config_item_values[key] = {};
-            }
-            this.config_item_values[key][value.name] = {
-                value: value.value,
-                file
-            };
-        });
-    }
-
     addSingleYamlInfo(file: string) {
         let parsed_data: any;
         try {
@@ -507,10 +491,6 @@ export class QorusProjectCodeInfo {
         } catch (error) {
             msg.debug({file, error});
             return;
-        }
-
-        if (parsed_data.type === 'config-item-values') {
-            this.addConfigItemValues(parsed_data['config-item-values'] || [], file);
         }
 
         let yaml_data = {
@@ -678,10 +658,10 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    addClassConfigItems(class_name, iface_id) {
+    private addClassConfigItems = (class_name, iface_id) => {
         this.initIfaceId(iface_id);
 
-        if (this.iface_by_id[iface_id].base_class_name !== class_name) {
+        if (class_name && this.iface_by_id[iface_id].base_class_name !== class_name) {
             this.iface_by_id[iface_id].base_class_name = class_name;
 
             const class_src_file = this.class_2_src[class_name];
@@ -691,10 +671,17 @@ export class QorusProjectCodeInfo {
             }
 
             const version = this.yaml_data_by_class[class_name].version || default_version;
+
             (class_yaml_data['config-items'] || []).forEach(item => {
-                if (!this.iface_by_id[iface_id]['config-items']
-                        .filter(cached_item => cached_item.name === item.name).length)
-                {
+                const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
+
+                if (index > -1) {
+                    this.iface_by_id[iface_id]['config-items'][index] = {
+                        ... item,
+                        ... this.iface_by_id[iface_id]['config-items'][index]
+                    }
+                }
+                else {
                     item.parent = {
                         'interface-type': 'class',
                         'interface-name': class_name,
