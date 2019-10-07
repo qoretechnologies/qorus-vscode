@@ -651,6 +651,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                             requestFieldData={requestFieldData}
                                             iface_kind={type}
                                             activeId={activeId}
+                                            interfaceId={interfaceId}
                                             prefill={
                                                 field.prefill &&
                                                 selectedFieldList.find(

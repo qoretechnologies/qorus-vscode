@@ -28,13 +28,14 @@ export interface IField {
     requestFieldData: (fieldName: string, fieldKey: string) => string | null;
 }
 
-const Field: FunctionComponent<IField> = withMessageHandler()(({ type, postMessage, ...rest }) => {
+const Field: FunctionComponent<IField> = withMessageHandler()(({ type, postMessage, interfaceId, ...rest }) => {
     useMount(() => {
         if (rest.value && rest.on_change) {
             // Post the message with this handler
             postMessage(rest.on_change, {
                 [rest.name]: rest.value,
                 iface_kind: type,
+                iface_id: interfaceId,
             });
         }
     });
