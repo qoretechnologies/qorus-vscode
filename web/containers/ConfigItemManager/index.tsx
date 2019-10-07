@@ -193,18 +193,20 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         });
     });
 
-    const handleSubmit: (name: string, value: string, parent?: string, remove?: boolean) => void = (
-        name,
-        value,
-        parent,
-        remove
-    ) => {
+    const handleSubmit: (
+        name: string,
+        value: string,
+        parent: string | null,
+        level: string,
+        remove?: boolean
+    ) => void = (name, value, parent, level, remove) => {
         // Send message that the config item has been updated
         postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
             name,
             value,
             file_name: configItems.file_name,
             remove,
+            level,
             iface_id: interfaceId,
             parent_class: parent,
         });

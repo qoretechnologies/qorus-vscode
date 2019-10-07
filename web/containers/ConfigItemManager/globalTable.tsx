@@ -54,7 +54,7 @@ const WorkflowConfigItemsTable: Function = ({
                                     onClick={() => {
                                         handleModalToggle({
                                             onSubmit: (name, value, parent) => {
-                                                onSubmit(name, value, parent);
+                                                onSubmit(name, value, parent, workflow ? 'workflow' : 'global');
                                                 handleModalToggle(null);
                                             },
                                             globalConfig: globalItems,
@@ -93,7 +93,12 @@ const WorkflowConfigItemsTable: Function = ({
                                                 onClick={() => {
                                                     handleModalToggle({
                                                         onSubmit: (name, value, parent) => {
-                                                            onSubmit(name, value, parent);
+                                                            onSubmit(
+                                                                name,
+                                                                value,
+                                                                parent,
+                                                                workflow ? 'workflow' : 'global'
+                                                            );
                                                             handleModalToggle(null);
                                                         },
                                                         globalConfig: globalItems,
@@ -108,7 +113,13 @@ const WorkflowConfigItemsTable: Function = ({
                                                 title={t('button.remove-this-value')}
                                                 intent="danger"
                                                 onClick={() => {
-                                                    onSubmit(item.name, null, item.parent_class, true);
+                                                    onSubmit(
+                                                        item.name,
+                                                        null,
+                                                        item.parent_class,
+                                                        workflow ? 'workflow' : 'global',
+                                                        true
+                                                    );
                                                 }}
                                             />
                                         </ButtonGroup>
