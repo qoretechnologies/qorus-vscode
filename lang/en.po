@@ -1499,3 +1499,6 @@ msgstr "Unable to find config items file for class ${ class }"
 
 msgid "ManageConfigItems"
 msgstr "Manage config items "
+
+msgid "UnknownConfigItem ${ name }"
+msgstr "Unknown config item '${ name }'"

@@ -115,6 +115,38 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
+    protected static createConfigItemHeaders = (items: any[]): string => {
+        const list_indent = '  - ';
+        const indent = '    ';
+        let result: string = 'config-items:\n';
+
+        for (const item of [...items]) {
+            result += `${list_indent}name: ${item.name}\n`;
+
+            for (const tag of ['local-value', 'global-value', 'workflow-value']) {
+                if (item[tag]) {
+                    result += `${indent}${tag}: ${item[tag]}\n`;
+                }
+            }
+
+            if (item.parent) {
+                result += `${indent}parent:\n`;
+                for (const tag in item.parent) {
+                    result += `${indent}${indent}${tag}: ${item.parent[tag]}\n`;
+                }
+                continue;
+            }
+
+            for (const tag in item) {
+                if (!['name', 'parent', 'local-value', 'global-value', 'workflow-value'].includes(tag)) {
+                    result += `${indent}${tag}: ${item[tag]}\n`;
+                }
+            }
+        }
+
+        return result;
+    }
+
     protected static createHeaders = (headers: any): string => {
         const list_indent = '  - ';
         const indent = '    ';

@@ -3,6 +3,7 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'yamljs';
+import * as shortid from 'shortid';
 import { qore_vscode } from './qore_vscode';
 import { QorusExtension } from './qorus_vscode';
 import { QorusProject } from './QorusProject';
@@ -50,6 +51,7 @@ export class QorusProjectCodeInfo {
     private workflow_classes = {};
     private step_classes = {};
     private config_item_values = {};
+    private iface_by_id = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -66,6 +68,10 @@ export class QorusProjectCodeInfo {
 
     get yaml_info_by_src_file(): any {
         return this.yaml_data_by_src_file;
+    }
+
+    getYamlData(yaml_file: string): any {
+        return this.yaml_data_by_yaml_file[yaml_file];
     }
 
     addText(document: vscode.TextDocument) {
@@ -181,6 +187,32 @@ export class QorusProjectCodeInfo {
 
     baseClassName(class_name: string): string | undefined {
         return this.inheritance_pairs[class_name];
+    }
+
+    addIfaceById = (data: any): string => {
+        const id = shortid.generate();
+        this.iface_by_id[id] = data;
+        return id;
+    }
+
+    ifaceById = (id: string): any => {
+        return this.iface_by_id[id];
+    }
+
+    updateConfigItemValue = ({iface_id, name, value, level, parent_class}) => {
+        this.initIfaceId(iface_id);
+
+        if (parent_class) {
+            this.addClassConfigItems(parent_class, iface_id);
+        }
+
+        this.iface_by_id[iface_id]['config-items'].forEach(item => {
+            if (item.name === name && level) {
+                item[level + '-value'] = value;
+            }
+        });
+
+        this.getConfigItems({iface_id});
     }
 
     getInterfaceData = ({iface_kind, name, include_tabs}) => {
@@ -450,7 +482,7 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
-    private addConfigItemValues = (values: any[]) => {
+    private addConfigItemValues = (values: any[], file: string) => {
         values.forEach(value => {
             if (!value.name || typeof(value.value) === 'undefined' ||
                 !value['interface-type'] || !value['interface-name'] || !value['interface-version'])
@@ -461,13 +493,11 @@ export class QorusProjectCodeInfo {
             if (!this.config_item_values[key]) {
                 this.config_item_values[key] = {};
             }
-            this.config_item_values[key][value.name] = value.value;
+            this.config_item_values[key][value.name] = {
+                value: value.value,
+                file
+            };
         });
-    }
-
-    private getConfigItemValue = ({type, name, version}, config_item: string): any => {
-        const key = [type, name, version].join(':');
-        return this.config_item_values[key][config_item];
     }
 
     addSingleYamlInfo(file: string) {
@@ -480,7 +510,7 @@ export class QorusProjectCodeInfo {
         }
 
         if (parsed_data.type === 'config-item-values') {
-            this.addConfigItemValues(parsed_data['config-item-values'] || []);
+            this.addConfigItemValues(parsed_data['config-item-values'] || [], file);
         }
 
         let yaml_data = {
@@ -639,45 +669,88 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getConfigItems({'base-class-name': base_class_name, orig_data}) {
-        this.waitForPending(['yaml', 'lang_client']).then(() => {
-            const class_src_file = this.class_2_src[base_class_name];
+    private initIfaceId = iface_id => {
+        if (!this.iface_by_id[iface_id]) {
+            this.iface_by_id[iface_id] = {};
+        }
+        if (!this.iface_by_id[iface_id]['config-items']) {
+            this.iface_by_id[iface_id]['config-items'] = [];
+        }
+    }
+
+    addClassConfigItems(class_name, iface_id) {
+        this.initIfaceId(iface_id);
+
+        if (this.iface_by_id[iface_id].base_class_name !== class_name) {
+            this.iface_by_id[iface_id].base_class_name = class_name;
+
+            const class_src_file = this.class_2_src[class_name];
             const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
             if (!class_yaml_data) {
-                msg.log(t`UnableFindYamlForClass ${base_class_name}`);
-                return;
+                msg.log(t`UnableFindYamlForClass ${class_name}`);
             }
 
-            if (!class_yaml_data['yaml_file'] || !class_yaml_data['config-items']) {
-                msg.log(t`UnableFindConfigItemsForClass ${base_class_name}`);
-                return;
+            const version = this.yaml_data_by_class[class_name].version || default_version;
+            (class_yaml_data['config-items'] || []).forEach(item => {
+                if (!this.iface_by_id[iface_id]['config-items']
+                        .filter(cached_item => cached_item.name === item.name).length)
+                {
+                    item.parent = {
+                        'interface-type': 'class',
+                        'interface-name': class_name,
+                        'interface-version': version
+                    }
+                    item.parent_class = class_name;
+                    this.iface_by_id[iface_id]['config-items'].push(item);
+                }
+            });
+        }
+    }
+
+    getConfigItems(params) {
+        const {'base-class-name': base_class_name, iface_id, iface_kind} = params;
+        if (!iface_id) {
+            return;
+        }
+        this.initIfaceId(iface_id);
+
+        this.waitForPending(['yaml', 'lang_client']).then(() => {
+            if (base_class_name) {
+                this.addClassConfigItems(base_class_name, iface_id);
             }
+            const items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
 
-            const config_yaml_file = path.join(path.dirname(class_yaml_data.yaml_file),
-                                               class_yaml_data['config-items']);
-
-            let config_items = [...this.yaml_data_by_yaml_file[config_yaml_file]['config-items']];
-            if (orig_data) {
-                config_items.forEach(config_item => {
-                    config_item.value = this.getConfigItemValue(orig_data, config_item.name);
-                });
-            }
-
-            const addYamlDataTag = (config_item: any): any => {
+            const addOtherTags = (item: any): any => {
                 let yaml_data_tag = {
-                    ... config_item.value ? {value: yaml.stringify(config_item.value)} : {},
-                    ... config_item.default_value ? {default_value: yaml.stringify(config_item.default_value)} : {},
-                    ... config_item.allowed_values
-                        ? {allowed_values: config_item.allowed_values.map(value => yaml.stringify(value))}
+                    ... item.value ? {value: yaml.stringify(item.value)} : {},
+                    ... item.default_value ? {default_value: yaml.stringify(item.default_value)} : {},
+                    ... item.allowed_values
+                        ? {allowed_values: item.allowed_values.map(value => yaml.stringify(value))}
                         : {}
                 };
-                return {...config_item, yamlData: yaml_data_tag};
+                return {...item, yamlData: yaml_data_tag};
             };
+
+            const local_items = (items || []).map(item => addOtherTags(item));
+            const global_items = local_items.filter(item => !item.strictly_local && item.is_set);
+            const workflow_items = (iface_kind === 'step')
+                ? local_items.filter(item => !item.strictly_local)
+                : [];
+
+            const renameValue = (item, prefix) => {
+                const key = prefix + '-value';
+                if (item[key]) {
+                    item.value = item[key];
+                    delete item[key];
+                }
+                return item;
+            }
 
             const message = {
                 action: 'return-config-items',
-                items: (config_items || []).map(config_item => addYamlDataTag(config_item)),
-                file_name: class_yaml_data.yaml_file
+                items: local_items.map(item => renameValue(item, 'local')),
+                global_items: global_items.map(item => renameValue(item, 'global')),
+                workflow_items: workflow_items.map(item => renameValue(item, 'workflow'))
             };
 
             qorus_webview.postMessage(message);

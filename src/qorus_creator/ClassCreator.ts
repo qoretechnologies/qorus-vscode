@@ -8,7 +8,7 @@ import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    editImpl({data, orig_data, edit_type, iface_kind, open_file_on_success}) {
+    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
         let template: any;
         let suffix: string;
         switch (iface_kind) {
@@ -65,11 +65,16 @@ class ClassCreator extends InterfaceCreator {
                 return;
         }
 
-        const headers = ClassCreator.createHeaders({
+        let headers = ClassCreator.createHeaders({
             type: iface_kind,
             ...header_data,
             code: this.file_name
         });
+
+        const iface_data = this.code_info.ifaceById(iface_id);
+        if (iface_data['config-items']) {
+            headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
+        }
 
         this.writeFiles(contents, headers, open_file_on_success);
 

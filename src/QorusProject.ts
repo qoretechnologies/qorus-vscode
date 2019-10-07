@@ -274,7 +274,7 @@ class QorusProjects {
 
     currentProjectCodeInfo(): QorusProjectCodeInfo | undefined {
         const current_project = this.getProject();
-        return current_project ? current_project.code_info : undefined;
+        return current_project && current_project.code_info;
     }
 
     private getProjectFolder(uri?: vscode.Uri, use_current: boolean = true): string | undefined {

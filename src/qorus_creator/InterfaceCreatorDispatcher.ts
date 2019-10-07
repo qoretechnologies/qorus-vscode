@@ -1,3 +1,4 @@
+import { projects } from '../QorusProject';
 import { service_creator } from './ServiceCreator';
 import { class_creator } from './ClassCreator';
 import { serviceFields, service_methods } from './service_constants';
@@ -46,6 +47,11 @@ class InterfaceCreatorDispatcher {
 
     deleteServiceMethod(data: any) {
         service_creator.deleteMethod(data);
+    }
+
+    updateConfigItemValue(data: any) {
+        const code_info = projects.currentProjectCodeInfo();
+        code_info && code_info.updateConfigItemValue(data);
     }
 }
 
