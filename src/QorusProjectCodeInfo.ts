@@ -475,7 +475,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    private stepType = (base_class: string): string | undefined => {
+    stepType = (base_class: string): string | undefined => {
         for (const step_type of root_steps) {
             if (this.step_classes[step_type][base_class]) {
                 return step_type;

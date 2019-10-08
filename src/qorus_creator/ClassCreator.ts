@@ -3,6 +3,7 @@ import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
 import { job_template } from './job_constants';
+import { stepTypeHeaders } from './step_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -32,7 +33,13 @@ class ClassCreator extends InterfaceCreator {
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassCreator'}`);
         }
 
-        const header_data = this.init(data, suffix);
+        let header_data = this.init(data, suffix);
+        if (iface_kind === 'step' && header_data['base-class-name']) {
+            header_data = {
+                ...header_data,
+                ...stepTypeHeaders(this.code_info.stepType(header_data['base-class-name']))
+            };
+        }
 
         let contents: string;
         let message: string;
@@ -72,7 +79,7 @@ class ClassCreator extends InterfaceCreator {
         });
 
         const iface_data = this.code_info.ifaceById(iface_id);
-        if (iface_data && iface_data['config-items']) {
+        if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
             headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
         }
 

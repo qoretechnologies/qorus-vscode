@@ -17,3 +17,17 @@ export const stepFields = params => [
         on_change: 'get-config-items'
     }
 ];
+
+export const stepTypeHeaders = step_type => {
+    switch (step_type) {
+        case 'QorusAsyncStep': return {steptype: 'ASYNC'};
+        case 'QorusEventStep': return {steptype: 'EVENT'};
+        case 'QorusNormalStep': return {steptype: 'NORMAL'};
+        case 'QorusSubworkflowStep': return {steptype: 'SUBWORKFLOW'};
+        case 'QorusAsyncArrayStep': return {steptype: 'ASYNC', arraytype: 'SERIES'};
+        case 'QorusEventArrayStep': return {steptype: 'EVENT', arraytype: 'SERIES'};
+        case 'QorusNormalArrayStep': return {steptype: 'NORMAL', arraytype: 'SERIES'};
+        case 'QorusSubworkflowArrayStep': return  {steptype: 'SUBWORKFLOW', arraytype: 'SERIES'};
+        default: return {};
+    }
+};
