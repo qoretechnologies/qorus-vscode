@@ -59,6 +59,7 @@ export interface IInterfaceCreatorPanel {
     allMethodsData?: any[];
     initialData?: any;
     interfaceId?: string;
+    initialInterfaceId?: string;
     setInterfaceId: (interfaceType: string, id: string) => void;
 }
 
@@ -149,6 +150,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     parent,
     fileName,
     interfaceId,
+    initialInterfaceId,
     setInterfaceId,
 }) => {
     const isInitialMount = useRef(true);
@@ -726,15 +728,27 @@ export default compose(
     withMessageHandler(),
     withFieldsConsumer(),
     withInitialDataConsumer(),
-    mapProps(({ type, fields, selectedFields, query, selectedQuery, activeId, interfaceId, ...rest }) => ({
-        fields: activeId ? fields[type][activeId] : fields[type],
-        selectedFields: activeId ? selectedFields[type][activeId] : selectedFields[type],
-        query: query[type],
-        selectedQuery: selectedQuery[type],
-        allSelectedFields: selectedFields,
-        interfaceId: interfaceId[type],
-        type,
-        activeId,
-        ...rest,
-    }))
+    mapProps(
+        ({
+            type,
+            fields,
+            selectedFields,
+            query,
+            selectedQuery,
+            activeId,
+            interfaceId,
+            initialInterfaceId,
+            ...rest
+        }) => ({
+            fields: activeId ? fields[type][activeId] : fields[type],
+            selectedFields: activeId ? selectedFields[type][activeId] : selectedFields[type],
+            query: query[type],
+            selectedQuery: selectedQuery[type],
+            allSelectedFields: selectedFields,
+            interfaceId: initialInterfaceId || interfaceId[type],
+            type,
+            activeId,
+            ...rest,
+        })
+    )
 )(InterfaceCreatorPanel);

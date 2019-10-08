@@ -245,7 +245,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             fileName={configItems.file_name}
                             parent={type}
                             type={'config-item'}
-                            interfaceId={interfaceId}
+                            initialInterfaceId={interfaceId}
                         />
                     </StyledConfigWrapper>
                 </Dialog>

@@ -118,8 +118,6 @@ export default class ConfigItemsModal extends Component {
       newValue = jsyaml.safeDump(value);
     }
 
-    console.log(this.state.item);
-
     this.props.onSubmit(
       this.state.item.name,
       newValue,
