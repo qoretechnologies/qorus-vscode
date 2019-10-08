@@ -653,40 +653,50 @@ export class QorusProjectCodeInfo {
         }
     }
 
+    private classYamlData = class_name => {
+        const class_src_file = this.class_2_src[class_name];
+        const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
+        if (!class_yaml_data) {
+            msg.log(t`UnableFindYamlForClass ${class_name}`);
+        }
+        return class_yaml_data;
+    }
+
     private addClassConfigItems = (class_name, iface_id) => {
         this.initIfaceId(iface_id);
 
-        if (class_name && this.iface_by_id[iface_id].base_class_name !== class_name) {
-            this.iface_by_id[iface_id].base_class_name = class_name;
-
-            const class_src_file = this.class_2_src[class_name];
-            const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
-            if (!class_yaml_data) {
-                msg.log(t`UnableFindYamlForClass ${class_name}`);
-            }
-
-            const version = this.yaml_data_by_class[class_name].version || default_version;
-
-            (class_yaml_data['config-items'] || []).forEach(item => {
-                const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
-
-                if (index > -1) {
-                    this.iface_by_id[iface_id]['config-items'][index] = {
-                        ... item,
-                        ... this.iface_by_id[iface_id]['config-items'][index]
-                    }
-                }
-                else {
-                    item.parent = {
-                        'interface-type': 'class',
-                        'interface-name': class_name,
-                        'interface-version': version
-                    }
-                    item.parent_class = class_name;
-                    this.iface_by_id[iface_id]['config-items'].push(item);
-                }
-            });
+        if (!class_name || this.iface_by_id[iface_id].base_class_name === class_name) {
+            return;
         }
+
+        this.iface_by_id[iface_id].base_class_name = class_name;
+
+        const class_yaml_data = this.classYamlData(class_name);
+        if (!class_yaml_data) {
+            return;
+        }
+
+        const version = class_yaml_data.version || default_version;
+
+        (class_yaml_data['config-items'] || []).forEach(item => {
+            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
+
+            if (index > -1) {
+                this.iface_by_id[iface_id]['config-items'][index] = {
+                    ... item,
+                    ... this.iface_by_id[iface_id]['config-items'][index]
+                }
+            }
+            else {
+                item.parent = {
+                    'interface-type': 'class',
+                    'interface-name': class_name,
+                    'interface-version': version
+                }
+                item.parent_class = class_name;
+                this.iface_by_id[iface_id]['config-items'].push(item);
+            }
+        });
     }
 
     getConfigItems(params) {
