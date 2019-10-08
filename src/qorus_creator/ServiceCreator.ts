@@ -8,7 +8,7 @@ import * as msg from '../qorus_message';
 
 
 class ServiceCreator extends InterfaceCreator {
-    editImpl({data, orig_data, edit_type, open_file_on_success}) {
+    editImpl({data, orig_data, edit_type, iface_id, open_file_on_success}) {
         if (!data.methods || !data.methods.length) {
             data.methods = [{
                 name: 'init',
@@ -71,12 +71,17 @@ class ServiceCreator extends InterfaceCreator {
                 return;
         }
 
-        const headers = ServiceCreator.createHeaders({
+        let headers = ServiceCreator.createHeaders({
             type: 'service',
             ...header_data,
             servicetype: 'USER',
             code: this.file_name
         });
+
+        const iface_data = this.code_info.ifaceById(iface_id);
+        if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
+            headers += ServiceCreator.createConfigItemHeaders(iface_data['config-items']);
+        }
 
         this.writeFiles(contents, headers + ServiceCreator.createMethodHeaders(data.methods), open_file_on_success);
 

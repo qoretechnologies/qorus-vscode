@@ -34,6 +34,7 @@ class ClassCreator extends InterfaceCreator {
         }
 
         let header_data = this.init(data, suffix);
+
         if (iface_kind === 'step' && header_data['base-class-name']) {
             header_data = {
                 ...header_data,
