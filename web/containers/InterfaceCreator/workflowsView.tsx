@@ -151,7 +151,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                             if (isArray(step)) {
                                                                 result.push(processSteps(step));
                                                             } else {
-                                                                result.push(stepsData[step].name);
+                                                                result.push(
+                                                                    `${stepsData[step].name}:${stepsData[step].version}`
+                                                                );
                                                             }
                                                         });
 
