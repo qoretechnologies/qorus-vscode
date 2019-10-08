@@ -418,7 +418,7 @@ export class QorusProjectCodeInfo {
     }
 
     static isRootBaseClass = base_class_name =>
-        [ ...root_steps, root_service, root_job, root_workflow ].includes(base_class_name);
+        [ ...root_steps, root_service, root_job, root_workflow ].includes(base_class_name)
 
     update(info_list: string[] = info_keys, is_initial_update: boolean = false) {
         this.project.validateConfigFileAndDo(file_data => {
@@ -669,12 +669,12 @@ export class QorusProjectCodeInfo {
             return;
         }
 
-        this.iface_by_id[iface_id].base_class_name = class_name;
-
         const class_yaml_data = this.classYamlData(class_name);
         if (!class_yaml_data) {
             return;
         }
+
+        this.iface_by_id[iface_id].base_class_name = class_name;
 
         const version = class_yaml_data.version || default_version;
 
@@ -685,14 +685,14 @@ export class QorusProjectCodeInfo {
                 this.iface_by_id[iface_id]['config-items'][index] = {
                     ... item,
                     ... this.iface_by_id[iface_id]['config-items'][index]
-                }
+                };
             }
             else {
                 item.parent = {
                     'interface-type': 'class',
                     'interface-name': class_name,
-                    'interface-version': version
-                }
+                    'interface-version': parseFloat(version) == version ? `"${version}"` : version
+                };
                 item.parent_class = class_name;
                 this.iface_by_id[iface_id]['config-items'].push(item);
             }
