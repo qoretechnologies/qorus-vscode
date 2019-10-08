@@ -42,6 +42,7 @@ class QorusDeploy {
             msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
             return;
         }
+
         this.deployFileAndPairFile(uri);
     }
 
@@ -51,12 +52,13 @@ class QorusDeploy {
         const code_info = project && project.code_info;
         const pair_file_path = code_info.pairFile(file_path);
 
-        if (!pair_file_path) {
-            msg.error(t`UnableFindPairFile ${file_path}`);
-            return;
+        if (pair_file_path) {
+            this.doDeploy([file_path, pair_file_path]);
+        }
+        else {
+            this.doDeploy([file_path]);
         }
 
-        this.doDeploy([file_path, pair_file_path]);
     }
 
     deployDir(uri: vscode.Uri) {

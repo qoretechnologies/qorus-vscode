@@ -232,10 +232,16 @@ export class QorusProjectCodeInfo {
     }
 
     pairFile = (file: string): string | undefined => {
-        if (hasSuffix(file, 'yaml')) {
+        if (!hasSuffix(file, 'yaml')) {
+            return this.yaml_data_by_src_file[file] && this.yaml_data_by_src_file[file].yaml_file;
+        }
+
+        const yaml_data = this.yaml_data_by_yaml_file[file] || {};
+        if(['service', 'job', 'workflow', 'step', 'class', 'constant', 'function'].includes(yaml_data.type))
+        {
             return this.yaml_2_src[file];
         }
-        return this.yaml_data_by_src_file[file] && this.yaml_data_by_src_file[file].yaml_file;
+        return undefined;
     }
 
     stepData = (step_structure: any[]): any => {
