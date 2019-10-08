@@ -153,7 +153,7 @@ export abstract class InterfaceCreator {
         let result: string = '';
 
         const base_class_name = headers['base-class-name'];
-        if (base_class_name) {
+        if (base_class_name && !QorusProjectCodeInfo.isRootBaseClass(base_class_name)) {
             headers.classes = headers.classes || [];
             if (!headers.classes.some(item => item.name === base_class_name)) {
                 headers.classes.unshift({name: base_class_name});

@@ -417,6 +417,9 @@ export class QorusProjectCodeInfo {
         msg.log(update + ': ' + ' '.repeat(45 - update.length) + (is_pending ? t`pending` : t`finished`));
     }
 
+    static isRootBaseClass = base_class_name =>
+        [ ...root_steps, root_service, root_job, root_workflow ].includes(base_class_name);
+
     update(info_list: string[] = info_keys, is_initial_update: boolean = false) {
         this.project.validateConfigFileAndDo(file_data => {
             if (file_data.source_directories.length === 0) {
