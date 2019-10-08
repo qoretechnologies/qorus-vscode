@@ -662,6 +662,26 @@ export class QorusProjectCodeInfo {
         return class_yaml_data;
     }
 
+    private configItemInheritedData = raw_item => {
+        if (!raw_item.parent) {
+            return raw_item;
+        }
+
+        const parent_name = raw_item.parent['interface-name'];
+        const parent_data = this.classYamlData(parent_name);
+        if (!parent_data) {
+            return raw_item;
+        }
+
+        const index = (parent_data['config-items'] || []).findIndex(item => item.name === raw_item.name);
+        if (index === -1) {
+            msg.error(t`ParentDoesNotHaveConfigItem ${parent_name} ${raw_item.name}`);
+            return raw_item;
+        }
+
+        return this.configItemInheritedData(parent_data['config-items'][index]);
+    }
+
     private addClassConfigItems = (class_name, iface_id) => {
         this.initIfaceId(iface_id);
 
@@ -678,8 +698,10 @@ export class QorusProjectCodeInfo {
 
         const version = class_yaml_data.version || default_version;
 
-        (class_yaml_data['config-items'] || []).forEach(item => {
-            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
+        (class_yaml_data['config-items'] || []).forEach(raw_item => {
+            let item = this.configItemInheritedData(raw_item);
+
+            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === raw_item.name);
 
             if (index > -1) {
                 this.iface_by_id[iface_id]['config-items'][index] = {

@@ -1526,3 +1526,6 @@ msgstr "Config item editor "
 
 msgid "UnknownConfigItem ${ name }"
 msgstr "Unknown config item '${ name }'"
+
+msgid "ParentDoesNotHaveConfigItem ${ parent } ${ item }"
+msgstr "Parent ${ parent } does not have config item ${ item }"
