@@ -122,7 +122,13 @@ export interface IServicesView {
     service: any;
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, removeMethodFromFields, service }) => {
+const ServicesView: FunctionComponent<IServicesView> = ({
+    t,
+    isMethodValid,
+    removeMethodFromFields,
+    service,
+    interfaceId,
+}) => {
     return (
         <MethodsContext.Consumer>
             {({
@@ -216,6 +222,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({ t, isMethodValid, remo
                                         setActiveMethod(null);
                                         setShowMethods(false);
                                     }}
+                                    initialInterfaceId={service ? service.interfaceId : interfaceId.service}
                                     type={'service-methods'}
                                     activeId={activeMethod}
                                     isEditing={!!service}
