@@ -1141,6 +1141,27 @@ msgstr "Read"
 msgid "field-label-write"
 msgstr "Write"
 
+msgid "field-label-string"
+msgstr "string"
+
+msgid "field-label-int"
+msgstr "int"
+
+msgid "field-label-bool"
+msgstr "bool"
+
+msgid "field-label-float"
+msgstr "float"
+
+msgid "field-label-date"
+msgstr "date"
+
+msgid "field-label-hash"
+msgstr "hash"
+
+msgid "field-label-list"
+msgstr "list"
+
 msgid "ConfigFileDoesNotExist"
 msgstr "Config file does not exist"
 
@@ -1499,6 +1520,9 @@ msgstr "Unable to find config items file for class ${ class }"
 
 msgid "ManageConfigItems"
 msgstr "Manage config items "
+
+msgid "ConfigItemEditor"
+msgstr "Config item editor "
 
 msgid "UnknownConfigItem ${ name }"
 msgstr "Unknown config item '${ name }'"
