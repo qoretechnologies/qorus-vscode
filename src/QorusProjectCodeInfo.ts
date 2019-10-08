@@ -714,9 +714,10 @@ export class QorusProjectCodeInfo {
             };
 
             const local_items = (items || []).map(item => addOtherTags(item));
-            const global_items = local_items.filter(item => !item.strictly_local && item.is_set);
+            const global_items = local_items.filter(item => !item.strictly_local)
+                                            .map(item => ({...item, is_set: true}));
             const workflow_items = (iface_kind === 'step')
-                ? local_items.filter(item => !item.strictly_local)
+                ? local_items.filter(item => !item.strictly_local).map(item => ({...item, is_set: true}))
                 : [];
 
             const renameValue = (item, prefix) => {
