@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'yamljs';
+import * as jsyaml from 'js-yaml';
 import * as shortid from 'shortid';
 import { qore_vscode } from './qore_vscode';
 import { QorusExtension } from './qorus_vscode';
@@ -487,7 +487,7 @@ export class QorusProjectCodeInfo {
     addSingleYamlInfo(file: string) {
         let parsed_data: any;
         try {
-            parsed_data = yaml.load(file);
+            parsed_data = jsyaml.safeLoad(fs.readFileSync(file));
         } catch (error) {
             msg.debug({file, error});
             return;
@@ -501,14 +501,6 @@ export class QorusProjectCodeInfo {
         yaml_data.target_file = yaml_data.code;
 
         this.yaml_data_by_yaml_file[file] = yaml_data;
-
-        if (yaml_data.steps) {
-            try {
-                yaml_data.steps = JSON.parse(yaml_data.steps);
-            } catch (error) {
-                msg.debug({file, error});
-            }
-        }
 
         if (yaml_data.code) {
             const src = path.join(path.dirname(file), yaml_data.code);
@@ -709,10 +701,10 @@ export class QorusProjectCodeInfo {
 
             const addOtherTags = (item: any): any => {
                 let yaml_data_tag = {
-                    ... item.value ? {value: yaml.stringify(item.value)} : {},
-                    ... item.default_value ? {default_value: yaml.stringify(item.default_value)} : {},
+                    ... item.value ? {value: jsyaml.safeDump(item.value)} : {},
+                    ... item.default_value ? {default_value: jsyaml.safeDump(item.default_value)} : {},
                     ... item.allowed_values
-                        ? {allowed_values: item.allowed_values.map(value => yaml.stringify(value))}
+                        ? {allowed_values: item.allowed_values.map(value => jsyaml.safeDump(value))}
                         : {}
                 };
                 return {...item, yamlData: yaml_data_tag};

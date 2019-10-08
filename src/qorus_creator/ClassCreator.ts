@@ -72,7 +72,7 @@ class ClassCreator extends InterfaceCreator {
         });
 
         const iface_data = this.code_info.ifaceById(iface_id);
-        if (iface_data['config-items']) {
+        if (iface_data && iface_data['config-items']) {
             headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
         }
 

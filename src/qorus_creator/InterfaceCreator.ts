@@ -168,7 +168,7 @@ export abstract class InterfaceCreator {
             }
 
             if (Array.isArray(value)) {
-                result += tag === 'steps' ? `${tag}: >-\n` : `${tag}:\n`;
+                result += `${tag}:\n`;
                 switch (tag) {
                     case 'groups':
                         for (let item of value) {
