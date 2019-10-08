@@ -241,7 +241,12 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                     onClose={() => setShowConfigItemPanel(false)}
                 >
                     <StyledConfigWrapper>
-                        <InterfaceCreatorPanel fileName={configItems.file_name} parent={type} type={'config-item'} />
+                        <InterfaceCreatorPanel
+                            fileName={configItems.file_name}
+                            parent={type}
+                            type={'config-item'}
+                            interfaceId={interfaceId}
+                        />
                     </StyledConfigWrapper>
                 </Dialog>
             )}
