@@ -140,7 +140,7 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (!['name', 'type', 'parent', 'local-value', 'global-value', 'workflow-value'].includes(tag)) {
+                if (!['name', 'type', 'parent', 'value', 'local-value', 'global-value', 'workflow-value'].includes(tag)) {
                     result += `${indent}${tag}: ${item[tag]}\n`;
                 }
             }

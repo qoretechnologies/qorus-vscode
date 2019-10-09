@@ -209,6 +209,14 @@ export class QorusProjectCodeInfo {
         }
 
         this.iface_by_id[iface_id]['config-items'].forEach(item => {
+
+            const non_star_type = item.type[0] === '*' ? item.type.substr(1) : item.type;
+            switch (non_star_type) {
+                case 'int': value = parseInt(value); break;
+                case 'float': value = parseFloat(value); break;
+                case 'bool': value = JSON.parse(value); break;
+            }
+
             if (item.name === name && level) {
                 item[level + '-value'] = value;
             }
@@ -762,7 +770,14 @@ export class QorusProjectCodeInfo {
             }
             const items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
 
-            const addOtherTags = (item: any): any => {
+            const fixTags = (item: any): any => {
+                for (const level of ['global', 'workflow', 'local']) {
+                    const key = level + '-value';
+                    if (item[key]) {
+                        item.value = item[key];
+                    }
+                }
+
                 let yaml_data_tag = {
                     ... item.value ? {value: jsyaml.safeDump(item.value)} : {},
                     ... item.default_value ? {default_value: jsyaml.safeDump(item.default_value)} : {},
@@ -770,30 +785,23 @@ export class QorusProjectCodeInfo {
                         ? {allowed_values: item.allowed_values.map(value => jsyaml.safeDump(value))}
                         : {}
                 };
+
                 return {...item, yamlData: yaml_data_tag};
             };
 
-            const local_items = (items || []).map(item => addOtherTags(item));
+
+            const local_items = (items || []).map(item => fixTags(item));
             const global_items = local_items.filter(item => !item.strictly_local)
                                             .map(item => ({...item, is_set: true}));
             const workflow_items = (iface_kind === 'step')
                 ? local_items.filter(item => !item.strictly_local).map(item => ({...item, is_set: true}))
                 : [];
 
-            const renameValue = (item, prefix) => {
-                const key = prefix + '-value';
-                if (item[key]) {
-                    item.value = item[key];
-                    delete item[key];
-                }
-                return item;
-            }
-
             const message = {
                 action: 'return-config-items',
-                items: local_items.map(item => renameValue(item, 'local')),
-                global_items: global_items.map(item => renameValue(item, 'global')),
-                workflow_items: workflow_items.map(item => renameValue(item, 'workflow'))
+                items: local_items,
+                global_items,
+                workflow_items
             };
 
             qorus_webview.postMessage(message);
