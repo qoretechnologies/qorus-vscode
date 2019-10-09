@@ -32,7 +32,7 @@ const StyledInfo = styled.p`
     display: inline-block;
     line-height: 20px;
     margin: 0;
-    font-family: 'NeoLight';
+    font-family: 'Arial';
     font-size: 18px;
     padding: 0 10px;
     font-weight: bold;
@@ -49,14 +49,6 @@ const StyledInfo = styled.p`
         border-right: 1px solid #474c57;
     }
 `;
-
-const Tabs = {
-    Login: 'log-in',
-    ProjectConfig: 'cog',
-    ReleasePackage: 'cube',
-    DeleteInterfaces: 'trash',
-    CreateInterface: 'draw',
-};
 
 export interface IApp {
     addMessageListener: TMessageListener;

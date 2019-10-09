@@ -201,7 +201,7 @@ ItemsTable = compose(
 
 export default compose(
     withState('modalData', 'toggleModalData', null),
-    withState('isGrouped', 'setIsGrouped', null),
+    withState('isGrouped', 'setIsGrouped', true),
     withHandlers({
         handleModalToggle: ({ toggleModalData }) => (item, onSubmit, intrf, levelType) => {
             toggleModalData(value =>
