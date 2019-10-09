@@ -1087,6 +1087,12 @@ msgstr "Type"
 msgid "field-desc-type"
 msgstr "The type of the configuration item"
 
+msgid "field-label-can_be_undefined"
+msgstr "Can be undefined"
+
+msgid "field-desc-can_be_undefined"
+msgstr "Can the value of the configuration item be undefined?"
+
 msgid "field-label-default_value"
 msgstr "Default value"
 

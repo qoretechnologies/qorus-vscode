@@ -20,6 +20,11 @@ export const config_item_fields = [
         default_value: 'string'
     },
     {
+        name: 'can_be_undefined',
+        type: 'boolean',
+        default_value: false,
+    },
+    {
         name: 'default_value',
         mandatory: false,
         type: 'auto',

@@ -123,6 +123,8 @@ export abstract class InterfaceCreator {
         for (const item of [...items]) {
             result += `${list_indent}name: ${item.name}\n`;
 
+            result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+
             for (const tag of ['local-value', 'global-value', 'workflow-value']) {
                 if (item[tag]) {
                     result += `${indent}${tag}: ${item[tag]}\n`;
@@ -138,7 +140,7 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (!['name', 'parent', 'local-value', 'global-value', 'workflow-value'].includes(tag)) {
+                if (!['name', 'type', 'parent', 'local-value', 'global-value', 'workflow-value'].includes(tag)) {
                     result += `${indent}${tag}: ${item[tag]}\n`;
                 }
             }

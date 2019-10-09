@@ -42,16 +42,20 @@ class InterfaceCreatorDispatcher {
             case 'step':
                 class_creator.edit(params);
                 break;
+            case 'config-item':
+                const code_info = projects.currentProjectCodeInfo();
+                code_info && code_info.updateConfigItem(params);
+                break;
         }
     }
 
-    deleteServiceMethod(data: any) {
-        service_creator.deleteMethod(data);
+    deleteServiceMethod(params: any) {
+        service_creator.deleteMethod(params);
     }
 
-    updateConfigItemValue(data: any) {
+    updateConfigItemValue(params: any) {
         const code_info = projects.currentProjectCodeInfo();
-        code_info && code_info.updateConfigItemValue(data);
+        code_info && code_info.updateConfigItemValue(params);
     }
 }
 

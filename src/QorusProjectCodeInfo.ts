@@ -688,6 +688,28 @@ export class QorusProjectCodeInfo {
         return this.configItemInheritedData(parent_data['config-items'][index]);
     }
 
+    updateConfigItem = ({iface_id, data: item}) => {
+        this.initIfaceId(iface_id);
+
+        if (item.can_be_undefined && item.type) {
+            item.type = '*' + item.type
+        }
+        delete item.can_be_undefined;
+
+        const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
+        if (index > -1) {
+            this.iface_by_id[iface_id]['config-items'][index] = {
+                ... item ,
+                ... this.iface_by_id[iface_id]['config-items'][index]
+            };
+        }
+        else {
+            this.iface_by_id[iface_id]['config-items'].push(item);
+        }
+
+        this.getConfigItems({iface_id});
+    }
+
     private addClassConfigItems = (class_name, iface_id) => {
         this.initIfaceId(iface_id);
 
