@@ -246,6 +246,10 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             parent={type}
                             type={'config-item'}
                             initialInterfaceId={interfaceId}
+                            onSubmit={() => {
+                                setShowConfigItemPanel(false);
+                            }}
+                            forceSubmit
                         />
                     </StyledConfigWrapper>
                 </Dialog>
