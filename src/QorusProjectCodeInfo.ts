@@ -705,7 +705,7 @@ export class QorusProjectCodeInfo {
         const version = class_yaml_data.version || default_version;
 
         (class_yaml_data['config-items'] || []).forEach(raw_item => {
-            let item = this.configItemInheritedData(raw_item);
+            let item = { ...this.configItemInheritedData(raw_item) };
 
             const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === raw_item.name);
 
