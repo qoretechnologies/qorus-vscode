@@ -179,11 +179,20 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     interfaceId,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
+    const [configItemData, setConfigItemData] = useState<boolean>(false);
     const [configItems, setConfigItems] = useState<any>({});
 
     useEffectOnce(() => {
         addMessageListener(Messages.RETURN_CONFIG_ITEMS, data => {
             setConfigItems(data);
+        });
+        // Listen for config items data request
+        // and open the fields editing
+        addMessageListener(Messages.RETURN_INTERFACE_DATA, data => {
+            if (data.iface_id === interfaceId && data.iface_kind === type) {
+                setShowConfigItemPanel(true);
+                setConfigItemData(data);
+            }
         });
         // Ask for the config items
         postMessage(Messages.GET_CONFIG_ITEMS, {
@@ -212,6 +221,15 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         });
     };
 
+    const handleEditStructureClick: (configItemName: string) => void = configItemName => {
+        // Request the config item data
+        postMessage(Messages.GET_INTERFACE_DATA, {
+            iface_id: interfaceId,
+            iface_kind: type,
+            name: configItemName,
+        });
+    };
+
     return (
         <>
             <StyledConfigManagerWrapper>
@@ -228,6 +246,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             configItems={{
                                 data: configItems.items,
                             }}
+                            onEditStructureClick={handleEditStructureClick}
                             onSubmit={handleSubmit}
                         />
                     ) : null}
@@ -246,6 +265,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             parent={type}
                             type={'config-item'}
                             initialInterfaceId={interfaceId}
+                            data={configItemData}
+                            isEditing={!!configItemData}
                             onSubmit={() => {
                                 setShowConfigItemPanel(false);
                             }}

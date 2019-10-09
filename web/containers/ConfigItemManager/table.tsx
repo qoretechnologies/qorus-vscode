@@ -69,6 +69,7 @@ let ItemsTable: Function = ({
     groupName,
     handleModalToggle,
     handleGroupedToggle,
+    onEditStructureClick,
     t,
 }: ConfigItemsTableProps) => (
     <React.Fragment>
@@ -111,6 +112,7 @@ let ItemsTable: Function = ({
                     <Th>{t('Level')}</Th>
                     {!title && <Th name="config_group">{t('Group')}</Th>}
                     <Th iconName="code" />
+                    <Th iconName="edit">{t('Structure')}</Th>
                 </FixedRow>
             </Thead>
             <DataOrEmptyTable condition={!configItemsData || configItemsData.length === 0} cols={7} small>
@@ -172,10 +174,22 @@ let ItemsTable: Function = ({
                                     <Td className="medium">{item.level}</Td>
                                     {!title && <Td className="medium">{item.config_group}</Td>}
                                     <Td className="narrow">{`<${item.type}/>`}</Td>
+                                    <ActionColumn>
+                                        <ButtonGroup>
+                                            <Button
+                                                small
+                                                icon="edit"
+                                                title={t('button.edit-this-config-item')}
+                                                onClick={() => {
+                                                    onEditStructureClick(item.name);
+                                                }}
+                                            />
+                                        </ButtonGroup>
+                                    </ActionColumn>
                                 </Tr>
                                 {showDescription && (
                                     <Tr>
-                                        <Td className="text" colspan={groupName ? 6 : 7}>
+                                        <Td className="text" colspan={groupName ? 7 : 8}>
                                             {item.description}
                                         </Td>
                                     </Tr>
