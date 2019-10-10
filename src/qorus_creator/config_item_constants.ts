@@ -1,3 +1,5 @@
+export const default_config_item_type = 'string';
+
 export const config_item_fields = [
     {
         name: 'name',
@@ -17,7 +19,7 @@ export const config_item_fields = [
             { value: 'hash' },
             { value: 'list' }
         ],
-        default_value: 'string'
+        default_value: default_config_item_type
     },
     {
         name: 'can_be_undefined',

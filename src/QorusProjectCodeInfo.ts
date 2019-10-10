@@ -9,6 +9,7 @@ import { QorusExtension } from './qorus_vscode';
 import { QorusProject } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
+import { default_config_item_type } from './qorus_creator/config_item_constants';
 import { QoreTextDocument, qoreTextDocument, loc2range } from './QoreTextDocument';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
@@ -777,6 +778,8 @@ export class QorusProjectCodeInfo {
                         item.value = item[key];
                     }
                 }
+
+                item.type = item.type || default_config_item_type;
 
                 let yaml_data_tag = {
                     ... item.value ? {value: jsyaml.safeDump(item.value)} : {},
