@@ -18,7 +18,7 @@ import withSteps from './hocomponents/withSteps';
 import Menu from './components/Menu';
 import { MENU } from './constants/menu';
 import { LoginContainer } from './login/Login';
-import { ProjectConfigContainer } from './project_config/ProjectConfig';
+import ProjectConfig, { ProjectConfigContainer } from './project_config/ProjectConfig';
 
 const StyledApp = styled.div`
     display: flex;
@@ -158,7 +158,7 @@ const App: FunctionComponent<IApp> = ({
                     {tab !== 'Login' && <Menu menu={MENU} />}
                     <>
                         {tab == 'Login' && <LoginContainer />}
-                        {tab == 'ProjectConfig' && <ProjectConfigContainer />}
+                        {tab == 'ProjectConfig' && <ProjectConfig />}
                         {tab == 'ReleasePackage' && <ReleasePackage />}
                         {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
                         {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}

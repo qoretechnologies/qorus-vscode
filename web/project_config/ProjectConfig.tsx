@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, FunctionComponent, useState } from 'react';
 import { connect } from 'react-redux';
 import { Intent, Radio, RadioGroup, Tabs, Tab } from '@blueprintjs/core';
 import { Envs } from './Environments';
@@ -11,8 +11,182 @@ import Box from '../components/Box';
 import compose from 'recompose/compose';
 import withTextContext from '../hocomponents/withTextContext';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
+import useEffectOnce from 'react-use/lib/useEffectOnce';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../hocomponents/withMessageHandler';
+import { TTranslator } from '../App';
+import { Messages } from '../constants/messages';
+import styled from 'styled-components';
+import map from 'lodash/map';
+import EnvironmentPanel from './environment';
+import Add from './add';
 
-class ProjectConfig extends Component {
+export interface IProject {
+    addMessageListener: TMessageListener;
+    postMessage: TPostMessage;
+    t: TTranslator;
+    initialData: {
+        path: string;
+    };
+}
+
+export interface IQorusInstance {
+    id: number;
+    name: string;
+    url: string;
+    urls: string[];
+}
+
+export interface IEnvironment {
+    id: number;
+    name: string;
+    qoruses: IQorusInstance[];
+}
+
+export interface IProjectData {
+    qorus_instances: IEnvironment[];
+    source_directories: string[];
+}
+
+const StyledProjectWrapper = styled.div`
+    display: flex;
+    flex-flow: column;
+    flex: 1 1 auto;
+    overflow: hidden auto;
+    padding: 10px;
+`;
+
+const StyledMasonryWrapper = styled.div`
+    column-count: 2;
+    column-gap: 10px;
+`;
+
+const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage, initialData }) => {
+    const [projectData, setProjectData] = useState<IProjectData>(null);
+    const [activeInstance, setActiveInstance] = useState<{ name: string; url: string } | null>(null);
+
+    useEffectOnce(() => {
+        addMessageListener(Messages.CONFIG_RETURN_DATA, ({ data }) => {
+            console.log(data);
+            setProjectData(data);
+        });
+
+        addMessageListener(Messages.SET_QORUS_INSTANCE, ({ qorus_instance }) => {
+            setActiveInstance(qorus_instance);
+        });
+
+        postMessage(Messages.CONFIG_GET_DATA);
+    });
+
+    const isEnvironmentActive: (qoruses: IQorusInstance[]) => boolean = qoruses => {
+        // Check if there is any active instance
+        if (!activeInstance) {
+            return false;
+        }
+        // Return true if there is an instance with the same name
+        return !!qoruses.find((qorus: IQorusInstance) => qorus.name === activeInstance.name);
+    };
+
+    const handleEnvironmentNameChange: (id: number, newName: string) => void = (id, newName) => {
+        // Change the name of the environment
+        setProjectData(
+            (current: IProjectData): IProjectData => {
+                // Create new instance
+                const newData: IProjectData = { ...current };
+                // Change the name
+                newData.qorus_instances = newData.qorus_instances.reduce(
+                    (newEnvs: IEnvironment[], qorusEnv: IEnvironment): IEnvironment[] => {
+                        // Create new instance
+                        const newInstance: IEnvironment = { ...qorusEnv };
+                        // Check if the id matches
+                        if (id === qorusEnv.id) {
+                            // Change the name
+                            newInstance.name = newName;
+                        }
+                        // Return new data
+                        return [...newEnvs, newInstance];
+                    },
+                    []
+                );
+                // Update backend data
+                updateBackendData(newData);
+                // Update local state
+                return newData;
+            }
+        );
+    };
+
+    const handleEnvironmentDelete: (id: number) => void = id => {
+        // Filter the deleted instance
+        setProjectData(
+            (current: IProjectData): IProjectData => {
+                // Create new instance
+                const newData: IProjectData = { ...current };
+                // Filter the deleted instance
+                newData.qorus_instances = newData.qorus_instances.filter((env: IEnvironment) => env.id !== id);
+                // Update backend data
+                updateBackendData(newData);
+                // Update local state
+                return newData;
+            }
+        );
+    };
+
+    const handleEnvironmentAdd: (name: string) => void = name => {
+        // Filter the deleted instance
+        setProjectData(
+            (current: IProjectData): IProjectData => {
+                // Create new instance
+                const newData: IProjectData = { ...current };
+                // Filter the deleted instance
+                newData.qorus_instances.push({
+                    id: newData.qorus_instances.length,
+                    name,
+                    qoruses: [],
+                });
+                // Update backend data
+                updateBackendData(newData);
+                // Update local state
+                return newData;
+            }
+        );
+    };
+
+    const updateBackendData: (data: IProjectData) => void = data => {
+        // Update the data on the backend
+        postMessage(Messages.CONFIG_UPDATE_DATA, {
+            data,
+        });
+    };
+
+    if (!projectData) {
+        return <p>Loading...</p>;
+    }
+
+    return (
+        <StyledProjectWrapper>
+            <Add onSubmit={handleEnvironmentAdd} />
+            <StyledMasonryWrapper>
+                {map(projectData.qorus_instances, data => (
+                    <EnvironmentPanel
+                        {...data}
+                        path={initialData.path}
+                        active={isEnvironmentActive(data.qoruses)}
+                        onEnvironmentNameChange={handleEnvironmentNameChange}
+                        onEnvironmentDeleteClick={handleEnvironmentDelete}
+                    />
+                ))}
+            </StyledMasonryWrapper>
+        </StyledProjectWrapper>
+    );
+};
+
+export default compose(
+    withTextContext(),
+    withMessageHandler(),
+    withInitialDataConsumer()
+)(Project);
+
+/*class ProjectConfig extends Component {
     constructor() {
         super();
 
@@ -305,11 +479,11 @@ const mapDispatchToProps = dispatch => ({
     setConfigChangedMsgOpen: open => dispatch({ type: 'config_changed_msg_open', open }),
 });
 
-export const ProjectConfigContainer = compose(
+export default compose(
     connect(
         mapStateToProps,
         mapDispatchToProps
     ),
     withTextContext(),
     withInitialDataConsumer()
-)(ProjectConfig);
+)(ProjectConfig);*/

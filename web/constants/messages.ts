@@ -20,4 +20,7 @@ export const Messages: { [key: string]: string } = {
     GET_CONFIG_ITEMS: 'get-config-items',
     RETURN_CONFIG_ITEMS: 'return-config-items',
     UPDATE_CONFIG_ITEM_VALUE: 'update-config-item-value',
+    CONFIG_RETURN_DATA: 'config-return-data',
+    CONFIG_GET_DATA: 'config-get-data',
+    CONFIG_UPDATE_DATA: 'config-update-data',
 };

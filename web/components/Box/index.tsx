@@ -14,6 +14,7 @@ const StyledBox = styled.div`
     background-color: #fff;
     border-radius: 7px;
     padding: 10px 15px;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
     ${props =>
         props.fill
             ? css`
@@ -21,7 +22,7 @@ const StyledBox = styled.div`
               `
             : css`
                   height: auto;
-              `}
+              `};
 `;
 
 const StyledBoxContent = styled.div`
