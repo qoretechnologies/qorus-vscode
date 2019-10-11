@@ -191,6 +191,12 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         // Listen for config items data request
         // and open the fields editing
         addMessageListener(Messages.RETURN_CONFIG_ITEM, ({ item }) => {
+            // Transform the type of the CI
+            if (item.type.startsWith('*')) {
+                item.type = item.type.replace('*', '');
+                item.can_be_undefined = true;
+            }
+            // Set the config data
             setConfigItemData(item);
         });
         // Ask for the config items
