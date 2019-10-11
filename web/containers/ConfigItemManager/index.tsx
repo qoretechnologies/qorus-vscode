@@ -11,6 +11,7 @@ import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomp
 import { Messages } from '../../constants/messages';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import { FieldName } from '../../components/FieldSelector';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
 export interface IConfigItemManager {
     t: TTranslator;
@@ -177,6 +178,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     postMessage,
     addMessageListener,
     interfaceId,
+    resetFields,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<boolean>(false);
@@ -262,7 +264,11 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                     isOpen
                     title={t('ConfigItemEditor')}
                     style={{ width: '80vw', height: '80vh', backgroundColor: '#fff' }}
-                    onClose={() => setShowConfigItemPanel(false)}
+                    onClose={() => {
+                        resetFields('config-item');
+                        setConfigItemData(null);
+                        setShowConfigItemPanel(false);
+                    }}
                 >
                     <StyledConfigWrapper>
                         <InterfaceCreatorPanel
@@ -273,6 +279,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             data={configItemData}
                             isEditing={!!configItemData}
                             onSubmit={() => {
+                                resetFields('config-item');
+                                setConfigItemData(null);
                                 setShowConfigItemPanel(false);
                             }}
                             forceSubmit
@@ -286,5 +294,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
 export default compose(
     withTextContext(),
-    withMessageHandler()
+    withMessageHandler(),
+    withFieldsConsumer()
 )(ConfigItemManager);

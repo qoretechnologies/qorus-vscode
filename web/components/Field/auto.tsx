@@ -20,6 +20,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     ...rest
 }) => {
     const [currentType, setType] = useState<string>(null);
+    const [isInitialType, setIsInitialType] = useState<boolean>(true);
 
     useMount(() => {
         // Set the default value
@@ -42,8 +43,19 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
 
     // Reset the value when type changes
     useEffect(() => {
-        // Reset the value
-        onChange(name, null);
+        // Check if there is actually any type
+        if (currentType) {
+            // Is this the first time the type is set
+            if (isInitialType) {
+                // Reset the value
+                onChange(name, value);
+                // Set the initial type was set
+                setIsInitialType(false);
+            } else {
+                // Reset the value
+                onChange(name, null);
+            }
+        }
     }, [currentType]);
 
     const handleChange: (name: string, value: any) => void = (name, value) => {
