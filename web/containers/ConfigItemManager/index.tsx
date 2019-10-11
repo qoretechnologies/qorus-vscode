@@ -200,7 +200,11 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     });
 
     useEffect(() => {
-        setShowConfigItemPanel(true);
+        // Check if there are any data
+        if (configItemData) {
+            // Open the config item panel
+            setShowConfigItemPanel(true);
+        }
     }, [configItemData]);
 
     const handleSubmit: (
