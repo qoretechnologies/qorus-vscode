@@ -188,11 +188,9 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         });
         // Listen for config items data request
         // and open the fields editing
-        addMessageListener(Messages.RETURN_INTERFACE_DATA, data => {
-            if (data.iface_id === interfaceId && data.iface_kind === type) {
-                setShowConfigItemPanel(true);
-                setConfigItemData(data);
-            }
+        addMessageListener(Messages.RETURN_CONFIG_ITEM, ({ item }) => {
+            setShowConfigItemPanel(true);
+            setConfigItemData(item);
         });
         // Ask for the config items
         postMessage(Messages.GET_CONFIG_ITEMS, {
