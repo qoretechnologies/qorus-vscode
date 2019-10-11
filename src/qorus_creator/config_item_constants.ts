@@ -5,7 +5,7 @@ export const config_item_fields = [
         name: 'name',
     },
     {
-        name: 'desc',
+        name: 'description',
     },
     {
         name: 'type',
