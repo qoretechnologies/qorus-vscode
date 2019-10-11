@@ -713,8 +713,8 @@ export class QorusProjectCodeInfo {
         const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
         if (index > -1) {
             this.iface_by_id[iface_id]['config-items'][index] = {
-                ... item ,
-                ... this.iface_by_id[iface_id]['config-items'][index]
+                ... this.iface_by_id[iface_id]['config-items'][index],
+                ... item
             };
         }
         else {
