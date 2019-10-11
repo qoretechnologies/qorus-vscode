@@ -201,6 +201,9 @@ class QorusWebview {
                         case 'get-config-items':
                             project.code_info.getConfigItems(message);
                             break;
+                        case 'get-config-item':
+                            project.code_info.getConfigItem(message);
+                            break;
                         case 'update-config-item-value':
                             creator.updateConfigItemValue(message);
                             break;

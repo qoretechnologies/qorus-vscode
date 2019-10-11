@@ -758,6 +758,18 @@ export class QorusProjectCodeInfo {
         });
     }
 
+    getConfigItem = ({iface_id, name}) => {
+        const config_items = iface_id && this.iface_by_id[iface_id] && this.iface_by_id[iface_id]['config-items'];
+        const config_item = config_items ? config_items.find(item => item.name === name) : undefined;
+
+        const message = {
+            action: 'return-config-item',
+            item: config_item
+        };
+
+        qorus_webview.postMessage(message);
+    }
+
     getConfigItems(params) {
         const {'base-class-name': base_class_name, iface_id, iface_kind} = params;
         if (!iface_id) {
@@ -771,16 +783,32 @@ export class QorusProjectCodeInfo {
             }
             const items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
 
-            const fixTags = (item: any): any => {
+            const fixLocalItems = (item: any): any => {
+                if (item.default_value) {
+                    item.value = item.default_value;
+                    item.level = 'default';
+                }
                 for (const level of ['global', 'workflow', 'local']) {
                     const key = level + '-value';
                     if (item[key]) {
                         item.value = item[key];
+                        item.level = iface_kind;
                     }
                 }
 
                 item.type = item.type || default_config_item_type;
 
+                return { ...item };
+            };
+
+            const checkValueLevel = (item: any, level: string): any => {
+                if (item.value && item.level !== level) {
+                    delete item.value;
+                }
+                return { ...item, is_set: true };
+            }
+
+            const addYamlData = (item: any): any => {
                 let yaml_data_tag = {
                     ... item.value ? {value: jsyaml.safeDump(item.value)} : {},
                     ... item.default_value ? {default_value: jsyaml.safeDump(item.default_value)} : {},
@@ -789,22 +817,24 @@ export class QorusProjectCodeInfo {
                         : {}
                 };
 
-                return {...item, yamlData: yaml_data_tag};
+                return { ...item, yamlData: yaml_data_tag };
             };
 
+            const local_items = (items || []).map(item => fixLocalItems(item));
 
-            const local_items = (items || []).map(item => fixTags(item));
             const global_items = local_items.filter(item => !item.strictly_local)
-                                            .map(item => ({...item, is_set: true}));
+                                            .map(item => checkValueLevel({ ...item }, 'global'));
+
             const workflow_items = (iface_kind === 'step')
-                ? local_items.filter(item => !item.strictly_local).map(item => ({...item, is_set: true}))
+                ? local_items.filter(item => !item.strictly_local)
+                             .map(item => checkValueLevel({ ...item }, 'workflow'))
                 : [];
 
             const message = {
                 action: 'return-config-items',
-                items: local_items,
-                global_items,
-                workflow_items
+                items: local_items.map(item => addYamlData(item)),
+                workflow_items: workflow_items.map(item => addYamlData(item)),
+                global_items: global_items.map(item => addYamlData(item))
             };
 
             qorus_webview.postMessage(message);
