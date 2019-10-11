@@ -391,10 +391,6 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         });
     };
 
-    if (!projectData) {
-        return <p>Loading...</p>;
-    }
-
     return (
         <StyledWrapper>
             {changedOnDisk && (
@@ -422,56 +418,69 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                     </ButtonGroup>
                 </Callout>
             )}
-            <StyledProjectWrapper changedOnDisk={changedOnDisk}>
-                <StyledProjectHeader>
-                    <Add onSubmit={handleEnvironmentAdd} minimal={false} big text={t('AddNewEnvironment')} />
-                    <Popover
-                        content={
-                            <StyledDirWrapper>
-                                {projectData.source_directories.length === 0 && (
-                                    <StyledNoData>
-                                        <Icon icon="disable" />
-                                        {t('NoDirectories')}
-                                    </StyledNoData>
-                                )}
-                                {projectData.source_directories.map(dir => (
-                                    <p>
-                                        <Icon icon="folder-close" />
-                                        {dir}
-                                        <Button
+            {!projectData ? (
+                <p>Loading...</p>
+            ) : (
+                <StyledProjectWrapper changedOnDisk={changedOnDisk}>
+                    <StyledProjectHeader>
+                        <Add onSubmit={handleEnvironmentAdd} minimal={false} big text={t('AddNewEnvironment')} />
+                        <Popover
+                            popoverClassName="custom-popover"
+                            content={
+                                <StyledDirWrapper>
+                                    {projectData.source_directories.length > 10 && (
+                                        <Add
+                                            fill
                                             minimal
-                                            small
-                                            icon="trash"
-                                            onClick={() => handleDeleteDirectory(dir)}
-                                            style={{ marginTop: '3px', float: 'right' }}
+                                            text={t('AddSourceDirectory')}
+                                            onSubmit={handleAddDirectory}
                                         />
-                                    </p>
-                                ))}
-                                <Add fill minimal text={t('AddSourceDirectory')} onSubmit={handleAddDirectory} />
-                            </StyledDirWrapper>
-                        }
-                    >
-                        <Button icon="folder-new" text={t('ManageSourceDirectories')} />
-                    </Popover>
-                </StyledProjectHeader>
-                <StyledMasonryWrapper>
-                    {map(projectData.qorus_instances, data => (
-                        <EnvironmentPanel
-                            {...data}
-                            path={initialData.path}
-                            active={isEnvironmentActive(data.qoruses)}
-                            activeInstance={activeInstance && activeInstance.name}
-                            onEnvironmentNameChange={handleEnvironmentNameChange}
-                            onEnvironmentDeleteClick={handleEnvironmentDelete}
-                            onInstanceSubmit={handleInstanceSubmit}
-                            onInstanceDelete={handleInstanceDelete}
-                            onInstanceChange={handleInstanceDataChange}
-                            onUrlSubmit={handleInstanceDataChange}
-                            onUrlDelete={handleUrlDelete}
-                        />
-                    ))}
-                </StyledMasonryWrapper>
-            </StyledProjectWrapper>
+                                    )}
+                                    {projectData.source_directories.length === 0 && (
+                                        <StyledNoData>
+                                            <Icon icon="disable" />
+                                            {t('NoDirectories')}
+                                        </StyledNoData>
+                                    )}
+                                    {projectData.source_directories.map(dir => (
+                                        <p>
+                                            <Icon icon="folder-close" />
+                                            {dir}
+                                            <Button
+                                                minimal
+                                                small
+                                                icon="trash"
+                                                onClick={() => handleDeleteDirectory(dir)}
+                                                style={{ marginTop: '3px', float: 'right' }}
+                                            />
+                                        </p>
+                                    ))}
+                                    <Add fill minimal text={t('AddSourceDirectory')} onSubmit={handleAddDirectory} />
+                                </StyledDirWrapper>
+                            }
+                        >
+                            <Button icon="folder-new" text={t('ManageSourceDirectories')} />
+                        </Popover>
+                    </StyledProjectHeader>
+                    <StyledMasonryWrapper>
+                        {map(projectData.qorus_instances, data => (
+                            <EnvironmentPanel
+                                {...data}
+                                path={initialData.path}
+                                active={isEnvironmentActive(data.qoruses)}
+                                activeInstance={activeInstance && activeInstance.name}
+                                onEnvironmentNameChange={handleEnvironmentNameChange}
+                                onEnvironmentDeleteClick={handleEnvironmentDelete}
+                                onInstanceSubmit={handleInstanceSubmit}
+                                onInstanceDelete={handleInstanceDelete}
+                                onInstanceChange={handleInstanceDataChange}
+                                onUrlSubmit={handleInstanceDataChange}
+                                onUrlDelete={handleUrlDelete}
+                            />
+                        ))}
+                    </StyledMasonryWrapper>
+                </StyledProjectWrapper>
+            )}
         </StyledWrapper>
     );
 };

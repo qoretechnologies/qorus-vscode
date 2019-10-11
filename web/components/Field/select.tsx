@@ -82,6 +82,9 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             inputProps={{
                 placeholder: t('Filter'),
             }}
+            popoverProps={{
+                popoverClassName: 'custom-popover',
+            }}
             className="select-field"
             onItemSelect={(item: any) => handleSelectClick(item)}
             query={query}

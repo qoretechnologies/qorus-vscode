@@ -101,7 +101,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                     <MenuItem icon={includes(value, item) ? 'tick' : 'blank'} text={item.name} onClick={handleClick} />
                 </Tooltip>
             )}
-            popoverProps={{ targetClassName: 'select-popover' }}
+            popoverProps={{ targetClassName: 'select-popover', popoverClassName: 'custom-popover' }}
             tagRenderer={item => item.name}
             tagInputProps={{
                 onRemove: handleTagRemoveClick,

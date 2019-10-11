@@ -58,6 +58,11 @@ body {
     width: 100%;
 }
 
+.custom-popover {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
 .select-field,
 .select-field div,
 .select-field button {
