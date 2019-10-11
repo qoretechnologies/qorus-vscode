@@ -716,6 +716,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             selectedFields.find((field: IField) => field.name === 'base-class-name').value
                         }
                         interfaceId={interfaceId}
+                        resetFields={resetFields}
                     />
                 </Dialog>
             ) : null}

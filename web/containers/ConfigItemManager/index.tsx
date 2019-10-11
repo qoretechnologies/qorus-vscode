@@ -300,6 +300,5 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
 export default compose(
     withTextContext(),
-    withMessageHandler(),
-    withFieldsConsumer()
+    withMessageHandler()
 )(ConfigItemManager);
