@@ -248,6 +248,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             }}
                             onEditStructureClick={handleEditStructureClick}
                             onSubmit={handleSubmit}
+                            type={type}
                         />
                     ) : null}
                 </div>

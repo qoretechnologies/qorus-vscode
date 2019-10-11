@@ -31,6 +31,7 @@ type ConfigItemsTableProps = {
     showDescription: boolean;
     levelType: string;
     stepId?: number;
+    type: string;
 };
 
 const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
@@ -71,6 +72,7 @@ let ItemsTable: Function = ({
     handleGroupedToggle,
     onEditStructureClick,
     t,
+    type,
 }: ConfigItemsTableProps) => (
     <React.Fragment>
         <Table striped condensed fixed hover>
@@ -138,7 +140,7 @@ let ItemsTable: Function = ({
                                                     handleModalToggle(
                                                         { ...item },
                                                         (name, value, parent) => {
-                                                            onSubmit(name, value, parent, 'local');
+                                                            onSubmit(name, value, parent, type);
                                                             handleModalToggle(null);
                                                         },
                                                         intrf,
@@ -152,7 +154,7 @@ let ItemsTable: Function = ({
                                                 title={t('button.remove-this-value')}
                                                 disabled={item.level ? !item.level.startsWith(levelType || '') : true}
                                                 onClick={() => {
-                                                    onSubmit(item.name, null, item.parent_class, 'local', true);
+                                                    onSubmit(item.name, null, item.parent_class, type, true);
                                                 }}
                                             />
                                         </ButtonGroup>
