@@ -191,7 +191,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         // Listen for config items data request
         // and open the fields editing
         addMessageListener(Messages.RETURN_CONFIG_ITEM, ({ item }) => {
-            console.log(item);
             // Transform the type of the CI
             if (item.type.startsWith('*')) {
                 item.type = item.type.replace('*', '');

@@ -52,6 +52,8 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
                         key={pair.id}
                         keyName={Object.keys(pair)[1]}
                         valueName={Object.keys(pair)[2]}
+                        keyValue={pair.label}
+                        valueValue={pair.value}
                         onChange={(fieldName: string, value: any) => {
                             changePairData(index, fieldName, value);
                         }}

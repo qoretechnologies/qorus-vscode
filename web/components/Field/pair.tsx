@@ -6,6 +6,8 @@ import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 export interface IPairField {
     keyName: string;
     valueName: string;
+    keyValue: string;
+    valueValue: string;
     index: number | string;
     onRemoveClick: () => void;
 }
@@ -13,6 +15,8 @@ export interface IPairField {
 const PairField: FunctionComponent<IPairField & IFieldChange> = ({
     keyName,
     valueName,
+    keyValue,
+    valueValue,
     onChange,
     index,
     onRemoveClick,
@@ -23,6 +27,7 @@ const PairField: FunctionComponent<IPairField & IFieldChange> = ({
             <StringField
                 placeholder={keyName}
                 name={keyName}
+                value={keyValue}
                 onChange={(fieldName: string, value: string): void => {
                     onChange(fieldName, value);
                 }}
@@ -30,6 +35,7 @@ const PairField: FunctionComponent<IPairField & IFieldChange> = ({
             <StringField
                 placeholder={valueName}
                 name={valueName}
+                value={valueValue}
                 onChange={(fieldName: string, value: string) => {
                     onChange(fieldName, value);
                 }}
