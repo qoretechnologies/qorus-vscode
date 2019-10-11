@@ -1,6 +1,7 @@
 import { IField } from '../containers/InterfaceCreator/panel';
 const cron = require('cron-validator');
 import isNumber from 'lodash/isNumber';
+import isNaN from 'lodash/isNaN';
 import jsyaml from 'js-yaml';
 
 export const validateField: (type: string, value: any, field: IField) => boolean = (type, value, field) => {
@@ -20,7 +21,8 @@ export const validateField: (type: string, value: any, field: IField) => boolean
         }
         case 'int':
         case 'float':
-            return value !== null && value !== '' && isNumber(value);
+        case 'number':
+            return !isNaN(value) && isNumber(value);
         case 'select-array':
         case 'array':
         case 'file-tree':

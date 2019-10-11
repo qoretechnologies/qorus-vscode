@@ -29,8 +29,8 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
     // Fetch data on mount
     useMount(() => {
         // Populate default value
-        if (default_value) {
-            onChange(name, default_value);
+        if (value || default_value) {
+            onChange(name, value || default_value);
         }
         // Get backend data
         if (get_message && return_message) {
@@ -45,12 +45,15 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
 
     // When input value changes
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-        onChange(name, type === 'int' ? parseInt(event.target.value, 10) : parseFloat(event.target.value));
+        onChange(
+            name,
+            type === 'int' || type === 'number' ? parseInt(event.target.value, 10) : parseFloat(event.target.value)
+        );
     };
 
     // Clear the input on reset click
     const handleResetClick = (): void => {
-        onChange(name, '');
+        onChange(name, null);
     };
 
     return (
@@ -59,14 +62,13 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
             value={!value ? default_value || '' : value}
             onChange={handleInputChange}
             type="number"
-            step={type === 'int' ? 1 : 0.1}
+            step={type === 'int' || type === 'number' ? 1 : 0.1}
             rightElement={
-                value &&
-                value !== '' && (
+                (value && value !== '') || value === 0 ? (
                     <ButtonGroup minimal>
                         <Button onClick={handleResetClick} icon={'cross'} />
                     </ButtonGroup>
-                )
+                ) : null
             }
         />
     );

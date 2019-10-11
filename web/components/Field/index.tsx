@@ -16,6 +16,7 @@ import AutoField from './auto';
 import ArrayAutoField from './arrayAuto';
 import useMount from 'react-use/lib/useMount';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
+import NumberField from './number';
 
 export interface IField {
     type: string;
@@ -90,6 +91,9 @@ const Field: FunctionComponent<IField> = withMessageHandler()(({ type, postMessa
     }
     if (type === 'array-auto') {
         return <ArrayAutoField {...rest} type={type} />;
+    }
+    if (type === 'number') {
+        return <NumberField {...rest} type={type} />;
     }
 
     return <span> WIP </span>;
