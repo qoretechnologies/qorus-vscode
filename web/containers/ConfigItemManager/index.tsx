@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import { Button, Dialog } from '@blueprintjs/core';
 import withTextContext from '../../hocomponents/withTextContext';
 import compose from 'recompose/compose';
@@ -189,7 +189,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         // Listen for config items data request
         // and open the fields editing
         addMessageListener(Messages.RETURN_CONFIG_ITEM, ({ item }) => {
-            setShowConfigItemPanel(true);
             setConfigItemData(item);
         });
         // Ask for the config items
@@ -199,6 +198,10 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_kind: type,
         });
     });
+
+    useEffect(() => {
+        setShowConfigItemPanel(true);
+    }, [configItemData]);
 
     const handleSubmit: (
         name: string,
