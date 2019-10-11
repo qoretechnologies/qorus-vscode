@@ -14,13 +14,28 @@ export const allowedTypes: string[] = ['string', 'int', 'float', 'date'];
 const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
     onChange,
-    value,
+    value = [''],
     default_value,
     ...rest
 }) => {
-    const [values, setValues] = useState<{ [id: number]: string | number | null }>({
-        1: '',
-    });
+    const transformValues: (toValues: boolean, data: any[] | { [id: number]: string | number | null }) => any[] = (
+        toValues,
+        data
+    ) => {
+        // Transform data to the object based values
+        if (toValues) {
+            return data.reduce(
+                (newData, val: string | number, index: number) => ({ ...newData, [index + 1]: val }),
+                {}
+            );
+        }
+        // Transform the data to the end result (simple list)
+        else {
+            return reduce(data, (newData, value: string | number | null) => [...newData, value], []);
+        }
+    };
+
+    const [values, setValues] = useState<{ [id: number]: string | number | null }>(transformValues(true, value));
     const [type, setType] = useState<string>(null);
     const [lastId, setLastId] = useState<number>(1);
 
@@ -72,20 +87,6 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
             delete newValues[name];
             return newValues;
         });
-    };
-
-    const transformValues: (toValues: boolean, data: any[] | { [id: number]: string | number | null }) => any[] = (
-        toValues,
-        data
-    ) => {
-        // Transform data to the object based values
-        if (toValues) {
-            return data.reduce((newData, val: string | number, index: number) => ({ ...newData, [index]: val }), {});
-        }
-        // Transform the data to the end result (simple list)
-        else {
-            return reduce(data, (newData, value: string | number | null) => [...newData, value], []);
-        }
     };
 
     const handleChange: (name: string, value: any) => void = (name, value) => {
