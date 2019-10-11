@@ -223,9 +223,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
     const handleEditStructureClick: (configItemName: string) => void = configItemName => {
         // Request the config item data
-        postMessage(Messages.GET_INTERFACE_DATA, {
+        postMessage(Messages.GET_CONFIG_ITEM, {
             iface_id: interfaceId,
-            iface_kind: type,
             name: configItemName,
         });
     };
