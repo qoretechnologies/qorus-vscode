@@ -1535,3 +1535,33 @@ msgstr "Unknown config item '${ name }'"
 
 msgid "ParentDoesNotHaveConfigItem ${ parent } ${ item }"
 msgstr "Parent ${ parent } does not have config item ${ item }"
+
+msgid "AddNewEnvironment"
+msgstr "Add new environment"
+
+msgid "NoInstances"
+msgstr "No instances"
+
+msgid "NoDirectories"
+msgstr "No directories"
+
+msgid "AddInstance"
+msgstr "Add new instance"
+
+msgid "AddSourceDirectory"
+msgstr "Add source directory"
+
+msgid "ManageSourceDirectories"
+msgstr "Manage source directories"
+
+msgid "OtherUrls"
+msgstr "Other URLs"
+
+msgid "AddNewUrl"
+msgstr "Add new URL"
+
+msgid "NoUrls"
+msgstr "No URLs"
+
+msgid "ConfigChangedOnDisk"
+msgstr "Configuration changed on disk"

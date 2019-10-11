@@ -1,108 +1,123 @@
 import React, { FunctionComponent, useState } from 'react';
-import { ControlGroup, InputGroup, Button } from '@blueprintjs/core';
+import { ControlGroup, InputGroup, Button, ButtonGroup } from '@blueprintjs/core';
 import withTextContext from '../hocomponents/withTextContext';
 import styled from 'styled-components';
 import { TTranslator } from '../App';
 
 export interface IAddProjectData {
     withUrl?: boolean;
-    t: TTranslator;
+    t?: TTranslator;
     onSubmit: (name: string, url?: string) => void;
     fill?: boolean;
     text?: string;
+    defaultAdding?: boolean;
+    name?: string;
+    url?: string;
+    onCancel?: () => void;
+    minimal?: boolean;
+    big?: boolean;
 }
 
 const StyledAddWrapper = styled.div`
-    margin-bottom: 10px;
     flex: 0;
+
+    .bp3-icon {
+        opacity: 0.7;
+    }
 `;
 
-export default withTextContext()(({ withUrl, t, onSubmit, fill, text }) => {
-    const [isAdding, setIsAdding] = useState<boolean>(false);
-    const [name, setName] = useState<string>(null);
-    const [url, setUrl] = useState<string>(null);
+export default withTextContext()(
+    ({ withUrl, big, t, onCancel, name, url, onSubmit, fill, text, defaultAdding = false, minimal = true }) => {
+        const [isAdding, setIsAdding] = useState<boolean>(defaultAdding);
+        const [newName, setName] = useState<string>(name);
+        const [newUrl, setUrl] = useState<string>(url);
 
-    const handleAddClick = () => {
-        setIsAdding(true);
-        // Set the name to blank
-        setName('');
-        // Set the url to blank
-        setUrl('');
-    };
+        const handleAddClick = () => {
+            setIsAdding(true);
+            // Set the name to blank
+            setName(name);
+            // Set the url to blank
+            setUrl(url);
+        };
 
-    const handleCancelClick = () => {
-        setIsAdding(false);
-    };
+        const handleCancelClick = () => {
+            // If custom on cancel function exists
+            if (onCancel) {
+                onCancel();
+            } else {
+                // Turn adding off
+                setIsAdding(false);
+            }
+        };
 
-    const handleNameChange: (event: React.FormEvent<HTMLElement>) => void = event => {
-        setName(event.target.value);
-    };
+        const handleNameChange: (event: React.FormEvent<HTMLElement>) => void = event => {
+            setName(event.target.value);
+        };
 
-    const handleUrlChange: (event: React.FormEvent<HTMLElement>) => void = event => {
-        setUrl(event.target.value);
-    };
+        const handleUrlChange: (event: React.FormEvent<HTMLElement>) => void = event => {
+            setUrl(event.target.value);
+        };
 
-    const handleCreateClick = () => {
-        let submit = true;
-        // Should we submit url as well
-        if (withUrl) {
-            // Check if url is not empty
-            if (url === '') {
+        const handleCreateClick = () => {
+            let submit = true;
+            // Should we submit url as well
+            if (withUrl) {
+                // Check if url is not empty
+                if (!newUrl || newUrl === '') {
+                    // Do not submit
+                    submit = false;
+                }
+            }
+            // Check if the name is not empty
+            if (!newName || newName === '') {
                 // Do not submit
                 submit = false;
             }
-        }
-        // Check if the name is not empty
-        if (name === '') {
-            // Do not submit
-            submit = false;
-        }
-        // Submit the new data if all conditions
-        // are met
-        if (submit) {
-            // Pass the data
-            onSubmit(name, url);
-            // Remove editing
-            setIsAdding(false);
-        }
-    };
+            // Submit the new data if all conditions
+            // are met
+            if (submit) {
+                // Pass the data
+                onSubmit(newName, newUrl);
+                // Remove editing
+                setIsAdding(false);
+            }
+        };
 
-    const handleEnterPress = (event: React.KeyboardEvent<HTMLInputElement>): void => {
-        if (event.key === 'Enter') {
-            handleCreateClick();
-        }
-    };
+        const handleEnterPress = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+            if (event.key === 'Enter') {
+                handleCreateClick();
+            }
+        };
 
-    return (
-        <StyledAddWrapper>
-            <ControlGroup fill={fill}>
-                {isAdding && (
-                    <>
+        return (
+            <StyledAddWrapper>
+                {isAdding ? (
+                    <ControlGroup fill={fill}>
                         <InputGroup
-                            value={name}
+                            value={newName}
                             placeholder={t('Name')}
                             onChange={handleNameChange}
                             onKeyUp={handleEnterPress}
+                            small={!big}
                         />
                         {withUrl && (
                             <InputGroup
-                                value={url}
+                                value={newUrl}
                                 placeholder={t('Url')}
                                 onChange={handleUrlChange}
                                 onKeyUp={handleEnterPress}
+                                small={!big}
                             />
                         )}
-                    </>
-                )}
-                {!isAdding ? (
-                    <Button icon="add" text={t(text || 'AddNewEnvironment')} onClick={handleAddClick} />
+                        <Button icon="cross" onClick={handleCancelClick} small={!big} />
+                        <Button icon="small-tick" intent="success" onClick={handleCreateClick} small={!big} />
+                    </ControlGroup>
                 ) : (
-                    <>
-                        <Button icon="cross" onClick={handleCancelClick} />
-                        <Button icon="small-tick" intent="success" onClick={handleCreateClick} />
-                    </>
+                    <ButtonGroup fill={fill} minimal={minimal}>
+                        <Button icon="plus" text={text} onClick={handleAddClick} small={!big} intent="success" />
+                    </ButtonGroup>
                 )}
-            </ControlGroup>
-        </StyledAddWrapper>
-    );
-}) as FunctionComponent<IAddProjectData>;
+            </StyledAddWrapper>
+        );
+    }
+) as FunctionComponent<IAddProjectData>;

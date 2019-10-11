@@ -16,6 +16,12 @@ export interface IEnvironmentPanel {
     active: boolean;
     onEnvironmentNameChange: (id: number, newName: string) => void;
     onEnvironmentDeleteClick: (id: number) => void;
+    onInstanceSubmit: (id: number, name: string, url: string) => void;
+    onInstanceDelete: (id: number, instanceId: number) => void;
+    onInstanceChange: (id: number, instanceId: number, name: string, url: string) => void;
+    onUrlSubmit: (id: number, instanceId: number, name: string, url: string) => void;
+    onUrlDelete: (id: number, instanceId: number, name: string) => void;
+    activeInstance?: string;
     t: TTranslator;
 }
 
@@ -33,6 +39,10 @@ const StyledEnvHeader = styled.div`
     flex-flow: row wrap;
     padding: 10px;
     border-bottom: 1px solid #eee;
+
+    .bp3-icon {
+        opacity: 0.7;
+    }
 `;
 
 const StyledQorusLogo = styled.div`
@@ -43,14 +53,14 @@ const StyledQorusLogo = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid;
+    border: 2px solid;
     border-color: ${({ active }) => (active ? '#7fba27' : '#ddd')};
 `;
 
 const StyledNameWrapper = styled.div`
     display: inline-flex;
     line-height: 50px;
-    padding: 0 20px;
+    padding: 0 10px;
     flex: 1;
     justify-content: space-between;
 `;
@@ -66,6 +76,29 @@ const StyledInstanceList = styled.div`
     border-radius: 3px;
 `;
 
+export const StyledSubHeader = styled.h4`
+    margin: 0;
+    padding: 0;
+    margin-bottom: 10px;
+    padding: 0px 0 8px 0px;
+    border-bottom: 1px solid #eee;
+    color: #444;
+    height: 30px;
+
+    span {
+        vertical-align: middle;
+    }
+`;
+
+export const StyledNoData = styled.p`
+    color: #666;
+
+    .bp3-icon {
+        opacity: 0.5;
+        margin-right: 10px;
+    }
+`;
+
 const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     id,
     name,
@@ -74,6 +107,12 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     active,
     onEnvironmentNameChange,
     onEnvironmentDeleteClick,
+    onInstanceSubmit,
+    onInstanceDelete,
+    onInstanceChange,
+    onUrlSubmit,
+    onUrlDelete,
+    activeInstance,
     t,
 }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -99,13 +138,32 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
         setIsEditing(false);
     };
 
+    const handleInstanceSubmit: (name: string, url: string) => void = (name, url) => {
+        // Submit the new instance
+        onInstanceSubmit(id, name, url);
+    };
+
+    const handleInstanceDelete: (instanceId: number) => void = instanceId => {
+        // Submit the new instance
+        onInstanceDelete(id, instanceId);
+    };
+
+    const handleInstanceDataChange: (instanceId: number, name: string, url: string) => void = (
+        instanceId,
+        name,
+        url
+    ) => {
+        // Submit new instance data
+        onInstanceChange(id, instanceId, name, url);
+    };
+
     return (
         <StyledEnvWrapper>
             <StyledEnvHeader>
                 <StyledQorusLogo active={active}>
                     <img
                         style={{ maxWidth: 30, maxHeight: 30 }}
-                        src={`vscode-resource:${path}/images/qorus_logo_256_bw.png`}
+                        src={`vscode-resource:${path}/images/qorus_logo_256${active ? '' : '_bw'}.png`}
                     />
                 </StyledQorusLogo>
                 <StyledNameWrapper>
@@ -125,7 +183,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                     )}
 
                     <ButtonGroup minimal>
-                        {isEditing && <Button icon={'cross'} onClick={handleEditingCancel} />}
+                        {isEditing && <Button icon={'cross'} onClick={handleEditingCancel} small />}
                         <Button
                             icon={isEditing ? 'small-tick' : 'edit'}
                             intent={isEditing ? 'success' : 'none'}
@@ -136,20 +194,36 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                                     setIsEditing(true);
                                 }
                             }}
+                            small
                         />
-                        <Button icon="trash" onClick={() => onEnvironmentDeleteClick(id)} />
+                        <Button icon="trash" onClick={() => onEnvironmentDeleteClick(id)} small />
                     </ButtonGroup>
                 </StyledNameWrapper>
             </StyledEnvHeader>
             <StyledInstanceList>
+                <StyledSubHeader>
+                    <span>{t('Instances')} </span>
+                    <div className="pull-right">
+                        <Add withUrl onSubmit={handleInstanceSubmit} text={t('AddInstance')} />
+                    </div>
+                </StyledSubHeader>
                 {size(qoruses) ? (
-                    qoruses.map((qorusInstance: IQorusInstance) => <QorusInstance {...qorusInstance} />)
+                    qoruses.map((qorusInstance: IQorusInstance) => (
+                        <QorusInstance
+                            {...qorusInstance}
+                            envId={id}
+                            onDelete={handleInstanceDelete}
+                            onDataChange={handleInstanceDataChange}
+                            onUrlSubmit={onUrlSubmit}
+                            onUrlDelete={onUrlDelete}
+                            isActive={qorusInstance.name === activeInstance}
+                        />
+                    ))
                 ) : (
-                    <p className={Classes.TEXT_MUTED}>
-                        <Icon icon="disable" /> No instances
-                    </p>
+                    <StyledNoData>
+                        <Icon icon="disable" iconSize={16} /> {t('NoInstances')}
+                    </StyledNoData>
                 )}
-                <Add fill withUrl text={t('AddNewInstance')} />
             </StyledInstanceList>
         </StyledEnvWrapper>
     );

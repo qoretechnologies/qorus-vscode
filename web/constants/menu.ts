@@ -4,10 +4,6 @@ export const MENU = {
             name: 'ProjectConfig',
             icon: 'home',
             tab: 'ProjectConfig',
-            submenu: [
-                { name: 'QorusInstances', icon: 'database', tab: 'ProjectConfig', subtab: 'qoruses' },
-                { name: 'SourceDirs', icon: 'add-to-folder', tab: 'ProjectConfig', subtab: 'sources' },
-            ],
         },
     ],
     ReleasePackage: [
