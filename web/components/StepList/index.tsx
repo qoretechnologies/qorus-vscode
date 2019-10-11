@@ -76,6 +76,7 @@ const StyledStepName = styled.div`
             flex: 2;
             line-height: 20px;
             color: #333;
+            word-break: break-all;
         }
     }
 

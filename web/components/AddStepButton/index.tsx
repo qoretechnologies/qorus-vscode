@@ -51,7 +51,7 @@ export const AddStepButton: FunctionComponent<IAddStepButton> = withTextContext(
                     {step ? stepsData[step].name : 'all steps'}
                 </p>
             }
-            className="tooltip"
+            className="tooltip step-tooltip"
         >
             <StyledStepButton
                 bottom={bottom}
