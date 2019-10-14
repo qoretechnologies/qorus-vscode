@@ -19,6 +19,7 @@ import size from 'lodash/size';
 import { ButtonGroup, Button, Icon } from '@blueprintjs/core';
 import withTextContext from '../../hocomponents/withTextContext';
 import Modal from './modal';
+import ReactMarkdown from 'react-markdown';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -39,7 +40,6 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
         {props.isGrouped && size(props.data) ? (
             map(props.data, (configItemsData, groupName) => (
                 <>
-                    <br />
                     <ItemsTable {...props} groupName={groupName} configItemsData={configItemsData} title={groupName} />
                     <br />
                 </>
@@ -180,10 +180,19 @@ let ItemsTable: Function = ({
                                         <ButtonGroup>
                                             <Button
                                                 small
-                                                icon="edit"
+                                                intent="warning"
+                                                icon="cog"
                                                 title={t('button.edit-this-config-item')}
                                                 onClick={() => {
                                                     onEditStructureClick(item.name);
+                                                }}
+                                            />
+                                            <Button
+                                                small
+                                                intent="danger"
+                                                icon="trash"
+                                                onClick={() => {
+                                                    console.log('deleting');
                                                 }}
                                             />
                                         </ButtonGroup>
@@ -192,7 +201,7 @@ let ItemsTable: Function = ({
                                 {showDescription && (
                                     <Tr>
                                         <Td className="text" colspan={groupName ? 7 : 8}>
-                                            {item.description}
+                                            <ReactMarkdown source={item.description} />
                                         </Td>
                                     </Tr>
                                 )}

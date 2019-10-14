@@ -80,6 +80,7 @@ export interface IField {
     hasValueSet?: boolean;
     internal?: boolean;
     on_change?: string;
+    markdown?: boolean;
 }
 
 export declare interface IFieldChange {
@@ -645,12 +646,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         (field: IField) =>
                             !field.internal && (
                                 <FieldWrapper key={field.name}>
-                                    <FieldLabel label={t(`field-label-${field.name}`)} isValid={field.isValid} />
+                                    <FieldLabel
+                                        info={field.markdown && t('MarkdownSupported')}
+                                        label={t(`field-label-${field.name}`)}
+                                        isValid={field.isValid}
+                                    />
                                     <FieldInputWrapper>
                                         <Field
                                             {...field}
                                             onChange={handleFieldChange}
                                             requestFieldData={requestFieldData}
+                                            interfaceKind={type}
                                             iface_kind={type}
                                             activeId={activeId}
                                             interfaceId={interfaceId}

@@ -18,8 +18,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
-                /*data.tab = 'CreateInterface';
-                data.subtab = 'config-item';*/
+                data.tab = 'CreateInterface';
+                data.subtab = 'config-item';
+                data['config-item'] = {
+                    description: 'Test',
+                };
 
                 setInitialData(data);
             });

@@ -35,141 +35,11 @@ const StyledConfigWrapper = styled.div`
     padding: 20px 20px 0 20px;
 `;
 
-const globalData = [
-    {
-        name: 'Config item 1',
-        value: 'test',
-        is_set: true,
-        type: 'string',
-        config_group: 'test',
-        yamlData: { value: 'test' },
-    },
-    {
-        name: 'Config item 2',
-        value: null,
-        type: 'date',
-        config_group: 'test',
-        yamlData: { value: null },
-    },
-    {
-        name: 'Config item 3',
-        value: 'true',
-        type: 'any',
-        config_group: 'test',
-        currentType: 'bool',
-        yamlData: { value: 'true' },
-    },
-    {
-        name: 'Config item 4',
-        value: 'pepa',
-        type: 'string',
-        is_set: true,
-        default_value: 'heh',
-        config_group: 'test',
-        yamlData: { value: 'test', allowed_values: ['pepa', 'zdepa', 'sel', 'do', 'sklepa'] },
-    },
-    {
-        name: 'Config item 5',
-        value: 'test',
-        type: 'string',
-        level: 'default',
-        config_group: 'test',
-        yamlData: { value: 'test' },
-    },
-];
-
-const workflowData = [
-    {
-        name: 'Config item 1',
-        value: 'test',
-        is_set: true,
-        type: 'string',
-        config_group: 'test',
-        yamlData: { value: 'test' },
-    },
-    {
-        name: 'Config item 2',
-        value: null,
-        type: 'date',
-        config_group: 'test',
-        yamlData: { value: null },
-    },
-    {
-        name: 'Config item 3',
-        value: 'true',
-        type: 'any',
-        config_group: 'test',
-        currentType: 'bool',
-        yamlData: { value: 'true' },
-    },
-    {
-        name: 'Config item 4',
-        value: 'pepa',
-        type: 'string',
-        is_set: true,
-        default_value: 'heh',
-        config_group: 'test',
-        yamlData: { value: 'test', allowed_values: ['pepa', 'zdepa', 'sel', 'do', 'sklepa'] },
-    },
-    {
-        name: 'Config item 5',
-        value: 'test',
-        type: 'string',
-        level: 'default',
-        config_group: 'test',
-        yamlData: { value: 'test' },
-    },
-];
-
-const data = [
-    {
-        name: 'Config item 1',
-        value: 'test',
-        type: 'string',
-        local: false,
-        level: 'default',
-        config_group: 'test',
-        yamlData: { value: 'test' },
-    },
-    {
-        name: 'Config item 2',
-        value: null,
-        type: 'date',
-        local: false,
-        level: 'default',
-        config_group: 'test',
-        yamlData: { value: null },
-    },
-    {
-        name: 'Config item 3',
-        value: 'true',
-        type: 'any',
-        local: false,
-        level: 'default',
-        config_group: 'test',
-        currentType: 'bool',
-        yamlData: { value: 'true' },
-    },
-    {
-        name: 'Config item 4',
-        value: 'pepa',
-        type: 'string',
-        default_value: 'heh',
-        local: false,
-        level: 'default',
-        config_group: 'maslo',
-        yamlData: { value: 'test', allowed_values: ['pepa', 'zdepa', 'sel', 'do', 'sklepa'] },
-    },
-    {
-        name: 'Config item 5',
-        value: 'test',
-        type: 'string',
-        local: false,
-        level: 'default',
-        config_group: 'test',
-        yamlData: { value: 'test' },
-    },
-];
+export const StyledSeparator = styled.hr`
+    border: 0;
+    border-bottom: 1px solid #eee;
+    margin: 10px 0;
+`;
 
 const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     t,
@@ -245,7 +115,15 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     return (
         <>
             <StyledConfigManagerWrapper>
-                {<Button text={t('AddConfigItem')} onClick={() => setShowConfigItemPanel(true)} />}
+                {
+                    <Button
+                        text={t('AddConfigItem')}
+                        intent="success"
+                        icon="add"
+                        onClick={() => setShowConfigItemPanel(true)}
+                    />
+                }
+                <StyledSeparator />
                 <div>
                     {configItems.global_items && (
                         <GlobalTable configItems={configItems.global_items} onSubmit={handleSubmit} />

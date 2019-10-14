@@ -53,11 +53,19 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                         />
                     }
                 />
-                {/*<Tab
-                    id={'config-item'}
-                    title={t('Config Item')}
-                    panel={<InterfaceCreatorPanel type={'config-item'} />}
-                />*/}
+                {
+                    <Tab
+                        id={'config-item'}
+                        title={t('Config Item')}
+                        panel={
+                            <InterfaceCreatorPanel
+                                type={'config-item'}
+                                data={initialData['config-item']}
+                                isEditing={!!initialData['config-item']}
+                            />
+                        }
+                    />
+                }
                 <Tab
                     id={'class'}
                     title={t('Class')}

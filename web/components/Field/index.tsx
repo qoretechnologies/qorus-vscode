@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import withTextContext from '../../hocomponents/withTextContext';
 import StringField from './string';
+import LongStringField from './longString';
 import DateField from './date';
 import { TTranslator } from '../../App';
 import BooleanField from './boolean';
@@ -17,6 +18,7 @@ import ArrayAutoField from './arrayAuto';
 import useMount from 'react-use/lib/useMount';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import NumberField from './number';
+import MarkdownPreview from './markdownPreview';
 
 export interface IField {
     type: string;
@@ -26,77 +28,45 @@ export interface IField {
     value?: any;
     default_value?: any;
     onChange: IFieldChange;
+    markdown: boolean;
+    interfaceKind: string;
     requestFieldData: (fieldName: string, fieldKey: string) => string | null;
 }
 
-const Field: FunctionComponent<IField> = withMessageHandler()(({ type, postMessage, interfaceId, ...rest }) => {
-    useMount(() => {
-        if (rest.value && rest.on_change) {
-            // Post the message with this handler
-            postMessage(rest.on_change, {
-                [rest.name]: rest.value,
-                iface_kind: type,
-                iface_id: interfaceId,
-            });
-        }
-    });
+const Field: FunctionComponent<IField> = withMessageHandler()(
+    ({ type, postMessage, interfaceId, interfaceKind, ...rest }: IField) => {
+        useMount(() => {
+            if (rest.value && rest.on_change) {
+                // Post the message with this handler
+                postMessage(rest.on_change, {
+                    [rest.name]: rest.value,
+                    iface_kind: interfaceKind,
+                    iface_id: interfaceId,
+                });
+            }
+        });
 
-    // Default type is string
-    if (!type || type === 'string') {
-        return <StringField {...rest} type={type} />;
+        return (
+            <>
+                {(!type || type === 'string') && <StringField {...rest} type={type} />}
+                {type === 'long-string' && <LongStringField {...rest} type={type} />}
+                {type === 'boolean' && <BooleanField {...rest} type={type} />}
+                {type === 'array-of-pairs' && <MultiPairField {...rest} type={type} />}
+                {type === 'select-string' && <SelectField {...rest} type={type} />}
+                {type === 'select-array' && <MultiSelect {...rest} type={type} />}
+                {type === 'array' && <MultiSelect simple {...rest} type={type} />}
+                {type === 'enum' && <RadioField {...rest} type={type} />}
+                {type === 'file-array' && <MultiFileField {...rest} type={type} />}
+                {type === 'file-string' && <FileField {...rest} type={type} />}
+                {type === 'date' && <DateField {...rest} type={type} />}
+                {type === 'cron' && <Cron {...rest} type={type} />}
+                {type === 'auto' && <AutoField {...rest} type={type} />}
+                {type === 'array-auto' && <ArrayAutoField {...rest} type={type} />}
+                {type === 'number' && <NumberField {...rest} type={type} />}
+                {rest.markdown && <MarkdownPreview value={rest.value} />}
+            </>
+        );
     }
-    // Boolean fields
-    if (type === 'boolean') {
-        return <BooleanField {...rest} type={type} />;
-    }
-    // Pair field
-    if (type === 'array-of-pairs') {
-        return <MultiPairField {...rest} type={type} />;
-    }
-    // Select one item
-    if (type === 'select-string') {
-        return <SelectField {...rest} type={type} />;
-    }
-    // Select multiple items
-    if (type === 'select-array') {
-        return <MultiSelect {...rest} type={type} />;
-    }
-    // Simple array
-    if (type === 'array') {
-        return <MultiSelect simple {...rest} type={type} />;
-    }
-    // Radio buttons
-    if (type === 'enum') {
-        return <RadioField {...rest} type={type} />;
-    }
-    // Files
-    if (type === 'file-array') {
-        return <MultiFileField {...rest} type={type} />;
-    }
-
-    if (type === 'file-string') {
-        return <FileField {...rest} type={type} />;
-    }
-    // Date
-    if (type === 'date') {
-        return <DateField {...rest} type={type} />;
-    }
-    // Cron
-    if (type === 'cron') {
-        return <Cron {...rest} type={type} />;
-    }
-    // Auto field
-    if (type === 'auto') {
-        return <AutoField {...rest} type={type} />;
-    }
-    if (type === 'array-auto') {
-        return <ArrayAutoField {...rest} type={type} />;
-    }
-    if (type === 'number') {
-        return <NumberField {...rest} type={type} />;
-    }
-
-    return <span> WIP </span>;
-});
+);
 
 export default withTextContext()(Field) as FunctionComponent<IField>;
