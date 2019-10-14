@@ -9,7 +9,7 @@ import { QorusExtension } from './qorus_vscode';
 import { QorusProject } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
-import { default_config_item_type } from './qorus_creator/config_item_constants';
+import { defaultValue } from './qorus_creator/config_item_constants';
 import { QoreTextDocument, qoreTextDocument, loc2range } from './QoreTextDocument';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
@@ -212,7 +212,7 @@ export class QorusProjectCodeInfo {
         let iface_kind;
         this.iface_by_id[iface_id]['config-items'].forEach(item => {
 
-            const non_star_type = item.type[0] === '*' ? item.type.substr(1) : item.type;
+            const non_star_type = (item.type && item.type[0] === '*') ? item.type.substr(1) : item.type;
             switch (non_star_type) {
                 case 'int': value = parseInt(value); break;
                 case 'float': value = parseFloat(value); break;
@@ -727,10 +727,6 @@ export class QorusProjectCodeInfo {
     private addClassConfigItems = (class_name, iface_id) => {
         this.initIfaceId(iface_id);
 
-        if (!class_name || this.iface_by_id[iface_id].base_class_name === class_name) {
-            return;
-        }
-
         const class_yaml_data = this.classYamlData(class_name);
         if (!class_yaml_data) {
             return;
@@ -745,6 +741,14 @@ export class QorusProjectCodeInfo {
 
             const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === raw_item.name);
 
+            item.parent_data = { ...item };
+            item.parent = {
+                'interface-type': 'class',
+                'interface-name': class_name,
+                'interface-version': parseFloat(version) == version ? `"${version}"` : version
+            };
+            item.parent_class = class_name;
+
             if (index > -1) {
                 this.iface_by_id[iface_id]['config-items'][index] = {
                     ... item,
@@ -752,12 +756,6 @@ export class QorusProjectCodeInfo {
                 };
             }
             else {
-                item.parent = {
-                    'interface-type': 'class',
-                    'interface-name': class_name,
-                    'interface-version': parseFloat(version) == version ? `"${version}"` : version
-                };
-                item.parent_class = class_name;
                 this.iface_by_id[iface_id]['config-items'].push(item);
             }
         });
@@ -801,7 +799,7 @@ export class QorusProjectCodeInfo {
                     }
                 }
 
-                item.type = item.type || default_config_item_type;
+                item.type = item.type || defaultValue('type');
 
                 return { ...item };
             };

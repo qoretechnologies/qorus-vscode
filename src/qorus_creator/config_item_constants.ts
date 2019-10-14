@@ -1,5 +1,3 @@
-export const default_config_item_type = 'string';
-
 export const config_item_fields = [
     {
         name: 'name',
@@ -21,7 +19,7 @@ export const config_item_fields = [
             { value: 'hash' },
             { value: 'list' }
         ],
-        default_value: default_config_item_type
+        default_value: 'string'
     },
     {
         name: 'can_be_undefined',
@@ -52,3 +50,6 @@ export const config_item_fields = [
         'type-depends-on': 'type'
     },
 ];
+
+export const defaultValue = name =>
+    (config_item_fields.find(field => field.name === name) || {}).default_value;

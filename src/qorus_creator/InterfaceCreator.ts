@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { defaultValue } from './config_item_constants';
 import { lang_suffix, default_parse_options } from './common_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -123,10 +124,6 @@ export abstract class InterfaceCreator {
         for (const item of [...items]) {
             result += `${list_indent}name: ${item.name}\n`;
 
-            if (item.type) {
-                result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
-            }
-
             for (const tag of ['local-value', 'global-value', 'workflow-value']) {
                 if (item[tag]) {
                     result += `${indent}${tag}: ${item[tag]}\n`;
@@ -138,12 +135,24 @@ export abstract class InterfaceCreator {
                 for (const tag in item.parent) {
                     result += `${indent}${indent}${tag}: ${item.parent[tag]}\n`;
                 }
-                continue;
             }
 
             for (const tag in item) {
-                if (!['name', 'type', 'parent', 'value', 'local-value', 'global-value', 'workflow-value'].includes(tag)) {
-                    result += `${indent}${tag}: ${item[tag]}\n`;
+                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level',
+                     'orig_name', 'local-value', 'global-value', 'workflow-value'].includes(tag))
+                {
+                    continue;
+                }
+
+                if (item[tag] && item.parent_data && item[tag] !== item.parent_data[tag]
+                    && (typeof item.parent_data[tag] !== 'undefined' || item[tag] !== defaultValue(tag)))
+                {
+                    if (tag === 'type') {
+                        result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                    }
+                    else  {
+                        result += `${indent}${tag}: ${item[tag]}\n`;
+                    }
                 }
             }
         }
