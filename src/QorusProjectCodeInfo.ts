@@ -812,11 +812,13 @@ export class QorusProjectCodeInfo {
             }
 
             const addYamlData = (item: any): any => {
+                const toYaml = str => jsyaml.safeDump(str).replace(/\r?\n$/, '');
+
                 let yaml_data_tag = {
-                    ... item.value ? {value: jsyaml.safeDump(item.value)} : {},
-                    ... item.default_value ? {default_value: jsyaml.safeDump(item.default_value)} : {},
+                    ... item.value ? {value: toYaml(item.value)} : {},
+                    ... item.default_value ? {default_value: toYaml(item.default_value)} : {},
                     ... item.allowed_values
-                        ? {allowed_values: item.allowed_values.map(value => jsyaml.safeDump(value))}
+                        ? {allowed_values: item.allowed_values.map(value => toYaml(value))}
                         : {}
                 };
 
