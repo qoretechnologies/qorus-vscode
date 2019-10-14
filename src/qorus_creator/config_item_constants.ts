@@ -6,6 +6,8 @@ export const config_item_fields = [
     },
     {
         name: 'description',
+        type: 'long-string',
+        markdown: true
     },
     {
         name: 'type',
