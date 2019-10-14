@@ -53,7 +53,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                         />
                     }
                 />
-                {
+                {/*
                     <Tab
                         id={'config-item'}
                         title={t('Config Item')}
@@ -65,7 +65,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                             />
                         }
                     />
-                }
+                    */}
                 <Tab
                     id={'class'}
                     title={t('Class')}
