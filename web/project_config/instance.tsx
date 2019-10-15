@@ -24,7 +24,8 @@ const StyledInstanceWrapper = styled.div`
     padding: 0 10px;
     border-radius: 3px;
     cursor: pointer;
-    height: 35px;
+    min-height: 35px;
+    overflow: hidden;
     line-height: 35px;
     margin-bottom: 10px;
     transition: all 0.2s linear;
@@ -108,11 +109,13 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                 />
             ) : (
                 <StyledInstanceWrapper className={isExpanded && 'expanded'}>
-                    <Icon icon="dot" intent={isActive ? 'success' : 'none'} /> {name}
-                    <span className={Classes.TEXT_MUTED}>
-                        {' '}
-                        <a href={url}>[{url}]</a>
-                    </span>
+                    <div className="pull-left" style={{ width: '78%', wordBreak: 'break-word' }}>
+                        <Icon icon="dot" intent={isActive ? 'success' : 'none'} /> {name}
+                        <span className={Classes.TEXT_MUTED}>
+                            {' '}
+                            <a href={url}>[{url}]</a>
+                        </span>
+                    </div>
                     <div className="button-wrapper pull-right">
                         <ButtonGroup minimal>
                             <Button icon="chevron-down" small onClick={() => setExpanded(!isExpanded)} />

@@ -92,7 +92,7 @@ export default withTextContext()(
         return (
             <StyledAddWrapper>
                 {isAdding ? (
-                    <ControlGroup fill={fill}>
+                    <ButtonGroup fill={fill}>
                         <InputGroup
                             value={newName}
                             placeholder={t('Name')}
@@ -109,9 +109,10 @@ export default withTextContext()(
                                 small={!big}
                             />
                         )}
+
                         <Button icon="cross" onClick={handleCancelClick} small={!big} />
                         <Button icon="small-tick" intent="success" onClick={handleCreateClick} small={!big} />
-                    </ControlGroup>
+                    </ButtonGroup>
                 ) : (
                     <ButtonGroup fill={fill} minimal={minimal}>
                         <Button icon="plus" text={text} onClick={handleAddClick} small={!big} intent="success" />
