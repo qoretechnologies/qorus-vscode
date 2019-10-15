@@ -21,7 +21,7 @@ const ContentByType: Function = ({ content, inTable, noControls }) => {
     if (type === 'string') {
         const isContentDate: boolean = isDate(content);
 
-        let newContent = inTable ? <Text text={`"${content}"`} noControls={noControls} /> : content;
+        let newContent = inTable ? <Text text={content} noControls={noControls} /> : content;
         newContent = isContentDate ? <Date date={content} /> : newContent;
 
         return inTable ? (

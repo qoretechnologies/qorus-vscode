@@ -31,6 +31,7 @@ import isNull from 'lodash/isNull';
 import { getLineCount } from '../../components/Tree';
 import Box from '../../components/ResponsiveBox';
 import withTextContext from '../../hocomponents/withTextContext';
+import ReactMarkdown from 'react-markdown';
 
 @withTextContext()
 export default class ConfigItemsModal extends Component {
@@ -344,7 +345,7 @@ export default class ConfigItemsModal extends Component {
         onClose={onClose}
       >
         <Box top fill scrollY>
-            {item && item.desc && <Callout icon="info-sign">{item.desc}</Callout>}
+            {item && item.description && <Callout icon="info-sign"><ReactMarkdown source={item.description} /></Callout>}
             {isGlobal && (
               <>
                 <Callout icon="warning-sign" intent="warning">
