@@ -1,3 +1,5 @@
+const types = ['string', 'int', 'bool', 'float', 'date', 'hash', 'list'];
+
 export const config_item_fields = [
     {
         name: 'name',
@@ -10,15 +12,7 @@ export const config_item_fields = [
     {
         name: 'type',
         type: 'enum',
-        items: [
-            { value: 'string' },
-            { value: 'int' },
-            { value: 'bool' },
-            { value: 'float' },
-            { value: 'date' },
-            { value: 'hash' },
-            { value: 'list' }
-        ],
+        items: types.map(type => ({value: type})),
         default_value: 'string'
     },
     {
@@ -30,7 +24,8 @@ export const config_item_fields = [
         name: 'default_value',
         mandatory: false,
         type: 'auto',
-        'type-depends-on': 'type'
+        'type-depends-on': 'type',
+        'allowed-types': types
     },
     {
         name: 'strictly_local',
@@ -47,7 +42,8 @@ export const config_item_fields = [
         name: 'allowed_values',
         mandatory: false,
         type: 'array-auto',
-        'type-depends-on': 'type'
+        'type-depends-on': 'type',
+        'allowed-types': types
     },
 ];
 
