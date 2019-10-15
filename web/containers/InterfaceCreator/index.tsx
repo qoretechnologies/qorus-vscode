@@ -53,19 +53,11 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                         />
                     }
                 />
-                {/*
-                    <Tab
-                        id={'config-item'}
-                        title={t('Config Item')}
-                        panel={
-                            <InterfaceCreatorPanel
-                                type={'config-item'}
-                                data={initialData['config-item']}
-                                isEditing={!!initialData['config-item']}
-                            />
-                        }
-                    />
-                    */}
+                {/*<Tab
+                    id={'config-item'}
+                    title={t('Config Item')}
+                    panel={<InterfaceCreatorPanel type={'config-item'} />}
+                />*/}
                 <Tab
                     id={'class'}
                     title={t('Class')}
@@ -102,6 +94,17 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                             }
                             openFileOnSubmit={!!!initialData.stepCallback}
                             forceSubmit
+                        />
+                    }
+                />
+                <Tab
+                    id={'other'}
+                    title={t('Other')}
+                    panel={
+                        <InterfaceCreatorPanel
+                            type={'other'}
+                            data={initialData.other}
+                            isEditing={!!initialData.other}
                         />
                     }
                 />

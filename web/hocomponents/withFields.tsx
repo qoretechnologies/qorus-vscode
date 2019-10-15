@@ -13,6 +13,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             job: null,
             class: null,
             step: null,
+            other: null,
         });
         const [fields, setLocalFields] = useState<{ [key: string]: IField[] | { [key: string]: IField[] } }>({
             service: [],
@@ -22,6 +23,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: [],
             step: [],
             ['config-item']: [],
+            other: [],
         });
         const [selectedFields, setLocalSelectedFields] = useState<{
             [key: string]: IField[] | { [key: string]: IField[] };
@@ -33,6 +35,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: [],
             step: [],
             ['config-item']: [],
+            other: [],
         });
         const [query, setLocalQuery] = useState<{ [key: string]: string }>({
             service: '',
@@ -42,6 +45,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: '',
             step: '',
             ['config-item']: '',
+            other: '',
         });
         const [selectedQuery, setLocalSelectedQuery] = useState<{ [key: string]: string }>({
             service: '',
@@ -51,6 +55,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: '',
             step: '',
             ['config-item']: '',
+            other: '',
         });
 
         const resetFields: (type: string) => void = type => {
