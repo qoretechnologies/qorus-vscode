@@ -163,6 +163,10 @@
                 "title": "Qorus: Create class"
             },
             {
+                "command": "qorus.createOther",
+                "title": "Qorus: Create other entity"
+            },
+            {
                 "command": "qorus.webview",
                 "title": "Qorus: webview",
                 "icon": "images/qorus_logo_28.png"
@@ -197,49 +201,54 @@
             ],
             "explorer/context": [
                 {
-                    "when": "resourceScheme == file && !explorerResourceIsFolder",
-                    "command": "qorus.deployFile",
-                    "group": "2_workspace"
-                },
-                {
-                    "when": "explorerResourceIsFolder",
-                    "command": "qorus.deployDir",
-                    "group": "2_workspace"
-                },
-                {
-                    "when": "resourceScheme == file && !explorerResourceIsFolder",
-                    "command": "qorus.testFile",
-                    "group": "2_workspace"
-                },
-                {
-                    "when": "explorerResourceIsFolder",
-                    "command": "qorus.testDir",
-                    "group": "2_workspace"
-                },
-                {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createService",
-                    "group": "2_workspace"
+                    "group": "2_workspace@1"
                 },
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createJob",
-                    "group": "2_workspace"
+                    "group": "2_workspace@2"
                 },
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createWorkflow",
-                    "group": "2_workspace"
+                    "group": "2_workspace@3"
                 },
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createStep",
-                    "group": "2_workspace"
+                    "group": "2_workspace@4"
                 },
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createClass",
-                    "group": "2_workspace"
+                    "group": "2_workspace@5"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createOther",
+                    "group": "2_workspace@6"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.deployDir",
+                    "group": "2_workspace@7"
+                },
+                {
+                    "when": "resourceScheme == file && !explorerResourceIsFolder",
+                    "command": "qorus.deployFile",
+                    "group": "2_workspace@8"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.testDir",
+                    "group": "2_workspace@9"
+                },
+                {
+                    "when": "resourceScheme == file && !explorerResourceIsFolder",
+                    "command": "qorus.testFile",
+                    "group": "2_workspace@10"
                 }
             ],
             "view/item/context": [

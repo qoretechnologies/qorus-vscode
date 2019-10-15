@@ -7,6 +7,7 @@ import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
 import { classFields } from './common_constants';
 import { config_item_fields } from './config_item_constants';
+import { otherFields } from './other_constants';
 
 
 class InterfaceCreatorDispatcher {
@@ -26,6 +27,8 @@ class InterfaceCreatorDispatcher {
                 return stepFields(params);
             case 'config-item':
                 return config_item_fields;
+            case 'other':
+                return otherFields(params);
             default:
                 return [];
         }

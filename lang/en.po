@@ -1117,6 +1117,24 @@ msgstr "Allowed values"
 msgid "field-desc-allowed_values"
 msgstr "The list of allowed values for the configuration item if defined"
 
+msgid "field-label-Queue"
+msgstr "Queue"
+
+msgid "field-desc-Queue"
+msgstr "Queue"
+
+msgid "field-label-Group"
+msgstr "Group"
+
+msgid "field-desc-Group"
+msgstr "Group"
+
+msgid "field-label-Event"
+msgstr "Event"
+
+msgid "field-desc-Event"
+msgstr "Event"
+
 msgid "field-label-code"
 msgstr "Code"
 
