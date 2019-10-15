@@ -1,4 +1,4 @@
-import { comment_chars, commonFields } from './common_constants';
+import { comment_chars, common_fields_1, commonFields4 } from './common_constants';
 
 let class_template: any = {};
 let method_template: any = {};
@@ -29,7 +29,7 @@ export const service_class_template = class_template;
 export const service_method_template = method_template;
 
 export const serviceFields = params => [
-    ... commonFields(params),
+    ... commonFields4(params),
     {
         name: 'base-class-name',
         type: 'select-string',
@@ -115,26 +115,7 @@ export const serviceFields = params => [
 ];
 
 export const service_methods = [
-    {
-        name: 'name',
-    },
-    {
-        name: 'desc',
-    },
-    {
-        name: 'author',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'author',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'author',
-            return_value: 'objects',
-        },
-    },
+    ... common_fields_1,
     {
         name: 'lock',
         type: 'enum',

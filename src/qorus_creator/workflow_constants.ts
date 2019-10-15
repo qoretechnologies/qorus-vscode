@@ -1,7 +1,7 @@
-import { commonFields } from './common_constants';
+import { commonFields4 } from './common_constants';
 
 export const workflowFields = params => [
-    ... commonFields(params),
+    ... commonFields4(params),
     {
         name: 'base-class-name',
         type: 'select-string',

@@ -1,4 +1,4 @@
-import { commonFields } from './common_constants';
+import { commonFields4 } from './common_constants';
 
 let template: any = {};
 
@@ -21,7 +21,7 @@ class ${this.class_name} extends ${this.base_class_name} {\n\
 export const job_template = template;
 
 export const jobFields = params => [
-    ... commonFields(params),
+    ... commonFields4(params),
     {
         name: 'base-class-name',
         type: 'select-string',

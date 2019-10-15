@@ -29,38 +29,12 @@ export const subclass_template = {
 };
 
 
-export const basicFields = params => [
-    {
-        name: 'target_dir',
-        type: 'file-string',
-        default_value: params.default_target_dir,
-        get_message: {
-            action: 'creator-get-directories',
-            object_type: 'target_dir',
-        },
-        return_message: {
-            action: 'creator-return-directories',
-            object_type: 'target_dir',
-            return_value: 'directories',
-        },
-    },
-    {
-        name: 'target_file',
-        mandatory: false,
-    },
+export const common_fields_1 = [
     {
         name: 'name',
     },
     {
-        name: 'version',
-    },
-    {
         name: 'desc',
-    },
-    {
-        name: 'class-name',
-        prefill: 'name',
-        style: 'PascalCase',
     },
     {
         name: 'author',
@@ -78,46 +52,33 @@ export const basicFields = params => [
     },
 ];
 
-export const classFields = params => [
-    ... basicFields(params),
+export const commonFields2 = ({is_editing, default_target_dir}) => [
     {
-        name: 'base-class-name',
-        mandatory: false,
-        type: 'select-string',
+        name: 'target_dir',
+        type: 'file-string',
+        default_value: default_target_dir,
         get_message: {
-            action: 'creator-get-objects',
-            object_type: 'base-class',
+            action: 'creator-get-directories',
+            object_type: 'target_dir',
         },
         return_message: {
-            action: 'creator-return-objects',
-            object_type: 'base-class',
-            return_value: 'objects',
-        },
-        on_change: 'get-config-items'
-    }
-];
-
-export const commonFields = ({is_editing, ...other_params}) => [
-    ... basicFields(other_params),
-    {
-        name: 'modules',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'module',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'module',
-            return_value: 'objects',
+            action: 'creator-return-directories',
+            object_type: 'target_dir',
+            return_value: 'directories',
         },
     },
     {
-        name: 'remote',
+        name: 'target_file',
         mandatory: false,
-        type: 'boolean',
-        default_value: true,
+    },
+    ... common_fields_1,
+    {
+        name: 'version',
+    },
+    {
+        name: 'class-name',
+        prefill: 'name',
+        style: 'PascalCase',
     },
     {
         name: 'lang',
@@ -135,6 +96,10 @@ export const commonFields = ({is_editing, ...other_params}) => [
         default_value: 'qore',
         disabled: is_editing,
     },
+];
+
+export const commonFields3 = params => [
+    ... commonFields2(params),
     {
         name: 'classes',
         mandatory: false,
@@ -205,6 +170,30 @@ export const commonFields = ({is_editing, ...other_params}) => [
             return_value: 'objects',
         },
     },
+];
+
+export const commonFields4 = params => [
+    ... commonFields3(params),
+    {
+        name: 'modules',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'module',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'module',
+            return_value: 'objects',
+        },
+    },
+    {
+        name: 'remote',
+        mandatory: false,
+        type: 'boolean',
+        default_value: true,
+    },
     {
         name: 'groups',
         mandatory: false,
@@ -235,4 +224,23 @@ export const commonFields = ({is_editing, ...other_params}) => [
             return_value: 'objects',
         },
     },
+];
+
+export const classFields = params => [
+    ... commonFields2(params),
+    {
+        name: 'base-class-name',
+        mandatory: false,
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'base-class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'base-class',
+            return_value: 'objects',
+        },
+        on_change: 'get-config-items'
+    }
 ];

@@ -1,7 +1,7 @@
-import { basicFields } from './common_constants';
+import { commonFields3 } from './common_constants';
 
 export const stepFields = params => [
-    ... basicFields(params),
+    ... commonFields3(params),
     {
         name: 'base-class-name',
         type: 'select-string',
