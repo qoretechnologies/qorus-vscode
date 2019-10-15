@@ -204,6 +204,7 @@ export abstract class InterfaceCreator {
                     case 'functions':
                     case 'vmaps':
                     case 'mappers':
+                    case 'keylist':
                         for (let item of value) {
                             result += `${list_indent}${item.name}\n`;
                         }
