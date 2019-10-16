@@ -23,13 +23,15 @@ const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
 const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
-const log_update_messages = false;
 const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
 const yaml_types = [...iface_kinds, 'config-item-values', 'config-items', 'connection', 'constant',
                     'event', 'function', 'group', 'mapper', 'queue', 'value-map'];
 const default_version = '1.0';
+
+const log_update_messages = false;
+const log_qop_stderr = false;
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
@@ -992,10 +994,13 @@ export class QorusProjectCodeInfo {
                 };
 
                 child_process.exec(command, options, (error, stdout, stderr) => {
+                    if (stderr && log_qop_stderr) {
+                        msg.error(stderr);
+                    }
 
                     if (error) {
                         msg.error(t`QopError ${error}`);
-                        if (stderr) {
+                        if (stderr && !log_qop_stderr) {
                             msg.error(stderr);
                         }
                         this.info_update_pending['objects'] = false;
@@ -1003,7 +1008,7 @@ export class QorusProjectCodeInfo {
                         return;
                     }
 
-                    const objects: any[] = JSON.parse(stdout.toString());
+                    const objects: any[] = JSON.parse(stdout.toString()) || [];
 
                     for (let obj of objects) {
                         const authors = obj.tags.author || obj.tags.serviceauthor || [];
