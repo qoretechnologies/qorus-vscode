@@ -29,9 +29,14 @@ class ClassCreator extends InterfaceCreator {
                 template = data['base-class-name'] ? subclass_template : class_template;
                 suffix = '.qclass';
                 break;
+            case 'other':
+                break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassCreator'}`);
+                return;
         }
+
+        const has_code: boolean = !!template;
 
         let header_data = this.init(data, suffix);
 
@@ -48,6 +53,11 @@ class ClassCreator extends InterfaceCreator {
         let orig_file_path: string;
         switch (edit_type) {
             case 'create':
+                if (!has_code) {
+                    message = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
+                    break;
+                }
+
                 contents = data['base-class-name']
                     ?   this.fillTemplate(template, {
                             class_name: data['class-name'],
@@ -59,6 +69,10 @@ class ClassCreator extends InterfaceCreator {
             case 'edit':
                 const {target_dir: orig_target_dir, target_file: orig_target_file, ...other_orig_data} = orig_data;
                 orig_file_path = path.join(orig_target_dir, orig_target_file);
+                if (!has_code) {
+                    break;
+                }
+
                 const iface_info = this.code_info.codeInfo(iface_kind, orig_file_path);
 
                 code_lines = iface_info.text_lines;
@@ -76,7 +90,7 @@ class ClassCreator extends InterfaceCreator {
         let headers = ClassCreator.createHeaders({
             type: iface_kind,
             ...header_data,
-            code: this.file_name
+            code: has_code ? this.file_name : undefined
         });
 
         const iface_data = this.code_info.ifaceById(iface_id);
@@ -84,7 +98,9 @@ class ClassCreator extends InterfaceCreator {
             headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
         }
 
-        this.writeFiles(contents, headers, open_file_on_success);
+        has_code
+            ? this.writeFiles(contents, headers, open_file_on_success)
+            : this.writeYamlFile(headers, open_file_on_success);
 
         if (message) {
             msg.info(message);

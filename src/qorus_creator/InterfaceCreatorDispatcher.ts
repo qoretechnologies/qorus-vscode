@@ -43,6 +43,7 @@ class InterfaceCreatorDispatcher {
             case 'job':
             case 'class':
             case 'step':
+            case 'other':
                 class_creator.edit(params);
                 break;
             case 'config-item':

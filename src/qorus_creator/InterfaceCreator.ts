@@ -16,7 +16,6 @@ export abstract class InterfaceCreator {
     protected file_base: string;
     protected code_info: QorusProjectCodeInfo;
 
-
     protected init(data: any, suffix: string): any {
         this.suffix = suffix;
         const { target_dir, target_file, ...other_data } = data;
@@ -25,8 +24,10 @@ export abstract class InterfaceCreator {
         this.lang = data.lang || 'qore';
 
         this.file_base = target_file
-            ? path.basename(target_file, this.suffix)
-            : `${data.name}-${data.version}`;
+            ? path.basename(target_file, this.suffix || '')
+            : typeof data.version !== 'undefined'
+                ? `${data.name}-${data.version}`
+                : data.name;
 
         return other_data;
     }
@@ -53,7 +54,7 @@ export abstract class InterfaceCreator {
     protected abstract editImpl(params: any);
 
     protected get file_name() {
-        return `${this.file_base}${this.suffix}${lang_suffix[this.lang]}`;
+        return `${this.file_base}${this.suffix || ''}${lang_suffix[this.lang]}`;
     }
 
     protected get yaml_file_name() {
@@ -68,6 +69,22 @@ export abstract class InterfaceCreator {
         return path.join(this.target_dir, this.yaml_file_name);
     }
 
+    protected writeYamlFile(headers: string, open_file_on_success: boolean = true, file_to_open?: string) {
+        const generated_file_info = '# This is a generated file, don\'t edit!\n';
+
+        fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
+            if (err) {
+                msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
+                return;
+            }
+
+            if (open_file_on_success) {
+                workspace.openTextDocument(file_to_open || this.yaml_file_path)
+                         .then(doc => window.showTextDocument(doc));
+            }
+        });
+    }
+
     protected writeFiles(contents: string, headers: string, open_file_on_success: boolean = true) {
         fs.writeFile(this.file_path, contents, err => {
             if (err) {
@@ -75,18 +92,7 @@ export abstract class InterfaceCreator {
                 return;
             }
 
-            const generated_file_info = '# This is a generated file, don\'t edit!\n';
-
-            fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
-                if (err) {
-                    msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
-                    return;
-                }
-
-                if (open_file_on_success) {
-                    workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
-                }
-            });
+            this.writeYamlFile(headers, open_file_on_success, this.file_path);
         });
     }
 
@@ -243,6 +249,10 @@ export abstract class InterfaceCreator {
                     case 'service-autostart':
                     case 'workflow-autostart':
                         result += `autostart: ${value}\n`;
+                        break;
+                    case 'desc':
+                    case 'description':
+                        result += `${tag}: "${value}"\n`;
                         break;
                     case 'version':
                         if (parseFloat(value) == value) {
