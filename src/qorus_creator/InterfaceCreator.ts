@@ -254,6 +254,9 @@ export abstract class InterfaceCreator {
                     case 'description':
                         result += `${tag}: "${value}"\n`;
                         break;
+                    case 'type':
+                        result += `${tag}: ${value.toLowerCase()}\n`;
+                        break;
                     case 'version':
                         if (parseFloat(value) == value) {
                             result += `${tag}: "${value}"\n`;
