@@ -213,21 +213,24 @@ export class QorusProjectCodeInfo {
 
         let iface_kind;
         this.iface_by_id[iface_id]['config-items'].forEach(item => {
+            if (item.name !== name || !level) {
+                return;
+            }
 
+            let val;
             const non_star_type = (item.type && item.type[0] === '*') ? item.type.substr(1) : item.type;
             switch (non_star_type) {
-                case 'int': value = parseInt(value); break;
-                case 'float': value = parseFloat(value); break;
-                case 'bool': value = JSON.parse(value); break;
+                case 'int': val = parseInt(value); break;
+                case 'float': val = parseFloat(value); break;
+                case 'bool': val = JSON.parse(value); break;
+                default: val = jsyaml.safeLoad(value);
             }
 
-            if (item.name === name && level) {
-                if (['step', 'job', 'service'].includes(level)) {
-                    iface_kind = level;
-                    level = 'local';
-                }
-                item[level + '-value'] = value;
+            if (['step', 'job', 'service'].includes(level)) {
+                iface_kind = level;
+                level = 'local';
             }
+            item[level + '-value'] = val;
         });
 
         this.getConfigItems({iface_id, iface_kind});

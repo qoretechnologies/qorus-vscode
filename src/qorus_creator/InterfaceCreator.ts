@@ -132,7 +132,17 @@ export abstract class InterfaceCreator {
 
             for (const tag of ['local-value', 'global-value', 'workflow-value']) {
                 if (item[tag]) {
-                    result += `${indent}${tag}: ${item[tag]}\n`;
+                    switch (item.type) {
+                        case 'list':
+                        case '*list':
+                            result += `${indent}${tag}:\n`;
+                            for (let entry of item[tag]) {
+                                result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
+                            }
+                            break;
+                        default:
+                            result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
+                    }
                 }
             }
 
