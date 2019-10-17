@@ -798,7 +798,7 @@ export class QorusProjectCodeInfo {
                 }
                 for (const level of ['global', 'workflow', 'local']) {
                     const key = level + '-value';
-                    if (item[key]) {
+                    if (typeof item[key] !== 'undefined') {
                         item.value = item[key];
                         item.level = iface_kind;
                     }
@@ -820,8 +820,8 @@ export class QorusProjectCodeInfo {
                 const toYaml = str => jsyaml.safeDump(str).replace(/\r?\n$/, '');
 
                 let yaml_data_tag = {
-                    ... item.value ? {value: toYaml(item.value)} : {},
-                    ... item.default_value ? {default_value: toYaml(item.default_value)} : {},
+                    ... typeof item.value !== 'undefined' ? {value: toYaml(item.value)} : {},
+                    ... typeof item.default_value !== 'undefined' ? {default_value: toYaml(item.default_value)} : {},
                     ... item.allowed_values
                         ? {allowed_values: item.allowed_values.map(value => toYaml(value))}
                         : {}
