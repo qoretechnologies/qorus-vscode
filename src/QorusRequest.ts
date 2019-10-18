@@ -171,6 +171,8 @@ export class QorusRequest extends QorusLogin {
         tree.refresh();
     }
 
+    activeQorusInstance = () => tree.getQorusInstance(this.active_url);
+
     activeQorusInstanceAndToken(): any {
         if (!this.active_url) {
             msg.error(t`NoActiveQorusInstance`);

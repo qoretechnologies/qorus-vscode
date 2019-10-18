@@ -29,7 +29,11 @@ class QorusWebview {
         const {uri, ...other_data} = this.initial_data;
         this.postMessage({
             action: 'return-initial-data',
-            data: { path: web_path, ...other_data }
+            data: {
+                path: web_path,
+                qorus_instance: qorus_request.activeQorusInstance(),
+                ...other_data
+            }
         });
     };
 
