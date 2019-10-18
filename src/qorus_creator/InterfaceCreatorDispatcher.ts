@@ -1,4 +1,3 @@
-import { projects } from '../QorusProject';
 import { service_creator } from './ServiceCreator';
 import { class_creator } from './ClassCreator';
 import { serviceFields, service_methods } from './service_constants';
@@ -6,7 +5,7 @@ import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
 import { classFields } from './common_constants';
-import { config_item_fields } from './config_item_constants';
+import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 
 
@@ -26,7 +25,7 @@ class InterfaceCreatorDispatcher {
             case 'step':
                 return stepFields(params);
             case 'config-item':
-                return config_item_fields;
+                return configItemFields(params.interface_info);
             case 'other':
                 return otherFields(params);
             default:
@@ -47,19 +46,13 @@ class InterfaceCreatorDispatcher {
                 class_creator.edit(params);
                 break;
             case 'config-item':
-                const interface_info = projects.currentInterfaceInfo();
-                interface_info && interface_info.updateConfigItem(params);
+                params.interface_info.updateConfigItem(params);
                 break;
         }
     }
 
     deleteServiceMethod(params: any) {
         service_creator.deleteMethod(params);
-    }
-
-    updateConfigItemValue(params: any) {
-        const interface_info = projects.currentInterfaceInfo();
-        interface_info && interface_info.updateConfigItemValue(params);
     }
 }
 

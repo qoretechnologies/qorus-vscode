@@ -95,6 +95,7 @@ class QorusWebview {
                         msg.error(t`WorkspaceFolderUnsetCloseWebview`);
                         return;
                     }
+                    const interface_info = project.interface_info;
 
                     switch (message.action) {
                         case 'get-text':
@@ -175,6 +176,7 @@ class QorusWebview {
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
                                 fields: creator.getFields({
+                                    interface_info,
                                     iface_kind: message.iface_kind,
                                     is_editing: message.is_editing || false,
                                     default_target_dir: initial_data.uri && initial_data.uri.fsPath
@@ -190,10 +192,10 @@ class QorusWebview {
                             this.postInitialData();
                             break;
                         case 'creator-create-interface':
-                            creator.editInterface({...message, edit_type: 'create'});
+                            creator.editInterface({...message, edit_type: 'create', interface_info});
                             break;
                         case 'creator-edit-interface':
-                            creator.editInterface({...message, edit_type: 'edit'});
+                            creator.editInterface({...message, edit_type: 'edit', interface_info});
                             break;
                         case 'get-interface-data':
                             project.code_info.getInterfaceData(message);

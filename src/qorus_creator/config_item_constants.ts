@@ -1,6 +1,6 @@
 const types = ['string', 'int', 'bool', 'float', 'date', 'hash', 'list'];
 
-export const config_item_fields = [
+export const configItemFields = interface_info => [
     {
         name: 'name',
     },
@@ -18,7 +18,7 @@ export const config_item_fields = [
     {
         name: 'can_be_undefined',
         type: 'boolean',
-        default_value: false,
+        default_value: false
     },
     {
         name: 'default_value',
@@ -31,12 +31,11 @@ export const config_item_fields = [
         name: 'strictly_local',
         mandatory: false,
         type: 'boolean',
-        default_value: false,
+        default_value: false
     },
     {
         name: 'config_group',
-        mandatory: false,
-        default_value: 'Default',
+        default_value: interface_info && interface_info.last_config_group
     },
     {
         name: 'allowed_values',
@@ -48,4 +47,4 @@ export const config_item_fields = [
 ];
 
 export const defaultValue = name =>
-    (config_item_fields.find(field => field.name === name) || {}).default_value;
+    (configItemFields({}).find(field => field.name === name) || {}).default_value;

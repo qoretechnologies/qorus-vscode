@@ -9,6 +9,7 @@ import * as msg from '../qorus_message';
 export class InterfaceInfo {
     private code_info: QorusProjectCodeInfo;
     private iface_by_id = {};
+    private last_conf_group: string;
 
     constructor(project_code_info: QorusProjectCodeInfo) {
         this.code_info = project_code_info;
@@ -34,6 +35,10 @@ export class InterfaceInfo {
 
     getInfo = (id: string): any => {
         return this.iface_by_id[id];
+    }
+
+    get last_config_group(): string | undefined {
+        return this.last_conf_group;
     }
 
     updateConfigItemValue = ({iface_id, name, value, level, parent_class}) => {
@@ -85,6 +90,10 @@ export class InterfaceInfo {
         }
         else {
             this.iface_by_id[iface_id]['config-items'].push(item);
+        }
+
+        if (item.config_group) {
+            this.last_conf_group = item.config_group;
         }
 
         this.getConfigItems({iface_id, iface_kind: this.iface_by_id[iface_id].type});
