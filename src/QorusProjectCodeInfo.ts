@@ -726,7 +726,7 @@ export class QorusProjectCodeInfo {
             this.iface_by_id[iface_id]['config-items'].push(item);
         }
 
-        this.getConfigItems({iface_id});
+        this.getConfigItems({iface_id, iface_kind: this.iface_by_id[iface_id].type});
     }
 
     private addClassConfigItems = (class_name, iface_id) => {
