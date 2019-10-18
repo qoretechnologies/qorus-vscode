@@ -93,7 +93,7 @@ class ClassCreator extends InterfaceCreator {
             code: has_code ? this.file_name : undefined
         });
 
-        const iface_data = this.code_info.ifaceById(iface_id);
+        const iface_data = this.code_info.interface_info.getInfo(iface_id);
         if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
             headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
         }

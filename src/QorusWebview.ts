@@ -199,13 +199,13 @@ class QorusWebview {
                             project.code_info.getInterfaceData(message);
                             break;
                         case 'get-config-items':
-                            project.code_info.getConfigItems(message);
+                            project.interface_info.getConfigItems(message);
                             break;
                         case 'get-config-item':
-                            project.code_info.getConfigItem(message);
+                            project.interface_info.getConfigItem(message);
                             break;
                         case 'update-config-item-value':
-                            creator.updateConfigItemValue(message);
+                            project.interface_info.updateConfigItemValue(message);
                             break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);

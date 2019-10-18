@@ -78,7 +78,7 @@ class ServiceCreator extends InterfaceCreator {
             code: this.file_name
         });
 
-        const iface_data = this.code_info.ifaceById(iface_id);
+        const iface_data = this.code_info.interface_info.getInfo(iface_id);
         if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
             headers += ServiceCreator.createConfigItemHeaders(iface_data['config-items']);
         }

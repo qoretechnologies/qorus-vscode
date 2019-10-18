@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
+import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import { QorusExtension } from './qorus_vscode';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
@@ -87,7 +88,7 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.editInterface',
                                                  (data: any, iface_kind: string) =>
     {
-        const code_info = projects.currentProjectCodeInfo();
+        const code_info: InterfaceInfo = projects.currentInterfaceInfo();
         const iface_id = code_info.addIfaceById(data);
         qorus_webview.open({
             tab: 'CreateInterface',

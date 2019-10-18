@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { qorus_webview } from './QorusWebview';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
@@ -26,6 +27,10 @@ export class QorusProject {
 
     get code_info(): QorusProjectCodeInfo {
         return this.project_code_info;
+    }
+
+    get interface_info(): InterfaceInfo {
+        return this.project_code_info.interface_info;
     }
 
     get folder(): string {
@@ -275,6 +280,11 @@ class QorusProjects {
     currentProjectCodeInfo(): QorusProjectCodeInfo | undefined {
         const current_project = this.getProject();
         return current_project && current_project.code_info;
+    }
+
+    currentInterfaceInfo(): InterfaceInfo | undefined {
+        const code_info = this.currentProjectCodeInfo();
+        return code_info && code_info.interface_info;
     }
 
     private getProjectFolder(uri?: vscode.Uri, use_current: boolean = true): string | undefined {

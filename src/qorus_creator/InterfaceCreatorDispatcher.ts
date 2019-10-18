@@ -47,8 +47,8 @@ class InterfaceCreatorDispatcher {
                 class_creator.edit(params);
                 break;
             case 'config-item':
-                const code_info = projects.currentProjectCodeInfo();
-                code_info && code_info.updateConfigItem(params);
+                const interface_info = projects.currentInterfaceInfo();
+                interface_info && interface_info.updateConfigItem(params);
                 break;
         }
     }
@@ -58,8 +58,8 @@ class InterfaceCreatorDispatcher {
     }
 
     updateConfigItemValue(params: any) {
-        const code_info = projects.currentProjectCodeInfo();
-        code_info && code_info.updateConfigItemValue(params);
+        const interface_info = projects.currentInterfaceInfo();
+        interface_info && interface_info.updateConfigItemValue(params);
     }
 }
 
