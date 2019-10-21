@@ -1,6 +1,18 @@
 import React, { Component, FunctionComponent, useState } from 'react';
 import { connect } from 'react-redux';
-import { Intent, Radio, RadioGroup, Tabs, Tab, Button, Popover, Icon, ButtonGroup, Callout } from '@blueprintjs/core';
+import {
+    Intent,
+    Radio,
+    RadioGroup,
+    Tabs,
+    Tab,
+    Button,
+    Popover,
+    Icon,
+    ButtonGroup,
+    Callout,
+    Position,
+} from '@blueprintjs/core';
 import { Envs } from './Environments';
 import { Qoruses } from './Qoruses';
 import { Urls } from './Urls';
@@ -426,6 +438,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                         <Add onSubmit={handleEnvironmentAdd} minimal={false} big text={t('AddNewEnvironment')} />
                         <Popover
                             popoverClassName="custom-popover"
+                            position={Position.LEFT_TOP}
                             content={
                                 <StyledDirWrapper>
                                     {projectData.source_directories.length > 10 && (
