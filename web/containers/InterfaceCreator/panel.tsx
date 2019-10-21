@@ -230,7 +230,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         };
     }, [activeId]);
 
-    const resetLocalFields: (newActiveId: number) => void = newActiveId => {
+    const resetLocalFields: (newActiveId?: number) => void = newActiveId => {
         resetFields(type);
         // Hide the fields until they are fetched
         setShow(false);
@@ -282,12 +282,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Set the mount to false
                     isInitialMount.current = false;
                 }
-                // Check if the interface id exists, which means user
-                // has already been on this view
-                if (!interfaceId) {
-                    // Create it if this is brand new interface
-                    setInterfaceId(type, data ? data.iface_id : shortid.generate());
-                }
+                // Create / set interface id
+                setInterfaceId(type, data ? data.iface_id : shortid.generate());
                 // Set show
                 setShow(true);
             }
@@ -545,6 +541,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             resetFields(type);
             // Reset the interface data
             initialData.resetInterfaceData(type);
+            // Reset local fields
+            resetLocalFields();
         }
     };
 

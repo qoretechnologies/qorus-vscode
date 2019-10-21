@@ -66,20 +66,21 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     newResult[type] = type === 'service-methods' ? {} : [];
                     return newResult;
                 });
-/*
+
                 _setInterfaceId(current => {
                     const newResult = { ...current };
                     // Set the interface id to null
                     newResult[type] = null;
                     return newResult;
                 });
-*/
+
                 const newResult = { ...current };
                 // Reset the fields
                 newResult[type] = type === 'service-methods' ? {} : [];
                 return newResult;
             });
         };
+
         const setInterfaceId: (interfaceType: string, id: string) => void = (interfaceType, id) => {
             // Sets the interface id, which is only used
             // for config items management
