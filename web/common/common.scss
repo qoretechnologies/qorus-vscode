@@ -64,6 +64,13 @@ body {
     overflow-x: hidden;
 }
 
+code {
+    color: #222;
+    background-color: #d7d7d7;
+    padding: 0 5px;
+    border-radius: 3px;
+}
+
 .select-field,
 .select-field div,
 .select-field button {
@@ -408,16 +415,6 @@ table.table--data {
 
     tr.row-hidden {
         visibility: hidden;
-    }
-
-    td {
-        p,
-        span {
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            margin-bottom: 0;
-        }
     }
 
     thead th,

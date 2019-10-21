@@ -509,6 +509,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
             }
+            // Set the interface kind
+            let iface_kind = type;
+            // Service methods use the service type
+            if (type === 'service-methods') {
+                iface_kind = 'service';
+            }
+            // Config items use the parent type
+            if (parent) {
+                iface_kind = parent;
+            }
             // Add workflow data with step
             if (type === 'step') {
                 // Get the workflow data
@@ -521,7 +531,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-                    iface_kind: type,
+                    iface_kind,
                     data: newData,
                     orig_data: data,
                     workflow,
@@ -530,7 +540,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 });
             } else {
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-                    iface_kind: type === 'service-methods' ? 'service' : type,
+                    iface_kind,
                     data: newData,
                     orig_data: type === 'service-methods' ? initialData.service : data,
                     open_file_on_success: openFileOnSubmit !== false,
