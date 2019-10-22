@@ -33,20 +33,22 @@ class InterfaceCreatorDispatcher {
         }
     }
 
-    editInterface(params) {
-        switch (params.iface_kind) {
+    editInterface({iface_kind: iface_kinds, interface_info, ...other_params}) {
+        const [iface_kind, sub_iface_kind] = iface_kinds.split(/:/);
+
+        switch (sub_iface_kind || iface_kind) {
             case 'service':
-                service_creator.edit(params);
+                service_creator.edit(other_params);
                 break;
             case 'workflow':
             case 'job':
             case 'class':
             case 'step':
             case 'other':
-                class_creator.edit(params);
+                class_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':
-                params.interface_info.updateConfigItem(params);
+                interface_info.updateConfigItem({...other_params, iface_kind});
                 break;
         }
     }

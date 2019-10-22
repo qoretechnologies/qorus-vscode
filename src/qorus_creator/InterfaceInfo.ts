@@ -71,7 +71,7 @@ export class InterfaceInfo {
         this.getConfigItems({iface_id, iface_kind});
     }
 
-    updateConfigItem = ({iface_id, data: item}) => {
+    updateConfigItem = ({iface_id, iface_kind, data: item}) => {
         this.initIfaceId(iface_id);
 
         if (item.can_be_undefined && item.type) {
@@ -94,7 +94,7 @@ export class InterfaceInfo {
             this.last_conf_group = item.config_group;
         }
 
-        this.getConfigItems({iface_id, iface_kind: this.iface_by_id[iface_id].type});
+        this.getConfigItems({iface_id, iface_kind});
     }
 
     private configItemInheritedData = raw_item => {
