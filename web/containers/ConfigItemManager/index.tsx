@@ -82,6 +82,9 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         if (configItemData) {
             // Open the config item panel
             setShowConfigItemPanel(true);
+        } else {
+            setShowConfigItemPanel(false);
+            resetFields('config-item');
         }
     }, [configItemData]);
 
@@ -101,6 +104,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             level,
             iface_id: interfaceId,
             parent_class: parent,
+            iface_kind: type,
         });
     };
 
@@ -149,9 +153,9 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                     title={t('ConfigItemEditor')}
                     style={{ width: '80vw', height: '80vh', backgroundColor: '#fff' }}
                     onClose={() => {
-                        resetFields('config-item');
                         setConfigItemData(null);
                         setShowConfigItemPanel(false);
+                        resetFields('config-item');
                     }}
                 >
                     <StyledConfigWrapper>
@@ -163,9 +167,9 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             data={configItemData}
                             isEditing={!!configItemData}
                             onSubmit={() => {
-                                resetFields('config-item');
                                 setConfigItemData(null);
                                 setShowConfigItemPanel(false);
+                                resetFields('config-item');
                             }}
                             forceSubmit
                         />

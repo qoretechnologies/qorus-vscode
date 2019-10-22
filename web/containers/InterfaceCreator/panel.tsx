@@ -232,10 +232,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     const resetLocalFields: (newActiveId?: number) => void = newActiveId => {
         resetFields(type);
-        // Reset config items
-        postMessage(Messages.RESET_CONFIG_ITEMS, {
-            iface_id: interfaceId,
-        });
         // Hide the fields until they are fetched
         setShow(false);
         // Change the name if needed
@@ -553,8 +549,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             // Reset the interface data
             initialData.resetInterfaceData(type);
-            // Reset local fields
-            resetLocalFields();
+            // If this is config item, reset only the fields
+            // local fields will be unmounted
+            if (type === 'config-item') {
+                resetFields(type);
+            } else {
+                // Reset local fields
+                resetLocalFields();
+            }
         }
     };
 
@@ -705,7 +707,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 </Tooltip>
                             )}
                             <Tooltip content={t('ResetTooltip')}>
-                                <Button text={t('Reset')} icon={'history'} onClick={() => resetLocalFields(activeId)} />
+                                <Button
+                                    text={t('Reset')}
+                                    icon={'history'}
+                                    onClick={() => {
+                                        resetLocalFields(activeId);
+                                        // Reset also config items
+                                        postMessage(Messages.RESET_CONFIG_ITEMS, {
+                                            iface_id: interfaceId,
+                                        });
+                                    }}
+                                />
                             </Tooltip>
                             <Button
                                 text={t(submitLabel)}
