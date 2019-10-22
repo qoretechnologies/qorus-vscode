@@ -232,6 +232,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     const resetLocalFields: (newActiveId?: number) => void = newActiveId => {
         resetFields(type);
+        // Reset config items
+        postMessage(Messages.RESET_CONFIG_ITEMS, {
+            iface_id: interfaceId,
+        });
         // Hide the fields until they are fetched
         setShow(false);
         // Change the name if needed
@@ -547,8 +551,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     iface_id: interfaceId,
                 });
             }
-            // Reset the fields
-            resetFields(type);
             // Reset the interface data
             initialData.resetInterfaceData(type);
             // Reset local fields

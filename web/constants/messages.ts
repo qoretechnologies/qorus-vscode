@@ -26,4 +26,5 @@ export const Messages: { [key: string]: string } = {
     GET_CONFIG_ITEM: 'get-config-item',
     RETURN_CONFIG_ITEM: 'return-config-item',
     CONFIG_CHANGED_ON_DISK: 'config-changed-on-disk',
+    RESET_CONFIG_ITEMS: 'reset-config-items',
 };
