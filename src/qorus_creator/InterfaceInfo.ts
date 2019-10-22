@@ -41,7 +41,7 @@ export class InterfaceInfo {
         return this.last_conf_group;
     }
 
-    updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class}) => {
+    updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove}) => {
         this.initIfaceId(iface_id);
 
         if (parent_class) {
@@ -50,6 +50,15 @@ export class InterfaceInfo {
 
         this.iface_by_id[iface_id]['config-items'].forEach(item => {
             if (item.name !== name || !level) {
+                return;
+            }
+
+            if (['step', 'job', 'service'].includes(level)) {
+                level = 'local';
+            }
+
+            if (value === null && remove) {
+                delete item[level + '-value'];
                 return;
             }
 
@@ -62,9 +71,6 @@ export class InterfaceInfo {
                 default: val = jsyaml.safeLoad(value);
             }
 
-            if (['step', 'job', 'service'].includes(level)) {
-                level = 'local';
-            }
             item[level + '-value'] = val;
         });
 
