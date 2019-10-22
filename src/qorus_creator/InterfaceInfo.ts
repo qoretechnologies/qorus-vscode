@@ -41,14 +41,13 @@ export class InterfaceInfo {
         return this.last_conf_group;
     }
 
-    updateConfigItemValue = ({iface_id, name, value, level, parent_class}) => {
+    updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class}) => {
         this.initIfaceId(iface_id);
 
         if (parent_class) {
             this.addClassConfigItems(parent_class, iface_id);
         }
 
-        let iface_kind;
         this.iface_by_id[iface_id]['config-items'].forEach(item => {
             if (item.name !== name || !level) {
                 return;
@@ -64,7 +63,6 @@ export class InterfaceInfo {
             }
 
             if (['step', 'job', 'service'].includes(level)) {
-                iface_kind = level;
                 level = 'local';
             }
             item[level + '-value'] = val;
@@ -185,12 +183,14 @@ export class InterfaceInfo {
                 if (item.default_value) {
                     item.value = item.default_value;
                     item.level = 'default';
+                    item.is_set = true;
                 }
                 for (const level of ['global', 'workflow', 'local']) {
                     const key = level + '-value';
-                    if (typeof item[key] !== 'undefined') {
+                    if (item[key] !== undefined) {
                         item.value = item[key];
-                        item.level = iface_kind;
+                        item.level = level === 'local' ? iface_kind : level;
+                        item.is_set = true;
                     }
                 }
 
@@ -200,18 +200,23 @@ export class InterfaceInfo {
             };
 
             const checkValueLevel = (item: any, level: string): any => {
-                if (item.value && item.level !== level) {
-                    delete item.value;
+                const key = level + '-value';
+                if (item[key] !== undefined) {
+                    item.value = item[key];
                 }
-                return { ...item, is_set: true };
+                else {
+                    delete item.value;
+                    delete item.is_set;
+                }
+                return { ...item };
             }
 
             const addYamlData = (item: any): any => {
                 const toYaml = str => jsyaml.safeDump(str).replace(/\r?\n$/, '');
 
                 let yaml_data_tag = {
-                    ... typeof item.value !== 'undefined' ? {value: toYaml(item.value)} : {},
-                    ... typeof item.default_value !== 'undefined' ? {default_value: toYaml(item.default_value)} : {},
+                    ... item.value !== undefined ? {value: toYaml(item.value)} : {},
+                    ... item.default_value !== undefined ? {default_value: toYaml(item.default_value)} : {},
                     ... item.allowed_values
                         ? {allowed_values: item.allowed_values.map(value => toYaml(value))}
                         : {}
