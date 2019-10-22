@@ -517,7 +517,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             // Config items use the parent type
             if (parent) {
-                iface_kind = parent;
+                iface_kind = `${parent}:${type}`;
             }
             // Add workflow data with step
             if (type === 'step') {
