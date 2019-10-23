@@ -114,6 +114,7 @@ class ClassCreator extends InterfaceCreator {
         };
 
         this.deleteOrigFilesIfDifferent(orig_file_path);
+        this.code_info.interface_info.setOrigConfigItems(iface_id);
     }
 }
 

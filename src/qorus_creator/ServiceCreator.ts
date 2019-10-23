@@ -99,6 +99,7 @@ class ServiceCreator extends InterfaceCreator {
         };
 
         this.deleteOrigFilesIfDifferent(orig_file_path);
+        this.code_info.interface_info.setOrigConfigItems(iface_id);
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {

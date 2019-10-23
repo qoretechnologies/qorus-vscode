@@ -213,6 +213,9 @@ class QorusWebview {
                         case 'update-config-item-value':
                             project.interface_info.updateConfigItemValue(message);
                             break;
+                        case 'reset-config-items':
+                            project.interface_info.resetConfigItemsToOrig(message.iface_id);
+                            break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
                     }

@@ -1141,6 +1141,9 @@ msgstr "Code"
 msgid "field-label-desc"
 msgstr "Description"
 
+msgid "field-label-description"
+msgstr "Description"
+
 msgid "field-label-label"
 msgstr "Label"
 

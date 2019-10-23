@@ -10,6 +10,7 @@ export class InterfaceInfo {
     private code_info: QorusProjectCodeInfo;
     private iface_by_id = {};
     private last_conf_group: string;
+    private are_orig_config_items_set: boolean = false;
 
     constructor(project_code_info: QorusProjectCodeInfo) {
         this.code_info = project_code_info;
@@ -21,7 +22,20 @@ export class InterfaceInfo {
         }
         if (!this.iface_by_id[iface_id]['config-items']) {
             this.iface_by_id[iface_id]['config-items'] = [];
+            this.iface_by_id[iface_id]['orig-config-items'] = [];
         }
+    }
+
+    resetConfigItemsToOrig = iface_id => {
+        this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['orig-config-items'];
+        this.iface_by_id[iface_id]['orig-config-items'] = [];
+        this.are_orig_config_items_set = false;
+    }
+
+    setOrigConfigItems = iface_id => {
+        this.iface_by_id[iface_id]['orig-config-items'] =
+            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['config-items']));
+        this.are_orig_config_items_set = true;
     }
 
     addIfaceById = (data: any): string => {
@@ -249,6 +263,10 @@ export class InterfaceInfo {
             };
 
             qorus_webview.postMessage(message);
+
+            if (!this.are_orig_config_items_set) {
+                this.setOrigConfigItems(iface_id);
+            }
         });
     }
 }
