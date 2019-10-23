@@ -2,7 +2,6 @@ import React, { FunctionComponent, useState } from 'react';
 import { InitialContext } from '../context/init';
 import useMount from 'react-use/lib/useMount';
 import { Messages } from '../constants/messages';
-import omit from 'lodash/omit';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -57,6 +56,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }));
         };
 
+        const setActiveInstance: (inst: any) => void = inst => {
+            setInitialData(current => ({
+                ...current,
+                qorus_instance: inst,
+            }));
+        };
+
         if (!initialData) {
             return null;
         }
@@ -68,6 +74,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     changeTab,
                     setStepSubmitCallback,
                     resetInterfaceData,
+                    setActiveInstance,
                 }}
             >
                 <InitialContext.Consumer>

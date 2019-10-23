@@ -60,8 +60,9 @@ export interface IApp {
     changeTab: (activeTab: string) => void;
     openLogin: () => void;
     closeLogin: () => void;
-    setCurrentQorusInstance: (inst: string) => void;
+    setActiveInstance: (inst: string) => void;
     setCurrentProjectFolder: (folder: string) => void;
+    path: string;
 }
 
 export type TTranslator = (id: string) => string;
@@ -71,15 +72,13 @@ const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
 const App: FunctionComponent<IApp> = ({
     addMessageListener,
     postMessage,
-    changeTab,
-    openLogin,
     closeLogin,
-    setCurrentQorusInstance,
+    setActiveInstance,
     setCurrentProjectFolder,
     tab,
     project_folder,
     qorus_instance,
-    login_visible,
+    changeTab,
     path,
 }) => {
     const [texts, setTexts] = useState<{ [key: string]: string }>({});
@@ -102,9 +101,10 @@ const App: FunctionComponent<IApp> = ({
         });
         // Close login
         addMessageListener(Messages.CLOSE_LOGIN, (data: any): void => {
-            closeLogin();
+            changeTab('ProjectConfig');
+
             if (data.qorus_instance) {
-                setCurrentQorusInstance(data.qorus_instance);
+                setActiveInstance(data.qorus_instance);
             }
         });
         // Set project folder
@@ -112,8 +112,8 @@ const App: FunctionComponent<IApp> = ({
             setCurrentProjectFolder(data.folder);
         });
         // Set instance
-        addMessageListener(Messages.SET_QORUS_INSTANCE, (data: any): void => {
-            setCurrentQorusInstance(data.qorus_instance);
+        addMessageListener(Messages.SET_QORUS_INSTANCE, ({ qorus_instance }): void => {
+            setActiveInstance(qorus_instance);
         });
         // Get the current project folder
         postMessage(Messages.GET_PROJECT_FOLDER);
@@ -171,7 +171,6 @@ const App: FunctionComponent<IApp> = ({
 
 const mapStateToProps = state => ({
     project_folder: state.current_project_folder,
-    qorus_instance: state.current_qorus_instance,
     login_visible: state.login_visible,
 });
 
@@ -179,16 +178,8 @@ const mapDispatchToProps = dispatch => ({
     setCurrentProjectFolder: folder => {
         dispatch({ type: 'current_project_folder', current_project_folder: folder });
     },
-    setCurrentQorusInstance: qorus_instance => {
-        dispatch({ type: 'current_qorus_instance', current_qorus_instance: qorus_instance });
-    },
     openLogin: () => {
         dispatch({ type: 'login_visible', login_visible: true });
-    },
-    closeLogin: () => {
-        dispatch({ type: 'close_tab', tab: 'Login' });
-        dispatch({ type: 'login_clear' });
-        dispatch({ type: 'login_visible', login_visible: false });
     },
 });
 
