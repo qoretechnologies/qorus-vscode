@@ -22,11 +22,12 @@ const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
 const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
-const object_info_types = ['author', 'class', 'function', 'constant', 'mapper', 'value-map'];
+const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
-const yaml_types = [...iface_kinds, 'config-item-values', 'config-items', 'connection', 'constant',
-                    'event', 'function', 'group', 'mapper', 'queue', 'value-map'];
+const types_with_version = [...iface_kinds, 'constant', 'function', 'mapper'];
+const types_without_version = ['config-item-values', 'config-items', 'connection', 'event', 'group', 'queue', 'value-map'];
+const types = [...types_with_version, ...types_without_version];
 export const default_version = '1.0';
 
 const log_update_messages = false;
@@ -233,7 +234,7 @@ export class QorusProjectCodeInfo {
     }
 
     private initInfo() {
-        for (const type of object_info_types) {
+        for (const type of [...object_info_types, 'author']) {
             this.object_info[type] = {};
         }
 
@@ -241,8 +242,8 @@ export class QorusProjectCodeInfo {
             this.edit_info[iface_kind] = {};
         }
 
-        for (const yaml_type of yaml_types) {
-            this.yaml_data_by_name[yaml_type] = {};
+        for (const type of types) {
+            this.yaml_data_by_name[type] = {};
         }
 
         this.service_classes = {[root_service]: true};
@@ -499,44 +500,44 @@ export class QorusProjectCodeInfo {
             this.yaml_data_by_class[class_name] = yaml_data;
         }
 
+        const addObjectName = (type: string, name: string) => {
+            if (!this.object_info[type][name]) {
+                this.object_info[type][name] = { name };
+            }
+        };
+
         if (yaml_data.name && yaml_data.type) {
-            const name_version = `${yaml_data.name}:${yaml_data.version || default_version}`;
-            this.yaml_data_by_name[yaml_data.type][name_version] = yaml_data;
+
+            const name = types_with_version.includes(yaml_data.type)
+                ? `${yaml_data.name}:${yaml_data.version || default_version}`
+                : yaml_data.name;
+
+            this.yaml_data_by_name[yaml_data.type][name] = yaml_data;
+
+            if (object_info_types.includes(yaml_data.type)) {
+                addObjectName(yaml_data.type, name);
+            }
 
             if (class_name) {
                 const base_class_name = this.baseClassName(class_name);
 
                 if (base_class_name) {
-                    this.yaml_data_by_name[yaml_data.type][name_version]['base-class-name'] = base_class_name;
+                    this.yaml_data_by_name[yaml_data.type][name]['base-class-name'] = base_class_name;
 
                     if (yaml_data.type === 'step' && base_class_name) {
                         const step_type = this.stepType(base_class_name);
                         if (step_type) {
-                            this.yaml_data_by_name.step[name_version]['step-type'] = step_type;
+                            this.yaml_data_by_name.step[name]['step-type'] = step_type;
                         }
                     }
                 }
             }
         }
 
-        const addObjectName = (type: string, name: string) => {
-            if (!this.object_info[type][name]) {
-                this.object_info[type][name] = { name };
-            }
-        };
-        const types = {
-            author: 'author',
-            classes: 'class',
-            functions: 'function',
-            constants: 'constant',
-            mappers: 'mapper',
-            vmaps: 'value-map'
-        };
-        for (const key of Object.keys(types)) {
-            for (const name of yaml_data[key] || []) {
-                addObjectName(types[key], name);
-            }
+        for (const name of yaml_data.author || []) {
+            addObjectName('author', name);
         }
+
         if (class_name) {
             addObjectName('class', class_name);
             if (yaml_data.desc) {
@@ -814,9 +815,13 @@ export class QorusProjectCodeInfo {
                             continue;
                         }
 
-                        this.object_info[obj.type][obj.tags.name] = {
-                            name: obj.tags.name,
-                            desc: obj.tags.desc,
+                        const name = types_with_version.includes(obj.type)
+                            ? `${obj.tags.name}:${obj.tags.version || default_version}`
+                            : obj.tags.name;
+
+                        this.object_info[obj.type][name] = {
+                            name: name,
+                            desc: obj.tags.desc
                         };
                     }
                     if (--num_pending == 0) {
