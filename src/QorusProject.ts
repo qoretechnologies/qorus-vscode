@@ -8,9 +8,9 @@ import { tree } from './QorusTree';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 import { project_template } from './qorus_project_template';
+import * as urlParser from 'url-parse';
 
 export const config_filename = 'qorusproject.json';
-
 
 export class QorusProject {
     private project_folder: string;
@@ -69,8 +69,7 @@ export class QorusProject {
                 result => {
                     if (result.errors == undefined || result.errors.length == 0) {
                         onSuccess(file_data);
-                    }
-                    else {
+                    } else {
                         msg.error(result.humanReadable().toString());
                         if (onError) {
                             onError();
@@ -95,27 +94,29 @@ export class QorusProject {
 
     addSourceDir() {
         this.validateConfigFileAndDo(file_data => {
-            vscode.window.showOpenDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
-                defaultUri: vscode.Uri.file(this.folder)
-            }).then(uris => {
-                if (!uris || !uris.length) {
-                    return;
-                }
-                const full_dir = uris[0].fsPath;
-                const dir = vscode.workspace.asRelativePath(full_dir);
-                if (dir == full_dir) {
-                    msg.error(t`NotProjectSubdir ${dir}`);
-                    return;
-                }
-                if (file_data.source_directories.indexOf(dir) > -1) {
-                    msg.error(t`DirAlreadyInConfig ${dir}`);
-                    return;
-                }
-                file_data.source_directories.push(dir);
-                this.writeConfig(file_data);
-            });
+            vscode.window
+                .showOpenDialog({
+                    canSelectFiles: false,
+                    canSelectFolders: true,
+                    defaultUri: vscode.Uri.file(this.folder),
+                })
+                .then(uris => {
+                    if (!uris || !uris.length) {
+                        return;
+                    }
+                    const full_dir = uris[0].fsPath;
+                    const dir = vscode.workspace.asRelativePath(full_dir);
+                    if (dir == full_dir) {
+                        msg.error(t`NotProjectSubdir ${dir}`);
+                        return;
+                    }
+                    if (file_data.source_directories.indexOf(dir) > -1) {
+                        msg.error(t`DirAlreadyInConfig ${dir}`);
+                        return;
+                    }
+                    file_data.source_directories.push(dir);
+                    this.writeConfig(file_data);
+                });
         });
     }
 
@@ -134,7 +135,7 @@ export class QorusProject {
         this.validateConfigFileAndDo(file_data => {
             qorus_webview.postMessage({
                 action: 'config-return-data',
-                data: QorusProject.file2data(file_data)
+                data: QorusProject.file2data(file_data),
             });
         });
     }
@@ -149,7 +150,7 @@ export class QorusProject {
         fs.writeFileSync(this.config_file, JSON.stringify(file_data, null, 4) + '\n');
         qorus_webview.postMessage({
             action: 'config-return-data',
-            data: QorusProject.file2data(file_data)
+            data: QorusProject.file2data(file_data),
         });
     }
 
@@ -157,7 +158,7 @@ export class QorusProject {
         if (!file_data) {
             return {
                 qorus_instances: [],
-                source_directories: []
+                source_directories: [],
             };
         }
 
@@ -168,7 +169,7 @@ export class QorusProject {
             qorus_instances.push({
                 id: env_id,
                 name: env_name,
-                qoruses: []
+                qoruses: [],
             });
             let ii: number = 0;
             for (let qorus of file_data.qorus_instances[env_name]) {
@@ -177,8 +178,9 @@ export class QorusProject {
                     id: qorus_id,
                     name: qorus.name,
                     url: qorus.url,
+                    safe_url: this.createSafeUrl(qorus.url),
                     version: qorus.version,
-                    urls: []
+                    urls: [],
                 });
                 if (qorus.custom_urls) {
                     let iii: number = 0;
@@ -187,7 +189,8 @@ export class QorusProject {
                         qorus_instances[env_id].qoruses[qorus_id].urls.push({
                             id: url_id,
                             name: url.name,
-                            url: url.url
+                            url: url.url,
+                            safe_url: this.createSafeUrl(url.url),
                         });
                     }
                 }
@@ -196,14 +199,14 @@ export class QorusProject {
 
         return {
             qorus_instances: qorus_instances,
-            source_directories: file_data.source_directories
+            source_directories: file_data.source_directories,
         };
     }
 
     static data2file(data: any): any {
         let file_data: any = {
             qorus_instances: {},
-            source_directories: data.source_directories
+            source_directories: data.source_directories,
         };
 
         for (let env_id in data.qorus_instances) {
@@ -214,7 +217,7 @@ export class QorusProject {
                 let qorus_data: any = {
                     name: qorus.name,
                     url: qorus.url,
-                    custom_urls: []
+                    custom_urls: [],
                 };
                 if (qorus.version) {
                     qorus_data.version = qorus.version;
@@ -223,7 +226,7 @@ export class QorusProject {
                     const url = qorus.urls[url_id];
                     qorus_data.custom_urls.push({
                         name: url.name,
-                        url: url.url
+                        url: url.url,
                     });
                 }
                 file_data.qorus_instances[env.name].push(qorus_data);
@@ -231,10 +234,22 @@ export class QorusProject {
         }
         return file_data;
     }
+
+    static createSafeUrl(url: string): string {
+        // Check if the URL was provided
+        if (!url) {
+            return t`WrongUrl`;
+        }
+        // Parse the URL
+        const { protocol, slashes, host, query, pathname, username, hash }: any = urlParser(url);
+        // Build the safe URL without password
+        return `${protocol}${slashes ? '//' : ''}${username || ''}${
+            username ? '@' : ''
+        }${host}${pathname}${query}${hash}`;
+    }
 }
 
 class QorusProjects {
-
     private current_project_folder: string | undefined = undefined;
     private projects: any = {};
 

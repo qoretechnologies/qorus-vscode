@@ -417,6 +417,7 @@
         "styled-components": "^4.2.0",
         "swagger-object-validator": "^1.1.7",
         "ttag": "^1.7.18",
+        "url-parse": "^1.4.7",
         "yamljs": "^0.3.0"
     }
 }

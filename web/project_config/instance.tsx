@@ -60,6 +60,7 @@ const StyledUrlWrapper = styled.div`
     border-radius: 3px;
     padding: 10px;
     margin-bottom: 10px;
+    overflow: hidden;
 `;
 
 const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
@@ -73,6 +74,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
     onUrlSubmit,
     onUrlDelete,
     envId,
+    safe_url,
     t,
 }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -113,7 +115,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                         <Icon icon="dot" intent={isActive ? 'success' : 'none'} /> {name}
                         <span className={Classes.TEXT_MUTED}>
                             {' '}
-                            <a href={url}>[{url}]</a>
+                            <a href={url}>[{safe_url}]</a>
                         </span>
                     </div>
                     <div className="button-wrapper pull-right">

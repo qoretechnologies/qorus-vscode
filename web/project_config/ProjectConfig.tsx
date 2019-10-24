@@ -1,25 +1,5 @@
-import React, { Component, FunctionComponent, useState } from 'react';
-import { connect } from 'react-redux';
-import {
-    Intent,
-    Radio,
-    RadioGroup,
-    Tabs,
-    Tab,
-    Button,
-    Popover,
-    Icon,
-    ButtonGroup,
-    Callout,
-    Position,
-} from '@blueprintjs/core';
-import { Envs } from './Environments';
-import { Qoruses } from './Qoruses';
-import { Urls } from './Urls';
-import { SourceDirs } from './SourceDirs';
-import { MessageDialog } from '../common/MessageDialog';
-import { vscode } from '../common/vscode';
-import Box from '../components/Box';
+import React, { FunctionComponent, useState } from 'react';
+import { Button, Popover, Icon, ButtonGroup, Callout, Position } from '@blueprintjs/core';
 import compose from 'recompose/compose';
 import withTextContext from '../hocomponents/withTextContext';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
@@ -45,7 +25,8 @@ export interface IQorusInstance {
     id: number;
     name: string;
     url: string;
-    urls: { name: string; url: string }[];
+    safe_url: string;
+    urls: { name: string; url: string; safe_url: string }[];
 }
 
 export interface IEnvironment {
@@ -214,6 +195,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                                 id: newInstance.qoruses.length,
                                 name,
                                 url,
+                                safe_url: url,
                                 urls: [],
                             });
                         }
@@ -295,6 +277,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                                             newInstance.urls.push({
                                                 name,
                                                 url,
+                                                safe_url: url,
                                             });
                                         }
                                     }
