@@ -18,6 +18,9 @@ export interface IProject {
     t: TTranslator;
     initialData: {
         path: string;
+        tab: string;
+        subtab: string;
+        qorus_instance: { name: string; url: string } | null;
     };
 }
 
@@ -85,7 +88,9 @@ const StyledDirWrapper = styled.div`
 
 const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage, initialData, t }) => {
     const [projectData, setProjectData] = useState<IProjectData>(null);
-    const [activeInstance, setActiveInstance] = useState<{ name: string; url: string } | null>(null);
+    const [activeInstance, setActiveInstance] = useState<{ name: string; url: string } | null>(
+        initialData.qorus_instance
+    );
     const [changedOnDisk, setChangedOnDisk] = useState<boolean>(false);
 
     useEffectOnce(() => {
@@ -379,6 +384,13 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         );
     };
 
+    const handleSetInstanceActive: (url: string, set: boolean) => void = (url, set = true) => {
+        // Set / unset the active instance
+        postMessage(set ? Messages.SET_ACTIVE_INSTANCE : Messages.UNSET_ACTIVE_INSTANCE, {
+            url,
+        });
+    };
+
     const updateBackendData: (data: IProjectData) => void = data => {
         // Update the data on the backend
         postMessage(Messages.CONFIG_UPDATE_DATA, {
@@ -472,6 +484,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                                 onInstanceChange={handleInstanceDataChange}
                                 onUrlSubmit={handleInstanceDataChange}
                                 onUrlDelete={handleUrlDelete}
+                                onSetActiveInstanceClick={handleSetInstanceActive}
                             />
                         ))}
                     </StyledMasonryWrapper>

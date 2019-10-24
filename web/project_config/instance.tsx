@@ -6,13 +6,14 @@ import Add from './add';
 import withTextContext from '../hocomponents/withTextContext';
 import QorusUrl from './url';
 import { TTranslator } from '../App';
-import { StyledSubHeader } from './environment';
+import { StyledSubHeader, StyledNoData } from './environment';
 
 export interface IQorusInstanceProps extends IQorusInstance {
     onDataChange: (instanceId: number, name: string, url?: string) => void;
     onDelete: (id: number) => void;
     onUrlSubmit: (envId: number, instanceId: number, name: string, url: string, isOtherUrl: boolean) => void;
     onUrlDelete: (envId: number, instanceId: number, name: string) => void;
+    onSetActive: (url: string, set: boolean) => void;
     envId: number;
     isActive: boolean;
     t: TTranslator;
@@ -75,6 +76,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
     onUrlDelete,
     envId,
     safe_url,
+    onSetActive,
     t,
 }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -111,16 +113,22 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                 />
             ) : (
                 <StyledInstanceWrapper className={isExpanded && 'expanded'}>
-                    <div className="pull-left" style={{ width: '78%', wordBreak: 'break-word' }}>
-                        <Icon icon="dot" intent={isActive ? 'success' : 'none'} /> {name}
+                    <div className="pull-left" style={{ width: '68%', wordBreak: 'break-word' }}>
+                        <Icon icon="dot" intent={isActive ? 'success' : 'none'} />
                         <span className={Classes.TEXT_MUTED}>
                             {' '}
-                            <a href={url}>[{safe_url}]</a>
+                            <a href={url}>{name}</a>
                         </span>
                     </div>
                     <div className="button-wrapper pull-right">
                         <ButtonGroup minimal>
                             <Button icon="chevron-down" small onClick={() => setExpanded(!isExpanded)} />
+                            <Button
+                                icon="power"
+                                intent={isActive ? 'success' : 'none'}
+                                small
+                                onClick={() => onSetActive(url, !isActive)}
+                            />
                             <Button icon="edit" small onClick={() => setIsEditing(true)} />
                             <Button icon="trash" small onClick={() => onDelete(id)} />
                         </ButtonGroup>
@@ -128,22 +136,29 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                 </StyledInstanceWrapper>
             )}
             {isExpanded && (
-                <StyledUrlWrapper>
-                    <StyledSubHeader>
-                        <span>{t('OtherUrls')}</span>
-                        <div className="pull-right">
-                            <Add withUrl fill text={t('AddNewUrl')} onSubmit={handleUrlSubmit} />
-                        </div>
-                    </StyledSubHeader>
-                    {urls.length === 0 && (
-                        <p className={Classes.TEXT_MUTED}>
-                            <Icon icon="disable" /> {t('NoUrls')}
-                        </p>
-                    )}
-                    {urls.map((url, index: number) => (
-                        <QorusUrl id={index} {...url} onDelete={onUrlDelete} envId={envId} instanceId={id} />
-                    ))}
-                </StyledUrlWrapper>
+                <>
+                    <StyledUrlWrapper>
+                        <span>
+                            {t('MainUrl')} - <a href={url}>{safe_url}</a>
+                        </span>
+                    </StyledUrlWrapper>
+                    <StyledUrlWrapper>
+                        <StyledSubHeader>
+                            <span>{t('OtherUrls')}</span>
+                            <div className="pull-right">
+                                <Add withUrl fill text={t('AddNewUrl')} onSubmit={handleUrlSubmit} />
+                            </div>
+                        </StyledSubHeader>
+                        {urls.length === 0 && (
+                            <StyledNoData>
+                                <Icon icon="disable" iconSize={16} /> {t('NoUrls')}
+                            </StyledNoData>
+                        )}
+                        {urls.map((url, index: number) => (
+                            <QorusUrl id={index} {...url} onDelete={onUrlDelete} envId={envId} instanceId={id} />
+                        ))}
+                    </StyledUrlWrapper>
+                </>
             )}
         </>
     );

@@ -36,7 +36,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const changeTab: (tab: string, subtab?: string) => void = (tab, subtab) => {
             setInitialData(current => ({
-                path: current.path,
+                ...current,
                 tab,
                 subtab: subtab || null,
             }));

@@ -6,17 +6,16 @@ import { QorusLogin } from './QorusLogin';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
-
 export interface QorusRequestTexts {
-    error: string,
-    running: string,
-    cancelling: string,
-    cancellation_failed: string,
-    checking_progress: string,
-    finished_successfully: string,
-    cancelled: string,
-    failed: string,
-    checking_status_failed: string
+    error: string;
+    running: string;
+    cancelling: string;
+    cancellation_failed: string;
+    checking_progress: string;
+    finished_successfully: string;
+    cancelled: string;
+    failed: string;
+    checking_status_failed: string;
 }
 
 export class QorusRequest extends QorusLogin {
@@ -47,7 +46,7 @@ export class QorusRequest extends QorusLogin {
             {
                 location: vscode.ProgressLocation.Notification,
                 title: texts.running + id_info,
-                cancellable: true
+                cancellable: true,
             },
             async (progress, cancel_token): Promise<void> => {
                 cancel_token.onCancellationRequested(() => {
@@ -58,20 +57,18 @@ export class QorusRequest extends QorusLogin {
                         uri: `${url}/${request_id}`,
                         strictSSL: false,
                         headers: {
-                            'qorus-token': token
+                            'qorus-token': token,
                         },
-                        json: true
+                        json: true,
                     };
-                    request(options).catch(
-                        error => {
-                            msg.error(texts.cancellation_failed + id_info);
-                            msg.log(JSON.stringify(error));
-                        }
-                    );
+                    request(options).catch(error => {
+                        msg.error(texts.cancellation_failed + id_info);
+                        msg.log(JSON.stringify(error));
+                    });
                     msg.log(t`CancellationRequestSent ${request_id}`);
                 });
 
-                progress.report({ increment: -1});
+                progress.report({ increment: -1 });
                 let sec: number = 0;
                 let quit: boolean = false;
 
@@ -80,9 +77,9 @@ export class QorusRequest extends QorusLogin {
                     uri: `${url}/${request_id}`,
                     strictSSL: false,
                     headers: {
-                        'qorus-token': token
+                        'qorus-token': token,
                     },
-                    json: true
+                    json: true,
                 };
 
                 msg.log('uri ' + options.uri);
@@ -137,6 +134,7 @@ export class QorusRequest extends QorusLogin {
         }
 
         const url = tree_item;
+
         if (this.isAuthorized(url)) {
             this.setActive(url);
             tree.refresh();
@@ -148,8 +146,7 @@ export class QorusRequest extends QorusLogin {
                     this.addNoAuth(url);
                     tree.refresh();
                     msg.info(t`AuthNotNeeded ${url}`);
-                }
-                else {
+                } else {
                     msg.info(t`AuthNeeded ${url}`);
                     this.login(url);
                 }
@@ -177,13 +174,13 @@ export class QorusRequest extends QorusLogin {
         if (!this.active_url) {
             msg.error(t`NoActiveQorusInstance`);
             tree.focus();
-            return {ok: false};
+            return { ok: false };
         }
 
         const active_instance = tree.getQorusInstance(this.active_url);
         if (!active_instance) {
             msg.error(t`UnableGetActiveQorusInstanceData`);
-            return {ok: false};
+            return { ok: false };
         }
 
         let token: string | undefined = undefined;
@@ -191,14 +188,14 @@ export class QorusRequest extends QorusLogin {
             token = this.getToken();
             if (!token) {
                 msg.error(t`UnauthorizedOperationAtUrl ${this.active_url}`);
-                return {ok: false};
+                return { ok: false };
             }
         }
 
         return {
             ok: true,
             active_instance: active_instance,
-            token: token
+            token: token,
         };
     }
 }

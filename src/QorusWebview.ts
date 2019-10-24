@@ -18,7 +18,7 @@ class QorusWebview {
     private initial_data: any = {};
 
     get opening_data(): any {
-        return this.initial_data
+        return this.initial_data;
     }
 
     set opening_data(data: any) {
@@ -26,14 +26,14 @@ class QorusWebview {
     }
 
     private postInitialData = () => {
-        const {uri, ...other_data} = this.initial_data;
+        const { uri, ...other_data } = this.initial_data;
         this.postMessage({
             action: 'return-initial-data',
             data: {
                 path: web_path,
                 qorus_instance: qorus_request.activeQorusInstance(),
-                ...other_data
-            }
+                ...other_data,
+            },
         });
     };
 
@@ -183,7 +183,7 @@ class QorusWebview {
                                     interface_info,
                                     iface_kind: message.iface_kind,
                                     is_editing: message.is_editing || false,
-                                    default_target_dir: initial_data.uri && initial_data.uri.fsPath
+                                    default_target_dir: initial_data.uri && initial_data.uri.fsPath,
                                 }),
                             });
                             break;
@@ -196,10 +196,10 @@ class QorusWebview {
                             this.postInitialData();
                             break;
                         case 'creator-create-interface':
-                            creator.editInterface({...message, edit_type: 'create', interface_info});
+                            creator.editInterface({ ...message, edit_type: 'create', interface_info });
                             break;
                         case 'creator-edit-interface':
-                            creator.editInterface({...message, edit_type: 'edit', interface_info});
+                            creator.editInterface({ ...message, edit_type: 'edit', interface_info });
                             break;
                         case 'get-interface-data':
                             project.code_info.getInterfaceData(message);
@@ -215,6 +215,12 @@ class QorusWebview {
                             break;
                         case 'reset-config-items':
                             project.interface_info.resetConfigItemsToOrig(message.iface_id);
+                            break;
+                        case 'set-active-instance':
+                            qorus_request.setActiveInstance(message.url);
+                            break;
+                        case 'unset-active-instance':
+                            qorus_request.unsetActiveInstance();
                             break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);

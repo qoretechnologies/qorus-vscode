@@ -6,7 +6,6 @@ import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
-
 export class QorusLogin extends QorusAuth {
     private current_login_params: any = {
         qorus_instance: undefined,
@@ -29,10 +28,9 @@ export class QorusLogin extends QorusAuth {
 
         this.current_login_params = {
             qorus_instance: (({ name, url }) => ({ name, url }))(qorus_instance),
-            set_active
-        }
-
-        qorus_webview.open({tab: 'Login'});
+            set_active,
+        };
+        qorus_webview.open({ tab: 'Login' });
     }
 
     loginPost(username: string, password: string) {
@@ -46,7 +44,7 @@ export class QorusLogin extends QorusAuth {
         const options = {
             method: 'POST',
             uri: `${qorus_instance.url}/api/latest/public/login?user=${username}&pass=${password}`,
-            strictSSL: false
+            strictSSL: false,
         };
 
         msg.log(t`SendingLoginRequest`);
@@ -58,14 +56,14 @@ export class QorusLogin extends QorusAuth {
                 msg.info(t`LoginSuccessful`);
                 qorus_webview.postMessage({
                     action: 'close-login',
-                    qorus_instance: set_active ? qorus_instance : null
+                    qorus_instance: set_active ? qorus_instance : null,
                 });
             },
             error => {
                 this.requestError(error, t`LoginError`);
                 qorus_webview.postMessage({
                     action: 'login-error',
-                    error: t`AuthFailed`
+                    error: t`AuthFailed`,
                 });
             }
         );
@@ -90,8 +88,8 @@ export class QorusLogin extends QorusAuth {
             uri: `${url}/api/latest/logout`,
             strictSSL: false,
             headers: {
-                'qorus-token': token
-            }
+                'qorus-token': token,
+            },
         }).then(
             () => this.doLogout(url, false),
             (error: any) => {
@@ -124,59 +122,52 @@ export class QorusLogin extends QorusAuth {
             msg.error(t`Error401 ${url}`);
             this.doLogout(null, true, true);
             tree.focus();
-        }
-        else if (error_data.message && error_data.message.indexOf('EHOSTUNREACH') > -1) {
+        } else if (error_data.message && error_data.message.indexOf('EHOSTUNREACH') > -1) {
             msg.error(t`HostUnreachable ${url}`);
             this.doLogout();
-        }
-        else if (error_data.message && error_data.message.indexOf('ETIMEDOUT') > -1) {
+        } else if (error_data.message && error_data.message.indexOf('ETIMEDOUT') > -1) {
             msg.error(t`GettingInfoTimedOut ${url}`);
-        }
-        else if (error_data.message && error_data.message.indexOf('ECONNREFUSED') > -1) {
+        } else if (error_data.message && error_data.message.indexOf('ECONNREFUSED') > -1) {
             msg.error(t`ConnectionRefused ${url}`);
             this.doLogout();
-        }
-        else if (error_data.message && error_data.message.indexOf('authenticate') > -1
-                        && error_data.statusCode == 400)
-        {
+        } else if (
+            error_data.message &&
+            error_data.message.indexOf('authenticate') > -1 &&
+            error_data.statusCode == 400
+        ) {
             msg.error(t`AuthFailed`);
-        }
-        else {
+        } else {
             if (error_data.statusCode == 409) {
                 msg.error(t`Error409 ${url}`);
-            }
-            else if (error_data.statusCode) {
+            } else if (error_data.statusCode) {
                 msg.error(t`ErrorN ${error_data.statusCode} ${url}`);
-            }
-            else {
+            } else {
                 msg.error(`${default_error} (${url})`);
             }
             msg.log(JSON.stringify(error_data, null, 4));
         }
     }
 
-    protected static checkNoAuth(url:string): Thenable<boolean> {
+    protected static checkNoAuth(url: string): Thenable<boolean> {
         return vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
                 title: t`GettingInfo ${url}`,
-                cancellable: false
+                cancellable: false,
             },
             async (progress): Promise<boolean> => {
-                progress.report({increment: -1});
+                progress.report({ increment: -1 });
 
                 const options = {
                     method: 'GET',
                     uri: `${url}/api/latest/public/info`,
                     strictSSL: false,
-                    timeout: 30000
+                    timeout: 30000,
                 };
-                return request(options).then(
-                    (response: any) => {
-                        const no_auth = JSON.parse(response).noauth;
-                        return !!no_auth;
-                    }
-                );
+                return request(options).then((response: any) => {
+                    const no_auth = JSON.parse(response).noauth;
+                    return !!no_auth;
+                });
             }
         );
     }

@@ -27,4 +27,6 @@ export const Messages: { [key: string]: string } = {
     RETURN_CONFIG_ITEM: 'return-config-item',
     CONFIG_CHANGED_ON_DISK: 'config-changed-on-disk',
     RESET_CONFIG_ITEMS: 'reset-config-items',
+    SET_ACTIVE_INSTANCE: 'set-active-instance',
+    UNSET_ACTIVE_INSTANCE: 'unset-active-instance',
 };

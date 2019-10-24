@@ -15,7 +15,7 @@ class Login extends Component {
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'login-return-data':
-                    this.props.setQorus(event.data.qorus_instance);
+                    this.props.initialData.setActiveInstance(event.data.qorus_instance);
                     break;
                 case 'login-error':
                     this.props.setLoginError(event.data.error);

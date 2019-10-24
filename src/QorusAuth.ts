@@ -1,9 +1,12 @@
 import { qorus_webview } from './QorusWebview';
 
-export enum AuthNeeded {Yes = 1, No, Unknown}
+export enum AuthNeeded {
+    Yes = 1,
+    No,
+    Unknown,
+}
 
 export class QorusAuth {
-
     protected auth_needed: any = {};
     protected tokens: any = {};
     protected active_url: string | undefined = undefined;

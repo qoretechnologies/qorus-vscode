@@ -16,6 +16,7 @@ export interface IEnvironmentPanel {
     active: boolean;
     onEnvironmentNameChange: (id: number, newName: string) => void;
     onEnvironmentDeleteClick: (id: number) => void;
+    onSetActiveInstanceClick: (url: string, set: boolean) => void;
     onInstanceSubmit: (id: number, name: string, url: string) => void;
     onInstanceDelete: (id: number, instanceId: number) => void;
     onInstanceChange: (id: number, instanceId: number, name: string, url: string) => void;
@@ -112,6 +113,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     onInstanceChange,
     onUrlSubmit,
     onUrlDelete,
+    onSetActiveInstanceClick,
     activeInstance,
     t,
 }) => {
@@ -216,6 +218,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                             onDataChange={handleInstanceDataChange}
                             onUrlSubmit={onUrlSubmit}
                             onUrlDelete={onUrlDelete}
+                            onSetActive={onSetActiveInstanceClick}
                             isActive={qorusInstance.name === activeInstance}
                         />
                     ))
