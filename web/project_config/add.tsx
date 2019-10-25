@@ -99,6 +99,9 @@ export default withTextContext()(
                             onChange={handleNameChange}
                             onKeyUp={handleEnterPress}
                             small={!big}
+                            style={{
+                                width: !minimal ? '250px' : 'auto',
+                            }}
                         />
                         {withUrl && (
                             <InputGroup
