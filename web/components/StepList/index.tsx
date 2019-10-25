@@ -464,7 +464,9 @@ const NewStepPopover = compose(
                                 object_type: 'workflow-step',
                                 return_value: 'objects',
                             }}
-                            predicate={(name: string) => !some(stepsData, item => item.name === name)}
+                            predicate={(name: string) =>
+                                !some(stepsData, item => `${item.name}:${item.version}` === name)
+                            }
                             value={name}
                             onChange={(_name, value) => {
                                 const [name, version] = value.split(':');
