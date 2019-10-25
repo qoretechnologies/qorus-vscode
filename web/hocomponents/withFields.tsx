@@ -145,7 +145,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 return selectedFields[type].every(({ isValid }: IField) => isValid);
             }
 
-            return every(selectedFields[type], (fieldsData: IField[], key: number) => {
+            return every(selectedFields[type], (fieldsData: IField[]) => {
                 return fieldsData.every(({ isValid }: IField) => isValid);
             });
         };

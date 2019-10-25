@@ -42,7 +42,7 @@ export const validateField: (type: string, value: any, field: IField) => boolean
             if (value === null || value === '') {
                 return false;
             }
-            let yamlCorrect;
+            let yamlCorrect = true;
             // Parse the yaml
             try {
                 jsyaml.safeLoad(value);
