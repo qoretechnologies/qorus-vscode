@@ -15,6 +15,7 @@ export interface ITreeField {
     name: string;
     t: TTranslator;
     single?: boolean;
+    useRelativePath?: boolean;
 }
 
 const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
@@ -26,6 +27,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     name,
     value = [],
     single,
+    useRelativePath,
 }) => {
     const [expanded, setExpanded] = useState<string[]>([]);
     const [items, setItems] = useState<any>([]);
@@ -42,30 +44,37 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
         });
     });
 
-    const handleNodeClick: (node: ITreeNode<{ path: string }>) => void = node => {
+    const handleNodeClick: (node: ITreeNode<{ path: string; rel_path: string }>) => void = node => {
+        // Which path should be used
+        const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
         // If we are dealing with single string
         if (single) {
-            onChange(name, node.nodeData.path);
+            onChange(name, usedPath);
         } else {
             // Multiple files can be selected
-            if (value.find(sel => sel.name === node.nodeData.path)) {
+            if (value.find(sel => sel.name === usedPath)) {
                 // Remove the selected item
-                onChange(name, value.filter(path => path.name !== node.nodeData.path));
+                onChange(name, value.filter(path => path.name !== usedPath));
             } else {
-                onChange(name, [...value, { name: node.nodeData.path }]);
+                onChange(name, [...value, { name: usedPath }]);
             }
         }
     };
 
     const handleNodeCollapse: (node: ITreeNode<{ path: string }>) => void = node => {
-        setExpanded(
-            (currentExpanded: string[]): string[] =>
-                currentExpanded.filter((path: string) => path !== node.nodeData.path)
+        // Which path should be used
+        const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
+
+        setExpanded((currentExpanded: string[]): string[] =>
+            currentExpanded.filter((path: string) => path !== usedPath)
         );
     };
 
     const handleNodeExpand: (node: ITreeNode<{ path: string }>) => void = node => {
-        setExpanded((currentExpanded: string[]): string[] => [...currentExpanded, node.nodeData.path]);
+        // Which path should be used
+        const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
+
+        setExpanded((currentExpanded: string[]): string[] => [...currentExpanded, usedPath]);
     };
 
     const transformItems: (data: any[]) => ITreeNode<{ path: string }>[] = data => {
@@ -76,7 +85,11 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
             // Check if this item is a file
             const isFile: boolean = !('dirs' in item) && !('files' in item);
             // Build the absolute path
-            const path: string = isFile ? `${item.abs_path}/${item.name}` : item.abs_path;
+            const path: string = isFile
+                ? `${useRelativePath ? item.rel_path : item.abs_path}/${item.name}`
+                : useRelativePath
+                ? item.rel_path
+                : item.abs_path;
             // Return the transformed data
             return [
                 ...newData,
@@ -86,11 +99,12 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                     hasCaret: !isFile && size(item.dirs) + size(item.files) !== 0,
                     isSelected: single ? value === path : value.find(sel => sel.name === path),
                     icon: isFile ? 'document' : 'folder-close',
-                    isExpanded: expanded.includes(item.abs_path),
+                    isExpanded: expanded.includes(useRelativePath ? item.rel_path : item.abs_path),
                     label: isFile ? item.name : item.rel_path,
                     childNodes,
                     nodeData: {
                         path,
+                        rel_path: item.rel_path,
                     },
                 },
             ];

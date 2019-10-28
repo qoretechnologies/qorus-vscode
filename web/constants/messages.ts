@@ -1,4 +1,4 @@
-export const Messages: { [key: string]: string } = {
+export const Messages = {
     GET_OPENING_PATH: 'get-opening-path',
     RETURN_OPENING_PATH: 'return-opening-path',
     GET_FIELDS: 'creator-get-fields',
@@ -29,4 +29,6 @@ export const Messages: { [key: string]: string } = {
     RESET_CONFIG_ITEMS: 'reset-config-items',
     SET_ACTIVE_INSTANCE: 'set-active-instance',
     UNSET_ACTIVE_INSTANCE: 'unset-active-instance',
+    GET_PROJECT_DIRS: 'creator-get-directories',
+    RETURN_PROJECT_DIRS: 'creator-return-directories',
 };

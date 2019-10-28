@@ -8,12 +8,13 @@ import styled from 'styled-components';
 import String from './string';
 
 export interface IFileField {
-    get_message: { action: string; object_type: string };
-    return_message: { action: string; object_type: string; return_value: string };
+    get_message?: { action: string; object_type: string };
+    return_message?: { action: string; object_type: string; return_value: string };
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
     name: string;
     t: TTranslator;
+    includeInputField: boolean;
 }
 
 const Spacer = styled.div`
@@ -25,12 +26,17 @@ const FileField: FunctionComponent<IFileField & IField & IFieldChange> = ({
     name,
     value,
     default_value,
+    includeInputField = true,
     ...rest
 }) => {
     return (
         <>
-            <String name={name} onChange={onChange} value={value} default_value={default_value} />
-            <Spacer />
+            {includeInputField && (
+                <>
+                    <String name={name} onChange={onChange} value={value} default_value={default_value} />
+                    <Spacer />
+                </>
+            )}
             <TreeField single onChange={onChange} name={name} value={value} {...rest} />
         </>
     );
