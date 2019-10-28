@@ -34,6 +34,7 @@ export class QorusAuth {
         this.auth_needed[url] = AuthNeeded.No;
         if (set_active) {
             this.active_url = url;
+            qorus_webview.setActiveQorusInstance(url);
         }
     }
 
