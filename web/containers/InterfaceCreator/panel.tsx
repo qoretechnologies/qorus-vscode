@@ -606,8 +606,25 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return null;
     };
 
-    const isBaseClassNameValid =
-        selectedFields && selectedFields.find((field: IField) => field.name === 'base-class-name' && field.isValid);
+    const isConfigManagerEnabled = () => {
+        // Find the base class name field
+        const baseClassName: IField = [...fieldList, ...selectedFields].find(
+            (field: IField) => field.name === 'base-class-name'
+        );
+        // Check if the field exists
+        if (baseClassName) {
+            // Check if the field is mandatory
+            if (baseClassName.mandatory === false) {
+                // If the base class name is not mandatory
+                // enable the config items by default
+                return baseClassName.selected ? baseClassName.isValid : true;
+            }
+            // The field has to be selected and valid
+            return baseClassName.isValid;
+        }
+        // Not valid
+        return false;
+    };
 
     return (
         <>
@@ -694,7 +711,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {hasConfigManager && (
                         <div style={{ float: 'left', width: '48%' }}>
                             <ManageConfigButton
-                                disabled={!isBaseClassNameValid}
+                                disabled={!isConfigManagerEnabled()}
                                 onClick={() => setShowConfigItemsManager(true)}
                             />
                         </div>
