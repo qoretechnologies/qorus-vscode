@@ -82,3 +82,6 @@ export const flatten = orig_arr => {
         length = arr.length;
     }
 };
+
+export const quotesIfNum = (value: any): string =>
+    parseFloat(value) == value ? `"${value}"` : value;

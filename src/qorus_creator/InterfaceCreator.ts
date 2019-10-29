@@ -5,6 +5,7 @@ import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, default_parse_options } from './common_constants';
+import { quotesIfNum } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -156,7 +157,7 @@ export abstract class InterfaceCreator {
             if (item.parent) {
                 result += `${indent}parent:\n`;
                 for (const tag in item.parent) {
-                    result += `${indent}${indent}${tag}: ${item.parent[tag]}\n`;
+                    result += `${indent}${indent}${tag}: ${quotesIfNum(item.parent[tag])}\n`;
                 }
             }
 
@@ -269,18 +270,13 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
-                        result += `${tag}: "${value}"\n`;
+                        result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
                     case 'type':
                         result += `${tag}: ${value.toLowerCase()}\n`;
                         break;
                     case 'version':
-                        if (parseFloat(value) == value) {
-                            result += `${tag}: "${value}"\n`;
-                        }
-                        else {
-                            result += `${tag}: ${value}\n`;
-                        }
+                        result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
                     default:
                         result += `${tag}: ${value}\n`;

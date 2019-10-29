@@ -159,7 +159,7 @@ export class InterfaceInfo {
             item.parent = {
                 'interface-type': 'class',
                 'interface-name': class_name,
-                'interface-version': parseFloat(version) == version ? `"${version}"` : version
+                'interface-version': version.toString()
             };
             item.parent_class = class_name;
 
