@@ -9,13 +9,17 @@ import Box from '../components/Box';
 import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
 
 class Login extends Component {
+    state = {
+        loginInstance: null,
+    };
+
     constructor() {
         super();
 
         window.addEventListener('message', event => {
             switch (event.data.action) {
                 case 'login-return-data':
-                    this.props.initialData.setActiveInstance(event.data.qorus_instance);
+                    this.setState({ loginInstance: event.data.login_instance });
                     break;
                 case 'login-error':
                     this.props.setLoginError(event.data.error);
@@ -29,10 +33,6 @@ class Login extends Component {
     componentDidMount() {
         if (this.username_input) {
             this.username_input.focus();
-        }
-
-        if (this.props.qorus) {
-            return;
         }
 
         vscode.postMessage({
@@ -55,7 +55,11 @@ class Login extends Component {
     };
 
     render() {
-        const [qorus_name, qorus_url] = this.props.qorus ? [this.props.qorus.name, this.props.qorus.url] : ['', ''];
+        if (!this.state.loginInstance) {
+            return <p> Loading... </p>;
+        }
+
+        const { name, safe_url, url } = this.state.loginInstance;
 
         return (
             <TextContext.Consumer>
@@ -70,10 +74,10 @@ class Login extends Component {
                                 <div style={{ gridRow: 1, gridColumnStart: 2, gridColumnEnd: 6 }}>
                                     <H4 style={{ textAlign: 'center' }}>
                                         {t('LoginHeader')} &nbsp;
-                                        <span className="login-highlighted">{qorus_name}</span> &nbsp;
+                                        <span className="login-highlighted">{name}</span> &nbsp;
                                         {t('at')}
                                     </H4>
-                                    <H4 className="login-highlighted text-center">{qorus_url}</H4>
+                                    <H4 className="login-highlighted text-center">{safe_url}</H4>
                                 </div>
 
                                 <div className="login-label">{t('LabelUsername')}</div>

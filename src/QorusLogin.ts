@@ -3,6 +3,7 @@ import * as request from 'request-promise';
 import { QorusAuth } from './QorusAuth';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
 import { qorus_webview } from './QorusWebview';
+import { QorusProject } from './QorusProject';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
@@ -30,6 +31,7 @@ export class QorusLogin extends QorusAuth {
             qorus_instance: (({ name, url }) => ({ name, url }))(qorus_instance),
             set_active,
         };
+
         qorus_webview.open({ tab: 'Login' });
     }
 
@@ -54,6 +56,10 @@ export class QorusLogin extends QorusAuth {
                 this.addToken(qorus_instance.url, token, set_active);
                 tree.refresh();
                 msg.info(t`LoginSuccessful`);
+                // Set the initial tab to project config
+                // because it's still Login even after the login
+                // closes
+                qorus_webview.initial_data.tab = 'ProjectConfig';
                 qorus_webview.postMessage({
                     action: 'close-login',
                     qorus_instance: set_active ? qorus_instance : null,
@@ -70,7 +76,10 @@ export class QorusLogin extends QorusAuth {
     }
 
     loginQorusInstance(): any {
-        return this.current_login_params.qorus_instance;
+        return {
+            ...this.current_login_params.qorus_instance,
+            safe_url: QorusProject.createSafeUrl(this.current_login_params.qorus_instance.url),
+        };
     }
 
     logout(tree_item: vscode.TreeItem) {
