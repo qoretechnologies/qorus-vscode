@@ -106,7 +106,7 @@ export class QorusProjectCodeInfo {
         this.edit_info[iface_kind][file].text_lines = contents.split(/\r?\n/);
     }
 
-    addClassInfo(file: string, class_name_range: any, base_class_name_range: any) {
+    private addClassInfo(file: string, class_name_range: any, base_class_name_range?: any) {
         const iface_kind = suffixToIfaceKind(path.extname(file));
 
         if (!this.edit_info[iface_kind][file]) {
@@ -129,11 +129,15 @@ export class QorusProjectCodeInfo {
     }
 
     addSymbolCodeInfo = (file: string, symbol: any): boolean => {
-        if (symbol.nodetype !== 1 || symbol.kind !== 1 || ! symbol.inherits) { // declaration && class
+        if (symbol.nodetype !== 1 || symbol.kind !== 1) { // declaration && class
             return false;
         }
 
-        this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[0].name.loc));
+        if (symbol.inherits && symbol.inherits.length) {
+            this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[0].name.loc));
+        } else {
+            this.addClassInfo(file, loc2range(symbol.name.loc, 'class '));
+        }
 
         return true;
     };
