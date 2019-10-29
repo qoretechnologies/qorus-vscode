@@ -66,6 +66,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                             type={'class'}
                             data={initialData.class}
                             isEditing={!!initialData.class}
+                            hasConfigManager
                         />
                     }
                 />
