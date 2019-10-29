@@ -74,19 +74,12 @@ const StyledMasonryWrapper = styled.div`
 
 const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage, initialData, t }) => {
     const [projectData, setProjectData] = useState<IProjectData>(null);
-    const [activeInstance, setActiveInstance] = useState<{ name: string; url: string } | null>(
-        initialData.qorus_instance
-    );
     const [changedOnDisk, setChangedOnDisk] = useState<boolean>(false);
     const [isDirsDialogOpen, setIsDirsDialogOpen] = useState<boolean>(false);
 
     useEffectOnce(() => {
         addMessageListener(Messages.CONFIG_RETURN_DATA, ({ data }) => {
             setProjectData(data);
-        });
-
-        addMessageListener(Messages.SET_QORUS_INSTANCE, ({ qorus_instance }) => {
-            setActiveInstance(qorus_instance);
         });
 
         addMessageListener(Messages.CONFIG_CHANGED_ON_DISK, () => {
@@ -97,12 +90,13 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
     });
 
     const isEnvironmentActive: (qoruses: IQorusInstance[]) => boolean = qoruses => {
+        const { qorus_instance } = initialData;
         // Check if there is any active instance
-        if (!activeInstance) {
+        if (!qorus_instance) {
             return false;
         }
         // Return true if there is an instance with the same name
-        return !!qoruses.find((qorus: IQorusInstance) => qorus.name === activeInstance.name);
+        return !!qoruses.find((qorus: IQorusInstance) => qorus.name === qorus_instance.name);
     };
 
     const handleEnvironmentNameChange: (id: number, newName: string) => void = (id, newName) => {
@@ -385,6 +379,8 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         });
     };
 
+    const { qorus_instance } = initialData;
+
     return (
         <>
             {isDirsDialogOpen && (
@@ -439,7 +435,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                                     {...data}
                                     path={initialData.path}
                                     active={isEnvironmentActive(data.qoruses)}
-                                    activeInstance={activeInstance && activeInstance.name}
+                                    activeInstance={qorus_instance && qorus_instance.name}
                                     onEnvironmentNameChange={handleEnvironmentNameChange}
                                     onEnvironmentDeleteClick={handleEnvironmentDelete}
                                     onInstanceSubmit={handleInstanceSubmit}

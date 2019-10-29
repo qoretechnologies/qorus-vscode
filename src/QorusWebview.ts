@@ -15,7 +15,7 @@ class QorusWebview {
     private panel: vscode.WebviewPanel | undefined = undefined;
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
-    private initial_data: any = {};
+    public initial_data: any = {};
 
     get opening_data(): any {
         return this.initial_data;
@@ -121,7 +121,7 @@ class QorusWebview {
                         case 'login-get-data':
                             this.panel.webview.postMessage({
                                 action: 'login-return-data',
-                                qorus_instance: qorus_request.loginQorusInstance(),
+                                login_instance: qorus_request.loginQorusInstance(),
                             });
                             break;
                         case 'login-submit':
