@@ -56,10 +56,7 @@ export class QorusLogin extends QorusAuth {
                 this.addToken(qorus_instance.url, token, set_active);
                 tree.refresh();
                 msg.info(t`LoginSuccessful`);
-                // Set the initial tab to project config
-                // because it's still Login even after the login
-                // closes
-                qorus_webview.initial_data.tab = 'ProjectConfig';
+                qorus_webview.opening_data = { tab: 'ProjectConfig' };
                 qorus_webview.postMessage({
                     action: 'close-login',
                     qorus_instance: set_active ? qorus_instance : null,
