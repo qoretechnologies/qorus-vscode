@@ -236,7 +236,6 @@ export class QorusProject {
     }
 
     static createSafeUrl(url: string): string {
-        // Check if the URL was provided
         if (!url) {
             return t`WrongUrl`;
         }

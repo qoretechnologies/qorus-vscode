@@ -39,7 +39,7 @@ class QorusDelete {
             body: {
                 [iface_post_kind]: interfaces,
                 options:  {
-                    'reload': config.reload,
+                    reload: config.reload,
                     'allow-redef': config['allow-redef'],
                     'verbosity-level': config['verbosity-level']
                 }

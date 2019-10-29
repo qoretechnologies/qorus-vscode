@@ -23,29 +23,13 @@ const object_chunk_length = 100;
 const root_service = 'QorusService';
 const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
-const root_steps = [
-    'QorusAsyncStep',
-    'QorusEventStep',
-    'QorusNormalStep',
-    'QorusSubworkflowStep',
-    'QorusAsyncArrayStep',
-    'QorusEventArrayStep',
-    'QorusNormalArrayStep',
-    'QorusSubworkflowArrayStep',
-];
+const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
+                    'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
 const types_with_version = [...iface_kinds, 'constant', 'function', 'mapper'];
-const types_without_version = [
-    'config-item-values',
-    'config-items',
-    'connection',
-    'event',
-    'group',
-    'queue',
-    'value-map',
-];
+const types_without_version = ['config-item-values', 'config-items', 'connection', 'event', 'group', 'queue', 'value-map'];
 const types = [...types_with_version, ...types_without_version];
 export const default_version = '1.0';
 
@@ -145,8 +129,7 @@ export class QorusProjectCodeInfo {
     }
 
     addSymbolCodeInfo = (file: string, symbol: any): boolean => {
-        if (symbol.nodetype !== 1 || symbol.kind !== 1 || !symbol.inherits) {
-            // declaration && class
+        if (symbol.nodetype !== 1 || symbol.kind !== 1 || ! symbol.inherits) { // declaration && class
             return false;
         }
 
@@ -156,8 +139,7 @@ export class QorusProjectCodeInfo {
     };
 
     addSymbolDeclCodeInfo = (file: string, decl: any): boolean => {
-        if (decl.nodetype !== 1 || decl.kind !== 4) {
-            // declaration && function
+        if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
             return false;
         }
 
@@ -214,12 +196,12 @@ export class QorusProjectCodeInfo {
                 data: {
                     iface_kind: iface_kind,
                     [iface_kind]: this.yaml_data_by_name[iface_kind][name],
-                    ...(include_tabs
+                    ... include_tabs
                         ? {
                               tab: 'CreateInterface',
                               subtab: iface_kind,
                           }
-                        : {}),
+                        : {},
                 },
             })
         );
@@ -292,9 +274,8 @@ export class QorusProjectCodeInfo {
         this.base_classes_files_watcher.onDidChange(() => this.update(['lang_client']));
         this.base_classes_files_watcher.onDidDelete(() => this.update(['lang_client']));
 
-        this.parsable_files_watcher = vscode.workspace.createFileSystemWatcher(
-            '**/*.{qfd,qsd,qjob,qclass,qconst,qmapper,qvmap,java}'
-        );
+        this.parsable_files_watcher
+            = vscode.workspace.createFileSystemWatcher('**/*.{qfd,qsd,qjob,qclass,qconst,qmapper,qvmap,java}');
         this.parsable_files_watcher.onDidCreate(() => this.update(['objects']));
         this.parsable_files_watcher.onDidChange(() => this.update(['objects']));
         this.parsable_files_watcher.onDidDelete(() => this.update(['objects']));
@@ -317,9 +298,8 @@ export class QorusProjectCodeInfo {
                     if (n > 0) {
                         resolve();
                     } else {
-                        const error =
-                            t`CodeInfoUpdateTimedOut` +
-                            pending_list.map(key => gettext(key + '_info_update_pending')).join(', ');
+                        const error = t`CodeInfoUpdateTimedOut`
+			    + pending_list.map(key => gettext(key + '_info_update_pending')).join(', ');
                         msg.error(error);
                         reject(error);
                     }
@@ -359,15 +339,11 @@ export class QorusProjectCodeInfo {
         switch (object_type) {
             case 'workflow-step':
                 const steps = this.yaml_data_by_name.step;
-                this.waitForPending(['objects', 'yaml']).then(() =>
-                    postMessage(
-                        'objects',
-                        Object.keys(steps).map(key => ({
-                            name: key,
-                            desc: steps[key].desc,
-                        }))
-                    )
-                );
+                this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
+                    Object.keys(steps).map(key => ({
+                        name: key,
+                        desc: steps[key].desc
+                    }))));
                 break;
             case 'service-base-class':
                 this.waitForPending(['yaml', 'lang_client']).then(() =>
@@ -406,11 +382,8 @@ export class QorusProjectCodeInfo {
             case 'constant':
             case 'mapper':
             case 'value-map':
-                this.waitForPending(['objects', 'yaml']).then(() =>
-                    postMessage(
-                        'objects',
-                        Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key])
-                    )
+                this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
+                    Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );
                 break;
             case 'module':
@@ -688,9 +661,9 @@ export class QorusProjectCodeInfo {
             const desc = root_classes.includes(base_class)
                 ? gettext(`${base_class}Desc`)
                 : this.yaml_data_by_class[base_class]
-                ? this.yaml_data_by_class[base_class].desc
-                : undefined;
-            ret_val.push({ name: base_class, desc });
+                    ? this.yaml_data_by_class[base_class].desc
+                    : undefined;
+            ret_val.push({name: base_class, desc});
         }
         return ret_val;
     }
@@ -750,7 +723,7 @@ export class QorusProjectCodeInfo {
             abs_path,
             rel_path: is_root ? '.' : vscode.workspace.asRelativePath(abs_path, false),
             dirs: [],
-            ...(only_dirs ? {} : { files: [] }),
+            ... only_dirs ? {} : { files: [] }
         });
 
         const subDirRecursion = (tree_item: any, only_dirs: boolean) => {
