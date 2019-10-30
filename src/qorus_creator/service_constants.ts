@@ -1,4 +1,4 @@
-import { comment_chars, common_fields_1, commonFields4 } from './common_constants';
+import { comment_chars, common_fields_1, commonFields5 } from './common_constants';
 
 let class_template: any = {};
 let method_template: any = {};
@@ -29,7 +29,7 @@ export const service_class_template = class_template;
 export const service_method_template = method_template;
 
 export const serviceFields = params => [
-    ... commonFields4(params),
+    ... commonFields5(params),
     {
         name: 'base-class-name',
         type: 'select-string',

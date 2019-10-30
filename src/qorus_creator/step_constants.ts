@@ -16,6 +16,20 @@ export const stepFields = params => [
         },
         on_change: 'get-config-items',
         notify_on_remove: true
+    },
+    {
+        name: 'classes',
+        mandatory: false,
+        type: 'class-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'class',
+            return_value: 'objects',
+        },
     }
 ];
 

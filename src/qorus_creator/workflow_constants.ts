@@ -16,6 +16,20 @@ export const workflowFields = params => [
         },
     },
     {
+        name: 'classes',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'class',
+            return_value: 'objects',
+        },
+    },
+    {
         name: 'workflow-autostart',
         type: 'number',
         mandatory: false,

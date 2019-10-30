@@ -101,20 +101,6 @@ export const commonFields2 = ({is_editing, default_target_dir}) => [
 export const commonFields3 = params => [
     ... commonFields2(params),
     {
-        name: 'classes',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'class',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'class',
-            return_value: 'objects',
-        },
-    },
-    {
         name: 'constants',
         mandatory: false,
         type: 'select-array',
@@ -221,6 +207,24 @@ export const commonFields4 = params => [
         return_message: {
             action: 'creator-return-objects',
             object_type: 'tag',
+            return_value: 'objects',
+        },
+    },
+];
+
+export const commonFields5 = params => [
+    ... commonFields4(params),
+    {
+        name: 'classes',
+        mandatory: false,
+        type: 'class-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'class',
             return_value: 'objects',
         },
     },
