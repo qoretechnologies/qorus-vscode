@@ -31,4 +31,5 @@ export const Messages = {
     UNSET_ACTIVE_INSTANCE: 'unset-active-instance',
     GET_PROJECT_DIRS: 'creator-get-directories',
     RETURN_PROJECT_DIRS: 'creator-return-directories',
+    CREATOR_FIELD_REMOVED: 'creator-field-removed',
 };

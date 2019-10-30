@@ -80,6 +80,7 @@ export interface IField {
     hasValueSet?: boolean;
     internal?: boolean;
     on_change?: string;
+    notify_on_remove?: boolean;
     markdown?: boolean;
 }
 
@@ -325,11 +326,23 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Remove the field
         setFields(
             type,
-            (current: IField[]) =>
-                map(current, (field: IField) => ({
+            (current: IField[]) => {
+                // Check if this field has a remove event
+                const field: IField = current.find((f: IField) => f.name === fieldName);
+
+                if (field.notify_on_remove) {
+                    postMessage(Messages.CREATOR_FIELD_REMOVED, {
+                        field: fieldName,
+                        iface_id: interfaceId,
+                        iface_kind: type,
+                    });
+                }
+
+                return map(current, (field: IField) => ({
                     ...field,
                     selected: fieldName === field.name ? false : field.selected,
-                })),
+                }))
+            },
             activeId
         );
         // Add the field to selected list
