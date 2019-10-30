@@ -5,13 +5,14 @@ import LongStringField from './longString';
 import DateField from './date';
 import { TTranslator } from '../../App';
 import BooleanField from './boolean';
+import ClassArrayField from './classArray';
 import SelectField from './select';
 import MultiSelect from './multiSelect';
 import RadioField from './radioField';
 import MultiPairField from './multiPair';
 import MultiFileField from './fileArray';
 import FileField from './fileString';
-import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IFieldChange, IField } from '../../containers/InterfaceCreator/panel';
 import Cron from './cron';
 import AutoField from './auto';
 import ArrayAutoField from './arrayAuto';
@@ -20,21 +21,17 @@ import withMessageHandler from '../../hocomponents/withMessageHandler';
 import NumberField from './number';
 import MarkdownPreview from './markdownPreview';
 
-export interface IField {
-    type: string;
-    name: string;
+export interface IFieldProps extends IField {
     t: TTranslator;
     fields: string[];
-    value?: any;
-    default_value?: any;
     onChange: IFieldChange;
-    markdown: boolean;
     interfaceKind: string;
+    interfaceId: string;
     requestFieldData: (fieldName: string, fieldKey: string) => string | null;
 }
 
-const Field: FunctionComponent<IField> = withMessageHandler()(
-    ({ type, postMessage, interfaceId, interfaceKind, ...rest }: IField) => {
+const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
+    ({ type, postMessage, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
         useMount(() => {
             if (rest.value && rest.on_change) {
                 // Post the message with this handler
@@ -63,6 +60,7 @@ const Field: FunctionComponent<IField> = withMessageHandler()(
                 {type === 'auto' && <AutoField {...rest} type={type} />}
                 {type === 'array-auto' && <ArrayAutoField {...rest} type={type} />}
                 {type === 'number' && <NumberField {...rest} type={type} />}
+                {type === 'class-array' && <ClassArrayField {...rest} type={type} />} }
                 {rest.markdown && <MarkdownPreview value={rest.value} />}
             </>
         );

@@ -16,6 +16,7 @@ export interface ISelectField {
     defaultItems?: any[];
     predicate: (name: string) => boolean;
     placeholder: string;
+    fill?: boolean;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -30,6 +31,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     t,
     predicate,
     placeholder,
+    fill,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -84,6 +86,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             }}
             popoverProps={{
                 popoverClassName: 'custom-popover',
+                targetClassName: fill ? 'select-popover' : '',
             }}
             className="select-field"
             onItemSelect={(item: any) => handleSelectClick(item)}

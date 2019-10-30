@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
-import PairField from './pair';
+import SelectPairField from './selectPair';
 import { Button, ButtonGroup } from '@blueprintjs/core';
 import styled from 'styled-components';
 import { size } from 'lodash';
@@ -9,18 +9,20 @@ import { TTranslator } from '../../App';
 
 type IPair = {
     id: number;
-    [key: string]: string | number;
+    prefix: string;
+    name: string;
 };
 
 export const StyledPairField = styled.div`
     margin-bottom: 10px;
 `;
 
-const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = ({
-    fields,
+const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldChange> = ({
     name,
     onChange,
-    value = [{ id: 1, [fields[0]]: '', [fields[1]]: '' }],
+    value = [{ id: 1, prefix: '', name: '' }],
+    get_message,
+    return_message,
     t,
 }) => {
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
@@ -34,7 +36,7 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
     };
 
     const handleAddClick: () => void = () => {
-        onChange(name, [...value, { id: size(value) + 1, [fields[0]]: '', [fields[1]]: '' }]);
+        onChange(name, [...value, { id: size(value) + 1, prefix: '', name: '' }]);
     };
 
     const handleRemoveClick: (id: number) => void = id => {
@@ -46,14 +48,16 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
         <>
             {value.map((pair: IPair, index: number) => (
                 <StyledPairField key={pair.id}>
-                    <PairField
+                    <SelectPairField
                         index={index + 1}
                         onRemoveClick={() => handleRemoveClick(pair.id)}
                         key={pair.id}
                         keyName={Object.keys(pair)[1]}
                         valueName={Object.keys(pair)[2]}
-                        keyValue={pair[fields[0]]}
-                        valueValue={pair[fields[1]]}
+                        keyValue={pair.prefix}
+                        valueValue={pair.name}
+                        get_message={get_message}
+                        return_message={return_message}
                         onChange={(fieldName: string, value: any) => {
                             changePairData(index, fieldName, value);
                         }}
@@ -67,4 +71,4 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
     );
 };
 
-export default withTextContext()(MultiPairField);
+export default withTextContext()(ClassArrayField);

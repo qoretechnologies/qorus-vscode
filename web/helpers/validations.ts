@@ -2,6 +2,8 @@ import { IField } from '../containers/InterfaceCreator/panel';
 const cron = require('cron-validator');
 import isNumber from 'lodash/isNumber';
 import isNaN from 'lodash/isNaN';
+import uniqWith from 'lodash/uniqWith';
+import size from 'lodash/size';
 import jsyaml from 'js-yaml';
 
 export const validateField: (type: string, value: any, field: IField) => boolean = (type, value, field) => {
@@ -19,6 +21,25 @@ export const validateField: (type: string, value: any, field: IField) => boolean
                 (pair: { [key: string]: string }): boolean =>
                     pair[field.fields[0]] !== '' && pair[field.fields[1]] !== ''
             );
+        }
+        // Classes check
+        case 'class-array': {
+            let valid = true;
+            // Check if the fields are not empty
+            if (!value.every((pair: { [key: string]: string }): boolean => pair[field.fields[1]] !== '')) {
+                valid = false;
+            }
+            // Get a list of unique values
+            const uniqueValues: any[] = uniqWith(
+                value,
+                (cur, prev) => `${cur.prefix}${cur.name}` === `${prev.prefix}${prev.name}`
+            );
+            // Check if there are any duplicates
+            if (size(uniqueValues) !== size(value)) {
+                valid = false;
+            }
+
+            return valid;
         }
         case 'int':
         case 'float':
