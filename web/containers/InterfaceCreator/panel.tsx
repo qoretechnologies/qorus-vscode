@@ -606,6 +606,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return null;
     };
 
+    const fetchConfigItems: () => void = () => {
+        postMessage(Messages.GET_CONFIG_ITEMS, {
+            iface_id: interfaceId,
+        })
+    }
+
     const isConfigManagerEnabled = () => {
         // Find the base class name field
         const baseClassName: IField = [...fieldList, ...selectedFields].find(
@@ -615,6 +621,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (baseClassName) {
             // Check if the field is mandatory
             if (baseClassName.mandatory === false) {
+                // Fetch config items if base class name is not selected
+                // and user is editing
+                if (!baseClassName.selected && isEditing) {
+                    fetchConfigItems();
+                }
                 // If the base class name is not mandatory
                 // enable the config items by default
                 return baseClassName.selected ? baseClassName.isValid : true;
