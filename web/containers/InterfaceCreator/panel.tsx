@@ -758,7 +758,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         type={type}
                         baseClassName={
                             selectedFields &&
-                            selectedFields.find((field: IField) => field.name === 'base-class-name').value
+                            selectedFields.find((field: IField) => field.name === 'base-class-name')?.value
                         }
                         interfaceId={interfaceId}
                         resetFields={resetFields}
