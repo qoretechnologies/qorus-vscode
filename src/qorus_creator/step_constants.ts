@@ -14,7 +14,8 @@ export const stepFields = params => [
             object_type: 'step-base-class',
             return_value: 'objects',
         },
-        on_change: 'get-config-items'
+        on_change: 'get-config-items',
+        notify_on_remove: true
     }
 ];
 

@@ -241,6 +241,7 @@ export const classFields = params => [
             object_type: 'base-class',
             return_value: 'objects',
         },
-        on_change: 'get-config-items'
+        on_change: 'get-config-items',
+        notify_on_remove: true
     }
 ];
