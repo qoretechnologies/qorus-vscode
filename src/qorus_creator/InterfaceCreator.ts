@@ -207,11 +207,6 @@ export abstract class InterfaceCreator {
             if (Array.isArray(value)) {
                 result += `${tag}:\n`;
                 switch (tag) {
-                    case 'groups':
-                        for (let item of value) {
-                            result += `${list_indent}${item.name}\n`;
-                        }
-                        break;
                     case 'tags':
                         for (let item of value) {
                             result += `${indent}${item.key}: ${item.value}\n`;
@@ -229,6 +224,7 @@ export abstract class InterfaceCreator {
                     case 'vmaps':
                     case 'mappers':
                     case 'keylist':
+                    case 'groups':
                         for (let item of value) {
                             result += `${list_indent}${item.name}\n`;
                         }

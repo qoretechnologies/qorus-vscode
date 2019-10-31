@@ -183,7 +183,7 @@ export const commonFields4 = params => [
     {
         name: 'groups',
         mandatory: false,
-        type: 'array-of-pairs',
+        type: 'select-array',
         fields: ['name', 'desc'],
         get_message: {
             action: 'creator-get-objects',
