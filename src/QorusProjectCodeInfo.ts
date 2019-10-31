@@ -654,7 +654,7 @@ export class QorusProjectCodeInfo {
     classYamlData = class_name => {
         const class_src_file = this.class_2_src[class_name];
         const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
-        if (!class_yaml_data) {
+        if (!class_yaml_data && !QorusProjectCodeInfo.isRootBaseClass(class_name)) {
             msg.log(t`UnableFindYamlForClass ${class_name}`);
         }
         return class_yaml_data;
