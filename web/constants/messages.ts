@@ -29,7 +29,7 @@ export const Messages = {
     RESET_CONFIG_ITEMS: 'reset-config-items',
     SET_ACTIVE_INSTANCE: 'set-active-instance',
     UNSET_ACTIVE_INSTANCE: 'unset-active-instance',
-    GET_PROJECT_DIRS: 'creator-get-directories',
-    RETURN_PROJECT_DIRS: 'creator-return-directories',
+    GET_PROJECT_DIRS: 'get-all-directories',
+    RETURN_PROJECT_DIRS: 'return-all-directories',
     CREATOR_FIELD_REMOVED: 'creator-field-removed',
 };

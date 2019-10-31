@@ -113,11 +113,9 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                             useRelativePath
                             get_message={{
                                 action: Messages.GET_PROJECT_DIRS,
-                                object_type: 'target_dir',
                             }}
                             return_message={{
                                 action: Messages.RETURN_PROJECT_DIRS,
-                                object_type: 'target_dir',
                                 return_value: 'directories',
                             }}
                         />
