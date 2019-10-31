@@ -52,8 +52,8 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
                         index={index + 1}
                         onRemoveClick={() => handleRemoveClick(pair.id)}
                         key={pair.id}
-                        keyName={Object.keys(pair)[1]}
-                        valueName={Object.keys(pair)[2]}
+                        keyName="prefix"
+                        valueName="name"
                         keyValue={pair.prefix}
                         valueValue={pair.name}
                         get_message={get_message}

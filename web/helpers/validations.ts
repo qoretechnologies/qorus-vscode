@@ -26,7 +26,7 @@ export const validateField: (type: string, value: any, field: IField) => boolean
         case 'class-array': {
             let valid = true;
             // Check if the fields are not empty
-            if (!value.every((pair: { [key: string]: string }): boolean => pair[field.fields[1]] !== '')) {
+            if (!value.every((pair: { [key: string]: string }): boolean => pair.name && pair.name !== '')) {
                 valid = false;
             }
             // Get a list of unique values
