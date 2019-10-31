@@ -60,7 +60,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                 {type === 'auto' && <AutoField {...rest} type={type} />}
                 {type === 'array-auto' && <ArrayAutoField {...rest} type={type} />}
                 {type === 'number' && <NumberField {...rest} type={type} />}
-                {type === 'class-array' && <ClassArrayField {...rest} type={type} />} }
+                {type === 'class-array' && <ClassArrayField {...rest} type={type} />}
                 {rest.markdown && <MarkdownPreview value={rest.value} />}
             </>
         );
