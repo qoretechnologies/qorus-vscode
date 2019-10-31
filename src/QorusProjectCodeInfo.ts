@@ -50,6 +50,7 @@ export class QorusProjectCodeInfo {
     private class_2_src: any = {};
     private file_tree: any = {};
     private dir_tree: any = {};
+    private all_dir_tree: any = {};
     private inheritance_pairs: any = {};
     private edit_info: any = {};
     private modules: string[] = [];
@@ -314,29 +315,28 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    maybeSortObjects(objects: any): any {
-        // For now, only arrays will be sorted
-        if (isArray(objects)) {
-            // Check if this collection is made of
-            // objects or strings
-            if (objects.every((obj: any) => isObject(obj))) {
-                // Collection of objects, sort sort them by name
-                return sortBy(objects, ['name']);
-            } else {
-                // Collections of anything else, sort by identity
-                return sortBy(objects);
-            }
-        }
-        // Not an array, return the untransformed object
-        return objects;
-    }
-
     getObjects(object_type: string) {
-        const postMessage = (return_type: string, objects: any) => {
+        const maybeSortObjects = (objects: any): any => {
+            // For now, only arrays will be sorted
+            if (isArray(objects)) {
+                // Check if this collection is made of objects or strings
+                if (objects.every((obj: any) => isObject(obj))) {
+                    // Collection of objects, sort sort them by name
+                    return sortBy(objects, ['name']);
+                } else {
+                    // Collections of anything else, sort by identity
+                    return sortBy(objects);
+                }
+            }
+            // Not an array, return the untransformed object
+            return objects;
+        }
+
+        const postMessage = (return_type: string, objects: any, sort: boolean = true) => {
             qorus_webview.postMessage({
                 action: 'creator-return-' + return_type,
                 object_type,
-                [return_type]: this.maybeSortObjects(objects),
+                [return_type]: sort ? maybeSortObjects(objects) : objects,
             });
         };
 
@@ -400,10 +400,16 @@ export class QorusProjectCodeInfo {
             case 'text-resource':
             case 'bin-resource':
             case 'template':
-                this.waitForPending(['file_tree']).then(() => postMessage('resources', this.file_tree));
+                this.waitForPending(['file_tree']).then(() => postMessage('resources', this.file_tree, false));
                 break;
             case 'target_dir':
-                this.waitForPending(['file_tree']).then(() => postMessage('directories', this.dir_tree));
+                this.waitForPending(['file_tree']).then(() => postMessage('directories', this.dir_tree, false));
+                break;
+            case 'all_dirs':
+                this.waitForPending(['file_tree']).then(() => qorus_webview.postMessage({
+                    action: 'return-all-directories',
+                    directories: this.all_dir_tree
+                }));
                 break;
             default:
                 msg.error(t`UnknownInterfaceProperty ${object_type}`);
@@ -734,6 +740,9 @@ export class QorusProjectCodeInfo {
         const subDirRecursion = (tree_item: any, only_dirs: boolean) => {
             const dir_entries: string[] = fs.readdirSync(tree_item.abs_path);
             for (let entry of dir_entries) {
+                if (entry[0] === '.') {
+                    continue;
+                }
                 const entry_path: string = path.join(tree_item.abs_path, entry);
                 if (fs.lstatSync(entry_path).isDirectory()) {
                     let dir_item = dirItem(entry_path, only_dirs);
@@ -751,6 +760,7 @@ export class QorusProjectCodeInfo {
 
         let file_tree: any = dirItem(this.project.folder, false, true);
         let dir_tree: any = dirItem(this.project.folder, true, true);
+        let all_dir_tree: any = dirItem(this.project.folder, true, true);
 
         for (let dir of source_directories) {
             let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
@@ -762,8 +772,13 @@ export class QorusProjectCodeInfo {
             subDirRecursion(dir_tree_root, true);
         }
 
+        let all_dir_tree_root = dirItem(this.project.folder, true);
+        all_dir_tree.dirs.push(all_dir_tree_root);
+        subDirRecursion(all_dir_tree_root, true);
+
         this.file_tree = file_tree;
         this.dir_tree = dir_tree;
+        this.all_dir_tree = all_dir_tree;
         this.setPending('file_tree', false);
     }
 
