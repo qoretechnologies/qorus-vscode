@@ -17,14 +17,13 @@ import { t, addLocale, useLocale } from 'ttag';
 import * as fs from 'fs';
 import * as gettext_parser from 'gettext-parser';
 
-setLocale();
+export const translation_object = setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
     QorusExtension.context = context;
 
-    let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile', () =>
-        deployer.deployCurrentFile()
-    );
+    let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
+                                                               () => deployer.deployCurrentFile());
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.deployFile', (uri: vscode.Uri) => deployer.deployFile(uri));
@@ -44,35 +43,32 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.setActiveInstance', (tree_item: string | vscode.TreeItem) =>
-        qorus_request.setActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
+                                                 (tree_item: string | vscode.TreeItem) =>
+                                                        qorus_request.setActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.setActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance',
+                                                 (tree_item: vscode.TreeItem) =>
+                                                        qorus_request.setActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.logout', (tree_item: vscode.TreeItem) =>
-        qorus_request.logout(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.logout',
+                                                 (tree_item: vscode.TreeItem) => qorus_request.logout(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.loginAndStayInactiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.login(tree_item, false)
-    );
+    disposable = vscode.commands.registerCommand('qorus.loginAndStayInactiveInstance',
+                                                 (tree_item: vscode.TreeItem) => qorus_request.login(tree_item, false));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand(
-        'qorus.setInactiveInstanceStayLoggedIn',
-        (tree_item: vscode.TreeItem) => qorus_request.unsetActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.setInactiveInstanceStayLoggedIn',
+                                                 (tree_item: vscode.TreeItem) =>
+                                                        qorus_request.unsetActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.setInactiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.unsetActiveInstance(tree_item)
-    );
+    disposable = vscode.commands.registerCommand('qorus.setInactiveInstance',
+                                                 (tree_item: vscode.TreeItem) =>
+                                                        qorus_request.unsetActiveInstance(tree_item));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
@@ -83,30 +79,27 @@ export async function activate(context: vscode.ExtensionContext) {
 
     ['service', 'job', 'workflow', 'step', 'class', 'other'].forEach(subtab => {
         const command = 'qorus.create' + subtab[0].toUpperCase() + subtab.substr(1);
-        disposable = vscode.commands.registerCommand(command, (uri: vscode.Uri) =>
-            qorus_webview.open({
-                tab: 'CreateInterface',
-                subtab,
-                uri,
-            })
-        );
+        disposable = vscode.commands.registerCommand(command, (uri: vscode.Uri) => qorus_webview.open({
+            tab: 'CreateInterface', subtab, uri
+        }));
         context.subscriptions.push(disposable);
     });
 
-    disposable = vscode.commands.registerCommand('qorus.editInterface', (data: any, iface_kind: string) => {
+    disposable = vscode.commands.registerCommand('qorus.editInterface',
+                                                 (data: any, iface_kind: string) =>
+    {
         const code_info: InterfaceInfo = projects.currentInterfaceInfo();
         const iface_id = code_info.addIfaceById(data);
         qorus_webview.open({
             tab: 'CreateInterface',
             subtab: iface_kind,
-            [iface_kind]: { ...data, iface_id },
-        });
+            [iface_kind]: { ...data, iface_id }
+        })
     });
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod', (data: any) =>
-        creator.deleteServiceMethod(data)
-    );
+    disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod',
+                                                 (data: any) => creator.deleteServiceMethod(data));
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
@@ -196,7 +189,7 @@ function openUrlInExternalBrowser(url: string, name: string) {
     }
 }
 
-export function getLocaleAndPoFile() {
+function setLocale() {
     const default_locale = 'en';
     let use_default_locale: boolean = false;
 
@@ -224,22 +217,20 @@ export function getLocaleAndPoFile() {
         setPoFile();
     }
 
-    return [locale, po_file];
-}
-
-function setLocale() {
-    const [locale, po_file] = getLocaleAndPoFile();
-
     if (!po_file) {
         msg.error('Language file not found');
-        return;
+        return undefined;
     }
 
     const translation_object = gettext_parser.po.parse(fs.readFileSync(po_file));
     addLocale(locale, translation_object);
     useLocale(locale);
 
-    if (locale) {
-        msg.log(t`Using ${locale} locale`);
+    if (use_default_locale) {
+        msg.log(t`UsingDefaultLocale ${locale}`);
+    } else {
+        msg.log(t`UsingLocaleSettings ${locale}`);
     }
+
+    return translation_object;
 }
