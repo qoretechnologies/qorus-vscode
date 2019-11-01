@@ -180,6 +180,8 @@ const StepList = compose(
             }
         }, [highlightedSteps]);
 
+        console.log(steps);
+
         return (
             <StyledStepWrapper>
                 {level === 1 && (
@@ -252,7 +254,7 @@ const StepList = compose(
                         </StyledStep>
                     ))
                 ) : (
-                    <p className={Classes.TEXT_MUTED}>{t('NoStepsAdded')}</p>
+                    <>{level === 1 && <p className={Classes.TEXT_MUTED}>{t('NoStepsAdded')}</p>}</>
                 )}
                 {level === 1 && (
                     <>
