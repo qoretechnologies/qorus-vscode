@@ -30,7 +30,35 @@ export const stepFields = params => [
             object_type: 'class',
             return_value: 'objects',
         },
-    }
+    },
+    {
+        name: 'event',
+        mandatory: false,
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'event',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'event',
+            return_value: 'objects',
+        },
+    },
+    {
+        name: 'queue',
+        mandatory: false,
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'queue',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'queue',
+            return_value: 'objects',
+        },
+    },
 ];
 
 export const stepTypeHeaders = step_type => {

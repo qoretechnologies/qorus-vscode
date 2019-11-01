@@ -25,7 +25,7 @@ const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
 const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
-const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group'];
+const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
 const types_with_version = [...iface_kinds, 'constant', 'function', 'mapper'];
@@ -387,6 +387,8 @@ export class QorusProjectCodeInfo {
             case 'mapper':
             case 'value-map':
             case 'group':
+            case 'event':
+            case 'queue':
                 this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );

@@ -883,6 +883,18 @@ msgstr "Groups"
 msgid "field-desc-groups"
 msgstr "One or more interface groups that the service is a member of"
 
+msgid "field-label-event"
+msgstr "Event"
+
+msgid "field-desc-event"
+msgstr "The name of the event associated with the step"
+
+msgid "field-label-queue"
+msgstr "Queue"
+
+msgid "field-desc-queue"
+msgstr "The name of the queue associated with the step"
+
 msgid "field-label-constants"
 msgstr "Constants"
 
