@@ -180,8 +180,6 @@ const StepList = compose(
             }
         }, [highlightedSteps]);
 
-        console.log(steps);
-
         return (
             <StyledStepWrapper>
                 {level === 1 && (

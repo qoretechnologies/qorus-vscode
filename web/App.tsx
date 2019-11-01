@@ -81,7 +81,7 @@ const App: FunctionComponent<IApp> = ({
     changeTab,
     path,
 }) => {
-    const [texts, setTexts] = useState<{ [key: string]: string }>({});
+    const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
     useEffectOnce(() => {
         // New text was received
         addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
@@ -115,26 +115,20 @@ const App: FunctionComponent<IApp> = ({
         addMessageListener(Messages.SET_QORUS_INSTANCE, ({ qorus_instance }): void => {
             setActiveInstance(qorus_instance);
         });
+        addMessageListener('return-all-text', ({ data }): void => {
+            setTexts(data);
+        });
         // Get the current project folder
         postMessage(Messages.GET_PROJECT_FOLDER);
+        postMessage('get-all-text');
     });
 
+    if (!texts) {
+        return <p> Loading translations... </p>;
+    }
+
     const t: TTranslator = text_id => {
-        if (!text_id) {
-            return 'Missing text id';
-        }
-        // Return the text if it was found
-        if (!pastTexts[text_id]) {
-            // Save the text
-            pastTexts[text_id] = { isTranslated: false, text: text_id };
-            // Otherwise ask for it
-            postMessage(Messages.GET_TEXT, { text_id });
-        } else if (!pastTexts[text_id].isTranslated) {
-            // Ask for the translation again
-            postMessage(Messages.GET_TEXT, { text_id });
-        }
-        // Return the text
-        return pastTexts[text_id].text;
+        return texts.find(textItem => textItem.id === text_id)?.text || `${text_id} (missing trans)`;
     };
 
     return (

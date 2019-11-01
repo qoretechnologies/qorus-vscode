@@ -8,6 +8,10 @@ import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import * as map from 'lodash/map';
+import * as gettext_parser from 'gettext-parser';
+import * as fs from 'fs';
+import { getLocaleAndPoFile } from './extension';
 
 const web_path = path.join(__dirname, '..', 'dist');
 
@@ -107,6 +111,21 @@ class QorusWebview {
                                 action: 'return-text',
                                 text_id: message.text_id,
                                 text: gettext(message.text_id),
+                            });
+                            break;
+                        case 'get-all-text':
+                            // Get the po_file associated with the current
+                            // locale
+                            const [_locale, po_file] = getLocaleAndPoFile();
+                            const parsedPoFile = gettext_parser.po.parse(fs.readFileSync(po_file));
+                            // Return all the translated texts, except texts with parameters will
+                            // not be translated
+                            this.panel.webview.postMessage({
+                                action: 'return-all-text',
+                                data: map(parsedPoFile.translations[''], parsedData => ({
+                                    id: parsedData.msgid,
+                                    text: gettext(parsedData.msgid),
+                                })),
                             });
                             break;
                         case 'get-active-tab':
