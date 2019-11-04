@@ -2,7 +2,6 @@ import * as jsyaml from 'js-yaml';
 import * as shortid from 'shortid';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
-import { defaultValue } from './config_item_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -41,6 +40,7 @@ export class InterfaceInfo {
 
     addIfaceById = (data: any): string => {
         const id = shortid.generate();
+        this.initIfaceId(id);
         this.iface_by_id[id] = data;
         if (data['base-class-name']) {
             this.addClassConfigItems(data['base-class-name'], id);
@@ -135,18 +135,17 @@ export class InterfaceInfo {
             return raw_item;
         }
 
-        return this.configItemInheritedData(parent_data['config-items'][index]);
+        return {
+            ... this.configItemInheritedData(parent_data['config-items'][index]),
+            ... parent_data['config-items'][index]
+        }
     }
 
     private addClassConfigItems = (class_name, iface_id) => {
-        this.initIfaceId(iface_id);
-
         const class_yaml_data = this.code_info.classYamlData(class_name);
         if (!class_yaml_data) {
             return;
         }
-
-        this.iface_by_id[iface_id].base_class_name = class_name;
 
         const version = class_yaml_data.version || default_version;
 
@@ -187,8 +186,23 @@ export class InterfaceInfo {
         qorus_webview.postMessage(message);
     }
 
-    getConfigItems(params) {
-        const {'base-class-name': base_class_name, iface_id, iface_kind} = params;
+    private removeClassConfigItems = (iface_id, class_name) => {
+        this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
+            !item.parent || item.parent['interface-name'] !== class_name
+        );
+    }
+
+    private removeOrigClassesConfigItems = (iface_id, new_classes_data = []) => {
+        const new_classes = new_classes_data.map(class_data => class_data.name);
+        const to_remove = (this.iface_by_id[iface_id].classes || []).filter(class_data =>
+            !new_classes.includes(class_data.name) &&
+            class_data.name !== this.iface_by_id[iface_id]['base-class-name']
+        );
+        to_remove.forEach(class_data => {this.removeClassConfigItems(iface_id, class_data.name)});
+    }
+
+    getConfigItems = params => {
+        const {'base-class-name': base_class_name, classes, iface_id, iface_kind} = params;
         if (!iface_id) {
             return;
         }
@@ -197,7 +211,15 @@ export class InterfaceInfo {
         this.code_info.waitForPending(['yaml', 'lang_client']).then(() => {
             if (base_class_name) {
                 this.addClassConfigItems(base_class_name, iface_id);
+                this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
             }
+            if (classes) {
+                this.removeOrigClassesConfigItems(iface_id, classes);
+            }
+            (classes || []).forEach(class_data => {
+                class_data.name && this.addClassConfigItems(class_data.name, iface_id);
+            });
+
             const items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
 
             const fixLocalItems = (item: any): any => {
@@ -214,8 +236,6 @@ export class InterfaceInfo {
                         item.is_set = true;
                     }
                 }
-
-                item.type = item.type || defaultValue('type');
 
                 return { ...item };
             };

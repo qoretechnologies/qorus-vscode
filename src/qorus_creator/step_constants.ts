@@ -30,6 +30,7 @@ export const stepFields = params => [
             object_type: 'class',
             return_value: 'objects',
         },
+        on_change: 'get-config-items',
     },
     {
         name: 'event',

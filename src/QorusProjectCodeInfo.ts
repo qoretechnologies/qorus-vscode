@@ -141,7 +141,7 @@ export class QorusProjectCodeInfo {
         }
 
         return true;
-    };
+    }
 
     addSymbolDeclCodeInfo = (file: string, decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
@@ -159,7 +159,7 @@ export class QorusProjectCodeInfo {
         this.addServiceMethodInfo(file, method_name, decl_range, name_range);
 
         return true;
-    };
+    }
 
     addFileCodeInfo(file: string, force: boolean = true): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
@@ -210,7 +210,7 @@ export class QorusProjectCodeInfo {
                 },
             })
         );
-    };
+    }
 
     pairFile = (file: string): string | undefined => {
         if (!hasSuffix(file, 'yaml')) {
@@ -222,7 +222,7 @@ export class QorusProjectCodeInfo {
             return this.yaml_2_src[file];
         }
         return undefined;
-    };
+    }
 
     stepData = (step_structure: any[]): any => {
         const step_names: string[] = flatten(step_structure);
@@ -232,7 +232,7 @@ export class QorusProjectCodeInfo {
             delete step_data[name].yaml_file;
         });
         return step_data;
-    };
+    }
 
     private initInfo() {
         for (const type of [...object_info_types, 'author']) {
@@ -262,7 +262,7 @@ export class QorusProjectCodeInfo {
             Object.assign(ret_val, this.step_classes[step_type]);
         }
         return ret_val;
-    };
+    }
 
     private initFileWatchers() {
         this.all_files_watcher = vscode.workspace.createFileSystemWatcher('**/*');
@@ -330,7 +330,7 @@ export class QorusProjectCodeInfo {
             }
             // Not an array, return the untransformed object
             return objects;
-        }
+        };
 
         const postMessage = (return_type: string, objects: any, sort: boolean = true) => {
             qorus_webview.postMessage({
@@ -434,7 +434,7 @@ export class QorusProjectCodeInfo {
     }
 
     static isRootBaseClass = base_class_name =>
-        [...root_steps, root_service, root_job, root_workflow].includes(base_class_name);
+        [...root_steps, root_service, root_job, root_workflow].includes(base_class_name)
 
     update(info_list: string[] = info_keys, is_initial_update: boolean = false) {
         this.project.validateConfigFileAndDo(file_data => {
@@ -501,7 +501,7 @@ export class QorusProjectCodeInfo {
             }
         }
         return undefined;
-    };
+    }
 
     addSingleYamlInfo(file: string) {
         let parsed_data: any;
@@ -666,7 +666,7 @@ export class QorusProjectCodeInfo {
             msg.log(t`UnableFindYamlForClass ${class_name}`);
         }
         return class_yaml_data;
-    };
+    }
 
     private addDescToBaseClasses(base_classes: any, root_classes: string[] = []): any[] {
         let ret_val = [];

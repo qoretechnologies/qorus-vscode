@@ -226,6 +226,7 @@ export const commonFields5 = params => [
             object_type: 'class',
             return_value: 'objects',
         },
+        on_change: 'get-config-items',
     },
 ];
 
