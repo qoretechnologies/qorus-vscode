@@ -128,7 +128,7 @@ const App: FunctionComponent<IApp> = ({
     }
 
     const t: TTranslator = text_id => {
-        return texts.find(textItem => textItem.id === text_id)?.text || `${text_id} (missing trans)`;
+        return texts.find(textItem => textItem.id === text_id)?.text || text_id;
     };
 
     return (
