@@ -39,17 +39,17 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
 
     const handleRemoveClick: (id: number) => void = id => {
         // Remove the selected pair
-        onChange(name, value.filter((p: IPair) => id !== p.id));
+        onChange(name, value.filter((_p: IPair, index: number) => id !== index));
     };
 
     return (
         <>
             {value.map((pair: IPair, index: number) => (
-                <StyledPairField key={pair.id}>
+                <StyledPairField key={index + 1}>
                     <PairField
                         index={index + 1}
-                        onRemoveClick={() => handleRemoveClick(pair.id)}
-                        key={pair.id}
+                        onRemoveClick={() => handleRemoveClick(index)}
+                        key={index + 1}
                         keyName={Object.keys(pair)[1]}
                         valueName={Object.keys(pair)[2]}
                         keyValue={pair[fields[0]]}
