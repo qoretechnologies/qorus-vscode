@@ -246,5 +246,20 @@ export const classFields = params => [
         },
         on_change: 'get-config-items',
         notify_on_remove: true
-    }
+    },
+    {
+        name: 'tags',
+        mandatory: false,
+        type: 'array-of-pairs',
+        fields: ['key', 'value'],
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'tag',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'tag',
+            return_value: 'objects',
+        },
+    },
 ];
