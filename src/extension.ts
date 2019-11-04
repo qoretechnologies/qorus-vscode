@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import { QorusExtension } from './qorus_vscode';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
+import { qorus_locale } from './QorusLocale';
 import { deployer } from './QorusDeploy';
 import { tester } from './QorusTest';
 import { tree } from './QorusTree';
@@ -13,11 +13,9 @@ import { QorusCodeLensProvider } from './QorusCodeLensProvider';
 import { QorusHoverProvider } from './QorusHoverProvider';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import * as msg from './qorus_message';
-import { t, addLocale, useLocale } from 'ttag';
-import * as fs from 'fs';
-import * as gettext_parser from 'gettext-parser';
+import { t } from 'ttag';
 
-export const translation_object = setLocale();
+qorus_locale.setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
     QorusExtension.context = context;
@@ -187,50 +185,4 @@ function openUrlInExternalBrowser(url: string, name: string) {
     } catch (error) {
         msg.error(t`OpenUrlInExternalBrowserError`);
     }
-}
-
-function setLocale() {
-    const default_locale = 'en';
-    let use_default_locale: boolean = false;
-
-    let po_file: string | undefined = undefined;
-    let locale: string = vscode.workspace.getConfiguration().typescript.locale;
-
-    function setPoFile() {
-        if (use_default_locale) {
-            locale = default_locale;
-        }
-        po_file = path.join(__dirname, '..', 'lang', `${locale}.po`);
-        if (!fs.existsSync(po_file)) {
-            po_file = undefined;
-        }
-    }
-
-    if (locale) {
-        setPoFile();
-        if (!po_file && locale != default_locale) {
-            use_default_locale = true;
-            setPoFile();
-        }
-    } else {
-        use_default_locale = true;
-        setPoFile();
-    }
-
-    if (!po_file) {
-        msg.error('Language file not found');
-        return undefined;
-    }
-
-    const translation_object = gettext_parser.po.parse(fs.readFileSync(po_file));
-    addLocale(locale, translation_object);
-    useLocale(locale);
-
-    if (use_default_locale) {
-        msg.log(t`UsingDefaultLocale ${locale}`);
-    } else {
-        msg.log(t`UsingLocaleSettings ${locale}`);
-    }
-
-    return translation_object;
 }

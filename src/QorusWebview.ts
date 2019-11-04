@@ -9,7 +9,7 @@ import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import * as map from 'lodash/map';
-import { translation_object } from './extension';
+import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
 
@@ -114,8 +114,8 @@ class QorusWebview {
                         case 'get-all-text':
                             this.panel.webview.postMessage({
                                 action: 'return-all-text',
-                                data: translation_object
-                                    ?   map(translation_object.translations[''], parsed_data => ({
+                                data: qorus_locale.translations
+                                    ?   map(qorus_locale.translations, parsed_data => ({
                                             id: parsed_data.msgid,
                                             text: gettext(parsed_data.msgid),
                                         }))
