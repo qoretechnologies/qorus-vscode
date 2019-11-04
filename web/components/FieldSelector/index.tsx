@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { TextContext } from '../../context/text';
 
 const StyledFieldSelector = styled.div`
@@ -11,23 +11,30 @@ const StyledFieldSelector = styled.div`
     &:not(:first-child) {
         margin-top: 5px;
     }
-    cursor: pointer;
+    cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
     transition: all 0.1s ease-in;
     position: relative;
 
-    &:hover {
-        border-color: #137cbd;
+    ${({ disabled }) =>
+        !disabled
+            ? css`
+                  &:hover {
+                      border-color: #137cbd;
 
-        div {
-            opacity: 0.7;
-            transform: translateY(-50%) rotateZ(90deg);
+                      div {
+                          opacity: 0.7;
+                          transform: translateY(-50%) rotateZ(90deg);
 
-            &:after,
-            &:before {
-                background-color: green;
-            }
-        }
-    }
+                          &:after,
+                          &:before {
+                              background-color: green;
+                          }
+                      }
+                  }
+              `
+            : css`
+                  opacity: 0.3;
+              `}
 `;
 
 export const FieldName = styled.h4`
@@ -82,12 +89,13 @@ export interface IFieldSelector {
     name: string;
     type: string;
     onClick: (name: string) => any;
+    disabled: boolean;
 }
 
-const FieldSelector: FunctionComponent<IFieldSelector> = ({ name, type: type = 'string', onClick }) => (
+const FieldSelector: FunctionComponent<IFieldSelector> = ({ name, type: type = 'string', onClick, disabled }) => (
     <TextContext.Consumer>
         {t => (
-            <StyledFieldSelector onClick={() => onClick(name)}>
+            <StyledFieldSelector disabled={disabled} onClick={() => !disabled && onClick(name)}>
                 <FieldName>{t(`field-label-${name}`)}</FieldName>
                 <FieldType>{`<${type}>`}</FieldType>
                 <FieldButton />

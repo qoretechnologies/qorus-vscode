@@ -23,6 +23,7 @@ import ConfigItemManager from '../ConfigItemManager';
 import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import shortid from 'shortid';
+import useMount from 'react-use/lib/useMount';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -82,6 +83,7 @@ export interface IField {
     on_change?: string;
     notify_on_remove?: boolean;
     markdown?: boolean;
+    disabled?: boolean;
 }
 
 export declare interface IFieldChange {
@@ -160,13 +162,29 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
 
+    useMount(() => {
+        // Add the message listeners for fields
+        addMessageListener(Messages.CREATOR_ADD_FIELD, ({ field }) => {
+            addField(field);
+        });
+        addMessageListener(Messages.CREATOR_REMOVE_FIELD, ({ field }) => {
+            removeField(field);
+        })
+        addMessageListener(Messages.CREATOR_ENABLE_FIELD, ({ field }) => {
+            toggleDisableField(field, false);
+        })
+        addMessageListener(Messages.CREATOR_DISABLE_FIELD, ({ field }) => {
+            toggleDisableField(field, true);
+        })
+    });
+
     useEffect(() => {
         // Remove the message listener if it exists
         messageListener && messageListener();
         // Create a message listener for this activeId
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
-            ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField } }) => {
+            ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField }, iface_kind: string }) => {
                 // Register only for this interface
                 if (rest.iface_kind === type) {
                     if (!fields || !fields.length) {
@@ -353,6 +371,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         );
     };
 
+    const toggleDisableField: (fieldName: string, disabled: boolean) => void = (fieldName, disabled) => {
+        setFields(
+            type,
+            (current: IField[]) => map(current, (field: IField) => ({
+                    ...field,
+                    disabled: fieldName === field.name ? disabled : field.disabled,
+                }))
+            ,
+            activeId
+        );
+    };
+
     const handleAddClick: (fieldName: string) => void = fieldName => {
         addField(fieldName);
     };
@@ -461,7 +491,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Add all remaning fields that are
         // not yet selected
         fields.forEach((field: IField): void => {
-            if (!field.selected) {
+            if (!field.selected && !field.disabled) {
                 addField(field.name);
             }
         });
@@ -665,7 +695,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 <ContentWrapper>
                     {fieldList.length ? (
                         map(fieldList, (field: any) => (
-                            <FieldSelector name={field.name} type={field.type} onClick={handleAddClick} />
+                            <FieldSelector name={field.name} type={field.type} disabled={field.disabled} onClick={handleAddClick} />
                         ))
                     ) : (
                         <p className={Classes.TEXT_MUTED}>No fields available</p>
