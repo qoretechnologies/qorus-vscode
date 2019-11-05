@@ -31,6 +31,7 @@ export const stepFields = params => [
             return_value: 'objects',
         },
         on_change: 'get-config-items',
+        notify_on_remove: true
     },
     {
         name: 'event',

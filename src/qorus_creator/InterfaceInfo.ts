@@ -186,13 +186,32 @@ export class InterfaceInfo {
         qorus_webview.postMessage(message);
     }
 
+    removeBaseClass = ({iface_id, iface_kind}) => {
+        const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
+        if (!base_class_name) {
+            return;
+        }
+        const class_names = (this.iface_by_id[iface_id].classes || []).map(class_data => class_data.name);
+        if (!class_names.includes(base_class_name)) {
+            this.removeClassConfigItems(iface_id, base_class_name);
+        }
+        delete this.iface_by_id[iface_id]['base-class-name'];
+        this.getConfigItems({iface_id, iface_kind});
+    }
+
+    removeClasses = ({iface_id, iface_kind}) => {
+        this.removeClassesConfigItems(iface_id);
+        delete this.iface_by_id[iface_id].classes;
+        this.getConfigItems({iface_id, iface_kind});
+    }
+
     private removeClassConfigItems = (iface_id, class_name) => {
         this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
             !item.parent || item.parent['interface-name'] !== class_name
         );
     }
 
-    private removeOrigClassesConfigItems = (iface_id, new_classes_data = []) => {
+    private removeClassesConfigItems = (iface_id, new_classes_data = []) => {
         const new_classes = new_classes_data.map(class_data => class_data.name);
         const to_remove = (this.iface_by_id[iface_id].classes || []).filter(class_data =>
             !new_classes.includes(class_data.name) &&
@@ -214,7 +233,7 @@ export class InterfaceInfo {
                 this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
             }
             if (classes) {
-                this.removeOrigClassesConfigItems(iface_id, classes);
+                this.removeClassesConfigItems(iface_id, classes);
             }
             (classes || []).forEach(class_data => {
                 class_data.name && this.addClassConfigItems(class_data.name, iface_id);

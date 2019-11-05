@@ -53,6 +53,17 @@ class InterfaceCreatorDispatcher {
         }
     }
 
+    fieldRemoved({field, interface_info, ...other_params}) {
+        switch(field) {
+            case 'base-class-name':
+                interface_info.removeBaseClass(other_params);
+                break;
+            case 'classes':
+                interface_info.removeClasses(other_params);
+                break;
+        }
+    }
+
     deleteServiceMethod(params: any) {
         service_creator.deleteMethod(params);
     }

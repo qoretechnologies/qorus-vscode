@@ -217,6 +217,9 @@ class QorusWebview {
                         case 'creator-edit-interface':
                             creator.editInterface({ ...message, edit_type: 'edit', interface_info });
                             break;
+                        case 'creator-field-removed':
+                            creator.fieldRemoved({ ...message, interface_info });
+                            break;
                         case 'get-interface-data':
                             project.code_info.getInterfaceData(message);
                             break;

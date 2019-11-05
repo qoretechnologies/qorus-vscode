@@ -227,6 +227,7 @@ export const commonFields5 = params => [
             return_value: 'objects',
         },
         on_change: 'get-config-items',
+        notify_on_remove: true
     },
 ];
 
