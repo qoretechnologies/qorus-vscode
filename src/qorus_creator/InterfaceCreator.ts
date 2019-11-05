@@ -99,7 +99,7 @@ export abstract class InterfaceCreator {
 
     protected static renameClassAndBaseClass(
             lines: string[],
-            code_info: any,
+            edit_info: any,
             orig_data: any,
             header_data): string[]
     {
@@ -115,10 +115,10 @@ export abstract class InterfaceCreator {
         }
 
         if (base_class_name !== orig_base_class_name) {
-            replace(code_info.base_class_name_range.start, orig_base_class_name, base_class_name);
+            replace(edit_info.base_class_name_range.start, orig_base_class_name, base_class_name);
         }
         if (class_name !== orig_class_name) {
-            replace(code_info.class_name_range.start, orig_class_name, class_name);
+            replace(edit_info.class_name_range.start, orig_class_name, class_name);
         }
         return lines;
     }

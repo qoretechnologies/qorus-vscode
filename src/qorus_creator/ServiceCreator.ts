@@ -26,11 +26,11 @@ class ServiceCreator extends InterfaceCreator {
         } = orig_data || {};
 
         let orig_file_path: string;
-        let service_info: any;
+        let edit_info: any;
 
         if (['edit', 'delete-method'].includes(edit_type)) {
             orig_file_path = path.join(orig_target_dir, orig_target_file);
-            service_info = this.code_info.codeInfo('service', orig_file_path);
+            edit_info = this.code_info.editInfo('service', orig_file_path);
         }
 
         let contents: string;
@@ -45,11 +45,13 @@ class ServiceCreator extends InterfaceCreator {
                 const orig_method_names: string[] = (orig_methods || []).map(method => method.name);
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
-                code_lines = service_info.text_lines;
-                code_lines = ServiceCreator.renameClassAndBaseClass(
-                        code_lines, service_info, other_orig_data, header_data);
-                code_lines = ServiceCreator.renameServiceMethods(code_lines, service_info, method_renaming_map.renamed);
-                code_lines = ServiceCreator.removeServiceMethods(code_lines, service_info, method_renaming_map.removed);
+                code_lines = edit_info.text_lines;
+                code_lines = ServiceCreator.renameClassAndBaseClass(code_lines,
+                                                                    edit_info,
+                                                                    other_orig_data,
+                                                                    header_data);
+                code_lines = ServiceCreator.renameServiceMethods(code_lines, edit_info, method_renaming_map.renamed);
+                code_lines = ServiceCreator.removeServiceMethods(code_lines, edit_info, method_renaming_map.removed);
                 contents = this.addServiceMethods(code_lines, method_renaming_map.added);
                 break;
             case 'delete-method':
@@ -57,7 +59,7 @@ class ServiceCreator extends InterfaceCreator {
                     break;
                 }
                 const method_name = methods[data.method_index].name;
-                code_lines = ServiceCreator.removeServiceMethods(service_info.text_lines, service_info, [method_name]);
+                code_lines = ServiceCreator.removeServiceMethods(edit_info.text_lines, edit_info, [method_name]);
                 contents = code_lines.join('\n');
                 message = t`ServiceMethodHasBeenDeleted ${method_name}`;
 
@@ -135,10 +137,10 @@ class ServiceCreator extends InterfaceCreator {
         return mapping;
     }
 
-    private static renameServiceMethods(lines: string[], service_info: any, renaming: any): string[] {
+    private static renameServiceMethods(lines: string[], edit_info: any, renaming: any): string[] {
         let lines_with_renaming = {};
         for (const name of Object.keys(renaming)) {
-            const range = service_info.method_name_ranges[name];
+            const range = edit_info.method_name_ranges[name];
             if (!lines_with_renaming[range.start.line]) {
                 lines_with_renaming[range.start.line] = {};
             }
@@ -161,7 +163,7 @@ class ServiceCreator extends InterfaceCreator {
         });
     }
 
-    private static removeServiceMethods(lines: string[], service_info: any, removed: string[]): string[] {
+    private static removeServiceMethods(lines: string[], edit_info: any, removed: string[]): string[] {
         const removeRange = (lines, range) => {
             let rows = [];
             for (let i = 0; i < range.start.line; i++) {
@@ -174,7 +176,7 @@ class ServiceCreator extends InterfaceCreator {
             return rows;
         }
 
-        let rangesToRemove = removed.map(name => service_info.method_decl_ranges[name]);
+        let rangesToRemove = removed.map(name => edit_info.method_decl_ranges[name]);
         while (rangesToRemove.length) {
             lines = removeRange(lines, rangesToRemove.pop())
         }

@@ -186,7 +186,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    codeInfo(iface_kind: string, file: string) {
+    editInfo(iface_kind: string, file: string) {
         return this.edit_info[iface_kind][file];
     }
 

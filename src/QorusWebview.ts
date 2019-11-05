@@ -221,16 +221,16 @@ class QorusWebview {
                             project.code_info.getInterfaceData(message);
                             break;
                         case 'get-config-items':
-                            project.interface_info.getConfigItems(message);
+                            interface_info.getConfigItems(message);
                             break;
                         case 'get-config-item':
-                            project.interface_info.getConfigItem(message);
+                            interface_info.getConfigItem(message);
                             break;
                         case 'update-config-item-value':
-                            project.interface_info.updateConfigItemValue(message);
+                            interface_info.updateConfigItemValue(message);
                             break;
                         case 'reset-config-items':
-                            project.interface_info.resetConfigItemsToOrig(message.iface_id);
+                            interface_info.resetConfigItemsToOrig(message.iface_id);
                             break;
                         case 'set-active-instance':
                             qorus_request.setActiveInstance(message.url);
