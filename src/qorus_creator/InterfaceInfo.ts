@@ -74,7 +74,7 @@ export class InterfaceInfo {
                 return;
             }
 
-            if (['step', 'job', 'service'].includes(level)) {
+            if (['step', 'job', 'service', 'class'].includes(level)) {
                 level = 'local';
             }
 
