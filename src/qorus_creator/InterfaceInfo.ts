@@ -2,6 +2,7 @@ import * as jsyaml from 'js-yaml';
 import * as shortid from 'shortid';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { defaultValue } from './config_item_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -42,9 +43,14 @@ export class InterfaceInfo {
         const id = shortid.generate();
         this.initIfaceId(id);
         this.iface_by_id[id] = data;
-        if (data['base-class-name']) {
-            this.addClassConfigItems(data['base-class-name'], id);
-        }
+        this.code_info.waitForPending(['yaml']).then(() => {
+            if (data['base-class-name']) {
+                this.addClassConfigItems(data['base-class-name'], id);
+            }
+            (data.classes || []).forEach(class_data => {
+                class_data.name && this.addClassConfigItems(class_data.name, id);
+            });
+        });
         return id;
     }
 
@@ -227,7 +233,7 @@ export class InterfaceInfo {
         }
         this.initIfaceId(iface_id);
 
-        this.code_info.waitForPending(['yaml', 'lang_client']).then(() => {
+        this.code_info.waitForPending(['yaml']).then(() => {
             if (base_class_name) {
                 this.addClassConfigItems(base_class_name, iface_id);
                 this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
@@ -241,7 +247,9 @@ export class InterfaceInfo {
 
             const items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
 
-            const fixLocalItems = (item: any): any => {
+            const default_type = defaultValue('type');
+
+            const fixLocalItem = (item: any): any => {
                 if (item.default_value) {
                     item.value = item.default_value;
                     item.level = 'default';
@@ -255,6 +263,8 @@ export class InterfaceInfo {
                         item.is_set = true;
                     }
                 }
+
+                item.type = (item.type || default_type);
 
                 return { ...item };
             };
@@ -285,7 +295,7 @@ export class InterfaceInfo {
                 return { ...item, yamlData: yaml_data_tag };
             };
 
-            const local_items = (items || []).map(item => fixLocalItems(item));
+            const local_items = (items || []).map(item => fixLocalItem(item));
 
             const global_items = local_items.filter(item => !item.strictly_local)
                                             .map(item => checkValueLevel({ ...item }, 'global'));
