@@ -82,6 +82,7 @@ export interface IField {
     internal?: boolean;
     on_change?: string;
     notify_on_remove?: boolean;
+    notify_on_add?: boolean;
     markdown?: boolean;
     disabled?: boolean;
 }
@@ -329,13 +330,22 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Add the field to selected list
         setSelectedFields(
             type,
-            (current: IField[]) => [
+            (current: IField[]) => {
+                // Check if this field should notify
+                if (field.notify_on_add) {
+                    postMessage(Messages.CREATOR_FIELD_ADDED, {
+                        field: fieldName,
+                        iface_id: interfaceId,
+                        iface_kind: type,
+                    });
+                }
+                return [
                 ...current,
                 {
                     ...field,
                     selected: true,
                 },
-            ],
+            ]},
             activeId
         );
     };

@@ -32,6 +32,7 @@ export const Messages = {
     GET_PROJECT_DIRS: 'get-all-directories',
     RETURN_PROJECT_DIRS: 'return-all-directories',
     CREATOR_FIELD_REMOVED: 'creator-field-removed',
+    CREATOR_FIELD_ADDED: 'creator-field-added',
     CREATOR_ADD_FIELD: 'creator-add-field',
     CREATOR_REMOVE_FIELD: 'creator-remove-field',
     CREATOR_ENABLE_FIELD: 'creator-enable-field',
