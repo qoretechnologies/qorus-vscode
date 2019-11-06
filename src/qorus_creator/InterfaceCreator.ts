@@ -168,8 +168,10 @@ export abstract class InterfaceCreator {
                     continue;
                 }
 
-                if (item[tag] && item.parent_data && item[tag] !== item.parent_data[tag]
-                    && (typeof item.parent_data[tag] !== 'undefined' || item[tag] !== defaultValue(tag)))
+                const has_parent_data: boolean = (item.parent_data || false ) && item.parent_data[tag] !== undefined;
+
+                if ( (!has_parent_data && item[tag] !== defaultValue(tag)) ||
+                     (has_parent_data && item[tag] !== item.parent_data[tag]) )
                 {
                     if (tag === 'type') {
                         result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
