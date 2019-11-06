@@ -503,6 +503,35 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
+    setFields = ({'base-class-name': base_class_name, iface_id, iface_kind}) => {
+        if (!base_class_name || iface_kind !== 'step') {
+            return;
+        }
+
+        const addField = field =>
+            qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
+
+        const removeField = field =>
+            qorus_webview.postMessage({ action: 'creator-remove-field', field, iface_id, iface_kind });
+
+        switch(this.stepType(base_class_name)) {
+            case 'QorusEventStep':
+            case 'QorusEventArrayStep':
+                addField('event');
+                removeField('queue');
+                break;
+            case 'QorusAsyncStep':
+            case 'QorusAsyncArrayStep':
+                addField('queue');
+                removeField('event');
+                break;
+            default:
+                removeField('queue');
+                removeField('event');
+                break;
+        }
+    }
+
     addSingleYamlInfo(file: string) {
         let parsed_data: any;
         try {

@@ -1,5 +1,6 @@
 import { service_creator } from './ServiceCreator';
 import { class_creator } from './ClassCreator';
+import { qorus_webview } from '../QorusWebview';
 import { serviceFields, service_methods } from './service_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
@@ -49,6 +50,31 @@ class InterfaceCreatorDispatcher {
                 break;
             case 'config-item':
                 interface_info.updateConfigItem({...other_params, iface_kind});
+                break;
+        }
+    }
+
+    fieldAdded({field, iface_id, iface_kind}) {
+        switch(field) {
+            case 'class-name':
+                if (iface_kind === 'workflow') {
+                    qorus_webview.postMessage({
+                        action: 'creator-add-field',
+                        field: 'base-class-name',
+                        iface_id,
+                        iface_kind
+                    });
+                }
+                break;
+            case 'base-class-name':
+                if (iface_kind === 'workflow') {
+                    qorus_webview.postMessage({
+                        action: 'creator-add-field',
+                        field: 'class-name',
+                        iface_id,
+                        iface_kind
+                    });
+                }
                 break;
         }
     }
