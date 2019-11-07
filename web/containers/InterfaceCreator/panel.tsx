@@ -171,8 +171,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         });
         // Add the message listeners for fields
         setFieldListeners([
-            addMessageListener(Messages.CREATOR_ADD_FIELD, ({ field }) => {
-                addField(field);
+            addMessageListener(Messages.CREATOR_ADD_FIELD, ({ field, notify }) => {
+                addField(field, notify === true ? true : false);
             }),
             addMessageListener(Messages.CREATOR_REMOVE_FIELD, ({ field }) => {
                 removeField(field);
@@ -321,8 +321,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing });
     };
 
-    const addField: (fieldName: string) => void = useCallback(
-        fieldName => {
+    const addField: (fieldName: string, notify: boolean) => void = useCallback(
+        (fieldName, notify = true) => {
             // Remove the field
             setFields(
                 type,
@@ -341,7 +341,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     type,
                     (current: IField[]) => {
                         // Check if this field should notify
-                        if (field.notify_on_add) {
+                        if (field.notify_on_add && notify) {
                             postMessage(Messages.CREATOR_FIELD_ADDED, {
                                 field: fieldName,
                                 iface_id: interfaceId,
