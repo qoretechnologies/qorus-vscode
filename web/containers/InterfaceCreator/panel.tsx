@@ -23,7 +23,7 @@ import ConfigItemManager from '../ConfigItemManager';
 import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import shortid from 'shortid';
-import useMount from 'react-use/lib/useMount';
+import isArray from 'lodash/isArray';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -80,7 +80,7 @@ export interface IField {
     isValid?: boolean;
     hasValueSet?: boolean;
     internal?: boolean;
-    on_change?: string;
+    on_change?: string | string[];
     notify_on_remove?: boolean;
     notify_on_add?: boolean;
     markdown?: boolean;
@@ -484,11 +484,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         }
                         // Check if this field has an on_change message
                         if (currentField.on_change) {
-                            // Post the message with this handler
-                            postMessage(currentField.on_change, {
-                                [currentField.name]: value,
-                                iface_kind: type,
-                                iface_id: interfaceId,
+                            // Check if on_change is a list
+                            const onChange: string[] = isArray(currentField.on_change)
+                                ? currentField.on_change
+                                : [currentField.on_change];
+                            // Post all the actions
+                            onChange.forEach(action => {
+                                // Post the message with this handler
+                                postMessage(action, {
+                                    [currentField.name]: value,
+                                    iface_kind: type,
+                                    iface_id: interfaceId,
+                                });
                             });
                         }
                         // Add the value
