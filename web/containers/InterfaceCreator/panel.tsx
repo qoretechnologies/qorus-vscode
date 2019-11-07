@@ -174,8 +174,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             addMessageListener(Messages.CREATOR_ADD_FIELD, ({ field, notify }) => {
                 addField(field, notify === true ? true : false);
             }),
-            addMessageListener(Messages.CREATOR_REMOVE_FIELD, ({ field }) => {
-                removeField(field);
+            addMessageListener(Messages.CREATOR_REMOVE_FIELD, ({ field, notify }) => {
+                removeField(field, notify === true ? true : false);
             }),
             addMessageListener(Messages.CREATOR_ENABLE_FIELD, ({ field }) => {
                 toggleDisableField(field, false);
@@ -321,7 +321,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing });
     };
 
-    const addField: (fieldName: string, notify: boolean) => void = useCallback(
+    const addField: (fieldName: string, notify?: boolean) => void = useCallback(
         (fieldName, notify = true) => {
             // Remove the field
             setFields(
@@ -363,7 +363,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         [fields]
     );
 
-    const removeField: (fieldName: string) => void = fieldName => {
+    const removeField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
         // Remove the field
         setFields(
             type,
@@ -371,7 +371,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // Check if this field has a remove event
                 const field: IField = current.find((f: IField) => f.name === fieldName);
 
-                if (field.notify_on_remove) {
+                if (field.notify_on_remove && notify) {
                     postMessage(Messages.CREATOR_FIELD_REMOVED, {
                         field: fieldName,
                         iface_id: interfaceId,

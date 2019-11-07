@@ -12,6 +12,7 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
         const addMessageListener: TMessageListener = (action, callback) => {
             // Register the listener
             const messageListener = (event: MessageEvent) => {
+                console.log(event.data.action);
                 // Check if the action is equal
                 if (event.data.action === action) {
                     // Run the callback with the action data
@@ -30,6 +31,7 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
 
         // Send message
         const postMessage: TPostMessage = (action, data = {}) => {
+            console.log('POST', action);
             vscode.postMessage({
                 action,
                 ...data,
