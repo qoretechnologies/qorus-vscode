@@ -55,34 +55,40 @@ class InterfaceCreatorDispatcher {
     }
 
     fieldAdded({field, iface_id, iface_kind}) {
+        const addField = field =>
+            qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
+
         switch(field) {
             case 'class-name':
                 if (iface_kind === 'workflow') {
-                    qorus_webview.postMessage({
-                        action: 'creator-add-field',
-                        field: 'base-class-name',
-                        iface_id,
-                        iface_kind
-                    });
+                    addField('base-class-name');
                 }
                 break;
             case 'base-class-name':
                 if (iface_kind === 'workflow') {
-                    qorus_webview.postMessage({
-                        action: 'creator-add-field',
-                        field: 'class-name',
-                        iface_id,
-                        iface_kind
-                    });
+                    addField('class-name');
                 }
                 break;
         }
     }
 
     fieldRemoved({field, interface_info, ...other_params}) {
+        const {iface_id, iface_kind} = other_params;
+
+        const removeField = field =>
+            qorus_webview.postMessage({ action: 'creator-remove-field', field, iface_id, iface_kind });
+
         switch(field) {
             case 'base-class-name':
+                if (iface_kind === 'workflow') {
+                    removeField('class-name');
+                }
                 interface_info.removeBaseClass(other_params);
+                break;
+            case 'class-name':
+                if (iface_kind === 'workflow') {
+                    removeField('base-class-name');
+                }
                 break;
             case 'classes':
                 interface_info.removeClasses(other_params);

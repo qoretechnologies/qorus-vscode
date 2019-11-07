@@ -87,7 +87,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                                  (data: any, iface_kind: string) =>
     {
         const code_info: InterfaceInfo = projects.currentInterfaceInfo();
-        const iface_id = code_info.addIfaceById(data);
+        const iface_id = code_info.addIfaceById(data, iface_kind);
         qorus_webview.open({
             tab: 'CreateInterface',
             subtab: iface_kind,

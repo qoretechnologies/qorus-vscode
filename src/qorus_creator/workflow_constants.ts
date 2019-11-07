@@ -46,6 +46,7 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
         style: 'PascalCase',
         mandatory: false,
         notify_on_add: true,
+        notify_on_remove: true,
     },
     {
         name: 'lang',
@@ -182,6 +183,7 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
         },
         mandatory: false,
         notify_on_add: true,
+        notify_on_remove: true,
     },
     {
         name: 'classes',

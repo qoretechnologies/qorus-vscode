@@ -6,6 +6,8 @@ import { defaultValue } from './config_item_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
+const hasConfigItems = iface_kind => ['job', 'service', 'class', 'step'].includes(iface_kind);
+
 export class InterfaceInfo {
     private code_info: QorusProjectCodeInfo;
     private iface_by_id = {};
@@ -16,11 +18,11 @@ export class InterfaceInfo {
         this.code_info = project_code_info;
     }
 
-    private initIfaceId = iface_id => {
+    private initIfaceId = (iface_id, iface_kind) => {
         if (!this.iface_by_id[iface_id]) {
             this.iface_by_id[iface_id] = {};
         }
-        if (!this.iface_by_id[iface_id]['config-items']) {
+        if (hasConfigItems(iface_kind) && !this.iface_by_id[iface_id]['config-items']) {
             this.iface_by_id[iface_id]['config-items'] = [];
             this.iface_by_id[iface_id]['orig-config-items'] = [];
         }
@@ -39,9 +41,9 @@ export class InterfaceInfo {
         this.are_orig_config_items_set = true;
     }
 
-    addIfaceById = (data: any): string => {
+    addIfaceById = (data: any, iface_kind: string): string => {
         const id = shortid.generate();
-        this.initIfaceId(id);
+        this.initIfaceId(id, iface_kind);
         this.iface_by_id[id] = data;
         this.code_info.waitForPending(['yaml']).then(() => {
             if (data['base-class-name']) {
@@ -63,7 +65,7 @@ export class InterfaceInfo {
     }
 
     updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove}) => {
-        this.initIfaceId(iface_id);
+        this.initIfaceId(iface_id, iface_kind);
 
         if (parent_class) {
             this.addClassConfigItems(parent_class, iface_id);
@@ -99,7 +101,7 @@ export class InterfaceInfo {
     }
 
     updateConfigItem = ({iface_id, iface_kind, data: item}) => {
-        this.initIfaceId(iface_id);
+        this.initIfaceId(iface_id, iface_kind);
 
         if (item.can_be_undefined && item.type) {
             item.type = '*' + item.type
@@ -193,19 +195,27 @@ export class InterfaceInfo {
     }
 
     removeBaseClass = ({iface_id, iface_kind}) => {
+        this.initIfaceId(iface_id, iface_kind);
         const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
         if (!base_class_name) {
             return;
         }
+
+        delete this.iface_by_id[iface_id]['base-class-name'];
+
+        if (!hasConfigItems(iface_kind)) {
+            return;
+        }
+
         const class_names = (this.iface_by_id[iface_id].classes || []).map(class_data => class_data.name);
         if (!class_names.includes(base_class_name)) {
             this.removeClassConfigItems(iface_id, base_class_name);
         }
-        delete this.iface_by_id[iface_id]['base-class-name'];
         this.getConfigItems({iface_id, iface_kind});
     }
 
     removeClasses = ({iface_id, iface_kind}) => {
+        this.initIfaceId(iface_id, iface_kind);
         this.removeClassesConfigItems(iface_id);
         delete this.iface_by_id[iface_id].classes;
         this.getConfigItems({iface_id, iface_kind});
@@ -231,7 +241,7 @@ export class InterfaceInfo {
         if (!iface_id) {
             return;
         }
-        this.initIfaceId(iface_id);
+        this.initIfaceId(iface_id, iface_kind);
 
         this.code_info.waitForPending(['yaml']).then(() => {
             if (base_class_name) {
