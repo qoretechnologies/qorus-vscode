@@ -45,12 +45,12 @@ export class QorusAuth {
 
     setActive(url: string) {
         this.active_url = url;
-        qorus_webview.setActiveQorusInstance(url);
+        qorus_webview.setActiveQorusInstance(url, this.tokens[url]);
     }
 
     unsetActive() {
         this.active_url = undefined;
-        qorus_webview.setActiveQorusInstance(null);
+        qorus_webview.setActiveQorusInstance(undefined);
     }
 
     isActive(url: string): boolean {

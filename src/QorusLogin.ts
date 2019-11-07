@@ -113,7 +113,7 @@ export class QorusLogin extends QorusAuth {
             msg.info(t`LoggedOut`);
         }
         tree.refresh();
-        qorus_webview.setActiveQorusInstance(null);
+        qorus_webview.setActiveQorusInstance(undefined);
     }
 
     protected requestError(error_data: any, default_error: string) {

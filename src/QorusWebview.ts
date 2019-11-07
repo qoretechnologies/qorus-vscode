@@ -287,14 +287,11 @@ class QorusWebview {
         });
     }
 
-    setActiveQorusInstance(url: string | null) {
-        let qorus_instance = null;
-        if (url) {
-            qorus_instance = tree.getQorusInstance(url);
-        }
+    setActiveQorusInstance(url?: string, token?: string) {
         this.postMessage({
             action: 'current-qorus-instance',
-            qorus_instance: qorus_instance,
+            qorus_instance: url && tree.getQorusInstance(url),
+            token,
         });
     }
 
