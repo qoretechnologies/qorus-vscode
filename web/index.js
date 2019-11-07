@@ -1,3 +1,4 @@
+import '@babel/polyfill';
 import React from 'react';
 import { render } from 'react-dom';
 import { createStore } from 'redux';
@@ -5,6 +6,8 @@ import { Provider } from 'react-redux';
 import AppContainer from './App';
 import reducer from './reducers';
 import { vscode } from './common/vscode';
+import { DndProvider } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 
 import 'normalize.css/normalize.css';
 import '@blueprintjs/core/lib/css/blueprint.css';
@@ -21,8 +24,10 @@ store.subscribe(() => {
 });
 
 render(
-    <Provider store={store}>
-        <AppContainer />
-    </Provider>,
+    <DndProvider backend={HTML5Backend}>
+        <Provider store={store}>
+            <AppContainer />
+        </Provider>
+    </DndProvider>,
     document.querySelector('#root')
 );

@@ -100,7 +100,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 } else {
                     newResult[type] = typeof value === 'function' ? value(current[type]) : value;
                 }
-
                 return newResult;
             });
         };

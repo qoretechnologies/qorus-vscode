@@ -31,6 +31,7 @@ export const MENU = {
                 { name: 'Job', icon: 'calendar', tab: 'CreateInterface', subtab: 'job' },
                 { name: 'Step', icon: 'diagram-tree', tab: 'CreateInterface', subtab: 'step' },
                 { name: 'Class', icon: 'code-block', tab: 'CreateInterface', subtab: 'class' },
+                { name: 'Mapper', icon: 'code-block', tab: 'CreateInterface', subtab: 'mapper' },
                 { name: 'Other', icon: 'more', tab: 'CreateInterface', subtab: 'other' },
             ],
         },

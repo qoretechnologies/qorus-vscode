@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState } from 'react';
 import { InitialContext } from '../context/init';
 import useMount from 'react-use/lib/useMount';
 import { Messages } from '../constants/messages';
+import shortid from 'shortid';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -64,6 +65,37 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }));
         };
 
+        const fetchData: (url: string, method: string) => Promise<any> = async (url, method = 'GET') => {
+            // Create the unique ID for this request
+            const uniqueId: string = shortid.generate();
+
+            return new Promise((resolve, reject) => {
+                // Create a timeout that will reject the request
+                // after 2 minutes
+                let timeout: NodeJS.Timer | null = setTimeout(() => {
+                    reject({
+                        error: true,
+                        msg: 'Request timed out',
+                    });
+                }, 5000);
+                // Watch for the request to complete
+                // if the ID matches then resolve
+                props.addMessageListener('fetch-data-complete', data => {
+                    if (data.id === uniqueId) {
+                        clearTimeout(timeout);
+                        timeout = null;
+                        resolve(data);
+                    }
+                });
+                // Fetch the data
+                props.postMessage('fetch-data', {
+                    id: uniqueId,
+                    url,
+                    method,
+                });
+            });
+        };
+
         if (!initialData) {
             return null;
         }
@@ -76,6 +108,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setStepSubmitCallback,
                     resetInterfaceData,
                     setActiveInstance,
+                    fetchData,
                 }}
             >
                 <InitialContext.Consumer>

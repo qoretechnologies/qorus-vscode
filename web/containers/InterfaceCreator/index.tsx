@@ -9,6 +9,8 @@ import ServicesView from './servicesView';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import WorkflowsView from './workflowsView';
 import styled from 'styled-components';
+import Content from '../../components/Content';
+import MapperCreator from '../Mapper';
 
 export interface ICreateInterface {
     targetDir: string;
@@ -23,7 +25,7 @@ const StyledTab = styled.div`
 
 const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }) => {
     return (
-        <Box fill>
+        <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
                 {initialData.subtab === 'service' && (
                     <StyledTab>
@@ -79,6 +81,11 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                             openFileOnSubmit={!!!initialData.stepCallback}
                             forceSubmit
                         />
+                    </StyledTab>
+                )}
+                {initialData.subtab === 'mapper' && (
+                    <StyledTab>
+                        <MapperCreator />
                     </StyledTab>
                 )}
                 {initialData.subtab === 'other' && (
