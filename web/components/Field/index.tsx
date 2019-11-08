@@ -20,6 +20,7 @@ import useMount from 'react-use/lib/useMount';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import NumberField from './number';
 import MarkdownPreview from './markdownPreview';
+import isArray from 'lodash/isArray';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -34,11 +35,16 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
     ({ type, postMessage, interfaceId, interfaceKind, ...rest }: IFieldProps) => {
         useMount(() => {
             if (rest.value && rest.on_change) {
-                // Post the message with this handler
-                postMessage(rest.on_change, {
-                    [rest.name]: rest.value,
-                    iface_kind: interfaceKind,
-                    iface_id: interfaceId,
+                // Check if on_change is a list
+                const onChange: string[] = isArray(rest.on_change) ? rest.on_change : [rest.on_change];
+                // Post all the actions
+                onChange.forEach(action => {
+                    // Post the message with this handler
+                    postMessage(action, {
+                        [rest.name]: rest.value,
+                        iface_kind: interfaceKind,
+                        iface_id: interfaceId,
+                    });
                 });
             }
         });
