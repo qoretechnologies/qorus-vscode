@@ -106,6 +106,12 @@ msgstr "Logged out"
 msgid "SendingLoginRequest"
 msgstr "Sending login request ..."
 
+msgid "SendingRequest ${ id } ${ url }"
+msgstr "Sending request (id: \"${ id }\"): ${ url }"
+
+msgid "GettingResponse ${ id } ${ response }"
+msgstr "Response (id: \"${ id }\"): ${ response }"
+
 msgid "UnableOpenLoginPage"
 msgstr "Unable to open the login page"
 

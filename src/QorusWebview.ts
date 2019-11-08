@@ -247,6 +247,9 @@ class QorusWebview {
                         case 'unset-active-instance':
                             qorus_request.unsetActiveInstance();
                             break;
+                        case 'fetch-data':
+                            qorus_request.fetchData(message);
+                            break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
                     }

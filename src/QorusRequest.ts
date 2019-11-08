@@ -3,6 +3,7 @@ import * as request from 'request-promise';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
 import { AuthNeeded } from './QorusAuth';
 import { QorusLogin } from './QorusLogin';
+import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
@@ -125,7 +126,7 @@ export class QorusRequest extends QorusLogin {
                 }
             }
         );
-    };
+    }
 
     setActiveInstance(tree_item: string | vscode.TreeItem) {
         if (typeof tree_item !== 'string') {
@@ -192,11 +193,49 @@ export class QorusRequest extends QorusLogin {
             }
         }
 
-        return {
-            ok: true,
-            active_instance: active_instance,
-            token: token,
+        return { ok: true, active_instance, token };
+    }
+
+    fetchData = ({id, method, url}) => {
+        const onError = error => {
+            const err_msg = typeof error === 'string' ? error : JSON.stringify(error);
+            msg.error(err_msg);
+            qorus_webview.postMessage({
+                action: 'fetch-data-complete',
+                id,
+                error: err_msg
+            });
         };
+
+        const { ok, active_instance, token } = this.activeQorusInstanceAndToken();
+        if (!ok) {
+            onError(t`UnableGetActiveQorusInstanceData`);
+            return;
+        }
+
+        const uri = `${active_instance.url}/api/latest/${url}`;
+        msg.log(t`SendingRequest ${id} ${uri}`);
+
+        request({
+            method,
+            uri: `${active_instance.url}/api/latest/${url}`,
+            strictSSL: false,
+            headers: {
+                'qorus-token': token,
+            },
+        }).then(
+            response => {
+                msg.log(t`GettingResponse ${id} ${JSON.stringify(JSON.parse(response), null, 4)}`);
+                qorus_webview.postMessage({
+                    action: 'fetch-data-complete',
+                    id,
+                    data: JSON.parse(response)
+                });
+            },
+            error => {
+                onError(error);
+            }
+        );
     }
 }
 
