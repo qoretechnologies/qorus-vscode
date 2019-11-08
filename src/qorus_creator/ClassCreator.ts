@@ -22,8 +22,10 @@ class ClassCreator extends InterfaceCreator {
                 suffix = '.qstep';
                 break;
             case 'workflow':
-                template = subclass_template;
-                suffix = '.qwf';
+                if (data['class-name']) {
+                    template = subclass_template;
+                    suffix = '.qwf';
+                }
                 break;
             case 'class':
                 template = data['base-class-name'] ? subclass_template : class_template;
