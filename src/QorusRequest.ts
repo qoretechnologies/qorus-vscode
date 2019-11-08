@@ -218,7 +218,7 @@ export class QorusRequest extends QorusLogin {
 
         request({
             method,
-            uri: `${active_instance.url}/api/latest/${url}`,
+            uri,
             strictSSL: false,
             headers: {
                 'qorus-token': token,
