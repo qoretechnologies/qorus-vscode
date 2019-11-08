@@ -28,9 +28,10 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
-const types_with_version = [...iface_kinds, 'constant', 'function', 'mapper'];
-const types_without_version = ['config-item-values', 'config-items', 'connection', 'event', 'group', 'queue', 'value-map'];
-const types = [...types_with_version, ...types_without_version];
+const object_types_with_version = ['step', 'mapper'];
+const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items', 'class',
+                                      'constant', 'function', 'connection', 'event', 'group', 'queue', 'value-map'];
+const object_types = [...object_types_with_version, ...object_types_without_version];
 export const default_version = '1.0';
 
 const log_update_messages = false;
@@ -195,12 +196,13 @@ export class QorusProjectCodeInfo {
     }
 
     getInterfaceData = ({ iface_kind, name, include_tabs }) => {
+        const name_key = object_types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
         this.waitForPending(['yaml', 'edit_info']).then(() =>
             qorus_webview.postMessage({
                 action: 'return-interface-data',
                 data: {
                     iface_kind: iface_kind,
-                    [iface_kind]: this.yaml_data_by_name[iface_kind][name],
+                    [iface_kind]: this.yaml_data_by_name[iface_kind][name_key],
                     ... include_tabs
                         ? {
                               tab: 'CreateInterface',
@@ -243,7 +245,7 @@ export class QorusProjectCodeInfo {
             this.edit_info[iface_kind] = {};
         }
 
-        for (const type of types) {
+        for (const type of object_types) {
             this.yaml_data_by_name[type] = {};
         }
 
@@ -567,7 +569,7 @@ export class QorusProjectCodeInfo {
         };
 
         if (yaml_data.name && yaml_data.type) {
-            const name = types_with_version.includes(yaml_data.type)
+            const name = object_types_with_version.includes(yaml_data.type)
                 ? `${yaml_data.name}:${yaml_data.version || default_version}`
                 : yaml_data.name;
 
@@ -883,7 +885,7 @@ export class QorusProjectCodeInfo {
                             continue;
                         }
 
-                        const name = types_with_version.includes(obj.type)
+                        const name = object_types_with_version.includes(obj.type)
                             ? `${obj.tags.name}:${obj.tags.version || default_version}`
                             : obj.tags.name;
 
