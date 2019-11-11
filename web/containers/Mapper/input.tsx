@@ -9,7 +9,6 @@ export interface IMapperInputProps {
 }
 
 const MapperInput: FC<IMapperInputProps> = ({ id, types, name }) => {
-    console.log(types);
     const [{ opacity }, dragRef] = useDrag({
         item: { type: 'input', types, id },
         collect: monitor => ({

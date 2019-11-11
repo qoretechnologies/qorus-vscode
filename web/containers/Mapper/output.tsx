@@ -28,8 +28,6 @@ const MapperOutput: FC<IMapperOutputProps> = ({ onDrop, id, accepts, name }) => 
         }),
     });
 
-    console.log(isDragging);
-
     return (
         <StyledMapperField
             ref={dropRef}

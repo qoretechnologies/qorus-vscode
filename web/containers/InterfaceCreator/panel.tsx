@@ -323,41 +323,46 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     const addField: (fieldName: string, notify?: boolean) => void = useCallback(
         (fieldName, notify = true) => {
-            // Remove the field
-            setFields(
-                type,
-                (current: IField[]) =>
-                    map(current, (field: IField) => ({
-                        ...field,
-                        selected: fieldName === field.name ? true : field.selected,
-                    })),
-                activeId
-            );
-            // Get the field
-            const field: IField = find(fields, (field: IField) => field.name === fieldName);
-            if (field) {
-                // Add the field to selected list
-                setSelectedFields(
+            // Check if the field is already selected
+            const selectedField: IField = find(selectedFields, (field: IField) => field.name === fieldName);
+            // Add it if it's not
+            if (!selectedField) {
+                // Remove the field
+                setFields(
                     type,
-                    (current: IField[]) => {
-                        // Check if this field should notify
-                        if (field.notify_on_add && notify) {
-                            postMessage(Messages.CREATOR_FIELD_ADDED, {
-                                field: fieldName,
-                                iface_id: interfaceId,
-                                iface_kind: type,
-                            });
-                        }
-                        return [
-                            ...current,
-                            {
-                                ...field,
-                                selected: true,
-                            },
-                        ];
-                    },
+                    (current: IField[]) =>
+                        map(current, (field: IField) => ({
+                            ...field,
+                            selected: fieldName === field.name ? true : field.selected,
+                        })),
                     activeId
                 );
+                // Get the field
+                const field: IField = find(fields, (field: IField) => field.name === fieldName);
+                if (field) {
+                    // Add the field to selected list
+                    setSelectedFields(
+                        type,
+                        (current: IField[]) => {
+                            // Check if this field should notify
+                            if (field.notify_on_add && notify) {
+                                postMessage(Messages.CREATOR_FIELD_ADDED, {
+                                    field: fieldName,
+                                    iface_id: interfaceId,
+                                    iface_kind: type,
+                                });
+                            }
+                            return [
+                                ...current,
+                                {
+                                    ...field,
+                                    selected: true,
+                                },
+                            ];
+                        },
+                        activeId
+                    );
+                }
             }
         },
         [fields]
@@ -371,7 +376,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // Check if this field has a remove event
                 const field: IField = current.find((f: IField) => f.name === fieldName);
 
-                if (field.notify_on_remove && notify) {
+                if (notify && field.notify_on_remove) {
                     postMessage(Messages.CREATOR_FIELD_REMOVED, {
                         field: fieldName,
                         iface_id: interfaceId,
