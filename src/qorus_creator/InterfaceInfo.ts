@@ -45,14 +45,6 @@ export class InterfaceInfo {
         const id = shortid.generate();
         this.initIfaceId(id, iface_kind);
         this.iface_by_id[id] = data;
-        this.code_info.waitForPending(['yaml']).then(() => {
-            if (data['base-class-name']) {
-                this.addClassConfigItems(data['base-class-name'], id);
-            }
-            (data.classes || []).forEach(class_data => {
-                class_data.name && this.addClassConfigItems(class_data.name, id);
-            });
-        });
         return id;
     }
 
@@ -68,7 +60,7 @@ export class InterfaceInfo {
         this.initIfaceId(iface_id, iface_kind);
 
         if (parent_class) {
-            this.addClassConfigItems(parent_class, iface_id);
+            this.addClassConfigItems(iface_id, parent_class);
         }
 
         this.iface_by_id[iface_id]['config-items'].forEach(item => {
@@ -149,7 +141,7 @@ export class InterfaceInfo {
         }
     }
 
-    private addClassConfigItems = (class_name, iface_id) => {
+    private addClassConfigItems = (iface_id, class_name, prefix?) => {
         const class_yaml_data = this.code_info.classYamlData(class_name);
         if (!class_yaml_data) {
             return;
@@ -160,7 +152,9 @@ export class InterfaceInfo {
         (class_yaml_data['config-items'] || []).forEach(raw_item => {
             let item = { ...this.configItemInheritedData(raw_item) };
 
-            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === raw_item.name);
+            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
+                item2.name === raw_item.name && item2.prefix === raw_item.prefix
+            );
 
             item.parent_data = { ...item };
             item.parent = {
@@ -169,12 +163,12 @@ export class InterfaceInfo {
                 'interface-version': version.toString()
             };
             item.parent_class = class_name;
+            if (prefix) {
+                item.prefix = prefix;
+            }
 
             if (index > -1) {
-                this.iface_by_id[iface_id]['config-items'][index] = {
-                    ... item,
-                    ... this.iface_by_id[iface_id]['config-items'][index]
-                };
+                this.iface_by_id[iface_id]['config-items'][index] = item;
             }
             else {
                 this.iface_by_id[iface_id]['config-items'].push(item);
@@ -207,10 +201,10 @@ export class InterfaceInfo {
             return;
         }
 
-        const class_names = (this.iface_by_id[iface_id].classes || []).map(class_data => class_data.name);
-        if (!class_names.includes(base_class_name)) {
-            this.removeClassConfigItems(iface_id, base_class_name);
-        }
+        this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
+            !item.parent || item.parent['interface-name'] !== base_class_name || item.prefix
+        );
+
         this.getConfigItems({iface_id, iface_kind});
     }
 
@@ -221,19 +215,19 @@ export class InterfaceInfo {
         this.getConfigItems({iface_id, iface_kind});
     }
 
-    private removeClassConfigItems = (iface_id, class_name) => {
-        this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
-            !item.parent || item.parent['interface-name'] !== class_name
-        );
-    }
+    private removeClassesConfigItems = (iface_id, classes?) => {
+        const removeClassConfigItems = (class_name, is_base_class) => {
+            this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
+                !item.parent || item.parent['interface-name'] !== class_name ||
+                (is_base_class && !item.prefix)
+            );
+        }
 
-    private removeClassesConfigItems = (iface_id, new_classes_data = []) => {
-        const new_classes = new_classes_data.map(class_data => class_data.name);
-        const to_remove = (this.iface_by_id[iface_id].classes || []).filter(class_data =>
-            !new_classes.includes(class_data.name) &&
-            class_data.name !== this.iface_by_id[iface_id]['base-class-name']
-        );
-        to_remove.forEach(class_data => {this.removeClassConfigItems(iface_id, class_data.name)});
+        const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
+
+        (classes || this.iface_by_id[iface_id].classes || []).forEach(class_data => {
+            removeClassConfigItems(class_data.name, class_data.name !== base_class_name)
+        });
     }
 
     getConfigItems = params => {
@@ -245,14 +239,14 @@ export class InterfaceInfo {
 
         this.code_info.waitForPending(['yaml']).then(() => {
             if (base_class_name) {
-                this.addClassConfigItems(base_class_name, iface_id);
+                this.addClassConfigItems(iface_id, base_class_name);
                 this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
             }
             if (classes) {
                 this.removeClassesConfigItems(iface_id, classes);
             }
             (classes || []).forEach(class_data => {
-                class_data.name && this.addClassConfigItems(class_data.name, iface_id);
+                class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
             });
 
             const items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
