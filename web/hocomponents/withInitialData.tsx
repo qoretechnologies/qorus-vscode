@@ -19,6 +19,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
+                data.tab = 'CreateInterface';
+                data.subtab = 'mapper';
+
                 setInitialData(data);
             });
 
@@ -77,7 +80,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         error: true,
                         msg: 'Request timed out',
                     });
-                }, 5000);
+                }, 120000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
                 props.addMessageListener('fetch-data-complete', data => {

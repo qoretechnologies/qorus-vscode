@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from 'react';
-import { Tabs, Tab } from '@blueprintjs/core';
 import InterfaceCreatorPanel from './panel';
 import Box from '../../components/Box';
 import compose from 'recompose/compose';
@@ -8,8 +7,7 @@ import { TTranslator } from '../../App';
 import ServicesView from './servicesView';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import WorkflowsView from './workflowsView';
-import styled from 'styled-components';
-import Content from '../../components/Content';
+import Tab from './tab';
 import MapperCreator from '../Mapper';
 
 export interface ICreateInterface {
@@ -18,47 +16,30 @@ export interface ICreateInterface {
     initialData: any;
 }
 
-const StyledTab = styled.div`
-    display: flex;
-    flex: 1;
-`;
-
-const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }) => {
+const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) => {
     return (
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
-                {initialData.subtab === 'service' && (
-                    <StyledTab>
-                        <ServicesView service={initialData.service} />
-                    </StyledTab>
-                )}
-                {initialData.subtab === 'workflow' && (
-                    <StyledTab>
-                        <WorkflowsView workflow={initialData.workflow} />
-                    </StyledTab>
-                )}
-                {initialData.subtab === 'job' && (
-                    <StyledTab>
+                <Tab type={initialData.subtab}>
+                    {initialData.subtab === 'service' && <ServicesView service={initialData.service} />}
+                    {initialData.subtab === 'workflow' && <WorkflowsView workflow={initialData.workflow} />}
+                    {initialData.subtab === 'job' && (
                         <InterfaceCreatorPanel
                             hasConfigManager
                             type={'job'}
                             data={initialData.job}
                             isEditing={!!initialData.job}
                         />
-                    </StyledTab>
-                )}
-                {initialData.subtab === 'class' && (
-                    <StyledTab>
+                    )}
+                    {initialData.subtab === 'class' && (
                         <InterfaceCreatorPanel
                             type={'class'}
                             data={initialData.class}
                             isEditing={!!initialData.class}
                             hasConfigManager
                         />
-                    </StyledTab>
-                )}
-                {initialData.subtab === 'step' && (
-                    <StyledTab>
+                    )}
+                    {initialData.subtab === 'step' && (
                         <InterfaceCreatorPanel
                             type={'step'}
                             data={initialData.step}
@@ -81,28 +62,19 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ t, initialData }
                             openFileOnSubmit={!!!initialData.stepCallback}
                             forceSubmit
                         />
-                    </StyledTab>
-                )}
-                {initialData.subtab === 'mapper' && (
-                    <StyledTab>
-                        <MapperCreator />
-                    </StyledTab>
-                )}
-                {initialData.subtab === 'other' && (
-                    <StyledTab>
+                    )}
+                    {initialData.subtab === 'mapper' && <MapperCreator />}
+                    {initialData.subtab === 'other' && (
                         <InterfaceCreatorPanel
                             type={'other'}
                             data={initialData.other}
                             isEditing={!!initialData.other}
                         />
-                    </StyledTab>
-                )}
+                    )}
+                </Tab>
             </div>
         </Box>
     );
 };
 
-export default compose(
-    withTextContext(),
-    withInitialDataConsumer()
-)(CreateInterface);
+export default compose(withTextContext(), withInitialDataConsumer())(CreateInterface);

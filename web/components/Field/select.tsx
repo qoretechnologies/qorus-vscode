@@ -17,6 +17,7 @@ export interface ISelectField {
     predicate: (name: string) => boolean;
     placeholder: string;
     fill?: boolean;
+    disabled?: boolean;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -32,6 +33,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     predicate,
     placeholder,
     fill,
+    disabled,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -92,6 +94,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             onItemSelect={(item: any) => handleSelectClick(item)}
             query={query}
             onQueryChange={(newQuery: string) => setQuery(newQuery)}
+            disabled={disabled}
         >
             <Button
                 text={value ? value : placeholder || t('PleaseSelect')}
@@ -102,7 +105,4 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     );
 };
 
-export default compose(
-    withTextContext(),
-    withMessageHandler()
-)(SelectField);
+export default compose(withTextContext(), withMessageHandler())(SelectField);

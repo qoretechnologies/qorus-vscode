@@ -106,12 +106,14 @@ const PanelWrapper = styled.div`
     margin-top: 10px;
     display: flex;
     flex: 1;
+    overflow: hidden;
 `;
 
 const CreatorWrapper = styled.div`
     display: flex;
     flex: 1;
     flex-flow: column;
+    overflow: hidden;
 `;
 
 export interface IServicesView {
@@ -250,7 +252,4 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     );
 };
 
-export default compose(
-    withTextContext(),
-    withFieldsConsumer()
-)(ServicesView);
+export default compose(withTextContext(), withFieldsConsumer())(ServicesView);
