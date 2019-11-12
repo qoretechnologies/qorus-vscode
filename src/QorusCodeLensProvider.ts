@@ -98,7 +98,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             data['base-class-name'] = symbol.inherits[0].name.name;
         }
 
-        data = this.fixData(data);
+        this.fixData(data);
         const range = loc2range(symbol.name.loc);
 
         switch (iface_kind) {
@@ -170,7 +170,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
 
-        data = this.fixData(data);
+        this.fixData(data);
 
         lenses.push(new vscode.CodeLens(loc, {
             title: t`EditMethod`,
@@ -185,21 +185,23 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }));
     }
 
-    private fixData(data_to_fix: any): any {
-        const fields_to_complexify = ['classes', 'functions', 'constants', 'mappers', 'value_maps', 'author'];
-
-        let data: any = {};
-        for (const tag in data_to_fix) {
-            if (tag === 'autostart') {
-                data[data_to_fix.type + '-autostart'] = data_to_fix.autostart;
-            }
-            else {
-                data[tag] = data_to_fix[tag];
-            }
-            if (fields_to_complexify.includes(tag)) {
-                data[tag] = data[tag].map(value => ({ name: value }));
-            }
+    private fixData(data: any): any {
+        if (data.autostart) {
+            data[data.type + '-autostart'] = data.autostart;
+            delete data.autostart;
         }
+
+        let fields_to_complexify = ['functions', 'constants', 'mappers', 'value_maps', 'author'];
+
+        if (data['class-prefixes']) {
+            data.classes = data['class-prefixes'].map(class_prefix_data => ({
+                name: class_prefix_data.class,
+                prefix: class_prefix_data.prefix
+            }));
+        } else {
+            fields_to_complexify.push('classes');
+        }
+
         for (const method of data.methods || []) {
             if (method.author) {
                 method.author = method.author.map(value => ({ name: value }));
@@ -217,7 +219,5 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         delete data.code;
         delete data.yaml_file;
-
-        return data;
     }
 }
