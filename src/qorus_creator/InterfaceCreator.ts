@@ -194,11 +194,19 @@ export abstract class InterfaceCreator {
         const base_class_name = headers['base-class-name'];
         if (base_class_name && !QorusProjectCodeInfo.isRootBaseClass(base_class_name)) {
             headers.classes = headers.classes || [];
-            if (!headers.classes.some(item => item.name === base_class_name)) {
+            if (!headers.classes.some(item => item.name === base_class_name && !item.prefix)) {
                 headers.classes.unshift({name: base_class_name});
             }
         }
         delete headers['base-class-name'];
+
+        let classes = {};
+        (headers.classes || []).forEach(class_data => {
+            if (!classes[class_data.name]) {
+                classes[class_data.name] = [];
+            }
+            classes[class_data.name].push(class_data.prefix);
+        });
 
         for (const tag in headers) {
             const value = headers[tag];
@@ -220,7 +228,6 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'author':
-                    case 'classes':
                     case 'constants':
                     case 'functions':
                     case 'vmaps':
@@ -230,6 +237,17 @@ export abstract class InterfaceCreator {
                         for (let item of value) {
                             result += `${list_indent}${item.name}\n`;
                         }
+                        break;
+                    case 'classes':
+                        let class_prefixes = 'class-prefixes:\n';
+                        for (let class_name in classes) {
+                            result += `${list_indent}${class_name}\n`;
+                            for (const prefix of classes[class_name]) {
+                                class_prefixes += `${list_indent}class: ${class_name}\n`;
+                                class_prefixes += `${indent}prefix: ${prefix}\n`;
+                            }
+                        }
+                        result += class_prefixes;
                         break;
                     case 'resource':
                     case 'text-resource':
