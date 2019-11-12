@@ -98,7 +98,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             data['base-class-name'] = symbol.inherits[0].name.name;
         }
 
-        this.fixData(data);
+        data = this.fixData({ ...data });
         const range = loc2range(symbol.name.loc);
 
         switch (iface_kind) {
@@ -170,7 +170,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
 
-        this.fixData(data);
+        data = this.fixData({ ...data });
 
         lenses.push(new vscode.CodeLens(loc, {
             title: t`EditMethod`,
@@ -225,5 +225,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         delete data.code;
         delete data.yaml_file;
+
+        return data;
     }
 }
