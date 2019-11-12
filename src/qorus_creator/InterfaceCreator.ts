@@ -308,7 +308,7 @@ export abstract class InterfaceCreator {
             return;
         }
 
-        const yaml_info = this.code_info.yaml_info_by_src_file[orig_file];
+        const yaml_info = this.code_info.yamlDataBySrcFile(orig_file);
         const orig_yaml_file = yaml_info && yaml_info.yaml_file;
 
         if (orig_file) {

@@ -43,10 +43,23 @@ export class QorusProjectCodeInfo {
 
     private info_update_pending: any = {};
     private object_info: any = {};
-    private yaml_data_by_src_file: any = {};
-    private yaml_data_by_yaml_file: any = {};
-    private yaml_data_by_class: any = {};
-    private yaml_data_by_name: any = {};
+
+    private yaml_data: any = {};
+
+    private src_2_yaml: any = {};
+    public yamlDataBySrcFile = file =>
+        this.yaml_data[this.src_2_yaml[file]] || {};
+
+    private class_2_yaml: any = {};
+    private yamlDataByClass = class_name =>
+        this.yaml_data[this.class_2_yaml[class_name]] || {};
+
+    private name_2_yaml: any = {};
+    private yamlDataByType = type =>
+        this.yaml_data[this.name_2_yaml[type]] || {};
+    private yamlDataByName = (type, name) =>
+        this.yaml_data[this.name_2_yaml[type][name]] || {};
+
     private yaml_2_src: any = {};
     private class_2_src: any = {};
     private file_tree: any = {};
@@ -76,14 +89,6 @@ export class QorusProjectCodeInfo {
 
     get interface_info(): any {
         return this.iface_info;
-    }
-
-    get yaml_info_by_src_file(): any {
-        return this.yaml_data_by_src_file;
-    }
-
-    getYamlData(yaml_file: string): any {
-        return this.yaml_data_by_yaml_file[yaml_file];
     }
 
     addText(document: vscode.TextDocument) {
@@ -202,7 +207,7 @@ export class QorusProjectCodeInfo {
                 action: 'return-interface-data',
                 data: {
                     iface_kind: iface_kind,
-                    [iface_kind]: this.yaml_data_by_name[iface_kind][name_key],
+                    [iface_kind]: this.yamlDataByName(iface_kind, name_key),
                     ... include_tabs
                         ? {
                               tab: 'CreateInterface',
@@ -216,10 +221,10 @@ export class QorusProjectCodeInfo {
 
     pairFile = (file: string): string | undefined => {
         if (!hasSuffix(file, 'yaml')) {
-            return this.yaml_data_by_src_file[file] && this.yaml_data_by_src_file[file].yaml_file;
+            return this.yamlDataBySrcFile(file).yaml_file;
         }
 
-        const yaml_data = this.yaml_data_by_yaml_file[file] || {};
+        const yaml_data = this.yaml_data[file] || {};
         if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function'].includes(yaml_data.type)) {
             return this.yaml_2_src[file];
         }
@@ -230,7 +235,7 @@ export class QorusProjectCodeInfo {
         const step_names: string[] = flatten(step_structure);
         let step_data = {};
         step_names.forEach(name => {
-            step_data[name] = { ...this.yaml_data_by_name.step[name] };
+            step_data[name] = { ...this.yamlDataByName('step', name) };
             delete step_data[name].yaml_file;
         });
         return step_data;
@@ -246,7 +251,7 @@ export class QorusProjectCodeInfo {
         }
 
         for (const type of object_types) {
-            this.yaml_data_by_name[type] = {};
+            this.name_2_yaml[type] = {};
         }
 
         this.service_classes = { [root_service]: true };
@@ -344,7 +349,7 @@ export class QorusProjectCodeInfo {
 
         switch (object_type) {
             case 'workflow-step':
-                const steps = this.yaml_data_by_name.step;
+                const steps = this.yamlDataByType('step');
                 this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
                     Object.keys(steps).map(key => ({
                         name: key,
@@ -550,16 +555,16 @@ export class QorusProjectCodeInfo {
         };
         yaml_data.target_file = yaml_data.code;
 
-        this.yaml_data_by_yaml_file[file] = yaml_data;
+        this.yaml_data[file] = yaml_data;
 
         if (yaml_data.code) {
             const src = path.join(path.dirname(file), yaml_data.code);
-            this.yaml_data_by_src_file[src] = yaml_data;
+            this.src_2_yaml[src] = file;
             this.yaml_2_src[file] = src;
         }
         const class_name = yaml_data['class-name'];
         if (class_name) {
-            this.yaml_data_by_class[class_name] = yaml_data;
+            this.class_2_yaml[class_name] = file;
         }
 
         const addObjectName = (type: string, name: string) => {
@@ -573,7 +578,7 @@ export class QorusProjectCodeInfo {
                 ? `${yaml_data.name}:${yaml_data.version || default_version}`
                 : yaml_data.name;
 
-            this.yaml_data_by_name[yaml_data.type][name] = yaml_data;
+            this.name_2_yaml[yaml_data.type][name] = file;
 
             if (object_info_types.includes(yaml_data.type)) {
                 addObjectName(yaml_data.type, name);
@@ -583,12 +588,12 @@ export class QorusProjectCodeInfo {
                 const base_class_name = this.baseClassName(class_name);
 
                 if (base_class_name) {
-                    this.yaml_data_by_name[yaml_data.type][name]['base-class-name'] = base_class_name;
+                    this.yaml_data[file]['base-class-name'] = base_class_name;
 
                     if (yaml_data.type === 'step' && base_class_name) {
                         const step_type = this.stepType(base_class_name);
                         if (step_type) {
-                            this.yaml_data_by_name.step[name]['step-type'] = step_type;
+                            this.yaml_data[file]['step-type'] = step_type;
                         }
                     }
                 }
@@ -692,7 +697,7 @@ export class QorusProjectCodeInfo {
 
     classYamlData = class_name => {
         const class_src_file = this.class_2_src[class_name];
-        const class_yaml_data = this.yaml_data_by_src_file[class_src_file];
+        const class_yaml_data = this.yamlDataBySrcFile(class_src_file);
         if (!class_yaml_data && !QorusProjectCodeInfo.isRootBaseClass(class_name)) {
             msg.log(t`UnableFindYamlForClass ${class_name}`);
         }
@@ -704,9 +709,7 @@ export class QorusProjectCodeInfo {
         for (const base_class of Object.keys(base_classes)) {
             const desc = root_classes.includes(base_class)
                 ? gettext(`${base_class}Desc`)
-                : this.yaml_data_by_class[base_class]
-                    ? this.yaml_data_by_class[base_class].desc
-                    : undefined;
+                : this.yamlDataByClass(base_class).desc;
             ret_val.push({name: base_class, desc});
         }
         return ret_val;
