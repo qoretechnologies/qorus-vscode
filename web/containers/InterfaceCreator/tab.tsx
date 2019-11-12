@@ -32,6 +32,7 @@ const StyledContent = styled.div`
     display: flex;
     flex: 1;
     overflow: hidden;
+    flex-flow: column;
 `;
 
 const StyledSeparator = styled.div`

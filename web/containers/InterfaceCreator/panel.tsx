@@ -48,7 +48,7 @@ export interface IInterfaceCreatorPanel {
     setSelectedQuery: (type: string, value?: string) => void;
     activeId?: number;
     onNameChange?: (activeId: number, newName: string) => any;
-    isFormValid: boolean;
+    isFormValid: (type: string) => boolean;
     stepOneTitle?: string;
     stepTwoTitle?: string;
     submitLabel?: string;
@@ -852,7 +852,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         type={type}
                         baseClassName={
                             selectedFields &&
-                            selectedFields.find((field: IField) => field.name === 'base-class-name').value
+                            selectedFields.find((field: IField) => field.name === 'base-class-name')?.value
                         }
                         interfaceId={interfaceId}
                         resetFields={resetFields}

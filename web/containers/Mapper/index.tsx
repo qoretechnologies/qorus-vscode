@@ -3,15 +3,20 @@ import { useDrag } from 'react-dnd';
 import styled from 'styled-components';
 import MapperInput from './input';
 import MapperOutput from './output';
-import { FieldWrapper } from '../InterfaceCreator/panel';
+import { FieldWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
 import Select from '../../components/Field/select';
 import useMount from 'react-use/lib/useMount';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { Callout, Spinner } from '@blueprintjs/core';
+import { Callout, Spinner, ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
 import size from 'lodash/size';
 import map from 'lodash/map';
 import forEach from 'lodash/forEach';
 import reduce from 'lodash/reduce';
+import { Messages } from '../../constants/messages';
+import { type } from 'os';
+import { TTranslator } from '../../App';
+import withTextContext from '../../hocomponents/withTextContext';
+import compose from 'recompose/compose';
 
 const FIELD_HEIGHT = 70;
 const FIELD_MARGIN = 10;
@@ -87,6 +92,7 @@ const StyledLine = styled.line`
 
 export interface IMapperCreatorProps {
     initialData: any;
+    t: TTranslator;
 }
 
 export interface IMapperRelation {
@@ -94,7 +100,7 @@ export interface IMapperRelation {
     output: number;
 }
 
-const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData }) => {
+const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
     const [inputs, setInputs] = useState<any>(null);
     const [outputs, setOutputs] = useState<any>(null);
     const [providerData, setProviderData] = useState<any>(null);
@@ -212,108 +218,138 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData }) => {
         );
     };
 
+    const reset: () => void = () => {
+        // Reset all the data to default
+        setRelations([]);
+        setInputs(null);
+        setOutputs(null);
+        setInputProvider(null);
+        setOutputProvider(null);
+        setInputsLoading(false);
+        setOutputsLoading(false);
+    };
+
+    const isMapperValid: () => boolean = () => false;
+
     return (
-        <div
-            style={{
-                width: '100%',
-                padding: 10,
-                flex: 1,
-                overflow: 'auto',
-                background: `url(${
-                    process.env.NODE_ENV === 'development'
-                        ? `http://localhost:9876/images/tiny_grid.png`
-                        : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
-                }`,
-            }}
-        >
-            <StyledMapperWrapper>
-                <StyledFieldsWrapper>
-                    <StyledFieldHeader>Input</StyledFieldHeader>
-                    <FieldWrapper style={{ marginBottom: '20px' }}>
-                        <Select
-                            name="input"
-                            disabled={inputsLoading}
-                            fill
-                            disab
-                            defaultItems={getDefaultItems()}
-                            onChange={(_name, value) => {
-                                setFieldsFromType(value, true);
-                            }}
-                            value={inputProvider}
-                        />
-                    </FieldWrapper>
-                    {inputsLoading && <Spinner size={20} />}
-                    {size(inputs) !== 0
-                        ? map(inputs, (input, index) => (
-                              <MapperInput name={input.name} types={input.type.types_returned} id={index + 1} />
-                          ))
-                        : null}
-                    {size(inputs) === 0 && !inputsLoading ? (
-                        <StyledInfoMessage>
-                            {' '}
-                            No fields available. Please make sure input provider was selected{' '}
-                        </StyledInfoMessage>
-                    ) : null}
-                </StyledFieldsWrapper>
-                <StyledConnectionsWrapper>
-                    {size(relations) ? (
-                        <svg height={Math.max(inputs.length, outputs.length) * (FIELD_HEIGHT + FIELD_MARGIN) + 91}>
-                            {relations.map((relation: IMapperRelation) => (
-                                <StyledLine
-                                    onClick={() => removeRelation(relation)}
-                                    x1={0}
-                                    y1={
-                                        relation.input * (FIELD_HEIGHT + FIELD_MARGIN) -
-                                        (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                        91
-                                    }
-                                    x2={300}
-                                    y2={
-                                        relation.output * (FIELD_HEIGHT + FIELD_MARGIN) -
-                                        (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                        91
-                                    }
-                                />
-                            ))}
-                        </svg>
-                    ) : null}
-                </StyledConnectionsWrapper>
-                <StyledFieldsWrapper>
-                    <StyledFieldHeader>Output</StyledFieldHeader>
-                    <FieldWrapper style={{ marginBottom: '20px' }}>
-                        <Select
-                            name="input"
-                            disabled={outputsLoading}
-                            fill
-                            defaultIt
-                            defaultItems={getDefaultItems()}
-                            onChange={(_name, value) => {
-                                setFieldsFromType(value);
-                            }}
-                            value={outputProvider}
-                        />
-                    </FieldWrapper>
-                    {outputsLoading && <Spinner size={20} />}
-                    {size(outputs) !== 0
-                        ? map(outputs, (output, index) => (
-                              <MapperOutput
-                                  name={output.name}
-                                  onDrop={handleDrop}
-                                  id={index + 1}
-                                  accepts={output.type.types_accepted}
-                              />
-                          ))
-                        : null}
-                    {size(outputs) === 0 && !outputsLoading ? (
-                        <StyledInfoMessage>
-                            {' '}
-                            No fields available. Please make sure output provider was selected{' '}
-                        </StyledInfoMessage>
-                    ) : null}
-                </StyledFieldsWrapper>
-            </StyledMapperWrapper>
-        </div>
+        <>
+            <div
+                style={{
+                    width: '100%',
+                    padding: 10,
+                    flex: 1,
+                    overflow: 'auto',
+                    background: `url(${
+                        process.env.NODE_ENV === 'development'
+                            ? `http://localhost:9876/images/tiny_grid.png`
+                            : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
+                    }`,
+                }}
+            >
+                <StyledMapperWrapper>
+                    <StyledFieldsWrapper>
+                        <StyledFieldHeader>Input</StyledFieldHeader>
+                        <FieldWrapper style={{ marginBottom: '20px' }}>
+                            <Select
+                                name="input"
+                                disabled={inputsLoading}
+                                fill
+                                disab
+                                defaultItems={getDefaultItems()}
+                                onChange={(_name, value) => {
+                                    setFieldsFromType(value, true);
+                                }}
+                                value={inputProvider}
+                            />
+                        </FieldWrapper>
+                        {inputsLoading && <Spinner size={20} />}
+                        {size(inputs) !== 0
+                            ? map(inputs, (input, index) => (
+                                  <MapperInput name={input.name} types={input.type.types_returned} id={index + 1} />
+                              ))
+                            : null}
+                        {size(inputs) === 0 && !inputsLoading ? (
+                            <StyledInfoMessage>
+                                {' '}
+                                No fields available. Please make sure input provider was selected{' '}
+                            </StyledInfoMessage>
+                        ) : null}
+                    </StyledFieldsWrapper>
+                    <StyledConnectionsWrapper>
+                        {size(relations) ? (
+                            <svg height={Math.max(inputs.length, outputs.length) * (FIELD_HEIGHT + FIELD_MARGIN) + 91}>
+                                {relations.map((relation: IMapperRelation) => (
+                                    <StyledLine
+                                        onClick={() => removeRelation(relation)}
+                                        x1={0}
+                                        y1={
+                                            relation.input * (FIELD_HEIGHT + FIELD_MARGIN) -
+                                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
+                                            91
+                                        }
+                                        x2={300}
+                                        y2={
+                                            relation.output * (FIELD_HEIGHT + FIELD_MARGIN) -
+                                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
+                                            91
+                                        }
+                                    />
+                                ))}
+                            </svg>
+                        ) : null}
+                    </StyledConnectionsWrapper>
+                    <StyledFieldsWrapper>
+                        <StyledFieldHeader>Output</StyledFieldHeader>
+                        <FieldWrapper style={{ marginBottom: '20px' }}>
+                            <Select
+                                name="input"
+                                disabled={outputsLoading}
+                                fill
+                                defaultIt
+                                defaultItems={getDefaultItems()}
+                                onChange={(_name, value) => {
+                                    setFieldsFromType(value);
+                                }}
+                                value={outputProvider}
+                            />
+                        </FieldWrapper>
+                        {outputsLoading && <Spinner size={20} />}
+                        {size(outputs) !== 0
+                            ? map(outputs, (output, index) => (
+                                  <MapperOutput
+                                      name={output.name}
+                                      onDrop={handleDrop}
+                                      id={index + 1}
+                                      accepts={output.type.types_accepted}
+                                  />
+                              ))
+                            : null}
+                        {size(outputs) === 0 && !outputsLoading ? (
+                            <StyledInfoMessage>
+                                {' '}
+                                No fields available. Please make sure output provider was selected{' '}
+                            </StyledInfoMessage>
+                        ) : null}
+                    </StyledFieldsWrapper>
+                </StyledMapperWrapper>
+            </div>
+            <ActionsWrapper>
+                <div style={{ float: 'right', width: '100%' }}>
+                    <ButtonGroup fill>
+                        <Tooltip content={t('ResetTooltip')}>
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                disabled={inputsLoading || outputsLoading}
+                                onClick={reset}
+                            />
+                        </Tooltip>
+                        <Button text={t('Submit')} disabled={!isMapperValid()} icon={'tick'} intent={Intent.SUCCESS} />
+                    </ButtonGroup>
+                </div>
+            </ActionsWrapper>
+        </>
     );
 };
 
-export default withInitialDataConsumer()(MapperCreator);
+export default compose(withInitialDataConsumer(), withTextContext())(MapperCreator);
