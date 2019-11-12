@@ -202,6 +202,12 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             fields_to_complexify.push('classes');
         }
 
+        fields_to_complexify.forEach(tag => {
+            if (data[tag]) {
+                data[tag] = data[tag].map(value => ({ name: value }));
+            }
+        });
+
         for (const method of data.methods || []) {
             if (method.author) {
                 method.author = method.author.map(value => ({ name: value }));
