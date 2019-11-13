@@ -1,11 +1,12 @@
 import { service_creator } from './ServiceCreator';
 import { class_creator } from './ClassCreator';
 import { qorus_webview } from '../QorusWebview';
+import { classFields } from './common_constants';
 import { serviceFields, service_methods } from './service_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
-import { classFields } from './common_constants';
+import { mapperFields } from './mapper_constants';
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 
@@ -25,6 +26,8 @@ class InterfaceCreatorDispatcher {
                 return classFields(params);
             case 'step':
                 return stepFields(params);
+            case 'mapper':
+                return mapperFields(params);
             case 'config-item':
                 return configItemFields(params.interface_info);
             case 'other':

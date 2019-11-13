@@ -48,17 +48,17 @@ export class QorusProjectCodeInfo {
 
     private src_2_yaml: any = {};
     public yamlDataBySrcFile = file =>
-        this.yaml_data[this.src_2_yaml[file]] || {};
+        this.yaml_data[this.src_2_yaml[file]] || {}
 
     private class_2_yaml: any = {};
     private yamlDataByClass = class_name =>
-        this.yaml_data[this.class_2_yaml[class_name]] || {};
+        this.yaml_data[this.class_2_yaml[class_name]] || {}
 
     private name_2_yaml: any = {};
     private yamlDataByType = type =>
-        this.yaml_data[this.name_2_yaml[type]] || {};
+        this.yaml_data[this.name_2_yaml[type]] || {}
     private yamlDataByName = (type, name) =>
-        this.yaml_data[this.name_2_yaml[type][name]] || {};
+        this.yaml_data[this.name_2_yaml[type][name]] || {}
 
     private yaml_2_src: any = {};
     private class_2_src: any = {};
