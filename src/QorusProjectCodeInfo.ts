@@ -55,10 +55,15 @@ export class QorusProjectCodeInfo {
         this.yaml_data[this.class_2_yaml[class_name]] || {}
 
     private name_2_yaml: any = {};
-    private yamlDataByType = type =>
-        this.yaml_data[this.name_2_yaml[type]] || {}
     private yamlDataByName = (type, name) =>
         this.yaml_data[this.name_2_yaml[type][name]] || {}
+    private yamlDataByType = type => {
+        let ret_val = {};
+        for (const name in this.name_2_yaml[type] || {}) {
+            ret_val[name] = this.yamlDataByName(type, name);
+        }
+        return ret_val;
+    }
 
     private yaml_2_src: any = {};
     private class_2_src: any = {};
