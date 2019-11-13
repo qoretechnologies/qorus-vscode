@@ -29,210 +29,15 @@ export const subclass_template = {
 };
 
 
-export const common_fields_1 = [
-    {
-        name: 'name',
-    },
-    {
-        name: 'desc',
-    },
-    {
-        name: 'author',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'author',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'author',
-            return_value: 'objects',
-        },
-    },
-];
-
-export const commonFields2 = ({is_editing, default_target_dir}) => [
-    {
-        name: 'target_dir',
-        type: 'file-string',
-        default_value: default_target_dir,
-        get_message: {
-            action: 'creator-get-directories',
-            object_type: 'target_dir',
-        },
-        return_message: {
-            action: 'creator-return-directories',
-            object_type: 'target_dir',
-            return_value: 'directories',
-        },
-    },
-    {
-        name: 'target_file',
-        mandatory: false,
-    },
-    ... common_fields_1,
-    {
-        name: 'version',
-    },
-    {
-        name: 'class-name',
-        prefill: 'name',
-        style: 'PascalCase',
-    },
-    {
-        name: 'lang',
-        type: 'enum',
-        items: [
-            {
-                value: 'qore',
-                icon_filename: 'qore-106x128.png',
-            },
-            {
-                value: 'java',
-                icon_filename: 'java-96x128.png',
-            },
-        ],
-        default_value: 'qore',
-        disabled: is_editing,
-    },
-];
-
-export const commonFields3 = params => [
-    ... commonFields2(params),
-    {
-        name: 'constants',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'constant',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'constant',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'functions',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'function',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'function',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'mappers',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'mapper',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'mapper',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'vmaps',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'value-map',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'value-map',
-            return_value: 'objects',
-        },
-    },
-];
-
-export const commonFields4 = params => [
-    ... commonFields3(params),
-    {
-        name: 'modules',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'module',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'module',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'remote',
-        mandatory: false,
-        type: 'boolean',
-        default_value: true,
-    },
-    {
-        name: 'groups',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'group',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'group',
-            return_value: 'objects',
-        },
-    },
-    {
-        name: 'tags',
-        mandatory: false,
-        type: 'array-of-pairs',
-        fields: ['key', 'value'],
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'tag',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'tag',
-            return_value: 'objects',
-        },
-    },
-];
-
-export const commonFields5 = params => [
-    ... commonFields4(params),
-    {
-        name: 'classes',
-        mandatory: false,
-        type: 'class-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'class',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'class',
-            return_value: 'objects',
-        },
-        on_change: 'get-config-items',
-        notify_on_remove: true
-    },
-];
-
-export const classFields = params => [
-    ... commonFields2(params),
+export const classFields = ({is_editing, default_target_dir}) => [
+    field.targetDir(default_target_dir),
+    field.targetFile,
+    field.name,
+    field.desc,
+    field.author,
+    field.version,
+    field.class_name,
+    field.lang(is_editing),
     {
         name: 'base-class-name',
         mandatory: false,
@@ -249,7 +54,164 @@ export const classFields = params => [
         on_change: 'get-config-items',
         notify_on_remove: true
     },
-    {
+    field.tags,
+];
+
+
+export const field = {
+    targetDir: default_target_dir => ({
+        name: 'target_dir',
+        type: 'file-string',
+        default_value: default_target_dir,
+        get_message: {
+            action: 'creator-get-directories',
+            object_type: 'target_dir',
+        },
+        return_message: {
+            action: 'creator-return-directories',
+            object_type: 'target_dir',
+            return_value: 'directories',
+        },
+    }),
+    targetFile: {
+        name: 'target_file',
+        mandatory: false,
+    },
+    name: {
+        name: 'name',
+    },
+    desc: {
+        name: 'desc',
+    },
+    author: {
+        name: 'author',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'author',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'author',
+            return_value: 'objects',
+        },
+    },
+    version: {
+        name: 'version',
+    },
+    class_name: {
+        name: 'class-name',
+        prefill: 'name',
+        style: 'PascalCase',
+    },
+    lang: is_editing => ({
+        name: 'lang',
+        type: 'enum',
+        items: [
+            {
+                value: 'qore',
+                icon_filename: 'qore-106x128.png',
+            },
+            {
+                value: 'java',
+                icon_filename: 'java-96x128.png',
+            },
+        ],
+        default_value: 'qore',
+        disabled: is_editing,
+    }),
+    constants: {
+        name: 'constants',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'constant',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'constant',
+            return_value: 'objects',
+        },
+    },
+    functions: {
+        name: 'functions',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'function',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'function',
+            return_value: 'objects',
+        },
+    },
+    mapper: {
+        name: 'mappers',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'mapper',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'mapper',
+            return_value: 'objects',
+        },
+    },
+    vmaps: {
+        name: 'vmaps',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'value-map',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'value-map',
+            return_value: 'objects',
+        },
+    },
+    modules: {
+        name: 'modules',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'module',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'module',
+            return_value: 'objects',
+        },
+    },
+    remote: {
+        name: 'remote',
+        mandatory: false,
+        type: 'boolean',
+        default_value: true,
+    },
+    groups: {
+        name: 'groups',
+        mandatory: false,
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'group',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'group',
+            return_value: 'objects',
+        },
+    },
+    tags: {
         name: 'tags',
         mandatory: false,
         type: 'array-of-pairs',
@@ -264,4 +226,20 @@ export const classFields = params => [
             return_value: 'objects',
         },
     },
-];
+    classes: {
+        name: 'classes',
+        mandatory: false,
+        type: 'class-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'class',
+            return_value: 'objects',
+        },
+        on_change: 'get-config-items',
+        notify_on_remove: true
+    },
+};

@@ -1,7 +1,19 @@
-import { commonFields3 } from './common_constants';
+import { field } from './common_constants';
 
-export const stepFields = params => [
-    ... commonFields3(params),
+export const stepFields = ({default_target_dir, is_editing}) => [
+    field.targetDir(default_target_dir),
+    field.targetFile,
+    field.name,
+    field.desc,
+    field.author,
+    field.version,
+    field.class_name,
+    field.lang(is_editing),
+    field.constants,
+    field.classes,
+    field.functions,
+    field.mapper,
+    field.vmaps,
     {
         name: 'base-class-name',
         type: 'select-string',
@@ -15,22 +27,6 @@ export const stepFields = params => [
             return_value: 'objects',
         },
         on_change: ['get-config-items', 'creator-set-fields'],
-        notify_on_remove: true
-    },
-    {
-        name: 'classes',
-        mandatory: false,
-        type: 'class-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'class',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'class',
-            return_value: 'objects',
-        },
-        on_change: 'get-config-items',
         notify_on_remove: true
     },
     {

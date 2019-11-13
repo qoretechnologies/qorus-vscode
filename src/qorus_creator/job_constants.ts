@@ -1,4 +1,4 @@
-import { commonFields5 } from './common_constants';
+import { field } from './common_constants';
 
 let template: any = {};
 
@@ -20,8 +20,24 @@ class ${this.class_name} extends ${this.base_class_name} {\n\
 
 export const job_template = template;
 
-export const jobFields = params => [
-    ... commonFields5(params),
+export const jobFields = ({default_target_dir, is_editing}) => [
+    field.targetDir(default_target_dir),
+    field.targetFile,
+    field.name,
+    field.desc,
+    field.author,
+    field.version,
+    field.class_name,
+    field.lang(is_editing),
+    field.constants,
+    field.functions,
+    field.mapper,
+    field.vmaps,
+    field.modules,
+    field.remote,
+    field.groups,
+    field.tags,
+    field.classes,
     {
         name: 'base-class-name',
         type: 'select-string',
