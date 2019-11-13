@@ -19,6 +19,8 @@ export interface QorusRequestTexts {
     checking_status_failed: string;
 }
 
+const log_fetch_data_messages = false;
+
 export class QorusRequest extends QorusLogin {
     doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
         return request(options).then(
@@ -214,7 +216,9 @@ export class QorusRequest extends QorusLogin {
         }
 
         const uri = `${active_instance.url}/api/latest/${url}`;
-        msg.log(t`SendingRequest ${id} ${uri}`);
+        if (log_fetch_data_messages) {
+            msg.log(t`SendingRequest ${id} ${uri}`);
+        }
 
         request({
             method,
@@ -225,7 +229,9 @@ export class QorusRequest extends QorusLogin {
             },
         }).then(
             response => {
-                msg.log(t`GettingResponse ${id} ${JSON.stringify(JSON.parse(response), null, 4)}`);
+                if (log_fetch_data_messages) {
+                    msg.log(t`GettingResponse ${id} ${JSON.stringify(JSON.parse(response), null, 4)}`);
+                }
                 qorus_webview.postMessage({
                     action: 'fetch-data-complete',
                     id,
