@@ -1105,6 +1105,12 @@ msgstr "Type"
 msgid "field-desc-type"
 msgstr "The type of the configuration item"
 
+msgid "field-label-mappertype"
+msgstr "Type"
+
+msgid "field-desc-mappertype"
+msgstr "The type of mapper"
+
 msgid "field-label-can_be_undefined"
 msgstr "Can be undefined"
 
