@@ -21,7 +21,6 @@ class QorusExtension {
 
         return new Promise((resolve, reject) => {
             const checkPending = () => {
-                msg.debug({n});
                 if (!this.extension_context && --n) {
                     return;
                 }
