@@ -29,6 +29,9 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }
 
         const yaml_info = this.code_info.yamlDataBySrcFile(file_path);
+        if (!yaml_info) {
+            return Promise.resolve([]);
+        }
 
         const doc: QoreTextDocument = {
             uri: 'file:' + file_path,
@@ -49,9 +52,11 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             let lenses: vscode.CodeLens[] = [];
 
             symbols.forEach(symbol => {
-                if (!this.code_info.addSymbolCodeInfo(file_path, symbol)) {
+                if (!this.code_info.isSymbolExpectedClass(symbol, yaml_info['class-name'])) {
                     return;
                 }
+
+                this.code_info.addClassCodeInfo(file_path, symbol);
 
                 data['class-name'] = this.addClassLenses(iface_kind, lenses, symbol, data);
                 if (!data['class-name']) {
@@ -63,7 +68,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 }
 
                 for (let decl of symbol.declarations || []) {
-                    if (!this.code_info.addSymbolDeclCodeInfo(file_path, decl)) {
+                    if (!this.code_info.addClassDeclCodeInfo(file_path, decl)) {
                         continue;
                     }
 

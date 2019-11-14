@@ -47,16 +47,13 @@ export class QorusProjectCodeInfo {
     private yaml_data: any = {};
 
     private src_2_yaml: any = {};
-    public yamlDataBySrcFile = file =>
-        this.yaml_data[this.src_2_yaml[file]] || {}
+    public yamlDataBySrcFile = file => this.yaml_data[this.src_2_yaml[file]];
 
     private class_2_yaml: any = {};
-    private yamlDataByClass = class_name =>
-        this.yaml_data[this.class_2_yaml[class_name]] || {}
+    private yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
 
     private name_2_yaml: any = {};
-    private yamlDataByName = (type, name) =>
-        this.yaml_data[this.name_2_yaml[type][name]] || {}
+    private yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
     private yamlDataByType = type => {
         let ret_val = {};
         for (const name in this.name_2_yaml[type] || {}) {
@@ -140,21 +137,22 @@ export class QorusProjectCodeInfo {
         this.edit_info.service[file].method_name_ranges[method_name] = name_range;
     }
 
-    addSymbolCodeInfo = (file: string, symbol: any): boolean => {
-        if (symbol.nodetype !== 1 || symbol.kind !== 1) { // declaration && class
-            return false;
-        }
+    isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
+        class_name &&
+        symbol.nodetype === 1 &&
+        symbol.kind === 1 &&
+        symbol.name &&
+        class_name === symbol.name.name
 
+    addClassCodeInfo = (file: string, symbol: any) => {
         if (symbol.inherits && symbol.inherits.length) {
             this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[0].name.loc));
         } else {
             this.addClassInfo(file, loc2range(symbol.name.loc, 'class '));
         }
-
-        return true;
     }
 
-    addSymbolDeclCodeInfo = (file: string, decl: any): boolean => {
+    addClassDeclCodeInfo = (file: string, decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
             return false;
         }
@@ -172,7 +170,7 @@ export class QorusProjectCodeInfo {
         return true;
     }
 
-    addFileCodeInfo(file: string, force: boolean = true): Promise<void> {
+    addFileCodeInfo(file: string, class_name?: string, force: boolean = true): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
         if (this.edit_info[iface_kind][file] && !force) {
             return Promise.resolve();
@@ -183,14 +181,18 @@ export class QorusProjectCodeInfo {
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
             symbols.forEach(symbol => {
-                this.addSymbolCodeInfo(file, symbol);
+                if (!this.isSymbolExpectedClass(symbol, class_name)) {
+                    return;
+                }
+
+                this.addClassCodeInfo(file, symbol);
 
                 if (iface_kind !== 'service') {
                     return;
                 }
 
                 for (let decl of symbol.declarations || []) {
-                    this.addSymbolDeclCodeInfo(file, decl);
+                    this.addClassDeclCodeInfo(file, decl);
                 }
             });
             return Promise.resolve();
@@ -226,7 +228,7 @@ export class QorusProjectCodeInfo {
 
     pairFile = (file: string): string | undefined => {
         if (!hasSuffix(file, 'yaml')) {
-            return this.yamlDataBySrcFile(file).yaml_file;
+            return (this.yamlDataBySrcFile(file) || {}).yaml_file;
         }
 
         const yaml_data = this.yaml_data[file] || {};
@@ -714,7 +716,7 @@ export class QorusProjectCodeInfo {
         for (const base_class of Object.keys(base_classes)) {
             const desc = root_classes.includes(base_class)
                 ? gettext(`${base_class}Desc`)
-                : this.yamlDataByClass(base_class).desc;
+                : (this.yamlDataByClass(base_class) || {}).desc;
             ret_val.push({name: base_class, desc});
         }
         return ret_val;
