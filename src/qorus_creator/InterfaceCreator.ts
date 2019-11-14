@@ -201,11 +201,19 @@ export abstract class InterfaceCreator {
         delete headers['base-class-name'];
 
         let classes = {};
+        let exists_prefix = false;
         (headers.classes || []).forEach(class_data => {
             if (!classes[class_data.name]) {
-                classes[class_data.name] = [];
+                classes[class_data.name] = {
+                    exists_prefix: false,
+                    prefixes: []
+                };
             }
-            classes[class_data.name].push(class_data.prefix);
+            classes[class_data.name].prefixes.push(class_data.prefix);
+            if (class_data.prefix) {
+                classes[class_data.name].exists_prefix = true;
+                exists_prefix = true;
+            }
         });
 
         for (const tag in headers) {
@@ -239,12 +247,14 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'classes':
-                        let class_prefixes = 'class-prefixes:\n';
+                        let class_prefixes = exists_prefix ? 'class-prefixes:\n' : '';
                         for (let class_name in classes) {
                             result += `${list_indent}${class_name}\n`;
-                            for (const prefix of classes[class_name]) {
-                                class_prefixes += `${list_indent}class: ${class_name}\n`;
-                                class_prefixes += `${indent}prefix: ${prefix}\n`;
+                            if (classes[class_name].exists_prefix) {
+                                for (const prefix of classes[class_name].prefixes) {
+                                    class_prefixes += `${list_indent}class: ${class_name}\n`;
+                                    class_prefixes += `${indent}prefix: ${prefix || null}\n`;
+                                }
                             }
                         }
                         result += class_prefixes;
