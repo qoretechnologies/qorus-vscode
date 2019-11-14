@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import { projects, config_filename } from './QorusProject';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
-import { QorusExtension } from './qorus_vscode';
+import { qorus_vscode } from './qorus_vscode';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
 import { qorus_locale } from './QorusLocale';
@@ -18,7 +18,7 @@ import { t } from 'ttag';
 qorus_locale.setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
-    QorusExtension.context = context;
+    qorus_vscode.context = context;
 
     let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
                                                                () => deployer.deployCurrentFile());

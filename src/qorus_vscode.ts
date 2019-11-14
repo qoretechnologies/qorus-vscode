@@ -1,13 +1,43 @@
 import { ExtensionContext } from 'vscode';
+import { t } from 'ttag';
+import * as msg from './qorus_message';
 
-export class QorusExtension {
-    private static extension_context: ExtensionContext;
+class QorusExtension {
+    private extension_context: ExtensionContext;
 
-    static get context(): ExtensionContext {
-        return QorusExtension.extension_context;
+    get context(): ExtensionContext {
+        return this.extension_context;
     }
 
-    static set context(context: ExtensionContext) {
-        QorusExtension.extension_context = context;
+    set context(context: ExtensionContext) {
+        this.extension_context = context;
+    }
+
+    waitForContext(): Promise<void> {
+        const timeout = 5000;
+        const interval = 10;
+        let n = timeout / interval;
+        let interval_id: any;
+
+        return new Promise((resolve, reject) => {
+            const checkPending = () => {
+                msg.debug({n});
+                if (!this.extension_context && --n) {
+                    return;
+                }
+                clearInterval(interval_id);
+                if (n > 0) {
+                    resolve();
+                } else {
+                    const error = t`GettingExtensionContextTimedOut`;
+                    msg.error(error);
+                    reject(error);
+                }
+            };
+
+            interval_id = setInterval(checkPending, interval);
+        });
     }
 }
+
+export const qorus_vscode = new QorusExtension();

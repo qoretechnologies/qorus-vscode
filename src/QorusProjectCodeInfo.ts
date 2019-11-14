@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as jsyaml from 'js-yaml';
 import { qore_vscode } from './qore_vscode';
-import { QorusExtension } from './qorus_vscode';
+import { qorus_vscode } from './qorus_vscode';
 import { QorusProject } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
@@ -316,7 +316,7 @@ export class QorusProjectCodeInfo {
                         resolve();
                     } else {
                         const error = t`CodeInfoUpdateTimedOut`
-			    + pending_list.map(key => gettext(key + '_info_update_pending')).join(', ');
+                            + pending_list.map(key => gettext(key + '_info_update_pending')).join(', ');
                         msg.error(error);
                         reject(error);
                     }
@@ -823,8 +823,9 @@ export class QorusProjectCodeInfo {
         this.setPending('file_tree', false);
     }
 
-    private updateObjects(source_directories: string[]) {
-        const object_parser_dir = path.join(QorusExtension.context.extensionPath, object_parser_subdir);
+    private async updateObjects(source_directories: string[]) {
+        await qorus_vscode.waitForContext();
+        const object_parser_dir = path.join(qorus_vscode.context.extensionPath, object_parser_subdir);
         const object_parser_path = path.join(object_parser_dir, object_parser_script);
         this.setPending('objects', true);
         let num_pending = 0;
