@@ -1551,6 +1551,9 @@ msgstr "Please select config item above"
 msgid "GettingDocSymbolsTimedOut"
 msgstr "Getting document symbols timed out"
 
+msgid "GettingExtensionContextTimedOut"
+msgstr "Getting extension context timed out"
+
 msgid "button.add-new"
 msgstr "Add new"
 
