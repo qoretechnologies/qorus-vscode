@@ -99,7 +99,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             data['class-name'] = symbol.name.name;
         }
 
-        if (symbol.inherits && symbol.inherits.length) {
+        if (!data['base-class-name'] && symbol.inherits && symbol.inherits.length) {
             data['base-class-name'] = symbol.inherits[0].name.name;
         }
 

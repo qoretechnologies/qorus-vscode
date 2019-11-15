@@ -38,7 +38,11 @@ export abstract class InterfaceCreator {
         if (params.orig_data) {
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
-            this.code_info.addFileCodeInfo(orig_file, params.orig_data['class-name']).then(() => {
+            this.code_info.addFileCodeInfo(
+                    orig_file,
+                    params.orig_data['class-name'],
+                    params.orig_data['base-class-name']
+            ).then(() => {
                 this.editImpl(params);
                 this.code_info.setPending('edit_info', false);
             });

@@ -144,9 +144,13 @@ export class QorusProjectCodeInfo {
         symbol.name &&
         class_name === symbol.name.name
 
-    addClassCodeInfo = (file: string, symbol: any) => {
+    addClassCodeInfo = (file: string, symbol: any, base_class_name?: string) => {
         if (symbol.inherits && symbol.inherits.length) {
-            this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[0].name.loc));
+            const index = base_class_name
+                ? symbol.inherits.findIndex(inherited =>
+                        inherited.name && inherited.name.name === base_class_name) || 0
+                : 0;
+            this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[index].name.loc));
         } else {
             this.addClassInfo(file, loc2range(symbol.name.loc, 'class '));
         }
@@ -170,7 +174,7 @@ export class QorusProjectCodeInfo {
         return true;
     }
 
-    addFileCodeInfo(file: string, class_name?: string, force: boolean = true): Promise<void> {
+    addFileCodeInfo(file: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
         if (this.edit_info[iface_kind][file] && !force) {
             return Promise.resolve();
@@ -185,7 +189,7 @@ export class QorusProjectCodeInfo {
                     return;
                 }
 
-                this.addClassCodeInfo(file, symbol);
+                this.addClassCodeInfo(file, symbol, base_class_name);
 
                 if (iface_kind !== 'service') {
                     return;
@@ -201,10 +205,6 @@ export class QorusProjectCodeInfo {
 
     editInfo(iface_kind: string, file: string) {
         return this.edit_info[iface_kind][file];
-    }
-
-    baseClassName(class_name: string): string | undefined {
-        return this.inheritance_pairs[class_name];
     }
 
     getInterfaceData = ({ iface_kind, name, include_tabs }) => {
@@ -592,7 +592,8 @@ export class QorusProjectCodeInfo {
             }
 
             if (class_name) {
-                const base_class_name = this.baseClassName(class_name);
+                const base_class_name = this.yaml_data[file]['base-class-name']
+                    || (this.inheritance_pairs[class_name] && this.inheritance_pairs[class_name][0]);
 
                 if (base_class_name) {
                     this.yaml_data[file]['base-class-name'] = base_class_name;
@@ -659,7 +660,7 @@ export class QorusProjectCodeInfo {
             while (any_new) {
                 any_new = false;
                 for (let name in inheritance_pairs) {
-                    if (base_classes[inheritance_pairs[name]]) {
+                    if (inheritance_pairs[name].some(base_class_name => base_classes[base_class_name])) {
                         base_classes[name] = true;
                         delete inheritance_pairs[name];
                         any_new = true;
@@ -692,10 +693,13 @@ export class QorusProjectCodeInfo {
                 return;
             }
 
-            const inherited = symbol.inherits[0];
-            if (inherited.name && inherited.name.name) {
-                this.inheritance_pairs[class_name] = inherited.name.name;
-            }
+            this.inheritance_pairs[class_name] = [];
+
+            symbol.inherits.forEach(inherited => {
+                if (inherited.name && inherited.name.name) {
+                    this.inheritance_pairs[class_name].push(inherited.name.name);
+                }
+            });
         }).then(() => {
             this.baseClassesFromInheritancePairs();
             this.setPending('lang_client', false);
