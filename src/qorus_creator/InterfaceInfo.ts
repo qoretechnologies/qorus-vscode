@@ -226,7 +226,7 @@ export class InterfaceInfo {
         const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
 
         (classes || this.iface_by_id[iface_id].classes || []).forEach(class_data => {
-            removeClassConfigItems(class_data.name, class_data.name !== base_class_name)
+            removeClassConfigItems(class_data.name, class_data.name === base_class_name)
         });
     }
 
@@ -239,6 +239,7 @@ export class InterfaceInfo {
 
         this.code_info.waitForPending(['yaml']).then(() => {
             if (base_class_name) {
+                this.removeBaseClass({iface_id, iface_kind});
                 this.addClassConfigItems(iface_id, base_class_name);
                 this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
             }
