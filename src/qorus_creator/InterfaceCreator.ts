@@ -198,7 +198,6 @@ export abstract class InterfaceCreator {
                 headers.classes.unshift({name: base_class_name});
             }
         }
-        delete headers['base-class-name'];
 
         let classes = {};
         let exists_prefix = false;
