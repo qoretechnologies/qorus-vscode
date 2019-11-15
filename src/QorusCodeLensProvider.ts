@@ -52,16 +52,13 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             let lenses: vscode.CodeLens[] = [];
 
             symbols.forEach(symbol => {
-                if (!this.code_info.isSymbolExpectedClass(symbol, yaml_info['class-name'])) {
+                if (!this.code_info.isSymbolExpectedClass(symbol, data['class-name'])) {
                     return;
                 }
 
-                this.code_info.addClassCodeInfo(file_path, symbol);
+                this.code_info.addClassCodeInfo(file_path, symbol, data['base-class-name'], false);
 
-                data['class-name'] = this.addClassLenses(iface_kind, lenses, symbol, data);
-                if (!data['class-name']) {
-                    return;
-                }
+                this.addClassLenses(iface_kind, lenses, symbol, data);
 
                 if (iface_kind !== 'service') {
                     return;
@@ -82,21 +79,10 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         });
     }
 
-    private addClassLenses(iface_kind: string, lenses: vscode.CodeLens[], symbol: any, data: any): string | undefined {
+    private addClassLenses(iface_kind: string, lenses: vscode.CodeLens[], symbol: any, data: any) {
         if (!symbol.name) {
             msg.error(t`ConnotDetermineClassNamePosition`);
-            return undefined;
-        }
-
-        const class_name = data['class-name'];
-
-        if (class_name) {
-            if(class_name !== symbol.name.name) {
-                msg.error(t`SrcAndYamlMismatch ${'class-name'} ${data.code} ${symbol.name.name} ${class_name}`);
-            }
-        }
-        else {
-            data['class-name'] = symbol.name.name;
+            return;
         }
 
         if (!data['base-class-name'] && symbol.inherits && symbol.inherits.length) {
@@ -158,8 +144,6 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'addClassLenses'}`);
         }
-
-        return class_name;
     }
 
     private addServiceMethodLenses(lenses: vscode.CodeLens[], loc: any, data: any, method_name: string) {

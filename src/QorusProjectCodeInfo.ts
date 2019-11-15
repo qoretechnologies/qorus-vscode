@@ -144,13 +144,23 @@ export class QorusProjectCodeInfo {
         symbol.name &&
         class_name === symbol.name.name
 
-    addClassCodeInfo = (file: string, symbol: any, base_class_name?: string) => {
+    addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
         if (symbol.inherits && symbol.inherits.length) {
-            const index = base_class_name
-                ? symbol.inherits.findIndex(inherited =>
-                        inherited.name && inherited.name.name === base_class_name) || 0
-                : 0;
-            this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[index].name.loc));
+            let index = 0;
+
+            if (base_class_name) {
+                index = symbol.inherits.findIndex(inherited =>
+                    inherited.name && inherited.name.name === base_class_name);
+            }
+
+            if (index > -1) {
+                this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[index].name.loc));
+            } else {
+                if (message_on_mismatch) {
+                    msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
+                }
+                this.addClassInfo(file, loc2range(symbol.name.loc, 'class '));
+            }
         } else {
             this.addClassInfo(file, loc2range(symbol.name.loc, 'class '));
         }

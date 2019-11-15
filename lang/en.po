@@ -1297,6 +1297,9 @@ msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1
 msgid "SrcMethodNotInYaml ${ method } ${ src_file }"
 msgstr "Mismatch in source and yaml file: method ${ method } in ${ src_file } is not present in the yaml file"
 
+msgid "SrcAndYamlBaseClassMismatch ${ base_class_name } ${ src_file }"
+msgstr "Mismatch in source and yaml file: base class ${ base_class_name } stated in the yaml file is not a base class in the source file ${ src_file }"
+
 msgid "FileCreatedInDir ${ file } ${ dir }"
 msgstr "File ${ file } has been created in ${ dir }"
 
