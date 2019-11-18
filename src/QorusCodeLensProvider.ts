@@ -154,7 +154,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 break;
             }
         }
-        if (method_index === -1) {
+        if (method_index === -1 && method_name !== 'constructor') {
             msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
             return;
         }
