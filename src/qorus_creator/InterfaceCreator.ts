@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue } from './config_item_constants';
-import { lang_suffix, default_parse_options } from './common_constants';
+import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import { quotesIfNum } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -101,7 +101,7 @@ export abstract class InterfaceCreator {
         });
     }
 
-    protected static renameClassAndBaseClass(
+    protected renameClassAndBaseClass(
             lines: string[],
             edit_info: any,
             orig_data: any,
@@ -112,15 +112,24 @@ export abstract class InterfaceCreator {
         const class_name = header_data['class-name'];
         const base_class_name = header_data['base-class-name'];
 
-        const replace = (position: Position, orig_name: string, name: string) => {
+        const replace = (position: Position, orig_str: string, new_name: string) => {
             let chars = lines[position.line].split('');
-            chars.splice(position.character, orig_name.length, name);
+            chars.splice(position.character, orig_str.length, new_name);
             lines[position.line] = chars.join('');
         }
 
-        if (base_class_name !== orig_base_class_name) {
+        if (base_class_name && !orig_base_class_name) {
+            replace(edit_info.class_name_range.end, '', ` ${lang_inherits[this.lang]} ${base_class_name}`);
+        }
+        else if (!base_class_name && orig_base_class_name) {
+            const line_no = edit_info.base_class_name_range.start.line;
+            lines[line_no] = lines[line_no].replace(` ${lang_inherits[this.lang]}`, '')
+                                           .replace(` ${orig_base_class_name}`, '');
+        }
+        else if (base_class_name !== orig_base_class_name) {
             replace(edit_info.base_class_name_range.start, orig_base_class_name, base_class_name);
         }
+
         if (class_name !== orig_class_name) {
             replace(edit_info.class_name_range.start, orig_class_name, class_name);
         }
