@@ -3,9 +3,14 @@ export const lang_suffix = {
     qore: '',
 };
 
-export const comment_chars = {
+export const lang_comment_chars = {
     java: '//',
     qore: '#',
+};
+
+export const lang_inherits = {
+    java: 'extends',
+    qore: 'inherits',
 };
 
 

@@ -78,10 +78,10 @@ class ClassCreator extends InterfaceCreator {
                 const edit_info = this.code_info.editInfo(iface_kind, orig_file_path);
 
                 code_lines = edit_info.text_lines;
-                code_lines = ClassCreator.renameClassAndBaseClass(code_lines,
-                                                                  edit_info,
-                                                                  other_orig_data,
-                                                                  header_data);
+                code_lines = this.renameClassAndBaseClass(code_lines,
+                                                          edit_info,
+                                                          other_orig_data,
+                                                          header_data);
                 contents = code_lines.join('\n');
                 break;
             default:

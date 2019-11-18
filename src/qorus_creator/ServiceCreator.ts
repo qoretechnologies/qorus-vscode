@@ -46,10 +46,10 @@ class ServiceCreator extends InterfaceCreator {
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = edit_info.text_lines;
-                code_lines = ServiceCreator.renameClassAndBaseClass(code_lines,
-                                                                    edit_info,
-                                                                    other_orig_data,
-                                                                    header_data);
+                code_lines = this.renameClassAndBaseClass(code_lines,
+                                                          edit_info,
+                                                          other_orig_data,
+                                                          header_data);
                 code_lines = ServiceCreator.renameServiceMethods(code_lines, edit_info, method_renaming_map.renamed);
                 code_lines = ServiceCreator.removeServiceMethods(code_lines, edit_info, method_renaming_map.removed);
                 contents = this.addServiceMethods(code_lines, method_renaming_map.added);
