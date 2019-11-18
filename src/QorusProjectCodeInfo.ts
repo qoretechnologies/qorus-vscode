@@ -25,6 +25,7 @@ const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
 const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
+const all_root_classes =[...root_steps, root_service, root_job, root_workflow];
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
 const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
@@ -375,22 +376,22 @@ export class QorusProjectCodeInfo {
                 break;
             case 'service-base-class':
                 this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToBaseClasses(this.service_classes, [root_service]))
+                    postMessage('objects', this.addDescToClasses(this.service_classes, [root_service]))
                 );
                 break;
             case 'job-base-class':
                 this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToBaseClasses(this.job_classes, [root_job]))
+                    postMessage('objects', this.addDescToClasses(this.job_classes, [root_job]))
                 );
                 break;
             case 'workflow-base-class':
                 this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToBaseClasses(this.workflow_classes, [root_workflow]))
+                    postMessage('objects', this.addDescToClasses(this.workflow_classes, [root_workflow]))
                 );
                 break;
             case 'step-base-class':
                 this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToBaseClasses(this.flattenedStepClasses(), root_steps))
+                    postMessage('objects', this.addDescToClasses(this.flattenedStepClasses(), root_steps))
                 );
                 break;
             case 'base-class':
@@ -401,7 +402,10 @@ export class QorusProjectCodeInfo {
                         qorus_webview.opening_data.class &&
                         qorus_webview.opening_data.class['class-name'];
                     delete classes[current_class];
-                    postMessage('objects', this.addDescToBaseClasses(classes));
+                    postMessage('objects', this.addDescToClasses(
+                        [ ...Object.keys(classes), ...all_root_classes ],
+                        all_root_classes,
+                    ));
                 });
                 break;
             case 'author':
@@ -457,8 +461,7 @@ export class QorusProjectCodeInfo {
         msg.log(update + ': ' + ' '.repeat(45 - update.length) + (is_pending ? t`pending` : t`finished`));
     }
 
-    static isRootBaseClass = base_class_name =>
-        [...root_steps, root_service, root_job, root_workflow].includes(base_class_name)
+    static isRootBaseClass = base_class_name => all_root_classes.includes(base_class_name);
 
     update(info_list: string[] = info_keys, is_initial_update: boolean = false) {
         this.project.validateConfigFileAndDo(file_data => {
@@ -725,9 +728,13 @@ export class QorusProjectCodeInfo {
         return class_yaml_data;
     }
 
-    private addDescToBaseClasses(base_classes: any, root_classes: string[] = []): any[] {
+    private addDescToClasses(base_classes: any, root_classes: string[] = []): any[] {
+        if (!Array.isArray(base_classes)) {
+            return this.addDescToClasses(Object.keys(base_classes), root_classes);
+        }
+
         let ret_val = [];
-        for (const base_class of Object.keys(base_classes)) {
+        for (const base_class of base_classes) {
             const desc = root_classes.includes(base_class)
                 ? gettext(`${base_class}Desc`)
                 : (this.yamlDataByClass(base_class) || {}).desc;
