@@ -210,18 +210,6 @@ class ServiceCreator extends InterfaceCreator {
         ];
     }
 
-    protected addServiceMethodsx(lines: string[], added: string[]): string {
-        while (lines[lines.length - 1].trim() === '') {
-            lines.pop();
-        }
-        let code = lines.splice(0, lines.length - 1).join('\n') + '\n';
-        for (let name of added) {
-            code += '\n' + this.fillTemplate(service_method_template, { name }, false);
-        }
-        code += lines[0] + '\n';
-        return code;
-    }
-
     deleteMethod(data: any) {
         if (!data.methods || data.methods.length < 2) {
             msg.error(t`CannotDeleteTheOnlyOneServiceMethod`);
