@@ -1,6 +1,6 @@
 import React, { Component, FunctionComponent, useState } from 'react';
 import { connect } from 'react-redux';
-import { Alignment, Button, HTMLTable, Navbar, NavbarDivider, NavbarGroup } from '@blueprintjs/core';
+import { Alignment, Button, HTMLTable, Navbar, NavbarDivider, NavbarGroup, ButtonGroup } from '@blueprintjs/core';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import InterfaceCreator from './containers/InterfaceCreator';
@@ -19,6 +19,8 @@ import Menu from './components/Menu';
 import { MENU } from './constants/menu';
 import { LoginContainer } from './login/Login';
 import ProjectConfig, { ProjectConfigContainer } from './project_config/ProjectConfig';
+import withMapper from './hocomponents/withMapper';
+import Pull from './components/Pull';
 
 const StyledApp = styled.div`
     display: flex;
@@ -145,6 +147,11 @@ const App: FunctionComponent<IApp> = ({
                     <StyledInfo>
                         {t('ActiveQorusInstance')}: <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
                     </StyledInfo>
+                    <Pull right>
+                        <ButtonGroup minimal>
+                            <Button icon="refresh" onClick={() => window.location.reload} />
+                        </ButtonGroup>
+                    </Pull>
                 </NavbarGroup>
             </Navbar>
             <TextContext.Provider value={t}>
@@ -180,13 +187,11 @@ const mapDispatchToProps = dispatch => ({
 export default hot(
     compose(
         withMessageHandler(),
-        connect(
-            mapStateToProps,
-            mapDispatchToProps
-        ),
+        connect(mapStateToProps, mapDispatchToProps),
         withInitialData(),
         withFields(),
         withMethods(),
-        withSteps()
+        withSteps(),
+        withMapper()
     )(App)
 );

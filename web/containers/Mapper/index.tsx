@@ -1,25 +1,24 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { useDrag } from 'react-dnd';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
+import styled, { css } from 'styled-components';
 import MapperInput from './input';
 import MapperOutput from './output';
 import { FieldWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
 import Select from '../../components/Field/select';
-import useMount from 'react-use/lib/useMount';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { Callout, Spinner, ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
+import { Callout, Spinner, ButtonGroup, Tooltip, Button, Intent, Dialog } from '@blueprintjs/core';
 import size from 'lodash/size';
 import map from 'lodash/map';
-import forEach from 'lodash/forEach';
 import reduce from 'lodash/reduce';
-import { Messages } from '../../constants/messages';
-import { type } from 'os';
+import get from 'lodash/get';
+import findIndex from 'lodash/findIndex';
 import { TTranslator } from '../../App';
 import withTextContext from '../../hocomponents/withTextContext';
 import compose from 'recompose/compose';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import MapperFieldModal from './modal';
 
 const FIELD_HEIGHT = 70;
-const FIELD_MARGIN = 10;
+const FIELD_MARGIN = 15;
 
 const StyledMapperWrapper = styled.div`
     width: 900px;
@@ -43,7 +42,14 @@ const StyledConnectionsWrapper = styled.div`
 `;
 
 export const StyledMapperField = styled.div`
-    width: 300px;
+    width: ${({ isChild, level }) => (isChild ? `${300 - level * 15}px` : '300px')};
+    
+    ${({ input, isChild, level }) =>
+        input &&
+        css`
+            margin-left: ${isChild ? `${level * 15}px` : '0'};
+        `}
+    
     height: ${FIELD_HEIGHT}px;
     border: 1px solid #d7d7d7;
     border-radius: 3px;
@@ -51,6 +57,51 @@ export const StyledMapperField = styled.div`
     transition: all 0.3s;
     background-color: #fff;
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
+    position: relative;
+
+    ${({ childrenCount }) =>
+        childrenCount !== 0 &&
+        css`
+            &:after {
+                content: '';
+                display: table;
+                position: absolute;
+                width: 1px;
+                ${({ input }) =>
+                    input
+                        ? css`
+                              left: -1px;
+                          `
+                        : css`
+                              right: -1px;
+                          `};
+                top: ${FIELD_HEIGHT / 2}px;
+                height: ${childrenCount * (FIELD_HEIGHT + FIELD_MARGIN)}px;
+                background-color: #d7d7d7;
+            }
+        `}
+
+    ${({ isChild }) =>
+        isChild &&
+        css`
+            &:before {
+                content: '';
+                display: table;
+                position: absolute;
+                width: 15px;
+                height: 1px;
+                ${({ input }) =>
+                    input
+                        ? css`
+                              left: -15px;
+                          `
+                        : css`
+                              right: -15px;
+                          `};
+                top: ${FIELD_HEIGHT / 2}px;
+                background-color: #d7d7d7;
+            }
+        `}
 
     h4 {
         text-align: center;
@@ -62,7 +113,8 @@ export const StyledMapperField = styled.div`
 
     p {
         text-align: center;
-        line-height: 25px;
+        font-size: 12px;
+        line-height: 15px;
         margin: 0;
         padding: 0;
         color: #a9a9a9;
@@ -93,46 +145,87 @@ const StyledLine = styled.line`
 export interface IMapperCreatorProps {
     initialData: any;
     t: TTranslator;
+    inputs: any[];
+    setInputs: (inputs: any) => void;
+    outputs: any[];
+    setOutputs: (outputs: any) => void;
+    providerData: any[];
+    setProviderData: (data: any) => void;
+    inputProvider: string;
+    setInputProvider: (provider: string) => void;
+    outputProvider: string;
+    setOutputProvider: (provider: string) => void;
+    relations: IMapperRelation[];
+    setRelations: (relations: IMapperRelation[]) => void;
+    inputsLoading: boolean;
+    setInputsLoading: (loading: boolean) => void;
+    outputsLoading: boolean;
+    setOutputsLoading: (loading: boolean) => void;
+    onBackClick: () => void;
+    addField: (fieldsType: string, path: string, name: string, data?: any) => void;
+    editField: (fieldsType: string, path: string, name: string, data?: any) => void;
+    isFormValid: boolean;
 }
 
 export interface IMapperRelation {
-    input: number;
-    output: number;
+    input: string;
+    output: string;
 }
 
-const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
-    const [inputs, setInputs] = useState<any>(null);
-    const [outputs, setOutputs] = useState<any>(null);
-    const [providerData, setProviderData] = useState<any>(null);
-    const [inputProvider, setInputProvider] = useState<string>(null);
-    const [outputProvider, setOutputProvider] = useState<string>(null);
-    const [relations, setRelations] = useState<IMapperRelation[]>([]);
-    const [inputsLoading, setInputsLoading] = useState<boolean>(false);
-    const [outputsLoading, setOutputsLoading] = useState<boolean>(false);
-
+const MapperCreator: React.FC<IMapperCreatorProps> = ({
+    initialData,
+    t,
+    inputs,
+    setInputs,
+    outputs,
+    setOutputs,
+    providerData,
+    setProviderData,
+    inputProvider,
+    setInputProvider,
+    outputProvider,
+    setOutputProvider,
+    relations,
+    setRelations,
+    inputsLoading,
+    setInputsLoading,
+    outputsLoading,
+    setOutputsLoading,
+    onBackClick,
+    isFormValid,
+    addField,
+    editField,
+}) => {
+    const [addDialog, setAddDialog] = useState({});
     const handleDrop = useCallback(
-        (inputId: number, outputId: number): void => {
+        (inputPath: string, outputPath: string): void => {
             // Check if this relation already exists
             const relation = relations.find(
-                (relation: IMapperRelation): boolean => relation.input === inputId && relation.output === outputId
+                (relation: IMapperRelation): boolean => relation.input === inputPath && relation.output === outputPath
             );
             // Do nothing if it exists
             if (!relation) {
                 // Add new relation
-                setRelations(current => [...current, { input: inputId, output: outputId }]);
+                setRelations((current: IMapperRelation[]): IMapperRelation[] => [
+                    ...current,
+                    { input: inputPath, output: outputPath },
+                ]);
             }
         },
         [relations]
     );
 
     useEffect(() => {
-        // Fetch the mapper data providers
-        (async () => {
-            // Get the data
-            const { data } = await initialData.fetchData('dataprovider/types');
-            // Save data
-            setProviderData(data);
-        })();
+        // Check if data providers are not set
+        if (!providerData) {
+            // Fetch the mapper data providers
+            (async () => {
+                // Get the data
+                const { data } = await initialData.fetchData('dataprovider/types');
+                // Save data
+                setProviderData(data);
+            })();
+        }
     }, [initialData]);
 
     const getDefaultItems = useCallback(
@@ -142,7 +235,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
 
     if (!initialData.qorus_instance) {
         return (
-            <Callout title="Active instance not set" icon="warning-sign" intent="warning">
+            <Callout title='Active instance not set' icon='warning-sign' intent='warning'>
                 Mappers can only be created with an active Qorus instance selected
             </Callout>
         );
@@ -151,6 +244,36 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
     if (!providerData) {
         return <p> Loading data... </p>;
     }
+
+    // This functions flattens the fields, by taking all the
+    // deep fields from `type` and adds them right after their
+    // respective parent field
+    const flattenFields: (fields: any, isChild?: boolean, parent?: string, level?: number, path?: string) => any[] = (
+        fields,
+        isChild = false,
+        parent,
+        level = 0,
+        path = ''
+    ) =>
+        reduce(
+            fields,
+            (newFields, field, name) => {
+                let res = [...newFields];
+                // Build the path for the child fields
+                const newPath = level === 0 ? name : `${path}.type.fields.${name}`;
+                const parentPath = level !== 0 && `${path}.type.fields`;
+                // Add the current field
+                res = [...res, { name, ...{ ...field, isChild, level, parent, path: newPath, parentPath } }];
+                // Check if this field has hierarchy
+                if (size(field.type.fields)) {
+                    // Recursively add deep fields
+                    res = [...res, ...flattenFields(field.type.fields, true, name, level + 1, newPath)];
+                }
+                // Return the new fields
+                return res;
+            },
+            []
+        );
 
     const setFieldsFromType = async (type: string, isInput?: boolean): Promise<void> => {
         // Reset the relations
@@ -173,37 +296,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
         }
         // Get the fields
         const data = await initialData.fetchData(`dataprovider/types/${type}`);
-        // This functions flattens the fields, by taking all the
-        // deep fields from `type` and adds them right after their
-        // respective parent field
-        const flattenFields: (fields: any) => any[] = fields =>
-            reduce(
-                fields,
-                (newFields, field, name) => {
-                    let res = [...newFields];
-                    // Add the current field
-                    res = [...res, { name, ...field }];
-                    // Check if this field has hierarchy
-                    if (size(field.type.fields)) {
-                        // Recursively add deep fields
-                        res = [...res, ...flattenFields(field.type.fields)];
-                    }
-                    // Return the new fields
-                    return res;
-                },
-                []
-            );
-        // Flatten the fields
-        const flattenedFields = flattenFields(data.data.fields);
         // Save either input or output
         if (isInput) {
             // Set new input fields
-            setInputs(flattenedFields);
+            setInputs(data.data.fields);
             // Remove loading
             setInputsLoading(false);
         } else {
             // Set new input fields
-            setOutputs(flattenedFields);
+            setOutputs(data.data.fields);
             // Remove loading
             setOutputsLoading(false);
         }
@@ -214,6 +315,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
         setRelations((current: IMapperRelation[]): IMapperRelation[] =>
             current.filter(
                 (rel: IMapperRelation): boolean => rel.input !== relation.input || rel.output !== relation.output
+            )
+        );
+    };
+
+    const removeFieldRelations: (path: string) => void = path => {
+        // Remove the selected relation
+        setRelations((current: IMapperRelation[]): IMapperRelation[] =>
+            current.filter(
+                (rel: IMapperRelation): boolean => !rel.input.startsWith(path) && !rel.output.startsWith(path)
             )
         );
     };
@@ -229,7 +339,43 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
         setOutputsLoading(false);
     };
 
-    const isMapperValid: () => boolean = () => false;
+    const isMapperValid: () => boolean = () => isFormValid && size(relations) !== 0;
+    const flattenedInputs = inputs && flattenFields(inputs);
+    const flattenedOutputs = outputs && flattenFields(outputs);
+
+    const getLastChildIndex = (field: any, type: 'inputs' | 'outputs') => {
+        // Save the fields into a accessible object
+        const fields = { inputs: flattenedInputs, outputs: flattenedOutputs };
+        // Only get the child index for fields
+        // that actually have children
+        if (size(field.type.fields)) {
+            // Get the name of the last field
+            const name: string = Object.keys(field.type.fields).find(
+                (_name, index) => index === size(field.type.fields) - 1
+            );
+            // Get the index of the last field in this
+            // hierarchy based on the name
+            return findIndex(fields[type], curField => curField.path === `${field.path}.type.fields.${name}`);
+        }
+        // Return nothing
+        return 0;
+    };
+
+    const handleClick = type => (field: any, edit?: boolean, remove?: boolean): void => {
+        if (remove) {
+            editField(type, field.path, null, true);
+            removeFieldRelations(field.path);
+        } else {
+            setAddDialog({
+                isOpen: true,
+                siblings: field.type.fields,
+                fieldData: edit ? field : null,
+                onSubmit: data => {
+                    edit ? editField(type, field.path, data) : addField(type, field.path, data);
+                },
+            });
+        }
+    };
 
     return (
         <>
@@ -251,7 +397,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
                         <StyledFieldHeader>Input</StyledFieldHeader>
                         <FieldWrapper style={{ marginBottom: '20px' }}>
                             <Select
-                                name="input"
+                                name='input'
                                 disabled={inputsLoading}
                                 fill
                                 disab
@@ -263,12 +409,21 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
                             />
                         </FieldWrapper>
                         {inputsLoading && <Spinner size={20} />}
-                        {size(inputs) !== 0
-                            ? map(inputs, (input, index) => (
-                                  <MapperInput name={input.name} types={input.type.types_returned} id={index + 1} />
+                        {size(flattenedInputs) !== 0
+                            ? map(flattenedInputs, (input, index) => (
+                                  <MapperInput
+                                      key={input.path}
+                                      name={input.name}
+                                      types={input.type.types_returned}
+                                      {...input}
+                                      field={input}
+                                      id={index + 1}
+                                      lastChildIndex={getLastChildIndex(input, 'inputs') - index}
+                                      onClick={handleClick('inputs')}
+                                  />
                               ))
                             : null}
-                        {size(inputs) === 0 && !inputsLoading ? (
+                        {size(flattenedInputs) === 0 && !inputsLoading ? (
                             <StyledInfoMessage>
                                 {' '}
                                 No fields available. Please make sure input provider was selected{' '}
@@ -277,19 +432,28 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
                     </StyledFieldsWrapper>
                     <StyledConnectionsWrapper>
                         {size(relations) ? (
-                            <svg height={Math.max(inputs.length, outputs.length) * (FIELD_HEIGHT + FIELD_MARGIN) + 91}>
+                            <svg
+                                height={
+                                    Math.max(flattenedInputs.length, flattenedOutputs.length) *
+                                        (FIELD_HEIGHT + FIELD_MARGIN) +
+                                    91
+                                }
+                            >
                                 {relations.map((relation: IMapperRelation) => (
                                     <StyledLine
                                         onClick={() => removeRelation(relation)}
                                         x1={0}
                                         y1={
-                                            relation.input * (FIELD_HEIGHT + FIELD_MARGIN) -
+                                            (flattenedInputs.findIndex(input => input.path === relation.input) + 1) *
+                                                (FIELD_HEIGHT + FIELD_MARGIN) -
                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
                                             91
                                         }
                                         x2={300}
                                         y2={
-                                            relation.output * (FIELD_HEIGHT + FIELD_MARGIN) -
+                                            (flattenedOutputs.findIndex(output => output.path === relation.output) +
+                                                1) *
+                                                (FIELD_HEIGHT + FIELD_MARGIN) -
                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
                                             91
                                         }
@@ -302,7 +466,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
                         <StyledFieldHeader>Output</StyledFieldHeader>
                         <FieldWrapper style={{ marginBottom: '20px' }}>
                             <Select
-                                name="input"
+                                name='input'
                                 disabled={outputsLoading}
                                 fill
                                 defaultIt
@@ -314,17 +478,22 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
                             />
                         </FieldWrapper>
                         {outputsLoading && <Spinner size={20} />}
-                        {size(outputs) !== 0
-                            ? map(outputs, (output, index) => (
+                        {size(flattenedOutputs) !== 0
+                            ? map(flattenedOutputs, (output, index) => (
                                   <MapperOutput
+                                      key={output.path}
                                       name={output.name}
+                                      {...output}
+                                      field={output}
                                       onDrop={handleDrop}
                                       id={index + 1}
                                       accepts={output.type.types_accepted}
+                                      lastChildIndex={getLastChildIndex(output, 'outputs') - index}
+                                      onClick={handleClick('outputs')}
                                   />
                               ))
                             : null}
-                        {size(outputs) === 0 && !outputsLoading ? (
+                        {size(flattenedOutputs) === 0 && !outputsLoading ? (
                             <StyledInfoMessage>
                                 {' '}
                                 No fields available. Please make sure output provider was selected{' '}
@@ -344,12 +513,21 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({ initialData, t }) => {
                                 onClick={reset}
                             />
                         </Tooltip>
+                        <Tooltip content={t('BackTooltip')}>
+                            <Button
+                                text={t('Back')}
+                                icon={'undo'}
+                                disabled={inputsLoading || outputsLoading}
+                                onClick={() => onBackClick()}
+                            />
+                        </Tooltip>
                         <Button text={t('Submit')} disabled={!isMapperValid()} icon={'tick'} intent={Intent.SUCCESS} />
                     </ButtonGroup>
                 </div>
             </ActionsWrapper>
+            {addDialog.isOpen && <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />}
         </>
     );
 };
 
-export default compose(withInitialDataConsumer(), withTextContext())(MapperCreator);
+export default compose(withInitialDataConsumer(), withTextContext(), withMapperConsumer())(MapperCreator);

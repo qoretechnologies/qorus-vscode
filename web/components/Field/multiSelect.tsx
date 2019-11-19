@@ -20,6 +20,7 @@ export interface IMultiSelectField {
     t: TTranslator;
     simple: boolean;
     activeId: number;
+    default_items?: [];
 }
 
 const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldChange> = ({
@@ -33,8 +34,9 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     t,
     simple,
     activeId,
+    default_items,
 }) => {
-    const [items, setItems] = useState<any[]>([]);
+    const [items, setItems] = useState<any[]>(default_items || []);
     useMount(() => {
         if (!simple) {
             postMessage(get_message.action, { object_type: get_message.object_type });

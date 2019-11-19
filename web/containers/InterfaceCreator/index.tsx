@@ -9,6 +9,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import WorkflowsView, { CreatorWrapper } from './workflowsView';
 import Tab from './tab';
 import MapperCreator from '../Mapper';
+import MapperView from './mapperView';
 
 export interface ICreateInterface {
     targetDir: string;
@@ -69,7 +70,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                             />
                         </CreatorWrapper>
                     )}
-                    {initialData.subtab === 'mapper' && <MapperCreator />}
+                    {initialData.subtab === 'mapper' && <MapperView />}
                     {initialData.subtab === 'other' && (
                         <CreatorWrapper>
                             <InterfaceCreatorPanel

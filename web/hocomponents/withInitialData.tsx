@@ -19,6 +19,16 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
+                /*data.tab = 'CreateInterface';
+                data.subtab = 'mapper';
+                data.mapper = {
+                    name: 'test',
+                    target_dir: './',
+                    desc: 'test desc',
+                    version: 'heh',
+                    mappertype: 'kok',
+                };*/
+
                 setInitialData(data);
             });
 

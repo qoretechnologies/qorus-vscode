@@ -1,12 +1,11 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import InterfaceCreatorPanel, { SearchWrapper, ContentWrapper, ActionsWrapper, IField } from './panel';
+import React, { FunctionComponent } from 'react';
+import InterfaceCreatorPanel, { ContentWrapper, ActionsWrapper, IField } from './panel';
 import compose from 'recompose/compose';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
 import styled from 'styled-components';
-import { ButtonGroup, Button, Callout, Tooltip, Intent } from '@blueprintjs/core';
-import { MethodsContext } from '../../context/methods';
+import { ButtonGroup, Button, Tooltip, Intent } from '@blueprintjs/core';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import { omit } from 'lodash';
 import { StepsContext } from '../../context/steps';
@@ -14,17 +13,9 @@ import Content from '../../components/Content';
 import StepList from '../../components/StepList';
 import StepsCreator from './stepsCreator';
 import { isArray, reduce } from 'lodash';
-import WorkflowStepDependencyParser from '../../helpers/StepDependencyParser';
 import { Messages } from '../../constants/messages';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-
-const PanelWrapper = styled.div`
-    margin-top: 10px;
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-`;
 
 export const CreatorWrapper = styled.div`
     display: flex;

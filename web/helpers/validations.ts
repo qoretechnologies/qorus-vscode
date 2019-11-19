@@ -6,7 +6,7 @@ import uniqWith from 'lodash/uniqWith';
 import size from 'lodash/size';
 import jsyaml from 'js-yaml';
 
-export const validateField: (type: string, value: any, field: IField) => boolean = (type, value, field) => {
+export const validateField: (type: string, value: any, field?: IField) => boolean = (type, value, field) => {
     switch (type) {
         case 'string':
         case 'select-string':
