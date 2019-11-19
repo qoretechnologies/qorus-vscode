@@ -116,14 +116,18 @@ export class QorusProjectCodeInfo {
         this.edit_info[iface_kind][file].text_lines = contents.split(/\r?\n/);
     }
 
-    private addClassInfo(file: string, class_name_range: any, base_class_name_range?: any) {
+    private addClassInfo(
+            file: string,
+            class_def_range: vscode.Range,
+            class_name_range: vscode.Range,
+            base_class_name_range?: vscode.Range)
+    {
         const iface_kind = suffixToIfaceKind(path.extname(file));
 
         if (!this.edit_info[iface_kind][file]) {
             this.edit_info[iface_kind][file] = {};
         }
-        this.edit_info[iface_kind][file].class_name_range = class_name_range;
-        this.edit_info[iface_kind][file].base_class_name_range = base_class_name_range;
+        Object.assign(this.edit_info[iface_kind][file], {class_def_range, class_name_range, base_class_name_range});
     }
 
     addServiceMethodInfo(file: string, method_name: string, decl_range: any, name_range: any) {
@@ -146,6 +150,9 @@ export class QorusProjectCodeInfo {
         class_name === symbol.name.name
 
     addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
+        const class_range = loc2range(symbol.loc);
+        const name_range = loc2range(symbol.name.loc, 'class ');
+
         if (symbol.inherits && symbol.inherits.length) {
             let index = 0;
 
@@ -155,15 +162,15 @@ export class QorusProjectCodeInfo {
             }
 
             if (index > -1) {
-                this.addClassInfo(file, loc2range(symbol.name.loc, 'class '), loc2range(symbol.inherits[index].name.loc));
+                this.addClassInfo(file, class_range, name_range, loc2range(symbol.inherits[index].name.loc));
             } else {
                 if (message_on_mismatch) {
                     msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
                 }
-                this.addClassInfo(file, loc2range(symbol.name.loc, 'class '));
+                this.addClassInfo(file, class_range, name_range);
             }
         } else {
-            this.addClassInfo(file, loc2range(symbol.name.loc, 'class '));
+            this.addClassInfo(file, class_range, name_range);
         }
     }
 

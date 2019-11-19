@@ -1,4 +1,4 @@
-import { window } from 'vscode';
+import { window, Position } from 'vscode';
 import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
@@ -46,13 +46,14 @@ class ServiceCreator extends InterfaceCreator {
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = edit_info.text_lines;
+                code_lines = this.addServiceMethods(code_lines, edit_info, method_renaming_map.added);
                 code_lines = this.renameClassAndBaseClass(code_lines,
                                                           edit_info,
                                                           other_orig_data,
                                                           header_data);
                 code_lines = ServiceCreator.renameServiceMethods(code_lines, edit_info, method_renaming_map.renamed);
                 code_lines = ServiceCreator.removeServiceMethods(code_lines, edit_info, method_renaming_map.removed);
-                contents = this.addServiceMethods(code_lines, method_renaming_map.added);
+                contents = code_lines.join('\n');
                 break;
             case 'delete-method':
                 if (typeof(data.method_index) === 'undefined') {
@@ -183,7 +184,33 @@ class ServiceCreator extends InterfaceCreator {
         return lines;
     }
 
-    private addServiceMethods(lines: string[], added: string[]): string {
+    private addServiceMethods(lines: string[], edit_info: any, added: string[]): string[] {
+        const end: Position = edit_info.class_def_range.end;
+
+        const lines_before = lines.splice(0, end.line);
+        const line = lines.splice(0, 1)[0];
+        const line_before = line.substr(0, end.character - 1);
+        const line_after = line.substr(end.character - 1);
+        const lines_after = lines;
+
+        let new_code = line_before;
+        for (let name of added) {
+            new_code += '\n' + this.fillTemplate(service_method_template, { name }, false);
+        }
+        const new_code_lines = new_code.split(/\r?\n/);
+        if (new_code_lines[new_code_lines.length - 1] === '') {
+            new_code_lines.pop();
+        }
+
+        return [
+            ...lines_before,
+            ...new_code_lines,
+            line_after,
+            ...lines_after
+        ];
+    }
+
+    protected addServiceMethodsx(lines: string[], added: string[]): string {
         while (lines[lines.length - 1].trim() === '') {
             lines.pop();
         }
