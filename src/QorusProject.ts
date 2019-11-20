@@ -41,6 +41,9 @@ export class QorusProject {
         return fs.existsSync(this.config_file);
     }
 
+    private relativeDirPath = dir =>
+        dir === this.project_folder ? '.' : vscode.workspace.asRelativePath(dir, false)
+
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
         if (!this.configFileExists()) {
             return;
@@ -141,7 +144,7 @@ export class QorusProject {
     }
 
     updateConfigFromWebview(msg_data) {
-        const file_data = QorusProject.data2file(msg_data);
+        const file_data = this.data2file(msg_data);
         tree.reset(file_data.qorus_instances);
         this.writeConfig(file_data);
     }
@@ -203,10 +206,15 @@ export class QorusProject {
         };
     }
 
-    static data2file(data: any): any {
+    private data2file(data: any): any {
+        let fixed_source_dirs = {};
+        data.source_directories.forEach(dir => {
+            fixed_source_dirs[this.relativeDirPath(dir)] = true;
+        });
+
         let file_data: any = {
             qorus_instances: {},
-            source_directories: data.source_directories,
+            source_directories: Object.keys(fixed_source_dirs)
         };
 
         for (let env_id in data.qorus_instances) {
