@@ -1264,6 +1264,12 @@ msgstr "Running Qorus object parser failed: ${ msg }"
 msgid "DirInConfigDoesNotExist ${ dir }"
 msgstr "Directory ${ dir } in project configuration does not exist"
 
+msgid "InvalidDirInConfig ${ dir }"
+msgstr "Directory ${ dir } in project configuration is not valid and will be removed"
+
+msgid "FixedDirInConfig ${ dir } ${ fixed_dir }"
+msgstr "Directory ${ dir } in project configuration has been renamed to ${ fixed_dir }"
+
 msgid "AddMethod"
 msgstr "Add method"
 

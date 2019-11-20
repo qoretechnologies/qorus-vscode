@@ -53,24 +53,30 @@ export class QorusProject {
             const file_content = fs.readFileSync(this.config_file);
             const file_data = JSON.parse(file_content.toString());
 
-            if (!file_data.source_directories) {
-                file_data.source_directories = [];
-                this.writeConfig(file_data);
-            }
-
-            for (let dir of file_data.source_directories) {
-                if (!fs.existsSync(path.join(this.folder, dir))) {
-                    msg.error(t`DirInConfigDoesNotExist ${dir}`);
-                    if (onError) {
-                        onError();
+            let any_dir_change: boolean = false;
+            let fixed_dirs: any = {};
+            for (let dir of file_data.source_directories || []) {
+                const possibly_fixed_dir = this.relativeDirPath(dir);
+                if (fs.existsSync(path.join(this.folder, possibly_fixed_dir))) {
+                    fixed_dirs[possibly_fixed_dir] = true;
+                    if (possibly_fixed_dir !== dir) {
+                        msg.log(t`FixedDirInConfig ${dir} ${possibly_fixed_dir}`);
+                        any_dir_change = true;
                     }
-                    return;
                 }
+                else {
+                    msg.log(t`InvalidDirInConfig ${dir}`);
+                    any_dir_change = true;
+                }
+            }
+            if (any_dir_change) {
+                file_data.source_directories = Object.keys(fixed_dirs);
+                this.writeConfig(file_data);
             }
 
             validator.validateModel(file_data, 'qorus_config').then(
                 result => {
-                    if (result.errors == undefined || result.errors.length == 0) {
+                    if (!result.errors || result.errors.length == 0) {
                         onSuccess(file_data);
                     } else {
                         msg.error(result.humanReadable().toString());
@@ -108,7 +114,7 @@ export class QorusProject {
                         return;
                     }
                     const full_dir = uris[0].fsPath;
-                    const dir = vscode.workspace.asRelativePath(full_dir);
+                    const dir = vscode.workspace.asRelativePath(full_dir, false);
                     if (dir == full_dir) {
                         msg.error(t`NotProjectSubdir ${dir}`);
                         return;
