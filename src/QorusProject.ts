@@ -215,7 +215,10 @@ export class QorusProject {
     private data2file(data: any): any {
         let fixed_source_dirs = {};
         data.source_directories.forEach(dir => {
-            fixed_source_dirs[this.relativeDirPath(dir)] = true;
+            dir = this.relativeDirPath(dir);
+            if (fs.existsSync(path.join(this.folder, dir))) {
+                fixed_source_dirs[dir] = true;
+            }
         });
 
         let file_data: any = {
