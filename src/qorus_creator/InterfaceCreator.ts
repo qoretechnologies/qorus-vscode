@@ -112,6 +112,15 @@ export abstract class InterfaceCreator {
         const class_name = header_data['class-name'];
         const base_class_name = header_data['base-class-name'];
 
+        const {
+            class_name_range,
+            base_class_name_range,
+            num_inherited,
+            base_class_ord
+        } = edit_info;
+
+        const has_other_base_class: boolean = num_inherited > 1 || (num_inherited > 0 && !base_class_name_range);
+
         const replace = (position: Position, orig_str: string, new_name: string) => {
             let chars = lines[position.line].split('');
             chars.splice(position.character, orig_str.length, new_name);
@@ -119,19 +128,36 @@ export abstract class InterfaceCreator {
         }
 
         if (base_class_name && !orig_base_class_name) {
-            replace(edit_info.class_name_range.end, '', ` ${lang_inherits[this.lang]} ${base_class_name}`);
+            if (has_other_base_class) {
+                const line_no = class_name_range.start.line;
+                const regexp = new RegExp(` ${lang_inherits[this.lang]}\\s*`);
+                lines[line_no] = lines[line_no].replace(regexp, '')
+                replace(class_name_range.end, '', ` ${lang_inherits[this.lang]} ${base_class_name}, `);
+            } else {
+                replace(class_name_range.end, '', ` ${lang_inherits[this.lang]} ${base_class_name}`);
+            }
         }
         else if (!base_class_name && orig_base_class_name) {
-            const line_no = edit_info.base_class_name_range.start.line;
-            lines[line_no] = lines[line_no].replace(` ${lang_inherits[this.lang]}`, '')
-                                           .replace(` ${orig_base_class_name}`, '');
+            const line_no = base_class_name_range.start.line;
+            if (has_other_base_class) {
+                let regexp: RegExp;
+                if (base_class_ord > 0) {
+                    regexp = new RegExp(`,\\s*${orig_base_class_name}`);
+                } else {
+                    regexp = new RegExp(`${orig_base_class_name}\\s*,\\s?`);
+                }
+                lines[line_no] = lines[line_no].replace(regexp, '');
+            } else {
+                lines[line_no] = lines[line_no].replace(` ${lang_inherits[this.lang]}`, '')
+                                               .replace(` ${orig_base_class_name}`, '');
+            }
         }
         else if (base_class_name !== orig_base_class_name) {
-            replace(edit_info.base_class_name_range.start, orig_base_class_name, base_class_name);
+            replace(base_class_name_range.start, orig_base_class_name, base_class_name);
         }
 
         if (class_name !== orig_class_name) {
-            replace(edit_info.class_name_range.start, orig_class_name, class_name);
+            replace(class_name_range.start, orig_class_name, class_name);
         }
         return lines;
     }

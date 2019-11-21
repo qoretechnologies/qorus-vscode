@@ -85,10 +85,6 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
 
-        if (!data['base-class-name'] && symbol.inherits && symbol.inherits.length) {
-            data['base-class-name'] = symbol.inherits[0].name.name;
-        }
-
         data = this.fixData({ ...data });
         const range = loc2range(symbol.name.loc);
 
