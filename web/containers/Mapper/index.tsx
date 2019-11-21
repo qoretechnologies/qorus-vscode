@@ -16,6 +16,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import compose from 'recompose/compose';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import MapperFieldModal from './modal';
+import Provider from './provider';
 
 const FIELD_HEIGHT = 70;
 const FIELD_MARGIN = 15;
@@ -129,6 +130,7 @@ const StyledInfoMessage = styled.p`
 const StyledFieldHeader = styled.h3`
     margin: 0;
     padding: 0;
+    margin-bottom: 10px;
     text-align: center;
 `;
 
@@ -179,8 +181,14 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     setInputs,
     outputs,
     setOutputs,
-    providerData,
-    setProviderData,
+    inputChildren,
+    setInputChildren,
+    outputChildren,
+    setOutputChildren,
+    inputRecord,
+    setInputRecord,
+    outputRecord,
+    setOutputRecord,
     inputProvider,
     setInputProvider,
     outputProvider,
@@ -215,34 +223,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         [relations]
     );
 
-    useEffect(() => {
-        // Check if data providers are not set
-        if (!providerData) {
-            // Fetch the mapper data providers
-            (async () => {
-                // Get the data
-                const { data } = await initialData.fetchData('dataprovider/types');
-                // Save data
-                setProviderData(data);
-            })();
-        }
-    }, [initialData]);
-
-    const getDefaultItems = useCallback(
-        () => providerData && providerData.map(({ name, typename }) => ({ name: typename, desc: name })),
-        [providerData]
-    );
-
     if (!initialData.qorus_instance) {
         return (
-            <Callout title='Active instance not set' icon='warning-sign' intent='warning'>
-                Mappers can only be created with an active Qorus instance selected
+            <Callout title={t('MapperNoInstanceTitle')} icon="warning-sign" intent="warning">
+                {t('MapperNoInstance')}
             </Callout>
         );
-    }
-
-    if (!providerData) {
-        return <p> Loading data... </p>;
     }
 
     // This functions flattens the fields, by taking all the
@@ -275,41 +261,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             []
         );
 
-    const setFieldsFromType = async (type: string, isInput?: boolean): Promise<void> => {
-        // Reset the relations
-        setRelations([]);
-        // Set the loading
-        if (isInput) {
-            // Set the input provider
-            setInputProvider(type);
-            // Reset the inputs
-            setInputs(null);
-            // Set loading
-            setInputsLoading(true);
-        } else {
-            // Set the output provider
-            setOutputProvider(type);
-            // reset the outputs
-            setOutputs(null);
-            // Set loading
-            setOutputsLoading(true);
-        }
-        // Get the fields
-        const data = await initialData.fetchData(`dataprovider/types/${type}`);
-        // Save either input or output
-        if (isInput) {
-            // Set new input fields
-            setInputs(data.data.fields);
-            // Remove loading
-            setInputsLoading(false);
-        } else {
-            // Set new input fields
-            setOutputs(data.data.fields);
-            // Remove loading
-            setOutputsLoading(false);
-        }
-    };
-
     const removeRelation: (relation: IMapperRelation) => void = relation => {
         // Remove the selected relation
         setRelations((current: IMapperRelation[]): IMapperRelation[] =>
@@ -328,15 +279,33 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
     };
 
-    const reset: () => void = () => {
+    const clearInputs: (soft?: boolean) => void = soft => {
         // Reset all the data to default
+        if (!soft) {
+            setInputProvider(null);
+            setInputChildren([]);
+        }
         setRelations([]);
         setInputs(null);
-        setOutputs(null);
-        setInputProvider(null);
-        setOutputProvider(null);
         setInputsLoading(false);
+        setInputRecord(null);
+    };
+
+    const clearOutputs: (soft?: boolean) => void = soft => {
+        // Reset all the data to default
+        if (!soft) {
+            setOutputProvider(null);
+            setOutputChildren([]);
+        }
+        setRelations([]);
+        setOutputs(null);
         setOutputsLoading(false);
+        setOutputRecord(null);
+    };
+
+    const reset: () => void = () => {
+        clearInputs();
+        clearOutputs();
     };
 
     const isMapperValid: () => boolean = () => isFormValid && size(relations) !== 0;
@@ -370,6 +339,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 isOpen: true,
                 siblings: field.type.fields,
                 fieldData: edit ? field : null,
+                type,
                 onSubmit: data => {
                     edit ? editField(type, field.path, data) : addField(type, field.path, data);
                 },
@@ -379,9 +349,38 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
 
     return (
         <>
+            <Provider
+                type="inputs"
+                title={t('InputProvider')}
+                provider={inputProvider}
+                setProvider={setInputProvider}
+                record={inputRecord}
+                setRecord={setInputRecord}
+                nodes={inputChildren}
+                setChildren={setInputChildren}
+                isLoading={inputsLoading}
+                setIsLoading={setInputsLoading}
+                setFields={setInputs}
+                clear={clearInputs}
+            />
+            <Provider
+                type="outputs"
+                title={t('OutputProvider')}
+                provider={outputProvider}
+                setProvider={setOutputProvider}
+                record={outputRecord}
+                setRecord={setOutputRecord}
+                nodes={outputChildren}
+                setChildren={setOutputChildren}
+                isLoading={outputsLoading}
+                setIsLoading={setOutputsLoading}
+                setFields={setOutputs}
+                clear={clearOutputs}
+            />
             <div
                 style={{
                     width: '100%',
+                    marginTop: '15px',
                     padding: 10,
                     flex: 1,
                     overflow: 'auto',
@@ -395,20 +394,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 <StyledMapperWrapper>
                     <StyledFieldsWrapper>
                         <StyledFieldHeader>Input</StyledFieldHeader>
-                        <FieldWrapper style={{ marginBottom: '20px' }}>
-                            <Select
-                                name='input'
-                                disabled={inputsLoading}
-                                fill
-                                disab
-                                defaultItems={getDefaultItems()}
-                                onChange={(_name, value) => {
-                                    setFieldsFromType(value, true);
-                                }}
-                                value={inputProvider}
-                            />
-                        </FieldWrapper>
-                        {inputsLoading && <Spinner size={20} />}
                         {size(flattenedInputs) !== 0
                             ? map(flattenedInputs, (input, index) => (
                                   <MapperInput
@@ -423,11 +408,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   />
                               ))
                             : null}
-                        {size(flattenedInputs) === 0 && !inputsLoading ? (
-                            <StyledInfoMessage>
-                                {' '}
-                                No fields available. Please make sure input provider was selected{' '}
-                            </StyledInfoMessage>
+                        {size(flattenedInputs) === 0 ? (
+                            <StyledInfoMessage>{t('MapperNoInputFields')}</StyledInfoMessage>
                         ) : null}
                     </StyledFieldsWrapper>
                     <StyledConnectionsWrapper>
@@ -436,7 +418,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                 height={
                                     Math.max(flattenedInputs.length, flattenedOutputs.length) *
                                         (FIELD_HEIGHT + FIELD_MARGIN) +
-                                    91
+                                    31
                                 }
                             >
                                 {relations.map((relation: IMapperRelation) => (
@@ -447,7 +429,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             (flattenedInputs.findIndex(input => input.path === relation.input) + 1) *
                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                            91
+                                            31
                                         }
                                         x2={300}
                                         y2={
@@ -455,7 +437,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 1) *
                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                            91
+                                            31
                                         }
                                     />
                                 ))}
@@ -464,20 +446,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                     </StyledConnectionsWrapper>
                     <StyledFieldsWrapper>
                         <StyledFieldHeader>Output</StyledFieldHeader>
-                        <FieldWrapper style={{ marginBottom: '20px' }}>
-                            <Select
-                                name='input'
-                                disabled={outputsLoading}
-                                fill
-                                defaultIt
-                                defaultItems={getDefaultItems()}
-                                onChange={(_name, value) => {
-                                    setFieldsFromType(value);
-                                }}
-                                value={outputProvider}
-                            />
-                        </FieldWrapper>
-                        {outputsLoading && <Spinner size={20} />}
                         {size(flattenedOutputs) !== 0
                             ? map(flattenedOutputs, (output, index) => (
                                   <MapperOutput
@@ -493,11 +461,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   />
                               ))
                             : null}
-                        {size(flattenedOutputs) === 0 && !outputsLoading ? (
-                            <StyledInfoMessage>
-                                {' '}
-                                No fields available. Please make sure output provider was selected{' '}
-                            </StyledInfoMessage>
+                        {size(flattenedOutputs) === 0 ? (
+                            <StyledInfoMessage>{t('MapperNoOutputFields')}</StyledInfoMessage>
                         ) : null}
                     </StyledFieldsWrapper>
                 </StyledMapperWrapper>

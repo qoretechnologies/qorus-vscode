@@ -10,12 +10,15 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [showMapperConnections, setShowMapperConnections] = useState<boolean>(props.initialShow);
         const [inputs, setInputs] = useState<any>(null);
         const [outputs, setOutputs] = useState<any>(null);
-        const [providerData, setProviderData] = useState<any>(null);
         const [inputProvider, setInputProvider] = useState<string>(null);
         const [outputProvider, setOutputProvider] = useState<string>(null);
         const [relations, setRelations] = useState<IMapperRelation[]>([]);
         const [inputsLoading, setInputsLoading] = useState<boolean>(false);
         const [outputsLoading, setOutputsLoading] = useState<boolean>(false);
+        const [inputChildren, setInputChildren] = useState<any[]>([]);
+        const [outputChildren, setOutputChildren] = useState<any[]>([]);
+        const [inputRecord, setInputRecord] = useState<any>(null);
+        const [outputRecord, setOutputRecord] = useState<any>(null);
 
         const addField = (fieldsType, path, data) => {
             // Save the field setters to be easily accessible
@@ -58,8 +61,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setInputs,
                     outputs,
                     setOutputs,
-                    providerData,
-                    setProviderData,
+                    inputChildren,
+                    setInputChildren,
+                    outputChildren,
+                    setOutputChildren,
+                    inputRecord,
+                    setInputRecord,
+                    outputRecord,
+                    setOutputRecord,
                     inputProvider,
                     setInputProvider,
                     outputProvider,

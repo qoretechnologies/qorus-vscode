@@ -12,9 +12,10 @@ import SelectField from '../../components/Field/select';
 import Pull from '../../components/Pull';
 import useMount from 'react-use/lib/useMount';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import BooleanField from '../../components/Field/boolean';
 
 export interface IMapperFieldModalProps {
-    type: 'input' | 'output';
+    type: 'inputs' | 'outputs';
     onClose: () => any;
     onSubmit: (data: any) => any;
     t: TTranslator;
@@ -28,16 +29,41 @@ const defaultData: any = {
     desc: '',
     type: null,
     isCustom: true,
+    canBeNull: false,
 };
 
-const MapperFieldModal: FC<IMapperFieldModalProps> = ({ siblings, onClose, fieldData, onSubmit, t, initialData }) => {
-    const [field, setField] = useState(fieldData || defaultData);
+const MapperFieldModal: FC<IMapperFieldModalProps> = ({
+    type,
+    siblings,
+    onClose,
+    fieldData,
+    onSubmit,
+    t,
+    initialData,
+}) => {
+    const transformFieldData = fieldData => {
+        // Save the typename
+        const typename = fieldData.type.typename;
+        // Check if the field has a maybe type
+        if (typename.startsWith('*')) {
+            // Remove the asterisk
+            fieldData.type.typename = typename.replace('*', '');
+            // Set the maybe type
+            fieldData.canBeNull = true;
+        }
+        // Return the fieldData
+        return fieldData;
+    };
+
+    const [field, setField] = useState(fieldData ? transformFieldData(fieldData) : defaultData);
     const [types, setTypes] = useState(null);
 
     useMount(() => {
         (async () => {
             // Fetch the available types
-            const types: any = await initialData.fetchData('dataprovider/basetypes');
+            const types: any = await initialData.fetchData(
+                `dataprovider/basetypes${type === 'outputs' ? '?soft=1' : ''}`
+            );
             // Save the types
             setTypes(types.data);
         })();
@@ -74,6 +100,20 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({ siblings, onClose, field
         return isNameValid && isDescValid && isTypeValid;
     };
 
+    const handleSubmit = () => {
+        // Save the field
+        const newField = { ...field };
+        // Check if the field can be null
+        if (newField.canBeNull) {
+            // Transform the field type to the
+            // same maybe type
+            newField.type = types.find(type => type.typename === `*${newField.type.typename}`);
+        }
+        // Submit the field
+        onSubmit(newField);
+        onClose();
+    };
+
     return (
         <Dialog isOpen title={t('AddNewField')} onClose={onClose} style={{ paddingBottom: 0 }}>
             <Box top fill scrollY>
@@ -87,7 +127,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({ siblings, onClose, field
                                     isValid={validateField('string', field.name) && isUnique(field.name)}
                                 />
                                 <FieldInputWrapper>
-                                    <String onChange={onChange} name='name' value={field.name} />
+                                    <String onChange={onChange} name="name" value={field.name} />
                                 </FieldInputWrapper>
                             </FieldWrapper>
                             <FieldWrapper>
@@ -96,7 +136,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({ siblings, onClose, field
                                     isValid={validateField('string', field.desc)}
                                 />
                                 <FieldInputWrapper>
-                                    <String onChange={onChange} name='desc' value={field.desc} />
+                                    <String onChange={onChange} name="desc" value={field.desc} />
                                 </FieldInputWrapper>
                             </FieldWrapper>
                             <FieldWrapper>
@@ -104,14 +144,22 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({ siblings, onClose, field
                                 <FieldInputWrapper>
                                     <SelectField
                                         simple
-                                        defaultItems={types.map(type => ({
-                                            name: type.typename,
-                                            desc: '',
-                                        }))}
+                                        defaultItems={types
+                                            .filter(type => !type.typename.startsWith('*'))
+                                            .map(type => ({
+                                                name: type.typename,
+                                                desc: '',
+                                            }))}
                                         onChange={onTypeChange}
-                                        name='type.typename'
+                                        name="type.typename"
                                         value={field.type?.typename}
                                     />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                            <FieldWrapper>
+                                <FieldLabel label={t(`field-label-can-be-undefined`)} isValid />
+                                <FieldInputWrapper>
+                                    <BooleanField onChange={onChange} name="canBeNull" value={field.canBeNull} />
                                 </FieldInputWrapper>
                             </FieldWrapper>
                         </>
@@ -120,21 +168,18 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({ siblings, onClose, field
                 <ActionsWrapper style={{ marginTop: 20 }}>
                     <ButtonGroup fill>
                         <Button
-                            text='Reset'
-                            icon='history'
+                            text="Reset"
+                            icon="history"
                             onClick={() => {
-                                setField(defaultData);
+                                setField(fieldData ? transformFieldData(fieldData) : defaultData);
                             }}
                         />
                         <Button
-                            intent='success'
-                            text='Submit'
-                            icon='small-tick'
+                            intent="success"
+                            text="Submit"
+                            icon="small-tick"
                             disabled={!isFieldValid()}
-                            onClick={() => {
-                                onSubmit(field);
-                                onClose();
-                            }}
+                            onClick={handleSubmit}
                         />
                     </ButtonGroup>
                 </ActionsWrapper>

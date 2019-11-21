@@ -50,6 +50,12 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         }
     });
 
+    useEffect(() => {
+        if (defaultItems) {
+            setItems(defaultItems);
+        }
+    }, [defaultItems]);
+
     const handleSelectClick: (item: any) => void = item => {
         // Set the selected item
         onChange(name, item.name);
@@ -90,7 +96,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                 popoverClassName: 'custom-popover',
                 targetClassName: fill ? 'select-popover' : '',
             }}
-            className="select-field"
+            className={fill ? 'select-field' : ''}
             onItemSelect={(item: any) => handleSelectClick(item)}
             query={query}
             onQueryChange={(newQuery: string) => setQuery(newQuery)}

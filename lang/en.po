@@ -1646,3 +1646,30 @@ msgstr "Markdown preview"
 
 msgid "MyDirectories"
 msgstr "My Directories"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "UserConnections"
+msgstr "User connections"
+
+msgid "Datasources"
+msgstr "Datasource connections"
+
+msgid "InputProvider"
+msgstr "Select input provider"
+
+msgid "OutputProvider"
+msgstr "Select output provider"
+
+msgid "MapperNoInputFields"
+msgstr "No fields available. Please make sure input provider was selected"
+
+msgid "MapperNoOutputFields"
+msgstr "No fields available. Please make sure output provider was selected"
+
+msgid "MapperNoInstanceTitle"
+msgstr "Active instance not set"
+
+msgid "MapperNoInstance"
+msgstr "Mappers can only be created with an active Qorus instance selected"
