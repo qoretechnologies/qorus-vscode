@@ -200,12 +200,11 @@ export class QorusRequest extends QorusLogin {
 
     fetchData = ({id, method, url}) => {
         const onError = error => {
-            const err_msg = typeof error === 'string' ? error : JSON.stringify(error);
-            msg.error(err_msg);
+            msg.error(error);
             qorus_webview.postMessage({
                 action: 'fetch-data-complete',
                 id,
-                error: err_msg
+                error: error
             });
         };
 
