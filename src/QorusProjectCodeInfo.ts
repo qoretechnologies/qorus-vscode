@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as jsyaml from 'js-yaml';
 import { qore_vscode } from './qore_vscode';
 import { qorus_vscode } from './qorus_vscode';
-import { QorusProject } from './QorusProject';
+import { QorusProject, config_filename } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
@@ -75,12 +75,14 @@ export class QorusProjectCodeInfo {
     private job_classes = {};
     private workflow_classes = {};
     private step_classes = {};
+    private source_directories = [];
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
     private base_classes_files_watcher: vscode.FileSystemWatcher;
     private parsable_files_watcher: vscode.FileSystemWatcher;
     private module_files_watcher: vscode.FileSystemWatcher;
+    private config_file_watcher: vscode.FileSystemWatcher;
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -294,6 +296,15 @@ export class QorusProjectCodeInfo {
         for (const step_type of root_steps) {
             this.step_classes[step_type] = { [step_type]: true };
         }
+
+        this.file_tree = {};
+        this.dir_tree = {};
+        this.class_2_src = {};
+        this.inheritance_pairs = {};
+        this.yaml_data = {};
+        this.src_2_yaml = {};
+        this.yaml_2_src = {};
+        this.class_2_yaml = {};
     }
 
     private flattenedStepClasses = () => {
@@ -328,6 +339,30 @@ export class QorusProjectCodeInfo {
         this.module_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.qm');
         this.module_files_watcher.onDidCreate(() => this.update(['modules']));
         this.module_files_watcher.onDidDelete(() => this.update(['modules']));
+
+        this.config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
+        this.config_file_watcher.onDidCreate(() => this.checkSourceDirectoriesChange());
+        this.config_file_watcher.onDidChange(() => this.checkSourceDirectoriesChange());
+        this.config_file_watcher.onDidDelete(() => this.initInfo());
+    }
+
+    private checkSourceDirectoriesChange = () => {
+        this.project.validateConfigFileAndDo(file_data => {
+            const new_source_directories = file_data.source_directories || [];
+
+            let any_added = false;
+            const any_removed = this.source_directories.some(dir => !new_source_directories.includes(dir));
+
+            if (any_removed) {
+                this.initInfo();
+            } else {
+                any_added = new_source_directories.some(dir => !this.source_directories.includes(dir));
+            }
+
+            if (any_removed || any_added) {
+                this.update();
+            }
+        });
     }
 
     waitForPending(info_list: string[], timeout: number = 30000): Promise<void> {
@@ -478,14 +513,11 @@ export class QorusProjectCodeInfo {
 
     static isRootBaseClass = base_class_name => all_root_classes.includes(base_class_name);
 
-    update(info_list: string[] = info_keys, is_initial_update: boolean = false) {
+    private update = (info_list: string[] = info_keys, is_initial_update: boolean = false) => {
         this.project.validateConfigFileAndDo(file_data => {
             if (file_data.source_directories.length === 0) {
                 this.setAllPending(false);
                 return;
-            }
-            if (is_initial_update) {
-                this.setAllPending(true);
             }
 
             if (info_list.includes('file_tree')) {
