@@ -87,6 +87,8 @@ export const field = {
     },
     desc: {
         name: 'desc',
+        type: 'long-string',
+        markdown: true,
     },
     author: {
         name: 'author',

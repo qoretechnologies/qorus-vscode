@@ -7,7 +7,8 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
     field.desc,
     field.author,
     field.version,
-    { ... field.class_name,
+    {
+        ... field.class_name,
         mandatory: false,
         notify_on_add: true,
         notify_on_remove: true,
@@ -21,7 +22,8 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
     field.remote,
     field.groups,
     field.tags,
-    { ...field.classes,
+    {
+        ...field.classes,
         on_change: undefined,
         notify_on_remove: false,
     },

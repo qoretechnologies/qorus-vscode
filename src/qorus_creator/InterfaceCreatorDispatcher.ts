@@ -3,6 +3,7 @@ import { class_creator } from './ClassCreator';
 import { qorus_webview } from '../QorusWebview';
 import { classFields } from './common_constants';
 import { serviceFields, service_methods } from './service_constants';
+import { libraryFields, function_fields } from './function_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
@@ -30,6 +31,10 @@ class InterfaceCreatorDispatcher {
                 return mapperFields(params);
             case 'config-item':
                 return configItemFields(params.interface_info);
+            case 'library':
+                return libraryFields(params);
+            case 'function':
+                return function_fields;
             case 'other':
                 return otherFields(params);
             default:
