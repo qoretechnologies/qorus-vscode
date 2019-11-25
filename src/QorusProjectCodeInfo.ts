@@ -504,12 +504,6 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    private setAllPending(pending: boolean = true) {
-        for (const key of info_keys) {
-            this.info_update_pending[key] = pending;
-        }
-    }
-
     private logUpdateMessage(info_key: string) {
         if (!log_update_messages) {
             return;
@@ -523,16 +517,16 @@ export class QorusProjectCodeInfo {
 
     private update = (info_list: string[] = info_keys, is_initial_update: boolean = false) => {
         this.project.validateConfigFileAndDo(file_data => {
-            if (file_data.source_directories.length === 0) {
-                this.setAllPending(false);
-                return;
-            }
-
             if (info_list.includes('file_tree')) {
                 setTimeout(() => {
                     this.updateFileTree(file_data.source_directories);
                 }, 0);
             }
+
+            if (file_data.source_directories.length === 0) {
+                return;
+            }
+
             if (info_list.includes('lang_client')) {
                 setTimeout(() => {
                     this.updateLanguageClientInfo(file_data.source_directories);
