@@ -226,6 +226,9 @@ class QorusWebview {
                         case 'creator-set-fields':
                             project.code_info.setFields(message);
                             break;
+                        case 'get-list-of-interfaces':
+                            project.code_info.getListOfInterfaces(message.iface_kind);
+                            break;
                         case 'get-interface-data':
                             project.code_info.getInterfaceData(message);
                             break;

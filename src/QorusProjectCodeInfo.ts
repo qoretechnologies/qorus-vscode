@@ -235,6 +235,14 @@ export class QorusProjectCodeInfo {
         return this.edit_info[iface_kind][file];
     }
 
+    getListOfInterfaces = iface_kind => {
+        const interfaces = this.yamlDataByType(iface_kind);
+        return Object.keys(interfaces).map(name => ({
+            name,
+            desc: interfaces[name].desc
+        }));
+    }
+
     getInterfaceData = ({ iface_kind, name, include_tabs }) => {
         const name_key = object_types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
         this.waitForPending(['yaml', 'edit_info']).then(() =>
