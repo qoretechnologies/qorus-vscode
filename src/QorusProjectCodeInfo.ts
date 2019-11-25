@@ -236,11 +236,19 @@ export class QorusProjectCodeInfo {
     }
 
     getListOfInterfaces = iface_kind => {
-        const interfaces = this.yamlDataByType(iface_kind);
-        return Object.keys(interfaces).map(name => ({
-            name,
-            desc: interfaces[name].desc
-        }));
+        this.waitForPending(['yaml']).then(() => {
+            const yaml_data = this.yamlDataByType(iface_kind);
+            const interfaces = Object.keys(yaml_data).map(name => ({
+                name,
+                desc: yaml_data[name].desc
+            }));
+
+            qorus_webview.postMessage({
+                action: 'return-list-of-interfaces',
+                iface_kind: iface_kind,
+                interfaces: sortBy(interfaces, ['name'])
+            })
+        });
     }
 
     getInterfaceData = ({ iface_kind, name, include_tabs }) => {
