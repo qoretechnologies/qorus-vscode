@@ -33,7 +33,7 @@ class InterfaceCreatorDispatcher {
                 return configItemFields(params.interface_info);
             case 'library':
                 return libraryFields(params);
-            case 'function':
+            case 'functions':
                 return function_fields;
             case 'other':
                 return otherFields(params);
