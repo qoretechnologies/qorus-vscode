@@ -595,7 +595,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             if (type === 'service-methods') {
                 iface_kind = 'service';
             } else if (type === 'mapper-functions') {
-                iface_kind = 'library';
+                iface_kind = 'mapper-library';
             }
             // Config items use the parent type
             if (parent) {
