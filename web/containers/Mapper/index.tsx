@@ -9,6 +9,7 @@ import { Callout, Spinner, ButtonGroup, Tooltip, Button, Intent, Dialog } from '
 import size from 'lodash/size';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
+import filter from 'lodash/filter';
 import get from 'lodash/get';
 import findIndex from 'lodash/findIndex';
 import { TTranslator } from '../../App';
@@ -59,6 +60,16 @@ export const StyledMapperField = styled.div`
     background-color: #fff;
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
     position: relative;
+    cursor: pointer;
+
+    ${({ input }) =>
+        input &&
+        css`
+            &:hover {
+                transform: scale(1.05);
+                margin-left: 10px;
+            }
+        `};
 
     ${({ childrenCount }) =>
         childrenCount !== 0 &&
@@ -157,8 +168,8 @@ export interface IMapperCreatorProps {
     setInputProvider: (provider: string) => void;
     outputProvider: string;
     setOutputProvider: (provider: string) => void;
-    relations: IMapperRelation[];
-    setRelations: (relations: IMapperRelation[]) => void;
+    relations: any;
+    setRelations: (relations: any) => void;
     inputsLoading: boolean;
     setInputsLoading: (loading: boolean) => void;
     outputsLoading: boolean;
@@ -167,6 +178,8 @@ export interface IMapperCreatorProps {
     addField: (fieldsType: string, path: string, name: string, data?: any) => void;
     editField: (fieldsType: string, path: string, name: string, data?: any) => void;
     isFormValid: boolean;
+    setMapperKeys: (keys: any) => void;
+    mapperKeys: any;
 }
 
 export interface IMapperRelation {
@@ -203,25 +216,41 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     isFormValid,
     addField,
     editField,
+    setMapperKeys,
+    mapperKeys,
 }) => {
     const [addDialog, setAddDialog] = useState({});
+    const [mappingDialog, setMappingDialog] = useState({});
     const handleDrop = useCallback(
         (inputPath: string, outputPath: string): void => {
-            // Check if this relation already exists
-            const relation = relations.find(
-                (relation: IMapperRelation): boolean => relation.input === inputPath && relation.output === outputPath
-            );
-            // Do nothing if it exists
-            if (!relation) {
-                // Add new relation
-                setRelations((current: IMapperRelation[]): IMapperRelation[] => [
-                    ...current,
-                    { input: inputPath, output: outputPath },
-                ]);
-            }
+            saveRelationData(outputPath, { name: inputPath });
         },
         [relations]
     );
+
+    const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
+        setRelations(current => {
+            const result = { ...current };
+            // Check if this output already exists
+            if (!result[outputPath]) {
+                // Create it
+                result[outputPath] = {};
+            }
+            // Add / merge the new data
+            return reduce(
+                result,
+                (newRelations, relation, output) => {
+                    // Check if the output matches
+                    if (output === outputPath) {
+                        relation = merge ? { ...relation, ...data } : data;
+                    }
+                    // Return new data
+                    return { ...newRelations, [output]: relation };
+                },
+                {}
+            );
+        });
+    };
 
     if (!initialData.qorus_instance) {
         return (
@@ -261,17 +290,26 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             []
         );
 
-    const removeRelation: (relation: IMapperRelation) => void = relation => {
+    const removeRelation: (outputPath: string) => void = outputPath => {
         // Remove the selected relation
-        setRelations((current: IMapperRelation[]): IMapperRelation[] =>
-            current.filter(
-                (rel: IMapperRelation): boolean => rel.input !== relation.input || rel.output !== relation.output
+        // @ts-ignore
+        setRelations((current: any): any =>
+            reduce(
+                current,
+                (newRelations, rel: any, relationOutput): boolean => {
+                    if (relationOutput === outputPath) {
+                        return { ...newRelations };
+                    }
+                    return { ...newRelations, [relationOutput]: rel };
+                },
+                {}
             )
         );
     };
 
     const removeFieldRelations: (path: string) => void = path => {
         // Remove the selected relation
+        // @ts-ignore
         setRelations((current: IMapperRelation[]): IMapperRelation[] =>
             current.filter(
                 (rel: IMapperRelation): boolean => !rel.input.startsWith(path) && !rel.output.startsWith(path)
@@ -285,7 +323,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             setInputProvider(null);
             setInputChildren([]);
         }
-        setRelations([]);
+        setRelations({});
         setInputs(null);
         setInputsLoading(false);
         setInputRecord(null);
@@ -297,7 +335,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             setOutputProvider(null);
             setOutputChildren([]);
         }
-        setRelations([]);
+        setRelations({});
         setOutputs(null);
         setOutputsLoading(false);
         setOutputRecord(null);
@@ -347,6 +385,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     };
 
+    const handleManageClick = output => {
+        setMappingDialog({
+            isOpen: true,
+            relationData: relations[output.path],
+            mapperKeys,
+        });
+    };
+
+    console.log(relations);
+
     return (
         <>
             <Provider
@@ -376,6 +424,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 setIsLoading={setOutputsLoading}
                 setFields={setOutputs}
                 clear={clearOutputs}
+                setMapperKeys={setMapperKeys}
             />
             <div
                 style={{
@@ -421,20 +470,19 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                     31
                                 }
                             >
-                                {relations.map((relation: IMapperRelation) => (
+                                {map(relations, (relation, outputPath) => (
                                     <StyledLine
-                                        onClick={() => removeRelation(relation)}
+                                        onClick={() => removeRelation(outputPath)}
                                         x1={0}
                                         y1={
-                                            (flattenedInputs.findIndex(input => input.path === relation.input) + 1) *
+                                            (flattenedInputs.findIndex(input => input.path === relation.name) + 1) *
                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
                                             31
                                         }
                                         x2={300}
                                         y2={
-                                            (flattenedOutputs.findIndex(output => output.path === relation.output) +
-                                                1) *
+                                            (flattenedOutputs.findIndex(output => output.path === outputPath) + 1) *
                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
                                             31
@@ -451,6 +499,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   <MapperOutput
                                       key={output.path}
                                       name={output.name}
+                                      hasRelation={!!relations[output.path]}
                                       {...output}
                                       field={output}
                                       onDrop={handleDrop}
@@ -458,6 +507,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       accepts={output.type.types_accepted}
                                       lastChildIndex={getLastChildIndex(output, 'outputs') - index}
                                       onClick={handleClick('outputs')}
+                                      onManageClick={handleManageClick(output)}
                                   />
                               ))
                             : null}
@@ -491,6 +541,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 </div>
             </ActionsWrapper>
             {addDialog.isOpen && <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />}
+            {mappingDialog.isOpen && <MapperFieldModal t={t} onClose={() => setMappingDialog({})} {...mappingDialog} />}
         </>
     );
 };

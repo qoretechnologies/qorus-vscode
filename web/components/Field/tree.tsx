@@ -54,7 +54,10 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
             // Multiple files can be selected
             if (value.find(sel => sel.name === usedPath)) {
                 // Remove the selected item
-                onChange(name, value.filter(path => path.name !== usedPath));
+                onChange(
+                    name,
+                    value.filter(path => path.name !== usedPath)
+                );
             } else {
                 onChange(name, [...value, { name: usedPath }]);
             }

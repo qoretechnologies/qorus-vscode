@@ -21,6 +21,7 @@ import { LoginContainer } from './login/Login';
 import ProjectConfig, { ProjectConfigContainer } from './project_config/ProjectConfig';
 import withMapper from './hocomponents/withMapper';
 import Pull from './components/Pull';
+import withFunctions from './hocomponents/withFunctions';
 
 const StyledApp = styled.div`
     display: flex;
@@ -191,6 +192,7 @@ export default hot(
         withInitialData(),
         withFields(),
         withMethods(),
+        withFunctions(),
         withSteps(),
         withMapper()
     )(App)

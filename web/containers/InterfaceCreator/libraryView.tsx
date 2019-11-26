@@ -6,9 +6,9 @@ import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
 import styled from 'styled-components';
 import { ButtonGroup, Button, Callout } from '@blueprintjs/core';
-import { MethodsContext } from '../../context/methods';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import { omit } from 'lodash';
+import { FunctionsContext } from '../../context/functions';
 
 const MethodSelector = styled.div`
     width: 100%;
@@ -116,92 +116,85 @@ const CreatorWrapper = styled.div`
     overflow: hidden;
 `;
 
-export interface IServicesView {
+export interface ILibraryView {
     targetDir: string;
     t: TTranslator;
     isSubItemValid: (id: number, type: string) => boolean;
     removeSubItemFromFields: (id: number, type: string) => void;
-    service: any;
+    library: any;
     interfaceId: { [key: string]: string };
 }
 
-const ServicesView: FunctionComponent<IServicesView> = ({
+const LibraryView: FunctionComponent<ILibraryView> = ({
     t,
     isSubItemValid,
     removeSubItemFromFields,
-    service,
+    library,
     interfaceId,
 }) => {
     return (
-        <MethodsContext.Consumer>
+        <FunctionsContext.Consumer>
             {({
-                showMethods,
-                methods,
-                setActiveMethod,
-                activeMethod,
-                methodsCount,
-                setMethods,
-                setMethodsCount,
-                handleAddMethodClick,
-                setShowMethods,
-                methodsData,
+                showFunctions,
+                functions,
+                setActiveFunction,
+                activeFunction,
+                functionsCount,
+                setFunctions,
+                setFunctionsCount,
+                handleAddFunctionClick,
+                setShowFunctions,
+                functionsData,
             }) => (
                 <CreatorWrapper>
-                    <Callout
-                        icon="info-sign"
-                        title={showMethods ? t('CreateMethodsTipTitle') : t('CreateServiceTipTitle')}
-                        intent="primary"
-                    >
-                        {showMethods ? t('CreateMethodsTip') : t('CreateServiceTip')}
-                    </Callout>
                     <PanelWrapper>
-                        {!showMethods && (
+                        {!showFunctions && (
                             <InterfaceCreatorPanel
-                                type={'service'}
+                                type="mapper-library"
                                 submitLabel={t('Next')}
                                 hasConfigManager
                                 onSubmit={() => {
-                                    setActiveMethod(1);
-                                    setShowMethods(true);
+                                    setActiveFunction(1);
+                                    setShowFunctions(true);
                                 }}
-                                data={service && omit(service, 'methods')}
-                                isEditing={!!service}
+                                data={library && omit(library, 'functions')}
+                                isEditing={!!library}
                                 onDataFinishLoading={
-                                    service && activeMethod
+                                    library && activeFunction
                                         ? () => {
-                                              setShowMethods(true);
+                                              setShowFunctions(true);
                                           }
                                         : null
                                 }
                             />
                         )}
-                        {showMethods && (
+                        {showFunctions && (
                             <>
-                                <SidePanel title={t('AddMethodsTitle')}>
+                                <SidePanel title={t('AddFunctionsTitle')}>
                                     <ContentWrapper>
-                                        {methods.map((method: { id: number; name?: string }, index: number) => (
+                                        {functions.map((fun: { id: number; name?: string }, index: number) => (
                                             <MethodSelector
-                                                key={method.id}
-                                                active={method.id === activeMethod}
-                                                valid={isSubItemValid(method.id, 'service-methods')}
-                                                onClick={() => setActiveMethod(method.id)}
+                                                key={fun.id}
+                                                active={fun.id === activeFunction}
+                                                valid={isSubItemValid(fun.id, 'mapper-functions')}
+                                                onClick={() => setActiveFunction(fun.id)}
                                             >
-                                                {method.name || `${t('Method')} ${method.id}`}
-                                                {method.id === activeMethod && (
+                                                {fun.name || `${t('Function')} ${fun.id}`}
+                                                {fun.id === activeFunction && (
                                                     <>
                                                         <Selected />
                                                     </>
                                                 )}
-                                                {methodsCount !== 1 && (
+                                                {functionsCount !== 1 && (
                                                     <RemoveButton
                                                         onClick={() => {
-                                                            setMethods(current =>
+                                                            setFunctions(current =>
                                                                 current.filter(
-                                                                    currentMethod => currentMethod.id !== method.id
+                                                                    currentFunction => currentFunction.id !== fun.id
                                                                 )
                                                             );
-                                                            removeSubItemFromFields(method.id, 'service-methods');
-                                                            setMethodsCount((current: number) => current - 1);
+                                                            removeSubItemFromFields(fun.id, 'mapper-functions');
+                                                            setFunctionsCount((current: number) => current - 1);
                                                         }}
                                                     />
                                                 )}
@@ -211,9 +204,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                     <ActionsWrapper>
                                         <ButtonGroup fill>
                                             <Button
-                                                text={t('AddMethod')}
+                                                text={t('AddFunction')}
                                                 icon={'plus'}
-                                                onClick={handleAddMethodClick}
+                                                onClick={handleAddFunctionClick}
                                             />
                                         </ButtonGroup>
                                     </ActionsWrapper>
@@ -222,24 +215,24 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                     stepOneTitle={t('SelectFieldsSecondStep')}
                                     stepTwoTitle={t('FillDataThirdStep')}
                                     onBackClick={() => {
-                                        setActiveMethod(null);
-                                        setShowMethods(false);
+                                        setActiveFunction(null);
+                                        setShowFunctions(false);
                                     }}
-                                    initialInterfaceId={service ? service.interfaceId : interfaceId.service}
-                                    type={'service-methods'}
-                                    activeId={activeMethod}
-                                    isEditing={!!service}
-                                    allMethodsData={methodsData}
-                                    methodsList={methods}
-                                    data={methodsData && methodsData.find(method => method.id === activeMethod)}
-                                    onNameChange={(methodId: number, name: string) => {
-                                        setMethods((currentMethods: { id: number; name: string }[]) =>
-                                            currentMethods.reduce((cur, method: { id: number; name: string }) => {
-                                                if (methodId === method.id) {
-                                                    method.name = name;
+                                    initialInterfaceId={library ? library.interfaceId : interfaceId.library}
+                                    type="mapper-functions"
+                                    activeId={activeFunction}
+                                    isEditing={!!library}
+                                    allMethodsData={functionsData}
+                                    methodsList={functions}
+                                    data={functionsData && functionsData.find(fun => fun.id === activeFunction)}
+                                    onNameChange={(functionId: number, name: string) => {
+                                        setFunctions((currentFunctions: { id: number; name: string }[]) =>
+                                            currentFunctions.reduce((cur, fun: { id: number; name: string }) => {
+                                                if (functionId === fun.id) {
+                                                    fun.name = name;
                                                 }
 
-                                                return [...cur, method];
+                                                return [...cur, fun];
                                             }, [])
                                         );
                                     }}
@@ -249,8 +242,8 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                     </PanelWrapper>
                 </CreatorWrapper>
             )}
-        </MethodsContext.Consumer>
+        </FunctionsContext.Consumer>
     );
 };
 
-export default compose(withTextContext(), withFieldsConsumer())(ServicesView);
+export default compose(withTextContext(), withFieldsConsumer())(LibraryView);

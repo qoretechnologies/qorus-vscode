@@ -1673,3 +1673,9 @@ msgstr "Active instance not set"
 
 msgid "MapperNoInstance"
 msgstr "Mappers can only be created with an active Qorus instance selected"
+
+msgid "AddFunctionsTitle"
+msgstr "1. Add new functions"
+
+msgid "AddFunction"
+msgstr "Add function"

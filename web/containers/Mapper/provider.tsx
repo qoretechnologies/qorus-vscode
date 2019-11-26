@@ -77,10 +77,12 @@ const MapperProvider: FC<IProviderProps> = ({
     setFields,
     clear,
     initialData: { fetchData },
+    setMapperKeys,
     title,
+    type,
 }) => {
-    useEffect(() => {
-        if (provider) {
+    const handleProviderChange = provider => {
+        setProvider(current => {
             // Fetch the url of the provider
             (async () => {
                 // Clear the data
@@ -110,8 +112,10 @@ const MapperProvider: FC<IProviderProps> = ({
                     },
                 ]);
             })();
-        }
-    }, [provider]);
+            // Set the provider
+            return provider;
+        });
+    };
 
     const handleChildFieldChange: (value: string, url: string, itemIndex: number, suffix?: string) => void = async (
         value,
@@ -169,6 +173,10 @@ const MapperProvider: FC<IProviderProps> = ({
                 if (data.has_record || !providers[provider].requiresRecord) {
                     (async () => {
                         setIsLoading(true);
+                        if (type === 'outputs') {
+                            // Save the mapper keys
+                            setMapperKeys(data.mapper_keys);
+                        }
                         // Fetch the record
                         const record = await fetchData(`${url}/${value}${suffix}${providers[provider].recordSuffix}`);
                         // Remove loading
@@ -183,8 +191,6 @@ const MapperProvider: FC<IProviderProps> = ({
         });
     };
 
-    console.log(nodes);
-
     const getDefaultItems = useCallback(() => map(providers, ({ name }) => ({ name, desc: '' })), []);
 
     return (
@@ -196,7 +202,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     disabled={isLoading}
                     defaultItems={getDefaultItems()}
                     onChange={(_name, value) => {
-                        setProvider(value);
+                        handleProviderChange(value);
                     }}
                     value={provider}
                 />

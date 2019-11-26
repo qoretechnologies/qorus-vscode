@@ -4,11 +4,22 @@ import { FieldContext } from '../context/fields';
 import { isArray } from 'util';
 import { every, reduce } from 'lodash';
 
+const getInterfaceCollectionType: (type: string) => [] | {} = type => {
+    switch (type) {
+        case 'service-methods':
+        case 'mapper-functions':
+            return {};
+        default:
+            return [];
+    }
+};
+
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [interfaceId, _setInterfaceId] = useState<{ [key: string]: string }>({
             service: null,
+            ['mapper-library']: null,
             workflow: null,
             job: null,
             class: null,
@@ -18,7 +29,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [fields, setLocalFields] = useState<{ [key: string]: IField[] | { [key: string]: IField[] } }>({
             service: [],
+            ['mapper-library']: [],
             ['service-methods']: {},
+            ['mapper-functions']: {},
             workflow: [],
             job: [],
             class: [],
@@ -31,7 +44,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             [key: string]: IField[] | { [key: string]: IField[] };
         }>({
             service: [],
+            ['mapper-library']: [],
             ['service-methods']: {},
+            ['mapper-functions']: {},
             workflow: [],
             job: [],
             class: [],
@@ -42,7 +57,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [query, setLocalQuery] = useState<{ [key: string]: string }>({
             service: '',
+            ['mapper-library']: '',
             ['service-methods']: '',
+            ['mapper-functions']: '',
             workflow: '',
             job: '',
             class: '',
@@ -55,6 +72,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             service: '',
             ['service-methods']: '',
             workflow: '',
+            ['mapper-functions']: '',
+            ['mapper-library']: '',
             job: '',
             class: '',
             step: '',
@@ -68,7 +87,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 setLocalSelectedFields(current => {
                     const newResult = { ...current };
                     // Reset the fields
-                    newResult[type] = type === 'service-methods' ? {} : [];
+                    newResult[type] = getInterfaceCollectionType(type);
                     return newResult;
                 });
 
@@ -81,7 +100,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
                 const newResult = { ...current };
                 // Reset the fields
-                newResult[type] = type === 'service-methods' ? {} : [];
+                newResult[type] = getInterfaceCollectionType(type);
                 return newResult;
             });
         };
@@ -155,26 +174,26 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         // Checks if method is valid
-        const isMethodValid: (methodId: number) => boolean = methodId => {
-            if (methodId) {
+        const isSubItemValid: (itemId: number, type: string) => boolean = (itemId, type) => {
+            if (itemId) {
                 return (
-                    selectedFields['service-methods'][methodId] &&
-                    selectedFields['service-methods'][methodId].every(({ isValid }: IField) => isValid)
+                    selectedFields[type][itemId] && selectedFields[type][itemId].every(({ isValid }: IField) => isValid)
                 );
             }
         };
+
         // Remove method from the methods
-        const removeMethod: (methodId: number) => void = methodId => {
+        const removeSubItem: (itemId: number, type: string) => void = (itemId, type) => {
             setLocalSelectedFields(current => {
                 const newResult = { ...current };
                 // Remove the method with the provided id
-                newResult['service-methods'] = reduce(
-                    newResult['service-methods'],
-                    (newMethods, methodData, id) => {
-                        let result = { ...newMethods };
+                newResult[type] = reduce(
+                    newResult[type],
+                    (newItems, itemData, id) => {
+                        let result = { ...newItems };
                         // The id does not match so add the method
-                        if (methodId !== parseInt(id, 10)) {
-                            result = { ...result, [id]: methodData };
+                        if (itemId !== parseInt(id, 10)) {
+                            result = { ...result, [id]: itemData };
                         }
                         // Return new methods
                         return result;
@@ -198,8 +217,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setQuery,
                     selectedQuery,
                     isFormValid,
-                    isMethodValid,
-                    removeMethodFromFields: removeMethod,
+                    isSubItemValid,
+                    removeSubItemFromFields: removeSubItem,
                     resetFields,
                     interfaceId,
                     setInterfaceId,

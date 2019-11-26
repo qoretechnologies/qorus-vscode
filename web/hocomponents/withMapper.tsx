@@ -3,6 +3,7 @@ import mapProps from 'recompose/mapProps';
 import { isArray, reduce, get, set, unset } from 'lodash';
 import { MapperContext } from '../context/mapper';
 import { IMapperRelation } from '../containers/Mapper';
+import useMount from 'react-use/lib/useMount';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -12,13 +13,33 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [outputs, setOutputs] = useState<any>(null);
         const [inputProvider, setInputProvider] = useState<string>(null);
         const [outputProvider, setOutputProvider] = useState<string>(null);
-        const [relations, setRelations] = useState<IMapperRelation[]>([]);
+        const [relations, setRelations] = useState<{
+            [outputPath: string]: {
+                name?: string;
+                code?: string;
+                constant?: string;
+                sequence?: string;
+            };
+        }>({});
         const [inputsLoading, setInputsLoading] = useState<boolean>(false);
         const [outputsLoading, setOutputsLoading] = useState<boolean>(false);
         const [inputChildren, setInputChildren] = useState<any[]>([]);
         const [outputChildren, setOutputChildren] = useState<any[]>([]);
         const [inputRecord, setInputRecord] = useState<any>(null);
         const [outputRecord, setOutputRecord] = useState<any>(null);
+        const [mapperKeys, setMapperKeys] = useState<any>(null);
+
+        useMount(() => {
+            (async () => {
+                const data = await props.fetchData('remote/user/rest-billing-demo/provider/accounts/GET/request');
+                const record = await props.fetchData(
+                    'remote/user/rest-billing-demo/provider/accounts/GET/request/record'
+                );
+                setInputs(record.data);
+                setOutputs(record.data);
+                setMapperKeys(data.mapper_keys);
+            })();
+        });
 
         const addField = (fieldsType, path, data) => {
             // Save the field setters to be easily accessible
@@ -83,6 +104,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setShowMapperConnections,
                     addField,
                     editField,
+                    mapperKeys,
+                    setMapperKeys,
                 }}
             >
                 <Component {...props} />

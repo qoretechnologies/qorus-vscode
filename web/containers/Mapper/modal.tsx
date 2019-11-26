@@ -43,11 +43,11 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 }) => {
     const transformFieldData = fieldData => {
         // Save the typename
-        const typename = fieldData.type.typename;
+        const typename = fieldData.type.name;
         // Check if the field has a maybe type
         if (typename.startsWith('*')) {
             // Remove the asterisk
-            fieldData.type.typename = typename.replace('*', '');
+            fieldData.type.name = typename.replace('*', '');
             // Set the maybe type
             fieldData.canBeNull = true;
         }
@@ -81,7 +81,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         setField(current => {
             const newField = { ...current };
             // Find the type based on the name
-            const fieldType = types.find(type => type.typename === value);
+            const fieldType = types.find(type => type.name === value);
             // Set the type
             newField.type = fieldType;
             // Return new field
@@ -107,7 +107,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         if (newField.canBeNull) {
             // Transform the field type to the
             // same maybe type
-            newField.type = types.find(type => type.typename === `*${newField.type.typename}`);
+            newField.type = types.find(type => type.name === `*${newField.type.name}`);
         }
         // Submit the field
         onSubmit(newField);
@@ -145,14 +145,14 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                     <SelectField
                                         simple
                                         defaultItems={types
-                                            .filter(type => !type.typename.startsWith('*'))
+                                            .filter(type => !type.name.startsWith('*'))
                                             .map(type => ({
-                                                name: type.typename,
+                                                name: type.name,
                                                 desc: '',
                                             }))}
                                         onChange={onTypeChange}
-                                        name="type.typename"
-                                        value={field.type?.typename}
+                                        name="type.name"
+                                        value={field.type?.name}
                                     />
                                 </FieldInputWrapper>
                             </FieldWrapper>

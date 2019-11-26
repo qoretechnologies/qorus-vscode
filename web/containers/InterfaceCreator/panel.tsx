@@ -540,10 +540,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (!onSubmit || forceSubmit) {
             let newData: { [key: string]: any };
             // If this is service methods
-            if (type === 'service-methods') {
+            if (type === 'service-methods' || type === 'mapper-functions') {
+                const intrfType = type === 'service-methods' ? 'service' : 'mapper-library';
+                const subItemType = type === 'service-methods' ? 'methods' : 'mapper-functions';
                 // Get the service data
                 newData = reduce(
-                    allSelectedFields.service,
+                    allSelectedFields[intrfType],
                     (result: { [key: string]: any }, field: IField) => ({
                         ...result,
                         [field.name]: field.value,
@@ -551,7 +553,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
                 // Add the methods
-                newData.methods = map(allSelectedFields['service-methods'], serviceMethod => {
+                newData[subItemType] = map(allSelectedFields[type], serviceMethod => {
                     return reduce(
                         serviceMethod,
                         (result: { [key: string]: any }, field: IField) => ({
@@ -566,15 +568,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     allMethodsData.forEach(method => {
                         // Check if this method exists in the
                         // data hash also check if the method has been deleted
-                        if (!newData.methods.find(m => m.orig_name === method.name)) {
+                        if (!newData[subItemType].find(m => m.orig_name === method.name)) {
                             // Add this method
-                            newData.methods.push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
+                            newData[subItemType].push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
                         }
                     });
                 }
                 // Filter deleted methods
                 if (methodsList) {
-                    newData.methods = newData.methods.filter(m => methodsList.find(ml => ml.name === m.name));
+                    newData[subItemType] = newData[subItemType].filter(m => methodsList.find(ml => ml.name === m.name));
                 }
             } else {
                 // Build the finished object
@@ -592,6 +594,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             // Service methods use the service type
             if (type === 'service-methods') {
                 iface_kind = 'service';
+            } else if (type === 'mapper-functions') {
+                iface_kind = 'library';
             }
             // Config items use the parent type
             if (parent) {
@@ -620,7 +624,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                     iface_kind,
                     data: newData,
-                    orig_data: type === 'service-methods' ? initialData.service : data,
+                    orig_data:
+                        type === 'service-methods'
+                            ? initialData.service
+                            : type === 'mapper-functions'
+                            ? initialData.library
+                            : data,
                     open_file_on_success: openFileOnSubmit !== false,
                     iface_id: interfaceId,
                 });

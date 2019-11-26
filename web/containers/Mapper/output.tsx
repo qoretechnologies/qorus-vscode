@@ -12,11 +12,13 @@ export interface IMapperOutputProps {
     isChild: boolean;
     level: number;
     onClick: any;
+    onManageClick: any;
     lastChildIndex: number;
     type: any;
     field: any;
     isCustom: boolean;
     path: string;
+    hasRelation: boolean;
 }
 
 const MapperOutput: FC<IMapperOutputProps> = ({
@@ -27,11 +29,13 @@ const MapperOutput: FC<IMapperOutputProps> = ({
     isChild,
     level,
     onClick,
+    onManageClick,
     lastChildIndex,
     type,
     field,
     isCustom,
     path,
+    hasRelation,
 }) => {
     const [{ canDrop, isDragging }, dropRef] = useDrop({
         accept: 'input',
@@ -39,7 +43,11 @@ const MapperOutput: FC<IMapperOutputProps> = ({
             onDrop(item.id, path);
         },
         canDrop: item => {
-            if (size(item.types) <= size(accepts) && accepts.some((type: string) => item.types.includes(type))) {
+            if (
+                !hasRelation &&
+                size(item.types) <= size(accepts) &&
+                accepts.some((type: string) => item.types.includes(type))
+            ) {
                 return true;
             }
             return false;
@@ -67,8 +75,10 @@ const MapperOutput: FC<IMapperOutputProps> = ({
             <AddFieldButton
                 field={field}
                 isCustom={isCustom}
+                isOutput
                 canManageFields={type.can_manage_fields}
                 onClick={onClick}
+                onManageClick={onManageClick}
             />
         </StyledMapperField>
     );

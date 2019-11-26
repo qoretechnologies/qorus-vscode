@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import { useDrag } from 'react-dnd';
 import { StyledMapperField } from '.';
 import AddFieldButton from './add';
+import styled from 'styled-components';
 
 export interface IMapperInputProps {
     id: number;
@@ -16,6 +17,11 @@ export interface IMapperInputProps {
     isCustom: boolean;
     path: string;
 }
+
+const StyledDragHandle = styled.div`
+    width: 100%;
+    height: 100%;
+`;
 
 const MapperInput: FC<IMapperInputProps> = ({
     id,
@@ -39,10 +45,10 @@ const MapperInput: FC<IMapperInputProps> = ({
 
     return (
         <StyledMapperField style={{ opacity }} input isChild={isChild} level={level} childrenCount={lastChildIndex}>
-            <div ref={dragRef} style={{ opacity }}>
+            <StyledDragHandle ref={dragRef} style={{ opacity }}>
                 <h4>{name}</h4>
                 <p>{`<${types.join(',')}>`}</p>
-            </div>
+            </StyledDragHandle>
             <AddFieldButton
                 field={field}
                 isCustom={isCustom}

@@ -10,6 +10,7 @@ import WorkflowsView, { CreatorWrapper } from './workflowsView';
 import Tab from './tab';
 import MapperCreator from '../Mapper';
 import MapperView from './mapperView';
+import LibraryView from './libraryView';
 
 export interface ICreateInterface {
     targetDir: string;
@@ -23,6 +24,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
                     {initialData.subtab === 'service' && <ServicesView service={initialData.service} />}
+                    {initialData.subtab === 'mapper-library' && <LibraryView library={initialData.library} />}
                     {initialData.subtab === 'workflow' && <WorkflowsView workflow={initialData.workflow} />}
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
