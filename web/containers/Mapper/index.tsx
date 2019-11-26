@@ -507,7 +507,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       accepts={output.type.types_accepted}
                                       lastChildIndex={getLastChildIndex(output, 'outputs') - index}
                                       onClick={handleClick('outputs')}
-                                      onManageClick={handleManageClick(output)}
+                                      onManageClick={() => handleManageClick(output)}
                                   />
                               ))
                             : null}
