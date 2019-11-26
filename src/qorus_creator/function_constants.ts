@@ -1,11 +1,6 @@
 import { field } from './common_constants';
 
-export const function_template = {
-    qore: '${this.name}() {\n}\n',
-    java: 'void ${this.name}() {\n}\n',
-};
-
-export const libraryFields = ({default_target_dir}) => [
+export const mapperLibraryFields = ({default_target_dir}) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -18,7 +13,7 @@ export const libraryFields = ({default_target_dir}) => [
     field.author,
 ];
 
-export const function_fields = [
+export const mapper_function_fields = [
     field.name,
     field.desc,
 ];
