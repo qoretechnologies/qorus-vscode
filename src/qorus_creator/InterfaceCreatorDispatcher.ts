@@ -3,11 +3,10 @@ import { class_creator } from './ClassCreator';
 import { qorus_webview } from '../QorusWebview';
 import { classFields } from './common_constants';
 import { serviceFields, service_methods } from './service_constants';
-import { mapperLibraryFields, mapper_function_fields } from './function_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
-import { mapperFields } from './mapper_constants';
+import { mapperFields, mapperLibraryFields, mapper_function_fields } from './mapper_constants';
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 
