@@ -163,6 +163,10 @@
                 "title": "Qorus: Create Qorus mapper"
             },
             {
+                "command": "qorus.createMapperCode",
+                "title": "Qorus: Create Qorus mapper code"
+            },
+            {
                 "command": "qorus.createClass",
                 "title": "Qorus: Create class"
             },
@@ -231,18 +235,23 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createClass",
+                    "command": "qorus.createMapperCode",
                     "group": "2_workspace@6"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createClass",
                     "group": "2_workspace@7"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.deployDir",
+                    "command": "qorus.createOther",
                     "group": "2_workspace@8"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.deployDir",
+                    "group": "2_workspace@9"
                 },
                 {
                     "when": "resourceScheme == file && !explorerResourceIsFolder",
@@ -252,7 +261,7 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.testDir",
-                    "group": "2_workspace@9"
+                    "group": "2_workspace@10"
                 },
                 {
                     "when": "resourceScheme == file && !explorerResourceIsFolder",

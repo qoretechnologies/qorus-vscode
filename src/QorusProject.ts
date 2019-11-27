@@ -302,12 +302,6 @@ class QorusProjects {
         return this.projects[project_folder];
     }
 
-    updateCodeInfo() {
-        for (let project_folder in this.projects) {
-            this.projects[project_folder].code_info.update();
-        }
-    }
-
     currentProjectCodeInfo(): QorusProjectCodeInfo | undefined {
         const current_project = this.getProject();
         return current_project && current_project.code_info;

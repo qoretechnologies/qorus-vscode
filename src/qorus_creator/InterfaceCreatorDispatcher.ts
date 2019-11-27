@@ -1,12 +1,12 @@
-import { service_creator } from './ServiceCreator';
 import { class_creator } from './ClassCreator';
+import { class_with_methods_creator } from './ClassWithMethodsCreator';
 import { qorus_webview } from '../QorusWebview';
 import { classFields } from './common_constants';
 import { serviceFields, service_methods } from './service_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
-import { mapperFields, mapperLibraryFields, mapper_function_fields } from './mapper_constants';
+import { mapperFields, mapperCodeFields, mapper_function_fields } from './mapper_constants';
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 
@@ -30,8 +30,8 @@ class InterfaceCreatorDispatcher {
                 return mapperFields(params);
             case 'config-item':
                 return configItemFields(params.interface_info);
-            case 'mapper-library':
-                return mapperLibraryFields(params);
+            case 'mapper-code':
+                return mapperCodeFields(params);
             case 'mapper-functions':
                 return mapper_function_fields;
             case 'other':
@@ -46,7 +46,8 @@ class InterfaceCreatorDispatcher {
 
         switch (sub_iface_kind || iface_kind) {
             case 'service':
-                service_creator.edit(other_params);
+            case 'mapper-code':
+                class_with_methods_creator.edit({...other_params, iface_kind});
                 break;
             case 'workflow':
             case 'job':
@@ -103,8 +104,8 @@ class InterfaceCreatorDispatcher {
         }
     }
 
-    deleteServiceMethod(params: any) {
-        service_creator.deleteMethod(params);
+    deleteMethod(data: any, iface_kind: string) {
+        class_with_methods_creator.deleteMethod(data, iface_kind);
     }
 }
 

@@ -1,5 +1,33 @@
 import { field } from './common_constants';
 
+let class_template: any = {};
+let method_template: any = {};
+
+class_template.qore = '\
+class ${this.class_name} {\n\
+${this.methods}\
+}\n\
+';
+
+class_template.java = '\
+class ${this.class_name} {\n\
+${this.methods}\
+}\n\
+';
+
+method_template.qore = '\
+    static auto ${this.name}(auto context, hash<auto> record) {\n\
+    }\n\
+';
+
+method_template.java = '\
+    public static void ${this.name}() {\n\
+    }\n\
+';
+
+export const mapper_code_class_template = class_template;
+export const mapper_code_method_template = method_template;
+
 export const mapperFields = ({default_target_dir}) => [
     field.targetDir(default_target_dir),
     field.targetFile,
@@ -13,7 +41,7 @@ export const mapperFields = ({default_target_dir}) => [
     field.functions,
 ];
 
-export const mapperLibraryFields = ({default_target_dir}) => [
+export const mapperCodeFields = ({default_target_dir}) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -22,6 +50,7 @@ export const mapperLibraryFields = ({default_target_dir}) => [
         ...field.desc,
         mandatory: false,
     },
+    field.class_name,
     field.author,
 ];
 

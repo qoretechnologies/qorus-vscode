@@ -1297,6 +1297,9 @@ msgstr "Edit class"
 msgid "EditWorkflow"
 msgstr "Edit workflow"
 
+msgid "EditMapperCode"
+msgstr "Edit mapper code class"
+
 msgid "SrcAndYamlMismatch ${ field } ${ src_file } ${ value1 } ${ value2 }"
 msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1 }, yaml info: ${ value2 }"
 
@@ -1446,6 +1449,9 @@ msgstr "Invalid index of the method to be deleted"
 
 msgid "ServiceMethodHasBeenDeleted ${ method }"
 msgstr "Service method ${ method } has been deleted"
+
+msgid "MapperCodeMethodHasBeenDeleted ${ method }"
+msgstr "Mapper code method ${ method } has been deleted"
 
 msgid "ConfirmDeleteMethod ${ method }"
 msgstr "Do you really want to delete method ${ method }?"

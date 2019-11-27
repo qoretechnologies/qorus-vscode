@@ -30,21 +30,18 @@ export const isVersion3 = (version?: string): boolean =>
 const getSuffix = (file_path: string): string | undefined => file_path.split('.').pop();
 
 export const suffixToIfaceKind = (suffix: string): string | undefined => {
-    switch (suffix) {
+    switch (suffix.split('.').pop()) {
         case 'qsd':
-        case '.qsd':
             return 'service';
         case 'qjob':
-        case '.qjob':
             return 'job';
         case 'qwf':
-        case '.qwf':
             return 'workflow';
         case 'qstep':
-        case '.qstep':
             return 'step';
+        case 'qmc':
+            return 'mapper-code';
         case 'qclass':
-        case '.qclass':
             return 'class';
         default:
             return undefined;
@@ -85,3 +82,13 @@ export const flatten = orig_arr => {
 
 export const quotesIfNum = (value: any): string =>
     parseFloat(value) == value ? `"${value}"` : value;
+
+export const dash2Camel = str => {
+    let parts = str.split('-');
+    const first = parts.splice(0, 1);
+    parts = parts.map(part => part[0].toUpperCase() + part.substr(1));
+    return [first, ...parts].join('');
+}
+
+export const dash2Pascal = str =>
+    str.split('-').map(part => part[0].toUpperCase() + part.substr(1)).join('');

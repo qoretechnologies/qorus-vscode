@@ -4,8 +4,8 @@ import { qore_vscode } from './qore_vscode';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import { projects } from './QorusProject';
-import { suffixToIfaceKind } from './qorus_utils';
-import { t } from 'ttag';
+import { suffixToIfaceKind,dash2Pascal } from './qorus_utils';
+import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
 
 
@@ -15,7 +15,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
     public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
         this.code_info = projects.currentProjectCodeInfo();
-        return this.code_info.waitForPending(['yaml', 'base_classes']).then(() => this.provideCodeLensesImpl(document));
+        return this.code_info.waitForPending(['yaml']).then(() => this.provideCodeLensesImpl(document));
     }
 
     private provideCodeLensesImpl(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
@@ -24,7 +24,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         const file_name = path.basename(file_path);
 
         const iface_kind = suffixToIfaceKind(path.extname(file_path));
-        if (!['service', 'job', 'step', 'workflow', 'class'].includes(iface_kind)) {
+        if (!['service', 'job', 'step', 'workflow', 'class', 'mapper-code'].includes(iface_kind)) {
             return Promise.resolve([]);
         }
 
@@ -60,18 +60,18 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
                 this.addClassLenses(iface_kind, lenses, symbol, data);
 
-                if (iface_kind !== 'service') {
+                if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;
                 }
 
                 for (let decl of symbol.declarations || []) {
-                    if (!this.code_info.addClassDeclCodeInfo(file_path, decl)) {
+                    if (!this.code_info.addClassDeclCodeInfo(file_path, iface_kind, decl)) {
                         continue;
                     }
 
                     const method_name = decl.name.name;
                     const name_range = loc2range(decl.name.loc);
-                    this.addServiceMethodLenses(lenses, name_range, data, method_name);
+                    this.addMethodLenses(iface_kind, lenses, name_range, data, method_name);
                 }
             });
 
@@ -89,11 +89,15 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         const range = loc2range(symbol.name.loc);
 
         switch (iface_kind) {
+            case 'mapper-code':
+                data['mapper-functions'] = data.methods;
+                delete data.methods;
+                // intentionally no break here
             case 'service':
                 lenses.push(new vscode.CodeLens(range, {
-                    title: t`EditService`,
+                    title: gettext('Edit' + dash2Pascal(iface_kind)),
                     command: 'qorus.editInterface',
-                    arguments: [data, 'service'],
+                    arguments: [data, iface_kind],
                 }));
 
                 let cloned_data = JSON.parse(JSON.stringify(data));
@@ -101,7 +105,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 lenses.push(new vscode.CodeLens(range, {
                     title: t`AddMethod`,
                     command: 'qorus.editInterface',
-                    arguments: [{ ...cloned_data, active_method: cloned_data.methods.length }, 'service'],
+                    arguments: [{ ...cloned_data, active_method: cloned_data.methods.length }, iface_kind],
                 }));
                 break;
             case 'job':
@@ -142,7 +146,13 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }
     }
 
-    private addServiceMethodLenses(lenses: vscode.CodeLens[], loc: any, data: any, method_name: string) {
+    private addMethodLenses(
+        iface_kind: string,
+        lenses: vscode.CodeLens[],
+        loc: any,
+        data: any,
+        method_name: string)
+    {
         let method_index = -1;
         for (let i = 0; i < (data.methods || []).length; i++) {
             if (data.methods[i].name === method_name) {
@@ -160,13 +170,13 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         lenses.push(new vscode.CodeLens(loc, {
             title: t`EditMethod`,
             command: 'qorus.editInterface',
-            arguments: [{ ...data, active_method: method_index + 1 }, 'service'],
+            arguments: [{ ...data, active_method: method_index + 1 }, iface_kind],
         }));
 
         lenses.push(new vscode.CodeLens(loc, {
             title: t`DeleteMethod`,
-            command: 'qorus.deleteServiceMethod',
-            arguments: [{ ...data, method_index }],
+            command: 'qorus.deleteMethod',
+            arguments: [{ ...data, method_index }, iface_kind],
         }));
     }
 

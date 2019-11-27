@@ -28,10 +28,11 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
 const all_root_classes =[...root_steps, root_service, root_job, root_workflow];
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
-const iface_kinds = ['service', 'job', 'workflow', 'step', 'class'];
+const iface_kinds = ['service', 'job', 'workflow', 'step', 'class', 'mapper-code'];
 const object_types_with_version = ['step', 'mapper'];
-const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items', 'class',
-                                      'constant', 'function', 'connection', 'event', 'group', 'queue', 'value-map'];
+const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items',
+                                      'class', 'constant', 'function', 'connection', 'event', 'group',
+                                      'queue', 'value-map', 'mapper-code'];
 const object_types = [...object_types_with_version, ...object_types_without_version];
 export const default_version = '1.0';
 
@@ -118,16 +119,22 @@ export class QorusProjectCodeInfo {
         this.edit_info[iface_kind][file].text_lines = contents.split(/\r?\n/);
     }
 
-    addServiceMethodInfo(file: string, method_name: string, decl_range: any, name_range: any) {
-        if (!this.edit_info.service[file]) {
-            this.edit_info.service[file] = {};
+    private addMethodInfo(
+        file: string,
+        iface_kind: string,
+        method_name: string,
+        decl_range: any,
+        name_range: any)
+    {
+        if (!this.edit_info[iface_kind][file]) {
+            this.edit_info[iface_kind][file] = {};
         }
-        if (!this.edit_info.service[file].method_decl_ranges) {
-            this.edit_info.service[file].method_decl_ranges = {};
-            this.edit_info.service[file].method_name_ranges = {};
+        if (!this.edit_info[iface_kind][file].method_decl_ranges) {
+            this.edit_info[iface_kind][file].method_decl_ranges = {};
+            this.edit_info[iface_kind][file].method_name_ranges = {};
         }
-        this.edit_info.service[file].method_decl_ranges[method_name] = decl_range;
-        this.edit_info.service[file].method_name_ranges[method_name] = name_range;
+        this.edit_info[iface_kind][file].method_decl_ranges[method_name] = decl_range;
+        this.edit_info[iface_kind][file].method_name_ranges[method_name] = name_range;
     }
 
     isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
@@ -184,7 +191,7 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    addClassDeclCodeInfo = (file: string, decl: any): boolean => {
+    addClassDeclCodeInfo = (file: string, iface_kind: string, decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
             return false;
         }
@@ -197,7 +204,7 @@ export class QorusProjectCodeInfo {
         const decl_range = loc2range(decl.loc);
         const name_range = loc2range(decl.name.loc);
 
-        this.addServiceMethodInfo(file, method_name, decl_range, name_range);
+        this.addMethodInfo(file, iface_kind, method_name, decl_range, name_range);
 
         return true;
     }
@@ -224,7 +231,7 @@ export class QorusProjectCodeInfo {
                 }
 
                 for (let decl of symbol.declarations || []) {
-                    this.addClassDeclCodeInfo(file, decl);
+                    this.addClassDeclCodeInfo(file, iface_kind, decl);
                 }
             });
             return Promise.resolve();
@@ -525,6 +532,10 @@ export class QorusProjectCodeInfo {
 
     private update = (info_list: string[] = info_keys, is_initial_update: boolean = false) => {
         this.project.validateConfigFileAndDo(file_data => {
+            if (is_initial_update) {
+                info_keys.forEach(key => this.setPending(key, true));
+            }
+
             if (info_list.includes('file_tree')) {
                 setTimeout(() => {
                     this.updateFileTree(file_data.source_directories);
@@ -532,6 +543,7 @@ export class QorusProjectCodeInfo {
             }
 
             if (file_data.source_directories.length === 0) {
+                info_keys.forEach(key => key !== 'file_tree' && this.setPending(key, false));
                 return;
             }
 

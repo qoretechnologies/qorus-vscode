@@ -13,6 +13,7 @@ import { QorusCodeLensProvider } from './QorusCodeLensProvider';
 import { QorusHoverProvider } from './QorusHoverProvider';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import * as msg from './qorus_message';
+import { dash2Pascal } from './qorus_utils';
 import { t } from 'ttag';
 
 qorus_locale.setLocale();
@@ -75,8 +76,8 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
-    ['service', 'job', 'workflow', 'step', 'mapper', 'class', 'other'].forEach(subtab => {
-        const command = 'qorus.create' + subtab[0].toUpperCase() + subtab.substr(1);
+    ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class', 'other'].forEach(subtab => {
+        const command = 'qorus.create' + dash2Pascal(subtab);
         disposable = vscode.commands.registerCommand(command, (uri: vscode.Uri) => qorus_webview.open({
             tab: 'CreateInterface', subtab, uri
         }));
@@ -96,8 +97,8 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.deleteServiceMethod',
-                                                 (data: any) => creator.deleteServiceMethod(data));
+    disposable = vscode.commands.registerCommand('qorus.deleteMethod', (data: any, iface_kind: string) =>
+            creator.deleteMethod(data, iface_kind));
     context.subscriptions.push(disposable);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);

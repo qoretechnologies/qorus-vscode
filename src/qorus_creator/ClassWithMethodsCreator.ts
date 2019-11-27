@@ -3,20 +3,45 @@ import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { service_class_template, service_method_template } from './service_constants';
+import { mapper_code_class_template, mapper_code_method_template } from './mapper_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
 
-class ServiceCreator extends InterfaceCreator {
-    editImpl({data, orig_data, edit_type, iface_id, open_file_on_success}) {
-        if (!data.methods || !data.methods.length) {
-            data.methods = [{
-                name: 'init',
-                desc: t`DefaultInitMethodDesc`,
-            }];
+class ClassWithMethodsCreator extends InterfaceCreator {
+    private class_template: any;
+    private method_template: any;
+
+    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
+        let suffix: string;
+        switch (iface_kind) {
+            case 'service':
+                suffix = '.qsd';
+                this.class_template = service_class_template;
+                this.method_template = service_method_template;
+                if (!(data.methods || []).length) {
+                    data.methods = [{
+                        name: 'init',
+                        desc: t`DefaultInitMethodDesc`,
+                    }];
+                }
+                break;
+            case 'mapper-code':
+                this.class_template = mapper_code_class_template;
+                this.method_template = mapper_code_method_template;
+                suffix = '.qmc';
+                break;
+            default:
+                msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
+                return;
         }
 
-        const { methods, ...header_data } = this.init(data, '.qsd');
+        const {
+            methods: service_methods,
+           'mapper-functions': mapper_methods,
+           ...header_data
+        } = this.init(data, suffix);
+        const methods = service_methods || mapper_methods || [];
 
         const {
             target_dir: orig_target_dir,
@@ -30,7 +55,7 @@ class ServiceCreator extends InterfaceCreator {
 
         if (['edit', 'delete-method'].includes(edit_type)) {
             orig_file_path = path.join(orig_target_dir, orig_target_file);
-            edit_info = this.code_info.editInfo('service', orig_file_path);
+            edit_info = this.code_info.editInfo(iface_kind, orig_file_path);
         }
 
         let contents: string;
@@ -46,13 +71,13 @@ class ServiceCreator extends InterfaceCreator {
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = edit_info.text_lines;
-                code_lines = this.addServiceMethods(code_lines, edit_info, method_renaming_map.added);
+                code_lines = this.addMethods(code_lines, edit_info, method_renaming_map.added);
                 code_lines = this.renameClassAndBaseClass(code_lines,
                                                           edit_info,
                                                           other_orig_data,
                                                           header_data);
-                code_lines = ServiceCreator.renameServiceMethods(code_lines, edit_info, method_renaming_map.renamed);
-                code_lines = ServiceCreator.removeServiceMethods(code_lines, edit_info, method_renaming_map.removed);
+                code_lines = ClassWithMethodsCreator.renameMethods(code_lines, edit_info, method_renaming_map.renamed);
+                code_lines = ClassWithMethodsCreator.removeMethods(code_lines, edit_info, method_renaming_map.removed);
                 contents = code_lines.join('\n');
                 break;
             case 'delete-method':
@@ -60,9 +85,13 @@ class ServiceCreator extends InterfaceCreator {
                     break;
                 }
                 const method_name = methods[data.method_index].name;
-                code_lines = ServiceCreator.removeServiceMethods(edit_info.text_lines, edit_info, [method_name]);
+                code_lines = ClassWithMethodsCreator.removeMethods(edit_info.text_lines, edit_info, [method_name]);
                 contents = code_lines.join('\n');
-                message = t`ServiceMethodHasBeenDeleted ${method_name}`;
+                if (iface_kind === 'service') {
+                    message = t`ServiceMethodHasBeenDeleted ${method_name}`;
+                } else {
+                    message = t`MapperCodeMethodHasBeenDeleted ${method_name}`;
+                }
 
                 data.methods.splice(data.method_index, 1);
 
@@ -74,19 +103,19 @@ class ServiceCreator extends InterfaceCreator {
                 return;
         }
 
-        let headers = ServiceCreator.createHeaders({
-            type: 'service',
+        let headers = ClassWithMethodsCreator.createHeaders({
+            type: iface_kind,
             ...header_data,
-            servicetype: 'USER',
+            servicetype: iface_kind === 'service' ? 'USER' : undefined,
             code: this.file_name
         });
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
         if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
-            headers += ServiceCreator.createConfigItemHeaders(iface_data['config-items']);
+            headers += ClassWithMethodsCreator.createConfigItemHeaders(iface_data['config-items']);
         }
 
-        this.writeFiles(contents, headers + ServiceCreator.createMethodHeaders(data.methods), open_file_on_success);
+        this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods), open_file_on_success);
 
         if (message) {
             msg.info(message);
@@ -97,8 +126,8 @@ class ServiceCreator extends InterfaceCreator {
         delete data.yaml_file;
         qorus_webview.opening_data = {
             tab: 'CreateInterface',
-            subtab: 'service',
-            service: data
+            subtab: iface_kind,
+            [iface_kind]: data
         };
 
         this.deleteOrigFilesIfDifferent(orig_file_path);
@@ -138,7 +167,7 @@ class ServiceCreator extends InterfaceCreator {
         return mapping;
     }
 
-    private static renameServiceMethods(lines: string[], edit_info: any, renaming: any): string[] {
+    private static renameMethods(lines: string[], edit_info: any, renaming: any): string[] {
         let lines_with_renaming = {};
         for (const name of Object.keys(renaming)) {
             const range = edit_info.method_name_ranges[name];
@@ -164,7 +193,7 @@ class ServiceCreator extends InterfaceCreator {
         });
     }
 
-    private static removeServiceMethods(lines: string[], edit_info: any, removed: string[]): string[] {
+    private static removeMethods(lines: string[], edit_info: any, removed: string[]): string[] {
         const removeRange = (lines, range) => {
             let rows = [];
             for (let i = 0; i < range.start.line; i++) {
@@ -184,7 +213,7 @@ class ServiceCreator extends InterfaceCreator {
         return lines;
     }
 
-    private addServiceMethods(lines: string[], edit_info: any, added: string[]): string[] {
+    private addMethods(lines: string[], edit_info: any, added: string[]): string[] {
         const end: Position = edit_info.class_def_range.end;
 
         const lines_before = lines.splice(0, end.line);
@@ -195,7 +224,7 @@ class ServiceCreator extends InterfaceCreator {
 
         let new_code = line_before;
         for (let name of added) {
-            new_code += '\n' + this.fillTemplate(service_method_template, { name }, false);
+            new_code += '\n' + this.fillTemplate(this.method_template, { name }, false);
         }
         const new_code_lines = new_code.split(/\r?\n/);
         if (new_code_lines[new_code_lines.length - 1] === '') {
@@ -210,13 +239,14 @@ class ServiceCreator extends InterfaceCreator {
         ];
     }
 
-    deleteMethod(data: any) {
-        if (!data.methods || data.methods.length < 2) {
+    deleteMethod(data: any, iface_kind) {
+        const {methods, method_index} = data;
+        if (iface_kind === 'service' && (methods || []).length < 2) {
             msg.error(t`CannotDeleteTheOnlyOneServiceMethod`);
             return;
         }
 
-        const deleted_method = data.methods && data.methods[data.method_index];
+        const deleted_method = methods && methods[method_index];
         if (!deleted_method) {
             msg.error(t`InvalidDeletedMethodIndex`);
             return;
@@ -231,18 +261,24 @@ class ServiceCreator extends InterfaceCreator {
                 return;
             }
 
-            this.edit({data, edit_type: 'delete-method', orig_data: undefined, open_file_on_success : false});
+            this.edit({
+                data,
+                iface_kind,
+                edit_type: 'delete-method',
+                orig_data: undefined,
+                open_file_on_success : false
+            });
         });
     }
 
-    private code(data: any, method_objects: any[]): any {
+    private code = (data: any, method_objects: any[]): any => {
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(this.fillTemplate(service_method_template, { name: method.name }, false));
+            method_strings.push(this.fillTemplate(this.method_template, { name: method.name }, false));
         }
         const methods = method_strings.join('\n');
 
-        return this.fillTemplate(service_class_template, {
+        return this.fillTemplate(this.class_template, {
             class_name: data['class-name'],
             base_class_name: data['base-class-name'],
             methods
@@ -277,4 +313,4 @@ class ServiceCreator extends InterfaceCreator {
     }
 }
 
-export const service_creator = new ServiceCreator();
+export const class_with_methods_creator = new ClassWithMethodsCreator();
