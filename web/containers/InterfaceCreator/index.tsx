@@ -24,7 +24,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
                     {initialData.subtab === 'service' && <ServicesView service={initialData.service} />}
-                    {initialData.subtab === 'mapper-library' && <LibraryView library={initialData.library} />}
+                    {initialData.subtab === 'mapper-code' && <LibraryView library={initialData.library} />}
                     {initialData.subtab === 'workflow' && <WorkflowsView workflow={initialData.workflow} />}
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>

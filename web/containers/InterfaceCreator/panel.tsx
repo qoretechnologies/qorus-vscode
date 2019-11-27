@@ -541,7 +541,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             let newData: { [key: string]: any };
             // If this is service methods
             if (type === 'service-methods' || type === 'mapper-functions') {
-                const intrfType = type === 'service-methods' ? 'service' : 'mapper-library';
+                const intrfType = type === 'service-methods' ? 'service' : 'mapper-code';
                 const subItemType = type === 'service-methods' ? 'methods' : 'mapper-functions';
                 // Get the service data
                 newData = reduce(
@@ -595,7 +595,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             if (type === 'service-methods') {
                 iface_kind = 'service';
             } else if (type === 'mapper-functions') {
-                iface_kind = 'mapper-library';
+                iface_kind = 'mapper-code';
             }
             // Config items use the parent type
             if (parent) {
