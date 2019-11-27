@@ -13,7 +13,7 @@ const FieldLabelControls = styled.div`
 `;
 
 export interface IFieldActions {
-    desc: string;
+    desc?: string;
     name: string;
     onClick: (name: string) => any;
     removable: boolean;
@@ -23,9 +23,11 @@ const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, r
     <StyledFieldLabel>
         <FieldLabelControls>
             <ButtonGroup minimal>
-                <Tooltip content={desc}>
-                    <Button icon={'info-sign'} />
-                </Tooltip>
+                {desc && (
+                    <Tooltip content={desc}>
+                        <Button icon={'info-sign'} />
+                    </Tooltip>
+                )}
                 <Button icon={'trash'} disabled={!removable} onClick={() => onClick && onClick(name)} />
             </ButtonGroup>
         </FieldLabelControls>

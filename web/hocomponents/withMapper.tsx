@@ -29,18 +29,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [outputRecord, setOutputRecord] = useState<any>(null);
         const [mapperKeys, setMapperKeys] = useState<any>(null);
 
-        useMount(() => {
-            (async () => {
-                const data = await props.fetchData('remote/user/rest-billing-demo/provider/accounts/GET/request');
-                const record = await props.fetchData(
-                    'remote/user/rest-billing-demo/provider/accounts/GET/request/record'
-                );
-                setInputs(record.data);
-                setOutputs(record.data);
-                setMapperKeys(data.mapper_keys);
-            })();
-        });
-
         const addField = (fieldsType, path, data) => {
             // Save the field setters to be easily accessible
             const fieldSetters: any = { inputs: setInputs, outputs: setOutputs };

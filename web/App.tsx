@@ -157,7 +157,7 @@ const App: FunctionComponent<IApp> = ({
             </Navbar>
             <TextContext.Provider value={t}>
                 <StyledApp>
-                    {tab !== 'Login' && <Menu menu={MENU} />}
+                    {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
                     <>
                         {tab == 'Login' && <LoginContainer />}
                         {tab == 'ProjectConfig' && <ProjectConfig />}

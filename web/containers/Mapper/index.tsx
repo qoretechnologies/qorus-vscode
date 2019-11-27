@@ -18,6 +18,8 @@ import compose from 'recompose/compose';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import MapperFieldModal from './modal';
 import Provider from './provider';
+import MappingModal from './mappingModal';
+import useMount from 'react-use/lib/useMount';
 
 const FIELD_HEIGHT = 70;
 const FIELD_MARGIN = 15;
@@ -228,6 +230,18 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         [relations]
     );
 
+    useMount(() => {
+        (async () => {
+            const data = await initialData.fetchData('remote/user/rest-billing-demo/provider/accounts/GET/request');
+            const record = await initialData.fetchData(
+                'remote/user/rest-billing-demo/provider/accounts/GET/request/record'
+            );
+            setInputs(record.data);
+            setOutputs(record.data);
+            setMapperKeys(data.data.mapper_keys);
+        })();
+    });
+
     const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
         setRelations(current => {
             const result = { ...current };
@@ -390,10 +404,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             isOpen: true,
             relationData: relations[output.path],
             mapperKeys,
+            output,
         });
     };
-
-    console.log(relations);
 
     return (
         <>
@@ -541,7 +554,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 </div>
             </ActionsWrapper>
             {addDialog.isOpen && <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />}
-            {mappingDialog.isOpen && <MapperFieldModal t={t} onClose={() => setMappingDialog({})} {...mappingDialog} />}
+            {mappingDialog.isOpen && <MappingModal t={t} onClose={() => setMappingDialog({})} {...mappingDialog} />}
         </>
     );
 };

@@ -17,10 +17,12 @@ const StyledContent = styled.div`
 
 export interface IContent {
     children: ReactNode;
+    title?: string;
+    style: any;
 }
 
-const Content: FunctionComponent<IContent> = ({ children, title }) => (
-    <StyledContent>
+const Content: FunctionComponent<IContent> = ({ children, title, style }) => (
+    <StyledContent style={style}>
         {title && <h3>{title}</h3>}
         {children}
     </StyledContent>

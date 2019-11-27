@@ -21,7 +21,13 @@ type SidebarProps = {
     menu: Object;
 };
 
-const Sidebar: Function = ({ isCollapsed, toggleMenu, expandedSection, handleSectionToggle, menu }: SidebarProps) => (
+const Sidebar: Function = ({
+    isCollapsed = true,
+    toggleMenu,
+    expandedSection,
+    handleSectionToggle,
+    menu,
+}: SidebarProps) => (
     <div
         className={classnames('sidebar', 'dark', {
             expanded: !isCollapsed,
@@ -48,7 +54,7 @@ const Sidebar: Function = ({ isCollapsed, toggleMenu, expandedSection, handleSec
 );
 
 export default compose(
-    withState('isCollapsed', 'toggleCollapsed', false),
+    withState('isCollapsed', 'toggleCollapsed', ({ isCollapsed }) => isCollapsed),
     withState('expandedSection', 'toggleSectionExpand', null),
     withHandlers({
         handleSectionToggle: ({ toggleSectionExpand }): Function => (sectionId: string): void => {

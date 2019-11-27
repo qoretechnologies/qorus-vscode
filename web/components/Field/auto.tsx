@@ -14,12 +14,13 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     onChange,
     value,
     default_value,
+    defaultType,
     requestFieldData,
     type,
     t,
     ...rest
 }) => {
-    const [currentType, setType] = useState<string>(null);
+    const [currentType, setType] = useState<string>(defaultType);
     const [isInitialType, setIsInitialType] = useState<boolean>(true);
 
     useMount(() => {
