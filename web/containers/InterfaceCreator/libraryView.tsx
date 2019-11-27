@@ -152,7 +152,6 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                             <InterfaceCreatorPanel
                                 type="mapper-code"
                                 submitLabel={t('Next')}
-                                hasConfigManager
                                 onSubmit={() => {
                                     setActiveFunction(1);
                                     setShowFunctions(true);
