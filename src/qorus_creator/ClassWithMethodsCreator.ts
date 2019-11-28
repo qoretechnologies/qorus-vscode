@@ -241,8 +241,12 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
     deleteMethod(data: any, iface_kind) {
         const {methods, method_index} = data;
-        if (iface_kind === 'service' && (methods || []).length < 2) {
-            msg.error(t`CannotDeleteTheOnlyOneServiceMethod`);
+        if ((methods || []).length < 2) {
+            if (iface_kind === 'service') {
+                msg.error(t`CannotDeleteTheOnlyOneServiceMethod`);
+            } else {
+                msg.error(t`CannotDeleteTheOnlyOneMapperCodeMethod`);
+            }
             return;
         }
 

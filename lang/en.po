@@ -1444,6 +1444,9 @@ msgstr "Array Subworkflow Step"
 msgid "CannotDeleteTheOnlyOneServiceMethod"
 msgstr "Cannot delete service method since it is the only one and each service must have at least one method"
 
+msgid "CannotDeleteTheOnlyOneMapperCodeMethod"
+msgstr "Cannot delete the last method since there must at least one method left"
+
 msgid "InvalidDeletedMethodIndex"
 msgstr "Invalid index of the method to be deleted"
 
