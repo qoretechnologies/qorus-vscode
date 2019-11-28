@@ -1599,6 +1599,9 @@ msgstr "Show All"
 msgid "UnableFindYamlForClass ${ class }"
 msgstr "Unable to find yaml file for class ${ class }"
 
+msgid "UnableFindYamlForSrc ${ file }"
+msgstr "Unable to find yaml file for source file ${ file }"
+
 msgid "UnableFindConfigItemsForClass ${ class }"
 msgstr "Unable to find config items file for class ${ class }"
 

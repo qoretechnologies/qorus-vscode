@@ -31,6 +31,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         const yaml_info = this.code_info.yamlDataBySrcFile(file_path);
         if (!yaml_info) {
+            msg.error(t`UnableFindYamlForSrc ${file_name}`);
             return Promise.resolve([]);
         }
 
