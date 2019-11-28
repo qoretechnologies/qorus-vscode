@@ -8,6 +8,7 @@ import DateField from './date';
 import TextareaField from './textarea';
 import { Callout } from '@blueprintjs/core';
 import NumberField from './number';
+import OptionHashField from './optionHash';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -69,17 +70,30 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     // Render the field based on the type
     switch (currentType) {
         case 'string':
-            return <StringField name={name} onChange={handleChange} value={value} type={currentType} />;
+            return <StringField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
         case 'bool':
-            return <BooleanField name={name} onChange={handleChange} value={value} type={currentType} />;
+            return <BooleanField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
         case 'date':
-            return <DateField name={name} onChange={handleChange} value={value} type={currentType} />;
+            return <DateField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
         case 'hash':
         case 'list':
-            return <TextareaField name={name} onChange={handleChange} value={value} fill type={currentType} />;
+            return (
+                <TextareaField {...rest} name={name} onChange={handleChange} value={value} fill type={currentType} />
+            );
         case 'int':
         case 'float':
-            return <NumberField name={name} onChange={handleChange} value={value} fill type={currentType} />;
+            return <NumberField {...rest} name={name} onChange={handleChange} value={value} fill type={currentType} />;
+        case 'option_hash':
+            return (
+                <OptionHashField
+                    {...rest}
+                    name={name}
+                    onChange={handleChange}
+                    value={value || undefined}
+                    fill
+                    type={currentType}
+                />
+            );
         default:
             return <Callout>{t('AutoFieldSelectType')}</Callout>;
     }

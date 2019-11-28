@@ -1,4 +1,4 @@
-import React, { FC, useState, useCallback, FormEvent } from 'react';
+import React, { FC, useState, useCallback, FormEvent, useMemo } from 'react';
 import { Button, Dialog, ButtonGroup, InputGroup, Intent, Classes, Tooltip } from '@blueprintjs/core';
 import { TTranslator } from '../../App';
 import Box from '../../components/ResponsiveBox';
@@ -6,6 +6,7 @@ import set from 'lodash/set';
 import size from 'lodash/size';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
+import every from 'lodash/every';
 import String from '../../components/Field/string';
 import {
     ContentWrapper,
@@ -28,6 +29,7 @@ import FieldSelector from '../../components/FieldSelector';
 import { types } from 'react-markdown';
 import Field from '../../components/Field';
 import FieldActions from '../../components/FieldActions';
+import OptionHashField from '../../components/Field/optionHash';
 
 export interface IMapperFieldModalProps {
     onClose: () => any;
@@ -58,10 +60,27 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         });
     };
 
-    const isFieldValid: () => boolean = () => {
-        //const isNameValid: boolean = validateField('string', field.name) && isUnique(field.name);
+    const handleOptionHashChange: (name: string, value: { id: number; name: string; value: string }[]) => void = (
+        _name,
+        value
+    ) => {
+        setRelation(current => {
+            const newField = { ...current };
+            newField.type_options = value;
+            return newField;
+        });
+    };
 
-        return true;
+    const isMappingValid: () => boolean = () => {
+        // Check if all keys are valid
+        return every(relation, (value, key) => {
+            // Get the key type
+            const type = getKeyType(key);
+            // Get the mandatory flag
+
+            // Check validity
+            return validateField(type, value);
+        });
     };
 
     const handleSubmit = () => {
@@ -79,8 +98,41 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 
     const handleRemoveClick = (name: string) => {
         setRelation(current => {
-            const result = { ...current };
+            let result = { ...current };
+            // Remove the key
             delete result[name];
+            // Build new unique roles
+            const updatedRoles: string[] = reduce(
+                result,
+                (roles, _value, key) =>
+                    mapperKeys[key].unique_roles ? [...roles, ...mapperKeys[key].unique_roles] : roles,
+                []
+            );
+            // Filter any items that are dependent on the removed item
+            result = reduce(
+                result,
+                (newRelation, value, key) => {
+                    const { requires_roles } = mapperKeys[key];
+                    // Check if this key has required roles
+                    if (requires_roles) {
+                        // Check if the condition for required roles is still
+                        // met, because a field could be removed that is the required
+                        // roles
+                        if (requires_roles.every(role => updatedRoles.includes(role))) {
+                            // Keep the key in
+                            return { ...newRelation, [key]: value };
+                        }
+                        // Filter the field out
+                        else {
+                            return newRelation;
+                        }
+                    }
+                    // Return unchanged key
+                    return { ...newRelation, [key]: value };
+                },
+                {}
+            );
+            // Return the new relation
             return result;
         });
     };
@@ -92,37 +144,79 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     );
 
     const isKeyDisabled = (name: string): boolean => {
-        const roles: string[] = mapperKeys[name].unique_roles;
+        let isDisabled = false;
+        const { requires_roles, unique_roles } = mapperKeys[name];
+        // Check if this field is dependent on other fields
+        if (requires_roles) {
+            // Check if all the keys from the list
+            // are selected
+            if (!requires_roles.every(role => uniqueRoles.includes(role))) {
+                isDisabled = true;
+            }
+        }
         // If the roles list does not exist
-        if (!roles) {
+        if (!unique_roles) {
             // This field can be added except if there is a
             // key with * role
-            return uniqueRoles.includes('*');
+            if (uniqueRoles.includes('*')) {
+                isDisabled = true;
+            }
         }
         // Check if this key can be added solely
-        else if (roles.includes('*')) {
+        else if (unique_roles.includes('*')) {
             // This key can only be added if there is no
             // other key yet added
-            return size(relation) > 0;
+            if (size(relation) > 0) {
+                isDisabled = true;
+            }
         } else {
             // Check if none of the keys roles & a * role isn't
             // yet included
-            return !roles.every(role => !uniqueRoles.includes(role)) || uniqueRoles.includes('*');
+            if (!unique_roles.every(role => !uniqueRoles.includes(role)) || uniqueRoles.includes('*')) {
+                isDisabled = true;
+            }
         }
+        // Return the result
+        return isDisabled;
     };
 
     const getKeyType = (key: string): string => {
-        return mapperKeys[key].value_type === 'any' ? output.type.base_type : mapperKeys[key].value_type;
+        return mapperKeys[key].value_type === 'any' && mapperKeys[key].requires_field_type
+            ? output.type.base_type
+            : mapperKeys[key].value_type;
     };
+
+    const getOptions: () => { name: string; desc: string }[] = () => {
+        return reduce(
+            output.type.supported_options,
+            (transformedOpts, data, opt) => [...transformedOpts, { name: opt, desc: data.desc }],
+            []
+        );
+    };
+
+    const mapperKeysList = reduce(
+        mapperKeys,
+        (newMapperKeys, value, key) => {
+            // Check if this mapper key is already selected
+            if (key in relation) {
+                // This field is selected, remove it
+                return newMapperKeys;
+            }
+            // Field is not selected
+            return { ...newMapperKeys, [key]: value };
+        },
+        {}
+    );
 
     return (
         <Dialog isOpen title={t('ManageOutputMapping')} onClose={onClose} style={{ paddingBottom: 0, width: '70vw' }}>
             <Box top fill scrollY style={{ flexFlow: 'row' }}>
                 <SidePanel title={t('AddValue')}>
                     <ContentWrapper>
-                        {map(mapperKeys, (field: any, fieldName: string) => (
+                        {map(mapperKeysList, (_field: any, fieldName: string) => (
                             <FieldSelector
                                 name={fieldName}
+                                translateName={false}
                                 type={getKeyType(fieldName)}
                                 disabled={isKeyDisabled(fieldName)}
                                 onClick={handleAddClick}
@@ -135,18 +229,25 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                         {size(relation) ? (
                             map(relation, (value: any, key: string) => (
                                 <FieldWrapper>
-                                    <FieldLabel
-                                        label={t(`field-label-${key}`)}
-                                        isValid={validateField(getKeyType(key), value)}
-                                    />
+                                    <FieldLabel label={key} isValid={validateField(getKeyType(key), value)} />
                                     <FieldInputWrapper>
-                                        <Field
-                                            name={key}
-                                            value={value}
-                                            type="auto"
-                                            defaultType={getKeyType(key)}
-                                            onChange={handleChange}
-                                        />
+                                        {getKeyType(key) === 'option_hash' ? (
+                                            <OptionHashField
+                                                name={key}
+                                                value={value || undefined}
+                                                onChange={handleOptionHashChange}
+                                                items={getOptions()}
+                                                options={output.type.supported_options}
+                                            />
+                                        ) : (
+                                            <Field
+                                                name={key}
+                                                value={value}
+                                                type="auto"
+                                                defaultType={getKeyType(key)}
+                                                onChange={handleChange}
+                                            />
+                                        )}
                                     </FieldInputWrapper>
                                     <FieldActions name={key} onClick={handleRemoveClick} removable />
                                 </FieldWrapper>
@@ -163,7 +264,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                 intent="success"
                                 text="Submit"
                                 icon="small-tick"
-                                disabled={!isFieldValid()}
+                                disabled={!isMappingValid()}
                                 onClick={handleSubmit}
                             />
                         </ButtonGroup>

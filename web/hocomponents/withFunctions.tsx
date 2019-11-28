@@ -52,25 +52,28 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         );
     };
 
-    return mapProps(({ library, ...rest }) => ({
+    return mapProps(({ 'mapper-code': mapperCode, ...rest }) => ({
         initialFunctions:
-            library && library.function
-                ? library.functions.map((fun, i) => ({ name: fun.name, id: i + 1 }))
+            mapperCode && mapperCode['mapper-functions']
+                ? mapperCode['mapper-functions'].map((fun, i) => ({ name: fun.name, id: i + 1 }))
                 : [{ id: 1 }],
-        initialFunctionsCount: library && library.functions ? size(library.functions) : 1,
+        initialFunctionsCount: mapperCode && mapperCode['mapper-functions'] ? size(mapperCode['mapper-functions']) : 1,
         // Set the last function ID to the functions
         // count + 1 if functions exist
-        initialFunctionId: library && library.functions ? size(library.functions) : 1,
+        initialFunctionId: mapperCode && mapperCode['mapper-functions'] ? size(mapperCode['mapper-functions']) : 1,
         // If function is being edited, switch to it
-        initialActiveFunctionId: (library && library.active_function) || null,
+        initialActiveFunctionId: (mapperCode && mapperCode.active_method) || null,
         // Set to show functions if active function
         // is being edited
-        initialShowFunctions: !!(library && library.active_function),
+        initialShowFunctions: !!(mapperCode && mapperCode.active_method),
         // Map the ids to the current function data
         // to know which function belongs to which id
         // in the function selector
-        functionsData: library && library.functions && library.functions.map((fun, i) => ({ ...fun, id: i + 1 })),
-        library,
+        functionsData:
+            mapperCode &&
+            mapperCode['mapper-functions'] &&
+            mapperCode['mapper-functions'].map((fun, i) => ({ ...fun, id: i + 1 })),
+        mapperCode,
         ...rest,
     }))(EnhancedComponent);
 };

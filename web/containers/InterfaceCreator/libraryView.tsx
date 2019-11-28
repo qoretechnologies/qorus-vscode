@@ -121,7 +121,7 @@ export interface ILibraryView {
     t: TTranslator;
     isSubItemValid: (id: number, type: string) => boolean;
     removeSubItemFromFields: (id: number, type: string) => void;
-    library: any;
+    'mapper-code': any;
     interfaceId: { [key: string]: string };
 }
 
@@ -129,7 +129,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     t,
     isSubItemValid,
     removeSubItemFromFields,
-    library,
+    'mapper-code': library,
     interfaceId,
 }) => {
     return (

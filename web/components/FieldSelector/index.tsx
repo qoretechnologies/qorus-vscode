@@ -90,13 +90,20 @@ export interface IFieldSelector {
     type: string;
     onClick: (name: string) => any;
     disabled: boolean;
+    translateName: boolean;
 }
 
-const FieldSelector: FunctionComponent<IFieldSelector> = ({ name, type: type = 'string', onClick, disabled }) => (
+const FieldSelector: FunctionComponent<IFieldSelector> = ({
+    name,
+    type: type = 'string',
+    onClick,
+    disabled,
+    translateName = true,
+}) => (
     <TextContext.Consumer>
         {t => (
             <StyledFieldSelector disabled={disabled} onClick={() => !disabled && onClick(name)}>
-                <FieldName>{t(`field-label-${name}`)}</FieldName>
+                <FieldName>{translateName ? t(`field-label-${name}`) : name}</FieldName>
                 <FieldType>{`<${type}>`}</FieldType>
                 <FieldButton />
             </StyledFieldSelector>

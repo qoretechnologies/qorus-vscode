@@ -11,8 +11,10 @@ export interface IPairField {
     valueValue: string;
     index: number | string;
     onRemoveClick: () => void;
-    get_message: { action: string; object_type: string; return_value?: string };
-    return_message: { action: string; object_type: string; return_value?: string };
+    get_message?: { action: string; object_type: string; return_value?: string };
+    return_message?: { action: string; object_type: string; return_value?: string };
+    selectFirst?: boolean;
+    defaultSelectItems?: any[];
 }
 
 const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
@@ -25,28 +27,57 @@ const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
     onRemoveClick,
     get_message,
     return_message,
+    selectFirst,
+    defaultSelectItems,
 }) => (
     <div>
         <ControlGroup fill>
             <Button text={`${index}.`} />
-            <StringField
-                name={keyName}
-                value={keyValue}
-                onChange={(fieldName: string, value: string): void => {
-                    onChange(fieldName, value);
-                }}
-                fill
-            />
-            <SelectField
-                name={valueName}
-                value={valueValue}
-                get_message={get_message}
-                return_message={return_message}
-                onChange={(fieldName: string, value: string) => {
-                    onChange(fieldName, value);
-                }}
-                fill
-            />
+            {selectFirst ? (
+                <>
+                    <SelectField
+                        name={valueName}
+                        value={valueValue}
+                        get_message={get_message}
+                        return_message={return_message}
+                        defaultItems={defaultSelectItems}
+                        onChange={(fieldName: string, value: string) => {
+                            onChange(fieldName, value);
+                        }}
+                        fill
+                    />
+                    <StringField
+                        name={keyName}
+                        value={keyValue}
+                        onChange={(fieldName: string, value: string): void => {
+                            onChange(fieldName, value);
+                        }}
+                        fill
+                    />
+                </>
+            ) : (
+                <>
+                    <StringField
+                        name={keyName}
+                        value={keyValue}
+                        onChange={(fieldName: string, value: string): void => {
+                            onChange(fieldName, value);
+                        }}
+                        fill
+                    />
+                    <SelectField
+                        name={valueName}
+                        value={valueValue}
+                        get_message={get_message}
+                        return_message={return_message}
+                        defaultItems={defaultSelectItems}
+                        onChange={(fieldName: string, value: string) => {
+                            onChange(fieldName, value);
+                        }}
+                        fill
+                    />
+                </>
+            )}
             {index !== 1 && <Button icon={'trash'} onClick={onRemoveClick} />}
         </ControlGroup>
     </div>

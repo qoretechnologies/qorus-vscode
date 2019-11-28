@@ -32,7 +32,7 @@ export const MENU = {
                 { name: 'Step', icon: 'diagram-tree', tab: 'CreateInterface', subtab: 'step' },
                 { name: 'Class', icon: 'code-block', tab: 'CreateInterface', subtab: 'class' },
                 { name: 'Mapper', icon: 'layout-group-by', tab: 'CreateInterface', subtab: 'mapper' },
-                { name: 'Mapper Library', icon: 'function', tab: 'CreateInterface', subtab: 'mapper-code' },
+                { name: 'Mapper Code', icon: 'function', tab: 'CreateInterface', subtab: 'mapper-code' },
                 { name: 'Other', icon: 'more', tab: 'CreateInterface', subtab: 'other' },
             ],
         },

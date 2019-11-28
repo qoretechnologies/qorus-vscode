@@ -19,7 +19,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [interfaceId, _setInterfaceId] = useState<{ [key: string]: string }>({
             service: null,
-            ['mapper-library']: null,
+            ['mapper-code']: null,
             workflow: null,
             job: null,
             class: null,
@@ -29,7 +29,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [fields, setLocalFields] = useState<{ [key: string]: IField[] | { [key: string]: IField[] } }>({
             service: [],
-            ['mapper-library']: [],
+            ['mapper-code']: [],
             ['service-methods']: {},
             ['mapper-functions']: {},
             workflow: [],
@@ -44,7 +44,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             [key: string]: IField[] | { [key: string]: IField[] };
         }>({
             service: [],
-            ['mapper-library']: [],
+            ['mapper-code']: [],
             ['service-methods']: {},
             ['mapper-functions']: {},
             workflow: [],
@@ -57,7 +57,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [query, setLocalQuery] = useState<{ [key: string]: string }>({
             service: '',
-            ['mapper-library']: '',
+            ['mapper-code']: '',
             ['service-methods']: '',
             ['mapper-functions']: '',
             workflow: '',
@@ -73,7 +73,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             ['service-methods']: '',
             workflow: '',
             ['mapper-functions']: '',
-            ['mapper-library']: '',
+            ['mapper-code']: '',
             job: '',
             class: '',
             step: '',
