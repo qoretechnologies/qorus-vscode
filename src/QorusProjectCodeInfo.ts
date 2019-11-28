@@ -28,7 +28,6 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
 const all_root_classes =[...root_steps, root_service, root_job, root_workflow];
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
 const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
-const iface_kinds = ['service', 'job', 'workflow', 'step', 'class', 'mapper-code'];
 const object_types_with_version = ['step', 'mapper'];
 const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items',
                                       'class', 'constant', 'function', 'connection', 'event', 'group',
@@ -99,42 +98,38 @@ export class QorusProjectCodeInfo {
 
     addText(document: vscode.TextDocument) {
         const file = document.uri.fsPath;
-        const iface_kind = suffixToIfaceKind(path.extname(file));
 
-        if (!this.edit_info[iface_kind][file]) {
-            this.edit_info[iface_kind][file] = {};
+        if (!this.edit_info[file]) {
+            this.edit_info[file] = {};
         }
-        this.edit_info[iface_kind][file].text_lines = [];
+        this.edit_info[file].text_lines = [];
         for (let i = 0; i < document.lineCount; i++) {
-            this.edit_info[iface_kind][file].text_lines.push(document.lineAt(i).text);
+            this.edit_info[file].text_lines.push(document.lineAt(i).text);
         }
     }
 
     addTextLines(file: string, contents: string) {
-        const iface_kind = suffixToIfaceKind(path.extname(file));
-
-        if (!this.edit_info[iface_kind][file]) {
-            this.edit_info[iface_kind][file] = {};
+        if (!this.edit_info[file]) {
+            this.edit_info[file] = {};
         }
-        this.edit_info[iface_kind][file].text_lines = contents.split(/\r?\n/);
+        this.edit_info[file].text_lines = contents.split(/\r?\n/);
     }
 
     private addMethodInfo(
         file: string,
-        iface_kind: string,
         method_name: string,
         decl_range: any,
         name_range: any)
     {
-        if (!this.edit_info[iface_kind][file]) {
-            this.edit_info[iface_kind][file] = {};
+        if (!this.edit_info[file]) {
+            this.edit_info[file] = {};
         }
-        if (!this.edit_info[iface_kind][file].method_decl_ranges) {
-            this.edit_info[iface_kind][file].method_decl_ranges = {};
-            this.edit_info[iface_kind][file].method_name_ranges = {};
+        if (!this.edit_info[file].method_decl_ranges) {
+            this.edit_info[file].method_decl_ranges = {};
+            this.edit_info[file].method_name_ranges = {};
         }
-        this.edit_info[iface_kind][file].method_decl_ranges[method_name] = decl_range;
-        this.edit_info[iface_kind][file].method_name_ranges[method_name] = name_range;
+        this.edit_info[file].method_decl_ranges[method_name] = decl_range;
+        this.edit_info[file].method_name_ranges[method_name] = name_range;
     }
 
     isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
@@ -151,12 +146,10 @@ export class QorusProjectCodeInfo {
         const num_inherited: number = (symbol.inherits || []).length;
 
         const addClassInfo = (base_class_ord: number = -1) => {
-            const iface_kind = suffixToIfaceKind(path.extname(file));
-
-            if (!this.edit_info[iface_kind][file]) {
-                this.edit_info[iface_kind][file] = {};
+            if (!this.edit_info[file]) {
+                this.edit_info[file] = {};
             }
-            Object.assign(this.edit_info[iface_kind][file], {
+            Object.assign(this.edit_info[file], {
                 class_def_range,
                 class_name_range,
                 base_class_name_range: base_class_ord === -1
@@ -191,7 +184,7 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    addClassDeclCodeInfo = (file: string, iface_kind: string, decl: any): boolean => {
+    addClassDeclCodeInfo = (file: string, decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
             return false;
         }
@@ -204,14 +197,14 @@ export class QorusProjectCodeInfo {
         const decl_range = loc2range(decl.loc);
         const name_range = loc2range(decl.name.loc);
 
-        this.addMethodInfo(file, iface_kind, method_name, decl_range, name_range);
+        this.addMethodInfo(file, method_name, decl_range, name_range);
 
         return true;
     }
 
     addFileCodeInfo(file: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
-        if (this.edit_info[iface_kind][file] && !force) {
+        if (this.edit_info[file] && !force) {
             return Promise.resolve();
         }
 
@@ -231,15 +224,15 @@ export class QorusProjectCodeInfo {
                 }
 
                 for (let decl of symbol.declarations || []) {
-                    this.addClassDeclCodeInfo(file, iface_kind, decl);
+                    this.addClassDeclCodeInfo(file, decl);
                 }
             });
             return Promise.resolve();
         });
     }
 
-    editInfo(iface_kind: string, file: string) {
-        return this.edit_info[iface_kind][file];
+    editInfo(file: string) {
+        return this.edit_info[file];
     }
 
     getListOfInterfaces = iface_kind => {
@@ -315,10 +308,6 @@ export class QorusProjectCodeInfo {
     private initInfo() {
         for (const type of [...object_info_types, 'author']) {
             this.object_info[type] = {};
-        }
-
-        for (const iface_kind of iface_kinds) {
-            this.edit_info[iface_kind] = {};
         }
 
         for (const type of object_types) {

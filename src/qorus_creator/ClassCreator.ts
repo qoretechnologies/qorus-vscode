@@ -75,7 +75,7 @@ class ClassCreator extends InterfaceCreator {
                     break;
                 }
 
-                const edit_info = this.code_info.editInfo(iface_kind, orig_file_path);
+                const edit_info = this.code_info.editInfo(orig_file_path);
 
                 code_lines = edit_info.text_lines;
                 code_lines = this.renameClassAndBaseClass(code_lines,

@@ -55,7 +55,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         if (['edit', 'delete-method'].includes(edit_type)) {
             orig_file_path = path.join(orig_target_dir, orig_target_file);
-            edit_info = this.code_info.editInfo(iface_kind, orig_file_path);
+            edit_info = this.code_info.editInfo(orig_file_path);
         }
 
         let contents: string;

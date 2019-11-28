@@ -67,7 +67,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 }
 
                 for (let decl of symbol.declarations || []) {
-                    if (!this.code_info.addClassDeclCodeInfo(file_path, iface_kind, decl)) {
+                    if (!this.code_info.addClassDeclCodeInfo(file_path, decl)) {
                         continue;
                     }
 
