@@ -16,7 +16,7 @@ ${this.methods}\
 ';
 
 method_template.qore = '\
-    static auto ${this.name}(auto context, hash<auto> record) {\n\
+    static auto ${this.name}(auto ctx, hash<auto> record) {\n\
     }\n\
 ';
 
