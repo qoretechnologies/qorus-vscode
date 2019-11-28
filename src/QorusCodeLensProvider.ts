@@ -164,6 +164,11 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         data = this.fixData({ ...data });
 
+        if (iface_kind === 'mapper-code') {
+            data['mapper-functions'] = data.methods;
+            delete data.methods;
+        }
+
         lenses.push(new vscode.CodeLens(loc, {
             title: t`EditMethod`,
             command: 'qorus.editInterface',
