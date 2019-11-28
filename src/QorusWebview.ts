@@ -238,6 +238,9 @@ class QorusWebview {
                         case 'get-config-item':
                             interface_info.getConfigItem(message);
                             break;
+                        case 'get-mapper-code-methods':
+                            project.code_info.getMapperCodeMethods(message.name);
+                            break;
                         case 'update-config-item-value':
                             interface_info.updateConfigItemValue(message);
                             break;

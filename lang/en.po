@@ -1691,3 +1691,6 @@ msgstr "1. Add new functions"
 
 msgid "AddFunction"
 msgstr "Add function"
+
+msgid "MapperCodeNotFound ${ name }"
+msgstr "Mapper code '${ name }' not found

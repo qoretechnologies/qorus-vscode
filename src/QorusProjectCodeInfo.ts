@@ -299,6 +299,19 @@ export class QorusProjectCodeInfo {
         return step_data;
     }
 
+    getMapperCodeMethods = name => {
+        const mapper_code = this.yamlDataByName('mapper-code', name);
+        if (!mapper_code) {
+            msg.log(t`MapperCodeNotFound ${name}`);
+        }
+        const methods = (mapper_code && mapper_code.methods) || [];
+        qorus_webview.postMessage({
+            action: 'return-mapper-code-methods',
+            name,
+            methods
+        });
+    }
+
     private initInfo() {
         for (const type of [...object_info_types, 'author']) {
             this.object_info[type] = {};
