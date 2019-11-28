@@ -9,6 +9,7 @@ import { ButtonGroup, Button, Callout } from '@blueprintjs/core';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import { omit } from 'lodash';
 import { FunctionsContext } from '../../context/functions';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
 const MethodSelector = styled.div`
     width: 100%;
@@ -121,7 +122,7 @@ export interface ILibraryView {
     t: TTranslator;
     isSubItemValid: (id: number, type: string) => boolean;
     removeSubItemFromFields: (id: number, type: string) => void;
-    'mapper-code': any;
+    initialData: any;
     interfaceId: { [key: string]: string };
 }
 
@@ -129,7 +130,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     t,
     isSubItemValid,
     removeSubItemFromFields,
-    'mapper-code': library,
+    initialData: { 'mapper-code': library },
     interfaceId,
 }) => {
     return (
@@ -245,4 +246,4 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     );
 };
 
-export default compose(withTextContext(), withFieldsConsumer())(LibraryView);
+export default compose(withTextContext(), withFieldsConsumer(), withInitialDataConsumer())(LibraryView);
