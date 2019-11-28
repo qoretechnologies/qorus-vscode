@@ -122,12 +122,7 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
             return_value: 'resources',
         },
     },
-    {
-        name: 'define-auth-label',
-        mandatory: false,
-        type: 'array-of-pairs',
-        fields: ['label', 'value'],
-    }
+    field.define_auth_label,
 ];
 
 export const service_methods = [

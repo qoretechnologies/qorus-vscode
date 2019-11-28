@@ -80,21 +80,11 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
         name: 'errorfunction',
         mandatory: false,
     },
-    {
-        name: 'options',
-        type: 'array-of-pairs',
-        fields: ['key', 'value'],
-        mandatory: false,
-    },
+    field.options,
     {
         name: 'keylist',
         type: 'array',
         mandatory: false,
     },
-    {
-        name: 'statuses',
-        type: 'array-of-pairs',
-        fields: ['code', 'desc'],
-        mandatory: false,
-    },
+    field.statuses,
 ];

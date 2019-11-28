@@ -249,4 +249,22 @@ export const field = {
         on_change: 'get-config-items',
         notify_on_remove: true
     },
+    options: {
+        name: 'options',
+        type: 'array-of-pairs',
+        fields: ['key', 'value'],
+        mandatory: false,
+    },
+    statuses: {
+        name: 'statuses',
+        type: 'array-of-pairs',
+        fields: ['code', 'desc'],
+        mandatory: false,
+    },
+    define_auth_label: {
+        name: 'define-auth-label',
+        type: 'array-of-pairs',
+        fields: ['label', 'value'],
+        mandatory: false,
+    }
 };

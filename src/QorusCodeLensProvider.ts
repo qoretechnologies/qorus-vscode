@@ -4,6 +4,7 @@ import { qore_vscode } from './qore_vscode';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import { projects } from './QorusProject';
+import { field } from './qorus_creator/common_constants';
 import { suffixToIfaceKind,dash2Pascal } from './qorus_utils';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
@@ -201,6 +202,25 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             if (data[tag]) {
                 data[tag] = data[tag].map(value => ({ name: value }));
             }
+        });
+
+        const array_of_pairs_fields = ['tags', 'define-auth-label', 'options', 'statuses'];
+        array_of_pairs_fields.forEach(tag => {
+            if (!data[tag]) {
+                return;
+            }
+
+            const [key_name, value_name] = field[tag.replace(/-/g, '_')].fields;
+            let transformed_data = [];
+
+            for (const key in data[tag]) {
+                transformed_data.push({
+                    [key_name]: key,
+                    [value_name]: data[tag][key]
+                });
+            }
+
+            data[tag] = transformed_data;
         });
 
         for (const method of data.methods || []) {

@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import { quotesIfNum } from '../qorus_utils';
@@ -264,13 +265,12 @@ export abstract class InterfaceCreator {
                 result += `${tag}:\n`;
                 switch (tag) {
                     case 'tags':
-                        for (let item of value) {
-                            result += `${indent}${item.key}: ${item.value}\n`;
-                        }
-                        break;
+                    case 'options':
                     case 'define-auth-label':
+                    case 'statuses':
+                        const [key_name, value_name] = field[tag.replace(/-/g, '_')].fields;
                         for (let item of value) {
-                            result += `${indent}${item.label}: ${item.value}\n`;
+                            result += `${indent}${item[key_name]}: ${item[value_name]}\n`;
                         }
                         break;
                     case 'author':
