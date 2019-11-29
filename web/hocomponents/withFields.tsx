@@ -7,7 +7,7 @@ import { every, reduce } from 'lodash';
 const getInterfaceCollectionType: (type: string) => [] | {} = type => {
     switch (type) {
         case 'service-methods':
-        case 'mapper-functions':
+        case 'mapper-methods':
             return {};
         default:
             return [];
@@ -31,7 +31,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             service: [],
             ['mapper-code']: [],
             ['service-methods']: {},
-            ['mapper-functions']: {},
+            ['mapper-methods']: {},
             workflow: [],
             job: [],
             class: [],
@@ -46,7 +46,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             service: [],
             ['mapper-code']: [],
             ['service-methods']: {},
-            ['mapper-functions']: {},
+            ['mapper-methods']: {},
             workflow: [],
             job: [],
             class: [],
@@ -59,7 +59,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             service: '',
             ['mapper-code']: '',
             ['service-methods']: '',
-            ['mapper-functions']: '',
+            ['mapper-methods']: '',
             workflow: '',
             job: '',
             class: '',
@@ -72,7 +72,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             service: '',
             ['service-methods']: '',
             workflow: '',
-            ['mapper-functions']: '',
+            ['mapper-methods']: '',
             ['mapper-code']: '',
             job: '',
             class: '',

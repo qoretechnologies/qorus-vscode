@@ -540,9 +540,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (!onSubmit || forceSubmit) {
             let newData: { [key: string]: any };
             // If this is service methods
-            if (type === 'service-methods' || type === 'mapper-functions') {
+            if (type === 'service-methods' || type === 'mapper-methods') {
                 const intrfType = type === 'service-methods' ? 'service' : 'mapper-code';
-                const subItemType = type === 'service-methods' ? 'methods' : 'mapper-functions';
+                const subItemType = type === 'service-methods' ? 'methods' : 'mapper-methods';
                 // Get the service data
                 newData = reduce(
                     allSelectedFields[intrfType],
@@ -594,7 +594,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             // Service methods use the service type
             if (type === 'service-methods') {
                 iface_kind = 'service';
-            } else if (type === 'mapper-functions') {
+            } else if (type === 'mapper-methods') {
                 iface_kind = 'mapper-code';
             }
             // Config items use the parent type
@@ -627,7 +627,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     orig_data:
                         type === 'service-methods'
                             ? initialData.service
-                            : type === 'mapper-functions'
+                            : type === 'mapper-methods'
                             ? initialData['mapper-code']
                             : data,
                     open_file_on_success: openFileOnSubmit !== false,

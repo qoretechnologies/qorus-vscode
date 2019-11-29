@@ -176,7 +176,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                             <MethodSelector
                                                 key={fun.id}
                                                 active={fun.id === activeFunction}
-                                                valid={isSubItemValid(fun.id, 'mapper-functions')}
+                                                valid={isSubItemValid(fun.id, 'mapper-methods')}
                                                 onClick={() => setActiveFunction(fun.id)}
                                             >
                                                 {fun.name || `${t('Function')} ${fun.id}`}
@@ -193,7 +193,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                                     currentFunction => currentFunction.id !== fun.id
                                                                 )
                                                             );
-                                                            removeSubItemFromFields(fun.id, 'mapper-functions');
+                                                            removeSubItemFromFields(fun.id, 'mapper-methods');
                                                             setFunctionsCount((current: number) => current - 1);
                                                         }}
                                                     />
@@ -219,7 +219,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                         setShowFunctions(false);
                                     }}
                                     initialInterfaceId={library ? library.interfaceId : interfaceId.library}
-                                    type="mapper-functions"
+                                    type="mapper-methods"
                                     activeId={activeFunction}
                                     isEditing={!!library}
                                     allMethodsData={functionsData}

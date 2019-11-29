@@ -54,13 +54,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
     return mapProps(({ 'mapper-code': mapperCode, ...rest }) => ({
         initialFunctions:
-            mapperCode && mapperCode['mapper-functions']
-                ? mapperCode['mapper-functions'].map((fun, i) => ({ name: fun.name, id: i + 1 }))
+            mapperCode && mapperCode['mapper-methods']
+                ? mapperCode['mapper-methods'].map((fun, i) => ({ name: fun.name, id: i + 1 }))
                 : [{ id: 1 }],
-        initialFunctionsCount: mapperCode && mapperCode['mapper-functions'] ? size(mapperCode['mapper-functions']) : 1,
+        initialFunctionsCount: mapperCode && mapperCode['mapper-methods'] ? size(mapperCode['mapper-methods']) : 1,
         // Set the last function ID to the functions
         // count + 1 if functions exist
-        initialFunctionId: mapperCode && mapperCode['mapper-functions'] ? size(mapperCode['mapper-functions']) : 1,
+        initialFunctionId: mapperCode && mapperCode['mapper-methods'] ? size(mapperCode['mapper-methods']) : 1,
         // If function is being edited, switch to it
         initialActiveFunctionId: (mapperCode && mapperCode.active_method) || null,
         // Set to show functions if active function
@@ -71,8 +71,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         // in the function selector
         functionsData:
             mapperCode &&
-            mapperCode['mapper-functions'] &&
-            mapperCode['mapper-functions'].map((fun, i) => ({ ...fun, id: i + 1 })),
+            mapperCode['mapper-methods'] &&
+            mapperCode['mapper-methods'].map((fun, i) => ({ ...fun, id: i + 1 })),
         mapperCode,
         ...rest,
     }))(EnhancedComponent);
