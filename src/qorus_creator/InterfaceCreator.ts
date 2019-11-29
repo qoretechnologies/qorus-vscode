@@ -116,6 +116,7 @@ export abstract class InterfaceCreator {
         const {
             class_name_range,
             base_class_name_range,
+            first_base_class_line_no,
             num_inherited,
             base_class_ord
         } = edit_info;
@@ -128,14 +129,26 @@ export abstract class InterfaceCreator {
             lines[position.line] = chars.join('');
         }
 
+        const inherits_kw = lang_inherits[this.lang];
+
+        const eraseInheritsKw = () => {
+            const strings_to_erase =[` ${inherits_kw}`, `${inherits_kw} `, `${inherits_kw}`];
+            for (let n = class_name_range.start.line; n <= first_base_class_line_no; n++) {
+                for (const string_to_erase of strings_to_erase) {
+                    if (lines[n].includes(string_to_erase)) {
+                        lines[n] = lines[n].replace(string_to_erase, '');
+                        return;
+                    }
+                }
+            }
+        };
+
         if (base_class_name && !orig_base_class_name) {
             if (has_other_base_class) {
-                const line_no = class_name_range.start.line;
-                const regexp = new RegExp(` ${lang_inherits[this.lang]}\\s*`);
-                lines[line_no] = lines[line_no].replace(regexp, '')
-                replace(class_name_range.end, '', ` ${lang_inherits[this.lang]} ${base_class_name}, `);
+                eraseInheritsKw();
+                replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name}, `);
             } else {
-                replace(class_name_range.end, '', ` ${lang_inherits[this.lang]} ${base_class_name}`);
+                replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name}`);
             }
         }
         else if (!base_class_name && orig_base_class_name) {
@@ -149,8 +162,8 @@ export abstract class InterfaceCreator {
                 }
                 lines[line_no] = lines[line_no].replace(regexp, '');
             } else {
-                lines[line_no] = lines[line_no].replace(` ${lang_inherits[this.lang]}`, '')
-                                               .replace(` ${orig_base_class_name}`, '');
+                eraseInheritsKw();
+                lines[line_no] = lines[line_no].replace(` ${orig_base_class_name}`, '');
             }
         }
         else if (base_class_name !== orig_base_class_name) {

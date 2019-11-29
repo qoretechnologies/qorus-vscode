@@ -155,6 +155,9 @@ export class QorusProjectCodeInfo {
                 base_class_name_range: base_class_ord === -1
                     ? undefined
                     : loc2range(symbol.inherits[base_class_ord].name.loc),
+                first_base_class_line_no: num_inherited > 0
+                    ? loc2range(symbol.inherits[0].name.loc).start.line
+                    : undefined,
                 num_inherited,
                 base_class_ord
             });
