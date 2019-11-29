@@ -92,23 +92,30 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         switch (iface_kind) {
             case 'mapper-code':
-                data['mapper-methods'] = data.methods;
-                delete data.methods;
-                // intentionally no break here
             case 'service':
+                let methods_key = 'methods';
+
+                if (iface_kind === 'mapper-code') {
+                    data['mapper-methods'] = data.methods;
+                    delete data.methods;
+                    methods_key = 'mapper-methods';
+                }
+
+                let cloned_data = JSON.parse(JSON.stringify(data));
+                cloned_data[methods_key] = [...cloned_data[methods_key] || [], { name: '', desc: '' }];
+
                 lenses.push(new vscode.CodeLens(range, {
                     title: gettext('Edit' + dash2Pascal(iface_kind)),
                     command: 'qorus.editInterface',
                     arguments: [data, iface_kind],
                 }));
 
-                let cloned_data = JSON.parse(JSON.stringify(data));
-                cloned_data.methods = [...cloned_data.methods || [], {name: '', desc: ''}];
                 lenses.push(new vscode.CodeLens(range, {
                     title: t`AddMethod`,
                     command: 'qorus.editInterface',
-                    arguments: [{ ...cloned_data, active_method: cloned_data.methods.length }, iface_kind],
+                    arguments: [{ ...cloned_data, active_method: cloned_data[methods_key].length }, iface_kind],
                 }));
+
                 break;
             case 'job':
                 lenses.push(new vscode.CodeLens(range, {

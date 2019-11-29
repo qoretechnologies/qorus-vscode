@@ -316,6 +316,7 @@ export abstract class InterfaceCreator {
             else {
                 switch (tag) {
                     case 'orig_name':
+                    case 'method_index':
                         break;
                     case 'schedule':
                         const cron_values = value.split(' ');

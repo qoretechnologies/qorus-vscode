@@ -14,9 +14,11 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
     editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
         let suffix: string;
+        let methods_key: string;
         switch (iface_kind) {
             case 'service':
                 suffix = '.qsd';
+                methods_key = 'methods';
                 this.class_template = service_class_template;
                 this.method_template = service_method_template;
                 if (!(data.methods || []).length) {
@@ -27,9 +29,10 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 }
                 break;
             case 'mapper-code':
+                suffix = '.qmc';
+                methods_key = 'mapper-methods';
                 this.class_template = mapper_code_class_template;
                 this.method_template = mapper_code_method_template;
-                suffix = '.qmc';
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
@@ -37,16 +40,14 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         const {
-            methods: service_methods,
-           'mapper-methods': mapper_methods,
-           ...header_data
+            [methods_key]: methods,
+            ...header_data
         } = this.init(data, suffix);
-        const methods = service_methods || mapper_methods || [];
 
         const {
             target_dir: orig_target_dir,
             target_file: orig_target_file,
-            methods: orig_methods,
+            [methods_key]: orig_methods,
             ...other_orig_data
         } = orig_data || data || {};
 
@@ -93,9 +94,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                     message = t`MapperCodeMethodHasBeenDeleted ${method_name}`;
                 }
 
-                data.methods.splice(data.method_index, 1);
+                data[methods_key].splice(data.method_index, 1);
 
-                data.active_method = data.methods.length - 1;
+                data.active_method = data[methods_key].length - 1;
 
                 break;
             default:
@@ -275,7 +276,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         });
     }
 
-    private code = (data: any, method_objects: any[]): any => {
+    private code = (data: any, method_objects: any[] = []): any => {
         let method_strings = [];
         for (let method of method_objects) {
             method_strings.push(this.fillTemplate(this.method_template, { name: method.name }, false));
@@ -289,7 +290,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         });
     }
 
-    protected static createMethodHeaders = (methods: any): string => {
+    protected static createMethodHeaders = (methods: any[] = []): string => {
         const list_indent = '  - ';
         const indent = '    ';
         let result: string = 'methods:\n';
