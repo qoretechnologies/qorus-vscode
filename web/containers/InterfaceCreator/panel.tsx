@@ -628,7 +628,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         type === 'service-methods'
                             ? initialData.service
                             : type === 'mapper-functions'
-                            ? initialData.library
+                            ? initialData['mapper-code']
                             : data,
                     open_file_on_success: openFileOnSubmit !== false,
                     iface_id: interfaceId,
