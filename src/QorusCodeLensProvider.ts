@@ -92,7 +92,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
         switch (iface_kind) {
             case 'mapper-code':
-                data['mapper-functions'] = data.methods;
+                data['mapper-methods'] = data.methods;
                 delete data.methods;
                 // intentionally no break here
             case 'service':
@@ -165,7 +165,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         data = this.fixData({ ...data });
 
         if (iface_kind === 'mapper-code') {
-            data['mapper-functions'] = data.methods;
+            data['mapper-methods'] = data.methods;
             delete data.methods;
         }
 

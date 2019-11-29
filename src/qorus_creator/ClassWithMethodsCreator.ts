@@ -38,7 +38,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         const {
             methods: service_methods,
-           'mapper-functions': mapper_methods,
+           'mapper-methods': mapper_methods,
            ...header_data
         } = this.init(data, suffix);
         const methods = service_methods || mapper_methods || [];

@@ -6,7 +6,7 @@ import { serviceFields, service_methods } from './service_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
-import { mapperFields, mapperCodeFields, mapper_function_fields } from './mapper_constants';
+import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_constants';
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 
@@ -32,8 +32,8 @@ class InterfaceCreatorDispatcher {
                 return configItemFields(params.interface_info);
             case 'mapper-code':
                 return mapperCodeFields(params);
-            case 'mapper-functions':
-                return mapper_function_fields;
+            case 'mapper-methods':
+                return mapper_method_fields;
             case 'other':
                 return otherFields(params);
             default:

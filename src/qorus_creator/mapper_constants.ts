@@ -54,7 +54,7 @@ export const mapperCodeFields = ({default_target_dir}) => [
     field.author,
 ];
 
-export const mapper_function_fields = [
+export const mapper_method_fields = [
     field.name,
     field.desc,
 ];
