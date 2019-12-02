@@ -445,11 +445,12 @@ export class QorusProjectCodeInfo {
 
         switch (object_type) {
             case 'workflow-step':
-                const steps = this.yamlDataByType('step');
+            case 'mapper-code':
+                const objects = this.yamlDataByType(object_type);
                 this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
-                    Object.keys(steps).map(key => ({
+                    Object.keys(objects).map(key => ({
                         name: key,
-                        desc: steps[key].desc
+                        desc: objects[key].desc
                     }))));
                 break;
             case 'service-base-class':

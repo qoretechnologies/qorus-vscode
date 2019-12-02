@@ -841,6 +841,12 @@ msgstr "Language"
 msgid "field-desc-lang"
 msgstr "Programming language"
 
+msgid "field-label-codes"
+msgstr "Mapper codes"
+
+msgid "field-desc-codes"
+msgstr "Classes with mapper methods"
+
 msgid "field-label-service"
 msgstr "Service"
 

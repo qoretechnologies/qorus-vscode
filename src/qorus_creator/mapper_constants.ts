@@ -41,6 +41,7 @@ export const mapperFields = ({default_target_dir}) => [
     {
         name: 'codes',
         type: 'select-array',
+        mandatory: false,
         get_message: {
             action: 'creator-get-objects',
             object_type: 'mapper-code',
