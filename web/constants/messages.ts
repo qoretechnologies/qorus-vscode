@@ -37,4 +37,6 @@ export const Messages = {
     CREATOR_REMOVE_FIELD: 'creator-remove-field',
     CREATOR_ENABLE_FIELD: 'creator-enable-field',
     CREATOR_DISABLE_FIELD: 'creator-disable-field',
+    GET_MAPPER_CODE_METHODS: 'get-mapper-code-methods',
+    RETURN_MAPPER_CODE_METHODS: 'return-mapper-code-methods',
 };

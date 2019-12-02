@@ -761,6 +761,11 @@ div.configItemsEditor {
     width: 100%;
 }
 
+.bp3-control,
+.bp3-large {
+    margin-bottom: unset;
+}
+
 @import '../components/DataOrEmptyTable/style.scss';
 @import '../components/Tree/style.scss';
 @import '../components/ContentByType/style.scss';

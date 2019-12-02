@@ -23,7 +23,12 @@ export interface IMapperViewProps {
     isFormValid: (type: string) => boolean;
 }
 
-const MapperView: FunctionComponent<IMapperViewProps> = ({ t, isFormValid, initialData: { mapper } }) => {
+const MapperView: FunctionComponent<IMapperViewProps> = ({
+    t,
+    isFormValid,
+    selectedFields,
+    initialData: { mapper },
+}) => {
     return (
         <MapperContext.Consumer>
             {({ showMapperConnections, setShowMapperConnections }) => (
@@ -52,6 +57,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({ t, isFormValid, initi
                         <MapperCreator
                             onBackClick={() => setShowMapperConnections(false)}
                             isFormValid={isFormValid('mapper')}
+                            methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
                         />
                     )}
                 </>

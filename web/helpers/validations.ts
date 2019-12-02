@@ -58,7 +58,9 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
             // Check if the date is valid
             return value !== null && value !== '' && new Date(value).toString() !== 'Invalid Date';
         case 'hash':
+        case 'hash<auto>':
         case 'list':
+        case 'list<auto>':
             // Check if the value isn't empty
             if (value === null || value === '') {
                 return false;
@@ -72,6 +74,14 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
             }
 
             return yamlCorrect;
+        case 'mapper-code':
+            if (!value) {
+                return false;
+            }
+            // Split the value
+            const [code, method] = value.split('.');
+            // Both fields need to be strings & filled
+            return validateField('string', code) && validateField('string', method);
         default:
             return true;
     }

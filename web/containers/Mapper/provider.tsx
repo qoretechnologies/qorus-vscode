@@ -173,7 +173,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 if (data.has_record || !providers[provider].requiresRecord) {
                     (async () => {
                         setIsLoading(true);
-                        if (type === 'outputs') {
+                        if (type === 'outputs' && data.mapper_keys) {
                             // Save the mapper keys
                             setMapperKeys(data.mapper_keys);
                         }

@@ -16,6 +16,7 @@ export interface IMapperInputProps {
     field: any;
     isCustom: boolean;
     path: string;
+    hasAvailableOutput: boolean;
 }
 
 const StyledDragHandle = styled.div`
@@ -35,6 +36,7 @@ const MapperInput: FC<IMapperInputProps> = ({
     onClick,
     type,
     path,
+    hasAvailableOutput,
 }) => {
     const [{ opacity }, dragRef] = useDrag({
         item: { type: 'input', types, id: path },
@@ -43,11 +45,27 @@ const MapperInput: FC<IMapperInputProps> = ({
         }),
     });
 
+    const finalOpacity = hasAvailableOutput ? opacity : 0.5;
+
     return (
-        <StyledMapperField style={{ opacity }} input isChild={isChild} level={level} childrenCount={lastChildIndex}>
-            <StyledDragHandle ref={dragRef} style={{ opacity }}>
+        <StyledMapperField
+            style={{ opacity }}
+            input
+            isChild={isChild}
+            isDisabled={!hasAvailableOutput}
+            level={level}
+            childrenCount={lastChildIndex}
+        >
+            <StyledDragHandle ref={hasAvailableOutput ? dragRef : undefined} style={{ opacity: finalOpacity }}>
                 <h4>{name}</h4>
-                <p>{`<${types.join(',')}>`}</p>
+                <p
+                    className={types
+                        .join(' ')
+                        .replace(/</g, '')
+                        .replace(/>/g, '')}
+                >
+                    {types.join(',')}
+                </p>
             </StyledDragHandle>
             <AddFieldButton
                 field={field}

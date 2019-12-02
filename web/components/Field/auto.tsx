@@ -76,7 +76,9 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
         case 'date':
             return <DateField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
         case 'hash':
+        case 'hash<auto>':
         case 'list':
+        case 'list<auto>':
             return (
                 <TextareaField {...rest} name={name} onChange={handleChange} value={value} fill type={currentType} />
             );

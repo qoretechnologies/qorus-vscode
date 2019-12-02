@@ -1,35 +1,23 @@
-import React, { FC, useState, useCallback, FormEvent, useMemo } from 'react';
-import { Button, Dialog, ButtonGroup, InputGroup, Intent, Classes, Tooltip } from '@blueprintjs/core';
+import React, { FC, useState } from 'react';
+import { Button, Dialog, ButtonGroup, Classes } from '@blueprintjs/core';
 import { TTranslator } from '../../App';
 import Box from '../../components/ResponsiveBox';
-import set from 'lodash/set';
 import size from 'lodash/size';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import every from 'lodash/every';
-import String from '../../components/Field/string';
-import {
-    ContentWrapper,
-    FieldWrapper,
-    FieldInputWrapper,
-    ActionsWrapper,
-    SearchWrapper,
-} from '../InterfaceCreator/panel';
+import { ContentWrapper, FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
 import FieldLabel from '../../components/FieldLabel';
 import { validateField } from '../../helpers/validations';
-import SelectField from '../../components/Field/select';
-import Pull from '../../components/Pull';
-import useMount from 'react-use/lib/useMount';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import BooleanField from '../../components/Field/boolean';
 import Content from '../../components/Content';
 import SidePanel from '../../components/SidePanel';
-import { type } from 'os';
 import FieldSelector from '../../components/FieldSelector';
-import { types } from 'react-markdown';
 import Field from '../../components/Field';
 import FieldActions from '../../components/FieldActions';
 import OptionHashField from '../../components/Field/optionHash';
+import MapperCodeField from '../../components/Field/mapperCode';
+import SelectField from '../../components/Field/select';
 
 export interface IMapperFieldModalProps {
     onClose: () => any;
@@ -39,6 +27,7 @@ export interface IMapperFieldModalProps {
     relationData: any;
     mapperKeys: any;
     output: any;
+    inputs: any[];
 }
 
 const MapperFieldModal: FC<IMapperFieldModalProps> = ({
@@ -46,9 +35,9 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     relationData,
     mapperKeys,
     t,
-    initialData,
     onSubmit,
     output,
+    inputs,
 }) => {
     const [relation, setRelation] = useState(relationData || {});
 
@@ -73,14 +62,34 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 
     const isMappingValid: () => boolean = () => {
         // Check if all keys are valid
-        return every(relation, (value, key) => {
-            // Get the key type
-            const type = getKeyType(key);
-            // Get the mandatory flag
+        return every(relation, (value, key) => getIsFieldValid(key, value));
+    };
 
-            // Check validity
-            return validateField(type, value);
-        });
+    const getIsFieldValid: (key: string, value: any) => boolean = (key, value) => {
+        let valid = true;
+        // Get the key type
+        const fieldType = getKeyType(key);
+        // Special types
+        if (fieldType === 'option_hash') {
+            // Check if the value exists
+            if (value) {
+                // Map through the options
+                value.forEach(val => {
+                    // Get the type of this option
+                    const optionType = output.type.supported_options[val.name]?.type;
+                    // Check if the option is valid
+                    if (!validateField(optionType, val.value)) {
+                        valid = false;
+                    }
+                });
+            } else {
+                valid = false;
+            }
+        } else if (!validateField(fieldType, value)) {
+            valid = false;
+        }
+
+        return valid;
     };
 
     const handleSubmit = () => {
@@ -208,6 +217,20 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         {}
     );
 
+    const getPossibleInputs =
+        inputs &&
+        inputs
+            .filter(input => {
+                return (
+                    size(input.type.types_returned) <= size(output.type.types_accepted) &&
+                    output.type.types_accepted.some((type: string) => input.type.types_returned.includes(type))
+                );
+            })
+            .map(input => ({
+                name: input.path,
+                desc: input.desc,
+            }));
+
     return (
         <Dialog isOpen title={t('ManageOutputMapping')} onClose={onClose} style={{ paddingBottom: 0, width: '70vw' }}>
             <Box top fill scrollY style={{ flexFlow: 'row' }}>
@@ -227,17 +250,30 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                 <Content title={t('FillValues')} style={{ height: 'unset' }}>
                     <ContentWrapper>
                         {size(relation) ? (
-                            map(relation, (value: any, key: string) => (
+                            map(relation, (value: string, key: string) => (
                                 <FieldWrapper>
-                                    <FieldLabel label={key} isValid={validateField(getKeyType(key), value)} />
+                                    <FieldLabel label={key} isValid={getIsFieldValid(key, value)} />
                                     <FieldInputWrapper>
-                                        {getKeyType(key) === 'option_hash' ? (
+                                        {getKeyType(key) === 'mapper-code' ? (
+                                            <MapperCodeField
+                                                onChange={handleChange}
+                                                defaultCode={value && value.split('.')[0]}
+                                                defaultMethod={value && value.split('.')[1]}
+                                            />
+                                        ) : getKeyType(key) === 'option_hash' ? (
                                             <OptionHashField
                                                 name={key}
                                                 value={value || undefined}
                                                 onChange={handleOptionHashChange}
                                                 items={getOptions()}
                                                 options={output.type.supported_options}
+                                            />
+                                        ) : key === 'name' ? (
+                                            <SelectField
+                                                name={key}
+                                                value={value}
+                                                defaultItems={getPossibleInputs}
+                                                onChange={handleChange}
                                             />
                                         ) : (
                                             <Field
@@ -259,7 +295,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 
                     <ActionsWrapper style={{ marginTop: 20 }}>
                         <ButtonGroup fill>
-                            <Button text="Reset" icon="history" onClick={() => {}} />
+                            <Button text="Reset" icon="history" onClick={() => setRelation(relationData || {})} />
                             <Button
                                 intent="success"
                                 text="Submit"

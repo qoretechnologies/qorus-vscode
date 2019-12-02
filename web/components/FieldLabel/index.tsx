@@ -5,8 +5,8 @@ import { Icon, Intent } from '@blueprintjs/core';
 const StyledFieldLabel = styled.div`
     padding: 0px 10px 0 0;
     flex: 0 1 auto;
-    min-width: 200px;
-    max-width: 200px;
+    min-width: 150px;
+    max-width: 150px;
     display: flex;
     flex-flow: row;
     position: relative;

@@ -4,13 +4,11 @@ import { Button, ButtonGroup } from '@blueprintjs/core';
 export interface IAddFieldProps {
     onClick: any;
     isCustom: boolean;
-    isOutput: boolean;
     canManageFields: boolean;
     field: any;
-    onManageClick: any;
 }
 
-const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, isOutput, canManageFields, field, onManageClick }) => {
+const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields, field }) => {
     const onAddClick = useCallback(() => {
         onClick(field);
     }, []);
@@ -24,21 +22,44 @@ const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, isOutput, canMa
     }, []);
 
     return (
-        <>
-            {isOutput && (
+        <ButtonGroup
+            style={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+            }}
+        >
+            {canManageFields && (
                 <Button
-                    style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: '-12px' }}
-                    icon="cog"
+                    onClick={onAddClick}
+                    minimal
+                    icon="small-plus"
                     small
-                    onClick={onManageClick}
+                    style={{ minWidth: '18px', minHeight: '18px' }}
                 />
             )}
-            <ButtonGroup style={{ position: 'absolute', bottom: '-12px', left: '50%', transform: 'translateX(-50%)' }}>
-                {canManageFields && <Button onClick={onAddClick} icon="small-plus" small />}
-                {isCustom ? <Button onClick={onEditClick} icon="edit" small /> : null}
-                {isCustom && <Button onClick={onDeleteClick} icon="trash" small intent="danger" />}
-            </ButtonGroup>
-        </>
+            {isCustom ? (
+                <Button
+                    onClick={onEditClick}
+                    className="field-manage"
+                    icon="edit"
+                    small
+                    minimal
+                    style={{ minWidth: '18px', minHeight: '18px' }}
+                />
+            ) : null}
+            {isCustom && (
+                <Button
+                    className="field-manage"
+                    onClick={onDeleteClick}
+                    icon="trash"
+                    small
+                    minimal
+                    intent="danger"
+                    style={{ minWidth: '18px', minHeight: '18px' }}
+                />
+            )}
+        </ButtonGroup>
     );
 };
 

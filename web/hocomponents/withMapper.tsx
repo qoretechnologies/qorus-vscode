@@ -36,8 +36,18 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             fieldSetters[fieldsType](current => {
                 // Clone the current fields
                 const result: any = { ...current };
+                // Build the path
+                const fields: string[] = path.split('.');
+                let newPath: string;
+                fields.forEach(fieldName => {
+                    if (!newPath) {
+                        newPath = fieldName;
+                    } else {
+                        newPath += `.type.fields.${fieldName}`;
+                    }
+                });
                 // Get the object at the exact path
-                const obj: any = get(result, path);
+                const obj: any = get(result, newPath);
                 // Add new object
                 obj.type.fields[data.name] = data;
                 // Return new data
@@ -52,11 +62,21 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             fieldSetters[fieldsType](current => {
                 // Clone the current fields
                 const result: any = { ...current };
+                // Build the path
+                const fields: string[] = path.split('.');
+                let newPath: string;
+                fields.forEach(fieldName => {
+                    if (!newPath) {
+                        newPath = fieldName;
+                    } else {
+                        newPath += `.type.fields.${fieldName}`;
+                    }
+                });
                 // Get the object at the exact path
                 if (remove) {
-                    unset(result, path);
+                    unset(result, newPath);
                 } else {
-                    set(result, path, data);
+                    set(result, newPath, data);
                 }
                 // Return new data
                 return result;
