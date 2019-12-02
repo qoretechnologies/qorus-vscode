@@ -38,7 +38,20 @@ export const mapperFields = ({default_target_dir}) => [
         name: 'mappertype',
     },
     field.author,
-    field.functions,
+    {
+        name: 'codes',
+        type: 'select-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'mapper-code',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'mapper-code',
+            return_value: 'objects',
+        },
+    }
+    field.classes,
 ];
 
 export const mapperCodeFields = ({default_target_dir}) => [
