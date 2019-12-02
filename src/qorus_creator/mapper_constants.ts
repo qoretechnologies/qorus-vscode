@@ -50,7 +50,7 @@ export const mapperFields = ({default_target_dir}) => [
             object_type: 'mapper-code',
             return_value: 'objects',
         },
-    }
+    },
     field.classes,
 ];
 
