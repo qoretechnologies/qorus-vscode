@@ -1,9 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import mapProps from 'recompose/mapProps';
-import { isArray, reduce, get, set, unset } from 'lodash';
+import { get, set, unset } from 'lodash';
 import { MapperContext } from '../context/mapper';
-import { IMapperRelation } from '../containers/Mapper';
-import useMount from 'react-use/lib/useMount';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
