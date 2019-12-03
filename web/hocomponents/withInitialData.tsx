@@ -20,7 +20,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }
 
                 //data.tab = 'CreateInterface';
-                data.subtab = 'mapper';
+                /*data.subtab = 'mapper';
                 data.mapper = {
                     name: 'test',
                     target_dir: './',
@@ -28,7 +28,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     version: 'heh',
                     mappertype: 'kok',
                     functions: [{ name: 'test' }, { name: 'test2' }, { name: 'test3' }],
-                };
+                };*/
 
                 setInitialData(data);
             });
