@@ -143,23 +143,24 @@ export class QorusProjectCodeInfo {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
         const class_name_range: vscode.Range = loc2range(symbol.name.loc, 'class ');
 
-        const num_inherited: number = (symbol.inherits || []).length;
+        const num_inherited = (symbol.inherits || []).length;
 
-        const addClassInfo = (base_class_ord: number = -1) => {
+        const addClassInfo = (main_base_class_ord: number = -1) => {
             if (!this.edit_info[file]) {
                 this.edit_info[file] = {};
             }
             Object.assign(this.edit_info[file], {
                 class_def_range,
                 class_name_range,
-                base_class_name_range: base_class_ord === -1
+                main_base_class_name_range: main_base_class_ord === -1
                     ? undefined
-                    : loc2range(symbol.inherits[base_class_ord].name.loc),
-                first_base_class_line_no: num_inherited > 0
+                    : loc2range(symbol.inherits[main_base_class_ord].name.loc),
+                first_base_class_line: num_inherited > 0
                     ? loc2range(symbol.inherits[0].name.loc).start.line
                     : undefined,
-                num_inherited,
-                base_class_ord
+                last_class_line: loc2range(symbol.loc).end.line,
+                has_other_base_class: num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1),
+                main_base_class_ord
             });
         }
 

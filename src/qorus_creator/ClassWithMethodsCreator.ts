@@ -52,11 +52,10 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         } = orig_data || data || {};
 
         let orig_file_path: string;
-        let edit_info: any;
 
         if (['edit', 'delete-method'].includes(edit_type)) {
             orig_file_path = path.join(orig_target_dir, orig_target_file);
-            edit_info = this.code_info.editInfo(orig_file_path);
+            this.edit_info = this.code_info.editInfo(orig_file_path);
         }
 
         let contents: string;
@@ -71,14 +70,13 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 const orig_method_names: string[] = (orig_methods || []).map(method => method.name);
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
-                code_lines = edit_info.text_lines;
-                code_lines = this.addMethods(code_lines, edit_info, method_renaming_map.added);
+                code_lines = this.edit_info.text_lines;
+                code_lines = this.addMethods(code_lines, method_renaming_map.added);
                 code_lines = this.renameClassAndBaseClass(code_lines,
-                                                          edit_info,
                                                           other_orig_data,
                                                           header_data);
-                code_lines = ClassWithMethodsCreator.renameMethods(code_lines, edit_info, method_renaming_map.renamed);
-                code_lines = ClassWithMethodsCreator.removeMethods(code_lines, edit_info, method_renaming_map.removed);
+                code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
+                code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
                 contents = code_lines.join('\n');
                 break;
             case 'delete-method':
@@ -86,7 +84,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                     break;
                 }
                 const method_name = methods[data.method_index].name;
-                code_lines = ClassWithMethodsCreator.removeMethods(edit_info.text_lines, edit_info, [method_name]);
+                code_lines = this.removeMethods(this.edit_info.text_lines, [method_name]);
                 contents = code_lines.join('\n');
                 if (iface_kind === 'service') {
                     message = t`ServiceMethodHasBeenDeleted ${method_name}`;
@@ -168,10 +166,10 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         return mapping;
     }
 
-    private static renameMethods(lines: string[], edit_info: any, renaming: any): string[] {
+    private renameMethods(lines: string[], renaming: any): string[] {
         let lines_with_renaming = {};
         for (const name of Object.keys(renaming)) {
-            const range = edit_info.method_name_ranges[name];
+            const range = this.edit_info.method_name_ranges[name];
             if (!lines_with_renaming[range.start.line]) {
                 lines_with_renaming[range.start.line] = {};
             }
@@ -194,7 +192,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         });
     }
 
-    private static removeMethods(lines: string[], edit_info: any, removed: string[]): string[] {
+    private removeMethods(lines: string[], removed: string[]): string[] {
         const removeRange = (lines, range) => {
             let rows = [];
             for (let i = 0; i < range.start.line; i++) {
@@ -207,15 +205,15 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             return rows;
         }
 
-        let rangesToRemove = removed.map(name => edit_info.method_decl_ranges[name]);
+        let rangesToRemove = removed.map(name => this.edit_info.method_decl_ranges[name]);
         while (rangesToRemove.length) {
             lines = removeRange(lines, rangesToRemove.pop())
         }
         return lines;
     }
 
-    private addMethods(lines: string[], edit_info: any, added: string[]): string[] {
-        const end: Position = edit_info.class_def_range.end;
+    private addMethods(lines: string[], added: string[]): string[] {
+        const end: Position = this.edit_info.class_def_range.end;
 
         const lines_before = lines.splice(0, end.line);
         const line = lines.splice(0, 1)[0];

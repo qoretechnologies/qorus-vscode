@@ -75,11 +75,10 @@ class ClassCreator extends InterfaceCreator {
                     break;
                 }
 
-                const edit_info = this.code_info.editInfo(orig_file_path);
+                this.edit_info = this.code_info.editInfo(orig_file_path);
 
-                code_lines = edit_info.text_lines;
+                code_lines = this.edit_info.text_lines;
                 code_lines = this.renameClassAndBaseClass(code_lines,
-                                                          edit_info,
                                                           other_orig_data,
                                                           header_data);
                 contents = code_lines.join('\n');
