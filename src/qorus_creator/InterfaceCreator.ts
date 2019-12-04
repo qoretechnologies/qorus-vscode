@@ -398,7 +398,9 @@ export abstract class InterfaceCreator {
                         result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
                     case 'fields':
-                        result += `${tag}:\n`;
+                    case 'mapper_options':
+                        const tag_name = tag === 'mapper_options' ? 'options' : tag;
+                        result += `${tag_name}:\n`;
                         let not_indented = jsyaml.safeDump(value, {indent: 4}).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {
                             not_indented.pop();
