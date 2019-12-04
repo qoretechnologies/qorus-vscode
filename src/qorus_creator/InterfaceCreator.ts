@@ -397,8 +397,8 @@ export abstract class InterfaceCreator {
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
-                    case 'options':
-                        result += 'fields:\n';
+                    case 'fields':
+                        result += `${tag}:\n`;
                         let not_indented = jsyaml.safeDump(value, {indent: 4}).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {
                             not_indented.pop();
