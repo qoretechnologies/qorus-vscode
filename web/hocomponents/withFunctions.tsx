@@ -7,7 +7,7 @@ import { FunctionsContext } from '../context/functions';
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const isInitialMount = useRef(true);
-        const [showFunctions, setShowFunctions] = useState<boolean>(props.initialShowFunctions);
+        const [showFunctions, setShowFunctions] = useState<boolean>(false);
         const [functions, setFunctions] = useState<any[]>(props.initialFunctions);
         const [functionsCount, setFunctionsCount] = useState<number>(props.initialFunctionsCount);
         const [lastFunctionId, setLastFunctionId] = useState<number>(props.initialFunctionId);
