@@ -80,7 +80,7 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
         name: 'errorfunction',
         mandatory: false,
     },
-    field.options,
+    field.workflow_options,
     {
         name: 'keylist',
         type: 'array',

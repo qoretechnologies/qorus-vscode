@@ -48,8 +48,9 @@ export const mapperFields = ({default_target_dir}) => [
         },
     },
     {
-        name: 'options',
+        name: 'mapper_options',
         type: 'mapper-options',
+        mandatory: false,
         requires_fields: 'mappertype'
     },
     field.author,

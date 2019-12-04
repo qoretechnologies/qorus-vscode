@@ -919,10 +919,10 @@ msgstr "Classes"
 msgid "field-desc-classes"
 msgstr "An optional list of class objects to load into the service program object"
 
-msgid "field-label-options"
+msgid "field-label-mapper_options"
 msgstr "Options"
 
-msgid "field-desc-options"
+msgid "field-desc-mapper_options"
 msgstr "Mapper options"
 
 msgid "field-label-functions"
@@ -1093,10 +1093,10 @@ msgstr "Error function"
 msgid "field-desc-errorfunction"
 msgstr "Error function description (ex: \"my_error_func:1.0\"); cannot be supplied if \"class\" is used"
 
-msgid "field-label-options"
+msgid "field-label-workflow_options"
 msgstr "Options"
 
-msgid "field-desc-options"
+msgid "field-desc-workflow_options"
 msgstr "A hash defining valid workflow options"
 
 msgid "field-label-keylist"

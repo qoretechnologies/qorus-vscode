@@ -249,8 +249,8 @@ export const field = {
         on_change: 'get-config-items',
         notify_on_remove: true
     },
-    options: {
-        name: 'options',
+    workflow_options: {
+        name: 'workflow_options',
         type: 'array-of-pairs',
         fields: ['key', 'value'],
         mandatory: false,

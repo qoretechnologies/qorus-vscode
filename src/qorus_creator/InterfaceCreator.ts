@@ -319,7 +319,7 @@ export abstract class InterfaceCreator {
                 result += `${tag}:\n`;
                 switch (tag) {
                     case 'tags':
-                    case 'options':
+                    case 'workflow_options':
                     case 'define-auth-label':
                     case 'statuses':
                         const [key_name, value_name] = field[tag.replace(/-/g, '_')].fields;
