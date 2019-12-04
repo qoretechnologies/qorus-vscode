@@ -3,7 +3,7 @@ import * as request from 'request-promise';
 import { QorusAuth } from './QorusAuth';
 import { tree, QorusTreeInstanceNode } from './QorusTree';
 import { qorus_webview } from './QorusWebview';
-import { QorusProject } from './QorusProject';
+import { QorusProject, projects } from './QorusProject';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
@@ -61,6 +61,8 @@ export class QorusLogin extends QorusAuth {
                     action: 'close-login',
                     qorus_instance: set_active ? qorus_instance : null,
                 });
+                const code_info = projects.currentProjectCodeInfo();
+                code_info && code_info.setCurrentQorusData();
             },
             error => {
                 this.requestError(error, t`LoginError`);

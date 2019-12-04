@@ -8,6 +8,7 @@ import { qorus_vscode } from './qorus_vscode';
 import { QorusProject, config_filename } from './QorusProject';
 import { qorus_webview } from './QorusWebview';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import { qorus_request } from './QorusRequest';
 import { filesInDir, canBeParsed, canDefineInterfaceBaseClass, suffixToIfaceKind } from './qorus_utils';
 import { QoreTextDocument, qoreTextDocument, loc2range } from './QoreTextDocument';
 import { t, gettext } from 'ttag';
@@ -76,6 +77,7 @@ export class QorusProjectCodeInfo {
     private workflow_classes = {};
     private step_classes = {};
     private source_directories = [];
+    private mapper_types = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -416,6 +418,19 @@ export class QorusProjectCodeInfo {
             };
 
             interval_id = setInterval(checkPending, interval);
+        });
+    }
+
+    setCurrentQorusData = () => {
+        this.setMapperTypes();
+    }
+
+    private setMapperTypes = () => {
+        qorus_request.doRequest('mappertypes', 'GET', response => {
+            const result = JSON.parse(response);
+            if (Array.isArray(result)) {
+                this.mapper_types = result.map(type => ({name: type.name, desc: type.desc}));
+            }
         });
     }
 
