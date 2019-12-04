@@ -919,6 +919,12 @@ msgstr "Classes"
 msgid "field-desc-classes"
 msgstr "An optional list of class objects to load into the service program object"
 
+msgid "field-label-options"
+msgstr "Options"
+
+msgid "field-desc-options"
+msgstr "Mapper options"
+
 msgid "field-label-functions"
 msgstr "Functions"
 
