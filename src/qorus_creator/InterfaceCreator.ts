@@ -389,13 +389,11 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
+                    case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
                     case 'type':
                         result += `${tag}: ${value.toLowerCase()}\n`;
-                        break;
-                    case 'version':
-                        result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
                     case 'fields':
                     case 'mapper_options':
