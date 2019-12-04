@@ -77,7 +77,7 @@ export class QorusProjectCodeInfo {
     private workflow_classes = {};
     private step_classes = {};
     private source_directories = [];
-    private mapper_types = {};
+    private mapper_types: any[] = [];
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -535,6 +535,9 @@ export class QorusProjectCodeInfo {
                     action: 'return-all-directories',
                     directories: this.all_dir_tree
                 }));
+                break;
+            case 'mapper-type':
+                postMessage('objects', this.mapper_types);
                 break;
             default:
                 msg.error(t`UnknownInterfaceProperty ${object_type}`);

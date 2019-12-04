@@ -36,6 +36,16 @@ export const mapperFields = ({default_target_dir}) => [
     field.version,
     {
         name: 'mappertype',
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'mapper-type',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'mapper-type',
+            return_value: 'objects',
+        },
     },
     field.author,
     {
