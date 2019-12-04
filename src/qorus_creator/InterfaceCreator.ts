@@ -6,6 +6,7 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
+import * as jsyaml from 'js-yaml';
 import { quotesIfNum } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -395,6 +396,14 @@ export abstract class InterfaceCreator {
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
+                        break;
+                    case 'options':
+                        result += 'fields:\n';
+                        let not_indented = jsyaml.safeDump(value, {indent: 4}).split(/\r?\n/);
+                        if (/^\s*$/.test(not_indented.slice(-1)[0])) {
+                            not_indented.pop();
+                        }
+                        result += not_indented.map(str => `${indent}${str}`).join('\n') + '\n';
                         break;
                     default:
                         result += `${tag}: ${value}\n`;

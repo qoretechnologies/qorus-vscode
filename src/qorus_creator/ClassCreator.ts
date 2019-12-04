@@ -31,6 +31,7 @@ class ClassCreator extends InterfaceCreator {
                 template = data['base-class-name'] ? subclass_template : class_template;
                 suffix = '.qclass';
                 break;
+            case 'mapper':
             case 'other':
                 break;
             default:
