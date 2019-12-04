@@ -19,7 +19,7 @@ export interface QorusRequestTexts {
     checking_status_failed: string;
 }
 
-const log_fetch_data_messages = false;
+const log_request_messages = false;
 
 export class QorusRequest extends QorusLogin {
     doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
@@ -198,24 +198,15 @@ export class QorusRequest extends QorusLogin {
         return { ok: true, active_instance, token };
     }
 
-    fetchData = ({id, method, url}) => {
-        const onError = error => {
-            msg.error(error);
-            qorus_webview.postMessage({
-                action: 'fetch-data-complete',
-                id,
-                error: error
-            });
-        };
-
+    doRequest = (url: string , method: string, onSuccess: Function, onError?: Function, id?: string) => {
         const { ok, active_instance, token } = this.activeQorusInstanceAndToken();
         if (!ok) {
-            onError(t`UnableGetActiveQorusInstanceData`);
+            msg.error(t`UnableGetActiveQorusInstanceData`);
             return;
         }
 
         const uri = `${active_instance.url}/api/latest/${url}`;
-        if (log_fetch_data_messages) {
+        if (log_request_messages) {
             msg.log(t`SendingRequest ${id} ${uri}`);
         }
 
@@ -228,19 +219,38 @@ export class QorusRequest extends QorusLogin {
             },
         }).then(
             response => {
-                if (log_fetch_data_messages) {
+                if (log_request_messages) {
                     msg.log(t`GettingResponse ${id} ${JSON.stringify(JSON.parse(response), null, 4)}`);
                 }
-                qorus_webview.postMessage({
-                    action: 'fetch-data-complete',
-                    id,
-                    data: JSON.parse(response)
-                });
+                onSuccess(response);
             },
             error => {
-                onError(error);
+                if (onError) {
+                    onError(error);
+                }
             }
         );
+    }
+
+    fetchData = ({id, method, url}) => {
+        const onSuccess = response => {
+            qorus_webview.postMessage({
+                action: 'fetch-data-complete',
+                id,
+                data: JSON.parse(response)
+            });
+        };
+
+        const onError = error => {
+            msg.error(error);
+            qorus_webview.postMessage({
+                action: 'fetch-data-complete',
+                id,
+                error: error
+            });
+        };
+
+        this.doRequest(url, method , onSuccess, onError, id);
     }
 }
 
