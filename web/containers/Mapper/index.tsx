@@ -305,14 +305,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         })();
     });
 
-    if (!initialData.qorus_instance) {
-        return (
-            <Callout title={t('MapperNoInstanceTitle')} icon="warning-sign" intent="warning">
-                {t('MapperNoInstance')}
-            </Callout>
-        );
-    }
-
     if (!mapperKeys) {
         return <p>Loading...</p>;
     }
@@ -554,7 +546,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             {}
         );
         // Add the relations
-        mapper.options = relations;
+        mapper.fields = relations;
         // Post the data
         postMessage(Messages.CREATE_INTERFACE, {
             iface_kind: 'mapper',

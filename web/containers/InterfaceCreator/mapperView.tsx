@@ -9,6 +9,7 @@ import { omit } from 'lodash';
 import { MapperContext } from '../../context/mapper';
 import MapperCreator from '../Mapper';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import { Callout } from '@blueprintjs/core';
 
 export const CreatorWrapper = styled.div`
     display: flex;
@@ -27,8 +28,16 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     t,
     isFormValid,
     selectedFields,
-    initialData: { mapper },
+    initialData: { mapper, qorus_instance },
 }) => {
+    if (!qorus_instance) {
+        return (
+            <Callout title={t('MapperNoInstanceTitle')} icon="warning-sign" intent="warning">
+                {t('MapperNoInstance')}
+            </Callout>
+        );
+    }
+
     return (
         <MapperContext.Consumer>
             {({ showMapperConnections, setShowMapperConnections }) => (
