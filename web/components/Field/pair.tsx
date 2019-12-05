@@ -10,6 +10,7 @@ export interface IPairField {
     valueValue: string;
     index: number | string;
     onRemoveClick: () => void;
+    canBeRemoved: boolean;
 }
 
 const PairField: FunctionComponent<IPairField & IFieldChange> = ({
@@ -20,6 +21,7 @@ const PairField: FunctionComponent<IPairField & IFieldChange> = ({
     onChange,
     index,
     onRemoveClick,
+    canBeRemoved,
 }) => (
     <div>
         <ControlGroup>
@@ -41,7 +43,7 @@ const PairField: FunctionComponent<IPairField & IFieldChange> = ({
                 }}
                 fill
             />
-            {index !== 1 && <Button icon={'trash'} onClick={onRemoveClick} />}
+            {canBeRemoved && <Button icon={'trash'} onClick={onRemoveClick} />}
         </ControlGroup>
     </div>
 );

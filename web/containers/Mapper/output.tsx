@@ -3,7 +3,8 @@ import { useDrop } from 'react-dnd';
 import { StyledMapperField } from '.';
 import size from 'lodash/size';
 import AddFieldButton from './add';
-import { Button } from '@blueprintjs/core';
+import { Button, Tooltip } from '@blueprintjs/core';
+import { TTranslator } from '../../App';
 
 export interface IMapperOutputProps {
     onDrop: (inputPath: string, outputPath: string) => any;
@@ -20,6 +21,7 @@ export interface IMapperOutputProps {
     isCustom: boolean;
     path: string;
     hasRelation: boolean;
+    t: TTranslator;
 }
 
 const MapperOutput: FC<IMapperOutputProps> = ({
@@ -37,6 +39,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
     isCustom,
     path,
     hasRelation,
+    t,
 }) => {
     const [{ canDrop, isDragging }, dropRef] = useDrop({
         accept: 'input',
@@ -61,6 +64,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
 
     return (
         <StyledMapperField
+            title={field.desc}
             ref={dropRef}
             style={{
                 display: isDragging ? (canDrop ? 'block' : 'none') : 'block',
@@ -81,21 +85,23 @@ const MapperOutput: FC<IMapperOutputProps> = ({
             >
                 {type.types_returned.join(',')}
             </p>
-            <Button
-                style={{
-                    position: 'absolute',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    left: '8px',
-                    minWidth: '18px',
-                    minHeight: '18px',
-                }}
-                icon="code"
-                minimal
-                small
-                intent={hasRelation ? 'success' : 'none'}
-                onClick={onManageClick}
-            />
+            <Tooltip content={t('ManageMapperFieldOptions')} position="right">
+                <Button
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        left: '8px',
+                        minWidth: '18px',
+                        minHeight: '18px',
+                    }}
+                    icon="code"
+                    minimal
+                    small
+                    intent={hasRelation ? 'success' : 'none'}
+                    onClick={onManageClick}
+                />
+            </Tooltip>
             <AddFieldButton
                 field={field}
                 isCustom={isCustom}

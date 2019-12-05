@@ -6,7 +6,7 @@ import size from 'lodash/size';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import every from 'lodash/every';
-import { ContentWrapper, FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
+import { ContentWrapper, FieldWrapper, FieldInputWrapper, ActionsWrapper, IField } from '../InterfaceCreator/panel';
 import FieldLabel from '../../components/FieldLabel';
 import { validateField } from '../../helpers/validations';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -18,6 +18,8 @@ import FieldActions from '../../components/FieldActions';
 import OptionHashField from '../../components/Field/optionHash';
 import MapperCodeField from '../../components/Field/mapperCode';
 import SelectField from '../../components/Field/select';
+import compose from 'recompose/compose';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
 export interface IMapperFieldModalProps {
     onClose: () => any;
@@ -28,6 +30,7 @@ export interface IMapperFieldModalProps {
     mapperKeys: any;
     output: any;
     inputs: any[];
+    selectedFields: any;
 }
 
 const MapperFieldModal: FC<IMapperFieldModalProps> = ({
@@ -38,6 +41,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     onSubmit,
     output,
     inputs,
+    selectedFields,
 }) => {
     const [relation, setRelation] = useState(relationData || {});
 
@@ -155,6 +159,19 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     const isKeyDisabled = (name: string): boolean => {
         let isDisabled = false;
         const { requires_roles, unique_roles } = mapperKeys[name];
+        // Name field can only be added if a valid input exists
+        if (name === 'name') {
+            if (size(getPossibleInputs) === 0) {
+                isDisabled = true;
+            }
+        }
+        // Code field is disabled if user did not add
+        // any mapper code
+        if (name === 'code') {
+            if (!size(selectedFields.mapper.find((field: IField) => field.name === 'codes')?.value)) {
+                isDisabled = true;
+            }
+        }
         // Check if this field is dependent on other fields
         if (requires_roles) {
             // Check if all the keys from the list
@@ -311,4 +328,4 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     );
 };
 
-export default withInitialDataConsumer()(MapperFieldModal);
+export default compose(withInitialDataConsumer(), withFieldsConsumer())(MapperFieldModal);

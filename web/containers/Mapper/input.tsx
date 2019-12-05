@@ -3,6 +3,7 @@ import { useDrag } from 'react-dnd';
 import { StyledMapperField } from '.';
 import AddFieldButton from './add';
 import styled from 'styled-components';
+import { Tooltip } from '@blueprintjs/core';
 
 export interface IMapperInputProps {
     id: number;
@@ -55,6 +56,7 @@ const MapperInput: FC<IMapperInputProps> = ({
             isDisabled={!hasAvailableOutput}
             level={level}
             childrenCount={lastChildIndex}
+            title={field.desc}
         >
             <StyledDragHandle ref={hasAvailableOutput ? dragRef : undefined} style={{ opacity: finalOpacity }}>
                 <h4>{name}</h4>

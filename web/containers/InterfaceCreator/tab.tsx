@@ -5,6 +5,7 @@ import { TTranslator } from '../../App';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import compose from 'recompose/compose';
 import { ButtonGroup, Button } from '@blueprintjs/core';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
 export interface ITabProps {
     initialData: any;
@@ -13,6 +14,7 @@ export interface ITabProps {
     type: string;
     isEditing: boolean;
     name: string;
+    resetFields: (type: string) => any;
 }
 
 const StyledTab = styled.div`
@@ -44,7 +46,7 @@ const StyledSeparator = styled.div`
     vertical-align: bottom;
 `;
 
-const Tab: React.FC<ITabProps> = ({ t, initialData, type, children }) => {
+const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetFields }) => {
     const isEditing: () => boolean = () => !!initialData[type];
     const getName: () => string = () => initialData?.[type]?.name;
 
@@ -56,7 +58,15 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children }) => {
                 {isEditing() && (
                     <div style={{ float: 'right' }}>
                         <ButtonGroup>
-                            <Button icon="add" text="Create new" intent="success" />
+                            <Button
+                                icon="add"
+                                text="Create new"
+                                intent="success"
+                                onClick={() => {
+                                    initialData.resetInterfaceData(type);
+                                    resetFields(type);
+                                }}
+                            />
                         </ButtonGroup>
                         <StyledSeparator />
                         <ButtonGroup>
@@ -71,4 +81,4 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children }) => {
     );
 };
 
-export default compose(withInitialDataConsumer(), withTextContext())(Tab);
+export default compose(withInitialDataConsumer(), withFieldsConsumer(), withTextContext())(Tab);

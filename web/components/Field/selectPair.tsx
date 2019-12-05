@@ -15,6 +15,7 @@ export interface IPairField {
     return_message?: { action: string; object_type: string; return_value?: string };
     selectFirst?: boolean;
     defaultSelectItems?: any[];
+    canBeRemoved?: boolean;
 }
 
 const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
@@ -29,6 +30,7 @@ const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
     return_message,
     selectFirst,
     defaultSelectItems,
+    canBeRemoved,
 }) => (
     <div>
         <ControlGroup fill>
@@ -78,7 +80,7 @@ const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
                     />
                 </>
             )}
-            {index !== 1 && <Button icon={'trash'} onClick={onRemoveClick} />}
+            {canBeRemoved && <Button icon={'trash'} onClick={onRemoveClick} />}
         </ControlGroup>
     </div>
 );

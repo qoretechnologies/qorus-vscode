@@ -21,6 +21,7 @@ import withMessageHandler from '../../hocomponents/withMessageHandler';
 import NumberField from './number';
 import MarkdownPreview from './markdownPreview';
 import isArray from 'lodash/isArray';
+import MapperOptionsField from './mapperOptions';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -67,6 +68,13 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                 {type === 'array-auto' && <ArrayAutoField {...rest} type={type} />}
                 {type === 'number' && <NumberField {...rest} type={type} />}
                 {type === 'class-array' && <ClassArrayField {...rest} type={type} />}
+                {type === 'mapper-options' && (
+                    <MapperOptionsField
+                        {...rest}
+                        type={type}
+                        mapperType={rest.requestFieldData(rest.requires_fields, 'value')}
+                    />
+                )}
                 {rest.markdown && <MarkdownPreview value={rest.value} />}
             </>
         );

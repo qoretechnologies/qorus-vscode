@@ -85,6 +85,7 @@ export interface IField {
     notify_on_add?: boolean;
     markdown?: boolean;
     disabled?: boolean;
+    requires_fields?: string[];
 }
 
 export declare interface IFieldChange {
@@ -693,6 +694,22 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return null;
     };
 
+    const isFieldDisabled: (field: IField) => boolean = field => {
+        // Check if the field is disabled on its own
+        // or required other field to be added
+        if (field.disabled) {
+            return true;
+        } else if (field.requires_fields) {
+            const req = isArray(field.requires_fields) ? field.requires_fields : [field.requires_fields];
+            // Check if the required field is valid
+            if (selectedFields.filter(sField => req.includes(sField.name)).every(sField => sField.isValid)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    };
+
     const fetchConfigItems: () => void = () => {
         postMessage(Messages.GET_CONFIG_ITEMS, {
             iface_id: interfaceId,
@@ -742,7 +759,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             <FieldSelector
                                 name={field.name}
                                 type={field.type}
-                                disabled={field.disabled}
+                                disabled={isFieldDisabled(field)}
                                 onClick={handleAddClick}
                             />
                         ))

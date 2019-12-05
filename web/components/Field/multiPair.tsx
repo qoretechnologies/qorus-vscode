@@ -51,6 +51,7 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
                 <StyledPairField key={index + 1}>
                     <PairField
                         index={index + 1}
+                        canBeRemoved={size(value) !== 1}
                         onRemoveClick={() => handleRemoveClick(index)}
                         key={index + 1}
                         keyName={fields[0]}

@@ -53,7 +53,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                                 data={mapper && omit(mapper, ['connections'])}
                                 isEditing={!!mapper}
                                 onDataFinishLoading={
-                                    mapper && showMapperConnections
+                                    mapper && mapper.show_diagram
                                         ? () => {
                                               setShowMapperConnections(true);
                                           }

@@ -1,17 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import MapperInput from './input';
 import MapperOutput from './output';
-import { FieldWrapper, ActionsWrapper, IField } from '../InterfaceCreator/panel';
-import Select from '../../components/Field/select';
+import { ActionsWrapper, IField } from '../InterfaceCreator/panel';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { Callout, Spinner, ButtonGroup, Tooltip, Button, Intent, Dialog } from '@blueprintjs/core';
+import { ButtonGroup, Tooltip, Button, Intent, Icon } from '@blueprintjs/core';
 import size from 'lodash/size';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import omit from 'lodash/omit';
-import filter from 'lodash/filter';
-import get from 'lodash/get';
 import findIndex from 'lodash/findIndex';
 import { TTranslator } from '../../App';
 import withTextContext from '../../hocomponents/withTextContext';
@@ -20,11 +17,10 @@ import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import MapperFieldModal from './modal';
 import Provider from './provider';
 import MappingModal from './mappingModal';
-import useMount from 'react-use/lib/useMount';
 import { useDrop } from 'react-dnd';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
-import withMessageHandler from '../../hocomponents/withMessageHandler';
 
 const FIELD_HEIGHT = 35;
 const FIELD_MARGIN = 14;
@@ -50,6 +46,7 @@ const StyledMapperWrapper = styled.div`
     justify-content: space-between;
     margin: 0 auto;
     overflow-x: scroll;
+    height: 100%;
 `;
 
 const StyledFieldsWrapper = styled.div`
@@ -244,6 +241,12 @@ export interface IMapperCreatorProps {
     setMapperKeys: (keys: any) => void;
     mapperKeys: any;
     methods: any[];
+    inputOptionProvider: { optionKey: string; optionUrl: string };
+    outputOptionProvider: { optionKey: string; optionUrl: string };
+    setInputOptionProvider: any;
+    setOutputOptionProvider: any;
+    isEditing?: boolean;
+    postMessage: TPostMessage;
 }
 
 export interface IMapperRelation {
@@ -284,6 +287,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     mapperKeys,
     methods,
     selectedFields,
+    inputOptionProvider,
+    outputOptionProvider,
+    setInputOptionProvider,
+    setOutputOptionProvider,
+    hideInputSelector,
+    hideOutputSelector,
+    setHideInputSelector,
+    setHideOutputSelector,
+    isEditing,
     postMessage,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
@@ -295,19 +307,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     });
     const [addDialog, setAddDialog] = useState({});
     const [mappingDialog, setMappingDialog] = useState({});
-
-    useMount(() => {
-        (async () => {
-            if (initialData.qorus_instance) {
-                const response = await initialData.fetchData('system/default_mapper_keys');
-                setMapperKeys(response.data);
-            }
-        })();
-    });
-
-    if (!mapperKeys) {
-        return <p>Loading...</p>;
-    }
 
     const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
         setRelations(current => {
@@ -403,6 +402,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         setInputs(null);
         setInputsLoading(false);
         setInputRecord(null);
+        setHideInputSelector(false);
     };
 
     const clearOutputs: (soft?: boolean) => void = soft => {
@@ -415,6 +415,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         setOutputs(null);
         setOutputsLoading(false);
         setOutputRecord(null);
+        setHideOutputSelector(false);
     };
 
     const reset: () => void = () => {
@@ -547,49 +548,72 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
         // Add the relations
         mapper.fields = relations;
+        // Rebuild the mapper options
+        const mapperOptions: { [key: string]: any } = mapper.mapper_options.reduce(
+            (newOptions, opt) => ({
+                ...newOptions,
+                [opt.name]: opt.value,
+            }),
+            {}
+        );
+        // Add the input & output providers
+        mapper.options = {
+            ...mapperOptions,
+            'mapper-input': inputOptionProvider,
+            'mapper-output': outputOptionProvider,
+        };
         // Post the data
-        postMessage(Messages.CREATE_INTERFACE, {
+        postMessage(!isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE, {
             iface_kind: 'mapper',
             data: mapper,
+            orig_data: initialData.mapper,
             open_file_on_success: true,
         });
     };
 
     return (
         <>
-            <Provider
-                type="inputs"
-                title={t('InputProvider')}
-                provider={inputProvider}
-                setProvider={setInputProvider}
-                record={inputRecord}
-                setRecord={setInputRecord}
-                nodes={inputChildren}
-                setChildren={setInputChildren}
-                isLoading={inputsLoading}
-                setIsLoading={setInputsLoading}
-                setFields={setInputs}
-                clear={clearInputs}
-            />
-            <Provider
-                type="outputs"
-                title={t('OutputProvider')}
-                provider={outputProvider}
-                setProvider={setOutputProvider}
-                record={outputRecord}
-                setRecord={setOutputRecord}
-                nodes={outputChildren}
-                setChildren={setOutputChildren}
-                isLoading={outputsLoading}
-                setIsLoading={setOutputsLoading}
-                setFields={setOutputs}
-                clear={clearOutputs}
-                setMapperKeys={setMapperKeys}
-            />
+            {!hideInputSelector && (
+                <Provider
+                    type="inputs"
+                    title={t('InputProvider')}
+                    provider={inputProvider}
+                    setProvider={setInputProvider}
+                    record={inputRecord}
+                    setRecord={setInputRecord}
+                    nodes={inputChildren}
+                    setChildren={setInputChildren}
+                    isLoading={inputsLoading}
+                    setIsLoading={setInputsLoading}
+                    setFields={setInputs}
+                    clear={clearInputs}
+                    setOptionProvider={setInputOptionProvider}
+                    hide={() => setHideInputSelector(true)}
+                />
+            )}
+            {!hideOutputSelector && (
+                <Provider
+                    type="outputs"
+                    title={t('OutputProvider')}
+                    provider={outputProvider}
+                    setProvider={setOutputProvider}
+                    record={outputRecord}
+                    setRecord={setOutputRecord}
+                    nodes={outputChildren}
+                    setChildren={setOutputChildren}
+                    isLoading={outputsLoading}
+                    setIsLoading={setOutputsLoading}
+                    setFields={setOutputs}
+                    clear={clearOutputs}
+                    setMapperKeys={setMapperKeys}
+                    setOptionProvider={setOutputOptionProvider}
+                    hide={() => setHideOutputSelector(true)}
+                />
+            )}
             <div
                 style={{
                     width: '100%',
-                    marginTop: '15px',
+                    marginTop: isEditing || (hideInputSelector && hideOutputSelector) ? 0 : '15px',
                     padding: 10,
                     flex: 1,
                     overflow: 'auto',
@@ -602,7 +626,27 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             >
                 <StyledMapperWrapper>
                     <StyledFieldsWrapper>
-                        <StyledFieldHeader>Input</StyledFieldHeader>
+                        <StyledFieldHeader>
+                            {t('Input')}{' '}
+                            {hideInputSelector && (
+                                <>
+                                    {isEditing ? (
+                                        <Tooltip content={inputRecord}>
+                                            <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
+                                        </Tooltip>
+                                    ) : (
+                                        <Tooltip content={t('EditProvider')}>
+                                            <Button
+                                                icon="edit"
+                                                small
+                                                minimal
+                                                onClick={() => setHideInputSelector(false)}
+                                            />
+                                        </Tooltip>
+                                    )}
+                                </>
+                            )}
+                        </StyledFieldHeader>
                         {size(flattenedInputs) !== 0
                             ? map(flattenedInputs, (input, index) => (
                                   <MapperInput
@@ -707,7 +751,27 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                         ) : null}
                     </StyledConnectionsWrapper>
                     <StyledFieldsWrapper>
-                        <StyledFieldHeader>Output</StyledFieldHeader>
+                        <StyledFieldHeader>
+                            {t('Output')}{' '}
+                            {hideOutputSelector && (
+                                <>
+                                    {isEditing ? (
+                                        <Tooltip content={outputRecord}>
+                                            <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
+                                        </Tooltip>
+                                    ) : (
+                                        <Tooltip content={t('EditProvider')}>
+                                            <Button
+                                                icon="edit"
+                                                small
+                                                minimal
+                                                onClick={() => setHideOutputSelector(false)}
+                                            />
+                                        </Tooltip>
+                                    )}
+                                </>
+                            )}
+                        </StyledFieldHeader>
                         {size(flattenedOutputs) !== 0
                             ? map(flattenedOutputs, (output, index) => (
                                   <MapperOutput
@@ -722,6 +786,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       lastChildIndex={getLastChildIndex(output, 'outputs') - index}
                                       onClick={handleClick('outputs')}
                                       onManageClick={() => handleManageClick(output)}
+                                      t={t}
                                   />
                               ))
                             : null}

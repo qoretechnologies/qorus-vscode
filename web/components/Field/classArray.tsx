@@ -41,7 +41,10 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
 
     const handleRemoveClick: (id: number) => void = id => {
         // Remove the selected pair
-        onChange(name, value.filter((_p: IPair, index: number) => id !== index));
+        onChange(
+            name,
+            value.filter((_p: IPair, index: number) => id !== index)
+        );
     };
 
     return (
@@ -50,6 +53,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
                 <StyledPairField key={index + 1}>
                     <SelectPairField
                         index={index + 1}
+                        canBeRemoved={size(value) !== 1}
                         onRemoveClick={() => handleRemoveClick(index)}
                         key={index + 1}
                         keyName="prefix"

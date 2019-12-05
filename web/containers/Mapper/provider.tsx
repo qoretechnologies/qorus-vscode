@@ -20,6 +20,8 @@ export interface IProviderProps {
     initialData: any;
     clear: any;
     title: string;
+    setOptionProvider: any;
+    hide: any;
 }
 
 const StyledWrapper = styled.div`
@@ -34,17 +36,18 @@ const StyledHeader = styled.h3`
     text-align: center;
 `;
 
-const providers: any = {
-    Type: {
-        name: 'Type',
+export const providers = {
+    type: {
+        name: 'type',
         url: 'dataprovider/types',
         namekey: 'typename',
         desckey: 'name',
         suffix: '',
         recordSuffix: '',
+        type: 'type',
     },
-    'User connections': {
-        name: 'User connections',
+    connection: {
+        name: 'connection',
         url: 'remote/user',
         filter: 'has_provider',
         namekey: 'name',
@@ -52,9 +55,10 @@ const providers: any = {
         suffix: '/provider',
         recordSuffix: '/record',
         requiresRecord: true,
+        type: 'connection',
     },
-    'Datasource connections': {
-        name: 'Datasource connections',
+    datasource: {
+        name: 'datasource',
         url: 'remote/datasources',
         filter: 'has_provider',
         namekey: 'name',
@@ -62,6 +66,7 @@ const providers: any = {
         suffix: '/provider',
         recordSuffix: '/record',
         requiresRecord: true,
+        type: 'datasource',
     },
 };
 
@@ -78,8 +83,10 @@ const MapperProvider: FC<IProviderProps> = ({
     clear,
     initialData: { fetchData },
     setMapperKeys,
+    setOptionProvider,
     title,
     type,
+    hide,
 }) => {
     const handleProviderChange = provider => {
         setProvider(current => {
@@ -181,8 +188,21 @@ const MapperProvider: FC<IProviderProps> = ({
                         const record = await fetchData(`${url}/${value}${suffix}${providers[provider].recordSuffix}`);
                         // Remove loading
                         setIsLoading(false);
+                        // Save the name by pulling the 3rd item from the split
+                        // url (same for every provider type)
+                        const name = `${url}/${value}`.split('/')[2];
+                        // Set the provider option
+                        setOptionProvider({
+                            type: providers[provider].type,
+                            name,
+                            path: `${url}/${value}`
+                                .replace(`${name}`, '')
+                                .replace(`${providers[provider].url}/`, '')
+                                .replace('provider/', ''),
+                        });
                         // Set the record data
                         setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
+                        //
                     })();
                 }
 
@@ -222,7 +242,16 @@ const MapperProvider: FC<IProviderProps> = ({
                     />
                 ))}
                 {isLoading && <Spinner size={15} />}
-                {record && <Button intent="success" icon="small-tick" onClick={() => setFields(record)} />}
+                {record && (
+                    <Button
+                        intent="success"
+                        icon="small-tick"
+                        onClick={() => {
+                            setFields(record);
+                            hide();
+                        }}
+                    />
+                )}
             </ButtonGroup>
         </StyledWrapper>
     );
