@@ -18,6 +18,16 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [highlightedStepGroupIds, setHighlightedStepGroupIds] = useState<number[]>(null);
         const [lastStepId, setLastStepId] = useState<number>(1);
 
+        const resetSteps = () => {
+            setShowSteps(false);
+            setSteps([]);
+            setStepsData([]);
+            setParsedSteps([]);
+            setHighlightedSteps(null);
+            setHighlightedStepGroupIds(null);
+            setLastStepId(1);
+        };
+
         const insertNewStep: (
             stepId: number,
             targetStep: number,
@@ -163,6 +173,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     handleStepUpdate,
                     parsedSteps,
                     stepsData,
+                    resetSteps,
                 }}
             >
                 <Component {...props} />

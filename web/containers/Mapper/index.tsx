@@ -557,7 +557,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             {}
         );
         // Add the input & output providers
-        mapper.options = {
+        mapper.mapper_options = {
             ...mapperOptions,
             'mapper-input': inputOptionProvider,
             'mapper-output': outputOptionProvider,
@@ -567,7 +567,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             iface_kind: 'mapper',
             data: mapper,
             orig_data: initialData.mapper,
-            open_file_on_success: true,
+            open_file_on_success: false,
         });
     };
 

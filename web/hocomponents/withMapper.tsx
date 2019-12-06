@@ -38,6 +38,25 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
         const [hideOutputSelector, setHideOutputSelector] = useState<boolean>(false);
 
+        const resetMapper = () => {
+            setShowMapperConnections(false);
+            setInputs(null);
+            setOutputs(null);
+            setInputProvider(null);
+            setOutputProvider(null);
+            setRelations({});
+            setInputsLoading(false);
+            setOutputsLoading(false);
+            setInputChildren([]);
+            setOutputChildren([]);
+            setInputRecord(null);
+            setOutputRecord(null);
+            setInputOptionProvider(null);
+            setOutputOptionProvider(null);
+            setHideInputSelector(false);
+            setHideOutputSelector(false);
+        };
+
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
             const { type, name, path = '' } = props.mapper.options[`mapper-${fieldType}`];

@@ -22,6 +22,7 @@ import ProjectConfig, { ProjectConfigContainer } from './project_config/ProjectC
 import withMapper from './hocomponents/withMapper';
 import Pull from './components/Pull';
 import withFunctions from './hocomponents/withFunctions';
+import withGlobalOptions from './hocomponents/withGlobalOptions';
 
 const StyledApp = styled.div`
     display: flex;
@@ -194,6 +195,7 @@ export default hot(
         withMethods(),
         withFunctions(),
         withSteps(),
-        withMapper()
+        withMapper(),
+        withGlobalOptions()
     )(App)
 );

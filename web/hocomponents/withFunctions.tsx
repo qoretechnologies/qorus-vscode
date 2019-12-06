@@ -13,6 +13,16 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [lastFunctionId, setLastFunctionId] = useState<number>(props.initialFunctionId);
         const [activeFunction, setActiveFunction] = useState<any>(props.initialActiveFunctionId || null);
 
+        console.log(showFunctions);
+
+        const resetMapperMethods = () => {
+            setShowFunctions(false);
+            setFunctions([{ id: 1 }]);
+            setFunctionsCount(1);
+            setLastFunctionId(1);
+            setActiveFunction(null);
+        };
+
         useEffect(() => {
             // Some kind of hack to force this function
             // to work like componentDidUpdate instead
@@ -45,6 +55,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setFunctions,
                     setFunctionsCount,
                     functionsData: props.functionsData,
+                    resetMapperMethods,
                 }}
             >
                 <Component {...props} />

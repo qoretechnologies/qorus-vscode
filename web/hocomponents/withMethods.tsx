@@ -7,12 +7,21 @@ import { size } from 'lodash';
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
+        console.log('METHOD PROPS', props);
         const isInitialMount = useRef(true);
         const [showMethods, setShowMethods] = useState<boolean>(false);
         const [methods, setMethods] = useState<any[]>(props.initialMethods);
         const [methodsCount, setMethodsCount] = useState<number>(props.initialCount);
         const [lastMethodId, setLastMethodId] = useState<number>(props.initialId);
         const [activeMethod, setActiveMethod] = useState<any>(props.initialActiveId || null);
+
+        const resetMethods = () => {
+            setShowMethods(false);
+            setMethods([{ id: 1 }]);
+            setMethodsCount(1);
+            setLastMethodId(1);
+            setActiveMethod(null);
+        };
 
         useEffect(() => {
             // Some kind of hack to force this function
@@ -46,6 +55,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setMethods,
                     setMethodsCount,
                     methodsData: props.methodsData,
+                    resetMethods,
                 }}
             >
                 <Component {...props} />
