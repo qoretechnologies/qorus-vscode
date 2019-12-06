@@ -28,7 +28,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     t,
     isFormValid,
     selectedFields,
-    initialData: { mapper, qorus_instance },
+    initialData: { mapper, qorus_instance, changeInitialData },
 }) => {
     if (!qorus_instance) {
         return (
@@ -64,7 +64,10 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                     )}
                     {showMapperConnections && (
                         <MapperCreator
-                            onBackClick={() => setShowMapperConnections(false)}
+                            onBackClick={() => {
+                                setShowMapperConnections(false);
+                                changeInitialData('mapper.show_diagram', false);
+                            }}
                             isFormValid={isFormValid('mapper')}
                             methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
                         />
