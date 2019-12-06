@@ -3,6 +3,7 @@ import { InitialContext } from '../context/init';
 import useMount from 'react-use/lib/useMount';
 import { Messages } from '../constants/messages';
 import shortid from 'shortid';
+import set from 'lodash/set';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -95,6 +96,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }));
         };
 
+        const changeInitialData: (path: string, value: any) => any = (path, value) => {
+            setInitialData(current => {
+                const result = { ...current };
+                set(result, path, value);
+                return result;
+            });
+        };
+
         const fetchData: (url: string, method: string) => Promise<any> = async (url, method = 'GET') => {
             // Create the unique ID for this request
             const uniqueId: string = shortid.generate();
@@ -139,6 +148,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     resetInterfaceData,
                     setActiveInstance,
                     fetchData,
+                    changeInitialData,
                 }}
             >
                 <InitialContext.Consumer>
