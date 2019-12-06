@@ -213,6 +213,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     hideOutputSelector,
                     setHideInputSelector,
                     setHideOutputSelector,
+                    resetMapper,
                 }}
             >
                 <Component {...props} />
