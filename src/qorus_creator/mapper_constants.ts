@@ -28,7 +28,7 @@ method_template.java = '\
 export const mapper_code_class_template = class_template;
 export const mapper_code_method_template = method_template;
 
-export const mapperFields = ({default_target_dir}) => [
+export const mapperFields = ({ default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -36,22 +36,14 @@ export const mapperFields = ({default_target_dir}) => [
     field.version,
     {
         name: 'mappertype',
-        type: 'select-string',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'mapper-type',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'mapper-type',
-            return_value: 'objects',
-        },
+        default_value: 'Mapper',
+        read_only: true,
     },
     {
         name: 'mapper_options',
         type: 'mapper-options',
         mandatory: false,
-        requires_fields: 'mappertype'
+        requires_fields: 'mappertype',
     },
     field.author,
     {
@@ -71,7 +63,7 @@ export const mapperFields = ({default_target_dir}) => [
     field.classes,
 ];
 
-export const mapperCodeFields = ({default_target_dir}) => [
+export const mapperCodeFields = ({ default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -84,7 +76,4 @@ export const mapperCodeFields = ({default_target_dir}) => [
     field.author,
 ];
 
-export const mapper_method_fields = [
-    field.name,
-    field.desc,
-];
+export const mapper_method_fields = [field.name, field.desc];
