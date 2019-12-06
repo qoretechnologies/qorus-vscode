@@ -18,6 +18,7 @@ export interface ISelectField {
     placeholder: string;
     fill?: boolean;
     disabled?: boolean;
+    position?: any;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -34,6 +35,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     placeholder,
     fill,
     disabled,
+    position = 'right-top',
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -95,6 +97,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             popoverProps={{
                 popoverClassName: 'custom-popover',
                 targetClassName: fill ? 'select-popover' : '',
+                position,
             }}
             className={fill ? 'select-field' : ''}
             onItemSelect={(item: any) => handleSelectClick(item)}

@@ -10,7 +10,6 @@ import withMapperConsumer from './withMapperConsumer';
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: any): any => {
     const EnhancedComponent = (props: any) => {
-        console.log(props);
         const handleInterfaceReset: (type: string) => void = type => {
             // Reset the initial data
             props.resetInterfaceData(type);

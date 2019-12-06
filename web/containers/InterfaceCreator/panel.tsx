@@ -165,8 +165,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
 
-    console.log(isInitialMount, fieldListeners);
-
     useEffect(() => {
         // Remove the current listeners
         fieldListeners.forEach(listener => {

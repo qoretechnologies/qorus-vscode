@@ -7,7 +7,6 @@ import { size } from 'lodash';
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
-        console.log('METHOD PROPS', props);
         const isInitialMount = useRef(true);
         const [showMethods, setShowMethods] = useState<boolean>(false);
         const [methods, setMethods] = useState<any[]>(props.initialMethods);
