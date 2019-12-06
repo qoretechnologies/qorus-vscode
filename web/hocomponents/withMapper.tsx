@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import mapProps from 'recompose/mapProps';
 import { get, set, unset } from 'lodash';
 import { MapperContext } from '../context/mapper';
@@ -9,6 +9,7 @@ import { providers } from '../containers/Mapper/provider';
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
+        const { qorus_instance } = props;
         const [showMapperConnections, setShowMapperConnections] = useState<boolean>(false);
         const [inputs, setInputs] = useState<any>(null);
         const [outputs, setOutputs] = useState<any>(null);
@@ -80,42 +81,44 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
         };
 
-        useMount(() => {
-            // Fetch the mapper keys
-            (async () => {
-                const response = await props.fetchData('system/default_mapper_keys');
-                setMapperKeys(response.data);
-            })();
-            // Check if user is editing a mapper
-            if (props.isEditing) {
-                // Set loading of inputs and outputs
-                setInputsLoading(true);
-                setOutputsLoading(true);
-                // Hide input and output selectors
-                setHideInputSelector(true);
-                setHideOutputSelector(true);
-                // Get URL for input and output providers
-                const inputUrl = getProviderUrl('input');
-                const outputUrl = getProviderUrl('output');
-                // Save the url as a record, to be accessible
-                setInputRecord(inputUrl);
-                setOutputRecord(outputUrl);
-                // Fetch the input and output fields
+        useEffect(() => {
+            if (qorus_instance) {
+                // Fetch the mapper keys
                 (async () => {
-                    const inputs = await props.fetchData(inputUrl);
-                    const outputs = await props.fetchData(outputUrl);
-                    // Save the inputs & outputs
-                    setInputs(inputs.data.fields || inputs.data);
-                    setOutputs(outputs.data.fields || outputs.data);
-                    setRelations(props.mapper.fields || {});
-                    // Cancel loading
-                    setInputsLoading(false);
-                    setOutputsLoading(false);
+                    const response = await props.fetchData('system/default_mapper_keys');
+                    setMapperKeys(response.data);
                 })();
+                // Check if user is editing a mapper
+                if (props.isEditing) {
+                    // Set loading of inputs and outputs
+                    setInputsLoading(true);
+                    setOutputsLoading(true);
+                    // Hide input and output selectors
+                    setHideInputSelector(true);
+                    setHideOutputSelector(true);
+                    // Get URL for input and output providers
+                    const inputUrl = getProviderUrl('input');
+                    const outputUrl = getProviderUrl('output');
+                    // Save the url as a record, to be accessible
+                    setInputRecord(inputUrl);
+                    setOutputRecord(outputUrl);
+                    // Fetch the input and output fields
+                    (async () => {
+                        const inputs = await props.fetchData(inputUrl);
+                        const outputs = await props.fetchData(outputUrl);
+                        // Save the inputs & outputs
+                        setInputs(inputs.data.fields || inputs.data);
+                        setOutputs(outputs.data.fields || outputs.data);
+                        setRelations(props.mapper.fields || {});
+                        // Cancel loading
+                        setInputsLoading(false);
+                        setOutputsLoading(false);
+                    })();
+                }
             }
-        });
+        }, [qorus_instance]);
 
-        if (!mapperKeys || (props.isEditing && (inputsLoading || outputsLoading))) {
+        if (qorus_instance && (!mapperKeys || (props.isEditing && (inputsLoading || outputsLoading)))) {
             return <p> Loading ... </p>;
         }
 
