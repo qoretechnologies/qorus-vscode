@@ -557,7 +557,7 @@ export class QorusProjectCodeInfo {
     private update = (info_list: string[] = info_keys, is_initial_update: boolean = false) => {
         this.project.validateConfigFileAndDo(file_data => {
             if (is_initial_update) {
-                info_keys.forEach(key => this.setPending(key, true));
+                info_keys.forEach(key => this.setPending(key, true, true));
             }
 
             if (info_list.includes('file_tree')) {
@@ -569,6 +569,10 @@ export class QorusProjectCodeInfo {
             if (file_data.source_directories.length === 0) {
                 info_keys.forEach(key => key !== 'file_tree' && this.setPending(key, false));
                 return;
+            }
+
+            if (is_initial_update) {
+                msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
             }
 
             if (info_list.includes('lang_client')) {
@@ -593,8 +597,6 @@ export class QorusProjectCodeInfo {
             }
 
             if (is_initial_update) {
-                msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
-
                 let interval_id: any;
                 let sec = 0;
                 const checkPending = () => {
@@ -880,9 +882,11 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    setPending(info_key: string, value: boolean) {
+    setPending(info_key: string, value: boolean, never_message: boolean = false) {
         this.info_update_pending[info_key] = value;
-        this.logUpdateMessage(info_key);
+        if (!never_message) {
+            this.logUpdateMessage(info_key);
+        }
     }
 
     private updateFileTree(source_directories: string[]) {
@@ -940,10 +944,16 @@ export class QorusProjectCodeInfo {
     }
 
     private async updateObjects(source_directories: string[]) {
-        await qorus_vscode.waitForContext();
+        this.setPending('objects', true);
+        try {
+            await qorus_vscode.waitForContext();
+        } catch (error) {
+            this.setPending('objects', false);
+            return;
+        }
+
         const object_parser_dir = path.join(qorus_vscode.context.extensionPath, object_parser_subdir);
         const object_parser_path = path.join(object_parser_dir, object_parser_script);
-        this.setPending('objects', true);
         let num_pending = 0;
         let child_process_failed: boolean = false;
 
@@ -964,7 +974,7 @@ export class QorusProjectCodeInfo {
                     break;
                 }
 
-                this.info_update_pending['objects'] = true;
+                this.setPending('objects', true, true);
                 num_pending++;
 
                 let command_parts = files.splice(0, object_chunk_length);
@@ -985,10 +995,7 @@ export class QorusProjectCodeInfo {
 
                     if (error) {
                         msg.error(t`QopError ${error}`);
-                        if (stderr && !log_qop_stderr) {
-                            msg.error(stderr);
-                        }
-                        this.info_update_pending['objects'] = false;
+                        this.setPending('objects', false, true);
                         child_process_failed = true;
                         return;
                     }
