@@ -838,7 +838,7 @@ export class QorusProjectCodeInfo {
         file_filter: Function,
         process: Function
     ): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             let num_pending = 0;
             for (let dir of source_directories) {
                 const full_dir = path.join(this.project.folder, dir);
@@ -869,7 +869,10 @@ export class QorusProjectCodeInfo {
             const checkPending = () => {
                 if (!num_pending || !--n) {
                     clearInterval(interval_id);
-                    n > 0 ? resolve() : reject(t`GettingDocSymbolsTimedOut`);
+                    if (n === 0) {
+                        msg.error(t`GettingDocSymbolsTimedOut`);
+                    }
+                    resolve();
                 }
             };
 
