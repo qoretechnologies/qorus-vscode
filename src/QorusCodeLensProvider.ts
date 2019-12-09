@@ -13,6 +13,7 @@ import * as msg from './qorus_message';
 export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
     private code_info: QorusProjectCodeInfo = undefined;
+    private previous_lenses: vscode.CodeLens[] = [];
 
     public provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
         this.code_info = projects.currentProjectCodeInfo();
@@ -51,6 +52,9 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         this.code_info.addText(document);
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+            if (!symbols.length) {
+                return this.previous_lenses;
+            }
             let lenses: vscode.CodeLens[] = [];
 
             symbols.forEach(symbol => {
@@ -77,6 +81,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
                 }
             });
 
+            this.previous_lenses = lenses;
             return lenses;
         });
     }
