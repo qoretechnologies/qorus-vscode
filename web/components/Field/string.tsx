@@ -13,6 +13,7 @@ export interface IStringField {
     fill?: boolean;
     postMessage?: TPostMessage;
     addMessageListener?: TMessageListener;
+    read_only?: boolean;
 }
 
 const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
@@ -25,6 +26,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     addMessageListener,
     get_message,
     return_message,
+    read_only,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -55,12 +57,14 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
 
     return (
         <InputGroup
+            readOnly={read_only}
             className={fill && Classes.FILL}
             value={!value ? default_value || '' : value}
             onChange={handleInputChange}
             rightElement={
                 value &&
-                value !== '' && (
+                value !== '' &&
+                !read_only && (
                     <ButtonGroup minimal>
                         <Button onClick={handleResetClick} icon={'cross'} />
                     </ButtonGroup>
@@ -70,7 +74,6 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     );
 };
 
-export default compose(
-    withMessageHandler(),
-    withTextContext()
-)(StringField) as FunctionComponent<IStringField & IField & IFieldChange>;
+export default compose(withMessageHandler(), withTextContext())(StringField) as FunctionComponent<
+    IStringField & IField & IFieldChange
+>;
