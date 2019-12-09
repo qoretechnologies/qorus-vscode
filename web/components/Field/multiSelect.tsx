@@ -92,9 +92,13 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
         <MultiSelect
             key={activeId}
             items={items}
-            createNewItemFromQuery={(query: string) => ({
-                name: query,
-            })}
+            createNewItemFromQuery={(query: string) =>
+                query
+                    ? {
+                          name: query,
+                      }
+                    : undefined
+            }
             createNewItemRenderer={(query, _active, handleClick) => (
                 <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
             )}
