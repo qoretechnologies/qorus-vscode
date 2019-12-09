@@ -578,11 +578,9 @@ export class QorusProjectCodeInfo {
                 }, 0);
             }
             if (info_list.includes('yaml')) {
-                this.waitForPending(['lang_client']).then(() => {
-                    setTimeout(() => {
-                        this.updateYamlInfo(file_data.source_directories);
-                    }, 0);
-                });
+                setTimeout(() => {
+                    this.updateYamlInfo(file_data.source_directories);
+                }, 0);
             }
             if (info_list.includes('objects')) {
                 setTimeout(() => {
