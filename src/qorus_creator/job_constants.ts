@@ -1,25 +1,5 @@
 import { field } from './common_constants';
 
-let template: any = {};
-
-template.qore = '\
-class ${this.class_name} inherits ${this.base_class_name} {\n\
-    run() {\n\
-        log(LL_INFO, \"job info: %y\", getInfo());\n\
-    }\n\
-}\n\
-';
-
-template.java = '\
-class ${this.class_name} extends ${this.base_class_name} {\n\
-    public void run() throws Throwable {\n\
-        log(LL_INFO, \"job info: %y\", getInfo());\n\
-    }\n\
-}\n\
-';
-
-export const job_template = template;
-
 export const jobFields = ({default_target_dir, is_editing}) => [
     field.targetDir(default_target_dir),
     field.targetFile,

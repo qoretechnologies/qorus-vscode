@@ -2,7 +2,6 @@ import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
-import { job_template } from './job_constants';
 import { stepTypeHeaders } from './step_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -14,7 +13,7 @@ class ClassCreator extends InterfaceCreator {
         let suffix: string;
         switch (iface_kind) {
             case 'job':
-                template = job_template;
+                template = subclass_template;
                 suffix = '.qjob';
                 break;
             case 'step':
