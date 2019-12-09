@@ -1483,8 +1483,11 @@ msgstr "getting file tree information"
 msgid "yaml_info_update_pending"
 msgstr "getting information from yaml files"
 
-msgid "base_classes_info_update_pending"
+msgid "lang_client_info_update_pending"
 msgstr "getting information from language server"
+
+msgid "modules_info_update_pending"
+msgstr "getting module information"
 
 msgid "objects_info_update_pending"
 msgstr "getting information from qorus object parser"
