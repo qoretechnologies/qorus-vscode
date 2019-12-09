@@ -401,19 +401,17 @@ export class QorusProjectCodeInfo {
         const interval = 100;
         let n = timeout / interval;
 
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             const checkPending = () => {
                 const pending_list = info_list.filter(key => this.info_update_pending[key]);
                 if (!pending_list.length || !--n) {
                     clearInterval(interval_id);
-                    if (n > 0) {
-                        resolve();
-                    } else {
-                        const error = t`CodeInfoUpdateTimedOut`
-                            + pending_list.map(key => gettext(key + '_info_update_pending')).join(', ');
-                        msg.error(error);
-                        reject(error);
+                    if (n === 0) {
+                        msg.error(t`CodeInfoUpdateTimedOut` +
+                                  pending_list.map(key => gettext(key + '_info_update_pending')).join(', '));
+                        pending_list.forEach(key => this.setPending(key, false));
                     }
+                    resolve();
                 }
             };
 
