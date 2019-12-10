@@ -37,7 +37,6 @@
         "engine"
     ],
     "activationEvents": [
-        "*",
         "workspaceContains:qorusproject.json",
         "onView:qorusInterfaces"
     ],
@@ -74,12 +73,12 @@
         "views": {
             "qorusInstances": [
                 {
-                    "id": "qorusInstancesExplorer",
-                    "name": "Instances"
-                },
-                {
                     "id": "qorusInterfaces",
                     "name": "Interfaces"
+                },
+                {
+                    "id": "qorusInstancesExplorer",
+                    "name": "Instances"
                 }
             ]
         },

@@ -40,7 +40,7 @@ class QorusDeploy {
         const file_path: string = uri.fsPath;
         if (!isDeployable(file_path)) {
             msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
-            return Promise.reject(false);
+            return Promise.resolve(false);
         }
 
         return this.deployFileAndPairFile(uri);

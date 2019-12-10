@@ -1734,4 +1734,7 @@ msgid "AddFunction"
 msgstr "Add function"
 
 msgid "MapperCodeNotFound ${ name }"
-msgstr "Mapper code '${ name }' not found
+msgstr "Mapper code '${ name }' not found"
+
+msgid "OpenInterface"
+msgstr "Open interface"

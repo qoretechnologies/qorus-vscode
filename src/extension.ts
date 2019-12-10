@@ -36,7 +36,7 @@ function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
 
     // delete commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-    'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
         const command = 'qorus.views.delete' + dash2Pascal(intf);
         disposable = vscode.commands.registerCommand(command, (data: any) => {
             window.showWarningMessage(
@@ -44,14 +44,14 @@ function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
                 + '? This will delete both the ' + intf + ' metadata file and code file.',
                 'Yes', 'No'
             ).then(
-                (selection) => {
+                selection => {
                     if (selection === undefined || selection === 'No') {
                         return;
                     }
                     const intfData = data.data;
 
                     // delete yaml file
-                    if (intfData.hasOwnProperty('yaml_file')) {
+                    if (intfData['yaml_file']) {
                         unlink(intfData.yaml_file, (err) => {
                             if (err) {
                                 msg.warning('Failed deleting ' + intf + ' metadata file ' + intfData.yaml_file + ': ' + err);
@@ -62,7 +62,7 @@ function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
                     }
 
                     // delete code file
-                    if (intfData.hasOwnProperty('target_dir') && intfData.hasOwnProperty('target_file')) {
+                    if (intfData.target_dir && intfData.target_file) {
                         const codeFile = join(intfData.target_dir, intfData.target_file);
                         unlink(codeFile, (err) => {
                             if (err) {
@@ -80,50 +80,44 @@ function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
 
     // deploy commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-    'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
         const command = 'qorus.views.deploy' + dash2Pascal(intf);
         disposable = vscode.commands.registerCommand(command, (data: any) => {
             window.showWarningMessage(
                 'Are you sure you want to deploy ' + intf + ' ' + String(data.name) + '?',
                 'Yes', 'No'
             ).then(
-                async (selection) => {
+                selection => {
                     if (selection === undefined || selection === 'No') {
                         return;
                     }
                     const intfData = data.data;
 
                     // deploy code file
-                    if (intfData.hasOwnProperty('target_dir') && intfData.hasOwnProperty('target_file')) {
+                    if (intfData.target_dir && intfData.target_file) {
                         const codeFile = join(intfData.target_dir, intfData.target_file);
                         vscode.commands.executeCommand('qorus.deployFile', vscode.Uri.file(codeFile))
                         .then(
-                            (result) => {
-                                if (result !== undefined && result === true) {
+                            result => {
+                                if (result) {
                                     msg.info('Deployed ' + intf + ' code file: ' + codeFile);
                                 } else {
                                     msg.error('Failed deploying ' + intf + ' code file ' + codeFile + '.');
                                 }
-                            },
-                            () => {
-                                msg.error('Failed deploying ' + intf + ' code file ' + codeFile + '.');
                             }
                         );
                     }
 
                     // deploy yaml file
-                    if (intfData.hasOwnProperty('yaml_file')) {
+                    if (intfData.yaml_file) {
                         vscode.commands.executeCommand('qorus.deployFile', vscode.Uri.file(intfData.yaml_file))
                         .then(
-                            (result) => {
-                                if (result !== undefined && result === true) {
+                            result => {
+                                if (result) {
                                     msg.info('Deployed ' + intf + ' metadata file: ' + intfData.yaml_file);
                                 } else {
                                     msg.error('Failed deploying ' + intf + ' metadata file ' + intfData.yaml_file + '.');
                                 }
-                            },
-                            () => {
-                                msg.error('Failed deploying ' + intf + ' metadata file ' + intfData.yaml_file + '.');
                             }
                         );
                     }
@@ -158,10 +152,7 @@ function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
     // open interface command, used when clicking on interface in the tree
     disposable = vscode.commands.registerCommand('qorus.views.openInterface', (data: any) =>
     {
-        if (data === undefined) {
-            return;
-        }
-        if (!data.hasOwnProperty('data')) {
+        if (!data || !data.data) {
             return;
         }
         const intfData = data.data;
@@ -174,20 +165,19 @@ function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
             case 'service':
             case 'step':
             case 'workflow':
-                if (intfData.hasOwnProperty('target_dir') && intfData.hasOwnProperty('target_file')) {
+                if (intfData.target_dir && intfData.target_file) {
                     const filePath = join(intfData.target_dir, intfData.target_file);
                     vscode.workspace.openTextDocument(vscode.Uri.file(filePath)).then(
-                        (doc) => {
-                            if (window.activeTextEditor !== undefined &&
-                                window.activeTextEditor.document !== undefined &&
-                                window.activeTextEditor.document.fileName === filePath
-                            ) {
+                        doc => {
+                            if (window.activeTextEditor &&
+                                window.activeTextEditor.document.fileName === filePath)
+                            {
                                 window.showTextDocument(doc, { preview: false });
                             } else {
                                 window.showTextDocument(doc);
                             }
                         },
-                        (err) => {
+                        err => {
                             console.log('Error opening file ' + filePath + ': ', err);
                         }
                     );
@@ -197,19 +187,18 @@ function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
             case 'connection':
             case 'error':
             case 'value-map':
-                if (intfData.hasOwnProperty('yaml_file')) {
+                if (intfData.yaml_file) {
                     vscode.workspace.openTextDocument(vscode.Uri.file(intfData.yaml_file)).then(
-                        (doc) => {
-                            if (window.activeTextEditor !== undefined &&
-                                window.activeTextEditor.document !== undefined &&
-                                window.activeTextEditor.document.fileName === intfData.yaml_file
-                            ) {
+                        doc => {
+                            if (window.activeTextEditor &&
+                                window.activeTextEditor.document.fileName === intfData.yaml_file)
+                            {
                                 window.showTextDocument(doc, { preview: false });
                             } else {
                                 window.showTextDocument(doc);
                             }
                         },
-                        (err) => {
+                        err => {
                             console.log('Error opening file ' + intfData.yaml_file + ': ', err);
                         }
                     );
@@ -312,12 +301,10 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     InterfaceTree.setExtensionPath(context.extensionPath);
-    {
-        const code_info = projects.currentProjectCodeInfo();
-        if (code_info !== undefined) {
-            code_info.registerTreeForNotifications('interface-tree', InterfaceTree);
-        }
-    }
+
+    const code_info = projects.currentProjectCodeInfo();
+    code_info && code_info.registerTreeForNotifications('interface-tree', InterfaceTree);
+
     registerInterfaceTreeCommands(context);
     disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', InterfaceTree);
     context.subscriptions.push(disposable);
@@ -359,12 +346,8 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-    {
-        const code_info = projects.currentProjectCodeInfo();
-        if (code_info !== undefined) {
-            code_info.unregisterTreeForNotifications('interface-tree');
-        }
-    }
+    const code_info = projects.currentProjectCodeInfo();
+    code_info && code_info.unregisterTreeForNotifications('interface-tree');
 }
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {

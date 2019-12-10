@@ -24,26 +24,14 @@ export class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNo
         this.extensionPath = extensionPath;
     }
 
-    public static async getInterfaces(iface_kind: string) {
+    public static getInterfaces(iface_kind: string): Promise<any[] | undefined> {
         const project: QorusProject = projects.getProject();
-        if (!project) {
-            return undefined;
-        }
-        return project.code_info.getInterfaceDataList(iface_kind);
+        return project && project.code_info.getInterfaceDataList(iface_kind);
     }
 
     public static getFileData(filePath: string) {
         const project: QorusProject = projects.getProject();
-        if (!project) {
-            return undefined;
-        }
-        let result;
-        try {
-            result = project.code_info.yamlDataByFilePath(filePath);
-            return result;
-        } catch (err) {
-            return undefined;
-        }
+        return project && project.code_info.yamlDataByFilePath(filePath);
     }
 
     private onTreeDataChanged: EventEmitter<QorusInterfaceTreeNode | undefined>
@@ -79,7 +67,7 @@ export class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNo
         if (this.folderView) { // folder view
             const project: QorusProject = projects.getProject();
             if (project) {
-                let fileTree = project.code_info.getFileTree();
+                let fileTree = project.code_info.fileTree();
                 for (const dir of fileTree.dirs) {
                     children.push(new QorusTreeDirectoryNode(dir.rel_path, dir, this.extensionPath));
                 }
@@ -128,7 +116,7 @@ class QorusSingleInterfaceNode extends QorusInterfaceTreeNode {
         super(label, collapsibleState);
         this.command = {
             command: 'qorus.views.openInterface',
-            title: "Open interface",
+            title: t`OpenInterface`,
             arguments: [this]
         };
     }
@@ -140,7 +128,7 @@ class QorusTreeClassNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'class';
         this.iconPath = qorusIcons.getClassIcon();
     }
@@ -152,7 +140,7 @@ class QorusTreeConnectionNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'connection';
         this.iconPath = qorusIcons.getConnectionIcon();
     }
@@ -164,7 +152,7 @@ class QorusTreeConstantNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'constant';
         this.iconPath = qorusIcons.getConstantIcon();
     }
@@ -176,7 +164,7 @@ class QorusTreeErrorNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'error';
         this.iconPath = qorusIcons.getErrorIcon();
     }
@@ -188,7 +176,7 @@ class QorusTreeEventNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'event';
         this.iconPath = qorusIcons.getEventIcon();
     }
@@ -200,7 +188,7 @@ class QorusTreeFunctionNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'function';
         this.iconPath = qorusIcons.getFunctionIcon();
     }
@@ -212,7 +200,7 @@ class QorusTreeGroupNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'group';
         this.iconPath = qorusIcons.getGroupIcon();
     }
@@ -224,7 +212,7 @@ class QorusTreeJobNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'job';
         this.iconPath = qorusIcons.getJobIcon();
     }
@@ -236,7 +224,7 @@ class QorusTreeMapperNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'mapper';
         this.iconPath = qorusIcons.getMapperIcon();
     }
@@ -248,7 +236,7 @@ class QorusTreeMapperCodeNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'mapper-code';
         this.iconPath = qorusIcons.getMapperCodeIcon();
     }
@@ -260,7 +248,7 @@ class QorusTreeQueueNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'queue';
         this.iconPath = qorusIcons.getQueueIcon();
     }
@@ -272,7 +260,7 @@ class QorusTreeServiceNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'service';
         this.iconPath = qorusIcons.getServiceIcon();
     }
@@ -284,7 +272,7 @@ class QorusTreeStepNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'step';
         this.iconPath = qorusIcons.getStepIcon();
     }
@@ -296,7 +284,7 @@ class QorusTreeValueMapNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'value-map';
         this.iconPath = qorusIcons.getValueMapIcon();
     }
@@ -308,7 +296,7 @@ class QorusTreeWorkflowNode extends QorusSingleInterfaceNode {
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
-        this.description = data.version || "";
+        this.description = data.version || '';
         this.contextValue = 'workflow';
         this.iconPath = qorusIcons.getWorkflowIcon();
     }
@@ -324,12 +312,12 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
         this.directory = dir;
         this.fileTree = fileTree;
         this.tooltip = dir;
-        this.contextValue = "dir";
+        this.contextValue = 'dir';
         this.extensionPath = extensionPath;
         this.iconPath = qorusIcons.getFolderIcon();
     }
 
-    async getChildren(node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
+    async getChildren(_node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
         let children = [];
         for (const f of this.fileTree.files) {
             if (f.name.endsWith('.yaml')) {
@@ -402,7 +390,7 @@ class QorusTreeCategoryNode extends QorusInterfaceTreeNode {
         super(label, collapsibleState);
         this.category = category;
         this.tooltip = label;
-        this.contextValue = category + "-category";
+        this.contextValue = category + '-category';
         this.iconPath = qorusIcons.getPackageIcon();
     }
 }
@@ -413,7 +401,7 @@ class QorusTreeOtherCategoriesNode extends QorusInterfaceTreeNode {
         this.tooltip = t`Other`;
     }
 
-    async getChildren(node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
+    async getChildren(_node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
         let children = [];
         children.push(new QorusTreeMapperCategoryNode());
         children.push(new QorusTreeMapperCodeCategoryNode());

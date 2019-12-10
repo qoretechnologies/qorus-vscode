@@ -10,14 +10,8 @@ import * as vscode from 'vscode';
 
 import { qore_vscode } from './qore_vscode';
 import * as msg from './qorus_message';
-import {
-    canBeParsed,
-    canDefineInterfaceBaseClass,
-    filesInDir,
-    flatten,
-    hasSuffix,
-    suffixToIfaceKind
-} from './qorus_utils';
+import { canBeParsed, canDefineInterfaceBaseClass, filesInDir,
+         flatten, hasSuffix, suffixToIfaceKind } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -175,7 +169,7 @@ export class QorusProjectCodeInfo {
                 has_other_base_class: num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1),
                 main_base_class_ord
             });
-        }
+        };
 
         if (num_inherited > 0) {
             if (base_class_name) {
@@ -253,30 +247,26 @@ export class QorusProjectCodeInfo {
     }
 
     registerTreeForNotifications(name, tree) {
-        if (this.notif_trees[name] === undefined) {
+        if (!this.notif_trees[name]) {
             this.notif_trees[name] = tree;
         }
     }
 
     unregisterTreeForNotifications(name) {
-        if (this.notif_trees[name] !== undefined) {
-            delete this.notif_trees[name];
-        }
+        delete this.notif_trees[name];
     }
 
     notifyTrees() {
         for (const key in this.notif_trees) {
-            if (this.notif_trees.hasOwnProperty(key)) {
-                this.notif_trees[key].treeNotify();
-            }
+            this.notif_trees[key].treeNotify();
         }
     }
 
-    getFileTree() {
+    fileTree() {
         return this.file_tree;
     }
 
-    async getInterfaceDataList(iface_kind): Promise<any[]|undefined> {
+    getInterfaceDataList(iface_kind): Promise<any[] | undefined> {
         return this.waitForPending(['yaml']).then(() => {
             const yaml_data = this.yamlDataByType(iface_kind);
             const interfaces = Object.keys(yaml_data).map(name => ({
@@ -468,14 +458,8 @@ export class QorusProjectCodeInfo {
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
         this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
-        this.yaml_files_watcher.onDidChange(() => {
-            this.update(['yaml']);
-            this.notifyTrees();
-        });
-        this.yaml_files_watcher.onDidDelete(() => {
-            this.update(['yaml']);
-            this.notifyTrees();
-        });
+        this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
+        this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
         this.base_classes_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{qclass,qfd}');
         this.base_classes_files_watcher.onDidCreate(() => this.update(['lang_client']));

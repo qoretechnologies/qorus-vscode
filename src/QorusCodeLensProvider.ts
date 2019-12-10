@@ -4,7 +4,6 @@ import { qore_vscode } from './qore_vscode';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import { projects } from './QorusProject';
-import { field } from './qorus_creator/common_constants';
 import { suffixToIfaceKind,dash2Pascal } from './qorus_utils';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
