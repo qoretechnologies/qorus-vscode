@@ -458,7 +458,10 @@ export class QorusProjectCodeInfo {
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
         this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
-        this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
+        this.yaml_files_watcher.onDidChange(() => {
+            this.update(['yaml']);
+            this.notifyTrees();
+        });
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
         this.base_classes_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{qclass,qfd}');
