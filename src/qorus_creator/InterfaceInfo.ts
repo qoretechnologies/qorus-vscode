@@ -29,16 +29,20 @@ export class InterfaceInfo {
     }
 
     resetConfigItemsToOrig = iface_id => {
-        this.iface_by_id[iface_id]['config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['orig-config-items']));
-        this.iface_by_id[iface_id]['orig-config-items'] = [];
-        this.are_orig_config_items_set = false;
+        if (this.iface_by_id[iface_id].hasOwnProperty('orig-config-items')) {
+            this.iface_by_id[iface_id]['config-items'] =
+                JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['orig-config-items']));
+            this.iface_by_id[iface_id]['orig-config-items'] = [];
+            this.are_orig_config_items_set = false;
+        }
     }
 
     setOrigConfigItems = iface_id => {
-        this.iface_by_id[iface_id]['orig-config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['config-items']));
-        this.are_orig_config_items_set = true;
+        if (this.iface_by_id[iface_id].hasOwnProperty('config-items')) {
+            this.iface_by_id[iface_id]['orig-config-items'] =
+                JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['config-items']));
+            this.are_orig_config_items_set = true;
+        }
     }
 
     addIfaceById = (data: any, iface_kind: string): string => {

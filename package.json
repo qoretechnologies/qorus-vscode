@@ -37,7 +37,9 @@
         "engine"
     ],
     "activationEvents": [
-        "*"
+        "*",
+        "workspaceContains:qorusproject.json",
+        "onView:qorusInterfaces"
     ],
     "main": "out/extension",
     "contributes": {
@@ -64,7 +66,7 @@
             "activitybar": [
                 {
                     "id": "qorusInstances",
-                    "title": "Qorus Instances",
+                    "title": "Qorus Development",
                     "icon": "images/qorus_logo_28.png"
                 }
             ]
@@ -73,7 +75,11 @@
             "qorusInstances": [
                 {
                     "id": "qorusInstancesExplorer",
-                    "name": "Explorer"
+                    "name": "Instances"
+                },
+                {
+                    "id": "qorusInterfaces",
+                    "name": "Interfaces"
                 }
             ]
         },
@@ -143,41 +149,445 @@
                 "title": "Qorus: Execute test files from directory"
             },
             {
-                "command": "qorus.createService",
-                "title": "Qorus: Create Qorus service"
-            },
-            {
-                "command": "qorus.createJob",
-                "title": "Qorus: Create Qorus job"
-            },
-            {
-                "command": "qorus.createWorkflow",
-                "title": "Qorus: Create Qorus workflow"
-            },
-            {
-                "command": "qorus.createStep",
-                "title": "Qorus: Create Qorus workflow step"
-            },
-            {
-                "command": "qorus.createMapper",
-                "title": "Qorus: Create Qorus mapper"
-            },
-            {
-                "command": "qorus.createMapperCode",
-                "title": "Qorus: Create Qorus mapper code"
-            },
-            {
-                "command": "qorus.createClass",
-                "title": "Qorus: Create class"
-            },
-            {
                 "command": "qorus.createOther",
                 "title": "Qorus: Create other entity"
             },
             {
                 "command": "qorus.webview",
-                "title": "Qorus: webview",
+                "title": "Qorus: Webview",
                 "icon": "images/qorus_logo_28.png"
+            },
+            {
+                "command": "qorus.createClass",
+                "title": "Create New Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createJob",
+                "title": "Create New Job",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createMapper",
+                "title": "Create New Mapper",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createMapperCode",
+                "title": "Create New Mapper Code",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createService",
+                "title": "Create New Service",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createStep",
+                "title": "Create New Step",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createWorkflow",
+                "title": "Create New Workflow",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteClass",
+                "title": "Delete Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteConnection",
+                "title": "Delete Connection",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteConstant",
+                "title": "Delete Constants",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteError",
+                "title": "Delete Errors",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteEvent",
+                "title": "Delete Event",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteFunction",
+                "title": "Delete Functions",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteGroup",
+                "title": "Delete Group",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteJob",
+                "title": "Delete Job",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteMapper",
+                "title": "Delete Mapper",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteMapperCode",
+                "title": "Delete Mapper Code",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteQueue",
+                "title": "Delete Queue",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteService",
+                "title": "Delete Service",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteStep",
+                "title": "Delete Step",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteValueMap",
+                "title": "Delete Value Map",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteWorkflow",
+                "title": "Delete Workflow",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployAllInterfaces",
+                "title": "Deploy All Interfaces",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployClass",
+                "title": "Deploy Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployConnection",
+                "title": "Deploy Connection",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployConstant",
+                "title": "Deploy Constants",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployEvent",
+                "title": "Deploy Event",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployError",
+                "title": "Deploy Errors",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployFunction",
+                "title": "Deploy Functions",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployGroup",
+                "title": "Deploy Group",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployJob",
+                "title": "Deploy Job",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployMapper",
+                "title": "Deploy Mapper",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployMapperCode",
+                "title": "Deploy Mapper Code",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployQueue",
+                "title": "Deploy Queue",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployService",
+                "title": "Deploy Service",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployStep",
+                "title": "Deploy Step",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployValueMap",
+                "title": "Deploy Value Map",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployWorkflow",
+                "title": "Deploy Workflow",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editClass",
+                "title": "Edit Class Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editJob",
+                "title": "Edit Job Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editMapper",
+                "title": "Edit Mapper Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editMapperCode",
+                "title": "Edit Mapper Code Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editService",
+                "title": "Edit Service Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editStep",
+                "title": "Edit Step Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editWorkflow",
+                "title": "Edit Workflow Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editWorkflowSteps",
+                "title": "Edit Workflow Steps",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/wf-steps.svg",
+                    "light": "images/icons/light/wf-steps.svg"
+                }
+            },
+            {
+                "command": "qorus.views.switchToCategoryView",
+                "title": "Switch To Category View",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/category-view.svg",
+                    "light": "images/icons/light/category-view.svg"
+                }
+            },
+            {
+                "command": "qorus.views.switchToFolderView",
+                "title": "Switch To Folder View",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/folder-view.svg",
+                    "light": "images/icons/light/folder-view.svg"
+                }
             }
         ],
         "keybindings": [
@@ -195,10 +605,191 @@
             }
         ],
         "menus": {
+            "commandPalette": [
+                {
+                    "command": "qorus.views.deleteClass",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteConnection",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteConstant",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteError",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteEvent",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteFunction",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteGroup",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteJob",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteMapper",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteMapperCode",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteQueue",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteService",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteStep",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteValueMap",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deleteWorkflow",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployAllInterfaces",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployClass",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployConnection",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployConstant",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployError",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployEvent",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployFunction",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployGroup",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployJob",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployMapper",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployMapperCode",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployQueue",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployService",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployStep",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployValueMap",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployWorkflow",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editClass",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editJob",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editMapper",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editMapperCode",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editService",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editStep",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editWorkflow",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editWorkflowSteps",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.switchToCategoryView",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.switchToFolderView",
+                    "when": "false"
+                }
+            ],
             "view/title": [
                 {
                     "command": "qorus.webview",
                     "group": "navigation"
+                },
+                {
+                    "command": "qorus.views.deployAllInterfaces",
+                    "group": "navigation",
+                    "when": "view == qorusInterfaces"
+                },
+                {
+                    "command": "qorus.views.switchToCategoryView",
+                    "group": "navigation",
+                    "when": "view == qorusInterfaces"
+                },
+                {
+                    "command": "qorus.views.switchToFolderView",
+                    "group": "navigation",
+                    "when": "view == qorusInterfaces"
                 }
             ],
             "editor/title": [
@@ -272,27 +863,252 @@
             "view/item/context": [
                 {
                     "command": "qorus.setActiveInstance",
-                    "when": "viewItem =~ /^qorus:inactive:(loggedIn|noAuth|unknown)$/"
+                    "when": "view == qorusInstancesExplorer && viewItem =~ /^qorus:inactive:(loggedIn|noAuth|unknown)$/"
                 },
                 {
                     "command": "qorus.setInactiveInstanceStayLoggedIn",
-                    "when": "viewItem == qorus:active:loggedIn"
+                    "when": "view == qorusInstancesExplorer && viewItem == qorus:active:loggedIn"
                 },
                 {
                     "command": "qorus.setInactiveInstance",
-                    "when": "viewItem =~ /^qorus:active:(noAuth|unknown)$/"
+                    "when": "view == qorusInstancesExplorer && viewItem =~ /^qorus:active:(noAuth|unknown)$/"
                 },
                 {
                     "command": "qorus.logout",
-                    "when": "viewItem =~ /^qorus:(active|inactive):loggedIn$/"
+                    "when": "view == qorusInstancesExplorer && viewItem =~ /^qorus:(active|inactive):loggedIn$/"
                 },
                 {
                     "command": "qorus.loginAndSetActiveInstance",
-                    "when": "viewItem == qorus:inactive:loggedOut"
+                    "when": "view == qorusInstancesExplorer && viewItem == qorus:inactive:loggedOut"
                 },
                 {
                     "command": "qorus.loginAndStayInactiveInstance",
-                    "when": "viewItem == qorus:inactive:loggedOut"
+                    "when": "view == qorusInstancesExplorer && viewItem == qorus:inactive:loggedOut"
+                },
+                {
+                    "command": "qorus.createClass",
+                    "when": "view == qorusInterfaces && viewItem == class-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createJob",
+                    "when": "view == qorusInterfaces && viewItem == job-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createMapper",
+                    "when": "view == qorusInterfaces && viewItem == mapper-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createMapperCode",
+                    "when": "view == qorusInterfaces && viewItem == mapper-code-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createService",
+                    "when": "view == qorusInterfaces && viewItem == service-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createStep",
+                    "when": "view == qorusInterfaces && viewItem == step-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createWorkflow",
+                    "when": "view == qorusInterfaces && viewItem == workflow-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteClass",
+                    "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteConnection",
+                    "when": "view == qorusInterfaces && viewItem == connection",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteConstant",
+                    "when": "view == qorusInterfaces && viewItem == constant",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteError",
+                    "when": "view == qorusInterfaces && viewItem == error",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteEvent",
+                    "when": "view == qorusInterfaces && viewItem == event",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteFunction",
+                    "when": "view == qorusInterfaces && viewItem == function",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteGroup",
+                    "when": "view == qorusInterfaces && viewItem == group",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteJob",
+                    "when": "view == qorusInterfaces && viewItem == job",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteMapper",
+                    "when": "view == qorusInterfaces && viewItem == mapper",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteMapperCode",
+                    "when": "view == qorusInterfaces && viewItem == mapper-code",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteQueue",
+                    "when": "view == qorusInterfaces && viewItem == queue",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteService",
+                    "when": "view == qorusInterfaces && viewItem == service",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteStep",
+                    "when": "view == qorusInterfaces && viewItem == step",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteWorkflow",
+                    "when": "view == qorusInterfaces && viewItem == workflow",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployClass",
+                    "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployConnection",
+                    "when": "view == qorusInterfaces && viewItem == connection",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployConstant",
+                    "when": "view == qorusInterfaces && viewItem == constant",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployError",
+                    "when": "view == qorusInterfaces && viewItem == error",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployEvent",
+                    "when": "view == qorusInterfaces && viewItem == event",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployFunction",
+                    "when": "view == qorusInterfaces && viewItem == function",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployGroup",
+                    "when": "view == qorusInterfaces && viewItem == group",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployJob",
+                    "when": "view == qorusInterfaces && viewItem == job",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployMapper",
+                    "when": "view == qorusInterfaces && viewItem == mapper",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployMapperCode",
+                    "when": "view == qorusInterfaces && viewItem == mapper-code",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployQueue",
+                    "when": "view == qorusInterfaces && viewItem == queue",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployService",
+                    "when": "view == qorusInterfaces && viewItem == service",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployStep",
+                    "when": "view == qorusInterfaces && viewItem == step",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployWorkflow",
+                    "when": "view == qorusInterfaces && viewItem == workflow",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editClass",
+                    "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editJob",
+                    "when": "view == qorusInterfaces && viewItem == job",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editMapper",
+                    "when": "view == qorusInterfaces && viewItem == mapper",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editMapperCode",
+                    "when": "view == qorusInterfaces && viewItem == mapper-code",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editService",
+                    "when": "view == qorusInterfaces && viewItem == service",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editStep",
+                    "when": "view == qorusInterfaces && viewItem == step",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editWorkflow",
+                    "when": "view == qorusInterfaces && viewItem == workflow",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editWorkflowSteps",
+                    "when": "view == qorusInterfaces && viewItem == workflow",
+                    "group": "inline"
                 }
             ]
         },
