@@ -434,8 +434,8 @@ class QorusTreeClassCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeClassNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeClassNode(iface.name, iface.data));
         }
         return children;
     }
@@ -453,8 +453,8 @@ class QorusTreeConnectionCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeConnectionNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeConnectionNode(iface.name, iface.data));
         }
         return children;
     }
@@ -472,8 +472,8 @@ class QorusTreeConstantCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeConstantNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeConstantNode(iface.name, iface.data));
         }
         return children;
     }
@@ -491,8 +491,8 @@ class QorusTreeErrorCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeErrorNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeErrorNode(iface.name, iface.data));
         }
         return children;
     }
@@ -510,8 +510,8 @@ class QorusTreeEventCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeEventNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeEventNode(iface.name, iface.data));
         }
         return children;
     }
@@ -529,8 +529,8 @@ class QorusTreeFunctionCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeFunctionNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeFunctionNode(iface.name, iface.data));
         }
         return children;
     }
@@ -548,8 +548,8 @@ class QorusTreeGroupCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeGroupNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeGroupNode(iface.name, iface.data));
         }
         return children;
     }
@@ -567,8 +567,8 @@ class QorusTreeJobCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeJobNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeJobNode(iface.name, iface.data));
         }
         return children;
     }
@@ -586,8 +586,8 @@ class QorusTreeMapperCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeMapperNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeMapperNode(iface.name, iface.data));
         }
         return children;
     }
@@ -605,8 +605,8 @@ class QorusTreeMapperCodeCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeMapperCodeNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeMapperCodeNode(iface.name, iface.data));
         }
         return children;
     }
@@ -624,8 +624,8 @@ class QorusTreeQueueCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeQueueNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeQueueNode(iface.name, iface.data));
         }
         return children;
     }
@@ -643,8 +643,8 @@ class QorusTreeServiceCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeServiceNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeServiceNode(iface.name, iface.data));
         }
         return children;
     }
@@ -662,8 +662,8 @@ class QorusTreeStepCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeStepNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeStepNode(iface.name, iface.data));
         }
         return children;
     }
@@ -681,8 +681,8 @@ class QorusTreeValueMapCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeValueMapNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeValueMapNode(iface.name, iface.data));
         }
         return children;
     }
@@ -700,8 +700,8 @@ class QorusTreeWorkflowCategoryNode extends QorusTreeCategoryNode {
         }
 
         let children = [];
-        for (const intf of interfaces) {
-            children.push(new QorusTreeWorkflowNode(intf.name, intf.data));
+        for (const iface of interfaces) {
+            children.push(new QorusTreeWorkflowNode(iface.name, iface.data));
         }
         return children;
     }

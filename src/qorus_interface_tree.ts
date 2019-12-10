@@ -19,39 +19,39 @@ export const registerInterfaceTreeCommands = (context: vscode.ExtensionContext) 
 
     // delete commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
-        const command = 'qorus.views.delete' + dash2Pascal(intf);
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface => {
+        const command = 'qorus.views.delete' + dash2Pascal(iface);
         disposable = vscode.commands.registerCommand(command, (data: any) => {
             vscode.window.showWarningMessage(
-                'Are you sure you want to delete ' + intf + ' ' + String(data.name)
-                + '? This will delete both the ' + intf + ' metadata file and code file.',
+                'Are you sure you want to delete ' + iface + ' ' + String(data.name)
+                + '? This will delete both the ' + iface + ' metadata file and code file.',
                 'Yes', 'No'
             ).then(
                 selection => {
                     if (selection === undefined || selection === 'No') {
                         return;
                     }
-                    const intfData = data.data;
+                    const iface_data = data.data;
 
                     // delete yaml file
-                    if (intfData['yaml_file']) {
-                        unlink(intfData.yaml_file, (err) => {
+                    if (iface_data['yaml_file']) {
+                        unlink(iface_data.yaml_file, (err) => {
                             if (err) {
-                                msg.warning('Failed deleting ' + intf + ' metadata file ' + intfData.yaml_file + ': ' + err);
+                                msg.warning('Failed deleting ' + iface + ' metadata file ' + iface_data.yaml_file + ': ' + err);
                             } else {
-                                msg.info('Deleted ' + intf + ' metadata file: ' + intfData.yaml_file);
+                                msg.info('Deleted ' + iface + ' metadata file: ' + iface_data.yaml_file);
                             }
                         });
                     }
 
                     // delete code file
-                    if (intfData.target_dir && intfData.target_file) {
-                        const codeFile = join(intfData.target_dir, intfData.target_file);
+                    if (iface_data.target_dir && iface_data.target_file) {
+                        const codeFile = join(iface_data.target_dir, iface_data.target_file);
                         unlink(codeFile, (err) => {
                             if (err) {
-                                msg.warning('Failed deleting ' + intf + ' code file ' + codeFile + ': ' + err);
+                                msg.warning('Failed deleting ' + iface + ' code file ' + codeFile + ': ' + err);
                             } else {
-                                msg.info('Deleted ' + intf + ' code file: ' + codeFile);
+                                msg.info('Deleted ' + iface + ' code file: ' + codeFile);
                             }
                         });
                     }
@@ -63,43 +63,43 @@ export const registerInterfaceTreeCommands = (context: vscode.ExtensionContext) 
 
     // deploy commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
-        const command = 'qorus.views.deploy' + dash2Pascal(intf);
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface => {
+        const command = 'qorus.views.deploy' + dash2Pascal(iface);
         disposable = vscode.commands.registerCommand(command, (data: any) => {
             vscode.window.showWarningMessage(
-                'Are you sure you want to deploy ' + intf + ' ' + String(data.name) + '?',
+                'Are you sure you want to deploy ' + iface + ' ' + String(data.name) + '?',
                 'Yes', 'No'
             ).then(
                 selection => {
                     if (selection === undefined || selection === 'No') {
                         return;
                     }
-                    const intfData = data.data;
+                    const iface_data = data.data;
 
                     // deploy code file
-                    if (intfData.target_dir && intfData.target_file) {
-                        const codeFile = join(intfData.target_dir, intfData.target_file);
+                    if (iface_data.target_dir && iface_data.target_file) {
+                        const codeFile = join(iface_data.target_dir, iface_data.target_file);
                         vscode.commands.executeCommand('qorus.deployFile', vscode.Uri.file(codeFile))
                         .then(
                             result => {
                                 if (result) {
-                                    msg.info('Deployed ' + intf + ' code file: ' + codeFile);
+                                    msg.info('Deployed ' + iface + ' code file: ' + codeFile);
                                 } else {
-                                    msg.error('Failed deploying ' + intf + ' code file ' + codeFile + '.');
+                                    msg.error('Failed deploying ' + iface + ' code file ' + codeFile + '.');
                                 }
                             }
                         );
                     }
 
                     // deploy yaml file
-                    if (intfData.yaml_file) {
-                        vscode.commands.executeCommand('qorus.deployFile', vscode.Uri.file(intfData.yaml_file))
+                    if (iface_data.yaml_file) {
+                        vscode.commands.executeCommand('qorus.deployFile', vscode.Uri.file(iface_data.yaml_file))
                         .then(
                             result => {
                                 if (result) {
-                                    msg.info('Deployed ' + intf + ' metadata file: ' + intfData.yaml_file);
+                                    msg.info('Deployed ' + iface + ' metadata file: ' + iface_data.yaml_file);
                                 } else {
-                                    msg.error('Failed deploying ' + intf + ' metadata file ' + intfData.yaml_file + '.');
+                                    msg.error('Failed deploying ' + iface + ' metadata file ' + iface_data.yaml_file + '.');
                                 }
                             }
                         );
@@ -114,12 +114,12 @@ export const registerInterfaceTreeCommands = (context: vscode.ExtensionContext) 
     });
 
     // edit commands
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow'].forEach(intf => {
-        const command = 'qorus.views.edit' + dash2Pascal(intf);
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow'].forEach(iface => {
+        const command = 'qorus.views.edit' + dash2Pascal(iface);
         disposable = vscode.commands.registerCommand(command, (data: any) => {
             const code_info = projects.currentProjectCodeInfo();
             const data2 = code_info.fixData({...data.data});
-            vscode.commands.executeCommand('qorus.editInterface', data2, intf);
+            vscode.commands.executeCommand('qorus.editInterface', data2, iface);
         });
         context.subscriptions.push(disposable);
     });
@@ -138,8 +138,8 @@ export const registerInterfaceTreeCommands = (context: vscode.ExtensionContext) 
         if (!data || !data.data) {
             return;
         }
-        const intfData = data.data;
-        switch (intfData.type) {
+        const iface_data = data.data;
+        switch (iface_data.type) {
             case 'class':
             case 'constant':
             case 'function':
@@ -148,8 +148,8 @@ export const registerInterfaceTreeCommands = (context: vscode.ExtensionContext) 
             case 'service':
             case 'step':
             case 'workflow':
-                if (intfData.target_dir && intfData.target_file) {
-                    const filePath = join(intfData.target_dir, intfData.target_file);
+                if (iface_data.target_dir && iface_data.target_file) {
+                    const filePath = join(iface_data.target_dir, iface_data.target_file);
                     vscode.workspace.openTextDocument(vscode.Uri.file(filePath)).then(
                         doc => {
                             if (vscode.window.activeTextEditor &&
@@ -170,11 +170,11 @@ export const registerInterfaceTreeCommands = (context: vscode.ExtensionContext) 
             case 'connection':
             case 'error':
             case 'value-map':
-                if (intfData.yaml_file) {
-                    vscode.workspace.openTextDocument(vscode.Uri.file(intfData.yaml_file)).then(
+                if (iface_data.yaml_file) {
+                    vscode.workspace.openTextDocument(vscode.Uri.file(iface_data.yaml_file)).then(
                         doc => {
                             if (vscode.window.activeTextEditor &&
-                                vscode.window.activeTextEditor.document.fileName === intfData.yaml_file)
+                                vscode.window.activeTextEditor.document.fileName === iface_data.yaml_file)
                             {
                                 vscode.window.showTextDocument(doc, { preview: false });
                             } else {
@@ -182,7 +182,7 @@ export const registerInterfaceTreeCommands = (context: vscode.ExtensionContext) 
                             }
                         },
                         err => {
-                            console.log('Error opening file ' + intfData.yaml_file + ': ', err);
+                            console.log('Error opening file ' + iface_data.yaml_file + ': ', err);
                         }
                     );
                 }
