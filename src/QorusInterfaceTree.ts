@@ -220,6 +220,7 @@ class QorusTreeJobNode extends QorusSingleInterfaceNode {
 
 class QorusTreeMapperNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
+        name = name.split(':')[0];
         super(name, TreeItemCollapsibleState.None);
         this.name = name;
         this.data = data;
@@ -268,6 +269,7 @@ class QorusTreeServiceNode extends QorusSingleInterfaceNode {
 
 class QorusTreeStepNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
+        name = name.split(':')[0];
         super(name, TreeItemCollapsibleState.None);
         this.name = name;
         this.data = data;
