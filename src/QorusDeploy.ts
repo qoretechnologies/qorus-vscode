@@ -36,29 +36,28 @@ class QorusDeploy {
         this.deployFileAndPairFile(editor.document.uri);
     }
 
-    deployFile(uri: vscode.Uri) {
+    deployFile(uri: vscode.Uri): Thenable<boolean> {
         const file_path: string = uri.fsPath;
         if (!isDeployable(file_path)) {
             msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
-            return;
+            return Promise.resolve(false);
         }
 
-        this.deployFileAndPairFile(uri);
+        return this.deployFileAndPairFile(uri);
     }
 
-    private deployFileAndPairFile = (uri: vscode.Uri) => {
+    private deployFileAndPairFile(uri: vscode.Uri): Thenable<boolean> {
         const file_path: string = uri.fsPath;
         const project = projects.getProject(uri);
         const code_info = project && project.code_info;
         const pair_file_path = code_info.pairFile(file_path);
 
         if (pair_file_path) {
-            this.doDeploy([file_path, pair_file_path]);
+            return this.doDeploy([file_path, pair_file_path]);
         }
         else {
-            this.doDeploy([file_path]);
+            return this.doDeploy([file_path]);
         }
-
     }
 
     deployDir(uri: vscode.Uri) {

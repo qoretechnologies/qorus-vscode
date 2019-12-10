@@ -652,44 +652,61 @@ msgstr "Language"
 msgid "ColumnHeader-stepid"
 msgstr "ID"
 
-msgid "Workflows"
-msgstr "Workflows"
-
-msgid "Services"
-msgstr "Services"
-
-msgid "Jobs"
-msgstr "Jobs"
-
-msgid "Workflow"
-msgstr "Workflow"
+msgid "Job"
+msgstr "Job"
 
 msgid "Service"
 msgstr "Service"
 
-msgid "Job"
-msgstr "Job"
+msgid "Workflow"
+msgstr "Workflow"
 
 msgid "Classes"
 msgstr "Classes"
 
+msgid "Connections"
+msgstr "Connections"
+
 msgid "Constants"
 msgstr "Constants"
 
-msgid "Mappers"
-msgstr "Mappers"
+msgid "Errors"
+msgstr "Errors"
+
+msgid "Events"
+msgstr "Events"
 
 msgid "Functions"
 msgstr "Functions"
 
-msgid "workflows"
-msgstr "workflows"
+msgid "Groups"
+msgstr "Groups"
 
-msgid "services"
-msgstr "services"
+msgid "Jobs"
+msgstr "Jobs"
 
-msgid "jobs"
-msgstr "jobs"
+msgid "Mappers"
+msgstr "Mappers"
+
+msgid "MapperCode"
+msgstr "Mapper Code"
+
+msgid "Queues"
+msgstr "Queues"
+
+msgid "Services"
+msgstr "Services"
+
+msgid "Steps"
+msgstr "Steps"
+
+msgid "ValueMaps"
+msgstr "Value Maps"
+
+msgid "Workflows"
+msgstr "Workflows"
+
+
 
 msgid "classes"
 msgstr "classes"
@@ -700,8 +717,17 @@ msgstr "constants"
 msgid "functions"
 msgstr "functions"
 
+msgid "jobs"
+msgstr "jobs"
+
 msgid "mappers"
 msgstr "mappers"
+
+msgid "services"
+msgstr "services"
+
+msgid "workflows"
+msgstr "workflows"
 
 msgid "Other"
 msgstr "Other"
@@ -1708,4 +1734,7 @@ msgid "AddFunction"
 msgstr "Add function"
 
 msgid "MapperCodeNotFound ${ name }"
-msgstr "Mapper code '${ name }' not found
+msgstr "Mapper code '${ name }' not found"
+
+msgid "OpenInterface"
+msgstr "Open interface"

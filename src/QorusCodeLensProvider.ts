@@ -4,7 +4,6 @@ import { qore_vscode } from './qore_vscode';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import { projects } from './QorusProject';
-import { field } from './qorus_creator/common_constants';
 import { suffixToIfaceKind,dash2Pascal } from './qorus_utils';
 import { t, gettext } from 'ttag';
 import * as msg from './qorus_message';
@@ -92,7 +91,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
 
-        data = this.fixData({ ...data });
+        data = this.code_info.fixData({ ...data });
         const range = loc2range(symbol.name.loc);
 
         switch (iface_kind) {
@@ -162,7 +161,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
 
-        data = this.fixData({ ...data });
+        data = this.code_info.fixData({ ...data });
 
         if (iface_kind === 'mapper-code') {
             data['mapper-methods'] = data.methods;
@@ -180,68 +179,5 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             command: 'qorus.deleteMethod',
             arguments: [{ ...data, method_index }, iface_kind],
         }));
-    }
-
-    private fixData(data: any): any {
-        if (data.autostart) {
-            data[data.type + '-autostart'] = data.autostart;
-            delete data.autostart;
-        }
-
-        let fields_to_complexify = ['functions', 'constants', 'mappers', 'value_maps', 'author'];
-
-        if (data['class-prefixes']) {
-            data.classes = data['class-prefixes'].map(class_prefix_data => ({
-                name: class_prefix_data.class,
-                prefix: class_prefix_data.prefix
-            }));
-        } else {
-            fields_to_complexify.push('classes');
-        }
-
-        fields_to_complexify.forEach(tag => {
-            if (data[tag]) {
-                data[tag] = data[tag].map(value => ({ name: value }));
-            }
-        });
-
-        const array_of_pairs_fields = ['tags', 'define-auth-label', 'options', 'statuses'];
-        array_of_pairs_fields.forEach(tag => {
-            if (!data[tag]) {
-                return;
-            }
-
-            const [key_name, value_name] = field[tag.replace(/-/g, '_')].fields;
-            let transformed_data = [];
-
-            for (const key in data[tag]) {
-                transformed_data.push({
-                    [key_name]: key,
-                    [value_name]: data[tag][key]
-                });
-            }
-
-            data[tag] = transformed_data;
-        });
-
-        for (const method of data.methods || []) {
-            if (method.author) {
-                method.author = method.author.map(value => ({ name: value }));
-            }
-        }
-
-        if (data.schedule) {
-            const ordered_values = ['minutes', 'hours', 'days', 'months', 'dow'].map(key => data.schedule[key]);
-            data.schedule = ordered_values.join(' ');
-        }
-
-        if (data.steps) {
-            data['steps-info'] = this.code_info.stepData(data.steps);
-        }
-
-        delete data.code;
-        delete data.yaml_file;
-
-        return data;
     }
 }

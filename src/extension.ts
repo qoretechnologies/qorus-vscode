@@ -1,25 +1,221 @@
-import * as vscode from 'vscode';
 import * as child_process from 'child_process';
-import { projects, config_filename } from './QorusProject';
-import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
-import { qorus_vscode } from './qorus_vscode';
-import { qorus_request } from './QorusRequest';
-import { qorus_webview } from './QorusWebview';
-import { qorus_locale } from './QorusLocale';
-import { deployer } from './QorusDeploy';
-import { tester } from './QorusTest';
-import { tree } from './QorusTree';
-import { QorusCodeLensProvider } from './QorusCodeLensProvider';
-import { QorusHoverProvider } from './QorusHoverProvider';
-import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import { unlink } from 'fs';
+import { t } from 'ttag';
+import { join } from 'path';import * as vscode from 'vscode';
+import { window } from 'vscode';
+
 import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
-import { t } from 'ttag';
+import { qorus_vscode } from './qorus_vscode';
+import { QorusCodeLensProvider } from './QorusCodeLensProvider';
+import { deployer } from './QorusDeploy';
+import { QorusHoverProvider } from './QorusHoverProvider';
+import { qorusIcons } from './QorusIcons';
+import { InterfaceTree } from './QorusInterfaceTree';
+import { qorus_locale } from './QorusLocale';
+import { config_filename, projects } from './QorusProject';
+import { qorus_request } from './QorusRequest';
+import { tester } from './QorusTest';
+import { tree } from './QorusTree';
+import { qorus_webview } from './QorusWebview';
+import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 
 qorus_locale.setLocale();
 
+function registerInterfaceTreeCommands(context: vscode.ExtensionContext) {
+    let disposable;
+
+    // view switching commands
+    disposable = vscode.commands.registerCommand(
+        'qorus.views.switchToCategoryView', () => InterfaceTree.setCategoryView()
+    );
+    disposable = vscode.commands.registerCommand(
+        'qorus.views.switchToFolderView', () => InterfaceTree.setFolderView()
+    );
+
+    // delete commands
+    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
+        const command = 'qorus.views.delete' + dash2Pascal(intf);
+        disposable = vscode.commands.registerCommand(command, (data: any) => {
+            window.showWarningMessage(
+                'Are you sure you want to delete ' + intf + ' ' + String(data.name)
+                + '? This will delete both the ' + intf + ' metadata file and code file.',
+                'Yes', 'No'
+            ).then(
+                selection => {
+                    if (selection === undefined || selection === 'No') {
+                        return;
+                    }
+                    const intfData = data.data;
+
+                    // delete yaml file
+                    if (intfData['yaml_file']) {
+                        unlink(intfData.yaml_file, (err) => {
+                            if (err) {
+                                msg.warning('Failed deleting ' + intf + ' metadata file ' + intfData.yaml_file + ': ' + err);
+                            } else {
+                                msg.info('Deleted ' + intf + ' metadata file: ' + intfData.yaml_file);
+                            }
+                        });
+                    }
+
+                    // delete code file
+                    if (intfData.target_dir && intfData.target_file) {
+                        const codeFile = join(intfData.target_dir, intfData.target_file);
+                        unlink(codeFile, (err) => {
+                            if (err) {
+                                msg.warning('Failed deleting ' + intf + ' code file ' + codeFile + ': ' + err);
+                            } else {
+                                msg.info('Deleted ' + intf + ' code file: ' + codeFile);
+                            }
+                        });
+                    }
+                }
+            );
+        });
+        context.subscriptions.push(disposable);
+    });
+
+    // deploy commands
+    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(intf => {
+        const command = 'qorus.views.deploy' + dash2Pascal(intf);
+        disposable = vscode.commands.registerCommand(command, (data: any) => {
+            window.showWarningMessage(
+                'Are you sure you want to deploy ' + intf + ' ' + String(data.name) + '?',
+                'Yes', 'No'
+            ).then(
+                selection => {
+                    if (selection === undefined || selection === 'No') {
+                        return;
+                    }
+                    const intfData = data.data;
+
+                    // deploy code file
+                    if (intfData.target_dir && intfData.target_file) {
+                        const codeFile = join(intfData.target_dir, intfData.target_file);
+                        vscode.commands.executeCommand('qorus.deployFile', vscode.Uri.file(codeFile))
+                        .then(
+                            result => {
+                                if (result) {
+                                    msg.info('Deployed ' + intf + ' code file: ' + codeFile);
+                                } else {
+                                    msg.error('Failed deploying ' + intf + ' code file ' + codeFile + '.');
+                                }
+                            }
+                        );
+                    }
+
+                    // deploy yaml file
+                    if (intfData.yaml_file) {
+                        vscode.commands.executeCommand('qorus.deployFile', vscode.Uri.file(intfData.yaml_file))
+                        .then(
+                            result => {
+                                if (result) {
+                                    msg.info('Deployed ' + intf + ' metadata file: ' + intfData.yaml_file);
+                                } else {
+                                    msg.error('Failed deploying ' + intf + ' metadata file ' + intfData.yaml_file + '.');
+                                }
+                            }
+                        );
+                    }
+                }
+            );
+        });
+        context.subscriptions.push(disposable);
+    });
+    disposable = vscode.commands.registerCommand('qorus.views.deployAllInterfaces', () => {
+        // TODO
+    });
+
+    // edit commands
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow'].forEach(intf => {
+        const command = 'qorus.views.edit' + dash2Pascal(intf);
+        disposable = vscode.commands.registerCommand(command, (data: any) => {
+            const code_info = projects.currentProjectCodeInfo();
+            const data2 = code_info.fixData({...data.data});
+            vscode.commands.executeCommand('qorus.editInterface', data2, intf);
+        });
+        context.subscriptions.push(disposable);
+    });
+    disposable = vscode.commands.registerCommand('qorus.views.editWorkflowSteps', (data: any) =>
+    {
+        const code_info = projects.currentProjectCodeInfo();
+        const data2 = code_info.fixData({...data.data});
+        data2.show_steps = true;
+        vscode.commands.executeCommand('qorus.editInterface', data2, 'workflow');
+    });
+    context.subscriptions.push(disposable);
+
+    // open interface command, used when clicking on interface in the tree
+    disposable = vscode.commands.registerCommand('qorus.views.openInterface', (data: any) =>
+    {
+        if (!data || !data.data) {
+            return;
+        }
+        const intfData = data.data;
+        switch (intfData.type) {
+            case 'class':
+            case 'constant':
+            case 'function':
+            case 'job':
+            case 'mapper-code':
+            case 'service':
+            case 'step':
+            case 'workflow':
+                if (intfData.target_dir && intfData.target_file) {
+                    const filePath = join(intfData.target_dir, intfData.target_file);
+                    vscode.workspace.openTextDocument(vscode.Uri.file(filePath)).then(
+                        doc => {
+                            if (window.activeTextEditor &&
+                                window.activeTextEditor.document.fileName === filePath)
+                            {
+                                window.showTextDocument(doc, { preview: false });
+                            } else {
+                                window.showTextDocument(doc);
+                            }
+                        },
+                        err => {
+                            console.log('Error opening file ' + filePath + ': ', err);
+                        }
+                    );
+                }
+                break;
+
+            case 'connection':
+            case 'error':
+            case 'value-map':
+                if (intfData.yaml_file) {
+                    vscode.workspace.openTextDocument(vscode.Uri.file(intfData.yaml_file)).then(
+                        doc => {
+                            if (window.activeTextEditor &&
+                                window.activeTextEditor.document.fileName === intfData.yaml_file)
+                            {
+                                window.showTextDocument(doc, { preview: false });
+                            } else {
+                                window.showTextDocument(doc);
+                            }
+                        },
+                        err => {
+                            console.log('Error opening file ' + intfData.yaml_file + ': ', err);
+                        }
+                    );
+                }
+            //case 'event':
+            //case 'group':
+            //case 'mapper':
+            //case 'queue':
+            default:
+                break;
+        }
+    });
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     qorus_vscode.context = context;
+    qorusIcons.update(context.extensionPath);
 
     let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
                                                                () => deployer.deployCurrentFile());
@@ -104,6 +300,16 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
     context.subscriptions.push(disposable);
 
+    InterfaceTree.setExtensionPath(context.extensionPath);
+
+    const code_info = projects.currentProjectCodeInfo();
+    code_info && code_info.registerTreeForNotifications('interface-tree', InterfaceTree);
+
+    registerInterfaceTreeCommands(context);
+    disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', InterfaceTree);
+    context.subscriptions.push(disposable);
+    InterfaceTree.refresh();
+
     disposable = vscode.languages.registerCodeLensProvider(
         [{ language: 'qore', scheme: 'file' }],
         new QorusCodeLensProvider()
@@ -139,14 +345,20 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 }
 
-export function deactivate() {}
+export function deactivate() {
+    const code_info = projects.currentProjectCodeInfo();
+    code_info && code_info.unregisterTreeForNotifications('interface-tree');
+}
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
     const workspace_folder_changed_or_unset = projects.updateCurrentWorkspaceFolder(uri);
 
     if (workspace_folder_changed_or_unset || forceTreeReset) {
         projects.validateConfigFileAndDo(
-            (file_data: any) => tree.reset(file_data.qorus_instances),
+            (file_data: any) => {
+                tree.reset(file_data.qorus_instances);
+                InterfaceTree.refresh();
+            },
             () => tree.reset({}),
             uri
         );
