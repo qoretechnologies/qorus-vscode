@@ -123,24 +123,12 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
 
                 break;
             case 'job':
-                lenses.push(new vscode.CodeLens(range, {
-                    title: t`EditJob`,
-                    command: 'qorus.editInterface',
-                    arguments: [data, 'job'],
-                }));
-                break;
             case 'step':
-                lenses.push(new vscode.CodeLens(range, {
-                    title: t`EditStep`,
-                    command: 'qorus.editInterface',
-                    arguments: [data, 'step'],
-                }));
-                break;
             case 'class':
                 lenses.push(new vscode.CodeLens(range, {
-                    title: t`EditClass`,
+                    title: gettext('Edit' + dash2Pascal(iface_kind)),
                     command: 'qorus.editInterface',
-                    arguments: [data, 'class'],
+                    arguments: [data, iface_kind],
                 }));
                 break;
             case 'workflow':
