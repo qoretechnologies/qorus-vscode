@@ -152,10 +152,6 @@ export class InterfaceInfo {
         (class_yaml_data['config-items'] || []).forEach(raw_item => {
             let item = { ...this.configItemInheritedData(raw_item) };
 
-            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
-                item2.name === raw_item.name && item2.prefix === raw_item.prefix
-            );
-
             item.parent_data = { ...item };
             item.parent = {
                 'interface-type': 'class',
@@ -167,8 +163,15 @@ export class InterfaceInfo {
                 item.prefix = prefix;
             }
 
+            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
+                item2.name === raw_item.name && item2.prefix === raw_item.prefix
+            );
+
             if (index > -1) {
-                this.iface_by_id[iface_id]['config-items'][index] = item;
+                this.iface_by_id[iface_id]['config-items'][index] = {
+                    ... this.iface_by_id[iface_id]['config-items'][index],
+                    ... item
+                };
             }
             else {
                 this.iface_by_id[iface_id]['config-items'].push(item);
@@ -204,8 +207,6 @@ export class InterfaceInfo {
         this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
             !item.parent || item.parent['interface-name'] !== base_class_name || item.prefix
         );
-
-        this.getConfigItems({iface_id, iface_kind});
     }
 
     removeClasses = ({iface_id, iface_kind}) => {
@@ -239,7 +240,9 @@ export class InterfaceInfo {
 
         this.code_info.waitForPending(['yaml']).then(() => {
             if (base_class_name) {
-                this.removeBaseClass({iface_id, iface_kind});
+                if (base_class_name !== this.iface_by_id[iface_id]['base-class-name']) {
+                    this.removeBaseClass({iface_id, iface_kind});
+                }
                 this.addClassConfigItems(iface_id, base_class_name);
                 this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
             }

@@ -93,6 +93,7 @@ class InterfaceCreatorDispatcher {
                     removeField('class-name');
                 }
                 interface_info.removeBaseClass(other_params);
+                interface_info.getConfigItems(other_params);
                 break;
             case 'class-name':
                 if (iface_kind === 'workflow') {
