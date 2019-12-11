@@ -1557,6 +1557,9 @@ msgstr "getting module information"
 msgid "objects_info_update_pending"
 msgstr "getting information from qorus object parser"
 
+msgid "edit_info_info_update_pending"
+msgstr "getting original data information needed for editing"
+
 msgid "pending"
 msgstr "pending"
 
