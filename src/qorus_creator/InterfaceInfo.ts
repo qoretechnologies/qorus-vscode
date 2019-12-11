@@ -258,6 +258,7 @@ export class InterfaceInfo {
             const default_type = defaultValue('type');
 
             const fixLocalItem = (item: any): any => {
+                delete item.value;
                 if (item.default_value) {
                     item.value = item.default_value;
                     item.level = 'default';
