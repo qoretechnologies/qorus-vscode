@@ -190,6 +190,9 @@ msgstr "Error 409 - Conflict (${ url })"
 msgid "ErrorN ${ N } ${ url }"
 msgstr "Error ${ N } (${ url })"
 
+msgid "ErrorOpeningFile ${ file } ${ err }"
+msgstr "Error opening file ${ file }: ${ err }"
+
 msgid "DeploymentStartFailed"
 msgstr "Deployment failed to start"
 
@@ -201,6 +204,30 @@ msgstr "Deployment failed"
 
 msgid "DeploymentFailed ${ deployment_id }"
 msgstr "Deployment failed (ID: ${ deployment_id })"
+
+msgid "DeletedIfaceCodeFile ${ iface } ${ file }"
+msgstr "Deleted ${ iface } code file: ${ file }"
+
+msgid "DeletedIfaceMetaFile ${ iface } ${ file }"
+msgstr "Deleted ${ iface } metadata file: ${ file }"
+
+msgid "DeployedIfaceCodeFile ${ iface } ${ file }"
+msgstr "Deployed ${ iface } code file: ${ file }"
+
+msgid "DeployedIfaceMetaFile ${ iface } ${ file }"
+msgstr "Deployed ${ iface } metadata file: ${ file }"
+
+msgid "FailedDeletingIfaceCodeFile ${ iface } ${ file } ${ err }"
+msgstr "Failed deleting ${ iface } code file ${ file }: ${ err }"
+
+msgid "FailedDeletingIfaceMetaFile ${ iface } ${ file } ${ err }"
+msgstr "Failed deleting ${ iface } metadata file ${ file }: ${ err }"
+
+msgid "FailedDeployingIfaceCodeFile ${ iface } ${ file }"
+msgstr "Failed deploying ${ iface } code file ${ file }."
+
+msgid "FailedDeployingIfaceMetaFile ${ iface } ${ file }"
+msgstr "Failed deploying ${ iface } metadata file ${ file }."
 
 msgid "RequestIdInfo ${ request_id }"
 msgstr " (ID: ${ request_id })"
@@ -412,6 +439,12 @@ msgstr "Edit"
 msgid "Next"
 msgstr "Next"
 
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No"
+msgstr "No"
+
 msgid "MoveUp"
 msgstr "Move up one position"
 
@@ -432,6 +465,12 @@ msgstr "Edit environment"
 
 msgid "AddQorus"
 msgstr "Add Qorus instance"
+
+msgid "ConfirmDeleteInterface ${ iface } ${ name }"
+msgstr "Are you sure you want to delete ${ iface } ${ name }? This will delete both the ${ iface } metadata file and code file."
+
+msgid "ConfirmDeployInterface ${ iface } ${ name }"
+msgstr "Are you sure you want to deploy ${ iface } ${ name }?"
 
 msgid "ConfirmDeletion"
 msgstr "Confirm deletion"
