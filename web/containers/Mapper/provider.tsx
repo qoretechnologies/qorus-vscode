@@ -57,6 +57,17 @@ export const providers = {
         requiresRecord: true,
         type: 'connection',
     },
+    remote: {
+        name: 'remote',
+        url: 'remote/qorus',
+        filter: 'has_provider',
+        namekey: 'name',
+        desckey: 'desc',
+        suffix: '/provider',
+        recordSuffix: '/record',
+        requiresRecord: true,
+        type: 'remote',
+    },
     datasource: {
         name: 'datasource',
         url: 'remote/datasources',

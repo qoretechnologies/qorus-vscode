@@ -51,7 +51,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     resetFields,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
-    const [configItemData, setConfigItemData] = useState<boolean>(false);
+    const [configItemData, setConfigItemData] = useState<any>(false);
     const [configItems, setConfigItems] = useState<any>({});
 
     useEffectOnce(() => {
@@ -116,6 +116,14 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         });
     };
 
+    const handleDeleteStructureClick: (configItemName: string) => void = configItemName => {
+        // Request the config item data
+        postMessage(Messages.DELETE_CONFIG_ITEM, {
+            iface_id: interfaceId,
+            name: configItemName,
+        });
+    };
+
     return (
         <>
             <StyledConfigManagerWrapper>
@@ -141,6 +149,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                                 data: configItems.items,
                             }}
                             onEditStructureClick={handleEditStructureClick}
+                            onDeleteStructureClick={handleDeleteStructureClick}
                             onSubmit={handleSubmit}
                             type={type}
                         />
@@ -165,6 +174,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             type={'config-item'}
                             initialInterfaceId={interfaceId}
                             data={configItemData}
+                            disabledFields={configItemData && configItemData.parent && ['name']}
                             isEditing={!!configItemData}
                             onSubmit={() => {
                                 setConfigItemData(null);
@@ -180,7 +190,4 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     );
 };
 
-export default compose(
-    withTextContext(),
-    withMessageHandler()
-)(ConfigItemManager);
+export default compose(withTextContext(), withMessageHandler())(ConfigItemManager);

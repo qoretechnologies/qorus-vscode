@@ -24,6 +24,7 @@ export const Messages = {
     CONFIG_GET_DATA: 'config-get-data',
     CONFIG_UPDATE_DATA: 'config-update-data',
     GET_CONFIG_ITEM: 'get-config-item',
+    DELETE_CONFIG_ITEM: 'delete-config-item',
     RETURN_CONFIG_ITEM: 'return-config-item',
     CONFIG_CHANGED_ON_DISK: 'config-changed-on-disk',
     RESET_CONFIG_ITEMS: 'reset-config-items',

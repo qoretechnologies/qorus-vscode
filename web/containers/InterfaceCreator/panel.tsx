@@ -62,6 +62,7 @@ export interface IInterfaceCreatorPanel {
     interfaceId?: string;
     initialInterfaceId?: string;
     setInterfaceId: (interfaceType: string, id: string) => void;
+    disabledFields?: string[];
 }
 
 export interface IField {
@@ -158,6 +159,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     interfaceId,
     initialInterfaceId,
     setInterfaceId,
+    disabledFields,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -706,6 +708,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 return false;
             }
             return true;
+        } else if (disabledFields) {
+            // Check if this field is in the disabled fields list
+            if (disabledFields.includes(field.name)) {
+                return true;
+            }
         }
         return false;
     };
@@ -815,6 +822,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                                     (preField: IField) => preField.name === field.prefill
                                                 )
                                             }
+                                            disabled={isFieldDisabled(field)}
                                         />
                                     </FieldInputWrapper>
                                     <FieldActions

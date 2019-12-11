@@ -832,7 +832,7 @@ const StepBox = withMessageHandler()(
             return () => {
                 msgListener();
             };
-        });
+        }, []);
 
         return (
             <div

@@ -20,35 +20,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
-                /*data.tab = 'CreateInterface';
-                data.subtab = 'mapper';
-                data.mapper = {
-                    name: 'test',
-                    target_dir: './',
-                    desc: 'test desc',
-                    version: 'heh',
-                    mappertype: 'Mapper',
-                    show_diagram: true,
-                    options: {
-                        'mapper-input': {
-                            type: 'type',
-                            name: 'qorus:bb_salesforce:stream-event',
-                        },
-                        'mapper-output': {
-                            type: 'connection',
-                            name: 'rest-billing-demo',
-                            path: '/accounts/GET/request',
-                        },
-                    },
-                    fields: {
-                        PaymentInfo: {
-                            name: 'event',
-                        },
-                        TaxId: {
-                            name: 'event.replayId',
-                        },
-                    },
-                };*/
+                //data.tab = 'CreateInterface';
+                //data.subtab = 'mapper';
 
                 setInitialData(data);
             });

@@ -71,6 +71,7 @@ let ItemsTable: Function = ({
     handleModalToggle,
     handleGroupedToggle,
     onEditStructureClick,
+    onDeleteStructureClick,
     t,
     type,
 }: ConfigItemsTableProps) => (
@@ -192,7 +193,7 @@ let ItemsTable: Function = ({
                                                 intent="danger"
                                                 icon="trash"
                                                 onClick={() => {
-                                                    console.log('deleting');
+                                                    onDeleteStructureClick(item.name);
                                                 }}
                                             />
                                         </ButtonGroup>

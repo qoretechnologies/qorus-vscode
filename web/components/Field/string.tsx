@@ -27,6 +27,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     get_message,
     return_message,
     read_only,
+    disabled,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -57,14 +58,15 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
 
     return (
         <InputGroup
-            readOnly={read_only}
+            disabled={read_only || disabled}
             className={fill && Classes.FILL}
             value={!value ? default_value || '' : value}
             onChange={handleInputChange}
             rightElement={
                 value &&
                 value !== '' &&
-                !read_only && (
+                !read_only &&
+                !disabled && (
                     <ButtonGroup minimal>
                         <Button onClick={handleResetClick} icon={'cross'} />
                     </ButtonGroup>

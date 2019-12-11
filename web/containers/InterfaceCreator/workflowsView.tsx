@@ -29,6 +29,7 @@ export interface IServicesView {
     t: TTranslator;
     workflow: any;
     postMessage: TPostMessage;
+    initialData: any;
 }
 
 const ServicesView: FunctionComponent<IServicesView> = ({
@@ -68,7 +69,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                             data={workflow && omit(workflow, 'steps')}
                             isEditing={!!workflow}
                             onDataFinishLoading={
-                                workflow && showSteps
+                                workflow && workflow.show_steps
                                     ? () => {
                                           setShowSteps(true);
                                       }
@@ -119,7 +120,10 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                             <Button
                                                 text={t('Back')}
                                                 icon={'undo'}
-                                                onClick={() => setShowSteps(false)}
+                                                onClick={() => {
+                                                    initialData.changeInitialData('workflow.show_steps', false);
+                                                    setShowSteps(false);
+                                                }}
                                             />
                                         </Tooltip>
                                         <Button
@@ -158,6 +162,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     !!workflow ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
                                                     {
                                                         iface_kind: 'workflow',
+                                                        orig_data: workflow,
                                                         data: newData,
                                                     }
                                                 );
