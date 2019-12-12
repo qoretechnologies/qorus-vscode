@@ -9,6 +9,8 @@ import { ButtonGroup, Button, Callout } from '@blueprintjs/core';
 import { MethodsContext } from '../../context/methods';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import { omit } from 'lodash';
+import withInitialData from '../../hocomponents/withInitialData';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
 const MethodSelector = styled.div`
     width: 100%;
@@ -131,6 +133,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     removeSubItemFromFields,
     service,
     interfaceId,
+    initialData,
 }) => {
     return (
         <MethodsContext.Consumer>
@@ -224,8 +227,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                     onBackClick={() => {
                                         setActiveMethod(null);
                                         setShowMethods(false);
+                                        initialData.changeInitialData('service.active_method', null);
                                     }}
-                                    initialInterfaceId={service ? service.interfaceId : interfaceId.service}
+                                    initialInterfaceId={service ? service.iface_id : interfaceId.service}
                                     type={'service-methods'}
                                     activeId={activeMethod}
                                     isEditing={!!service}
@@ -253,4 +257,4 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     );
 };
 
-export default compose(withTextContext(), withFieldsConsumer())(ServicesView);
+export default compose(withTextContext(), withFieldsConsumer(), withInitialDataConsumer())(ServicesView);

@@ -14,8 +14,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
-                setInitialData(null);
-
                 if (!data.tab) {
                     data.tab = 'ProjectConfig';
                 }
@@ -23,7 +21,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 //data.tab = 'CreateInterface';
                 //data.subtab = 'mapper';
 
-                setInitialData(data);
+                setInitialData(current => ({
+                    ...current,
+                    ...data,
+                }));
             });
 
             props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {

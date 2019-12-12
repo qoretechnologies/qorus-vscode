@@ -164,6 +164,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                         iface_kind: 'workflow',
                                                         orig_data: workflow,
                                                         data: newData,
+                                                        iface_id: workflow.iface_id,
                                                     }
                                                 );
                                             }}
