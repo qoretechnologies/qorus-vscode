@@ -7,6 +7,7 @@ import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
 import { InterfaceTree } from './QorusInterfaceTree';
 import { projects } from './QorusProject';
+import { deployer } from './QorusDeploy';
 
 export function registerInterfaceTreeCommands(context: ExtensionContext) {
     let disposable;
@@ -109,7 +110,18 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
         context.subscriptions.push(disposable);
     });
     disposable = commands.registerCommand('qorus.views.deployAllInterfaces', () => {
-        // TODO
+        deployer.deployAllInterfaces().then(
+            (result) => {
+                if (!result) {
+                    return;
+                }
+                if (result.success) {
+                    msg.info(t`AllIfacesDeployed ${result.deployedInterfaces} ${result.deployedCodeFiles} ${result.deployedYamlFiles}`);
+                } else {
+                    msg.error(t`FailedDeployingAllIfaces ${ result.deployedInterfaces } ${ result.error }`);
+                }
+            }
+        );
     });
 
     // edit commands

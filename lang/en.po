@@ -211,6 +211,9 @@ msgstr "Deleted ${ iface } code file: ${ file }"
 msgid "DeletedIfaceMetaFile ${ iface } ${ file }"
 msgstr "Deleted ${ iface } metadata file: ${ file }"
 
+msgid "AllIfacesDeployed ${ ifaces } ${ cfiles } ${ mfiles }"
+msgstr "All interfaces deployed successfully.\nDeployed ${ ifaces } interfaces (${ cfiles } code files, ${ mfiles } metadata files)."
+
 msgid "DeployedIfaceCodeFile ${ iface } ${ file }"
 msgstr "Deployed ${ iface } code file: ${ file }"
 
@@ -223,11 +226,14 @@ msgstr "Failed deleting ${ iface } code file ${ file }: ${ err }"
 msgid "FailedDeletingIfaceMetaFile ${ iface } ${ file } ${ err }"
 msgstr "Failed deleting ${ iface } metadata file ${ file }: ${ err }"
 
+msgid "FailedDeployingAllIfaces ${ okCount } ${ err }"
+msgstr "Failed deploying all interfaces.\nDeployed ${ okCount } interfaces before failing.\nError: ${ err }"
+
 msgid "FailedDeployingIfaceCodeFile ${ iface } ${ file }"
-msgstr "Failed deploying ${ iface } code file ${ file }."
+msgstr "Failed deploying ${ iface } code file ${ file }"
 
 msgid "FailedDeployingIfaceMetaFile ${ iface } ${ file }"
-msgstr "Failed deploying ${ iface } metadata file ${ file }."
+msgstr "Failed deploying ${ iface } metadata file ${ file }"
 
 msgid "RequestIdInfo ${ request_id }"
 msgstr " (ID: ${ request_id })"
