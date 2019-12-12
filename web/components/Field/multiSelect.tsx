@@ -103,9 +103,12 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                 <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
             )}
             itemRenderer={(item, { handleClick }) => (
-                <Tooltip content={item.desc}>
-                    <MenuItem icon={includes(value, item) ? 'tick' : 'blank'} text={item.name} onClick={handleClick} />
-                </Tooltip>
+                <MenuItem
+                    icon={includes(value, item) ? 'tick' : 'blank'}
+                    text={item.name}
+                    onClick={handleClick}
+                    title={item.desc}
+                />
             )}
             popoverProps={{ targetClassName: 'select-popover', popoverClassName: 'custom-popover' }}
             tagRenderer={item => item.name}

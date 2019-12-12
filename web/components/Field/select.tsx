@@ -83,13 +83,12 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         <Select
             items={filteredItems}
             itemRenderer={(item, data) => (
-                <Tooltip content={item.desc}>
-                    <MenuItem
-                        icon={value && item.name === value ? 'tick' : 'blank'}
-                        text={item.name}
-                        onClick={data.handleClick}
-                    />
-                </Tooltip>
+                <MenuItem
+                    title={item.desc}
+                    icon={value && item.name === value ? 'tick' : 'blank'}
+                    text={item.name}
+                    onClick={data.handleClick}
+                />
             )}
             inputProps={{
                 placeholder: t('Filter'),
