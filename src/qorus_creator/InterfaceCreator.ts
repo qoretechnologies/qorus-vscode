@@ -295,7 +295,7 @@ export abstract class InterfaceCreator {
 
         let classes = {};
         let exists_prefix = false;
-        (headers.classes || []).forEach(class_data => {
+        (headers.classes || headers.requires || []).forEach(class_data => {
             if (!classes[class_data.name]) {
                 classes[class_data.name] = {
                     exists_prefix: false,
@@ -339,6 +339,7 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'classes':
+                    case 'requires':
                         let class_prefixes = exists_prefix ? 'class-prefixes:\n' : '';
                         for (let class_name in classes) {
                             result += `${list_indent}${class_name}\n`;

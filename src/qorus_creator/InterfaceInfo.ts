@@ -213,6 +213,7 @@ export class InterfaceInfo {
         this.initIfaceId(iface_id, iface_kind);
         this.removeClassesConfigItems(iface_id);
         delete this.iface_by_id[iface_id].classes;
+        delete this.iface_by_id[iface_id].requires;
         this.getConfigItems({iface_id, iface_kind});
     }
 
@@ -224,19 +225,22 @@ export class InterfaceInfo {
             );
         }
 
-        const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
+        const iface_data = this.iface_by_id[iface_id];
+        const base_class_name = iface_data['base-class-name'];
 
-        (classes || this.iface_by_id[iface_id].classes || []).forEach(class_data => {
-            removeClassConfigItems(class_data.name, class_data.name === base_class_name)
+        (classes || iface_data.classes || iface_data.requires || []).forEach(class_data => {
+            removeClassConfigItems(class_data.name, class_data.name === base_class_name);
         });
     }
 
     getConfigItems = params => {
-        const {'base-class-name': base_class_name, classes, iface_id, iface_kind} = params;
+        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind} = params;
         if (!iface_id) {
             return;
         }
         this.initIfaceId(iface_id, iface_kind);
+
+        const classes_or_requires = requires ? requires : classes;
 
         this.code_info.waitForPending(['yaml']).then(() => {
             if (base_class_name) {
@@ -246,10 +250,10 @@ export class InterfaceInfo {
                 this.addClassConfigItems(iface_id, base_class_name);
                 this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
             }
-            if (classes) {
-                this.removeClassesConfigItems(iface_id, classes);
+            if (classes_or_requires) {
+                this.removeClassesConfigItems(iface_id, classes_or_requires);
             }
-            (classes || []).forEach(class_data => {
+            (classes_or_requires || []).forEach(class_data => {
                 class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
             });
 

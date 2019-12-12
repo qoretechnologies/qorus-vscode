@@ -59,6 +59,22 @@ export const classFields = ({is_editing, default_target_dir}) => [
         on_change: 'get-config-items',
         notify_on_remove: true
     },
+    {
+        name: 'requires',
+        mandatory: false,
+        type: 'class-array',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'class',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'class',
+            return_value: 'objects',
+        },
+        on_change: 'get-config-items',
+        notify_on_remove: true
+    },
     field.tags,
 ];
 

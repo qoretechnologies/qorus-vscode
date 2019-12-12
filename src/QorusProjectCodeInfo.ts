@@ -355,13 +355,14 @@ export class QorusProjectCodeInfo {
 
         let fields_to_complexify = ['functions', 'constants', 'mappers', 'value_maps', 'author'];
 
+        const classes_field = data.type === 'class' ? 'requires' : 'classes';
         if (data['class-prefixes']) {
-            data.classes = data['class-prefixes'].map(class_prefix_data => ({
+            data[classes_field] = data['class-prefixes'].map(class_prefix_data => ({
                 name: class_prefix_data.class,
                 prefix: class_prefix_data.prefix
             }));
         } else {
-            fields_to_complexify.push('classes');
+            fields_to_complexify.push(classes_field);
         }
 
         fields_to_complexify.forEach(tag => {
