@@ -146,7 +146,12 @@ const MapperProvider: FC<IProviderProps> = ({
         // Set loading
         setIsLoading(true);
         // Fetch the data
-        const { data } = await fetchData(`${url}/${value}${suffix}`);
+        const { data, error } = await fetchData(`${url}/${value}${suffix}`);
+        if (error) {
+            console.log(`${url}/${value}${suffix}`, error);
+            setIsLoading(false);
+            return;
+        }
         // Reset loading
         setIsLoading(false);
         // Add new child
