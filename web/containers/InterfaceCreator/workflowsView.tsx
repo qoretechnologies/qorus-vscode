@@ -39,6 +39,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     selectedFields,
     postMessage,
     initialData,
+    interfaceId,
 }) => {
     return (
         <StepsContext.Consumer>
@@ -164,7 +165,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                         iface_kind: 'workflow',
                                                         orig_data: workflow,
                                                         data: newData,
-                                                        iface_id: workflow.iface_id,
+                                                        iface_id: workflow?.iface_id || interfaceId.workflow,
                                                     }
                                                 );
                                             }}

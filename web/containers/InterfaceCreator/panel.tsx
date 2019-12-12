@@ -446,7 +446,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             });
                         }
                         // Check if this field needs style changes
-                        if (currentField.style) {
+                        if (currentField.style && !currentField.hasValueSet) {
                             // Modify the value based on the style
                             switch (currentField.style) {
                                 case 'PascalCase':
