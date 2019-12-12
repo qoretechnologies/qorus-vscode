@@ -68,57 +68,30 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
         const command = 'qorus.views.deploy' + dash2Pascal(iface);
         disposable = commands.registerCommand(command, (data: any) => {
             vswindow.showWarningMessage(
-                t`ConfirmDeployInterface ${iface} ${String(data.name)}`, t`Yes`, t`No`
+                t`ConfirmDeployInterface ${iface} ${data.name}`, t`Yes`, t`No`
             ).then(
                 selection => {
                     if (selection === undefined || selection === t`No`) {
                         return;
                     }
-                    const iface_data = data.data;
 
-                    // deploy code file
-                    if (iface_data.target_dir && iface_data.target_file) {
-                        const codeFile = join(iface_data.target_dir, iface_data.target_file);
-                        commands.executeCommand('qorus.deployFile', Uri.file(codeFile))
-                        .then(
-                            result => {
-                                if (result) {
-                                    msg.info(t`DeployedIfaceCodeFile ${iface} ${codeFile}`);
-                                } else {
-                                    msg.error(t`FailedDeployingIfaceCodeFile ${iface} ${codeFile}`);
-                                }
-                            }
-                        );
+                    if (!data.data || !data.data.yaml_file) {
+                        msg.error(t`MissingDeploymentData`);
                     }
 
-                    // deploy yaml file
-                    if (iface_data.yaml_file) {
-                        commands.executeCommand('qorus.deployFile', Uri.file(iface_data.yaml_file))
-                        .then(
-                            result => {
-                                if (result) {
-                                    msg.info(t`DeployedIfaceMetaFile ${iface} ${iface_data.yaml_file}`);
-                                } else {
-                                    msg.error(t`FailedDeployingIfaceMetaFile ${iface} ${iface_data.yaml_file}`);
-                                }
-                            }
-                        );
-                    }
+                    deployer.deployFile(Uri.file(data.data.yaml_file));
                 }
             );
         });
         context.subscriptions.push(disposable);
     });
     disposable = commands.registerCommand('qorus.views.deployAllInterfaces', () => {
-        deployer.deployAllInterfaces().then(
-            (result) => {
-                if (!result) {
-                    return;
-                }
-                if (result.success) {
-                    msg.info(t`AllIfacesDeployed ${result.deployedInterfaces} ${result.deployedCodeFiles} ${result.deployedYamlFiles}`);
-                } else {
-                    msg.error(t`FailedDeployingAllIfaces ${ result.deployedInterfaces } ${ result.error }`);
+        vswindow.showWarningMessage(
+            t`ConfirmDeployAllInterfaces`, t`Yes`, t`No`
+        ).then(
+            selection => {
+                if (selection === t`Yes`) {
+                    deployer.deployAllInterfaces();
                 }
             }
         );

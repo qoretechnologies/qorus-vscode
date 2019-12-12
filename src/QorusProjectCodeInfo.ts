@@ -266,7 +266,7 @@ export class QorusProjectCodeInfo {
         return this.file_tree;
     }
 
-    getInterfaceDataList(iface_kind): Promise<any[] | undefined> {
+    getInterfaceDataList(iface_kind): Promise<any[]> {
         return this.waitForPending(['yaml']).then(() => {
             const yaml_data = this.yamlDataByType(iface_kind);
             const interfaces = Object.keys(yaml_data).map(name => ({

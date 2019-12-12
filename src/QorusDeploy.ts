@@ -2,27 +2,13 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
-import { projects, QorusProject } from './QorusProject';
+import { projects } from './QorusProject';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 import { filesInDir, isDeployable, isService, isVersion3 } from './qorus_utils';
 
-export class DeploymentResult {
-    success: boolean;
-    error?: string;
-    deployedInterfaces: number;
-    deployedCodeFiles: number;
-    deployedYamlFiles: number;
-
-    constructor(success: boolean, deployedInterfaces: number, deployedCodeFiles: number, deployedYamlFiles: number, error?: string) {
-        this.success = success;
-        this.error = error;
-        this.deployedInterfaces = deployedInterfaces;
-        this.deployedCodeFiles = deployedCodeFiles;
-        this.deployedYamlFiles = deployedYamlFiles;
-    }
-}
 
 class QorusDeploy {
 
@@ -51,6 +37,8 @@ class QorusDeploy {
         this.deployFileAndPairFile(editor.document.uri);
     }
 
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
     deployFile(uri: vscode.Uri): Thenable<boolean> {
         const file_path: string = uri.fsPath;
         if (!isDeployable(file_path)) {
@@ -83,79 +71,35 @@ class QorusDeploy {
         this.doDeploy(files);
     }
 
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
     deployPackage(file: string): Thenable<boolean> {
         return this.doDeploy([file], true);
     }
 
-    async deployAllInterfaces(): Promise<DeploymentResult> {
-        const project: QorusProject = projects.getProject();
-        if (!project) {
-            return new DeploymentResult(false, 0, 0, 0, t`QorusProjectNotSet`);
+    deployAllInterfaces() {
+        const code_info: QorusProjectCodeInfo = projects.currentProjectCodeInfo();
+        if (!code_info) {
+            msg.error(t`QorusProjectNotSet`);
+            return;
         }
 
         const ifaceKinds = [
-            'connection',
-            'error',
-            'group',
-            'constant',
-            'event',
-            'function',
-            'queue',
-            'value-map',
-            'class',
-            'mapper-code',
-            'mapper',
-            'step',
-            'service',
-            'job',
-            'workflow'
+            'connection', 'error', 'group', 'constant', 'event', 'function', 'queue',
+            'value-map', 'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
         ];
 
-        let deployedInterfaces = 0;
-        let deployedCodeFiles = 0;
-        let deployedYamlFiles = 0;
         for (const ifaceKind of ifaceKinds) {
-            let interfaces = await project.code_info.getInterfaceDataList(ifaceKind);
-            if (!interfaces) {
-                continue;
-            }
-            for (const iface of interfaces) {
-                if (iface.data.target_dir && iface.data.target_file) {
-                    const codeFile = path.join(iface.data.target_dir, iface.data.target_file);
-                    let result = await this.deployFile(vscode.Uri.file(codeFile));
-                    if (!result) {
-                        return new DeploymentResult(
-                            false,
-                            deployedInterfaces,
-                            deployedCodeFiles,
-                            deployedYamlFiles,
-                            t`FailedDeployingIfaceCodeFile ${ ifaceKind } ${ codeFile }`
-                        ); 
+            code_info.getInterfaceDataList(ifaceKind).then(
+                interfaces => {
+                    for (const iface of interfaces) {
+                        if (iface.data.yaml_file) {
+                            this.deployFile(vscode.Uri.file(iface.data.yaml_file));
+                        }
                     }
-                    ++deployedCodeFiles;
                 }
-                if (iface.data.yaml_file) {
-                    let result = await this.deployFile(vscode.Uri.file(iface.data.yaml_file));
-                    if (!result) {
-                        return new DeploymentResult(
-                            false,
-                            deployedInterfaces,
-                            deployedCodeFiles,
-                            deployedYamlFiles,
-                            t`FailedDeployingIfaceMetaFile ${ ifaceKind } ${ iface.data.yaml_file }`
-                        ); 
-                    }
-                    ++deployedYamlFiles;
-                }
-                ++deployedInterfaces;
-            }
+            );
         }
-        return new DeploymentResult(
-            true,
-            deployedInterfaces,
-            deployedCodeFiles,
-            deployedYamlFiles
-        );
     }
 
     // returns true if the process got to the stage of checking the result
