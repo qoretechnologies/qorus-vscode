@@ -136,6 +136,9 @@ msgstr "Unauthorized operation at ${ url }"
 msgid "NothingToDeploy"
 msgstr "Nothing to deploy"
 
+msgid "MissingDeploymentData"
+msgstr "Missing deployment data"
+
 msgid "NotDeployableFile ${ path }";
 msgstr "Not a deployable file: ${ path }";
 
@@ -211,23 +214,11 @@ msgstr "Deleted ${ iface } code file: ${ file }"
 msgid "DeletedIfaceMetaFile ${ iface } ${ file }"
 msgstr "Deleted ${ iface } metadata file: ${ file }"
 
-msgid "DeployedIfaceCodeFile ${ iface } ${ file }"
-msgstr "Deployed ${ iface } code file: ${ file }"
-
-msgid "DeployedIfaceMetaFile ${ iface } ${ file }"
-msgstr "Deployed ${ iface } metadata file: ${ file }"
-
 msgid "FailedDeletingIfaceCodeFile ${ iface } ${ file } ${ err }"
 msgstr "Failed deleting ${ iface } code file ${ file }: ${ err }"
 
 msgid "FailedDeletingIfaceMetaFile ${ iface } ${ file } ${ err }"
 msgstr "Failed deleting ${ iface } metadata file ${ file }: ${ err }"
-
-msgid "FailedDeployingIfaceCodeFile ${ iface } ${ file }"
-msgstr "Failed deploying ${ iface } code file ${ file }."
-
-msgid "FailedDeployingIfaceMetaFile ${ iface } ${ file }"
-msgstr "Failed deploying ${ iface } metadata file ${ file }."
 
 msgid "RequestIdInfo ${ request_id }"
 msgstr " (ID: ${ request_id })"
@@ -471,6 +462,9 @@ msgstr "Are you sure you want to delete ${ iface } ${ name }? This will delete b
 
 msgid "ConfirmDeployInterface ${ iface } ${ name }"
 msgstr "Are you sure you want to deploy ${ iface } ${ name }?"
+
+msgid "ConfirmDeployAllInterfaces"
+msgstr "Are you sure you want to deploy all interfaces?"
 
 msgid "ConfirmDeletion"
 msgstr "Confirm deletion"

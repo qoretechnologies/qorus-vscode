@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
 import { projects } from './QorusProject';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
@@ -36,6 +37,8 @@ class QorusDeploy {
         this.deployFileAndPairFile(editor.document.uri);
     }
 
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
     deployFile(uri: vscode.Uri): Thenable<boolean> {
         const file_path: string = uri.fsPath;
         if (!isDeployable(file_path)) {
@@ -68,8 +71,35 @@ class QorusDeploy {
         this.doDeploy(files);
     }
 
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
     deployPackage(file: string): Thenable<boolean> {
         return this.doDeploy([file], true);
+    }
+
+    deployAllInterfaces() {
+        const code_info: QorusProjectCodeInfo = projects.currentProjectCodeInfo();
+        if (!code_info) {
+            msg.error(t`QorusProjectNotSet`);
+            return;
+        }
+
+        const ifaceKinds = [
+            'connection', 'error', 'group', 'constant', 'event', 'function', 'queue',
+            'value-map', 'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
+        ];
+
+        for (const ifaceKind of ifaceKinds) {
+            code_info.getInterfaceDataList(ifaceKind).then(
+                interfaces => {
+                    for (const iface of interfaces) {
+                        if (iface.data.yaml_file) {
+                            this.deployFile(vscode.Uri.file(iface.data.yaml_file));
+                        }
+                    }
+                }
+            );
+        }
     }
 
     // returns true if the process got to the stage of checking the result
