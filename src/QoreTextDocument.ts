@@ -14,7 +14,7 @@ export const qoreTextDocument = (file: string): QoreTextDocument => {
     const contents = buffer.toString();
 
     return {
-        uri: 'file:' + file,
+        uri: 'file://' + file,
         text: contents,
         languageId: 'qore',
         version: 1

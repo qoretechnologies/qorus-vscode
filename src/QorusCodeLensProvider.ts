@@ -36,7 +36,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
         }
 
         const doc: QoreTextDocument = {
-            uri: 'file:' + file_path,
+            uri: 'file://' + file_path,
             text: document.getText(),
             languageId: document.languageId,
             version: document.version
