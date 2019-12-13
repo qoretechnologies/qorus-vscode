@@ -349,14 +349,7 @@ export class QorusProjectCodeInfo {
 
     fixData(data: any): any {
         if (data.options) {
-            switch (data.type) {
-                case 'workflow':
-                    data.workflow_options = data.options;
-                    break;
-                case 'mapper':
-                    data.mapper_options = data.options;
-                    break;
-            }
+            data[data.type + '_options'] = data.options;
             delete data.options;
         }
         if (data.autostart) {
@@ -414,6 +407,10 @@ export class QorusProjectCodeInfo {
 
         if (data.steps) {
             data['steps-info'] = this.stepData(data.steps);
+        }
+
+        if (!data.target_file && data.yaml_file) {
+            data.target_file = path.basename(data.yaml_file);
         }
 
         delete data.code;
