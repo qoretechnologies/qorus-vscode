@@ -121,8 +121,7 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
             object_type: 'template',
             return_value: 'resources',
         },
-    },
-    field.define_auth_label,
+    }
 ];
 
 export const service_methods = [
