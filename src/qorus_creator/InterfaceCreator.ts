@@ -115,9 +115,12 @@ export abstract class InterfaceCreator {
             main_base_class_name_range,
             first_base_class_line,
             last_class_line,
-            has_other_base_class,
+            base_class_names,
             main_base_class_ord
         } = this.edit_info;
+
+        const num_inherited = base_class_names.length;
+        const has_other_base_class = num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);
 
         const replace = (position: Position, orig_str: string, new_name: string) => {
             let chars = lines[position.line].split('');
@@ -187,8 +190,10 @@ export abstract class InterfaceCreator {
 
         if (base_class_name && !orig_base_class_name) {
             if (has_other_base_class) {
-                eraseInheritsKw();
-                replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name},`);
+                if (!base_class_name.includes(base_class_name)) {
+                    eraseInheritsKw();
+                    replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name},`);
+                }
             } else {
                 replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name}`);
             }

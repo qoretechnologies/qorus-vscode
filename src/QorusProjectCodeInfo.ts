@@ -151,6 +151,7 @@ export class QorusProjectCodeInfo {
         const class_name_range: vscode.Range = loc2range(symbol.name.loc, 'class ');
 
         const num_inherited = (symbol.inherits || []).length;
+        const base_class_names = (symbol.inherits || []).map(inherited => inherited.name.name);
 
         const addClassInfo = (main_base_class_ord: number = -1) => {
             if (!this.edit_info[file]) {
@@ -166,7 +167,7 @@ export class QorusProjectCodeInfo {
                     ? loc2range(symbol.inherits[0].name.loc).start.line
                     : undefined,
                 last_class_line: loc2range(symbol.loc).end.line,
-                has_other_base_class: num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1),
+                base_class_names,
                 main_base_class_ord
             });
         };
