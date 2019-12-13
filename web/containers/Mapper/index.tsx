@@ -549,13 +549,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         // Add the relations
         mapper.fields = relations;
         // Rebuild the mapper options
-        const mapperOptions: { [key: string]: any } = mapper.mapper_options.reduce(
-            (newOptions, opt) => ({
-                ...newOptions,
-                [opt.name]: opt.value,
-            }),
-            {}
-        );
+        const mapperOptions: { [key: string]: any } = mapper.mapper_options
+            ? mapper.mapper_options.reduce(
+                  (newOptions, opt) => ({
+                      ...newOptions,
+                      [opt.name]: opt.value,
+                  }),
+                  {}
+              )
+            : {};
         // Add the input & output providers
         mapper.mapper_options = {
             ...mapperOptions,
