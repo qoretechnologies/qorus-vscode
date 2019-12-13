@@ -348,6 +348,17 @@ export class QorusProjectCodeInfo {
     }
 
     fixData(data: any): any {
+        if (data.options) {
+            switch (data.type) {
+                case 'workflow':
+                    data.workflow_options = data.options;
+                    break;
+                case 'mapper':
+                    data.mapper_options = data.options;
+                    break;
+            }
+            delete data.options;
+        }
         if (data.autostart) {
             data[data.type + '-autostart'] = data.autostart;
             delete data.autostart;
@@ -371,7 +382,7 @@ export class QorusProjectCodeInfo {
             }
         });
 
-        const array_of_pairs_fields = ['tags', 'define-auth-label', 'options', 'statuses'];
+        const array_of_pairs_fields = ['tags', 'define-auth-label', 'workflow_options', 'statuses'];
         array_of_pairs_fields.forEach(tag => {
             if (!data[tag]) {
                 return;

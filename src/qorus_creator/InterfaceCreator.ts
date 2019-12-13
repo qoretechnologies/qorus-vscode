@@ -316,7 +316,7 @@ export abstract class InterfaceCreator {
             }
 
             if (Array.isArray(value)) {
-                result += `${tag}:\n`;
+                result += `${tag === 'workflow_options' ? 'options' : tag}:\n`;
                 switch (tag) {
                     case 'tags':
                     case 'workflow_options':
