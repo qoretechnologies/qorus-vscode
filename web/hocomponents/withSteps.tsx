@@ -9,7 +9,7 @@ const stepsParser = new WorkflowStepDependencyParser();
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
-    const EnhancedComponent: FunctionComponent = ({ initialSteps, ...props }) => {
+    const EnhancedComponent: FunctionComponent = ({ initialSteps, ...props }: any) => {
         const [showSteps, setShowSteps] = useState<boolean>(false);
         const [steps, setSteps] = useState<any[]>(initialSteps);
         const [stepsData, setStepsData] = useState(props.initialStepsData);

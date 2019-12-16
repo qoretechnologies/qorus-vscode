@@ -10,6 +10,8 @@ import AutoField from './auto';
 import compose from 'recompose/compose';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import reduce from 'lodash/reduce';
+import isObject from 'lodash/isPlainObject';
+import useMount from 'react-use/lib/useMount';
 
 type IPair = {
     id: number;
@@ -34,40 +36,36 @@ const MapperOptionsField: FunctionComponent<{
     get_message,
     return_message,
     t,
-    mapperType,
     initialData,
 }) => {
     const [options, setOptions] = useState(null);
     const [items, setItems] = useState([]);
 
-    useEffect(() => {
-        if (mapperType) {
-            (async () => {
-                setOptions(null);
-                setItems([]);
-                onChange(name, [{ id: 1, value: '', name: '' }]);
-                // Fetch the options for this mapper type
-                const data = await initialData.fetchData('/mappertypes/' + mapperType);
-                // Save the new options
-                setOptions(data.data.user_options);
-                // Save the items
-                setItems(
-                    reduce(
-                        data.data.user_options,
-                        (transformedOpts, data, opt) => [...transformedOpts, { name: opt, desc: data.desc }],
-                        []
-                    )
-                );
-            })();
-        }
-    }, [mapperType]);
+    useMount(() => {
+        (async () => {
+            setOptions(null);
+            setItems([]);
+            // Fetch the options for this mapper type
+            const data = await initialData.fetchData('/mappertypes/Mapper');
+            // Save the new options
+            setOptions(data.data.user_options);
+            // Save the items
+            setItems(
+                reduce(
+                    data.data.user_options,
+                    (transformedOpts, data, opt) => [...transformedOpts, { name: opt, desc: data.desc }],
+                    []
+                )
+            );
+        })();
+    });
 
     if (!options) {
         return <p> Loading options ... </p>;
     }
 
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
-        const newValue = [...value];
+        const newValue = [...getValue()];
         // Get the pair based on the index
         const pair: IPair = newValue[index];
         // Update the field
@@ -93,14 +91,36 @@ const MapperOptionsField: FunctionComponent<{
         return options[name].type;
     };
 
+    const getValue = () => {
+        return isObject(value)
+            ? reduce(
+                  value,
+                  (newVal, val, key) => {
+                      if (key === 'mapper-input' || key === 'mapper-output') {
+                          return newVal;
+                      }
+
+                      return [
+                          ...newVal,
+                          {
+                              name: key,
+                              value: val,
+                          },
+                      ];
+                  },
+                  []
+              )
+            : value;
+    };
+
     // Filter the items
     const filteredItems = items
-        .filter(item => !value.find(val => val.name === item.name))
+        .filter(item => !getValue().find(val => val.name === item.name))
         .filter(item => item.name !== 'global_type_options');
 
     return (
         <>
-            {value.map((pair: IPair, index: number) => (
+            {getValue().map((pair: IPair, index: number) => (
                 <StyledPairField key={pair.name}>
                     <div>
                         <ControlGroup fill>
@@ -133,7 +153,7 @@ const MapperOptionsField: FunctionComponent<{
                     </div>
                 </StyledPairField>
             ))}
-            {size(value) !== size(options) && (
+            {size(getValue()) !== size(options) && (
                 <ButtonGroup fill>
                     <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
                 </ButtonGroup>

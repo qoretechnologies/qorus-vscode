@@ -60,7 +60,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
-            const { type, name, path = '' } = props.mapper.options[`mapper-${fieldType}`];
+            const { type, name, path = '' } = props.mapper.mapper_options[`mapper-${fieldType}`];
             // Save the provider options
             if (fieldType === 'input') {
                 setInputOptionProvider({
