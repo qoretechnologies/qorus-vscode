@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import { StepsContext } from '../context/steps';
 import mapProps from 'recompose/mapProps';
 import { isArray, reduce } from 'lodash';
@@ -9,9 +9,9 @@ const stepsParser = new WorkflowStepDependencyParser();
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
-    const EnhancedComponent: FunctionComponent = (props: any) => {
+    const EnhancedComponent: FunctionComponent = ({ initialSteps, ...props }) => {
         const [showSteps, setShowSteps] = useState<boolean>(false);
-        const [steps, setSteps] = useState<any[]>(props.initialSteps);
+        const [steps, setSteps] = useState<any[]>(initialSteps);
         const [stepsData, setStepsData] = useState(props.initialStepsData);
         const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(props.initialSteps));
         const [highlightedSteps, setHighlightedSteps] = useState<{ level: number; groupId: string }>(null);
@@ -27,6 +27,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setHighlightedStepGroupIds(null);
             setLastStepId(1);
         };
+
+        useEffect(() => {
+            if (initialSteps) {
+                setSteps(initialSteps);
+                setStepsData(props.initialStepsData);
+                setParsedSteps(stepsParser.processSteps(initialSteps));
+            }
+        }, [initialSteps]);
 
         const insertNewStep: (
             stepId: number,
