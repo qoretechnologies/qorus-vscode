@@ -4,6 +4,7 @@ import mapProps from 'recompose/mapProps';
 import { isArray, reduce } from 'lodash';
 import { transformSteps } from '../helpers/steps';
 import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
+import useMount from 'react-use/lib/useMount';
 
 const stepsParser = new WorkflowStepDependencyParser();
 
@@ -28,13 +29,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setLastStepId(1);
         };
 
-        useEffect(() => {
+        useMount(() => {
             if (initialSteps) {
                 setSteps(initialSteps);
                 setStepsData(props.initialStepsData);
                 setParsedSteps(stepsParser.processSteps(initialSteps));
             }
-        }, [initialSteps]);
+        });
 
         const insertNewStep: (
             stepId: number,
