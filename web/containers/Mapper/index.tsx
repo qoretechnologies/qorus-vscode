@@ -424,7 +424,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         clearOutputs();
     };
 
-    const isMapperValid: () => boolean = () => isFormValid && size(relations) !== 0;
+    const isMapperValid: () => boolean = () => isFormValid && size(filterEmptyRelations(relations)) !== 0;
     const flattenedInputs = inputs && flattenFields(inputs);
     const flattenedOutputs = outputs && flattenFields(outputs);
 
@@ -533,6 +533,22 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         });
     };
 
+    const filterEmptyRelations: (relations: any) => any = (relations) => {
+        return reduce(
+            relations,
+            (newRel, rel, name) => {
+                if (size(rel)) {
+                    return {
+                        ...newRel,
+                        [name]: rel,
+                    };
+                }
+                return newRel;
+            },
+            {}
+        );
+    }
+
     const handleDrop = (inputPath: string, outputPath: string): void => {
         saveRelationData(outputPath, { name: inputPath });
     };
@@ -548,7 +564,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             {}
         );
         // Add the relations
-        mapper.fields = relations;
+        mapper.fields = filterEmptyRelations(relations);
         // Rebuild the mapper options
         const mapperOptions: { [key: string]: any } = mapper.mapper_options
             ? mapper.mapper_options.reduce(
@@ -565,6 +581,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             'mapper-input': inputOptionProvider,
             'mapper-output': outputOptionProvider,
         };
+        console.log(mapper);
         // Post the data
         postMessage(!isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE, {
             iface_kind: 'mapper',
