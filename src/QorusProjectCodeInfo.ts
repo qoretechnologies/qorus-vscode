@@ -4,14 +4,14 @@ import * as jsyaml from 'js-yaml';
 import * as isArray from 'lodash/isArray';
 import * as isObject from 'lodash/isObject';
 import * as sortBy from 'lodash/sortBy';
+import * as flattenDeep from 'lodash/flattenDeep';
 import * as path from 'path';
 import { t, gettext } from 'ttag';
 import * as vscode from 'vscode';
 
 import { qore_vscode } from './qore_vscode';
 import * as msg from './qorus_message';
-import { canBeParsed, canDefineInterfaceBaseClass, filesInDir,
-         flatten, hasSuffix, suffixToIfaceKind } from './qorus_utils';
+import { canBeParsed, canDefineInterfaceBaseClass, filesInDir, hasSuffix, suffixToIfaceKind } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -326,7 +326,7 @@ export class QorusProjectCodeInfo {
     }
 
     stepData = (step_structure: any[]): any => {
-        const step_names: string[] = flatten(step_structure);
+        const step_names: string[] = flattenDeep(step_structure);
         let step_data = {};
         step_names.forEach(name => {
             step_data[name] = { ...this.yamlDataByName('step', name) };

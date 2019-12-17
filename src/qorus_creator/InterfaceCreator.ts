@@ -28,13 +28,15 @@ export abstract class InterfaceCreator {
         this.lang = data.lang || 'qore';
 
         this.file_base = target_file
-            ? path.basename(target_file, this.suffix || '')
+            ? path.basename(target_file, this.suffix || '.yaml')
             : data.version !== undefined
                 ? `${data.name}-${data.version}`
                 : data.name;
 
         return other_data;
     }
+
+    protected hasCode = (): boolean => !!this.suffix;
 
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
@@ -62,15 +64,15 @@ export abstract class InterfaceCreator {
     protected abstract editImpl(params: any);
 
     protected get file_name() {
-        return `${this.file_base}${this.suffix || ''}${lang_suffix[this.lang]}`;
+        return this.hasCode() ? `${this.file_base}${this.suffix || ''}${lang_suffix[this.lang]}` : undefined;
     }
 
     protected get yaml_file_name() {
-        return `${this.file_name}.yaml`;
+        return this.hasCode() ? `${this.file_name}.yaml` : `${this.file_base}.yaml`;
     }
 
     protected get file_path() {
-        return path.join(this.target_dir, this.file_name);
+        return this.hasCode() ? path.join(this.target_dir, this.file_name) : undefined;
     }
 
     protected get yaml_file_path() {
@@ -421,31 +423,39 @@ export abstract class InterfaceCreator {
     }
 
     protected deleteOrigFilesIfDifferent(orig_file: string | undefined) {
-        if (!orig_file || orig_file === this.file_path) {
+        if (!orig_file) {
             return;
         }
 
-        const orig_yaml_file = (this.code_info.yamlDataBySrcFile(orig_file) || {}).yaml_file;
+        let orig_code_file;
+        let orig_yaml_file;
 
-        if (orig_file) {
-            fs.unlink(orig_file, err => {
-                if (err) {
-                    msg.error(t`RemoveFileError ${orig_file} ${err.toString()}`);
-                    return;
-                }
-                msg.info(t`OrigFileRemoved ${orig_file}`);
-                if (orig_yaml_file) {
-                    fs.unlink(orig_yaml_file, err => {
-                        if (err) {
-                            msg.error(t`RemoveFileError ${orig_yaml_file} ${err.toString()}`);
-                        }
-                        else {
-                            msg.info(t`OrigFileRemoved ${orig_yaml_file}`);
-                        }
-                    });
-                }
-            });
+        if (this.hasCode()) {
+            if (orig_file === this.file_path) {
+                return;
+            }
+
+            orig_code_file = orig_file;
+            orig_yaml_file = (this.code_info.yamlDataBySrcFile(orig_file) || {}).yaml_file;
+        } else {
+            if (orig_file === this.yaml_file_path) {
+                return;
+            }
+
+            orig_yaml_file = orig_file;
         }
+
+        [orig_code_file, orig_yaml_file].forEach(file => {
+            if (file) {
+                fs.unlink(file, err => {
+                    if (err) {
+                        msg.error(t`RemoveFileError ${file} ${err.toString()}`);
+                        return;
+                    }
+                    msg.info(t`OrigFileRemoved ${file}`);
+                });
+            }
+        });
     }
 
     protected fillTemplate = (template: any, vars: any, add_default_parse_options: boolean = true): string =>
