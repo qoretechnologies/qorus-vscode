@@ -5,6 +5,7 @@ import isNaN from 'lodash/isNaN';
 import uniqWith from 'lodash/uniqWith';
 import size from 'lodash/size';
 import jsyaml from 'js-yaml';
+import isObject from 'lodash/isPlainObject';
 
 export const validateField: (type: string, value: any, field?: IField) => boolean = (type, value, field) => {
     switch (type) {
@@ -13,7 +14,18 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
         case 'file-string':
         case 'long-string':
             // Strings cannot be empty
-            return value !== null && value !== '';
+            return value !== undefined && value !== null && value !== '';
+        case 'mapper-options': {
+            if (isObject(value)) {
+                return false;
+            }
+            // Check if every pair has key & value
+            // assigned properly
+            return value.every(
+                (pair: { [key: string]: string }): boolean =>
+                    pair.name && pair.name !== '' && validateField(pair.type, pair.value, field)
+            );
+        }
         case 'array-of-pairs': {
             // Check if every pair has key & value
             // assigned properly
@@ -56,13 +68,15 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
             return cron.isValidCron(value, { alias: true });
         case 'date':
             // Check if the date is valid
-            return value !== null && value !== '' && new Date(value).toString() !== 'Invalid Date';
+            return (
+                value !== undefined && value !== null && value !== '' && new Date(value).toString() !== 'Invalid Date'
+            );
         case 'hash':
         case 'hash<auto>':
         case 'list':
         case 'list<auto>':
             // Check if the value isn't empty
-            if (value === null || value === '') {
+            if (value === undefined || value === null || value === '') {
                 return false;
             }
             let yamlCorrect = true;

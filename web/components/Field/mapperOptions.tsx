@@ -3,6 +3,7 @@ import SelectField from './select';
 import { Button, ButtonGroup, ControlGroup } from '@blueprintjs/core';
 import styled from 'styled-components';
 import size from 'lodash/size';
+import omit from 'lodash/omit';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
@@ -17,6 +18,7 @@ type IPair = {
     id: number;
     value: string;
     name: string;
+    type: string;
 };
 
 export const StyledPairField = styled.div`
@@ -55,6 +57,7 @@ const MapperOptionsField: FunctionComponent<{
                           {
                               name: key,
                               value: val,
+                              type: getNameType(key),
                           },
                       ];
                   },
@@ -67,7 +70,6 @@ const MapperOptionsField: FunctionComponent<{
         (async () => {
             setOptions(null);
             setItems([]);
-            onChange(name, getValue());
             // Fetch the options for this mapper type
             const data = await initialData.fetchData('/mappertypes/Mapper');
             // Save the new options
@@ -83,22 +85,32 @@ const MapperOptionsField: FunctionComponent<{
         })();
     });
 
+    useEffect(() => {
+        if (options) {
+            onChange(name, getValue());
+        }
+    }, [options]);
+
     if (!options) {
         return <p> Loading options ... </p>;
     }
 
-    const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
+    const changePairData: (index: number, key: string, val: any, type?: string) => void = (index, key, val, type) => {
         const newValue = [...getValue()];
         // Get the pair based on the index
         const pair: IPair = newValue[index];
         // Update the field
         pair[key] = val;
+        // Add the type if passed
+        if (type) {
+            pair.type = type;
+        }
         // Update the pairs
         onChange(name, newValue);
     };
 
     const handleAddClick: () => void = () => {
-        onChange(name, [...getValue(), { id: size(value) + 1, value: '', name: '' }]);
+        onChange(name, [...getValue(), { id: size(value) + 1, value: undefined, name: '' }]);
     };
 
     const handleRemoveClick: (id: number) => void = id => {
@@ -122,7 +134,7 @@ const MapperOptionsField: FunctionComponent<{
     return (
         <>
             {getValue().map((pair: IPair, index: number) => (
-                <StyledPairField key={pair.name}>
+                <StyledPairField key={pair.id || index}>
                     <div>
                         <ControlGroup fill>
                             <Button text={`${index + 1}.`} />
@@ -133,7 +145,7 @@ const MapperOptionsField: FunctionComponent<{
                                 return_message={return_message}
                                 defaultItems={filteredItems}
                                 onChange={(fieldName: string, value: string) => {
-                                    changePairData(index, fieldName, value);
+                                    changePairData(index, fieldName, value, getNameType(value));
                                 }}
                                 fill
                             />
@@ -154,7 +166,7 @@ const MapperOptionsField: FunctionComponent<{
                     </div>
                 </StyledPairField>
             ))}
-            {size(getValue()) !== size(options) && (
+            {size(getValue()) < size(omit(options, ['mapper-input', 'mapper-output', 'global_type_options'])) && (
                 <ButtonGroup fill>
                     <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
                 </ButtonGroup>
