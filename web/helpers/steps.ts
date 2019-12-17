@@ -3,19 +3,23 @@ import isArray from 'lodash/isArray';
 export const transformSteps: (
     steps: string[],
     stepsData: { [key: string]: any },
-    id?: number,
+    level?: number,
     deep?: boolean
-) => { steps: number[]; stepsData: { [key: number]: any } } | number[] = (steps, stepsData, id = 0, deep) => {
+) => { steps: number[]; stepsData: { [key: number]: any } } | number[] = (steps, stepsData, level = 0, deep) => {
+    let id = 0;
+    let listId = 0;
     const result: number[] = [];
+    const newStepsData = { ...stepsData };
 
     steps.forEach(step => {
         if (isArray(step)) {
-            result.push(transformSteps(step, stepsData, id + 1000, true));
-            id += 1000;
+            listId += 1;
+            result.push(transformSteps(step, stepsData, parseInt(`${level + 1}${listId}`), true));
         } else {
-            id += deep ? 1 : 1000;
-            result.push(id);
-            stepsData[id] = stepsData[step];
+            id += 1;
+            const stepId = parseInt(`${level}${id}`);
+            result.push(stepId);
+            stepsData[stepId] = stepsData[step];
         }
     });
 
