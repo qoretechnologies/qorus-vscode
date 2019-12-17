@@ -96,6 +96,17 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
             }
         );
     });
+    disposable = commands.registerCommand('qorus.views.deployDir', (data: any) => {
+        vswindow.showWarningMessage(
+            t`ConfirmDeployDirectory ${data.getDirectoryName()}`, t`Yes`, t`No`
+        ).then(
+            selection => {
+                if (selection === t`Yes`) {
+                    deployer.deployDir(data.getVscodeUri());
+                }
+            }
+        );
+    });
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow'].forEach(iface => {

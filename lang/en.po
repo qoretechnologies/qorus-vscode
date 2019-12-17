@@ -466,6 +466,9 @@ msgstr "Are you sure you want to deploy ${ iface } ${ name }?"
 msgid "ConfirmDeployAllInterfaces"
 msgstr "Are you sure you want to deploy all interfaces?"
 
+msgid "ConfirmDeployDirectory ${ dir }"
+msgstr "Are you sure you want to deploy directory ${ dir }?"
+
 msgid "ConfirmDeletion"
 msgstr "Confirm deletion"
 
