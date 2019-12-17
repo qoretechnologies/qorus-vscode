@@ -3,6 +3,7 @@ import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
 import { stepTypeHeaders } from './step_constants';
+import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -115,7 +116,9 @@ class ClassCreator extends InterfaceCreator {
         };
 
         this.deleteOrigFilesIfDifferent(orig_file_path);
-        this.code_info.interface_info.setOrigConfigItems(iface_id);
+        if (hasConfigItems(iface_kind)) {
+            this.code_info.interface_info.setOrigConfigItems(iface_id);
+        }
     }
 }
 

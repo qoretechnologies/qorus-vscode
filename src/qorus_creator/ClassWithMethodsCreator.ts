@@ -4,6 +4,7 @@ import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { service_class_template, service_method_template } from './service_constants';
 import { mapper_code_class_template, mapper_code_method_template } from './mapper_constants';
+import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -130,7 +131,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         };
 
         this.deleteOrigFilesIfDifferent(orig_file_path);
-        this.code_info.interface_info.setOrigConfigItems(iface_id);
+        if (hasConfigItems(iface_kind)) {
+            this.code_info.interface_info.setOrigConfigItems(iface_id);
+        }
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {

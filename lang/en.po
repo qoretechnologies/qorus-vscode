@@ -1783,3 +1783,6 @@ msgstr "Mapper code '${ name }' not found"
 
 msgid "OpenInterface"
 msgstr "Open interface"
+
+msgid "UnexpectedIfaceId"
+msgstr "Unexpected interface ID"

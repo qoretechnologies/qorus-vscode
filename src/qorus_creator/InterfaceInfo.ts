@@ -3,10 +3,10 @@ import * as shortid from 'shortid';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue } from './config_item_constants';
+import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
-const hasConfigItems = iface_kind => ['job', 'service', 'class', 'step'].includes(iface_kind);
 
 export class InterfaceInfo {
     private code_info: QorusProjectCodeInfo;
@@ -29,6 +29,10 @@ export class InterfaceInfo {
     }
 
     resetConfigItemsToOrig = iface_id => {
+        if (!this.checkIfaceId(iface_id)) {
+            return;
+        }
+
         this.iface_by_id[iface_id]['config-items'] =
             JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['orig-config-items']));
         this.iface_by_id[iface_id]['orig-config-items'] = [];
@@ -36,9 +40,21 @@ export class InterfaceInfo {
     }
 
     setOrigConfigItems = iface_id => {
+        if (!this.checkIfaceId(iface_id)) {
+            return;
+        }
+
         this.iface_by_id[iface_id]['orig-config-items'] =
             JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['config-items']));
         this.are_orig_config_items_set = true;
+    }
+
+    private checkIfaceId = (iface_id): boolean => {
+        if (!this.iface_by_id[iface_id]) {
+            msg.log(t`UnexpectedIfaceId`);
+            return false;
+        }
+        return true;
     }
 
     addIfaceById = (data: any, iface_kind: string): string => {
