@@ -297,6 +297,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     setHideOutputSelector,
     isEditing,
     postMessage,
+    interfaceId,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -569,7 +570,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             iface_kind: 'mapper',
             data: mapper,
             orig_data: initialData.mapper,
-            open_file_on_success: false,
+            open_file_on_success: true,
+            iface_id: interfaceId.mapper,
         });
     };
 

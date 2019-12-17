@@ -41,10 +41,33 @@ const MapperOptionsField: FunctionComponent<{
     const [options, setOptions] = useState(null);
     const [items, setItems] = useState([]);
 
+    const getValue = () => {
+        return isObject(value)
+            ? reduce(
+                  value,
+                  (newVal, val, key) => {
+                      if (key === 'mapper-input' || key === 'mapper-output') {
+                          return newVal;
+                      }
+
+                      return [
+                          ...newVal,
+                          {
+                              name: key,
+                              value: val,
+                          },
+                      ];
+                  },
+                  []
+              )
+            : value;
+    };
+
     useMount(() => {
         (async () => {
             setOptions(null);
             setItems([]);
+            onChange(name, getValue());
             // Fetch the options for this mapper type
             const data = await initialData.fetchData('/mappertypes/Mapper');
             // Save the new options
@@ -75,42 +98,20 @@ const MapperOptionsField: FunctionComponent<{
     };
 
     const handleAddClick: () => void = () => {
-        onChange(name, [...value, { id: size(value) + 1, value: '', name: '' }]);
+        onChange(name, [...getValue(), { id: size(value) + 1, value: '', name: '' }]);
     };
 
     const handleRemoveClick: (id: number) => void = id => {
         // Remove the selected pair
         onChange(
             name,
-            value.filter((_p: IPair, index: number) => id !== index)
+            getValue().filter((_p: IPair, index: number) => id !== index)
         );
     };
 
     const getNameType: (name: string) => string = name => {
         // Find the option and return it's type
         return options[name].type;
-    };
-
-    const getValue = () => {
-        return isObject(value)
-            ? reduce(
-                  value,
-                  (newVal, val, key) => {
-                      if (key === 'mapper-input' || key === 'mapper-output') {
-                          return newVal;
-                      }
-
-                      return [
-                          ...newVal,
-                          {
-                              name: key,
-                              value: val,
-                          },
-                      ];
-                  },
-                  []
-              )
-            : value;
     };
 
     // Filter the items
