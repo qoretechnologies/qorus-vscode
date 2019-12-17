@@ -391,8 +391,8 @@
                 }
             },
             {
-                "command": "qorus.views.deployEvent",
-                "title": "Deploy Event",
+                "command": "qorus.views.deployDir",
+                "title": "Deploy Directory",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/cloud-upload.svg",
@@ -402,6 +402,15 @@
             {
                 "command": "qorus.views.deployError",
                 "title": "Deploy Errors",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployEvent",
+                "title": "Deploy Event",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/cloud-upload.svg",
@@ -679,6 +688,10 @@
                 },
                 {
                     "command": "qorus.views.deployConstant",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployDir",
                     "when": "false"
                 },
                 {
@@ -1007,6 +1020,11 @@
                 {
                     "command": "qorus.views.deployConstant",
                     "when": "view == qorusInterfaces && viewItem == constant",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployDir",
+                    "when": "view == qorusInterfaces && viewItem == dir",
                     "group": "inline"
                 },
                 {

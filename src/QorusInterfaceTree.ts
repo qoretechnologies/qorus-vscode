@@ -5,7 +5,8 @@ import {
     EventEmitter,
     TreeDataProvider,
     TreeItem,
-    TreeItemCollapsibleState
+    TreeItemCollapsibleState,
+    Uri
 } from 'vscode';
 
 import { qorusIcons } from './QorusIcons';
@@ -305,18 +306,32 @@ class QorusTreeWorkflowNode extends QorusSingleInterfaceNode {
 }
 
 class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
+    protected absPath: string;
     protected directory: string;
     protected fileTree;
     protected extensionPath: string;
 
     constructor(dir: string, fileTree, extensionPath, collapsibleState?: TreeItemCollapsibleState) {
         super(basename(dir), collapsibleState || TreeItemCollapsibleState.Expanded);
+        this.absPath = fileTree.abs_path;
         this.directory = dir;
         this.fileTree = fileTree;
         this.tooltip = dir;
         this.contextValue = 'dir';
         this.extensionPath = extensionPath;
         this.iconPath = qorusIcons.getFolderIcon();
+    }
+
+    getAbsPath(): string {
+        return this.absPath;
+    }
+
+    getDirectoryName(): string {
+        return this.directory;
+    }
+
+    getVscodeUri(): Uri {
+        return Uri.file(this.absPath);
     }
 
     async getChildren(_node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
