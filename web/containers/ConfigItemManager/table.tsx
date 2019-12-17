@@ -188,14 +188,16 @@ let ItemsTable: Function = ({
                                                     onEditStructureClick(item.name);
                                                 }}
                                             />
-                                            <Button
-                                                small
-                                                intent="danger"
-                                                icon="trash"
-                                                onClick={() => {
-                                                    onDeleteStructureClick(item.name);
-                                                }}
-                                            />
+                                            {!item.parent && (
+                                                <Button
+                                                    small
+                                                    intent="danger"
+                                                    icon="trash"
+                                                    onClick={() => {
+                                                        onDeleteStructureClick(item.name);
+                                                    }}
+                                                />
+                                            )}
                                         </ButtonGroup>
                                     </ActionColumn>
                                 </Tr>
