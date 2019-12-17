@@ -564,18 +564,20 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     renderDefaultBox(stepId, colIdx, row, rowIdx) {
         const { stepsData, steps, t } = this.props;
         const { highlightedSteps } = this.state;
+
         return (
             <g
                 className={classNames({
                     diagram__box: true,
                 })}
+                key={stepId}
                 fill="transparent"
                 transform={this.getBoxTransform(colIdx, rowIdx)}
             >
                 <rect {...this.getDefaultParams()} />
                 <foreignObject x={0} y={0} width={this.getBoxWidth()} height={this.getBoxHeight()}>
                     <StepBox
-                        stepsData={stepsData}
+                        stepData={stepsData[stepId]}
                         t={t}
                         highlightedSteps={highlightedSteps}
                         stepId={stepId}
@@ -799,21 +801,30 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
 }
 
 const StepBox = withMessageHandler()(
-    ({ highlightedSteps, stepId, onMouseLeave, onMouseEnter, stepsData, t, addMessageListener, postMessage }) => {
-        const [stepData, setStepData] = useState({
-            name: 'Unknown step',
-            version: 0,
-            type: 'Unknown step type',
-        });
+    ({
+        highlightedSteps,
+        stepId,
+        onMouseLeave,
+        onMouseEnter,
+        stepData: origStepData,
+        t,
+        addMessageListener,
+        postMessage,
+    }) => {
+        const [stepData, setStepData] = useState(
+            origStepData && size(origStepData)
+                ? origStepData
+                : {
+                      name: 'Unknown Step',
+                      version: 0,
+                      type: 'unknown',
+                  }
+        );
 
         useEffect(() => {
             // Wait for the interface data message
             const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                if (
-                    data.step &&
-                    stepsData[stepId].name === data.step.name &&
-                    stepsData[stepId].version == data.step.version
-                ) {
+                if (data.step && stepData.name === data.step.name && stepData.version == data.step.version) {
                     setStepData({
                         name: data.step.name,
                         version: data.step.version,
@@ -825,7 +836,7 @@ const StepBox = withMessageHandler()(
             // this step
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'step',
-                name: `${stepsData[stepId].name}:${stepsData[stepId].version}`,
+                name: `${stepData.name}:${stepData.version}`,
                 include_tabs: false,
             });
             // Remove the listener when unmounted
