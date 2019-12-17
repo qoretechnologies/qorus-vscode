@@ -581,7 +581,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             'mapper-input': inputOptionProvider,
             'mapper-output': outputOptionProvider,
         };
-        console.log(mapper);
         // Post the data
         postMessage(!isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE, {
             iface_kind: 'mapper',

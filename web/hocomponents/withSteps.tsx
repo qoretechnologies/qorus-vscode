@@ -5,6 +5,7 @@ import { isArray, reduce } from 'lodash';
 import { transformSteps } from '../helpers/steps';
 import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
 import useMount from 'react-use/lib/useMount';
+import size from 'lodash/size';
 
 const stepsParser = new WorkflowStepDependencyParser();
 
@@ -97,6 +98,20 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }
             });
             // Save the steps
+            return filterEmptySteps(newSteps);
+        };
+
+        const filterEmptySteps = steps => {
+            const newSteps = [];
+            steps.forEach(step => {
+                if (isArray(step)) {
+                    if (size(step)) {
+                        newSteps.push(filterEmptySteps(step));
+                    }
+                } else if (step) {
+                    newSteps.push(step);
+                }
+            });
             return newSteps;
         };
 
