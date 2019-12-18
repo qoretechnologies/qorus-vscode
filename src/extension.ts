@@ -10,6 +10,8 @@ import { deployer } from './QorusDeploy';
 import { QorusHoverProvider } from './QorusHoverProvider';
 import { qorusIcons } from './QorusIcons';
 import { InterfaceTree } from './QorusInterfaceTree';
+import { QorusJavaCodeLensProvider } from './QorusJavaCodeLensProvider';
+import { QorusJavaHoverProvider } from './QorusJavaHoverProvider';
 import { qorus_locale } from './QorusLocale';
 import { config_filename, projects } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -25,8 +27,12 @@ qorus_locale.setLocale();
 export async function activate(context: vscode.ExtensionContext) {
     qorus_vscode.context = context;
     qorusIcons.update(context.extensionPath);
+    let disposable;
 
-    let disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
+    disposable = vscode.commands.registerCommand('qorus.noop', () => {});
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
                                                                () => deployer.deployCurrentFile());
     context.subscriptions.push(disposable);
 
@@ -125,9 +131,21 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(disposable);
 
+    disposable = vscode.languages.registerCodeLensProvider(
+        [{ language: 'java', scheme: 'file' }],
+        new QorusJavaCodeLensProvider()
+    );
+    context.subscriptions.push(disposable);
+
     disposable = vscode.languages.registerHoverProvider(
         [{ language: 'qore', scheme: 'file' }],
         new QorusHoverProvider()
+    );
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.languages.registerHoverProvider(
+        [{ language: 'java', scheme: 'file' }],
+        new QorusJavaHoverProvider()
     );
     context.subscriptions.push(disposable);
 

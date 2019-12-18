@@ -1351,34 +1351,34 @@ msgid "FixedDirInConfig ${ dir } ${ fixed_dir }"
 msgstr "Directory ${ dir } in project configuration has been renamed to ${ fixed_dir }"
 
 msgid "AddMethod"
-msgstr "Add method"
+msgstr "Add Method"
 
 msgid "EditMethod"
-msgstr "Edit method"
+msgstr "Edit Method"
 
 msgid "DeleteMethod"
-msgstr "Delete method"
+msgstr "Delete Method"
 
 msgid "EditService"
-msgstr "Edit service"
+msgstr "Edit Service"
 
 msgid "EditJob"
-msgstr "Edit job"
+msgstr "Edit Job"
 
 msgid "EditStep"
-msgstr "Edit step"
+msgstr "Edit Step"
 
 msgid "EditSteps"
-msgstr "Edit steps"
+msgstr "Edit Steps"
 
 msgid "EditClass"
-msgstr "Edit class"
+msgstr "Edit Class"
 
 msgid "EditWorkflow"
-msgstr "Edit workflow"
+msgstr "Edit Workflow"
 
 msgid "EditMapperCode"
-msgstr "Edit mapper code class"
+msgstr "Edit Mapper Code Class"
 
 msgid "SrcAndYamlMismatch ${ field } ${ src_file } ${ value1 } ${ value2 }"
 msgstr "Mismatch in source and yaml file at ${ field }: ${ src_file }: ${ value1 }, yaml info: ${ value2 }"
