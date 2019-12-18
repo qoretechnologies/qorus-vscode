@@ -1620,6 +1620,9 @@ msgstr "Missing edit data"
 msgid "AddConfigItem"
 msgstr "Add new config item"
 
+msgid "ConfigItemNotFound ${ name }"
+msgstr "Config item '${ name }' not found"
+
 msgid "table.actions"
 msgstr "Actions"
 

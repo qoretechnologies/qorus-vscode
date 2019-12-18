@@ -247,6 +247,9 @@ class QorusWebview {
                         case 'reset-config-items':
                             interface_info.resetConfigItemsToOrig(message.iface_id);
                             break;
+                        case 'delete-config-item':
+                            interface_info.deleteConfigItem(message);
+                            break;
                         case 'set-active-instance':
                             qorus_request.setActiveInstance(message.url);
                             break;

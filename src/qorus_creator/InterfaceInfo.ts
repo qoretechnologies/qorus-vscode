@@ -134,6 +134,23 @@ export class InterfaceInfo {
         this.getConfigItems({iface_id, iface_kind});
     }
 
+    deleteConfigItem = ({iface_id, iface_kind, name}) => {
+        if (!this.checkIfaceId(iface_id)) {
+            return;
+        }
+
+        iface_kind = iface_kind || this.iface_by_id[iface_id].type;
+
+        const index = this.iface_by_id[iface_id]['config-items'].findIndex(item => item.name === name);
+        if (index > -1) {
+            this.iface_by_id[iface_id]['config-items'].splice(index, 1);
+        } else {
+            msg.error(t`ConfigItemNotFound ${name}`);
+        }
+
+        this.getConfigItems({iface_id, iface_kind});
+    }
+
     private configItemInheritedData = raw_item => {
         if (!raw_item.parent) {
             return raw_item;
