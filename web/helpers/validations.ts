@@ -34,6 +34,27 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
                     pair[field.fields[0]] !== '' && pair[field.fields[1]] !== ''
             );
         }
+        case 'class-connectors': {
+            let valid = true;
+            // Check if every pair has name, input method and output method
+            // assigned properly
+            if (
+                !value.every(
+                    (pair: { [key: string]: string }): boolean =>
+                        pair.name !== '' && pair['input-method'] !== '' && pair['output-method'] !== ''
+                )
+            ) {
+                valid = false;
+            }
+            // Get a list of unique values
+            const uniqueValues: any[] = uniqWith(value, (cur, prev) => cur.name === prev.name);
+            // Check if there are any duplicates
+            if (size(uniqueValues) !== size(value)) {
+                valid = false;
+            }
+
+            return valid;
+        }
         // Classes check
         case 'class-array': {
             let valid = true;

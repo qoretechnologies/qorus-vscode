@@ -14,6 +14,7 @@ export interface IStringField {
     postMessage?: TPostMessage;
     addMessageListener?: TMessageListener;
     read_only?: boolean;
+    placeholder?: string;
 }
 
 const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
@@ -28,6 +29,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     return_message,
     read_only,
     disabled,
+    placeholder,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -58,6 +60,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
 
     return (
         <InputGroup
+            placeholder={placeholder}
             disabled={read_only || disabled}
             className={fill && Classes.FILL}
             value={!value ? default_value || '' : value}

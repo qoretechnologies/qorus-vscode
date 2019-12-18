@@ -1293,6 +1293,18 @@ msgstr "hash"
 msgid "field-label-list"
 msgstr "list"
 
+msgid "field-label-connectors"
+msgstr "Connectors"
+
+msgid "field-desc-connectors"
+msgstr "Connectors used for building blocks"
+
+msgid "InputMethod"
+msgstr "Input method"
+
+msgid "OutputMethod"
+msgstr "Output method"
+
 msgid "ConfigFileDoesNotExist"
 msgstr "Config file does not exist"
 
@@ -1576,7 +1588,7 @@ msgid "AddStepsTitle"
 msgstr "1. Add Workflow Steps"
 
 msgid "StepsDiagram"
-msgstr "2. Workflow Steps Diagram"
+msgstr "2. Workflow Step Diagram"
 
 msgid "NoStepsAdded"
 msgstr "No steps added"
@@ -1615,7 +1627,7 @@ msgid "button.show-descriptions"
 msgstr "Show descriptions"
 
 msgid "ConfigItemsManager"
-msgstr "Config items manager"
+msgstr "Config Item Manager"
 
 msgid "SetCustomValue"
 msgstr "Set custom value or"
@@ -1754,10 +1766,10 @@ msgstr "User connections"
 msgid "Datasources"
 msgstr "Datasource connections"
 
-msgid "SelectInputProvider"
+msgid "InputProvider"
 msgstr "Select input"
 
-msgid "SelectOutputProvider"
+msgid "OutputProvider"
 msgstr "Select output"
 
 msgid "MapperNoInputFields"

@@ -9,7 +9,6 @@ export const transformSteps: (
     let id = 0;
     let listId = 0;
     const result: number[] = [];
-    const newStepsData = { ...stepsData };
 
     steps.forEach(step => {
         if (isArray(step)) {

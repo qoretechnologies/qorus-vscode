@@ -13,7 +13,6 @@ export const lang_inherits = {
     qore: 'inherits',
 };
 
-
 export const default_parse_options = '\
 %new-style\n\
 %strict-args\n\
@@ -21,20 +20,17 @@ export const default_parse_options = '\
 %enable-all-warnings\n\n\
 ';
 
-
 export const class_template = {
     qore: 'class ${this.class_name} {\n}\n',
     java: 'class ${this.class_name} {\n}\n',
 };
-
 
 export const subclass_template = {
     qore: 'class ${this.class_name} inherits ${this.base_class_name} {\n}\n',
     java: 'class ${this.class_name} extends ${this.base_class_name} {\n}\n',
 };
 
-
-export const classFields = ({is_editing, default_target_dir}) => [
+export const classFields = ({ is_editing, default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -57,7 +53,7 @@ export const classFields = ({is_editing, default_target_dir}) => [
             return_value: 'objects',
         },
         on_change: 'get-config-items',
-        notify_on_remove: true
+        notify_on_remove: true,
     },
     {
         name: 'requires',
@@ -73,11 +69,15 @@ export const classFields = ({is_editing, default_target_dir}) => [
             return_value: 'objects',
         },
         on_change: 'get-config-items',
-        notify_on_remove: true
+        notify_on_remove: true,
     },
     field.tags,
+    {
+        name: 'connectors',
+        mandatory: false,
+        type: 'class-connectors',
+    },
 ];
-
 
 export const field = {
     targetDir: default_target_dir => ({
@@ -263,7 +263,7 @@ export const field = {
             return_value: 'objects',
         },
         on_change: 'get-config-items',
-        notify_on_remove: true
+        notify_on_remove: true,
     },
     workflow_options: {
         name: 'workflow_options',
@@ -282,5 +282,5 @@ export const field = {
         type: 'array-of-pairs',
         fields: ['label', 'value'],
         mandatory: false,
-    }
+    },
 };
