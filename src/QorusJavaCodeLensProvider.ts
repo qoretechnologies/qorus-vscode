@@ -74,9 +74,17 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 if (!symbol.implements) {
                     symbol.implements = [];
                 }
-                while (words.length && words[0] !== 'extends') {
-                    symbol.implements.push(words[0]);
+
+                // we need this helper variable cause otherwise typescript would
+                // report an error in the while cycle condition, if there was
+                // words[0] !== 'extends'
+                let newWord = (words.length) ? words[0] : "";
+                while (words.length && newWord !== 'extends') {
+                    symbol.implements.push(newWord);
                     words.splice(0, 1);
+                    if (words.length) {
+                        newWord = words[0];
+                    }
                 }
             }
             else {
