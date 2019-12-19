@@ -2,6 +2,8 @@ import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
+import { job_template } from './job_constants';
+import { workflow_template } from './workflow_constants';
 import { stepTypeHeaders } from './step_constants';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
@@ -14,7 +16,7 @@ class ClassCreator extends InterfaceCreator {
         let suffix: string;
         switch (iface_kind) {
             case 'job':
-                template = subclass_template;
+                template = job_template;
                 suffix = '.qjob';
                 break;
             case 'step':
@@ -23,7 +25,7 @@ class ClassCreator extends InterfaceCreator {
                 break;
             case 'workflow':
                 if (data['class-name']) {
-                    template = subclass_template;
+                    template = workflow_template;
                     suffix = '.qwf';
                 }
                 break;
