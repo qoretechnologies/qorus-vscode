@@ -41,7 +41,7 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
             if (
                 !value.every(
                     (pair: { [key: string]: string }): boolean =>
-                        pair.name !== '' && pair['input-method'] !== '' && pair['output-method'] !== ''
+                        pair.name !== '' && (pair['input-method'] !== '' || pair['output-method'] !== '')
                 )
             ) {
                 valid = false;
