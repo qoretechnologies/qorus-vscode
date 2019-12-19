@@ -509,6 +509,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 siblings: field.type.fields,
                 fieldData: edit ? field : null,
                 type,
+                isParentCustom: field.isCustom,
                 onSubmit: data => {
                     edit ? editField(type, field.path, data) : addField(type, field.path, data);
                 },
@@ -533,7 +534,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         });
     };
 
-    const filterEmptyRelations: (relations: any) => any = (relations) => {
+    const filterEmptyRelations: (relations: any) => any = relations => {
         return reduce(
             relations,
             (newRel, rel, name) => {
@@ -547,7 +548,25 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             },
             {}
         );
-    }
+    };
+
+    const getCustomFields: (type: string) => any[] = type => {
+        if (type === 'inputs') {
+            return flattenedInputs.reduce((newInputs, input, index) => {
+                if (input.firstCustomInHierarchy) {
+                    return { ...newInputs, [input.name]: input };
+                }
+                return newInputs;
+            }, {});
+        } else {
+            return flattenedOutputs.reduce((newOutputs, output, index) => {
+                if (output.firstCustomInHierarchy) {
+                    return { ...newOutputs, [output.name]: output };
+                }
+                return newOutputs;
+            }, {});
+        }
+    };
 
     const handleDrop = (inputPath: string, outputPath: string): void => {
         saveRelationData(outputPath, { name: inputPath });
@@ -578,8 +597,14 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         // Add the input & output providers
         mapper.mapper_options = {
             ...mapperOptions,
-            'mapper-input': inputOptionProvider,
-            'mapper-output': outputOptionProvider,
+            'mapper-input': {
+                ...inputOptionProvider,
+                'custom-fields': getCustomFields('inputs'),
+            },
+            'mapper-output': {
+                ...outputOptionProvider,
+                'custom-fields': getCustomFields('outputs'),
+            },
         };
         // Post the data
         postMessage(!isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE, {

@@ -22,6 +22,7 @@ export interface IMapperFieldModalProps {
     initialData: any;
     siblings: any;
     fieldData: any;
+    isParentCustom?: boolean;
 }
 
 const defaultData: any = {
@@ -40,6 +41,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     onSubmit,
     t,
     initialData,
+    isParentCustom,
 }) => {
     const transformFieldData = fieldData => {
         // Save the typename
@@ -108,6 +110,11 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             // Transform the field type to the
             // same maybe type
             newField.type = types.find(type => type.name === `*${newField.type.name}`);
+        }
+        // If parent is not a custom field, set this as the first
+        // custom field in the hierarchy
+        if (!isParentCustom) {
+            newField.firstCustomInHierarchy = true;
         }
         // Submit the field
         onSubmit(newField);
