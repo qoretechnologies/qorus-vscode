@@ -1293,10 +1293,10 @@ msgstr "hash"
 msgid "field-label-list"
 msgstr "list"
 
-msgid "field-label-connectors"
+msgid "field-label-class_connectors"
 msgstr "Connectors"
 
-msgid "field-desc-connectors"
+msgid "field-desc-class_connectors"
 msgstr "Connectors used for building blocks"
 
 msgid "InputMethod"
