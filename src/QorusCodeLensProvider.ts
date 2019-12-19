@@ -91,7 +91,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
 
-        data = this.code_info.fixData({ ...data });
+        data = this.code_info.fixData(data);
         const range = loc2range(symbol.name.loc);
 
         switch (iface_kind) {
@@ -161,7 +161,7 @@ export class QorusCodeLensProvider implements vscode.CodeLensProvider {
             return;
         }
 
-        data = this.code_info.fixData({ ...data });
+        data = this.code_info.fixData(data);
 
         if (iface_kind === 'mapper-code') {
             data['mapper-methods'] = data.methods;

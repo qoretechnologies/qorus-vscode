@@ -301,7 +301,7 @@ export class QorusProjectCodeInfo {
                 action: 'return-interface-data',
                 data: {
                     iface_kind: iface_kind,
-                    [iface_kind]: this.yamlDataByName(iface_kind, name_key),
+                    [iface_kind]: this.fixData(this.yamlDataByName(iface_kind, name_key)),
                     ... include_tabs
                         ? {
                               tab: 'CreateInterface',
@@ -348,7 +348,9 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    fixData(data: any): any {
+    fixData(orig_data: any): any {
+        let data = {...orig_data};
+
         if (data.options) {
             data[data.type + '_options'] = data.options;
             delete data.options;
