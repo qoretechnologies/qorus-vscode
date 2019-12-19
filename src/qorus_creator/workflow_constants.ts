@@ -22,7 +22,12 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
         notify_on_add: true,
         notify_on_remove: true,
     },
-    field.lang(is_editing),
+    {
+        ...field.lang(is_editing),
+        mandatory: false,
+        notify_on_add: true,
+        notify_on_remove: true,
+    },
     field.constants,
     field.functions,
     field.mapper,
