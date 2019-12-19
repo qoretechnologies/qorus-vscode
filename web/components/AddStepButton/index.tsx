@@ -62,7 +62,7 @@ export const AddStepButton: FunctionComponent<IAddStepButton> = withTextContext(
                 onClick={() =>
                     setPopover({
                         isOpen: true,
-                        position: Position.BOTTOM,
+                        position: Position.RIGHT,
                         before,
                         parallel,
                         step,
