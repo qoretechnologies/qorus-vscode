@@ -134,13 +134,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         setInputs(
                             insertCustomFields(
                                 inputFields,
-                                props.mapper.mapper_options['mapper-input']['custom-fields']
+                                props.mapper.mapper_options['mapper-input']['custom-fields'] || {}
                             )
                         );
                         setOutputs(
                             insertCustomFields(
                                 outputFields,
-                                props.mapper.mapper_options['mapper-output']['custom-fields']
+                                props.mapper.mapper_options['mapper-output']['custom-fields'] || {}
                             )
                         );
                         setRelations(props.mapper.fields || {});
