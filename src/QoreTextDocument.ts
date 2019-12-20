@@ -1,20 +1,22 @@
+import { readFileSync } from 'fs';
 import { Range } from 'vscode';
-import * as fs from 'fs';
+
+import { makeFileUri } from './qorus_utils';
 
 export interface QoreTextDocument {
     uri: string;
     text: string;
     languageId: string;
     version: number;
-};
+}
 
 export const qoreTextDocument = (file: string): QoreTextDocument => {
-    const file_content = fs.readFileSync(file);
+    const file_content = readFileSync(file);
     const buffer: Buffer = Buffer.from(file_content);
     const contents = buffer.toString();
 
     return {
-        uri: 'file://' + file,
+        uri: makeFileUri(file),
         text: contents,
         languageId: 'qore',
         version: 1

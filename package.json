@@ -38,7 +38,9 @@
     ],
     "activationEvents": [
         "workspaceContains:qorusproject.json",
-        "onView:qorusInterfaces"
+        "onView:qorusInterfaces",
+        "onLanguage:java",
+        "onLanguage:qore"
     ],
     "main": "out/extension",
     "contributes": {
@@ -1273,6 +1275,7 @@
         "swagger-object-validator": "^1.1.7",
         "ttag": "^1.7.18",
         "url-parse": "^1.4.7",
+        "vscode-languageserver-types": "^3.14",
         "yamljs": "^0.3.0"
     }
 }
