@@ -12,7 +12,7 @@ import { omit } from 'lodash';
 import withInitialData from '../../hocomponents/withInitialData';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
-const MethodSelector = styled.div`
+export const MethodSelector = styled.div`
     width: 100%;
     height: 30px;
     line-height: 30px;
@@ -46,7 +46,7 @@ const MethodSelector = styled.div`
     }
 `;
 
-const Selected = styled.div`
+export const Selected = styled.div`
     position: absolute;
     right: 15px;
     top: 50%;
@@ -71,7 +71,7 @@ const Selected = styled.div`
     }
 `;
 
-const RemoveButton = styled.div`
+export const RemoveButton = styled.div`
     transition: all 0.3s ease-in;
     position: absolute;
     right: 5px;
@@ -104,7 +104,7 @@ const RemoveButton = styled.div`
     }
 `;
 
-const PanelWrapper = styled.div`
+export const PanelWrapper = styled.div`
     margin-top: 10px;
     display: flex;
     flex: 1;
@@ -135,6 +135,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     interfaceId,
     initialData,
 }) => {
+    console.log('service rerender');
     return (
         <MethodsContext.Consumer>
             {({
@@ -162,6 +163,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                             <InterfaceCreatorPanel
                                 type={'service'}
                                 submitLabel={t('Next')}
+                                hasClassConnections
                                 hasConfigManager
                                 onSubmit={() => {
                                     setActiveMethod(1);

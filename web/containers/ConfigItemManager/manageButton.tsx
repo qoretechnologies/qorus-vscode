@@ -32,20 +32,15 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({ t, addMess
     });
 
     return (
-        <ButtonGroup fill>
-            <Tooltip content={'ManageConfigItems'} disabled={disabled}>
-                <Button
-                    disabled={disabled}
-                    text={`${t('ManageConfigItems')}(${configCount})`}
-                    icon={'cog'}
-                    onClick={onClick}
-                />
-            </Tooltip>
-        </ButtonGroup>
+        <Tooltip content={'ManageConfigItems'} disabled={disabled}>
+            <Button
+                disabled={disabled}
+                text={`${t('ManageConfigItems')}(${configCount})`}
+                icon={'cog'}
+                onClick={onClick}
+            />
+        </Tooltip>
     );
 };
 
-export default compose(
-    withTextContext(),
-    withMessageHandler()
-)(ManageConfigButton);
+export default compose(withTextContext(), withMessageHandler())(ManageConfigButton);

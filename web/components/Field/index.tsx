@@ -40,6 +40,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                 // Check if on_change is a list
                 const onChange: string[] = isArray(rest.on_change) ? rest.on_change : [rest.on_change];
                 // Post all the actions
+                console.log(interfaceId);
                 onChange.forEach(action => {
                     // Post the message with this handler
                     postMessage(action, {

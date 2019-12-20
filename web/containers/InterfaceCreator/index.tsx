@@ -19,6 +19,7 @@ export interface ICreateInterface {
 }
 
 const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) => {
+    console.log('creator rerender');
     return (
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
@@ -29,6 +30,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
                             <InterfaceCreatorPanel
+                                hasClassConnections
                                 hasConfigManager
                                 type={'job'}
                                 data={initialData.job}
@@ -51,6 +53,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                             <InterfaceCreatorPanel
                                 type={'step'}
                                 data={initialData.step}
+                                hasClassConnections
                                 hasConfigManager
                                 isEditing={!!initialData.step}
                                 onSubmit={

@@ -24,6 +24,7 @@ import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import shortid from 'shortid';
 import isArray from 'lodash/isArray';
+import ClassConnectionsManager from '../ClassConnectionsManager';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -63,6 +64,7 @@ export interface IInterfaceCreatorPanel {
     initialInterfaceId?: string;
     setInterfaceId: (interfaceType: string, id: string) => void;
     disabledFields?: string[];
+    hasClassConnections?: boolean;
 }
 
 export interface IField {
@@ -155,16 +157,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     initialData,
     hasConfigManager,
     parent,
-    fileName,
     interfaceId,
-    initialInterfaceId,
     setInterfaceId,
     disabledFields,
+    hasClassConnections,
+    initialInterfaceId,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
+    const [showClassConnectionsManager, setShowClassConnectionsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
 
     useEffect(() => {
@@ -258,7 +261,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             // Remove the message listener if it exists
             messageListenerHandler();
         };
-    }, [activeId, data]);
+    }, [interfaceId, initialInterfaceId]);
 
     const resetLocalFields: (newActiveId?: number) => void = newActiveId => {
         resetFields(type);
@@ -723,6 +726,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         });
     };
 
+    const isClassConnectorsManagerEnabled = () => {
+        // Find the base class name field
+        const classes: IField = [...selectedFields].find((field: IField) => field.name === 'classes');
+        // Check if the field exists
+        if (classes) {
+            // The field has to be selected and valid
+            return classes.isValid;
+        }
+        // Not valid
+        return false;
+    };
+
     const isConfigManagerEnabled = () => {
         // Find the base class name field
         const baseClassName: IField = [...fieldList, ...selectedFields].find(
@@ -836,12 +851,20 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     )}
                 </ContentWrapper>
                 <ActionsWrapper>
-                    {hasConfigManager && (
+                    {(hasConfigManager || hasClassConnections) && (
                         <div style={{ float: 'left', width: '48%' }}>
-                            <ManageConfigButton
-                                disabled={!isConfigManagerEnabled()}
-                                onClick={() => setShowConfigItemsManager(true)}
-                            />
+                            <ButtonGroup fill>
+                                <Button
+                                    disabled={!isClassConnectorsManagerEnabled()}
+                                    onClick={() => setShowClassConnectionsManager(true)}
+                                >
+                                    {t('ManageClassConnections')}
+                                </Button>
+                                <ManageConfigButton
+                                    disabled={!isConfigManagerEnabled()}
+                                    onClick={() => setShowConfigItemsManager(true)}
+                                />
+                            </ButtonGroup>
                         </div>
                     )}
                     <div style={{ float: 'right', width: hasConfigManager ? '48%' : '100%' }}>
@@ -875,6 +898,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     </div>
                 </ActionsWrapper>
             </Content>
+            {showClassConnectionsManager && hasClassConnections && (
+                <Dialog
+                    isOpen
+                    title={t('ClassConnectionsManager')}
+                    onClose={() => setShowClassConnectionsManager(false)}
+                    style={{ width: '80vw', backgroundColor: '#fff' }}
+                >
+                    <ClassConnectionsManager
+                        classes={[...selectedFields].find((field: IField) => field.name === 'classes').value}
+                    />
+                </Dialog>
+            )}
             {showConfigItemsManager && hasConfigManager ? (
                 <Dialog
                     isOpen
