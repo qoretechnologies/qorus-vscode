@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import { Uri } from 'vscode';
 
 export const isDeployable = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep',
@@ -82,3 +83,7 @@ export const dash2Camel = str => {
 
 export const dash2Pascal = str =>
     str.split('-').map(part => part[0].toUpperCase() + part.substr(1)).join('');
+
+export const makeFileUri = (filePath: string) => 'file://' + filePath;
+
+export const getFilePathFromUri = (uri: string | Uri) => typeof uri === 'string' ? uri.slice(7) : uri.fsPath;

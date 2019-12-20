@@ -145,6 +145,12 @@ export class QorusProjectCodeInfo {
         symbol.kind === 1 &&
         symbol.name &&
         class_name === symbol.name.name
+    
+    isJavaSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
+        class_name &&
+        symbol.kind === 5 &&
+        symbol.name &&
+        class_name === symbol.name
 
     addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
@@ -196,6 +202,50 @@ export class QorusProjectCodeInfo {
         }
     }
 
+    addJavaClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
+        const class_def_range: vscode.Range = symbol.range;
+        const class_name_range: vscode.Range = symbol.selectionRange;
+
+        const addClassInfo = (main_base_class_ord: number = -1) => {
+            if (!this.edit_info[file]) {
+                this.edit_info[file] = {};
+            }
+            Object.assign(this.edit_info[file], {
+                class_def_range,
+                class_name_range,
+                main_base_class_name_range: main_base_class_ord === -1
+                    ? undefined
+                    : symbol.extends.range,
+                first_base_class_line: symbol.extends
+                    ? symbol.extends.range.start.line
+                    : undefined,
+                last_class_line: symbol.range.end.line,
+                has_other_base_class: false,
+                main_base_class_ord
+            });
+        };
+
+        if (symbol.extends) {
+            if (base_class_name) {
+                if (symbol.extends.name === base_class_name) {
+                    addClassInfo(0);
+                } else {
+                    if (message_on_mismatch) {
+                        msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
+                    }
+                    addClassInfo();
+                }
+            } else {
+                addClassInfo();
+            }
+        } else {
+            if (base_class_name) {
+                msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
+            }
+            addClassInfo();
+        }
+    }
+
     addClassDeclCodeInfo = (file: string, decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
             return false;
@@ -210,6 +260,16 @@ export class QorusProjectCodeInfo {
         const name_range = loc2range(decl.name.loc);
 
         this.addMethodInfo(file, method_name, decl_range, name_range);
+
+        return true;
+    }
+
+    addJavaClassDeclCodeInfo = (file: string, decl: any): boolean => {
+        if (decl.kind !== 6) { // must be method
+            return false;
+        }
+
+        this.addMethodInfo(file, decl.name, decl.range, decl.selectionRange);
 
         return true;
     }
