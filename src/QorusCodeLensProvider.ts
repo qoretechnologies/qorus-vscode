@@ -18,14 +18,6 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         return this.code_info.waitForPending(['yaml']).then(() => this.provideCodeLensesImpl(document));
     }
 
-    protected prepareDataObject(dir_path: string, file_name: string, yaml_info) {
-        return {
-            target_dir: dir_path,
-            target_file: file_name,
-            ...yaml_info
-        };
-    }
-
     protected provideCodeLensesImpl(document: TextDocument): Promise<CodeLens[]> {
         const file_path = document.uri.fsPath;
         const dir_path = path.dirname(file_path);
@@ -44,13 +36,23 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
             return Promise.resolve([]);
         }
 
-        const data = this.prepareDataObject(dir_path, file_name, yaml_info);
+        const data = {
+            target_dir: dir_path,
+            target_file: file_name,
+            ...yaml_info
+        };
+
         this.code_info.addText(document);
 
         return this.provideLanguageSpecificImpl(document, file_path, iface_kind, data);
     }
 
-    protected abstract provideLanguageSpecificImpl(document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]>;
+    protected abstract provideLanguageSpecificImpl(
+        document: TextDocument,
+        file_path: string,
+        iface_kind: string,
+        data: any
+    ): Promise<CodeLens[]>;
 
     protected addClassLenses(iface_kind: string, lenses: CodeLens[], symbol: any, data: any) {
         if (!symbol.name) {
@@ -129,7 +131,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
                 title: t`UnknownMethod`,
                 command: 'qorus.noop',
             }));
-            //msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
+            msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
             return;
         }
 
