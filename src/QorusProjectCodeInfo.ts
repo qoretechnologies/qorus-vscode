@@ -296,12 +296,14 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, include_tabs }) => {
         const name_key = object_types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-        this.waitForPending(['yaml', 'edit_info']).then(() =>
+        this.waitForPending(['yaml', 'edit_info']).then(() => {
+            const data = this.fixData(this.yamlDataByName(iface_kind, name_key));
+            const iface_id = this.iface_info.addIfaceById(data, iface_kind);
             qorus_webview.postMessage({
                 action: 'return-interface-data',
                 data: {
-                    iface_kind: iface_kind,
-                    [iface_kind]: this.fixData(this.yamlDataByName(iface_kind, name_key)),
+                    iface_kind,
+                    [iface_kind]: { ...data, iface_id },
                     ... include_tabs
                         ? {
                               tab: 'CreateInterface',
@@ -309,8 +311,8 @@ export class QorusProjectCodeInfo {
                           }
                         : {},
                 },
-            })
-        );
+            });
+        });
     }
 
     pairFile = (file: string): string | undefined => {
