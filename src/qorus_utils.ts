@@ -44,8 +44,6 @@ export const suffixToIfaceKind = (suffix: string): string | undefined => {
             return 'mapper-code';
         case 'qclass':
             return 'class';
-        case 'java':
-            return 'java';
         default:
             return undefined;
     }

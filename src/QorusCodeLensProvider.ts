@@ -31,18 +31,17 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         const dir_path = path.dirname(file_path);
         const file_name = path.basename(file_path);
 
-        let iface_kind = suffixToIfaceKind(path.extname(file_path));
-        if (!['service', 'job', 'step', 'workflow', 'class', 'mapper-code', 'java'].includes(iface_kind)) {
-            return Promise.resolve([]);
-        }
-
         const yaml_info = this.code_info.yamlDataBySrcFile(file_path);
         if (!yaml_info) {
             msg.error(t`UnableFindYamlForSrc ${file_name}`);
             return Promise.resolve([]);
         }
-        if (iface_kind === 'java') {
-            iface_kind = yaml_info.type;
+
+        const extname = path.extname(file_path);
+        const iface_kind = extname === '.java' ? yaml_info.type : suffixToIfaceKind(extname);
+
+        if (!['service', 'job', 'step', 'workflow', 'class', 'mapper-code'].includes(iface_kind)) {
+            return Promise.resolve([]);
         }
 
         const data = this.prepareDataObject(dir_path, file_name, yaml_info);
