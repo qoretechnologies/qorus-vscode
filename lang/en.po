@@ -1801,3 +1801,9 @@ msgstr "Open interface"
 
 msgid "UnexpectedIfaceId"
 msgstr "Unexpected interface ID"
+
+msgid "NoDescriptionFound"
+msgstr "No description found"
+
+msgid "UnknownMethod"
+msgstr "Unknown method"

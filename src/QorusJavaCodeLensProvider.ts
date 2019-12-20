@@ -34,7 +34,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
         let words = text.split(/\s+/);
         let i = 0;
         while (i < words.length) {
-            let word = words[i];
+            const word = words[i];
             if (!word.length || word === ',') {
                 words.splice(i, 1);
                 continue;
@@ -78,7 +78,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 // we need this helper variable cause otherwise typescript would
                 // report an error in the while cycle condition, if there was
                 // words[0] !== 'extends'
-                let newWord = (words.length) ? words[0] : "";
+                let newWord = (words.length) ? words[0] : '';
                 while (words.length && newWord !== 'extends') {
                     symbol.implements.push(newWord);
                     words.splice(0, 1);
@@ -94,15 +94,15 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
 
         // find base class range
         if (baseClass !== undefined) {
-            let re = new RegExp("\\sextends\\s+" + baseClass);
-            let matches = origText.match(re);
+            const re = new RegExp('\\sextends\\s+' + baseClass);
+            const matches = origText.match(re);
             if (!matches) {
                 return;
             }
-            let extendsPos = origText.indexOf(matches[0]);
+            const extendsPos = origText.indexOf(matches[0]);
             let firstChar = origText.indexOf(baseClass, extendsPos);
 
-            let eol = (document.eol === EndOfLine.LF)
+            const eol = (document.eol === EndOfLine.LF)
                 ? '\n'
                 : '\r\n';
             let line = begin.line;
@@ -157,7 +157,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                     return;
                 }
 
-                for (let child of symbol.children || []) {
+                for (const child of symbol.children || []) {
                     if (!this.code_info.addJavaClassDeclCodeInfo(file_path, child)) {
                         continue;
                     }

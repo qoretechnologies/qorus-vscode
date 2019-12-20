@@ -4,6 +4,7 @@ import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { projects } from './QorusProject';
 import { makeFileUri, getFilePathFromUri } from './qorus_utils';
 import { getJavaDocumentSymbols } from './vscode_java';
+import { t } from 'ttag';
 
 export class QorusJavaHoverProvider implements vscode.HoverProvider {
     private code_info: QorusProjectCodeInfo = undefined;
@@ -46,7 +47,7 @@ export class QorusJavaHoverProvider implements vscode.HoverProvider {
                 markdown.isTrusted = true;
                 return new vscode.Hover(markdown);
             }
-            return new vscode.Hover("(No description found)");
+            return new vscode.Hover('(' + t`NoDescriptionFound` + ')');
         };
 
         const searchSymbol = (symbol) => {
@@ -54,7 +55,7 @@ export class QorusJavaHoverProvider implements vscode.HoverProvider {
                 return createHover(symbol, yaml_info);
             }
             for (const child of symbol.children) {
-                let result = searchSymbol(child);
+                const result = searchSymbol(child);
                 if (result) {
                     return result;
                 }
@@ -62,7 +63,7 @@ export class QorusJavaHoverProvider implements vscode.HoverProvider {
             return undefined;
         };
         for (const symbol of symbols) {
-            let result = searchSymbol(symbol);
+            const result = searchSymbol(symbol);
             if (result) {
                 return result;
             }

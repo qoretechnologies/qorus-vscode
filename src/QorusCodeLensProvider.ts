@@ -126,7 +126,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
 
         if (method_index === -1 && method_name !== constructor_name) {
             lenses.push(new CodeLens(range, {
-                title: "Unknown method",
+                title: t`UnknownMethod`,
                 command: 'qorus.noop',
             }));
             //msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
@@ -181,7 +181,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
                     return;
                 }
 
-                for (let decl of symbol.declarations || []) {
+                for (const decl of symbol.declarations || []) {
                     if (!this.code_info.addClassDeclCodeInfo(file_path, decl)) {
                         continue;
                     }
