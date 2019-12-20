@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { isArray, flattenDeep, size, some } from 'lodash';
-import { Icon, Popover, ButtonGroup, Button, Position, Classes, Tooltip } from '@blueprintjs/core';
+import {
+    Icon,
+    Popover,
+    ButtonGroup,
+    Button,
+    Position,
+    Classes,
+    Tooltip,
+    Dialog,
+    ControlGroup,
+} from '@blueprintjs/core';
 import SelectField from '../Field/select';
 import withTextContext from '../../hocomponents/withTextContext';
 import { FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../../containers/InterfaceCreator/panel';
@@ -32,6 +42,7 @@ const StyledStepWrapper = styled.div`
 
 const StyledStep = styled.div`
     margin-left: ${({ isEven }) => (isEven ? '20px' : 0)};
+    width: 100%;
     position: relative;
     box-sizing: border-box;
 
@@ -184,20 +195,7 @@ const StepList = compose(
             <StyledStepWrapper>
                 {level === 1 && (
                     <>
-                        <Popover
-                            isOpen={popover.isOpen && !popover.step && popover.before}
-                            position={popover.position}
-                            content={
-                                <NewStepPopover
-                                    {...popover}
-                                    onCancel={() => setPopover({ isOpen: false })}
-                                    onStepInsert={handleStepInsert}
-                                    onSubmit={() => setPopover({ isOpen: false })}
-                                />
-                            }
-                        >
-                            <AddStepButton bottom big before stepsData={stepsData} setPopover={setPopover} icon="add" />
-                        </Popover>
+                        <AddStepButton bottom big before stepsData={stepsData} setPopover={setPopover} icon="add" />
                         <StyledSeparator />
                     </>
                 )}
@@ -257,22 +255,17 @@ const StepList = compose(
                 {level === 1 && (
                     <>
                         <StyledSeparator />
-                        <Popover
-                            isOpen={popover.isOpen && !popover.step && !popover.before}
-                            position={popover.position}
-                            content={
-                                <NewStepPopover
-                                    {...popover}
-                                    onCancel={() => setPopover({ isOpen: false })}
-                                    onStepInsert={handleStepInsert}
-                                    onSubmit={() => setPopover({ isOpen: false })}
-                                />
-                            }
-                        >
-                            <AddStepButton bottom big stepsData={stepsData} setPopover={setPopover} icon="add" />
-                        </Popover>
+                        <AddStepButton bottom big stepsData={stepsData} setPopover={setPopover} icon="add" />
                     </>
                 )}
+                <Dialog isOpen={popover.isOpen}>
+                    <NewStepPopover
+                        {...popover}
+                        onCancel={() => setPopover({ isOpen: false })}
+                        onStepInsert={handleStepInsert}
+                        onSubmit={() => setPopover({ isOpen: false })}
+                    />
+                </Dialog>
             </StyledStepWrapper>
         );
     }
@@ -328,23 +321,12 @@ const Step = ({
     }, [step, stepsData]);
 
     return (
-        <StyledStepName
-            onMouseEnter={() => groupId !== 1 && setHighlightedSteps({ groupId })}
-            onMouseLeave={() => setHighlightedSteps(null)}
-            isEven={level % 2 !== 1 || index === 0}
-            isLast={(level % 2 === 1 && index === 0) || index === steps.length - 1}
-        >
-            <Popover
-                isOpen={popover.isOpen && popover.step === step}
-                position={popover.position}
-                content={
-                    <NewStepPopover
-                        {...popover}
-                        onCancel={() => setPopover({ isOpen: false })}
-                        onStepInsert={handleStepInsert}
-                        onSubmit={() => setPopover({ isOpen: false })}
-                    />
-                }
+        <>
+            <StyledStepName
+                onMouseEnter={() => groupId !== 1 && setHighlightedSteps({ groupId })}
+                onMouseLeave={() => setHighlightedSteps(null)}
+                isEven={level % 2 !== 1 || index === 0}
+                isLast={(level % 2 === 1 && index === 0) || index === steps.length - 1}
             >
                 <StepNameWrapper>
                     <AddStepButton
@@ -417,8 +399,8 @@ const Step = ({
                         icon="chevron-down"
                     />
                 </StepNameWrapper>
-            </Popover>
-        </StyledStepName>
+            </StyledStepName>
+        </>
     );
 };
 
@@ -439,10 +421,11 @@ const NewStepPopover = compose(
             </FieldName>
             <ActionsWrapper>
                 <FieldInputWrapper>
-                    <ButtonGroup fill>
+                    <ControlGroup fill>
                         <Button
                             intent="success"
                             icon="add"
+                            text={t('AddNewStep')}
                             onClick={() => {
                                 resetFields('step');
                                 initialData.resetInterfaceData('step');
@@ -453,6 +436,7 @@ const NewStepPopover = compose(
                                     initialData.setStepSubmitCallback(null);
                                 });
                             }}
+                            fill
                         />
                         <SelectField
                             get_message={{
@@ -475,8 +459,9 @@ const NewStepPopover = compose(
                             }}
                             placeholder={t('OrSelectExisting')}
                             name="name"
+                            fill
                         />
-                    </ButtonGroup>
+                    </ControlGroup>
                 </FieldInputWrapper>
             </ActionsWrapper>
             <ActionsWrapper>
@@ -493,7 +478,4 @@ const NewStepPopover = compose(
     );
 });
 
-export default compose(
-    withFieldsConsumer(),
-    withTextContext()
-)(StepList);
+export default compose(withFieldsConsumer(), withTextContext())(StepList);

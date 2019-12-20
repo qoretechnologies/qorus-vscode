@@ -81,7 +81,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                     {showSteps && (
                         <>
                             <SidePanel title={t('AddStepsTitle')}>
-                                <ContentWrapper>
+                                <ContentWrapper style={{ overflowX: 'unset' }}>
                                     <StepList
                                         steps={steps}
                                         setSteps={setSteps}

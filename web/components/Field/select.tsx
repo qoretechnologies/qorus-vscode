@@ -96,7 +96,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             popoverProps={{
                 popoverClassName: 'custom-popover',
                 targetClassName: fill ? 'select-popover' : '',
-                position,
+                position: 'left',
             }}
             className={fill ? 'select-field' : ''}
             onItemSelect={(item: any) => handleSelectClick(item)}

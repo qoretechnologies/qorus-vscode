@@ -71,11 +71,19 @@ class InterfaceCreatorDispatcher {
             case 'class-name':
                 if (iface_kind === 'workflow') {
                     addField('base-class-name');
+                    addField('lang');
                 }
                 break;
             case 'base-class-name':
                 if (iface_kind === 'workflow') {
                     addField('class-name');
+                    addField('lang');
+                }
+                break;
+            case 'lang':
+                if (iface_kind === 'workflow') {
+                    addField('class-name');
+                    addField('base-class-name');
                 }
                 break;
         }
@@ -91,6 +99,7 @@ class InterfaceCreatorDispatcher {
             case 'base-class-name':
                 if (iface_kind === 'workflow') {
                     removeField('class-name');
+                    removeField('lang');
                 }
                 interface_info.removeBaseClass(other_params);
                 interface_info.getConfigItems(other_params);
@@ -98,6 +107,13 @@ class InterfaceCreatorDispatcher {
             case 'class-name':
                 if (iface_kind === 'workflow') {
                     removeField('base-class-name');
+                    removeField('lang');
+                }
+                break;
+            case 'lang':
+                if (iface_kind === 'workflow') {
+                    removeField('base-class-name');
+                    removeField('class-name');
                 }
                 break;
             case 'classes':

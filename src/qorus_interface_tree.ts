@@ -113,7 +113,7 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
         const command = 'qorus.views.edit' + dash2Pascal(iface);
         disposable = commands.registerCommand(command, (data: any) => {
             const code_info = projects.currentProjectCodeInfo();
-            const data2 = code_info.fixData({...data.data});
+            const data2 = code_info.fixData(data.data);
             commands.executeCommand('qorus.editInterface', data2, iface);
         });
         context.subscriptions.push(disposable);
@@ -121,7 +121,7 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
     disposable = commands.registerCommand('qorus.views.editWorkflowSteps', (data: any) =>
     {
         const code_info = projects.currentProjectCodeInfo();
-        const data2 = code_info.fixData({...data.data});
+        const data2 = code_info.fixData(data.data);
         data2.show_steps = true;
         commands.executeCommand('qorus.editInterface', data2, 'workflow');
     });

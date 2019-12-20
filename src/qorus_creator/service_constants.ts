@@ -10,6 +10,9 @@ ${this.methods}\
 ';
 
 class_template.java = '\
+import com.qoretechnologies.qorus.*;\n\
+import com.qoretechnologies.qorus.service.*;\n\
+\n\
 class ${this.class_name} extends ${this.base_class_name} {\n\
 ${this.methods}\
 }\n\

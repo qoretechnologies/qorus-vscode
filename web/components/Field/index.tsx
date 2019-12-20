@@ -22,6 +22,7 @@ import NumberField from './number';
 import MarkdownPreview from './markdownPreview';
 import isArray from 'lodash/isArray';
 import MapperOptionsField from './mapperOptions';
+import ClassConnectors from './classConnectors';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -75,6 +76,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                         mapperType={rest.requestFieldData(rest.requires_fields, 'value')}
                     />
                 )}
+                {type === 'class-connectors' && <ClassConnectors {...rest} type={type} />}
                 {rest.markdown && <MarkdownPreview value={rest.value} />}
             </>
         );

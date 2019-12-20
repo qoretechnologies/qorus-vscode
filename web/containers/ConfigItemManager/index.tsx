@@ -113,6 +113,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         postMessage(Messages.GET_CONFIG_ITEM, {
             iface_id: interfaceId,
             name: configItemName,
+            iface_kind: type,
         });
     };
 
@@ -121,6 +122,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         postMessage(Messages.DELETE_CONFIG_ITEM, {
             iface_id: interfaceId,
             name: configItemName,
+            iface_kind: type,
         });
     };
 

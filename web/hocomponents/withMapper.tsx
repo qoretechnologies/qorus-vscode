@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import mapProps from 'recompose/mapProps';
-import { get, set, unset } from 'lodash';
+import { get, set, unset, forEach } from 'lodash';
 import { MapperContext } from '../context/mapper';
 import string from '../components/Field/string';
 import useMount from 'react-use/lib/useMount';
@@ -81,6 +81,27 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
         };
 
+        const insertCustomFields = (fields, customFields = {}) => {
+            const newFields = { ...fields };
+            // Loop throught the custom fields
+            forEach(customFields, field => {
+                // Build the path
+                const fields: string[] = field.path.split('.');
+                let newPath: string;
+                fields.forEach(fieldName => {
+                    if (!newPath) {
+                        newPath = fieldName;
+                    } else {
+                        newPath += `.type.fields.${fieldName}`;
+                    }
+                });
+                // Insert the top custom field based on the path
+                set(newFields, newPath, field);
+            });
+
+            return newFields;
+        };
+
         useEffect(() => {
             if (qorus_instance) {
                 // Fetch the mapper keys
@@ -106,9 +127,22 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     (async () => {
                         const inputs = await props.fetchData(inputUrl);
                         const outputs = await props.fetchData(outputUrl);
+                        // Save the fields
+                        const inputFields = inputs.data.fields || inputs.data;
+                        const outputFields = outputs.data.fields || outputs.data;
                         // Save the inputs & outputs
-                        setInputs(inputs.data.fields || inputs.data);
-                        setOutputs(outputs.data.fields || outputs.data);
+                        setInputs(
+                            insertCustomFields(
+                                inputFields,
+                                props.mapper.mapper_options['mapper-input']['custom-fields']
+                            )
+                        );
+                        setOutputs(
+                            insertCustomFields(
+                                outputFields,
+                                props.mapper.mapper_options['mapper-output']['custom-fields']
+                            )
+                        );
                         setRelations(props.mapper.fields || {});
                         // Cancel loading
                         setInputsLoading(false);

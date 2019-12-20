@@ -324,6 +324,7 @@ export abstract class InterfaceCreator {
 
             if (Array.isArray(value)) {
                 result += `${tag === 'workflow_options' ? 'options' : tag}:\n`;
+
                 switch (tag) {
                     case 'tags':
                     case 'workflow_options':
@@ -358,6 +359,16 @@ export abstract class InterfaceCreator {
                             }
                         }
                         result += class_prefixes;
+                        break;
+                    case 'class_connectors':
+                        for (const connector of value) {
+                            result += `${list_indent}name: ${connector.name}\n`;
+                            for (const key in connector) {
+                                if (!['name', 'id'].includes(key) && connector[key]) {
+                                    result += `${indent}${key}: ${connector[key]}\n`;
+                                }
+                            }
+                        }
                         break;
                     case 'resource':
                     case 'text-resource':
