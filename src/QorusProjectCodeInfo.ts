@@ -8,10 +8,15 @@ import * as flattenDeep from 'lodash/flattenDeep';
 import * as path from 'path';
 import { t, gettext } from 'ttag';
 import * as vscode from 'vscode';
+import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
 
 import { qore_vscode } from './qore_vscode';
+import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
-import { canBeParsed, canDefineInterfaceBaseClass, filesInDir, hasSuffix, suffixToIfaceKind } from './qorus_utils';
+import {
+    canBeParsed, canDefineInterfaceBaseClass, filesInDir, hasSuffix,
+    javaCanDefineInterfaceBaseClass, makeFileUri, suffixToIfaceKind
+} from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -19,6 +24,7 @@ import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocumen
 import { qorus_webview } from './QorusWebview';
 import { field } from './qorus_creator/common_constants';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import { getJavaDocumentSymbolsWithWait, vscode_java } from './vscode_java';
 
 const object_parser_subdir = 'qorus-object-parser';
 const object_parser_script = 'qop.q -i';
@@ -30,7 +36,7 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
 const all_root_classes =[...root_steps, root_service, root_job, root_workflow];
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
-const info_keys = ['file_tree', 'yaml', 'lang_client', 'objects', 'modules'];
+const info_keys = ['file_tree', 'yaml', 'lang_client', 'java_lang_client', 'objects', 'modules'];
 const object_types_with_version = ['step', 'mapper'];
 const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items',
                                       'class', 'constant', 'function', 'connection', 'event', 'group',
@@ -82,9 +88,16 @@ export class QorusProjectCodeInfo {
     private source_directories = [];
     private mapper_types: any[] = [];
 
+    private java_inheritance_pairs: any = {};
+    private java_job_classes = {};
+    private java_service_classes = {};
+    private java_step_classes = {};
+    private java_workflow_classes = {};
+
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
     private base_classes_files_watcher: vscode.FileSystemWatcher;
+    private java_files_watcher: vscode.FileSystemWatcher;
     private parsable_files_watcher: vscode.FileSystemWatcher;
     private module_files_watcher: vscode.FileSystemWatcher;
     private config_file_watcher: vscode.FileSystemWatcher;
@@ -295,8 +308,43 @@ export class QorusProjectCodeInfo {
                     return;
                 }
 
-                for (let decl of symbol.declarations || []) {
+                for (const decl of symbol.declarations || []) {
                     this.addClassDeclCodeInfo(file, decl);
+                }
+            });
+            return Promise.resolve();
+        });
+    }
+
+    addJavaFileCodeInfo(file_path: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
+        const yaml_info = this.yamlDataBySrcFile(file_path);
+        const iface_kind = yaml_info.type;
+        if (this.edit_info[file_path] && !force) {
+            return Promise.resolve();
+        }
+        
+        return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
+            if (!symbols || !symbols.length) {
+                return;
+            }
+
+            const lsdoc = lsTextDocument.create(
+                makeFileUri(file_path), 'java', 1, fs.readFileSync(file_path).toString()
+            );
+            symbols.forEach(symbol => {
+                if (!this.isJavaSymbolExpectedClass(symbol, class_name)) {
+                    return;
+                }
+
+                parseJavaInheritance(lsdoc, symbol);
+                this.addJavaClassCodeInfo(file_path, symbol, base_class_name);
+
+                if (iface_kind !== 'service') {
+                    return;
+                }
+
+                for (const child of symbol.children || []) {
+                    this.addJavaClassDeclCodeInfo(file_path, child);
                 }
             });
             return Promise.resolve();
@@ -493,18 +541,24 @@ export class QorusProjectCodeInfo {
             this.name_2_yaml[type] = {};
         }
 
-        this.service_classes = { [root_service]: true };
         this.job_classes = { [root_job]: true };
+        this.service_classes = { [root_service]: true };
         this.workflow_classes = { [root_workflow]: true };
+
+        this.java_job_classes = { [root_job]: true };
+        this.java_service_classes = { [root_service]: true };
+        this.java_workflow_classes = { [root_workflow]: true };
 
         for (const step_type of root_steps) {
             this.step_classes[step_type] = { [step_type]: true };
+            this.java_step_classes[step_type] = { [step_type]: true };
         }
 
         this.file_tree = {};
         this.dir_tree = {};
         this.class_2_src = {};
         this.inheritance_pairs = {};
+        this.java_inheritance_pairs = {};
         this.yaml_data = {};
         this.src_2_yaml = {};
         this.yaml_2_src = {};
@@ -515,6 +569,14 @@ export class QorusProjectCodeInfo {
         let ret_val = {};
         for (const step_type of root_steps) {
             Object.assign(ret_val, this.step_classes[step_type]);
+        }
+        return ret_val;
+    }
+
+    private flattenedJavaStepClasses = () => {
+        let ret_val = {};
+        for (const step_type of root_steps) {
+            Object.assign(ret_val, this.java_step_classes[step_type]);
         }
         return ret_val;
     }
@@ -542,6 +604,11 @@ export class QorusProjectCodeInfo {
         this.base_classes_files_watcher.onDidCreate(() => this.update(['lang_client']));
         this.base_classes_files_watcher.onDidChange(() => this.update(['lang_client']));
         this.base_classes_files_watcher.onDidDelete(() => this.update(['lang_client']));
+
+        this.java_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{java}');
+        this.java_files_watcher.onDidCreate(() => this.update(['java_lang_client']));
+        this.java_files_watcher.onDidChange(() => this.update(['java_lang_client']));
+        this.java_files_watcher.onDidDelete(() => this.update(['java_lang_client']));
 
         this.parsable_files_watcher
             = vscode.workspace.createFileSystemWatcher('**/*.{qfd,qsd,qjob,qclass,qconst,qmapper,qvmap,java}');
@@ -614,7 +681,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getObjects(object_type: string) {
+    getObjects(object_type: string, lang?: string) {
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
             if (isArray(objects)) {
@@ -651,24 +718,48 @@ export class QorusProjectCodeInfo {
                 });
                 break;
             case 'service-base-class':
-                this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToClasses(this.service_classes, [root_service]))
-                );
+                if (lang === 'java') {
+                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.java_service_classes, [root_service]))
+                    );
+                } else {
+                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.service_classes, [root_service]))
+                    );
+                }
                 break;
             case 'job-base-class':
-                this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToClasses(this.job_classes, [root_job]))
-                );
+                if (lang === 'java') {
+                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.java_job_classes, [root_job]))
+                    );
+                } else {
+                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.job_classes, [root_job]))
+                    );
+                }
                 break;
             case 'workflow-base-class':
-                this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToClasses(this.workflow_classes, [root_workflow]))
-                );
+                if (lang === 'java') {
+                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.java_workflow_classes, [root_workflow]))
+                    );
+                } else {
+                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.workflow_classes, [root_workflow]))
+                    );
+                }
                 break;
             case 'step-base-class':
-                this.waitForPending(['yaml', 'lang_client']).then(() =>
-                    postMessage('objects', this.addDescToClasses(this.flattenedStepClasses(), root_steps))
-                );
+                if (lang === 'java') {
+                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.flattenedJavaStepClasses(), root_steps))
+                    );
+                } else {
+                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.flattenedStepClasses(), root_steps))
+                    );
+                }
                 break;
             case 'base-class':
                 this.waitForPending(['yaml', 'lang_client']).then(() => {
@@ -762,6 +853,11 @@ export class QorusProjectCodeInfo {
                     this.updateLanguageClientInfo(file_data.source_directories);
                 }, 0);
             }
+            if (info_list.includes('java_lang_client')) {
+                setTimeout(() => {
+                    this.updateJavaLanguageClientInfo(file_data.source_directories);
+                }, 0);
+            }
             if (info_list.includes('yaml')) {
                 setTimeout(() => {
                     this.updateYamlInfo(file_data.source_directories);
@@ -799,6 +895,15 @@ export class QorusProjectCodeInfo {
     stepType = (base_class: string): string | undefined => {
         for (const step_type of root_steps) {
             if (this.step_classes[step_type][base_class]) {
+                return step_type;
+            }
+        }
+        return undefined;
+    }
+
+    javaStepType = (base_class: string): string | undefined => {
+        for (const step_type of root_steps) {
+            if (this.java_step_classes[step_type][base_class]) {
                 return step_type;
             }
         }
@@ -886,7 +991,9 @@ export class QorusProjectCodeInfo {
                     this.yaml_data[file]['base-class-name'] = base_class_name;
 
                     if (yaml_data.type === 'step' && base_class_name) {
-                        const step_type = this.stepType(base_class_name);
+                        const step_type = (yaml_data.lang && yaml_data.lang === 'java')
+                            ? this.javaStepType(base_class_name)
+                            : this.stepType(base_class_name);
                         if (step_type) {
                             this.yaml_data[file]['step-type'] = step_type;
                         }
@@ -966,6 +1073,31 @@ export class QorusProjectCodeInfo {
         }
     }
 
+    private javaBaseClassesFromInheritancePairs() {
+        const baseClasses = (base_classes: any, inheritance_pairs: any): any => {
+            let any_new = true;
+            while (any_new) {
+                any_new = false;
+                for (let name in inheritance_pairs) {
+                    if (inheritance_pairs[name].some(base_class_name => base_classes[base_class_name])) {
+                        base_classes[name] = true;
+                        delete inheritance_pairs[name];
+                        any_new = true;
+                        break;
+                    }
+                }
+            }
+            return base_classes;
+        };
+
+        baseClasses(this.java_service_classes, { ...this.java_inheritance_pairs });
+        baseClasses(this.java_job_classes, { ...this.java_inheritance_pairs });
+        baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
+        for (const step_type of root_steps) {
+            this.java_step_classes[step_type] = baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
+        }
+    }
+
     private updateLanguageClientInfo(source_directories: string[]) {
         this.setPending('lang_client', true);
         this.processDocumentSymbols(source_directories, canDefineInterfaceBaseClass, (symbol, file) => {
@@ -990,6 +1122,35 @@ export class QorusProjectCodeInfo {
         }).then(() => {
             this.baseClassesFromInheritancePairs();
             this.setPending('lang_client', false);
+        });
+    }
+
+    private updateJavaLanguageClientInfo(source_directories: string[]) {
+        this.setPending('java_lang_client', true);
+        this.processJavaDocumentSymbols(source_directories, javaCanDefineInterfaceBaseClass, async (symbol, file) => {
+            if (symbol.kind !== 5) {
+                return;
+            }
+
+            const class_name = symbol.name;
+            this.class_2_src[class_name] = file;
+
+            // we don't use vscode.workspace.openTextDocument
+            // as that would spam loads of didOpen events to Java extension
+            // slowing everything down while also being slower to parse
+            // the inheritance by us than using the languageserver-types document
+            const lsdoc = lsTextDocument.create(
+                makeFileUri(file), 'java', 1, fs.readFileSync(file).toString()
+            );
+            parseJavaInheritance(lsdoc, symbol);
+            if (!symbol.extends) {
+                return;
+            }
+
+            this.java_inheritance_pairs[class_name] = [symbol.extends.name];
+        }).then(() => {
+            this.javaBaseClassesFromInheritancePairs();
+            this.setPending('java_lang_client', false);
         });
     }
 
@@ -1037,6 +1198,57 @@ export class QorusProjectCodeInfo {
                     const doc: QoreTextDocument = qoreTextDocument(file);
                     qore_vscode.activate().then(() => {
                         qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+                            symbols.forEach(symbol => {
+                                process(symbol, file);
+                            });
+                            num_pending--;
+                        });
+                    });
+                }
+            }
+
+            let interval_id: any;
+            const interval = 200;
+            let n = 500;
+
+            const checkPending = () => {
+                if (!num_pending || !--n) {
+                    clearInterval(interval_id);
+                    if (n === 0) {
+                        msg.error(t`GettingDocSymbolsTimedOut`);
+                    }
+                    resolve();
+                }
+            };
+
+            interval_id = setInterval(checkPending, interval);
+        });
+    }
+
+    private processJavaDocumentSymbols(
+        source_directories: string[],
+        file_filter: Function,
+        process: Function
+    ): Promise<void> {
+        return new Promise(resolve => {
+            let num_pending = 0;
+            for (let dir of source_directories) {
+                const full_dir = path.join(this.project.folder, dir);
+                if (!fs.existsSync(full_dir)) {
+                    continue;
+                }
+
+                let files = filesInDir(full_dir, file_filter);
+                for (let file of files) {
+                    num_pending++;
+
+                    const doc = {
+                        textDocument: {
+                            uri: makeFileUri(file)
+                        }
+                    };
+                    vscode_java.activate().then(() => {
+                        vscode_java.exports.getDocumentSymbols(doc).then(symbols => {
                             symbols.forEach(symbol => {
                                 process(symbol, file);
                             });

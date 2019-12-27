@@ -36,6 +36,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     fill,
     disabled,
     position = 'right-top',
+    requestFieldData,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -66,7 +67,10 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     const handleClick: () => void = () => {
         if (get_message) {
             // Get the list of items from backend
-            postMessage(get_message.action, { object_type: get_message.object_type });
+            postMessage(get_message.action, {
+                object_type: get_message.object_type,
+                lang: requestFieldData('lang', 'value') || 'qore'
+            });
         }
     };
 
