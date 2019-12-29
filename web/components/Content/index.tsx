@@ -6,7 +6,6 @@ const StyledContent = styled.div`
     flex-flow: column;
     overflow-y: auto;
     flex: 1;
-    height: 100%;
     padding: 0 0 0 15px;
 
     h3 {

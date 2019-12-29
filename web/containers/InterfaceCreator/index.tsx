@@ -19,7 +19,6 @@ export interface ICreateInterface {
 }
 
 const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) => {
-    console.log('creator rerender');
     return (
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>

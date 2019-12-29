@@ -135,7 +135,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     interfaceId,
     initialData,
 }) => {
-    console.log('service rerender');
     return (
         <MethodsContext.Consumer>
             {({
@@ -151,13 +150,6 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 methodsData,
             }) => (
                 <CreatorWrapper>
-                    <Callout
-                        icon="info-sign"
-                        title={showMethods ? t('CreateMethodsTipTitle') : t('CreateServiceTipTitle')}
-                        intent="primary"
-                    >
-                        {showMethods ? t('CreateMethodsTip') : t('CreateServiceTip')}
-                    </Callout>
                     <PanelWrapper>
                         {!showMethods && (
                             <InterfaceCreatorPanel

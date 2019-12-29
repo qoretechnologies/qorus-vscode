@@ -4,8 +4,9 @@ import withTextContext from '../../hocomponents/withTextContext';
 import SidePanel from '../../components/SidePanel';
 import { ContentWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
 import { MethodSelector, Selected, RemoveButton } from '../InterfaceCreator/servicesView';
-import { ButtonGroup, Button, Dialog, ControlGroup } from '@blueprintjs/core';
+import { ButtonGroup, Button, Dialog, ControlGroup, Classes, NonIdealState } from '@blueprintjs/core';
 import map from 'lodash/map';
+import size from 'lodash/size';
 import compose from 'recompose/compose';
 import { PanelWrapper } from '../InterfaceCreator/servicesView';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -14,10 +15,15 @@ import styled from 'styled-components';
 import { validateField } from '../../helpers/validations';
 import ClassConnectionsDiagram from './diagram';
 import { TTranslator } from '../../App';
+import Content from '../../components/Content';
+import every from 'lodash/every';
 
 export const StyledDialogBody = styled.div`
     padding: 20px 20px 0 20px;
     margin: 0;
+    display: flex;
+    height: 100%;
+    width: 100%;
 `;
 
 export interface IClassConnections {
@@ -29,6 +35,10 @@ export interface IClassConnection {
     prefix?: string;
     connector?: string;
     mapper?: string;
+    isLast?: boolean;
+    index?: number;
+    isEditing?: boolean;
+    id: number;
 }
 
 export interface IClassConnectionsManageDialog {
@@ -40,27 +50,77 @@ export interface IClassConnectionsManagerProps {
     classes: any;
     t: TTranslator;
     initialData: any;
+    initialConnections?: IClassConnections;
+    onSubmit: (classConnections: IClassConnections) => void;
 }
 
-const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({ t, initialData, classes }) => {
-    const [connections, setConnections] = useState<IClassConnections>({});
+const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
+    t,
+    initialData,
+    initialConnections,
+    classes,
+    onSubmit,
+}) => {
+    const [connections, setConnections] = useState<IClassConnections>(initialConnections || {});
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
+    const [lastConnectorId, setLastConnectorId] = useState<number>(1);
 
     const handleAddConnector: (name: string, data: IClassConnection) => void = (name, data) => {
         setConnections(
             (current: IClassConnections): IClassConnections => ({
                 ...current,
-                [name]: [...current[name], data],
+                [name]:
+                    !data.index && data.index !== 0
+                        ? [{ ...data, id: lastConnectorId }]
+                        : current[name].reduce((newConnectors, connector, index) => {
+                              // Check if the index matches the passed index
+                              if (index === data.index) {
+                                  if (data.isEditing) {
+                                      // Replace the current data
+                                      return [...newConnectors, { ...connector, ...data }];
+                                  }
+                                  const id = lastConnectorId;
+                                  // Add new connector
+                                  return [...newConnectors, connector, { ...data, id }];
+                              }
+                              // Return unchanged
+                              return [...newConnectors, connector];
+                          }, []),
+            })
+        );
+        if (!data.isEditing) {
+            // Increase the ID
+            setLastConnectorId(current => current + 1);
+        }
+    };
+
+    const handleDeleteConnector: (name: string, id: number) => void = (name, id) => {
+        setConnections(
+            (current: IClassConnections): IClassConnections => ({
+                ...current,
+                [name]: current[name].reduce((newConnectors, connector, index) => {
+                    // Check if the index matches the passed index
+                    if (index === id) {
+                        // Add new connector
+                        return [...newConnectors];
+                    }
+                    // Return unchanged
+                    return [...newConnectors, connector];
+                }, []),
             })
         );
     };
 
     const isConnectionValid = (name: string) => {
-        return false;
+        return connections[name].length > 1;
     };
 
-    console.log('kek');
+    const areAllConnectionsValid = () => {
+        return size(connections) === 0 || every(connections, (_conn, name) => isConnectionValid(name));
+    };
+
+    console.log(connections, selectedConnection);
 
     return (
         <>
@@ -95,6 +155,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({ t, i
             <PanelWrapper style={{ padding: '20px 20px 0 20px', margin: 0 }}>
                 <SidePanel title={t('AddClassConnectionsTitle')}>
                     <ContentWrapper>
+                        {size(connections) === 0 && <p className={Classes.TEXT_MUTED}>No connections added</p>}
                         {map(connections, (connection, name: string) => (
                             <MethodSelector
                                 key={name}
@@ -109,8 +170,13 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({ t, i
                                     </>
                                 )}
                                 <RemoveButton
-                                    onClick={() => {
+                                    onClick={event => {
+                                        event.stopPropagation();
+
                                         setConnections(current => {
+                                            if (selectedConnection === name) {
+                                                setSelectedConnection(null);
+                                            }
                                             const result = { ...current };
                                             delete result[name];
                                             return result;
@@ -130,27 +196,56 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({ t, i
                         </ButtonGroup>
                     </ActionsWrapper>
                 </SidePanel>
-                <ContentWrapper
-                    style={{
-                        background: `url(${
-                            process.env.NODE_ENV === 'development'
-                                ? `http://localhost:9876/images/tiny_grid.png`
-                                : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
-                        }`,
-                        padding: 10,
-                    }}
-                >
-                    <div style={{ width: '100%', display: 'flex', flex: '1 1 auto', justifyContent: 'center' }}>
-                        {selectedConnection && (
-                            <ClassConnectionsDiagram
-                                t={t}
-                                classes={classes}
-                                onAddConnector={handleAddConnector}
-                                connection={connections[selectedConnection]}
+                <Content>
+                    <ContentWrapper
+                        style={{
+                            background: `url(${
+                                process.env.NODE_ENV === 'development'
+                                    ? `http://localhost:9876/images/tiny_grid.png`
+                                    : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
+                            }`,
+                            padding: 10,
+                        }}
+                    >
+                        <div style={{ width: '100%', display: 'flex', flex: '1 1 auto', justifyContent: 'center' }}>
+                            {selectedConnection ? (
+                                <ClassConnectionsDiagram
+                                    t={t}
+                                    classes={classes}
+                                    onAddConnector={handleAddConnector}
+                                    onDeleteConnector={handleDeleteConnector}
+                                    connection={connections[selectedConnection]}
+                                    connectionName={selectedConnection}
+                                />
+                            ) : (
+                                <NonIdealState
+                                    title={t('NoConnectionSelected')}
+                                    description={t('NoConnectionSelectedDescription')}
+                                    icon="diagram-tree"
+                                />
+                            )}
+                        </div>
+                    </ContentWrapper>
+                    <ActionsWrapper>
+                        <ButtonGroup fill>
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                onClick={() => {
+                                    setConnections(initialConnections || {});
+                                    setSelectedConnection(null);
+                                }}
                             />
-                        )}
-                    </div>
-                </ContentWrapper>
+                            <Button
+                                text={t('Submit')}
+                                icon={'small-tick'}
+                                intent="success"
+                                disabled={!areAllConnectionsValid()}
+                                onClick={() => onSubmit(connections)}
+                            />
+                        </ButtonGroup>
+                    </ActionsWrapper>
+                </Content>
             </PanelWrapper>
         </>
     );

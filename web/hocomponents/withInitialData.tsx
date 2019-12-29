@@ -20,12 +20,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
-                /*data.tab = 'CreateInterface';
-                data.subtab = 'service';
-                data.service = {
-                    classes: [{ prefix: 'test', name: 'Demo' }],
-                };*/
-                console.log(data);
                 setInitialData(current => ({
                     ...current,
                     ...data,

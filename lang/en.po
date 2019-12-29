@@ -1807,3 +1807,34 @@ msgstr "No description found"
 
 msgid "UnknownMethod"
 msgstr "Unknown method"
+
+msgid "ManageClassConnections"
+msgstr "Manage class connections"
+
+msgid "ClassConnectionsManager"
+msgstr "Class Connections Manager"
+
+msgid "AddClassConnectionsTitle"
+msgstr "Connections"
+
+msgid "NoMapper"
+msgstr "No mapper yet"
+
+msgid "AddConnection"
+msgstr "Add connection"
+
+msgid "PleaseSelectClass"
+msgstr "Please select class"
+
+msgid "AddNewConnector"
+msgstr "Add new connector"
+
+msgid "NoConnectionSelected"
+msgstr "No connection selected"
+
+msgid "NoConnectionSelectedDescription"
+msgstr "Start by creating or selecting a connection in the left panel"
+
+msgid "AddInitialConnector"
+msgstr "Add initial connector"
+

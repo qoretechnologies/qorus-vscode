@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 const StyledSidePanel = styled.div`
     width: 250px;
-    height: 100%;
     padding: 0 15px;
 
     &:first-child {

@@ -24,7 +24,7 @@ import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import shortid from 'shortid';
 import isArray from 'lodash/isArray';
-import ClassConnectionsManager from '../ClassConnectionsManager';
+import ClassConnectionsManager, { IClassConnections } from '../ClassConnectionsManager';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -168,6 +168,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [showClassConnectionsManager, setShowClassConnectionsManager] = useState<boolean>(false);
+    const [classConnectionsData, setClassConnectionsData] = useState<IClassConnections>(data?.['class-connections']);
     const [fieldListeners, setFieldListeners] = useState([]);
 
     useEffect(() => {
@@ -620,7 +621,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 );
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                     iface_kind,
-                    data: newData,
+                    data: { ...newData, 'class-connections': classConnectionsData },
                     orig_data: data,
                     workflow,
                     open_file_on_success: openFileOnSubmit !== false,
@@ -629,7 +630,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             } else {
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                     iface_kind,
-                    data: newData,
+                    data: { ...newData, 'class-connections': classConnectionsData },
                     orig_data:
                         type === 'service-methods'
                             ? initialData.service
@@ -855,10 +856,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         <div style={{ float: 'left', width: '48%' }}>
                             <ButtonGroup fill>
                                 <Button
+                                    icon="code-block"
                                     disabled={!isClassConnectorsManagerEnabled()}
                                     onClick={() => setShowClassConnectionsManager(true)}
                                 >
-                                    {t('ManageClassConnections')}
+                                    {t('ManageClassConnections')} ({size(classConnectionsData)})
                                 </Button>
                                 <ManageConfigButton
                                     disabled={!isConfigManagerEnabled()}
@@ -903,10 +905,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     isOpen
                     title={t('ClassConnectionsManager')}
                     onClose={() => setShowClassConnectionsManager(false)}
-                    style={{ width: '80vw', backgroundColor: '#fff' }}
+                    style={{ width: '80vw', height: '40vh', backgroundColor: '#fff' }}
                 >
                     <ClassConnectionsManager
                         classes={[...selectedFields].find((field: IField) => field.name === 'classes').value}
+                        initialConnections={classConnectionsData}
+                        onSubmit={classConnections => {
+                            setClassConnectionsData(classConnections);
+                            setShowClassConnectionsManager(false);
+                        }}
                     />
                 </Dialog>
             )}
