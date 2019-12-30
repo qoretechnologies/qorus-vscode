@@ -9,6 +9,9 @@ export const isDeployable = (file_path: string): boolean =>
 export const canBeParsed = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qsd', 'qjob', 'qclass', 'qconst', 'qmapper', 'qvmap', 'java']);
 
+export const expectsYamlFile = (file_path: string): boolean =>
+    hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qstep', 'qmc', 'java']);
+
 export const hasSuffix = (file_path: string, suffix: string): boolean => {
     return hasOneOfSuffixes(file_path, [suffix]);
 };

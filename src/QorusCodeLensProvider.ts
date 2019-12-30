@@ -6,7 +6,7 @@ import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import * as msg from './qorus_message';
-import { dash2Pascal, makeFileUri, suffixToIfaceKind } from './qorus_utils';
+import { dash2Pascal, makeFileUri, suffixToIfaceKind, expectsYamlFile } from './qorus_utils';
 import { qore_vscode } from './qore_vscode';
 
 export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
@@ -14,6 +14,10 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
     protected previous_lenses: CodeLens[] = [];
 
     public provideCodeLenses(document: TextDocument): Promise<CodeLens[]> {
+        if (!expectsYamlFile(document.uri.fsPath)) {
+            return Promise.resolve([]);
+        }
+
         this.code_info = projects.currentProjectCodeInfo();
         return this.code_info.waitForPending(['yaml']).then(() => this.provideCodeLensesImpl(document));
     }
