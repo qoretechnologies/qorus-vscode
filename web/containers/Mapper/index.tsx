@@ -37,6 +37,8 @@ const TYPE_COLORS = {
 
     bool: '#a66121',
     binary: '#e6b12e',
+
+    any: '#a9a9a9',
 };
 
 const StyledMapperWrapper = styled.div`
@@ -180,6 +182,9 @@ export const StyledMapperField = styled.div`
         &.bool {
             background-color: ${TYPE_COLORS.bool};
         }
+        &.any {
+            background-color: ${TYPE_COLORS.any};
+        }
         border-radius: 3px;
         position: absolute;
         left: 50%;
@@ -197,6 +202,20 @@ export const StyledMapperField = styled.div`
 const StyledInfoMessage = styled.p`
     text-align: center;
     color: #a9a9a9;
+`;
+
+const StyledUrlMessage = styled.p`
+    text-align: center;
+    height: 30px;
+    line-height: 30px;
+    text-overflow: ellipsis;
+    color: #a9a9a9;
+    font-size: 12px;
+    font-weight: 300;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    margin: 0;
 `;
 
 const StyledFieldHeader = styled.h3`
@@ -298,6 +317,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     isEditing,
     postMessage,
     interfaceId,
+    getUrlFromProvider,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -689,6 +709,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             />
                                         </Tooltip>
                                     )}
+                                    <Tooltip targetTagName="div" content={getUrlFromProvider('input')}>
+                                        <StyledUrlMessage>{getUrlFromProvider('input')}</StyledUrlMessage>
+                                    </Tooltip>
                                 </>
                             )}
                         </StyledFieldHeader>
@@ -814,6 +837,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             />
                                         </Tooltip>
                                     )}
+                                    <Tooltip targetTagName="div" content={getUrlFromProvider('output')}>
+                                        <StyledUrlMessage>{getUrlFromProvider('output')}</StyledUrlMessage>
+                                    </Tooltip>
                                 </>
                             )}
                         </StyledFieldHeader>

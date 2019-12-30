@@ -19,6 +19,7 @@ export interface ISelectField {
     fill?: boolean;
     disabled?: boolean;
     position?: any;
+    requestFieldData: (name: string, key: string) => IField;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -69,7 +70,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             // Get the list of items from backend
             postMessage(get_message.action, {
                 object_type: get_message.object_type,
-                lang: requestFieldData('lang', 'value') || 'qore'
+                lang: requestFieldData ? requestFieldData('lang', 'value') : 'qore',
             });
         }
     };

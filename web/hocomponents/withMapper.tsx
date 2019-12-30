@@ -58,6 +58,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setHideOutputSelector(false);
         };
 
+        const getUrlFromProvider: (fieldType: 'input' | 'output') => string = fieldType => {
+            const { type, name, path } = fieldType === 'input' ? inputOptionProvider : outputOptionProvider;
+            // Get the rules for the given provider
+            const { url, suffix, recordSuffix, requiresRecord } = providers[type];
+            // Build the URL based on the provider type
+            return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
+        };
+
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
             const { type, name, path = '' } = props.mapper.mapper_options[`mapper-${fieldType}`];
@@ -251,6 +259,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setHideInputSelector,
                     setHideOutputSelector,
                     resetMapper,
+                    getUrlFromProvider,
                 }}
             >
                 <Component {...props} />

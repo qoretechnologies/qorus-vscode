@@ -67,8 +67,8 @@ const MapperOutput: FC<IMapperOutputProps> = ({
             title={field.desc}
             ref={dropRef}
             style={{
-                display: isDragging ? (canDrop ? 'block' : 'none') : 'block',
-                //opacity: isDragging ? (canDrop ? 1 : 0.3) : 1,
+                transform: `translateX(${isDragging ? (canDrop ? '-50px' : '0') : '0'})`,
+                opacity: isDragging ? (canDrop ? 1 : 0.3) : 1,
                 borderColor: canDrop ? '#137cbd' : '#d7d7d7',
             }}
             isChild={isChild}

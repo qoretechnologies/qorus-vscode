@@ -120,8 +120,6 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         return size(connections) === 0 || every(connections, (_conn, name) => isConnectionValid(name));
     };
 
-    console.log(connections, selectedConnection);
-
     return (
         <>
             <Dialog title={t('AddConnection')} isOpen={manageDialog.isOpen} onClose={() => setManageDialog({})}>

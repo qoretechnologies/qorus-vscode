@@ -164,7 +164,6 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             ? validateField('string', manageDialog.mapper)
             : validateField('string', manageDialog.class) && validateField('string', manageDialog.connector);
     };
-    console.log(connection);
 
     return (
         <div>

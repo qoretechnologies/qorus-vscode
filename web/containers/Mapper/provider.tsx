@@ -189,11 +189,51 @@ const MapperProvider: FC<IProviderProps> = ({
                         value: null,
                     },
                 ];
+            } else if (data.supports_request) {
+                // Return the updated items and add
+                // the new item
+                return [
+                    ...newItems,
+                    {
+                        values: [
+                            {
+                                name: 'request',
+                                desc: '',
+                                url: `${url}/${value}${suffix}`,
+                                suffix: '',
+                            },
+                            {
+                                name: 'response',
+                                desc: '',
+                                url: `${url}/${value}${suffix}`,
+                                suffix: '',
+                            },
+                        ],
+                        value: null,
+                    },
+                ];
             }
             // Return the updated children
             else {
+                if (data.fields) {
+                    // Save the name by pulling the 3rd item from the split
+                    // url (same for every provider type)
+                    const name = `${url}/${value}`.split('/')[2];
+                    // Set the provider option
+                    setOptionProvider({
+                        type: providers[provider].type,
+                        name,
+                        subtype: value === 'request' || value === 'response' ? value : undefined,
+                        path: `${url}/${value}`
+                            .replace(`${name}`, '')
+                            .replace(`${providers[provider].url}/`, '')
+                            .replace('provider/', ''),
+                    });
+                    // Set the record data
+                    setRecord(data.fields);
+                }
                 // Check if there is a record
-                if (data.has_record || !providers[provider].requiresRecord) {
+                else if (data.has_record || !providers[provider].requiresRecord) {
                     (async () => {
                         setIsLoading(true);
                         if (type === 'outputs' && data.mapper_keys) {

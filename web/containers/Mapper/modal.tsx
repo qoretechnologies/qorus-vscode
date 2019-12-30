@@ -109,7 +109,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         if (newField.canBeNull) {
             // Transform the field type to the
             // same maybe type
-            newField.type = types.find(type => type.name === `*${newField.type.name}`);
+            newField.type = types.find(type => type.typename === `*${newField.type.name.replace('soft', '')}`);
         }
         // If parent is not a custom field, set this as the first
         // custom field in the hierarchy
@@ -164,7 +164,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                 </FieldInputWrapper>
                             </FieldWrapper>
                             <FieldWrapper>
-                                <FieldLabel label={t(`field-label-can-be-undefined`)} isValid />
+                                <FieldLabel label={t(`field-label-can_be_undefined`)} isValid />
                                 <FieldInputWrapper>
                                     <BooleanField onChange={onChange} name="canBeNull" value={field.canBeNull} />
                                 </FieldInputWrapper>
