@@ -455,8 +455,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             flattenedOutputs
                 .filter(
                     output =>
-                        size(types) <= size(output.type.types_accepted) &&
-                        output.type.types_accepted.some((type: string) => types.includes(type))
+                        types.includes('any') ||
+                        output.type.types_accepted.includes('any') ||
+                        (size(types) <= size(output.type.types_accepted) &&
+                            output.type.types_accepted.some((type: string) => types.includes(type)))
                 )
                 .forEach(output => {
                     if (isAvailableForDrop(output.path)) {
@@ -571,14 +573,14 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
 
     const getCustomFields: (type: string) => any[] = type => {
         if (type === 'inputs') {
-            return flattenedInputs.reduce((newInputs, input, index) => {
+            return flattenedInputs.reduce((newInputs, input) => {
                 if (input.firstCustomInHierarchy) {
                     return { ...newInputs, [input.name]: input };
                 }
                 return newInputs;
             }, {});
         } else {
-            return flattenedOutputs.reduce((newOutputs, output, index) => {
+            return flattenedOutputs.reduce((newOutputs, output) => {
                 if (output.firstCustomInHierarchy) {
                     return { ...newOutputs, [output.name]: output };
                 }
@@ -739,7 +741,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                 height={
                                     Math.max(flattenedInputs.length, flattenedOutputs.length) *
                                         (FIELD_HEIGHT + FIELD_MARGIN) +
-                                    31
+                                    61
                                 }
                             >
                                 {map(
@@ -758,7 +760,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                            31 -
+                                                            61 -
                                                             0.5
                                                         }
                                                         x2={0}
@@ -769,7 +771,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                            31 +
+                                                            61 +
                                                             0.5
                                                         }
                                                         gradientUnits="userSpaceOnUse"
@@ -796,7 +798,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
                                                         (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                        31 -
+                                                        61 -
                                                         1.5
                                                     }
                                                     x2={300}
@@ -807,7 +809,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
                                                         (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                        31 +
+                                                        61 +
                                                         1.5
                                                     }
                                                 />

@@ -49,8 +49,9 @@ const MapperOutput: FC<IMapperOutputProps> = ({
         canDrop: item => {
             if (
                 !hasRelation &&
-                size(item.types) <= size(accepts) &&
-                accepts.some((type: string) => item.types.includes(type))
+                (item.types.includes('any') ||
+                    accepts.includes('any') ||
+                    (size(item.types) <= size(accepts) && accepts.some((type: string) => item.types.includes(type))))
             ) {
                 return true;
             }
