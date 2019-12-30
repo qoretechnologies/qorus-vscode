@@ -23,7 +23,7 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({ t, addMess
         // this interface
         const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, data => {
             // Set the new config count
-            setConfigCount(size(data.workflow_items) + size(data.global_items) + size(data.items));
+            setConfigCount(size(data.items));
         });
         // Unregister the message handler
         return () => {
