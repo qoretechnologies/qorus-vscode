@@ -160,7 +160,6 @@ export class QorusProjectCodeInfo {
     isJavaSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
         class_name &&
         symbol.kind === 5 &&
-        symbol.name &&
         class_name === symbol.name
 
     addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
