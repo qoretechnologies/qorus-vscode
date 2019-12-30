@@ -86,8 +86,7 @@ export const StyledMapperField = styled.div`
         display: none;
     }
 
-    ${({ input, isDisabled }) =>
-        input &&
+    ${({ isDisabled }) =>
         css`
             &:hover {
                 border-color: ${isDisabled ? '#d7d7d7' : '#137cbd'};
