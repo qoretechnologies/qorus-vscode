@@ -13,10 +13,8 @@ import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
 import { qore_vscode } from './qore_vscode';
 import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
-import {
-    canBeParsed, canDefineInterfaceBaseClass, filesInDir, hasSuffix,
-    javaCanDefineInterfaceBaseClass, makeFileUri, suffixToIfaceKind
-} from './qorus_utils';
+import { canBeParsed, canDefineInterfaceBaseClass, filesInDir, hasSuffix,
+         javaCanDefineInterfaceBaseClass, makeFileUri, suffixToIfaceKind } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -1230,6 +1228,9 @@ export class QorusProjectCodeInfo {
         file_filter: Function,
         process: Function
     ): Promise<void> {
+        if (!vscode_java) {
+            return null;
+        }
         return new Promise(resolve => {
             let num_pending = 0;
             for (let dir of source_directories) {
