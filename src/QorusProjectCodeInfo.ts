@@ -1045,53 +1045,39 @@ export class QorusProjectCodeInfo {
         this.setPending('modules', false);
     }
 
-    private baseClassesFromInheritancePairs() {
-        const baseClasses = (base_classes: any, inheritance_pairs: any): any => {
-            let any_new = true;
-            while (any_new) {
-                any_new = false;
-                for (let name in inheritance_pairs) {
-                    if (inheritance_pairs[name].some(base_class_name => base_classes[base_class_name])) {
-                        base_classes[name] = true;
-                        delete inheritance_pairs[name];
-                        any_new = true;
-                        break;
-                    }
+    private baseClasses = (base_classes: any, inheritance_pairs: any): any => {
+        let any_new = true;
+        while (any_new) {
+            any_new = false;
+            for (let name in inheritance_pairs) {
+                if (inheritance_pairs[name].some(base_class_name => base_classes[base_class_name])) {
+                    base_classes[name] = true;
+                    delete inheritance_pairs[name];
+                    any_new = true;
+                    break;
                 }
             }
-            return base_classes;
-        };
+        }
+        return base_classes;
+    }
 
-        baseClasses(this.service_classes, { ...this.inheritance_pairs });
-        baseClasses(this.job_classes, { ...this.inheritance_pairs });
-        baseClasses(this.workflow_classes, { ...this.inheritance_pairs });
+    private baseClassesFromInheritancePairs() {
+        this.baseClasses(this.service_classes, { ...this.inheritance_pairs });
+        this.baseClasses(this.job_classes, { ...this.inheritance_pairs });
+        this.baseClasses(this.workflow_classes, { ...this.inheritance_pairs });
         for (const step_type of root_steps) {
-            this.step_classes[step_type] = baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
+            this.step_classes[step_type] =
+                this.baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
         }
     }
 
     private javaBaseClassesFromInheritancePairs() {
-        const baseClasses = (base_classes: any, inheritance_pairs: any): any => {
-            let any_new = true;
-            while (any_new) {
-                any_new = false;
-                for (let name in inheritance_pairs) {
-                    if (inheritance_pairs[name].some(base_class_name => base_classes[base_class_name])) {
-                        base_classes[name] = true;
-                        delete inheritance_pairs[name];
-                        any_new = true;
-                        break;
-                    }
-                }
-            }
-            return base_classes;
-        };
-
-        baseClasses(this.java_service_classes, { ...this.java_inheritance_pairs });
-        baseClasses(this.java_job_classes, { ...this.java_inheritance_pairs });
-        baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
+        this.baseClasses(this.java_service_classes, { ...this.java_inheritance_pairs });
+        this.baseClasses(this.java_job_classes, { ...this.java_inheritance_pairs });
+        this.baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
         for (const step_type of root_steps) {
-            this.java_step_classes[step_type] = baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
+            this.java_step_classes[step_type] =
+                this.baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
         }
     }
 
