@@ -262,7 +262,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             // Remove the message listener if it exists
             messageListenerHandler();
         };
-    }, [interfaceId, initialInterfaceId]);
+    }, [activeId, interfaceId, initialInterfaceId]);
 
     const resetLocalFields: (newActiveId?: number) => void = newActiveId => {
         resetFields(type);
