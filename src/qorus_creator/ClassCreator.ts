@@ -75,7 +75,6 @@ class ClassCreator extends InterfaceCreator {
                     target_file: orig_target_file,
                     ...other_orig_data
                 } = orig_data;
-                msg.debug({orig_data});
 
                 orig_file_path = path.join(orig_target_dir, orig_target_file);
 
