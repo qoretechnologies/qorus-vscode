@@ -16,10 +16,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const resetMethods = () => {
             setShowMethods(false);
-            setMethods([{ id: 1 }]);
-            setMethodsCount(1);
-            setLastMethodId(1);
-            setActiveMethod(null);
+            setMethods(props.initialMethods);
+            setMethodsCount(props.initialCount);
+            setLastMethodId(props.initialId);
+            setActiveMethod(props.initialActiveId || null);
         };
 
         useEffect(() => {

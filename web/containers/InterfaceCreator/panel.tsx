@@ -25,6 +25,8 @@ import { allowedTypes } from '../../components/Field/arrayAuto';
 import shortid from 'shortid';
 import isArray from 'lodash/isArray';
 import ClassConnectionsManager, { IClassConnections } from '../ClassConnectionsManager';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -162,6 +164,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     disabledFields,
     hasClassConnections,
     initialInterfaceId,
+    resetMethods,
+    resetAllInterfaceData,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -265,7 +269,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     }, [activeId, interfaceId, initialInterfaceId]);
 
     const resetLocalFields: (newActiveId?: number) => void = newActiveId => {
-        resetFields(type);
+        resetAllInterfaceData(type, true);
         // Hide the fields until they are fetched
         setShow(false);
         // Change the name if needed
@@ -641,15 +645,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     iface_id: interfaceId,
                 });
             }
-            // Reset the interface data
-            initialData.resetInterfaceData(type);
             // If this is config item, reset only the fields
             // local fields will be unmounted
             if (type === 'config-item') {
                 resetFields(type);
             } else {
-                // Reset local fields
-                resetLocalFields();
+                // Reset the interface data
+                resetAllInterfaceData(type);
             }
         }
     };
@@ -944,6 +946,8 @@ export default compose(
     withTextContext(),
     withMessageHandler(),
     withFieldsConsumer(),
+    withMethodsConsumer(),
+    withGlobalOptionsConsumer(),
     mapProps(
         ({
             type,

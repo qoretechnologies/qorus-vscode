@@ -221,7 +221,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                     onBackClick={() => {
                                         setActiveMethod(null);
                                         setShowMethods(false);
-                                        initialData.changeInitialData('service.active_method', null);
+                                        if (service) {
+                                            initialData.changeInitialData('service.active_method', null);
+                                        }
                                     }}
                                     initialInterfaceId={service ? service.iface_id : interfaceId.service}
                                     type={'service-methods'}
