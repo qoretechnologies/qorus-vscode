@@ -457,17 +457,17 @@ msgstr "Edit environment"
 msgid "AddQorus"
 msgstr "Add Qorus instance"
 
-msgid "ConfirmDeleteInterface ${ iface } ${ name }"
-msgstr "Are you sure you want to delete ${ iface } ${ name }? This will delete both the ${ iface } metadata file and code file."
+msgid "ConfirmDeleteInterface ${ iface_kind } ${ name }"
+msgstr "Do you really want to delete ${ iface_kind } ${ name }?"
 
-msgid "ConfirmDeployInterface ${ iface } ${ name }"
-msgstr "Are you sure you want to deploy ${ iface } ${ name }?"
+msgid "ConfirmDeployInterface ${ iface_kind } ${ name }"
+msgstr "Do you really want to deploy ${ iface_kind } ${ name }?"
 
 msgid "ConfirmDeployAllInterfaces"
-msgstr "Are you sure you want to deploy all interfaces?"
+msgstr "Do you really want to deploy all interfaces?"
 
 msgid "ConfirmDeployDirectory ${ dir }"
-msgstr "Are you sure you want to deploy directory ${ dir }?"
+msgstr "Do you really want to deploy directory ${ dir }?"
 
 msgid "ConfirmDeletion"
 msgstr "Confirm deletion"

@@ -22,11 +22,11 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
 
     // delete commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface => {
-        const command = 'qorus.views.delete' + dash2Pascal(iface);
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface_kind => {
+        const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             vswindow.showWarningMessage(
-                t`ConfirmDeleteInterface ${iface} ${String(data.name)}`, t`Yes`, t`No`
+                t`ConfirmDeleteInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`
             ).then(
                 selection => {
                     if (selection === undefined || selection === t`No`) {
@@ -38,9 +38,9 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
                     if (iface_data['yaml_file']) {
                         unlink(iface_data.yaml_file, (err) => {
                             if (err) {
-                                msg.warning(t`FailedDeletingIfaceMetaFile ${iface} ${iface_data.yaml_file} ${err}`);
+                                msg.warning(t`FailedDeletingIfaceMetaFile ${iface_kind} ${iface_data.yaml_file} ${err}`);
                             } else {
-                                msg.info(t`DeletedIfaceMetaFile ${iface} ${iface_data.yaml_file}`);
+                                msg.info(t`DeletedIfaceMetaFile ${iface_kind} ${iface_data.yaml_file}`);
                             }
                         });
                     }
@@ -50,9 +50,9 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
                         const codeFile = join(iface_data.target_dir, iface_data.target_file);
                         unlink(codeFile, (err) => {
                             if (err) {
-                                msg.warning(t`FailedDeletingIfaceCodeFile ${iface} ${codeFile} ${err}`);
+                                msg.warning(t`FailedDeletingIfaceCodeFile ${iface_kind} ${codeFile} ${err}`);
                             } else {
-                                msg.info(t`DeletedIfaceCodeFile ${iface} ${codeFile}`);
+                                msg.info(t`DeletedIfaceCodeFile ${iface_kind} ${codeFile}`);
                             }
                         });
                     }
@@ -64,11 +64,11 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
 
     // deploy commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface => {
-        const command = 'qorus.views.deploy' + dash2Pascal(iface);
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface_kind => {
+        const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             vswindow.showWarningMessage(
-                t`ConfirmDeployInterface ${iface} ${data.name}`, t`Yes`, t`No`
+                t`ConfirmDeployInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`
             ).then(
                 selection => {
                     if (selection === undefined || selection === t`No`) {
@@ -109,12 +109,12 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
     });
 
     // edit commands
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow'].forEach(iface => {
-        const command = 'qorus.views.edit' + dash2Pascal(iface);
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow'].forEach(iface_kind => {
+        const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             const code_info = projects.currentProjectCodeInfo();
             const data2 = code_info.fixData(data.data);
-            commands.executeCommand('qorus.editInterface', data2, iface);
+            commands.executeCommand('qorus.editInterface', data2, iface_kind);
         });
         context.subscriptions.push(disposable);
     });
