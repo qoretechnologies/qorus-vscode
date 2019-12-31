@@ -1805,9 +1805,6 @@ msgstr "Unexpected interface ID"
 msgid "NoDescriptionFound"
 msgstr "No description found"
 
-msgid "UnknownMethod"
-msgstr "Unknown method"
-
 msgid "ManageClassConnections"
 msgstr "Manage class connections"
 

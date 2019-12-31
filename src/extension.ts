@@ -29,9 +29,6 @@ export async function activate(context: vscode.ExtensionContext) {
     qorusIcons.update(context.extensionPath);
     let disposable;
 
-    disposable = vscode.commands.registerCommand('qorus.noop', () => {});
-    context.subscriptions.push(disposable);
-
     disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
                                                                () => deployer.deployCurrentFile());
     context.subscriptions.push(disposable);
