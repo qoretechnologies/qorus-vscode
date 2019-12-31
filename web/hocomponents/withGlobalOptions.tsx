@@ -26,20 +26,20 @@ export default () => (Component: any): any => {
                     break;
                 case 'service':
                     if (!soft) {
-                        // Reset methods
-                        props.resetMethods();
                         // Reset fields
                         props.resetFields('service-methods');
+                        // Reset methods
+                        props.resetMethods();
                     }
                     break;
                 case 'service-methods':
-                    // Reset methods
-                    props.resetMethods();
                     // Reset everything if not soft reset
                     if (!soft) {
                         props.resetInterfaceData('service');
                         props.resetFields('service');
                     }
+                    // Reset methods
+                    props.resetMethods();
                     break;
                 case 'mapper-methods':
                     // Reset methods
