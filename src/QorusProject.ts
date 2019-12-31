@@ -41,7 +41,7 @@ export class QorusProject {
         return fs.existsSync(this.config_file);
     }
 
-    private relativeDirPath = dir =>
+    relativeDirPath = dir =>
         dir === this.project_folder ? '.' : vscode.workspace.asRelativePath(dir, false)
 
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {

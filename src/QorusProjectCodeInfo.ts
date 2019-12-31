@@ -1271,9 +1271,9 @@ export class QorusProjectCodeInfo {
 
     private updateFileTree(source_directories: string[]) {
         this.setPending('file_tree', true);
-        const dirItem = (abs_path: string, only_dirs: boolean, is_root: boolean = false) => ({
+        const dirItem = (abs_path: string, only_dirs: boolean) => ({
             abs_path,
-            rel_path: is_root ? '.' : vscode.workspace.asRelativePath(abs_path, false),
+            rel_path: this.project.relativeDirPath(abs_path),
             dirs: [],
             ... only_dirs ? {} : { files: [] }
         });
@@ -1299,9 +1299,9 @@ export class QorusProjectCodeInfo {
             }
         };
 
-        let file_tree: any = dirItem(this.project.folder, false, true);
-        let dir_tree: any = dirItem(this.project.folder, true, true);
-        let all_dir_tree: any = dirItem(this.project.folder, true, true);
+        let file_tree: any = dirItem(this.project.folder, false);
+        let dir_tree: any = dirItem(this.project.folder, true);
+        let all_dir_tree: any = dirItem(this.project.folder, true);
 
         for (let dir of source_directories) {
             let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
