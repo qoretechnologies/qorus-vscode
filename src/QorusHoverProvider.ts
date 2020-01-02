@@ -2,7 +2,7 @@ import { t } from 'ttag';
 import {
     CancellationToken, Hover, HoverProvider,
     MarkdownString, Position, TextDocument
-y} from 'vscode';
+} from 'vscode';
 
 import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
@@ -14,7 +14,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
 
     abstract async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined>;
 
-    async provideHover(document: TextDocument, position: Position, token: CancellationToken): Promise<Hover|undefined> {
+    async provideHover(document: TextDocument, position: Position, _token: CancellationToken): Promise<Hover|undefined> {
         this.code_info = projects.currentProjectCodeInfo();
         return this.code_info.waitForPending(['yaml']).then(() => this.provideHoverImpl(document, position));
     }
@@ -146,7 +146,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
             +  (methods ? methods : '_(' + t`NoMethodsDescribed` + ')_');
     }
 
-    createClassHover(symbol, yaml_info) {
+    createClassHover(_symbol, yaml_info) {
         const markdown = new MarkdownString(
             this.prepareInterfaceInfoString(yaml_info) + '\n\n---\n\n' +
             this.prepareCodeClassInfoString(yaml_info)
