@@ -39,7 +39,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
             // Check if this is the correct
             // object type
             if (!data.object_type || data.object_type === return_message.object_type) {
-                setItems([data[return_message.return_value]]);
+                setItems(data[return_message.return_value]);
             }
         });
     });
