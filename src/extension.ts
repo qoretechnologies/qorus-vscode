@@ -98,17 +98,15 @@ export async function activate(context: vscode.ExtensionContext) {
         const code_info: InterfaceInfo = projects.currentInterfaceInfo();
         const iface_id = code_info.addIfaceById(data, iface_kind);
 
-        let data_key = iface_kind;
-        let subtab = iface_kind;
         if (['group', 'event', 'queue'].includes(iface_kind)) {
-            data_key = 'data';
-            subtab = 'other';
+            iface_kind = 'other';
+            data.type = data.type[0].toUpperCase() + data.type.substr(1);
         }
 
         qorus_webview.open({
             tab: 'CreateInterface',
-            subtab,
-            [data_key]: { ...data, iface_id }
+            subtab: iface_kind,
+            [iface_kind]: { ...data, iface_id }
         });
     });
     context.subscriptions.push(disposable);
