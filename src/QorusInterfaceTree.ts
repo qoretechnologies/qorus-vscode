@@ -69,7 +69,7 @@ export class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNo
             const project: QorusProject = projects.getProject();
             if (project) {
                 let fileTree = project.code_info.fileTree();
-                for (const dir of fileTree.dirs) {
+                for (const dir of fileTree) {
                     children.push(new QorusTreeDirectoryNode(dir.rel_path, dir, this.extensionPath));
                 }
             }

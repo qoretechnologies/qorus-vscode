@@ -73,8 +73,8 @@ export class QorusProjectCodeInfo {
 
     private yaml_2_src: any = {};
     private class_2_src: any = {};
-    private file_tree: any = {};
-    private dir_tree: any = {};
+    private file_tree: any[] = [];
+    private dir_tree: any[] = [];
     private all_dir_tree: any = {};
     private inheritance_pairs: any = {};
     private edit_info: any = {};
@@ -551,8 +551,8 @@ export class QorusProjectCodeInfo {
             this.java_step_classes[step_type] = { [step_type]: true };
         }
 
-        this.file_tree = {};
-        this.dir_tree = {};
+        this.file_tree = [];
+        this.dir_tree = [];
         this.class_2_src = {};
         this.inheritance_pairs = {};
         this.java_inheritance_pairs = {};
@@ -1299,17 +1299,17 @@ export class QorusProjectCodeInfo {
             }
         };
 
-        let file_tree: any = dirItem(this.project.folder, false);
-        let dir_tree: any = dirItem(this.project.folder, true);
+        let file_tree: any[] = [];
+        let dir_tree: any[] = [];
         let all_dir_tree: any = dirItem(this.project.folder, true);
 
         for (let dir of source_directories) {
             let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
-            file_tree.dirs.push(file_tree_root);
+            file_tree.push(file_tree_root);
             subDirRecursion(file_tree_root, false);
 
             let dir_tree_root = dirItem(path.join(this.project.folder, dir), true);
-            dir_tree.dirs.push(dir_tree_root);
+            dir_tree.push(dir_tree_root);
             subDirRecursion(dir_tree_root, true);
         }
 
