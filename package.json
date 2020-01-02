@@ -519,6 +519,33 @@
                 }
             },
             {
+                "command": "qorus.views.editGroup",
+                "title": "Edit Group Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editEvent",
+                "title": "Edit Event Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editQueue",
+                "title": "Edit Queue Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
                 "command": "qorus.views.editJob",
                 "title": "Edit Job Metadata",
                 "category": "Qorus",
@@ -746,6 +773,18 @@
                 },
                 {
                     "command": "qorus.views.editClass",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editGroup",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editEvent",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editQueue",
                     "when": "false"
                 },
                 {
@@ -1092,6 +1131,21 @@
                 {
                     "command": "qorus.views.editClass",
                     "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editGroup",
+                    "when": "view == qorusInterfaces && viewItem == group",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editEvent",
+                    "when": "view == qorusInterfaces && viewItem == event",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editQueue",
+                    "when": "view == qorusInterfaces && viewItem == queue",
                     "group": "inline"
                 },
                 {
