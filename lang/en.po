@@ -613,6 +613,9 @@ msgstr "(You will see the result in the message area.)"
 msgid "PackageDeploymentFailed"
 msgstr "Deployment failed"
 
+msgid "NoMethodsDescribed"
+msgstr "No methods described in metadata."
+
 msgid "Continue"
 msgstr "Continue"
 
@@ -688,14 +691,23 @@ msgstr "Language"
 msgid "ColumnHeader-stepid"
 msgstr "ID"
 
-msgid "Job"
-msgstr "Job"
+msgid "Active"
+msgstr "Active"
 
-msgid "Service"
-msgstr "Service"
+msgid "Attach"
+msgstr "Attach"
 
-msgid "Workflow"
-msgstr "Workflow"
+msgid "Authors"
+msgstr "Authors"
+
+msgid "Autostart"
+msgstr "Autostart"
+
+msgid "BinaryResources"
+msgstr "Binary Resources"
+
+msgid "Class"
+msgstr "Class"
 
 msgid "Classes"
 msgstr "Classes"
@@ -706,8 +718,17 @@ msgstr "Connections"
 msgid "Constants"
 msgstr "Constants"
 
+msgid "Detach"
+msgstr "Detach"
+
+msgid "ErrorHandler"
+msgstr "Error Handler"
+
 msgid "Errors"
 msgstr "Errors"
+
+msgid "Event"
+msgstr "Event"
 
 msgid "Events"
 msgstr "Events"
@@ -718,6 +739,9 @@ msgstr "Functions"
 msgid "Groups"
 msgstr "Groups"
 
+msgid "Job"
+msgstr "Job"
+
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -727,22 +751,77 @@ msgstr "Mappers"
 msgid "MapperCode"
 msgstr "Mapper Code"
 
+msgid "MaxInstances"
+msgstr "Max Instances"
+
+msgid "Methods"
+msgstr "Methods"
+
+msgid "Modules"
+msgstr "Modules"
+
+msgid "OneTimeInit"
+msgstr "One-time Init"
+
+msgid "Queue"
+msgstr "Queue"
+
 msgid "Queues"
 msgstr "Queues"
+
+msgid "Refresh"
+msgstr "Refresh"
+
+msgid "Remote"
+msgstr "Remote"
+
+msgid "Requires"
+msgstr "Requires"
+
+msgid "Resources"
+msgstr "Resources"
+
+msgid "RunSkipped"
+msgstr "Run Skipped"
+
+msgid "Service"
+msgstr "Service"
 
 msgid "Services"
 msgstr "Services"
 
+msgid "ServiceType"
+msgstr "Service Type"
+
+msgid "SingleInstance"
+msgstr "Single Instance"
+
+msgid "SLAThreshold"
+msgstr "SLA Threshold"
+
 msgid "Steps"
 msgstr "Steps"
+
+msgid "Tags"
+msgstr "Tags"
+
+msgid "Templates"
+msgstr "Templates"
+
+msgid "TextResources"
+msgstr "Text Resources"
+
+msgid "UserInteraction"
+msgstr "User Interaction"
 
 msgid "ValueMaps"
 msgstr "Value Maps"
 
+msgid "Workflow"
+msgstr "Workflow"
+
 msgid "Workflows"
 msgstr "Workflows"
-
-
 
 msgid "classes"
 msgstr "classes"
@@ -770,9 +849,6 @@ msgstr "Other"
 
 msgid "DeleteSelected"
 msgstr "Delete selected "
-
-msgid "Refresh"
-msgstr "Refresh"
 
 msgid "CodeInfoUpdateStarted ${ dir }"
 msgstr "${ dir } - Code info update started"

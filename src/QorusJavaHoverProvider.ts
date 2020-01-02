@@ -1,61 +1,40 @@
-import * as vscode from 'vscode';
+import { Hover, Position, TextDocument } from 'vscode';
 
-import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
-import { projects } from './QorusProject';
+import { QorusHoverProviderBase } from './QorusHoverProvider';
 import { makeFileUri, getFilePathFromUri } from './qorus_utils';
 import { getJavaDocumentSymbols } from './vscode_java';
-import { t } from 'ttag';
 
-export class QorusJavaHoverProvider implements vscode.HoverProvider {
-    private code_info: QorusProjectCodeInfo = undefined;
+export class QorusJavaHoverProvider extends QorusHoverProviderBase {
+    isSearchedSymbol = (symbol, position) =>
+        symbol.selectionRange.start.line === position.line &&
+        symbol.selectionRange.start.character <= position.character &&
+        symbol.selectionRange.end.character > position.character
 
-    provideHover(document: vscode.TextDocument, position: vscode.Position) {
-        this.code_info = projects.currentProjectCodeInfo();
-        return this.code_info.waitForPending(['yaml']).then(() => this.provideHoverImpl(document, position));
-    }
-
-    async provideHoverImpl(document: vscode.TextDocument, position: vscode.Position) {
+    async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined> {
         let symbols;
         if (typeof document.uri === 'string') {
             symbols = await getJavaDocumentSymbols(document.uri);
         } else {
             symbols = await getJavaDocumentSymbols(makeFileUri(document.uri.fsPath));
         }
-
+    
         const filePath = getFilePathFromUri(document.uri);
         const yaml_info = this.code_info.yamlDataBySrcFile(filePath);
         if (!yaml_info) {
-            return Promise.resolve([]);
+            return undefined;
         }
 
-        const isSearchedMethod = (symbol) =>
-            symbol.kind === 6 &&
-            symbol.selectionRange.start.line === position.line &&
-            symbol.selectionRange.start.character <= position.character &&
-            symbol.selectionRange.end.character > position.character;
-        const createHover = (symbol, yaml_info) => {
-            const methodName = symbol.name.replace(/\(.*\)/, '');
-            let method;
-            for (const m of yaml_info.methods || []) {
-                if (m.name === methodName) {
-                    method = m;
-                    break;
+        const searchSymbol = (symbol, position) => {
+            if (this.isSearchedSymbol(symbol, position)) {
+                if (this.isFileClass(symbol, yaml_info)) {
+                    return this.createClassHover(symbol, yaml_info);
+                }
+                if (this.isMethod(symbol)) {
+                    return this.createMethodHover(symbol, yaml_info);
                 }
             }
-            if (method) {
-                const markdown = new vscode.MarkdownString(method.desc);
-                markdown.isTrusted = true;
-                return new vscode.Hover(markdown);
-            }
-            return new vscode.Hover('(' + t`NoDescriptionFound` + ')');
-        };
-
-        const searchSymbol = (symbol) => {
-            if (isSearchedMethod(symbol)) {
-                return createHover(symbol, yaml_info);
-            }
             for (const child of symbol.children) {
-                const result = searchSymbol(child);
+                const result = searchSymbol(child, position);
                 if (result) {
                     return result;
                 }
@@ -63,12 +42,12 @@ export class QorusJavaHoverProvider implements vscode.HoverProvider {
             return undefined;
         };
         for (const symbol of symbols) {
-            const result = searchSymbol(symbol);
+            const result = searchSymbol(symbol, position);
             if (result) {
                 return result;
             }
         }
 
-        return Promise.resolve([]);
+        return undefined;
     }
 }
