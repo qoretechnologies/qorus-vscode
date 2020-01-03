@@ -5,7 +5,7 @@ import { commands, ExtensionContext, Uri, window as vswindow, workspace } from '
 
 import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
-import { InterfaceTree } from './QorusInterfaceTree';
+import { interface_tree } from './QorusInterfaceTree';
 import { projects } from './QorusProject';
 import { deployer } from './QorusDeploy';
 
@@ -14,10 +14,10 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
 
     // view switching commands
     disposable = commands.registerCommand(
-        'qorus.views.switchToCategoryView', () => InterfaceTree.setCategoryView()
+        'qorus.views.switchToCategoryView', () => interface_tree.setCategoryView()
     );
     disposable = commands.registerCommand(
-        'qorus.views.switchToFolderView', () => InterfaceTree.setFolderView()
+        'qorus.views.switchToFolderView', () => interface_tree.setFolderView()
     );
 
     // delete commands

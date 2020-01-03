@@ -9,14 +9,14 @@ import { QorusCodeLensProvider } from './QorusCodeLensProvider';
 import { deployer } from './QorusDeploy';
 import { QorusHoverProvider } from './QorusHoverProvider';
 import { qorusIcons } from './QorusIcons';
-import { InterfaceTree } from './QorusInterfaceTree';
+import { interface_tree } from './QorusInterfaceTree';
 import { QorusJavaCodeLensProvider } from './QorusJavaCodeLensProvider';
 import { QorusJavaHoverProvider } from './QorusJavaHoverProvider';
 import { qorus_locale } from './QorusLocale';
 import { config_filename, projects } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { tester } from './QorusTest';
-import { tree } from './QorusTree';
+import { instance_tree } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
@@ -115,18 +115,18 @@ export async function activate(context: vscode.ExtensionContext) {
             creator.deleteMethod(data, iface_kind));
     context.subscriptions.push(disposable);
 
-    disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', tree);
+    disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', instance_tree);
     context.subscriptions.push(disposable);
 
-    InterfaceTree.setExtensionPath(context.extensionPath);
+    interface_tree.setExtensionPath(context.extensionPath);
 
     const code_info = projects.currentProjectCodeInfo();
-    code_info && code_info.registerTreeForNotifications('interface-tree', InterfaceTree);
+    code_info && code_info.registerTreeForNotifications('interface-tree', interface_tree);
 
     registerInterfaceTreeCommands(context);
-    disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', InterfaceTree);
+    disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', interface_tree);
     context.subscriptions.push(disposable);
-    InterfaceTree.refresh();
+    interface_tree.refresh();
 
     disposable = vscode.languages.registerCodeLensProvider(
         [{ language: 'qore', scheme: 'file' }],
@@ -186,10 +186,10 @@ function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
     if (workspace_folder_changed_or_unset || forceTreeReset) {
         projects.validateConfigFileAndDo(
             (file_data: any) => {
-                tree.reset(file_data.qorus_instances);
-                InterfaceTree.refresh();
+                instance_tree.reset(file_data.qorus_instances);
+                interface_tree.refresh();
             },
-            () => tree.reset({}),
+            () => instance_tree.reset({}),
             uri
         );
     }

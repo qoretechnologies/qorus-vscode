@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
-import { tree } from './QorusTree';
+import { instance_tree } from './QorusInstanceTree';
 import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
@@ -302,7 +302,7 @@ class QorusWebview {
     setActiveQorusInstance(url?: string, token?: string) {
         this.postMessage({
             action: 'current-qorus-instance',
-            qorus_instance: url && tree.getQorusInstance(url),
+            qorus_instance: url && instance_tree.getQorusInstance(url),
             token,
         });
     }

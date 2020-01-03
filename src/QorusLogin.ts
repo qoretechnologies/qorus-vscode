@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as request from 'request-promise';
 import { QorusAuth } from './QorusAuth';
-import { tree, QorusTreeInstanceNode } from './QorusTree';
+import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
 import { QorusProject, projects } from './QorusProject';
 import * as msg from './qorus_message';
@@ -21,7 +21,7 @@ export class QorusLogin extends QorusAuth {
 
         const url: string = tree_item;
 
-        const qorus_instance = tree.getQorusInstance(url);
+        const qorus_instance = instance_tree.getQorusInstance(url);
         if (!qorus_instance) {
             msg.error(t`NoQorusWithGivenUrlFound ${url}`);
             return;
@@ -54,7 +54,7 @@ export class QorusLogin extends QorusAuth {
             response => {
                 const token: string = JSON.parse(response).token;
                 this.addToken(qorus_instance.url, token, set_active);
-                tree.refresh();
+                instance_tree.refresh();
                 msg.info(t`LoginSuccessful`);
                 qorus_webview.opening_data = { tab: 'ProjectConfig' };
                 qorus_webview.postMessage({
@@ -114,7 +114,7 @@ export class QorusLogin extends QorusAuth {
         if (was_logged_in && !no_message) {
             msg.info(t`LoggedOut`);
         }
-        tree.refresh();
+        instance_tree.refresh();
         qorus_webview.setActiveQorusInstance(undefined);
     }
 
@@ -129,7 +129,7 @@ export class QorusLogin extends QorusAuth {
         if (error_data.statusCode == 401) {
             msg.error(t`Error401 ${url}`);
             this.doLogout(null, true, true);
-            tree.focus();
+            instance_tree.focus();
         } else if (error_data.message && error_data.message.indexOf('EHOSTUNREACH') > -1) {
             msg.error(t`HostUnreachable ${url}`);
             this.doLogout();

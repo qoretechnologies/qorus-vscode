@@ -4,7 +4,7 @@ import * as path from 'path';
 import { qorus_webview } from './QorusWebview';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
-import { tree } from './QorusTree';
+import { instance_tree } from './QorusInstanceTree';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 import { project_template } from './qorus_project_template';
@@ -151,7 +151,7 @@ export class QorusProject {
 
     updateConfigFromWebview(msg_data) {
         const file_data = this.data2file(msg_data);
-        tree.reset(file_data.qorus_instances);
+        instance_tree.reset(file_data.qorus_instances);
         this.writeConfig(file_data);
     }
 

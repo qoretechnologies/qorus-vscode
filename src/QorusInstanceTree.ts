@@ -7,7 +7,7 @@ import * as msg from './qorus_message';
 import { t } from 'ttag';
 
 
-class QorusTree implements vscode.TreeDataProvider<QorusTreeNode> {
+class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
 
     private data: any;
     private qorus_instances: any = {};
@@ -196,4 +196,4 @@ class QorusTreeCustomUrlNode extends QorusTreeNode {
     }
 }
 
-export const tree = new QorusTree();
+export const instance_tree = new QorusInstanceTree();

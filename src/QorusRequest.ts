@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as request from 'request-promise';
-import { tree, QorusTreeInstanceNode } from './QorusTree';
+import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
 import { AuthNeeded } from './QorusAuth';
 import { QorusLogin } from './QorusLogin';
 import { qorus_webview } from './QorusWebview';
@@ -140,14 +140,14 @@ export class QorusRequest extends QorusLogin {
 
         if (this.isAuthorized(url)) {
             this.setActive(url);
-            tree.refresh();
+            instance_tree.refresh();
             return;
         }
         QorusLogin.checkNoAuth(url).then(
             (no_auth: boolean) => {
                 if (no_auth) {
                     this.addNoAuth(url);
-                    tree.refresh();
+                    instance_tree.refresh();
                     msg.info(t`AuthNotNeeded ${url}`);
                 } else {
                     msg.info(t`AuthNeeded ${url}`);
@@ -168,19 +168,19 @@ export class QorusRequest extends QorusLogin {
             }
         }
         this.unsetActive();
-        tree.refresh();
+        instance_tree.refresh();
     }
 
-    activeQorusInstance = () => tree.getQorusInstance(this.active_url);
+    activeQorusInstance = () => instance_tree.getQorusInstance(this.active_url);
 
     activeQorusInstanceAndToken(): any {
         if (!this.active_url) {
             msg.error(t`NoActiveQorusInstance`);
-            tree.focus();
+            instance_tree.focus();
             return { ok: false };
         }
 
-        const active_instance = tree.getQorusInstance(this.active_url);
+        const active_instance = instance_tree.getQorusInstance(this.active_url);
         if (!active_instance) {
             msg.error(t`UnableGetActiveQorusInstanceData`);
             return { ok: false };

@@ -13,7 +13,7 @@ import { qorusIcons } from './QorusIcons';
 import { projects, QorusProject } from './QorusProject';
 
 
-export class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
+class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
     private extensionPath: string;
     private data: any;
     private folderView: boolean = false;
@@ -722,4 +722,4 @@ class QorusTreeWorkflowCategoryNode extends QorusTreeCategoryNode {
     }
 }
 
-export const InterfaceTree = new QorusInterfaceTree();
+export const interface_tree = new QorusInterfaceTree();
