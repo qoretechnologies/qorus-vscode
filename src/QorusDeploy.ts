@@ -90,7 +90,7 @@ class QorusDeploy {
         ];
 
         for (const ifaceKind of ifaceKinds) {
-            code_info.getInterfaceDataList(ifaceKind).then(
+            code_info.interfaceDataByType(ifaceKind).then(
                 interfaces => {
                     for (const iface of interfaces) {
                         if (iface.data.yaml_file) {

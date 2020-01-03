@@ -1,13 +1,6 @@
 import { basename, join } from 'path';
 import { t } from 'ttag';
-import {
-    Event,
-    EventEmitter,
-    TreeDataProvider,
-    TreeItem,
-    TreeItemCollapsibleState,
-    Uri
-} from 'vscode';
+import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode';
 
 import { qorusIcons } from './QorusIcons';
 import { projects, QorusProject } from './QorusProject';
@@ -16,23 +9,20 @@ import { projects, QorusProject } from './QorusProject';
 class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
     private extensionPath: string;
     private data: any;
-    private folderView: boolean = false;
-
-    constructor() {
-    }
+    private is_folder_view: boolean = false;
 
     setExtensionPath(extensionPath: string) {
         this.extensionPath = extensionPath;
     }
 
-    public static getInterfaces(iface_kind: string): Promise<any[] | undefined> {
+    public static getInterfaces(iface_kind: string): Promise<any[]> {
         const project: QorusProject = projects.getProject();
-        return project && project.code_info.getInterfaceDataList(iface_kind);
+        return project && project.code_info.interfaceDataByType(iface_kind);
     }
 
-    public static getFileData(filePath: string) {
+    public static getFileData(filePath: string): Promise<any> {
         const project: QorusProject = projects.getProject();
-        return project && project.code_info.yamlDataByFilePath(filePath);
+        return project && project.code_info.interfaceDataByFile(filePath);
     }
 
     private onTreeDataChanged: EventEmitter<QorusInterfaceTreeNode | undefined>
@@ -49,23 +39,23 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
         this.onTreeDataChanged.fire();
     }
 
-    getTreeItem(node: QorusInterfaceTreeNode): TreeItem {
+    getTreeItem(node: QorusInterfaceTreeNode): QorusInterfaceTreeNode {
         return node;
     }
 
     setCategoryView() {
-        this.folderView = false;
+        this.is_folder_view = false;
         this.refresh();
     }
 
     setFolderView() {
-        this.folderView = true;
+        this.is_folder_view = true;
         this.refresh();
     }
 
     private async getRootChildren(): Promise<QorusInterfaceTreeNode[]> {
-        let children: Array<QorusInterfaceTreeNode> = [];
-        if (this.folderView) { // folder view
+        let children: QorusInterfaceTreeNode[] = [];
+        if (this.is_folder_view) { // folder view
             const project: QorusProject = projects.getProject();
             if (project) {
                 let fileTree = project.code_info.fileTree();
@@ -85,7 +75,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
         return children;
     }
 
-    async getChildren(node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
+    getChildren(node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
         if (!node) { // root node
             return this.getRootChildren();
         }
@@ -338,57 +328,55 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
         let children = [];
         for (const f of this.fileTree.files) {
             if (f.name.endsWith('.yaml')) {
-                let data = QorusInterfaceTree.getFileData(join(f.abs_path, f.name));
-                if (data) {
-                    switch (data.type) {
-                        case 'class':
-                            children.push(new QorusTreeClassNode(data.name, data));
-                            break;
-                        case 'connection':
-                            children.push(new QorusTreeConnectionNode(data.name, data));
-                            break;
-                        case 'constant':
-                            children.push(new QorusTreeConstantNode(data.name, data));
-                            break;
-                        case 'error':
-                            children.push(new QorusTreeErrorNode(data.name, data));
-                            break;
-                        case 'event':
-                            children.push(new QorusTreeEventNode(data.name, data));
-                            break;
-                        case 'function':
-                            children.push(new QorusTreeFunctionNode(data.name, data));
-                            break;
-                        case 'group':
-                            children.push(new QorusTreeGroupNode(data.name, data));
-                            break;
-                        case 'job':
-                            children.push(new QorusTreeJobNode(data.name, data));
-                            break;
-                        case 'mapper':
-                            children.push(new QorusTreeMapperNode(data.name, data));
-                            break;
-                        case 'mapper-code':
-                            children.push(new QorusTreeMapperCodeNode(data.name, data));
-                            break;
-                        case 'queue':
-                            children.push(new QorusTreeQueueNode(data.name, data));
-                            break;
-                        case 'service':
-                            children.push(new QorusTreeServiceNode(data.name, data));
-                            break;
-                        case 'step':
-                            children.push(new QorusTreeStepNode(data.name, data));
-                            break;
-                        case 'value-map':
-                            children.push(new QorusTreeValueMapNode(data.name, data));
-                            break;
-                        case 'workflow':
-                            children.push(new QorusTreeWorkflowNode(data.name, data));
-                            break;
-                        default:
-                            break;
-                    }
+                let data = await QorusInterfaceTree.getFileData(join(f.abs_path, f.name));
+                switch (data.type) {
+                    case 'class':
+                        children.push(new QorusTreeClassNode(data.name, data));
+                        break;
+                    case 'connection':
+                        children.push(new QorusTreeConnectionNode(data.name, data));
+                        break;
+                    case 'constant':
+                        children.push(new QorusTreeConstantNode(data.name, data));
+                        break;
+                    case 'error':
+                        children.push(new QorusTreeErrorNode(data.name, data));
+                        break;
+                    case 'event':
+                        children.push(new QorusTreeEventNode(data.name, data));
+                        break;
+                    case 'function':
+                        children.push(new QorusTreeFunctionNode(data.name, data));
+                        break;
+                    case 'group':
+                        children.push(new QorusTreeGroupNode(data.name, data));
+                        break;
+                    case 'job':
+                        children.push(new QorusTreeJobNode(data.name, data));
+                        break;
+                    case 'mapper':
+                        children.push(new QorusTreeMapperNode(data.name, data));
+                        break;
+                    case 'mapper-code':
+                        children.push(new QorusTreeMapperCodeNode(data.name, data));
+                        break;
+                    case 'queue':
+                        children.push(new QorusTreeQueueNode(data.name, data));
+                        break;
+                    case 'service':
+                        children.push(new QorusTreeServiceNode(data.name, data));
+                        break;
+                    case 'step':
+                        children.push(new QorusTreeStepNode(data.name, data));
+                        break;
+                    case 'value-map':
+                        children.push(new QorusTreeValueMapNode(data.name, data));
+                        break;
+                    case 'workflow':
+                        children.push(new QorusTreeWorkflowNode(data.name, data));
+                        break;
+                    default:
+                        break;
                 }
             }
         }

@@ -362,7 +362,7 @@ export class QorusProjectCodeInfo {
         delete this.notif_trees[name];
     }
 
-    notifyTrees() {
+    private notifyTrees() {
         for (const key in this.notif_trees) {
             this.notif_trees[key].treeNotify();
         }
@@ -372,7 +372,13 @@ export class QorusProjectCodeInfo {
         return this.file_tree;
     }
 
-    getInterfaceDataList(iface_kind): Promise<any[]> {
+    interfaceDataByFile(file_path): Promise<any> {
+        return this.waitForPending(['yaml']).then(() => {
+            return this.yamlDataByFilePath(file_path);
+        });
+    }
+
+    interfaceDataByType(iface_kind): Promise<any[]> {
         return this.waitForPending(['yaml']).then(() => {
             const yaml_data = this.yamlDataByType(iface_kind);
             const interfaces = Object.keys(yaml_data).map(name => ({
@@ -534,10 +540,6 @@ export class QorusProjectCodeInfo {
             this.object_info[type] = {};
         }
 
-        for (const type of object_types) {
-            this.name_2_yaml[type] = {};
-        }
-
         this.job_classes = { [root_job]: true };
         this.service_classes = { [root_service]: true };
         this.workflow_classes = { [root_workflow]: true };
@@ -556,10 +558,20 @@ export class QorusProjectCodeInfo {
         this.class_2_src = {};
         this.inheritance_pairs = {};
         this.java_inheritance_pairs = {};
-        this.yaml_data = {};
-        this.src_2_yaml = {};
         this.yaml_2_src = {};
+
+        this.clearYamlInfo();
+    }
+
+    private clearYamlInfo = () => {
+        this.yaml_data = {};
+
+        this.src_2_yaml = {};
         this.class_2_yaml = {};
+
+        for (const type of object_types) {
+            this.name_2_yaml[type] = {};
+        }
     }
 
     private flattenedStepClasses = () => {
@@ -580,21 +592,12 @@ export class QorusProjectCodeInfo {
 
     private initFileWatchers() {
         this.all_files_watcher = vscode.workspace.createFileSystemWatcher('**/*');
-        this.all_files_watcher.onDidCreate(() => {
-            this.update(['file_tree']);
-            this.notifyTrees();
-        });
-        this.all_files_watcher.onDidDelete(() => {
-            this.update(['file_tree']);
-            this.notifyTrees();
-        });
+        this.all_files_watcher.onDidCreate(() => this.update(['file_tree']));
+        this.all_files_watcher.onDidDelete(() => this.update(['file_tree']));
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
         this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
-        this.yaml_files_watcher.onDidChange(() => {
-            this.update(['yaml']);
-            this.notifyTrees();
-        });
+        this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
         this.base_classes_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{qclass,qfd}');
@@ -833,6 +836,7 @@ export class QorusProjectCodeInfo {
             if (info_list.includes('file_tree')) {
                 setTimeout(() => {
                     this.updateFileTree(file_data.source_directories);
+                    this.notifyTrees();
                 }, 0);
             }
 
@@ -858,6 +862,7 @@ export class QorusProjectCodeInfo {
             if (info_list.includes('yaml')) {
                 setTimeout(() => {
                     this.updateYamlInfo(file_data.source_directories);
+                    this.notifyTrees();
                 }, 0);
             }
             if (info_list.includes('objects')) {
@@ -1013,6 +1018,7 @@ export class QorusProjectCodeInfo {
 
     private updateYamlInfo(source_directories: string[]) {
         this.setPending('yaml', true);
+        this.clearYamlInfo();
         for (let dir of source_directories) {
             const full_dir = path.join(this.project.folder, dir);
             if (!fs.existsSync(full_dir)) {
