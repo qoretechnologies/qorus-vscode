@@ -230,7 +230,7 @@ export class QorusProjectCodeInfo {
                     ? symbol.extends.range.start.line
                     : undefined,
                 last_class_line: symbol.range.end.line,
-                has_other_base_class: false,
+                base_class_names: base_class_name ? [base_class_name] : [],
                 main_base_class_ord
             });
         };

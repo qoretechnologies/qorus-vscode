@@ -28,7 +28,7 @@ export abstract class InterfaceCreator {
         this.lang = data.lang || 'qore';
 
         this.file_base = target_file
-            ? path.basename(target_file, this.suffix || '.yaml')
+            ? path.basename(path.basename(target_file, lang_suffix[this.lang]), this.suffix || '.yaml')
             : data.version !== undefined
                 ? `${data.name}-${data.version}`
                 : data.name;
@@ -43,14 +43,14 @@ export abstract class InterfaceCreator {
         if (params.orig_data) {
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
-            const addFileCodeInfoMethod = this.lang === 'java' ? 'addJavaFileCodeInfo' : 'addFileCodeInfo';
+            const addFileCodeInfoMethod = params.data.lang === 'java' ? 'addJavaFileCodeInfo' : 'addFileCodeInfo';
             this.code_info[addFileCodeInfoMethod](
                 orig_file,
                 params.orig_data['class-name'],
                 params.orig_data['base-class-name']
             ).then(() => {
-                this.editImpl(params);
                 this.code_info.setPending('edit_info', false);
+                this.editImpl(params);
             });
         }
         else {
