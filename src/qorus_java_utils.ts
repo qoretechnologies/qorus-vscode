@@ -131,6 +131,9 @@ export function parseJavaInheritance(document: TextDocument, symbol) {
         let newLinePos = origText.indexOf(eol);
         let lastNewLinePos = 0;
         while (newLinePos !== -1) {
+            if (newLinePos > firstChar) {
+                break;
+            }
             ++line;
             lastNewLinePos = newLinePos;
             newLinePos = origText.indexOf(eol, newLinePos + 1);
