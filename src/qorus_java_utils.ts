@@ -35,8 +35,8 @@ export function parseJavaInheritance(document: TextDocument, symbol) {
     let endChar = -1;
     let endLine = -1;
     for (let i = begin.line; i < document.lineCount; ++i) {
-        let line = getDocumentTextLine(document, i).trim();
-        if (line === '' || line.match(/^\w*$/)) {
+        let line = getDocumentTextLine(document, i);
+        if (line.trim() === '' || line.match(/^\w*$/)) {
             continue;
         }
         endChar = line.indexOf('{');
