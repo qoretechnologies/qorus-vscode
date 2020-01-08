@@ -20,6 +20,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
+                data.tab = 'CreateInterface';
+                data.subtab = 'class';
+
                 setInitialData(current => ({
                     ...current,
                     ...data,

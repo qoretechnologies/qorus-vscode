@@ -4,7 +4,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import SelectField from '../../components/Field/select';
 import map from 'lodash/map';
 import size from 'lodash/size';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export interface IProviderProps {
     type: 'inputs' | 'outputs';
@@ -24,10 +24,22 @@ export interface IProviderProps {
     hide: any;
 }
 
-const StyledWrapper = styled.div`
-    margin: 0 auto;
+const StyledWrapper = styled.div<{ compact?: boolean }>`
     margin-bottom: 10px;
-    text-align: center;
+    ${({ compact }) =>
+        compact
+            ? css`
+                  margin-top: 10px;
+              `
+            : css`
+                  margin: 0 auto;
+                  text-align: center;
+              `}
+    > span {
+        vertical-align: middle;
+        font-weight: 500;
+        line-height: 20px;
+    }
 `;
 
 const StyledHeader = styled.h3`
@@ -98,13 +110,14 @@ const MapperProvider: FC<IProviderProps> = ({
     title,
     type,
     hide,
+    compact,
 }) => {
     const handleProviderChange = provider => {
         setProvider(current => {
             // Fetch the url of the provider
             (async () => {
                 // Clear the data
-                clear(true);
+                clear && clear(true);
                 // Set loading
                 setIsLoading(true);
                 // Select the provider data
@@ -142,7 +155,7 @@ const MapperProvider: FC<IProviderProps> = ({
         suffix
     ) => {
         // Clear the data
-        clear(true);
+        clear && clear(true);
         // Set loading
         setIsLoading(true);
         // Fetch the data
@@ -230,7 +243,7 @@ const MapperProvider: FC<IProviderProps> = ({
                             .replace('provider/', ''),
                     });
                     // Set the record data
-                    setRecord(data.fields);
+                    setRecord && setRecord(data.fields);
                 }
                 // Check if there is a record
                 else if (data.has_record || !providers[provider].requiresRecord) {
@@ -238,7 +251,7 @@ const MapperProvider: FC<IProviderProps> = ({
                         setIsLoading(true);
                         if (type === 'outputs' && data.mapper_keys) {
                             // Save the mapper keys
-                            setMapperKeys(data.mapper_keys);
+                            setMapperKeys && setMapperKeys(data.mapper_keys);
                         }
                         // Fetch the record
                         const record = await fetchData(`${url}/${value}${suffix}${providers[provider].recordSuffix}`);
@@ -257,7 +270,7 @@ const MapperProvider: FC<IProviderProps> = ({
                                 .replace('provider/', ''),
                         });
                         // Set the record data
-                        setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
+                        setRecord && setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
                         //
                     })();
                 }
@@ -270,8 +283,9 @@ const MapperProvider: FC<IProviderProps> = ({
     const getDefaultItems = useCallback(() => map(providers, ({ name }) => ({ name, desc: '' })), []);
 
     return (
-        <StyledWrapper>
-            <StyledHeader>{title}</StyledHeader>
+        <StyledWrapper compact={compact}>
+            {!compact && <StyledHeader>{title}</StyledHeader>}
+            {compact && <span>{title}: </span>}{' '}
             <ButtonGroup>
                 <SelectField
                     name="input"
