@@ -109,7 +109,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                     <StyledDirWrapper>
                         <TreeField
                             onChange={(_name, value) => onSubmitClick(value.map(path => path.name || path))}
-                            value={sourceDirs.map(dir => ({ name: dir }))}
+                            value={sourceDirs.map(dir => [{ name: dir }])}
                             useRelativePath
                             get_message={{
                                 action: Messages.GET_PROJECT_DIRS,
@@ -126,7 +126,4 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
     );
 };
 
-export default compose(
-    withTextContext(),
-    withMessageHandler()
-)(SourceDirectories);
+export default compose(withTextContext(), withMessageHandler())(SourceDirectories);
