@@ -805,7 +805,7 @@ export class QorusProjectCodeInfo {
             case 'all_dirs':
                 this.waitForPending(['file_tree']).then(() => qorus_webview.postMessage({
                     action: 'return-all-directories',
-                    directories: this.all_dir_tree
+                    directories: [this.all_dir_tree]
                 }));
                 break;
             case 'mapper-type':
