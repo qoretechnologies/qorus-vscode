@@ -10,6 +10,9 @@ import { MapperContext } from '../../context/mapper';
 import MapperCreator from '../Mapper';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import { Callout } from '@blueprintjs/core';
+import useMount from 'react-use/lib/useMount';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import { AppToaster } from '../../components/Toast';
 
 export const CreatorWrapper = styled.div`
     display: flex;
@@ -29,6 +32,10 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     isFormValid,
     selectedFields,
     initialData: { mapper, qorus_instance, changeInitialData },
+    showMapperConnections,
+    setShowMapperConnections,
+    error,
+    wrongKeysCount,
 }) => {
     if (!qorus_instance) {
         return (
@@ -38,44 +45,56 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
         );
     }
 
-    return (
-        <MapperContext.Consumer>
-            {({ showMapperConnections, setShowMapperConnections }) => (
-                <>
-                    {!showMapperConnections && (
-                        <CreatorWrapper>
-                            <InterfaceCreatorPanel
-                                type={'mapper'}
-                                submitLabel={t('Next')}
-                                onSubmit={() => {
-                                    setShowMapperConnections(true);
-                                }}
-                                data={mapper && omit(mapper, ['connections'])}
-                                isEditing={!!mapper}
-                                onDataFinishLoading={
-                                    mapper && mapper.show_diagram
-                                        ? () => {
-                                              setShowMapperConnections(true);
-                                          }
-                                        : null
-                                }
-                            />
-                        </CreatorWrapper>
-                    )}
-                    {showMapperConnections && (
-                        <MapperCreator
-                            onBackClick={() => {
-                                setShowMapperConnections(false);
-                                changeInitialData('mapper.show_diagram', false);
-                            }}
-                            isFormValid={isFormValid('mapper')}
-                            methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
-                        />
-                    )}
-                </>
+    useMount(() => {
+        if (wrongKeysCount) {
+            AppToaster.show({
+                message: `${wrongKeysCount} ${t('IncorrectKeysRemoved')}`,
+                intent: 'danger',
+            });
+        }
+    });
+
+    return error ? (
+        <Callout intent="danger">{t(error)}</Callout>
+    ) : (
+        <>
+            {!showMapperConnections && (
+                <CreatorWrapper>
+                    <InterfaceCreatorPanel
+                        type={'mapper'}
+                        submitLabel={t('Next')}
+                        onSubmit={() => {
+                            setShowMapperConnections(true);
+                        }}
+                        data={mapper && omit(mapper, ['connections'])}
+                        isEditing={!!mapper}
+                        onDataFinishLoading={
+                            mapper && mapper.show_diagram
+                                ? () => {
+                                      setShowMapperConnections(true);
+                                  }
+                                : null
+                        }
+                    />
+                </CreatorWrapper>
             )}
-        </MapperContext.Consumer>
+            {showMapperConnections && (
+                <MapperCreator
+                    onBackClick={() => {
+                        setShowMapperConnections(false);
+                        changeInitialData('mapper.show_diagram', false);
+                    }}
+                    isFormValid={isFormValid('mapper')}
+                    methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
+                />
+            )}
+        </>
     );
 };
 
-export default compose(withTextContext(), withFieldsConsumer(), withInitialDataConsumer())(MapperView);
+export default compose(
+    withTextContext(),
+    withFieldsConsumer(),
+    withInitialDataConsumer(),
+    withMapperConsumer()
+)(MapperView);
