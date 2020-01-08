@@ -281,11 +281,15 @@ export abstract class InterfaceCreator {
                             result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
                         }
                     } else {
-                        if (tag === 'type') {
-                            result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
-                        }
-                        else  {
-                            result += `${indent}${tag}: ${item[tag]}\n`;
+                        switch (tag) {
+                            case 'type':
+                                result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                break;
+                            case 'description':
+                                result += `${indent}${tag}: "${item[tag]}"\n`;
+                                break;
+                            default:
+                                result += `${indent}${tag}: ${item[tag]}\n`;
                         }
                     }
                 }
@@ -416,6 +420,8 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
+                        result += `${tag}: "${value}"\n`;
+                        break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;

@@ -510,6 +510,18 @@ export class QorusProjectCodeInfo {
             data[tag] = transformed_data;
         });
 
+        ['desc', 'description'].forEach(tag => {
+            if (data[tag]) {
+                data[tag] = data[tag].replace(/\r?\n/g, '\n\n');
+            }
+        });
+
+        data['config-items'].forEach(item => {
+            if (item.description) {
+                item.description = item.description.replace(/\r?\n/g, '\n\n');
+            }
+        });
+
         for (const method of data.methods || []) {
             if (method.author) {
                 method.author = method.author.map(value => ({ name: value }));
