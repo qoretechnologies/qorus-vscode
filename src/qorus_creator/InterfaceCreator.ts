@@ -365,7 +365,19 @@ export abstract class InterfaceCreator {
                         for (const connector of value) {
                             result += `${list_indent}name: ${connector.name}\n`;
                             for (const key in connector) {
-                                if (!['name', 'id'].includes(key) && connector[key]) {
+                                if (['name', 'id'].includes(key)) {
+                                    continue;
+                                }
+                                if (['input-provider', 'output-provider'].includes(key) && connector[key]) {
+                                    result += `${indent}${key}:\n`;
+                                    for (const subkey in connector[key]) {
+                                        if (connector[key][subkey] === '') {
+                                            result += `${indent}${indent}${subkey}: ""\n`;
+                                        } else {
+                                            result += `${indent}${indent}${subkey}: ${connector[key][subkey]}\n`;
+                                        }
+                                    }
+                                } else {
                                     result += `${indent}${key}: ${connector[key]}\n`;
                                 }
                             }
