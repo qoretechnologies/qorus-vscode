@@ -1507,6 +1507,15 @@ msgstr "2. Select Fields"
 msgid "FillDataTitle"
 msgstr "2. Fill Data"
 
+msgid "FillValues"
+msgstr "Fill Values"
+
+msgid "AddValue"
+msgstr "Select keys"
+
+msgid "ManageOutputMapping"
+msgstr "Manage output mappings"
+
 msgid "FillDataThirdStep"
 msgstr "3. Fill Data"
 
@@ -1910,4 +1919,13 @@ msgstr "Start by creating or selecting a connection in the left panel"
 
 msgid "AddInitialConnector"
 msgstr "Add initial connector"
+
+msgid "InputConnError"
+msgstr "Fetching input provider data failed, please check the input connection status."
+
+msgid "OutputConnError"
+msgstr "Fetching output provider data failed, please check the output connection status."
+
+msgid "IncorrectKeysRemoved"
+msgstr "incorrect keys were removed from the mapper."
 

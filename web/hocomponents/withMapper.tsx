@@ -1,10 +1,14 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import mapProps from 'recompose/mapProps';
-import { get, set, unset, forEach } from 'lodash';
+import compose from 'recompose/compose';
+import { get, set, unset, forEach, reduce, size } from 'lodash';
 import { MapperContext } from '../context/mapper';
 import string from '../components/Field/string';
 import useMount from 'react-use/lib/useMount';
 import { providers } from '../containers/Mapper/provider';
+import withTextContext from './withTextContext';
+import { Callout } from '@blueprintjs/core';
+import { IMapperRelation } from '../containers/Mapper';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -38,6 +42,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [mapperKeys, setMapperKeys] = useState<any>(null);
         const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
         const [hideOutputSelector, setHideOutputSelector] = useState<boolean>(false);
+        const [error, setError] = useState<any>(null);
+        const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
 
         const resetMapper = () => {
             setShowMapperConnections(false);
@@ -89,6 +95,15 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
         };
 
+        const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = fieldType => {
+            // Get the mapper options data
+            const { type, name, path = '' } = props.mapper.mapper_options[`mapper-${fieldType}`];
+            // Get the rules for the given provider
+            const { url, suffix } = providers[type];
+            // Build the URL based on the provider type
+            return `${url}/${name}${suffix}${path}/mapper_keys`;
+        };
+
         const insertCustomFields = (fields, customFields = {}) => {
             const newFields = { ...fields };
             // Loop throught the custom fields
@@ -108,6 +123,35 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
 
             return newFields;
+        };
+
+        const checkMapperKeys = (relations, mapperKeys) => {
+            return reduce(
+                relations,
+                (newRelations, keys, fieldName) => {
+                    // Filter out the keys that do not belong to these mapper keys
+                    const newKeys = reduce(
+                        keys,
+                        (newKeys, key, keyName) => {
+                            if (Object.keys(mapperKeys).includes(keyName)) {
+                                return { ...newKeys, [keyName]: key };
+                            }
+                            // This key does not exist
+                            // Raise the alerts
+                            setWrongKeysCount(cur => cur + 1);
+                            return newKeys;
+                        },
+                        {}
+                    );
+                    // Save the field
+                    if (size(newKeys) !== 0) {
+                        return { ...newRelations, [fieldName]: newKeys };
+                    }
+                    // Return unchanged
+                    return newRelations;
+                },
+                {}
+            );
         };
 
         useEffect(() => {
@@ -135,6 +179,21 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     (async () => {
                         const inputs = await props.fetchData(inputUrl);
                         const outputs = await props.fetchData(outputUrl);
+                        // If one of the connections is down
+                        if (inputs.error || outputs.error) {
+                            setError(inputs.error ? 'InputConnError' : 'OutputConnError');
+                            return;
+                        }
+                        const mapperKeysUrl = getMapperKeysUrl('output');
+                        // Fetch the mapper keys
+                        const mapperKeys = await props.fetchData(mapperKeysUrl);
+                        // Check if mapper keys call was good
+                        if (mapperKeys.error) {
+                            setError('MapperKeysFail');
+                            return;
+                        }
+                        // Save the mapper keys
+                        setMapperKeys(mapperKeys.data);
                         // Save the fields
                         const inputFields = inputs.data.fields || inputs.data;
                         const outputFields = outputs.data.fields || outputs.data;
@@ -151,7 +210,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                                 props.mapper.mapper_options['mapper-output']['custom-fields'] || {}
                             )
                         );
-                        setRelations(props.mapper.fields || {});
+                        setRelations(checkMapperKeys(props.mapper.fields, mapperKeys.data) || {});
                         // Cancel loading
                         setInputsLoading(false);
                         setOutputsLoading(false);
@@ -160,7 +219,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }
         }, [qorus_instance]);
 
-        if (qorus_instance && (!mapperKeys || (props.isEditing && (inputsLoading || outputsLoading)))) {
+        if (!error && qorus_instance && (!mapperKeys || (props.isEditing && (inputsLoading || outputsLoading)))) {
             return <p> Loading ... </p>;
         }
 
@@ -260,6 +319,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setHideOutputSelector,
                     resetMapper,
                     getUrlFromProvider,
+                    error,
+                    wrongKeysCount,
                 }}
             >
                 <Component {...props} />
@@ -267,10 +328,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         );
     };
 
-    return mapProps(({ mapper, ...rest }) => ({
-        initialShow: !!mapper,
-        isEditing: !!mapper,
-        mapper,
-        ...rest,
-    }))(EnhancedComponent);
+    return compose(
+        mapProps(({ mapper, ...rest }) => ({
+            initialShow: !!mapper,
+            isEditing: !!mapper,
+            mapper,
+            ...rest,
+        })),
+        withTextContext()
+    )(EnhancedComponent);
 };

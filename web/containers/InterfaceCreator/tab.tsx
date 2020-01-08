@@ -50,8 +50,6 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
     const isEditing: () => boolean = () => !!initialData[type];
     const getName: () => string = () => initialData?.[type]?.name;
 
-    console.log(isEditing());
-
     return (
         <StyledTab>
             <StyledHeader>
