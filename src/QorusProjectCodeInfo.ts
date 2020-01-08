@@ -516,7 +516,7 @@ export class QorusProjectCodeInfo {
             }
         });
 
-        data['config-items'].forEach(item => {
+        (data['config-items'] || []).forEach(item => {
             if (item.description) {
                 item.description = item.description.replace(/\r?\n/g, '\n\n');
             }
