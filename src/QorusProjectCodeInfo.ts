@@ -800,6 +800,13 @@ export class QorusProjectCodeInfo {
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );
                 break;
+            case 'class-with-connectors':
+                this.waitForPending(['yaml']).then(() => postMessage('objects',
+                    Object.keys(this.object_info.class)
+                          .map(name => this.fixData(this.yamlDataByName('class', name)))
+                          .filter(class_obj => class_obj.class_connectors))
+                );
+                break;
             case 'module':
                 this.waitForPending(['modules']).then(() =>
                     postMessage('objects', this.modules.map(name => ({ name })))
@@ -898,18 +905,6 @@ export class QorusProjectCodeInfo {
                     if (!info_keys.map(key => this.info_update_pending[key]).some(value => value)) {
                         msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
                         clearInterval(interval_id);
-                        const data = {
-                            'input-condition': {
-                                name: 'qorus:create-order',
-                                type: 'type',
-                            },
-                            'output-condition': {
-                                name: 'soap-simple',
-                                path: '/getCompanyInfo/request',
-                                subtype: 'request',
-                                type: 'connection',
-                            }
-                        };
                     }
                 };
 
