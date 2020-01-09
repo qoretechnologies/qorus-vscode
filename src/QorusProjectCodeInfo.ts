@@ -898,6 +898,18 @@ export class QorusProjectCodeInfo {
                     if (!info_keys.map(key => this.info_update_pending[key]).some(value => value)) {
                         msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
                         clearInterval(interval_id);
+                        const data = {
+                            'input-condition': {
+                                name: 'qorus:create-order',
+                                type: 'type',
+                            },
+                            'output-condition': {
+                                name: 'soap-simple',
+                                path: '/getCompanyInfo/request',
+                                subtype: 'request',
+                                type: 'connection',
+                            }
+                        };
                     }
                 };
 
@@ -1435,15 +1447,15 @@ export class QorusProjectCodeInfo {
     getMappers = ({'input-condition': input_condition, 'output-condition': output_condition}) => {
         this.waitForPending(['yaml']).then(() => {
             const all_mappers: any[] = Object.keys(this.object_info.mapper)
-                                             .map(key => this.object_info.mapper[key]);
+                                             .map(name => this.fixData(this.yamlDataByName('mapper', name)));
 
             const filtered_mappers = all_mappers.filter(mapper => {
-                if (!mapper.options) {
+                if (!mapper.mapper_options) {
                     return false;
                 }
 
-                const input = mapper.options['mapper-input'];
-                const output = mapper.options['mapper-output'];
+                const input = mapper.mapper_options['mapper-input'];
+                const output = mapper.mapper_options['mapper-output'];
 
                 return (!input_condition.name || input_condition.name === input.name)
                     && (!input_condition.type || input_condition.type === input.type)
