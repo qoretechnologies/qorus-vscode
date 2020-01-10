@@ -138,7 +138,7 @@ class QorusTreeConnectionNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getConnectionIcon();
     }
 }
-
+/*
 class QorusTreeConstantNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
         super(name, TreeItemCollapsibleState.None);
@@ -150,7 +150,7 @@ class QorusTreeConstantNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getConstantIcon();
     }
 }
-
+*/
 class QorusTreeErrorNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
         super(name, TreeItemCollapsibleState.None);
@@ -174,7 +174,7 @@ class QorusTreeEventNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getEventIcon();
     }
 }
-
+/*
 class QorusTreeFunctionNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
         super(name, TreeItemCollapsibleState.None);
@@ -186,7 +186,7 @@ class QorusTreeFunctionNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getFunctionIcon();
     }
 }
-
+*/
 class QorusTreeGroupNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
         super(name, TreeItemCollapsibleState.None);
@@ -272,7 +272,7 @@ class QorusTreeStepNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getStepIcon();
     }
 }
-
+/*
 class QorusTreeValueMapNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
         super(name, TreeItemCollapsibleState.None);
@@ -284,7 +284,7 @@ class QorusTreeValueMapNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getValueMapIcon();
     }
 }
-
+*/
 class QorusTreeWorkflowNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
         super(name, TreeItemCollapsibleState.None);
@@ -462,7 +462,7 @@ class QorusTreeConnectionCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-
+/*
 class QorusTreeConstantCategoryNode extends QorusTreeCategoryNode {
     constructor() {
         super(t`Constants`, 'constant', TreeItemCollapsibleState.Expanded);
@@ -481,7 +481,7 @@ class QorusTreeConstantCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-
+*/
 class QorusTreeErrorCategoryNode extends QorusTreeCategoryNode {
     constructor() {
         super(t`Errors`, 'error', TreeItemCollapsibleState.Expanded);
@@ -519,7 +519,7 @@ class QorusTreeEventCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-
+/*
 class QorusTreeFunctionCategoryNode extends QorusTreeCategoryNode {
     constructor() {
         super(t`Functions`, 'function', TreeItemCollapsibleState.Expanded);
@@ -538,7 +538,7 @@ class QorusTreeFunctionCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-
+*/
 class QorusTreeGroupCategoryNode extends QorusTreeCategoryNode {
     constructor() {
         super(t`Groups`, 'group', TreeItemCollapsibleState.Expanded);
@@ -671,7 +671,7 @@ class QorusTreeStepCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-
+/*
 class QorusTreeValueMapCategoryNode extends QorusTreeCategoryNode {
     constructor() {
         super(t`ValueMaps`, 'value-map', TreeItemCollapsibleState.Expanded);
@@ -690,7 +690,7 @@ class QorusTreeValueMapCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-
+*/
 class QorusTreeWorkflowCategoryNode extends QorusTreeCategoryNode {
     constructor() {
         super(t`Workflows`, 'workflow', TreeItemCollapsibleState.Expanded);

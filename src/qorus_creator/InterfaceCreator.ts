@@ -9,6 +9,7 @@ import { lang_suffix, lang_inherits, default_parse_options } from './common_cons
 import * as jsyaml from 'js-yaml';
 import { quotesIfNum } from '../qorus_utils';
 import { t } from 'ttag';
+import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
 
 
@@ -233,26 +234,32 @@ export abstract class InterfaceCreator {
         for (const item of [...items]) {
             result += `${list_indent}name: ${item.name}\n`;
 
-            for (const tag of ['local-value', 'global-value', 'workflow-value']) {
-                if (typeof item[tag] !== 'undefined') {
-                    switch (item.type) {
-                        case 'list':
-                        case '*list':
-                            result += `${indent}${tag}:\n`;
-                            for (let entry of item[tag]) {
-                                result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
-                            }
-                            break;
-                        case 'hash':
-                        case '*hash':
-                            result += `${indent}${tag}:\n`;
-                            for (let key in item[tag]) {
-                                result += `${indent}${indent}${key}: ${JSON.stringify(item[tag][key])}\n`;
-                            }
-                            break;
-                        default:
-                            result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
-                    }
+            if (item['global-value']) {
+                globals.set(item);
+            }
+
+            for (const tag of ['local-value', 'workflow-value']) {
+                if (item[tag] === undefined) {
+                    continue;
+                }
+
+                switch (item.type) {
+                    case 'list':
+                    case '*list':
+                        result += `${indent}${tag}:\n`;
+                        for (let entry of item[tag]) {
+                            result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
+                        }
+                        break;
+                    case 'hash':
+                    case '*hash':
+                        result += `${indent}${tag}:\n`;
+                        for (let key in item[tag]) {
+                            result += `${indent}${indent}${key}: ${JSON.stringify(item[tag][key])}\n`;
+                        }
+                        break;
+                    default:
+                        result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
                 }
             }
 
