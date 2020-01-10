@@ -69,6 +69,8 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
             children.push(new QorusTreeServiceCategoryNode());
             children.push(new QorusTreeJobCategoryNode());
             children.push(new QorusTreeClassCategoryNode());
+            children.push(new QorusTreeMapperCategoryNode());
+            children.push(new QorusTreeMapperCodeCategoryNode());
             children.push(new QorusTreeOtherCategoriesNode());
         }
 
@@ -337,7 +339,7 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                         children.push(new QorusTreeConnectionNode(data.name, data));
                         break;
                     case 'constant':
-                        children.push(new QorusTreeConstantNode(data.name, data));
+                        //children.push(new QorusTreeConstantNode(data.name, data));
                         break;
                     case 'error':
                         children.push(new QorusTreeErrorNode(data.name, data));
@@ -346,7 +348,7 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                         children.push(new QorusTreeEventNode(data.name, data));
                         break;
                     case 'function':
-                        children.push(new QorusTreeFunctionNode(data.name, data));
+                        //children.push(new QorusTreeFunctionNode(data.name, data));
                         break;
                     case 'group':
                         children.push(new QorusTreeGroupNode(data.name, data));
@@ -370,7 +372,7 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                         children.push(new QorusTreeStepNode(data.name, data));
                         break;
                     case 'value-map':
-                        children.push(new QorusTreeValueMapNode(data.name, data));
+                        //children.push(new QorusTreeValueMapNode(data.name, data));
                         break;
                     case 'workflow':
                         children.push(new QorusTreeWorkflowNode(data.name, data));
@@ -408,16 +410,14 @@ class QorusTreeOtherCategoriesNode extends QorusInterfaceTreeNode {
 
     async getChildren(_node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
         let children = [];
-        children.push(new QorusTreeMapperCategoryNode());
-        children.push(new QorusTreeMapperCodeCategoryNode());
         children.push(new QorusTreeConnectionCategoryNode());
-        children.push(new QorusTreeConstantCategoryNode());
-        children.push(new QorusTreeFunctionCategoryNode());
+        //children.push(new QorusTreeConstantCategoryNode());
+        //children.push(new QorusTreeFunctionCategoryNode());
         children.push(new QorusTreeQueueCategoryNode());
         children.push(new QorusTreeErrorCategoryNode());
         children.push(new QorusTreeEventCategoryNode());
         children.push(new QorusTreeGroupCategoryNode());
-        children.push(new QorusTreeValueMapCategoryNode());
+        //children.push(new QorusTreeValueMapCategoryNode());
 
         return children;
     }
