@@ -27,9 +27,8 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
     ],
     t,
     initialData,
+    requestFieldData,
 }) => {
-    const [isEditing, setIsEditing] = useState(initialData.class);
-
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
         const newValue = [...value];
         // Get the pair based on the index
@@ -45,7 +44,6 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                 pair['output-provider'] = null;
             }
         }
-        console.log(val, newValue);
         // Update the pairs
         onChange(name, newValue);
     };
@@ -55,7 +53,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
             ...value,
             {
                 id: size(value) + 1,
-                name: '',
+                name: `${requestFieldData('class-name', 'value')}${size(value) + 1}`,
                 'input-method': '',
                 'output-method': '',
                 'input-provider': null,
@@ -74,7 +72,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
 
     return (
         <>
-            {value.map((pair: IPair, index: number) => (
+            {[...value].map((pair: IPair, index: number) => (
                 <StyledPairField key={index + 1}>
                     <div>
                         <ControlGroup fill>
@@ -116,8 +114,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                 {pair['input-method'] && (
                                     <ConnectorField
                                         value={pair['input-provider']}
-                                        isEditing={isEditing}
-                                        setEditing={setIsEditing}
+                                        isInitialEditing={!!initialData.class}
                                         title="Input"
                                         id={index}
                                         name="input-provider"
@@ -126,8 +123,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                 )}
                                 {pair['output-method'] && (
                                     <ConnectorField
-                                        isEditing={isEditing}
-                                        setEditing={setIsEditing}
+                                        isInitialEditing={!!initialData.class}
                                         value={pair['output-provider']}
                                         title="Output"
                                         id={index}

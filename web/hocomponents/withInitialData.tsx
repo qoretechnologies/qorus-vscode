@@ -20,8 +20,29 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
+                console.log('INITIAL DATA', data);
+
                 /*data.tab = 'CreateInterface';
-                data.subtab = 'class';*/
+                data.subtab = 'service';
+                data.service = {
+                    classes: [{ name: 'bugugugu' }],
+                    'class-connections': {
+                        conn1: [
+                            {
+                                class: 'bugugugu',
+                                connector: 'a',
+                            },
+                            {
+                                class: 'bugugugu',
+                                connector: 'c',
+                            },
+                            {
+                                class: 'bugugugu',
+                                connector: 'b',
+                            },
+                        ],
+                    },
+                };*/
 
                 setInitialData(current => ({
                     ...current,

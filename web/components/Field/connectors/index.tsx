@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Provider, { providers } from '../../../containers/Mapper/provider';
-import { Button } from '@blueprintjs/core';
+import { Button, Tag } from '@blueprintjs/core';
+import styled from 'styled-components';
 
 export interface IConnectorFieldProps {
     title: string;
@@ -8,31 +9,32 @@ export interface IConnectorFieldProps {
     id: number;
     name: string;
     value: any;
-    isEditing?: boolean;
-    setEditing: any;
+    isInitialEditing?: boolean;
 }
 
-const ConnectorField: React.FC<IConnectorFieldProps> = ({
-    title,
-    onChange,
-    id,
-    name,
-    value,
-    isEditing,
-    setEditing,
-}) => {
+const StyledProviderUrl = styled.div`
+    height: 40px;
+    line-height: 40px;
+
+    span {
+        font-weight: 500;
+    }
+`;
+
+const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, id, name, value, isInitialEditing }) => {
     const [nodes, setChildren] = useState([]);
     const [provider, setProvider] = useState(null);
-    const [optionProvider, setOptionProvider] = useState(null);
+    const [optionProvider, setOptionProvider] = useState(value);
     const [isLoading, setIsLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(isInitialEditing);
 
     const clear = () => {
-        setEditing(false);
+        setIsEditing(false);
         setOptionProvider(null);
     };
 
-    const getUrlFromProvider: () => string = () => {
-        const { type, name, path } = optionProvider;
+    const getUrlFromProvider: (val: any) => string = val => {
+        const { type, name, path } = val;
         // Get the rules for the given provider
         const { url, suffix, recordSuffix, requiresRecord } = providers[type];
         // Build the URL based on the provider type
@@ -41,16 +43,16 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
     useEffect(() => {
         onChange(id, name, optionProvider);
-    }, [optionProvider]);
-    console.log(optionProvider);
-    console.log(value);
+    }, [optionProvider, isEditing]);
 
-    if (isEditing) {
+    if (isEditing && value) {
         return (
-            <span>
-                {getUrlFromProvider()}
-                <Button intent="danger" onClick={clear} icon="trash" />
-            </span>
+            <StyledProviderUrl>
+                <span>{title}:</span>{' '}
+                <Tag minimal large onRemove={clear}>
+                    {getUrlFromProvider(value)}{' '}
+                </Tag>
+            </StyledProviderUrl>
         );
     }
 

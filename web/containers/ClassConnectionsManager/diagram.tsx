@@ -63,7 +63,7 @@ const Connector: React.FC<IConnectorProps> = ({
             setConnectors([]);
 
             addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                setConnectors(data.class.class_connectors);
+                setConnectors(data.class?.class_connectors || []);
             });
 
             postMessage(Messages.GET_INTERFACE_DATA, {
@@ -205,6 +205,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                             name="class"
                                             fill
                                         />
+                                        <Button icon="add" onClick={() => console.log(manageDialog.connector)} />
                                     </FieldInputWrapper>
                                 </FieldWrapper>
                             ) : (

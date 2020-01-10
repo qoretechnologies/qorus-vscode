@@ -52,10 +52,8 @@ export const providers = {
     type: {
         name: 'type',
         url: 'dataprovider/types',
-        namekey: 'typename',
-        desckey: 'name',
         suffix: '',
-        recordSuffix: '',
+        recordSuffix: '/type',
         type: 'type',
     },
     connection: {
@@ -123,18 +121,20 @@ const MapperProvider: FC<IProviderProps> = ({
                 // Select the provider data
                 const { url, filter } = providers[provider];
                 // Get the data
-                let { data } = await fetchData(url);
+                let { data, error } = await fetchData(url);
                 // Remove loading
                 setIsLoading(false);
                 // Filter unwanted data if needed
                 if (filter) {
                     data = data.filter(datum => datum[filter]);
                 }
+                // Save the children
+                let children = data.children || data;
                 // Add new child
                 setChildren([
                     {
-                        values: data.map(child => ({
-                            name: child[providers[provider].namekey],
+                        values: children.map(child => ({
+                            name: providers[provider].namekey ? child[providers[provider].namekey] : child,
                             desc: '',
                             url,
                             suffix: providers[provider].suffix,
@@ -246,7 +246,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     setRecord && setRecord(data.fields);
                 }
                 // Check if there is a record
-                else if (data.has_record || !providers[provider].requiresRecord) {
+                else if (data.has_record || data.has_type || !providers[provider].requiresRecord) {
                     (async () => {
                         setIsLoading(true);
                         if (type === 'outputs' && data.mapper_keys) {
@@ -254,7 +254,11 @@ const MapperProvider: FC<IProviderProps> = ({
                             setMapperKeys && setMapperKeys(data.mapper_keys);
                         }
                         // Fetch the record
-                        const record = await fetchData(`${url}/${value}${suffix}${providers[provider].recordSuffix}`);
+                        const record = await fetchData(
+                            `${url}/${value}${suffix}${providers[provider].recordSuffix}${
+                                type === 'outputs' ? '?soft=true' : ''
+                            }`
+                        );
                         // Remove loading
                         setIsLoading(false);
                         // Save the name by pulling the 3rd item from the split
