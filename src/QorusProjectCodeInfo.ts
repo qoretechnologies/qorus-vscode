@@ -156,7 +156,7 @@ export class QorusProjectCodeInfo {
         symbol.kind === 1 &&
         symbol.name &&
         class_name === symbol.name.name
-    
+
     isJavaSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
         class_name &&
         symbol.kind === 5 &&
@@ -319,7 +319,7 @@ export class QorusProjectCodeInfo {
         if (this.edit_info[file_path] && !force) {
             return Promise.resolve();
         }
-        
+
         return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
             if (!symbols || !symbols.length) {
                 return;
@@ -508,6 +508,18 @@ export class QorusProjectCodeInfo {
             }
 
             data[tag] = transformed_data;
+        });
+
+        ['desc', 'description'].forEach(tag => {
+            if (data[tag]) {
+                data[tag] = data[tag].replace(/\r?\n/g, '\n\n');
+            }
+        });
+
+        (data['config-items'] || []).forEach(item => {
+            if (item.description) {
+                item.description = item.description.replace(/\r?\n/g, '\n\n');
+            }
         });
 
         for (const method of data.methods || []) {
@@ -788,6 +800,13 @@ export class QorusProjectCodeInfo {
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );
                 break;
+            case 'class-with-connectors':
+                this.waitForPending(['yaml']).then(() => postMessage('objects',
+                    Object.keys(this.object_info.class)
+                          .map(name => this.fixData(this.yamlDataByName('class', name)))
+                          .filter(class_obj => class_obj.class_connectors))
+                );
+                break;
             case 'module':
                 this.waitForPending(['modules']).then(() =>
                     postMessage('objects', this.modules.map(name => ({ name })))
@@ -993,7 +1012,7 @@ export class QorusProjectCodeInfo {
                     this.yaml_data[file]['base-class-name'] = base_class_name;
 
                     if (yaml_data.type === 'step' && base_class_name) {
-                        const step_type = (yaml_data.lang && yaml_data.lang === 'java')
+                        const step_type = (yaml_data.lang === 'java')
                             ? this.javaStepType(base_class_name)
                             : this.stepType(base_class_name);
                         if (step_type) {
@@ -1418,5 +1437,33 @@ export class QorusProjectCodeInfo {
                 });
             }
         }
+    }
+
+    getMappers = ({'input-condition': input_condition, 'output-condition': output_condition}) => {
+        this.waitForPending(['yaml']).then(() => {
+            const all_mappers: any[] = Object.keys(this.object_info.mapper)
+                                             .map(name => this.fixData(this.yamlDataByName('mapper', name)));
+
+            const filtered_mappers = all_mappers.filter(mapper => {
+                if (!mapper.mapper_options) {
+                    return false;
+                }
+
+                const input = mapper.mapper_options['mapper-input'];
+                const output = mapper.mapper_options['mapper-output'];
+
+                return (!input_condition.name || input_condition.name === input.name)
+                    && (!input_condition.type || input_condition.type === input.type)
+                    && (!output_condition.name || output_condition.name === output.name)
+                    && (!output_condition.type || output_condition.type === output.type)
+                    && (!output_condition.subtype || output_condition.subtype === output.subtype)
+                    && (!output_condition.path || output_condition.path === output.path);
+            });
+
+            qorus_webview.postMessage({
+                action: 'return-mappers',
+                mappers: filtered_mappers
+            });
+        });
     }
 }

@@ -275,11 +275,22 @@ export abstract class InterfaceCreator {
                 if ( (!has_parent_data && item[tag] !== defaultValue(tag)) ||
                      (has_parent_data && item[tag] !== item.parent_data[tag]) )
                 {
-                    if (tag === 'type') {
-                        result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
-                    }
-                    else  {
-                        result += `${indent}${tag}: ${item[tag]}\n`;
+                    if (Array.isArray(item[tag])) {
+                        result += `${indent}${tag}:\n`;
+                        for (let entry of item[tag]) {
+                            result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
+                        }
+                    } else {
+                        switch (tag) {
+                            case 'type':
+                                result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                break;
+                            case 'description':
+                                result += `${indent}${tag}: "${item[tag]}"\n`;
+                                break;
+                            default:
+                                result += `${indent}${tag}: ${item[tag]}\n`;
+                        }
                     }
                 }
             }
@@ -421,6 +432,8 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
+                        result += `${tag}: "${value}"\n`;
+                        break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
