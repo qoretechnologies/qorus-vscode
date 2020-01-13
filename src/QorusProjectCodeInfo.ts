@@ -22,6 +22,7 @@ import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocumen
 import { qorus_webview } from './QorusWebview';
 import { field } from './qorus_creator/common_constants';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import * as globals from './global_config_item_values';
 import { getJavaDocumentSymbolsWithWait, vscode_java } from './vscode_java';
 
 const object_parser_subdir = 'qorus-object-parser';
@@ -519,6 +520,14 @@ export class QorusProjectCodeInfo {
         (data['config-items'] || []).forEach(item => {
             if (item.description) {
                 item.description = item.description.replace(/\r?\n/g, '\n\n');
+            }
+
+            const global_value = globals.get(item.name);
+            if (global_value !== undefined) {
+                item['global-value'] = global_value;
+                item.value = global_value;
+                item.level = 'global';
+                item.is_set = true;
             }
         });
 

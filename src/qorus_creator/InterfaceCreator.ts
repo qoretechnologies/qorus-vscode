@@ -237,6 +237,9 @@ export abstract class InterfaceCreator {
             if (item['global-value']) {
                 globals.set(item);
             }
+            if (item['remove-global-value']) {
+                globals.remove(item.name);
+            }
 
             for (const tag of ['local-value', 'workflow-value']) {
                 if (item[tag] === undefined) {

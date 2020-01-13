@@ -16,7 +16,7 @@ const filepath = () => {
         return undefined;
     }
     return path.join(folder, filename);
-}
+};
 
 const read = (): any => {
     const file = filepath();
@@ -36,13 +36,13 @@ const read = (): any => {
         msg.debug({ file, error });
         return undefined;
     }
-}
+};
 
 const write = items => {
     const contents = { type, [type]: items };
     const contents_str = jsyaml.safeDump(contents, {indent: 2}).replace(/\r?\n  -\r?\n/g, '\n  - ');
     fs.writeFileSync(filepath(), contents_str);
-}
+};
 
 export const set = ({name, 'global-value': value}) => {
     let items = read();
@@ -58,7 +58,21 @@ export const set = ({name, 'global-value': value}) => {
     }
 
     write(items);
-}
+};
+
+export const remove = name => {
+    let items = read();
+    if (!items) {
+        return;
+    }
+
+    const index = items.findIndex(item => item.name === name);
+    if (index > -1) {
+        items.splice(index, 1);
+    }
+
+    write(items);
+};
 
 export const get = name => {
     let items = read();
@@ -68,4 +82,4 @@ export const get = name => {
 
     const index = items.findIndex(item => item.name === name);
     return index > -1 ? items[index].value : undefined;
-}
+};

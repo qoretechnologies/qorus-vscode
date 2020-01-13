@@ -4,7 +4,6 @@ import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue } from './config_item_constants';
 import { hasConfigItems } from '../qorus_utils';
-import * as globals from '../global_config_item_values';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -91,6 +90,9 @@ export class InterfaceInfo {
 
             if (value === null && remove) {
                 delete item[level + '-value'];
+                if (level === 'global') {
+                    item['remove-global-value'] = true;
+                }
                 return;
             }
 
@@ -303,15 +305,7 @@ export class InterfaceInfo {
                     item.is_set = true;
                 }
 
-                const global_value = globals.get(item.name);
-                if (global_value !== undefined) {
-                    item['global-value'] = global_value;
-                    item.value = global_value;
-                    item.level = 'global';
-                    item.is_set = true;
-                }
-
-                for (const level of ['workflow', 'local']) {
+                for (const level of ['global', 'workflow', 'local']) {
                     const key = level + '-value';
                     if (item[key] !== undefined) {
                         item.value = item[key];
