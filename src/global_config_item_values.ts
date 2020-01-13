@@ -11,20 +11,28 @@ const filename = type + '.yaml';
 
 const filepath = () => {
     const folder = projects.getProject()?.folder;
-    return folder && path.join(folder, filename);
+    if (!folder) {
+        msg.error(t`UnableDetermineProjectFolder`);
+        return undefined;
+    }
+    return path.join(folder, filename);
 }
 
 const read = (): any => {
     const file = filepath();
     if (!file) {
-        msg.error(t`globalConfigItemValuesFileNotFound`);
         return undefined;
+    }
+
+    if (!fs.existsSync(file)) {
+        write([]);
     }
 
     try {
         const parsed_contents = jsyaml.safeLoad(fs.readFileSync(file));
         return parsed_contents['global-config-item-values'] || [];
     } catch (error) {
+        msg.error(t`ErrorReadingGlobalConfigItemValues`);
         msg.debug({ file, error });
         return undefined;
     }

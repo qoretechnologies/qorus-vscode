@@ -599,7 +599,7 @@ msgid "ErrorInActivatingGitExtension"
 msgstr "Error in activating Git extension"
 
 msgid "UnableDetermineProjectFolder"
-msgstr "Unable to determine project folder in activating Git extension"
+msgstr "Unable to determine project folder"
 
 msgid "PackageDeploymentNotSupportedForQorus3"
 msgstr "Package deployment is not supported for Qorus version < 4"
@@ -1929,3 +1929,5 @@ msgstr "Fetching output provider data failed, please check the output connection
 msgid "IncorrectKeysRemoved"
 msgstr "incorrect keys were removed from the mapper."
 
+msgid "ErrorReadingGlobalConfigItemValues"
+msgstr "Error in reading global config item values"
