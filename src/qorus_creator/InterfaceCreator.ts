@@ -81,18 +81,14 @@ export abstract class InterfaceCreator {
         return path.join(this.target_dir, this.yaml_file_name);
     }
 
-    protected writeYamlFile(headers: string, open_file_on_success: boolean = true, file_to_open?: string) {
+    protected writeYamlFile(headers: string, file_path?: string) {
         const generated_file_info = '# This is a generated file, don\'t edit!\n';
+        file_path = file_path || this.yaml_file_path;
 
-        fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
+        fs.writeFile(file_path, generated_file_info + headers, err => {
             if (err) {
-                msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
+                msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
                 return;
-            }
-
-            if (open_file_on_success) {
-                workspace.openTextDocument(file_to_open || this.yaml_file_path)
-                         .then(doc => window.showTextDocument(doc));
             }
         });
     }
@@ -104,7 +100,11 @@ export abstract class InterfaceCreator {
                 return;
             }
 
-            this.writeYamlFile(headers, open_file_on_success, this.file_path);
+            this.writeYamlFile(headers);
+
+            if (open_file_on_success) {
+                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+            }
         });
     }
 
@@ -241,11 +241,8 @@ export abstract class InterfaceCreator {
                 globals.remove(item.name);
             }
 
-            for (const tag of ['local-value', 'workflow-value']) {
-                if (item[tag] === undefined) {
-                    continue;
-                }
-
+            if (item['local-value'] !== undefined) {
+                const tag = 'local-value';
                 switch (item.type) {
                     case 'list':
                     case '*list':
@@ -340,8 +337,13 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag in headers) {
+            if (['target_dir', 'yaml_file', 'config-item-values'].includes(tag))
+            {
+                continue;
+            }
+
             const value = headers[tag];
-            if (typeof(value) === 'undefined') {
+            if (value === undefined) {
                 continue;
             }
 
