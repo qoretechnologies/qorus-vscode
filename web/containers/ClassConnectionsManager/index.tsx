@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import withMessageHandler from '../../hocomponents/withMessageHandler';
+import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import SidePanel from '../../components/SidePanel';
 import { ContentWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
@@ -7,6 +7,7 @@ import { MethodSelector, Selected, RemoveButton } from '../InterfaceCreator/serv
 import { ButtonGroup, Button, Dialog, ControlGroup, Classes, NonIdealState } from '@blueprintjs/core';
 import map from 'lodash/map';
 import size from 'lodash/size';
+import omit from 'lodash/omit';
 import compose from 'recompose/compose';
 import { PanelWrapper } from '../InterfaceCreator/servicesView';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -17,6 +18,8 @@ import ClassConnectionsDiagram from './diagram';
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import every from 'lodash/every';
+import useMount from 'react-use/lib/useMount';
+import { Messages } from '../../constants/messages';
 
 export const StyledDialogBody = styled.div`
     padding: 20px 20px 0 20px;
@@ -47,11 +50,13 @@ export interface IClassConnectionsManageDialog {
 }
 
 export interface IClassConnectionsManagerProps {
-    classes: any;
+    classes: any[];
     t: TTranslator;
     initialData: any;
     initialConnections?: IClassConnections;
     onSubmit: (classConnections: IClassConnections) => void;
+    addMessageListener: TMessageListener;
+    postMessage;
 }
 
 const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
@@ -60,13 +65,42 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     initialConnections,
     classes,
     onSubmit,
+    addMessageListener,
+    postMessage,
 }) => {
     const [connections, setConnections] = useState<IClassConnections>(initialConnections || {});
     const [selectedConnection, setSelectedConnection] = useState(null);
+    const [classesData, setClassesData] = useState(null);
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
     const [lastConnectorId, setLastConnectorId] = useState<number>(1);
 
-    const handleAddConnector: (name: string, data: IClassConnection) => void = (name, data) => {
+    // Get the classes data
+    useMount(() => {
+        // Listen for the classes data
+        addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+            if (data.iface_kind === 'class') {
+                // Add the class data
+                setClassesData(current => ({
+                    ...current,
+                    [data.class.name]: data.class,
+                }));
+            }
+        });
+        // Request data for each class
+        classes.forEach(classData => {
+            // Request the data
+            postMessage(Messages.GET_INTERFACE_DATA, {
+                iface_kind: 'class',
+                name: classData.name,
+            });
+        });
+    });
+
+    const handleAddConnector: (name: string, data: IClassConnection, changedConnector?: boolean) => void = (
+        name,
+        data,
+        changedConnector
+    ) => {
         setConnections(
             (current: IClassConnections): IClassConnections => ({
                 ...current,
@@ -77,12 +111,22 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                               // Check if the index matches the passed index
                               if (index === data.index) {
                                   if (data.isEditing) {
-                                      // Replace the current data
+                                      if (changedConnector) {
+                                          // Replace the current data and remove the mapper
+                                          return [...newConnectors, omit({ ...connector, ...data }, ['mapper'])];
+                                      }
+                                      // Replace data without removing the mapper
                                       return [...newConnectors, { ...connector, ...data }];
                                   }
                                   const id = lastConnectorId;
                                   // Add new connector
                                   return [...newConnectors, connector, { ...data, id }];
+                              }
+                              // If the user changed connector, we need to remove
+                              // the mapper from the actual connector and from the connector
+                              // before
+                              if (changedConnector && index === data.index - 1) {
+                                  return [...newConnectors, omit({ ...connector }, ['mapper'])];
                               }
                               // Return unchanged
                               return [...newConnectors, connector];
@@ -105,6 +149,14 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                         // Add new connector
                         return [...newConnectors];
                     }
+                    // If this is the previous connector
+                    // or the connector after
+                    // remove the mapper, since the relations
+                    // are no longer valid
+                    if (index === id - 1 || index === id + 1) {
+                        // Remove the mapper
+                        return [...newConnectors, omit(connector, ['mapper'])];
+                    }
                     // Return unchanged
                     return [...newConnectors, connector];
                 }, []),
@@ -119,6 +171,11 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     const areAllConnectionsValid = () => {
         return size(connections) === 0 || every(connections, (_conn, name) => isConnectionValid(name));
     };
+
+    // Check if all classes are loaded
+    if (size(classesData) !== size(classes)) {
+        return <p> Loading ...</p>;
+    }
 
     return (
         <>
@@ -189,7 +246,15 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                             <Button
                                 text={t('AddConnection')}
                                 icon={'plus'}
-                                onClick={() => setManageDialog({ isOpen: true })}
+                                onClick={() => {
+                                    setConnections(
+                                        (current: IClassConnections): IClassConnections => ({
+                                            ...current,
+                                            [`${t('Connection')}_${size(current) + 1}`]: [],
+                                        })
+                                    );
+                                    setSelectedConnection(`${t('Connection')}_${size(connections) + 1}`);
+                                }}
                             />
                         </ButtonGroup>
                     </ActionsWrapper>
@@ -210,6 +275,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                 <ClassConnectionsDiagram
                                     t={t}
                                     classes={classes}
+                                    classesData={classesData}
                                     onAddConnector={handleAddConnector}
                                     onDeleteConnector={handleDeleteConnector}
                                     connection={connections[selectedConnection]}

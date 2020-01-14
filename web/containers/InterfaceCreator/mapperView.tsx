@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import InterfaceCreatorPanel, { ContentWrapper, ActionsWrapper, IField } from './panel';
 import compose from 'recompose/compose';
+import mapProps from 'recompose/mapProps';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
 import styled from 'styled-components';
@@ -25,17 +26,23 @@ export interface IMapperViewProps {
     t: TTranslator;
     mapper: any;
     isFormValid: (type: string) => boolean;
+    inConnections?: boolean;
+    isEditing?: boolean;
 }
 
 const MapperView: FunctionComponent<IMapperViewProps> = ({
     t,
     isFormValid,
     selectedFields,
-    initialData: { mapper, qorus_instance, changeInitialData },
+    mapper,
     showMapperConnections,
     setShowMapperConnections,
     error,
     wrongKeysCount,
+    qorus_instance,
+    changeInitialData,
+    inConnections,
+    isEditing,
 }) => {
     if (!qorus_instance) {
         return (
@@ -67,7 +74,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                             setShowMapperConnections(true);
                         }}
                         data={mapper && omit(mapper, ['connections'])}
-                        isEditing={!!mapper}
+                        isEditing={isEditing || !!mapper}
                         onDataFinishLoading={
                             mapper && mapper.show_diagram
                                 ? () => {
@@ -82,10 +89,13 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                 <MapperCreator
                     onBackClick={() => {
                         setShowMapperConnections(false);
-                        changeInitialData('mapper.show_diagram', false);
+                        if (!inConnections) {
+                            changeInitialData('mapper.show_diagram', false);
+                        }
                     }}
                     isFormValid={isFormValid('mapper')}
                     methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
+                    isEditing={isEditing || !!mapper}
                 />
             )}
         </>
@@ -93,8 +103,14 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
 };
 
 export default compose(
+    withInitialDataConsumer(),
+    mapProps(({ defaultMapper, initialData, ...rest }) => ({
+        mapper: defaultMapper || initialData.mapper,
+        qorus_instance: initialData.qorus_instance,
+        changeInitialData: initialData.changeInitialData,
+        ...rest,
+    })),
     withTextContext(),
     withFieldsConsumer(),
-    withInitialDataConsumer(),
     withMapperConsumer()
 )(MapperView);

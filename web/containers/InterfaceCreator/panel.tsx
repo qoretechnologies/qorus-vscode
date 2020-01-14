@@ -70,7 +70,7 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
-    get_message?: { action: string; object_type: string; return_value?: string };
+    get_message?: { action: string; object_type: string; return_value?: string; message_data?: any };
     return_message?: { action: string; object_type: string; return_value?: string };
     style?: string;
     type?: string;
@@ -91,6 +91,7 @@ export interface IField {
     markdown?: boolean;
     disabled?: boolean;
     requires_fields?: string[];
+    resetClassConnections?: () => void;
 }
 
 export declare interface IFieldChange {
@@ -174,6 +175,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [showClassConnectionsManager, setShowClassConnectionsManager] = useState<boolean>(false);
     const [classConnectionsData, setClassConnectionsData] = useState<IClassConnections>(data?.['class-connections']);
     const [fieldListeners, setFieldListeners] = useState([]);
+
+    const resetClassConnections = () => {
+        setClassConnectionsData(null);
+    };
 
     useEffect(() => {
         // Remove the current listeners
@@ -834,6 +839,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                             {...field}
                                             onChange={handleFieldChange}
                                             requestFieldData={requestFieldData}
+                                            resetClassConnections={resetClassConnections}
+                                            showClassesWarning={hasClassConnections}
                                             interfaceKind={type}
                                             iface_kind={type}
                                             activeId={activeId}
@@ -861,17 +868,21 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {(hasConfigManager || hasClassConnections) && (
                         <div style={{ float: 'left', width: '48%' }}>
                             <ButtonGroup fill>
-                                <Button
-                                    icon="code-block"
-                                    disabled={!isClassConnectorsManagerEnabled()}
-                                    onClick={() => setShowClassConnectionsManager(true)}
-                                >
-                                    {t('ManageClassConnections')} ({size(classConnectionsData)})
-                                </Button>
-                                <ManageConfigButton
-                                    disabled={!isConfigManagerEnabled()}
-                                    onClick={() => setShowConfigItemsManager(true)}
-                                />
+                                {hasClassConnections && (
+                                    <Button
+                                        icon="code-block"
+                                        disabled={!isClassConnectorsManagerEnabled()}
+                                        onClick={() => setShowClassConnectionsManager(true)}
+                                    >
+                                        {t('ManageClassConnections')} ({size(classConnectionsData)})
+                                    </Button>
+                                )}
+                                {hasConfigManager && (
+                                    <ManageConfigButton
+                                        disabled={!isConfigManagerEnabled()}
+                                        onClick={() => setShowConfigItemsManager(true)}
+                                    />
+                                )}
                             </ButtonGroup>
                         </div>
                     )}

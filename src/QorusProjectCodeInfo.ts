@@ -1458,7 +1458,11 @@ export class QorusProjectCodeInfo {
                     && (!output_condition.type || output_condition.type === output.type)
                     && (!output_condition.subtype || output_condition.subtype === output.subtype)
                     && (!output_condition.path || output_condition.path === output.path);
-            });
+                    
+            }).map((mapper) => ({
+                ...mapper,
+                name: `${mapper.name}:${mapper.version}`
+            }))
 
             qorus_webview.postMessage({
                 action: 'return-mappers',

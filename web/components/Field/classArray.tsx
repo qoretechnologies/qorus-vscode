@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import SelectPairField from './selectPair';
-import { Button, ButtonGroup } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
 import styled from 'styled-components';
 import { size } from 'lodash';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
@@ -24,8 +24,15 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
     get_message,
     return_message,
     t,
+    resetClassConnections,
+    showClassesWarning,
 }) => {
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
+        // Check if the current value is empty
+        if (key === 'name' && !(value[index][key] === '' || !value[index][key])) {
+            // Reset the class connections if it's not
+            resetClassConnections();
+        }
         const newValue = [...value];
         // Get the pair based on the index
         const pair: IPair = newValue[index];
@@ -40,6 +47,13 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
     };
 
     const handleRemoveClick: (id: number) => void = id => {
+        // Get the pair data
+        const pairData: IPair = value.find((_p: IPair, index: number) => id === index);
+        // Check if this field had a class selected
+        if (pairData.name) {
+            // Reset the class connections if it's not
+            resetClassConnections();
+        }
         // Remove the selected pair
         onChange(
             name,
@@ -49,6 +63,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
 
     return (
         <>
+            {showClassesWarning && <Callout intent="warning">{t('ClassChangesWarning')}</Callout>}
             {value.map((pair: IPair, index: number) => (
                 <StyledPairField key={index + 1}>
                     <SelectPairField
