@@ -1,11 +1,14 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import StringField from './string';
-import { Button, ButtonGroup, ControlGroup } from '@blueprintjs/core';
+import { Button, ButtonGroup, ControlGroup, Callout } from '@blueprintjs/core';
 import styled from 'styled-components';
 import { size } from 'lodash';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
+import compose from 'recompose/compose';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import ConnectorField from './connectors';
 
 type IPair = {
     id: number;
@@ -19,8 +22,12 @@ export const StyledPairField = styled.div`
 const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChange> = ({
     name,
     onChange,
-    value = [{ id: 1, name: '', 'input-method': '', 'output-method': '' }],
+    value = [
+        { id: 1, name: '', 'input-method': '', 'output-method': '', 'input-provider': null, 'output-provider': null },
+    ],
     t,
+    initialData,
+    requestFieldData,
 }) => {
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
         const newValue = [...value];
@@ -28,12 +35,31 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
         const pair: IPair = newValue[index];
         // Update the field
         pair[key] = val;
+        // Remove the provider iv value is empty
+        if (val === '') {
+            if (key === 'input-method') {
+                pair['input-provider'] = null;
+            }
+            if (key === 'output-method') {
+                pair['output-provider'] = null;
+            }
+        }
         // Update the pairs
         onChange(name, newValue);
     };
 
     const handleAddClick: () => void = () => {
-        onChange(name, [...value, { id: size(value) + 1, name: '', 'input-method': '', 'output-method': '' }]);
+        onChange(name, [
+            ...value,
+            {
+                id: size(value) + 1,
+                name: `${requestFieldData('class-name', 'value')}${size(value) + 1}`,
+                'input-method': '',
+                'output-method': '',
+                'input-provider': null,
+                'output-provider': null,
+            },
+        ]);
     };
 
     const handleRemoveClick: (id: number) => void = id => {
@@ -46,7 +72,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
 
     return (
         <>
-            {value.map((pair: IPair, index: number) => (
+            {[...value].map((pair: IPair, index: number) => (
                 <StyledPairField key={index + 1}>
                     <div>
                         <ControlGroup fill>
@@ -82,6 +108,34 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                             {size(value) !== 1 && <Button icon={'trash'} onClick={() => handleRemoveClick(index)} />}
                         </ControlGroup>
                     </div>
+                    <div>
+                        {initialData.qorus_instance ? (
+                            <>
+                                {pair['input-method'] && (
+                                    <ConnectorField
+                                        value={pair['input-provider']}
+                                        isInitialEditing={!!initialData.class}
+                                        title="Input"
+                                        id={index}
+                                        name="input-provider"
+                                        onChange={changePairData}
+                                    />
+                                )}
+                                {pair['output-method'] && (
+                                    <ConnectorField
+                                        isInitialEditing={!!initialData.class}
+                                        value={pair['output-provider']}
+                                        title="Output"
+                                        id={index}
+                                        name="output-provider"
+                                        onChange={changePairData}
+                                    />
+                                )}
+                            </>
+                        ) : (
+                            <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>
+                        )}
+                    </div>
                 </StyledPairField>
             ))}
             <ButtonGroup fill>
@@ -91,4 +145,4 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
     );
 };
 
-export default withTextContext()(ClassConnectorsField);
+export default compose(withInitialDataConsumer(), withTextContext())(ClassConnectorsField);

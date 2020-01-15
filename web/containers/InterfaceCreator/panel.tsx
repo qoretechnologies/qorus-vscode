@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState, FormEvent, useEffect, useRef, useCa
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
-import { size, map, filter, find, includes, reduce, camelCase, upperFirst, omit } from 'lodash';
+import { size, map, filter, find, includes, reduce, camelCase, upperFirst, omit, cloneDeep } from 'lodash';
 import SidePanel from '../../components/SidePanel';
 import FieldSelector from '../../components/FieldSelector';
 import Content from '../../components/Content';
@@ -70,7 +70,7 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
-    get_message?: { action: string; object_type: string; return_value?: string };
+    get_message?: { action: string; object_type: string; return_value?: string; message_data?: any };
     return_message?: { action: string; object_type: string; return_value?: string };
     style?: string;
     type?: string;
@@ -91,6 +91,7 @@ export interface IField {
     markdown?: boolean;
     disabled?: boolean;
     requires_fields?: string[];
+    resetClassConnections?: () => void;
 }
 
 export declare interface IFieldChange {
@@ -175,6 +176,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [classConnectionsData, setClassConnectionsData] = useState<IClassConnections>(data?.['class-connections']);
     const [fieldListeners, setFieldListeners] = useState([]);
 
+    const resetClassConnections = () => {
+        setClassConnectionsData(null);
+    };
+
     useEffect(() => {
         // Remove the current listeners
         fieldListeners.forEach(listener => {
@@ -206,17 +211,19 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField }; iface_kind: string }) => {
                 // Register only for this interface
                 if (rest.iface_kind === type) {
+                    // Clone initial data
+                    const clonedData = cloneDeep(data);
                     if (!fields || !fields.length) {
                         // Mark the selected fields
                         const transformedFields: IField[] = map(newFields, (field: IField) => ({
                             ...field,
-                            selected: (data && data[field.name]) || field.mandatory !== false,
+                            selected: (clonedData && clonedData[field.name]) || field.mandatory !== false,
                             isValid:
-                                data && data[field.name]
-                                    ? validateField(field.type || 'string', data[field.name], field)
+                                clonedData && clonedData[field.name]
+                                    ? validateField(field.type || 'string', clonedData[field.name], field)
                                     : false,
-                            value: data ? data[field.name] : undefined,
-                            hasValueSet: data && data[field.name],
+                            value: clonedData ? clonedData[field.name] : undefined,
+                            hasValueSet: clonedData && clonedData[field.name],
                         }));
                         // Pull the pre-selected fields
                         const preselectedFields: IField[] = filter(
@@ -227,7 +234,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         if (isEditing) {
                             preselectedFields.push({
                                 name: 'orig_name',
-                                value: data && data.name,
+                                value: clonedData && clonedData.name,
                                 isValid: true,
                                 selected: true,
                                 internal: true,
@@ -250,7 +257,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // has already been on this view
                     if (!interfaceId) {
                         // Create it if this is brand new interface
-                        setInterfaceId(type, data ? data.iface_id : shortid.generate());
+                        setInterfaceId(type, data ? clonedData.iface_id : shortid.generate());
                     }
                     // Set show
                     setShow(true);
@@ -282,18 +289,20 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
             ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField } }) => {
+                // Deep copy initial data
+                const copiedData = cloneDeep(data);
                 // Register only for this interface
                 if (rest.iface_kind === type) {
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
-                        selected: (data && data[field.name]) || field.mandatory !== false,
+                        selected: (copiedData && copiedData[field.name]) || field.mandatory !== false,
                         isValid:
-                            data && data[field.name]
-                                ? validateField(field.type || 'string', data[field.name], field)
+                            copiedData && copiedData[field.name]
+                                ? validateField(field.type || 'string', copiedData[field.name], field)
                                 : false,
-                        value: data ? data[field.name] : undefined,
-                        hasValueSet: data && data[field.name],
+                        value: copiedData ? copiedData[field.name] : undefined,
+                        hasValueSet: copiedData && copiedData[field.name],
                     }));
                     // Pull the pre-selected fields
                     const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
@@ -301,7 +310,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     if (isEditing) {
                         preselectedFields.push({
                             name: 'orig_name',
-                            value: data && data.name,
+                            value: copiedData && copiedData.name,
                             isValid: true,
                             selected: true,
                             internal: true,
@@ -321,7 +330,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     isInitialMount.current = false;
                 }
                 // Create / set interface id
-                setInterfaceId(type, data ? data.iface_id : shortid.generate());
+                setInterfaceId(type, data ? copiedData.iface_id : shortid.generate());
                 // Set show
                 setShow(true);
             }
@@ -830,6 +839,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                             {...field}
                                             onChange={handleFieldChange}
                                             requestFieldData={requestFieldData}
+                                            resetClassConnections={resetClassConnections}
+                                            showClassesWarning={hasClassConnections}
                                             interfaceKind={type}
                                             iface_kind={type}
                                             activeId={activeId}
@@ -857,17 +868,21 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {(hasConfigManager || hasClassConnections) && (
                         <div style={{ float: 'left', width: '48%' }}>
                             <ButtonGroup fill>
-                                <Button
-                                    icon="code-block"
-                                    disabled={!isClassConnectorsManagerEnabled()}
-                                    onClick={() => setShowClassConnectionsManager(true)}
-                                >
-                                    {t('ManageClassConnections')} ({size(classConnectionsData)})
-                                </Button>
-                                <ManageConfigButton
-                                    disabled={!isConfigManagerEnabled()}
-                                    onClick={() => setShowConfigItemsManager(true)}
-                                />
+                                {hasClassConnections && (
+                                    <Button
+                                        icon="code-block"
+                                        disabled={!isClassConnectorsManagerEnabled()}
+                                        onClick={() => setShowClassConnectionsManager(true)}
+                                    >
+                                        {t('ManageClassConnections')} ({size(classConnectionsData)})
+                                    </Button>
+                                )}
+                                {hasConfigManager && (
+                                    <ManageConfigButton
+                                        disabled={!isConfigManagerEnabled()}
+                                        onClick={() => setShowConfigItemsManager(true)}
+                                    />
+                                )}
                             </ButtonGroup>
                         </div>
                     )}

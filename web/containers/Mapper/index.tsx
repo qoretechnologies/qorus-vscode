@@ -317,6 +317,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     postMessage,
     interfaceId,
     getUrlFromProvider,
+    mapperSubmit,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -632,9 +633,13 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             iface_kind: 'mapper',
             data: mapper,
             orig_data: initialData.mapper,
-            open_file_on_success: true,
+            open_file_on_success: !mapperSubmit,
             iface_id: interfaceId.mapper,
         });
+        // If on submit
+        if (mapperSubmit) {
+            mapperSubmit(mapper.name, mapper.version);
+        }
     };
 
     return (

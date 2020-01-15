@@ -1795,7 +1795,7 @@ msgid "UnableFindConfigItemsForClass ${ class }"
 msgstr "Unable to find config items file for class ${ class }"
 
 msgid "ManageConfigItems"
-msgstr "Manage config items "
+msgstr "Config items "
 
 msgid "ConfigItemEditor"
 msgstr "Config item editor "
@@ -1891,7 +1891,7 @@ msgid "NoDescriptionFound"
 msgstr "No description found"
 
 msgid "ManageClassConnections"
-msgstr "Manage class connections"
+msgstr "Class connections"
 
 msgid "ClassConnectionsManager"
 msgstr "Class Connections Manager"
@@ -1928,6 +1928,15 @@ msgstr "Fetching output provider data failed, please check the output connection
 
 msgid "IncorrectKeysRemoved"
 msgstr "incorrect keys were removed from the mapper."
+
+msgid "SelectNoItems"
+msgstr "No data available to select"
+
+msgid "NoMappersMatchConnectors"
+msgstr "There are no mappers available matching the criteria of selected connectors. Please create new mapper."
+
+msgid "ClassChangesWarning"
+msgstr "Changing and deleting classes will reset all class connections data!"
 
 msgid "ErrorReadingGlobalConfigItemValues"
 msgstr "Error in reading global config item values"

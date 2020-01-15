@@ -14,6 +14,7 @@ import { IMapperRelation } from '../containers/Mapper';
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const { qorus_instance } = props;
+        const [mapper, setMapper] = useState<any>(props.mapper);
         const [showMapperConnections, setShowMapperConnections] = useState<boolean>(false);
         const [inputs, setInputs] = useState<any>(null);
         const [outputs, setOutputs] = useState<any>(null);
@@ -44,6 +45,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [hideOutputSelector, setHideOutputSelector] = useState<boolean>(false);
         const [error, setError] = useState<any>(null);
         const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
+        const [mapperSubmit, setMapperSubmit] = useState<any>('test');
+
+        const handleMapperSubmitSet = callback => {
+            setMapperSubmit(() => callback);
+        };
 
         const resetMapper = () => {
             setShowMapperConnections(false);
@@ -62,19 +68,23 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setOutputOptionProvider(null);
             setHideInputSelector(false);
             setHideOutputSelector(false);
+            setError(null);
+            setWrongKeysCount(0);
+            setMapperSubmit(null);
+            setMapper(null);
         };
 
         const getUrlFromProvider: (fieldType: 'input' | 'output') => string = fieldType => {
             const { type, name, path } = fieldType === 'input' ? inputOptionProvider : outputOptionProvider;
             // Get the rules for the given provider
-            const { url, suffix, recordSuffix, requiresRecord } = providers[type];
+            const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix ? recordSuffix : ''}`;
         };
 
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
-            const { type, name, path = '' } = props.mapper.mapper_options[`mapper-${fieldType}`];
+            const { type, name, path = '' } = mapper.mapper_options[`mapper-${fieldType}`];
             // Save the provider options
             if (fieldType === 'input') {
                 setInputOptionProvider({
@@ -90,16 +100,17 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 });
             }
             // Get the rules for the given provider
-            const { url, suffix, recordSuffix, requiresRecord } = providers[type];
+            const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${requiresRecord ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix ? recordSuffix : ''}`;
         };
 
         const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
-            const { type, name, path = '' } = props.mapper.mapper_options[`mapper-${fieldType}`];
+            const { type, name, path = '' } = mapper.mapper_options[`mapper-${fieldType}`];
             // Get the rules for the given provider
             const { url, suffix } = providers[type];
+
             // Build the URL based on the provider type
             return `${url}/${name}${suffix}${path}/mapper_keys`;
         };
@@ -126,6 +137,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const checkMapperKeys = (relations, mapperKeys) => {
+            if (!mapperKeys) {
+                return relations;
+            }
             return reduce(
                 relations,
                 (newRelations, keys, fieldName) => {
@@ -147,6 +161,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     if (size(newKeys) !== 0) {
                         return { ...newRelations, [fieldName]: newKeys };
                     }
+
                     // Return unchanged
                     return newRelations;
                 },
@@ -154,72 +169,103 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             );
         };
 
+        const getInputsData = () => {
+            // Set loading of inputs and outputs
+            setInputsLoading(true);
+            // Hide input and output selectors
+            setHideInputSelector(true);
+            // Get URL for input and output providers
+            const inputUrl = getProviderUrl('input');
+            // Save the url as a record, to be accessible
+            setInputRecord(inputUrl);
+            // Fetch the input and output fields
+            (async () => {
+                const inputs = await props.fetchData(inputUrl);
+                // If one of the connections is down
+                if (inputs.error) {
+                    console.log('errors', inputs.error);
+
+                    setError(inputs.error && 'InputConnError');
+                    return;
+                }
+                // Save the fields
+                const inputFields = inputs.data.fields || inputs.data;
+                // Save the inputs & outputs
+                setInputs(
+                    insertCustomFields(inputFields, mapper.mapper_options['mapper-input']['custom-fields'] || {})
+                );
+                // Cancel loading
+                setInputsLoading(false);
+            })();
+        };
+
+        const getOutputsData = (mapperKeys: any) => {
+            // Set loading of inputs and outputs
+            setOutputsLoading(true);
+            // Hide input and output selectors
+            setHideOutputSelector(true);
+            // Get URL for input and output providers
+            const outputUrl = getProviderUrl('output');
+            // Save the url as a record, to be accessible
+            setOutputRecord(outputUrl);
+            // Fetch the input and output fields
+            (async () => {
+                const outputs = await props.fetchData(outputUrl);
+                // If one of the connections is down
+                if (outputs.error) {
+                    console.log('errors', outputs.error);
+
+                    setError(outputs.error && 'OutputConnError');
+                    return;
+                }
+                // Do not fetch mapper keys for types
+                if (mapper.mapper_options['mapper-output'].type !== 'type') {
+                    const mapperKeysUrl = getMapperKeysUrl('output');
+                    // Fetch the mapper keys
+                    const resp = await props.fetchData(mapperKeysUrl);
+                    // Check if mapper keys call was good
+                    if (resp.error) {
+                        console.log(resp);
+                        setError('MapperKeysFail');
+                        return;
+                    }
+                    // Save the mapper keys
+                    setMapperKeys(resp.data);
+                    mapperKeys = resp.data;
+                }
+                // Save the fields
+                const outputFields = outputs.data.fields || outputs.data;
+                setOutputs(
+                    insertCustomFields(outputFields, mapper.mapper_options['mapper-output']['custom-fields'] || {})
+                );
+                setRelations(checkMapperKeys(mapper.fields, mapperKeys) || {});
+                // Cancel loading
+                setOutputsLoading(false);
+            })();
+        };
+
         useEffect(() => {
             if (qorus_instance) {
+                let mapperKeys;
                 // Fetch the mapper keys
                 (async () => {
                     const response = await props.fetchData('system/default_mapper_keys');
                     setMapperKeys(response.data);
+                    mapperKeys = response.data;
                 })();
                 // Check if user is editing a mapper
-                if (props.isEditing) {
-                    // Set loading of inputs and outputs
-                    setInputsLoading(true);
-                    setOutputsLoading(true);
-                    // Hide input and output selectors
-                    setHideInputSelector(true);
-                    setHideOutputSelector(true);
-                    // Get URL for input and output providers
-                    const inputUrl = getProviderUrl('input');
-                    const outputUrl = getProviderUrl('output');
-                    // Save the url as a record, to be accessible
-                    setInputRecord(inputUrl);
-                    setOutputRecord(outputUrl);
-                    // Fetch the input and output fields
-                    (async () => {
-                        const inputs = await props.fetchData(inputUrl);
-                        const outputs = await props.fetchData(outputUrl);
-                        // If one of the connections is down
-                        if (inputs.error || outputs.error) {
-                            setError(inputs.error ? 'InputConnError' : 'OutputConnError');
-                            return;
-                        }
-                        const mapperKeysUrl = getMapperKeysUrl('output');
-                        // Fetch the mapper keys
-                        const mapperKeys = await props.fetchData(mapperKeysUrl);
-                        // Check if mapper keys call was good
-                        if (mapperKeys.error) {
-                            setError('MapperKeysFail');
-                            return;
-                        }
-                        // Save the mapper keys
-                        setMapperKeys(mapperKeys.data);
-                        // Save the fields
-                        const inputFields = inputs.data.fields || inputs.data;
-                        const outputFields = outputs.data.fields || outputs.data;
-                        // Save the inputs & outputs
-                        setInputs(
-                            insertCustomFields(
-                                inputFields,
-                                props.mapper.mapper_options['mapper-input']['custom-fields'] || {}
-                            )
-                        );
-                        setOutputs(
-                            insertCustomFields(
-                                outputFields,
-                                props.mapper.mapper_options['mapper-output']['custom-fields'] || {}
-                            )
-                        );
-                        setRelations(checkMapperKeys(props.mapper.fields, mapperKeys.data) || {});
-                        // Cancel loading
-                        setInputsLoading(false);
-                        setOutputsLoading(false);
-                    })();
+                if (mapper) {
+                    if (mapper.mapper_options['mapper-input']) {
+                        getInputsData();
+                    }
+                    if (mapper.mapper_options['mapper-output']) {
+                        getOutputsData(mapperKeys);
+                    }
                 }
             }
-        }, [qorus_instance]);
+        }, [qorus_instance, mapper]);
 
-        if (!error && qorus_instance && (!mapperKeys || (props.isEditing && (inputsLoading || outputsLoading)))) {
+        if (!error && qorus_instance && (!mapperKeys || (props.isEditing && (!inputs || !outputs)))) {
             return <p> Loading ... </p>;
         }
 
@@ -321,6 +367,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     getUrlFromProvider,
                     error,
                     wrongKeysCount,
+                    setMapper,
+                    mapperSubmit,
+                    handleMapperSubmitSet,
                 }}
             >
                 <Component {...props} />
@@ -331,8 +380,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     return compose(
         mapProps(({ mapper, ...rest }) => ({
             initialShow: !!mapper,
-            isEditing: !!mapper,
             mapper,
+            isEditing: !!mapper,
             ...rest,
         })),
         withTextContext()
