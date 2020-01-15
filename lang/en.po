@@ -599,7 +599,7 @@ msgid "ErrorInActivatingGitExtension"
 msgstr "Error in activating Git extension"
 
 msgid "UnableDetermineProjectFolder"
-msgstr "Unable to determine project folder in activating Git extension"
+msgstr "Unable to determine project folder"
 
 msgid "PackageDeploymentNotSupportedForQorus3"
 msgstr "Package deployment is not supported for Qorus version < 4"
@@ -1937,3 +1937,6 @@ msgstr "There are no mappers available matching the criteria of selected connect
 
 msgid "ClassChangesWarning"
 msgstr "Changing and deleting classes will reset all class connections data!"
+
+msgid "ErrorReadingGlobalConfigItemValues"
+msgstr "Error in reading global config item values"

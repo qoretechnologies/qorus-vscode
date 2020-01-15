@@ -85,7 +85,7 @@ export const dash2Camel = str => {
     const first = parts.splice(0, 1);
     parts = parts.map(part => part[0].toUpperCase() + part.substr(1));
     return [first, ...parts].join('');
-}
+};
 
 export const dash2Pascal = str =>
     str.split('-').map(part => part[0].toUpperCase() + part.substr(1)).join('');

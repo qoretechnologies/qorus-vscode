@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as jsyaml from 'js-yaml';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
@@ -104,11 +105,15 @@ class ClassCreator extends InterfaceCreator {
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
         if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
             headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
+
+            if (iface_kind === 'step') {
+                this.setWorkflowConfigItemValues(iface_data);
+            }
         }
 
         this.hasCode()
             ? this.writeFiles(contents, headers, open_file_on_success)
-            : this.writeYamlFile(headers, open_file_on_success);
+            : this.writeYamlFile(headers);
 
         if (message) {
             msg.info(message);
@@ -125,6 +130,37 @@ class ClassCreator extends InterfaceCreator {
         if (hasConfigItems(iface_kind)) {
             this.code_info.interface_info.setOrigConfigItems(iface_id);
         }
+    }
+
+    private setWorkflowConfigItemValues({name, version, 'config-items': items}) {
+        const items_with_wf_value = items.filter(item => item['workflow-value'] !== undefined);
+        if (!items_with_wf_value.length) {
+            return;
+        }
+
+        const workflow_data = this.code_info.workflowYamlDataByStep(`${name}:${version}`);
+        if (!workflow_data) {
+            return;
+        }
+
+        let wf_ci_values = workflow_data['config-item-values'] || [];
+
+        items_with_wf_value.forEach(item => {
+            const {name, 'workflow-value': value} = item;
+            const index = wf_ci_values.findIndex(wf_ci_value => wf_ci_value.name === name);
+            if (index > -1) {
+                wf_ci_values[index].value = value;
+            } else {
+                wf_ci_values.push({name, value});
+            }
+        });
+
+        let headers = ClassCreator.createHeaders(workflow_data);
+
+        headers += jsyaml.safeDump({'config-item-values': wf_ci_values}, {indent: 2})
+                         .replace(/\r?\n  -\r?\n/g, '\n  - ');
+
+        this.writeYamlFile(headers, workflow_data.yaml_file);
     }
 }
 

@@ -90,6 +90,9 @@ export class InterfaceInfo {
 
             if (value === null && remove) {
                 delete item[level + '-value'];
+                if (level === 'global') {
+                    item['remove-global-value'] = true;
+                }
                 return;
             }
 
@@ -301,6 +304,7 @@ export class InterfaceInfo {
                     item.level = 'default';
                     item.is_set = true;
                 }
+
                 for (const level of ['global', 'workflow', 'local']) {
                     const key = level + '-value';
                     if (item[key] !== undefined) {
@@ -309,7 +313,6 @@ export class InterfaceInfo {
                         item.is_set = true;
                     }
                 }
-
                 item.type = (item.type || default_type);
 
                 return { ...item };
@@ -346,10 +349,15 @@ export class InterfaceInfo {
             const global_items = local_items.filter(item => !item.strictly_local)
                                             .map(item => checkValueLevel({ ...item }, 'global'));
 
-            const workflow_items = (iface_kind === 'step')
-                ? local_items.filter(item => !item.strictly_local)
-                             .map(item => checkValueLevel({ ...item }, 'workflow'))
-                : [];
+            let workflow_items = [];
+            if (iface_kind === 'step') {
+                const {name, version} = this.iface_by_id[iface_id];
+                const name_version = `${name}:${version || default_version}`
+                if (this.code_info.workflowYamlDataByStep(name_version)) {
+                    workflow_items = local_items.filter(item => !item.strictly_local)
+                                                .map(item => checkValueLevel({ ...item }, 'workflow'));
+                }
+            }
 
             const message = {
                 action: 'return-config-items',

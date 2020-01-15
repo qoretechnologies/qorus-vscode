@@ -9,6 +9,7 @@ import { lang_suffix, lang_inherits, default_parse_options } from './common_cons
 import * as jsyaml from 'js-yaml';
 import { quotesIfNum } from '../qorus_utils';
 import { t } from 'ttag';
+import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
 
 
@@ -80,18 +81,14 @@ export abstract class InterfaceCreator {
         return path.join(this.target_dir, this.yaml_file_name);
     }
 
-    protected writeYamlFile(headers: string, open_file_on_success: boolean = true, file_to_open?: string) {
+    protected writeYamlFile(headers: string, file_path?: string) {
         const generated_file_info = '# This is a generated file, don\'t edit!\n';
+        file_path = file_path || this.yaml_file_path;
 
-        fs.writeFile(this.yaml_file_path, generated_file_info + headers, err => {
+        fs.writeFile(file_path, generated_file_info + headers, err => {
             if (err) {
-                msg.error(t`WriteFileError ${this.yaml_file_path} ${err.toString()}`);
+                msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
                 return;
-            }
-
-            if (open_file_on_success) {
-                workspace.openTextDocument(file_to_open || this.yaml_file_path)
-                         .then(doc => window.showTextDocument(doc));
             }
         });
     }
@@ -103,7 +100,11 @@ export abstract class InterfaceCreator {
                 return;
             }
 
-            this.writeYamlFile(headers, open_file_on_success, this.file_path);
+            this.writeYamlFile(headers);
+
+            if (open_file_on_success) {
+                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+            }
         });
     }
 
@@ -233,26 +234,32 @@ export abstract class InterfaceCreator {
         for (const item of [...items]) {
             result += `${list_indent}name: ${item.name}\n`;
 
-            for (const tag of ['local-value', 'global-value', 'workflow-value']) {
-                if (typeof item[tag] !== 'undefined') {
-                    switch (item.type) {
-                        case 'list':
-                        case '*list':
-                            result += `${indent}${tag}:\n`;
-                            for (let entry of item[tag]) {
-                                result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
-                            }
-                            break;
-                        case 'hash':
-                        case '*hash':
-                            result += `${indent}${tag}:\n`;
-                            for (let key in item[tag]) {
-                                result += `${indent}${indent}${key}: ${JSON.stringify(item[tag][key])}\n`;
-                            }
-                            break;
-                        default:
-                            result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
-                    }
+            if (item['global-value']) {
+                globals.set(item);
+            }
+            if (item['remove-global-value']) {
+                globals.remove(item.name);
+            }
+
+            if (item['local-value'] !== undefined) {
+                const tag = 'local-value';
+                switch (item.type) {
+                    case 'list':
+                    case '*list':
+                        result += `${indent}${tag}:\n`;
+                        for (let entry of item[tag]) {
+                            result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
+                        }
+                        break;
+                    case 'hash':
+                    case '*hash':
+                        result += `${indent}${tag}:\n`;
+                        for (let key in item[tag]) {
+                            result += `${indent}${indent}${key}: ${JSON.stringify(item[tag][key])}\n`;
+                        }
+                        break;
+                    default:
+                        result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
                 }
             }
 
@@ -264,8 +271,9 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set', 'yamlData',
-                     'orig_name', 'local-value', 'global-value', 'workflow-value'].includes(tag))
+                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level',
+                     'is_set', 'yamlData', 'orig_name', 'local-value', 'global-value',
+                     'remove-global-value', 'workflow-value'].includes(tag))
                 {
                     continue;
                 }
@@ -329,8 +337,13 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag in headers) {
+            if (['target_dir', 'yaml_file', 'config-item-values'].includes(tag))
+            {
+                continue;
+            }
+
             const value = headers[tag];
-            if (typeof(value) === 'undefined') {
+            if (value === undefined) {
                 continue;
             }
 
