@@ -38,6 +38,7 @@ export interface IClassConnection {
     prefix?: string;
     connector?: string;
     mapper?: string;
+    trigger?: string;
     isLast?: boolean;
     index?: number;
     isEditing?: boolean;

@@ -44,6 +44,9 @@ export interface IManageDialog {
     index?: number;
     isEditing?: boolean;
     isMapper?: boolean;
+    inputProvider?: any;
+    outputProvider?: any;
+    trigger?: string;
 }
 
 export interface IConnectorProps {
@@ -154,6 +157,29 @@ const StyledMapperConnection = styled.div`
     }
 `;
 
+const StyledTrigger = styled.div`
+    margin: 20px auto;
+    margin-top: 0;
+    width: 50%;
+    border-radius: 3px;
+    padding: 5px;
+    text-align: center;
+    background: white;
+    border: 1px solid green;
+    position: relative;
+
+    &:after {
+        content: '';
+        display: block;
+        height: 20px;
+        width: 2px;
+        position: absolute;
+        left: 50%;
+        top: 105%;
+        background-color: #d7d7d7;
+    }
+`;
+
 let mapperListener;
 
 const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
@@ -246,7 +272,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                 onClose={() => {
                     setManageDialog({});
                 }}
-                style={{ height: '250px', width: '60vw', backgroundColor: '#fff' }}
+                style={{ height: '320px', width: '60vw', backgroundColor: '#fff' }}
             >
                 <StyledDialogBody>
                     <Content style={{ padding: 0 }}>
@@ -367,6 +393,45 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                         postMessage={postMessage}
                                         setManageDialog={setManageDialog}
                                     />
+                                    {manageDialog.isFirst && (
+                                        <FieldWrapper>
+                                            <FieldLabel label={t('Trigger')} isValid={true} info={t('Optional')} />
+                                            <FieldInputWrapper>
+                                                <ControlGroup fill>
+                                                    <SelectField
+                                                        defaultItems={['Trigger 1', 'Trigger 2', 'Trigger 3'].map(
+                                                            trigger => ({
+                                                                name: trigger,
+                                                            })
+                                                        )}
+                                                        value={manageDialog.trigger}
+                                                        onChange={(_name, value) => {
+                                                            setManageDialog(
+                                                                (current: IManageDialog): IManageDialog => ({
+                                                                    ...current,
+                                                                    trigger: value,
+                                                                })
+                                                            );
+                                                        }}
+                                                        name="trigger"
+                                                        fill
+                                                    />
+                                                    {manageDialog.trigger && (
+                                                        <Button
+                                                            icon="trash"
+                                                            intent="danger"
+                                                            onClick={() => {
+                                                                setManageDialog(current => ({
+                                                                    ...current,
+                                                                    trigger: null,
+                                                                }));
+                                                            }}
+                                                        />
+                                                    )}
+                                                </ControlGroup>
+                                            </FieldInputWrapper>
+                                        </FieldWrapper>
+                                    )}
                                 </>
                             )}
                         </ContentWrapper>
@@ -417,96 +482,108 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             )}
             {connection &&
                 connection.map((conn, index) => (
-                    <StyledMapperField key={conn.id} style={{ marginBottom: '80px' }}>
-                        {connection.length > index + 1 && (
-                            <StyledMapperConnection>
-                                <div className="mapper-wrapper">
-                                    <Icon icon="diagram-tree" iconSize={12} intent={conn.mapper ? 'success' : 'none'} />{' '}
-                                    {conn.mapper || t('NoMapper')}
-                                    <ButtonGroup>
-                                        <Button
-                                            small
-                                            minimal
-                                            icon={<Icon icon={conn.mapper ? 'edit' : 'plus'} iconSize={12} />}
-                                            onClick={() =>
-                                                setManageDialog({
-                                                    isOpen: true,
-                                                    isEditing: true,
-                                                    mapper: conn.mapper,
-                                                    isMapper: true,
-                                                    index: index,
-                                                    connector: conn.connector,
-                                                    outputProvider: conn['output-provider'],
-                                                    inputProvider: connection[index + 1]['input-provider'],
-                                                })
-                                            }
-                                        />
-                                    </ButtonGroup>
-                                </div>
-                            </StyledMapperConnection>
+                    <>
+                        {conn.trigger && (
+                            <StyledTrigger>
+                                <Icon icon="play" /> {conn.trigger}
+                            </StyledTrigger>
                         )}
-                        <h4>{conn.connector}</h4>
-                        <p className="string">{conn.class}</p>
+                        <StyledMapperField key={conn.id} style={{ marginBottom: '80px' }}>
+                            {connection.length > index + 1 && (
+                                <StyledMapperConnection>
+                                    <div className="mapper-wrapper">
+                                        <Icon
+                                            icon="diagram-tree"
+                                            iconSize={12}
+                                            intent={conn.mapper ? 'success' : 'none'}
+                                        />{' '}
+                                        {conn.mapper || t('NoMapper')}
+                                        <ButtonGroup>
+                                            <Button
+                                                small
+                                                minimal
+                                                icon={<Icon icon={conn.mapper ? 'edit' : 'plus'} iconSize={12} />}
+                                                onClick={() =>
+                                                    setManageDialog({
+                                                        isOpen: true,
+                                                        isEditing: true,
+                                                        mapper: conn.mapper,
+                                                        isMapper: true,
+                                                        index: index,
+                                                        connector: conn.connector,
+                                                        outputProvider: conn['output-provider'],
+                                                        inputProvider: connection[index + 1]['input-provider'],
+                                                    })
+                                                }
+                                            />
+                                        </ButtonGroup>
+                                    </div>
+                                </StyledMapperConnection>
+                            )}
+                            <h4>{conn.connector}</h4>
+                            <p className="string">{conn.class}</p>
 
-                        <ButtonGroup
-                            style={{
-                                position: 'absolute',
-                                bottom: '8px',
-                                right: '8px',
-                            }}
-                        >
-                            {!conn.isLast && (
-                                <Tooltip content={t('AddNewConnector')}>
+                            <ButtonGroup
+                                style={{
+                                    position: 'absolute',
+                                    bottom: '8px',
+                                    right: '8px',
+                                }}
+                            >
+                                {!conn.isLast && (
+                                    <Tooltip content={t('AddNewConnector')}>
+                                        <Button
+                                            onClick={() => setManageDialog({ isOpen: true, isBetween: hasLast, index })}
+                                            minimal
+                                            icon="small-plus"
+                                            small
+                                            style={{ minWidth: '18px', minHeight: '18px' }}
+                                        />
+                                    </Tooltip>
+                                )}
+                                <Tooltip content={t('EditConnector')}>
                                     <Button
-                                        onClick={() => setManageDialog({ isOpen: true, isBetween: hasLast, index })}
+                                        onClick={() =>
+                                            setManageDialog({
+                                                isOpen: true,
+                                                class: conn.class,
+                                                trigger: conn.trigger,
+                                                connector: conn.connector,
+                                                isFirst: index === 0,
+                                                isLast: index === connection.length - 1,
+                                                isBetween: hasLast,
+                                                isEditing: true,
+                                                index,
+                                            })
+                                        }
                                         minimal
-                                        icon="small-plus"
+                                        icon="edit"
                                         small
                                         style={{ minWidth: '18px', minHeight: '18px' }}
                                     />
                                 </Tooltip>
-                            )}
-                            <Tooltip content={t('EditConnector')}>
-                                <Button
-                                    onClick={() =>
-                                        setManageDialog({
-                                            isOpen: true,
-                                            class: conn.class,
-                                            connector: conn.connector,
-                                            isFirst: index === 0,
-                                            isLast: index === connection.length - 1,
-                                            isBetween: hasLast,
-                                            isEditing: true,
-                                            index,
-                                        })
-                                    }
-                                    minimal
-                                    icon="edit"
-                                    small
-                                    style={{ minWidth: '18px', minHeight: '18px' }}
-                                />
-                            </Tooltip>
-                            {index !== 0 && (
-                                <Tooltip content={t('RemoveConnector')}>
-                                    <Button
-                                        onClick={() => {
-                                            onDeleteConnector(connectionName, index);
-                                            // If this was the last connector
-                                            if (conn.isLast) {
-                                                // Remove the last flag
-                                                setHasLast(false);
-                                            }
-                                        }}
-                                        minimal
-                                        icon="trash"
-                                        intent="danger"
-                                        small
-                                        style={{ minWidth: '18px', minHeight: '18px' }}
-                                    />
-                                </Tooltip>
-                            )}
-                        </ButtonGroup>
-                    </StyledMapperField>
+                                {index !== 0 && (
+                                    <Tooltip content={t('RemoveConnector')}>
+                                        <Button
+                                            onClick={() => {
+                                                onDeleteConnector(connectionName, index);
+                                                // If this was the last connector
+                                                if (conn.isLast) {
+                                                    // Remove the last flag
+                                                    setHasLast(false);
+                                                }
+                                            }}
+                                            minimal
+                                            icon="trash"
+                                            intent="danger"
+                                            small
+                                            style={{ minWidth: '18px', minHeight: '18px' }}
+                                        />
+                                    </Tooltip>
+                                )}
+                            </ButtonGroup>
+                        </StyledMapperField>
+                    </>
                 ))}
         </div>
     );
