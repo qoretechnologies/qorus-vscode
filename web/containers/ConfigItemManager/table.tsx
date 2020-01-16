@@ -20,6 +20,7 @@ import { ButtonGroup, Button, Icon } from '@blueprintjs/core';
 import withTextContext from '../../hocomponents/withTextContext';
 import Modal from './modal';
 import ReactMarkdown from 'react-markdown';
+import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -58,6 +59,14 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
         )}
     </React.Fragment>
 );
+
+const getItemType = (type, value) => {
+    if (type === 'any' || type === 'auto') {
+        return getTypeFromValue(maybeParseYaml(value));
+    }
+
+    return type;
+};
 
 let ItemsTable: Function = ({
     onSubmit,
@@ -162,13 +171,15 @@ let ItemsTable: Function = ({
                                     </ActionColumn>
                                     <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
                                         {!item.isTemplatedString &&
-                                        (item.type === 'hash' ||
-                                            item.type === 'list' ||
-                                            item.type === '*hash' ||
-                                            item.type === '*list') ? (
-                                            <Tree compact data={item.value} />
+                                        (getItemType(item.type, item.value) === 'hash' ||
+                                            getItemType(item.type, item.value) === 'list' ||
+                                            getItemType(item.type, item.value) === '*hash' ||
+                                            getItemType(item.type, item.value) === '*list') ? (
+                                            <Tree compact data={maybeParseYaml(item.value)} />
                                         ) : (
-                                            <ContentByType inTable content={item.value} />
+                                            console.log(maybeParseYaml(item.value)) || (
+                                                <ContentByType inTable content={maybeParseYaml(item.value)} />
+                                            )
                                         )}
                                     </Td>
                                     <Td className="narrow">
