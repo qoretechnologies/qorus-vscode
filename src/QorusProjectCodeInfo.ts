@@ -1502,7 +1502,7 @@ export class QorusProjectCodeInfo {
             }).map((mapper) => ({
                 ...mapper,
                 name: `${mapper.name}:${mapper.version}`
-            }))
+            }));
 
             qorus_webview.postMessage({
                 action: 'return-mappers',
