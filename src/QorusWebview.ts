@@ -115,11 +115,11 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'return-all-text',
                                 data: qorus_locale.translations
-                                    ? map(qorus_locale.translations, parsed_data => ({
-                                          id: parsed_data.msgid,
-                                          text: gettext(parsed_data.msgid),
-                                      }))
-                                    : {},
+                                    ?   map(qorus_locale.translations, parsed_data => ({
+                                            id: parsed_data.msgid,
+                                            text: gettext(parsed_data.msgid),
+                                        }))
+                                    :   {},
                             });
                             break;
                         case 'get-active-tab':

@@ -736,6 +736,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const fetchConfigItems: () => void = () => {
         postMessage(Messages.GET_CONFIG_ITEMS, {
             iface_id: interfaceId,
+            iface_kind: type,
         });
     };
 

@@ -1940,3 +1940,9 @@ msgstr "Changing and deleting classes will reset all class connections data!"
 
 msgid "ErrorReadingGlobalConfigItemValues"
 msgstr "Error in reading global config item values"
+
+msgid "WorkflowConfigItemValueForNonWorkflow"
+msgstr "Only workflow can set workflow level config item value"
+
+msgid "CannotDetermineConfigItemValueType"
+msgstr "Cannot determine config item value type"
