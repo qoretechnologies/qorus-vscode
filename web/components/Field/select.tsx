@@ -81,6 +81,10 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         }
     };
 
+    if (items.length === 0 && !value) {
+        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
+    }
+
     // Filter the items
     let filteredItems: any[] =
         query === '' ? items : items.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
@@ -88,10 +92,6 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     // If we should run the items thru predicate
     if (predicate) {
         filteredItems = filteredItems.filter(item => predicate(item.name));
-    }
-
-    if (items.length === 0) {
-        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
     }
 
     return (

@@ -93,7 +93,7 @@ const OptionHashField: FunctionComponent<{ t: TTranslator; items: any[]; options
                     </div>
                 </StyledPairField>
             ))}
-            {size(value) !== size(options) && (
+            {size(options) !== 0 && size(value) !== size(options) && (
                 <ButtonGroup fill>
                     <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
                 </ButtonGroup>

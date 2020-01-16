@@ -1,14 +1,17 @@
 import { IField } from '../containers/InterfaceCreator/panel';
 const cron = require('cron-validator');
 import isNumber from 'lodash/isNumber';
+import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
 import uniqWith from 'lodash/uniqWith';
 import size from 'lodash/size';
 import jsyaml from 'js-yaml';
 import isObject from 'lodash/isPlainObject';
+import { isString, isDate } from 'util';
 
 export const validateField: (type: string, value: any, field?: IField) => boolean = (type, value, field) => {
     switch (type) {
+        case 'binary':
         case 'string':
         case 'select-string':
         case 'file-string':
@@ -93,22 +96,25 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
                 value !== undefined && value !== null && value !== '' && new Date(value).toString() !== 'Invalid Date'
             );
         case 'hash':
-        case 'hash<auto>':
-        case 'list':
-        case 'list<auto>':
-            // Check if the value isn't empty
-            if (value === undefined || value === null || value === '') {
+        case 'hash<auto>': {
+            // Get the parsed yaml
+            const parsedValue: any = maybeParseYaml(value);
+            // If the value is not an object or empty
+            if (!parsedValue || !isObject(parsedValue)) {
                 return false;
             }
-            let yamlCorrect = true;
-            // Parse the yaml
-            try {
-                jsyaml.safeLoad(value);
-            } catch (e) {
-                yamlCorrect = false;
+            return true;
+        }
+        case 'list':
+        case 'list<auto>': {
+            // Get the parsed yaml
+            const parsedValue: any = maybeParseYaml(value);
+            // If the value is not an object or empty
+            if (!parsedValue || !isArray(parsedValue)) {
+                return false;
             }
-
-            return yamlCorrect;
+            return true;
+        }
         case 'mapper-code':
             if (!value) {
                 return false;
@@ -117,7 +123,77 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
             const [code, method] = value.split('.');
             // Both fields need to be strings & filled
             return validateField('string', code) && validateField('string', method);
+        case 'auto':
+        case 'any': {
+            // Parse the string as yaml
+            let yamlCorrect = true;
+            let parsedData;
+            // Parse the yaml
+            try {
+                parsedData = jsyaml.safeLoad(value);
+            } catch (e) {
+                yamlCorrect = false;
+            }
+
+            if (!yamlCorrect) {
+                return false;
+            }
+
+            if (parsedData) {
+                return validateField(getTypeFromValue(parsedData), value);
+            }
+
+            return false;
+        }
+        case 'nothing':
+            return false;
         default:
             return true;
     }
+};
+
+export const maybeParseYaml: (yaml: string) => any = yaml => {
+    // Check if the value isn't empty
+    if (yaml === undefined || yaml === null || yaml === '' || !isString(yaml)) {
+        return null;
+    }
+    // Parse the string as yaml
+    let yamlCorrect = true;
+    let parsedData;
+    // Parse the yaml
+    try {
+        parsedData = jsyaml.safeLoad(yaml);
+    } catch (e) {
+        yamlCorrect = false;
+    }
+
+    if (!yamlCorrect) {
+        return null;
+    }
+
+    if (parsedData) {
+        return parsedData;
+    }
+
+    return null;
+};
+
+export const getTypeFromValue = (value: any) => {
+    if (new Date(value).toString() !== 'Invalid Date') {
+        return 'date';
+    }
+    if (isObject(value)) {
+        return 'hash';
+    }
+    if (isArray(value)) {
+        return 'list';
+    }
+    if (isNumber(value)) {
+        return 'int';
+    }
+    if (isString(value)) {
+        return 'string';
+    }
+
+    return 'none';
 };

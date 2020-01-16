@@ -25,6 +25,7 @@ const TextareaField: FunctionComponent<ITextareaField & IField & IFieldChange> =
     addMessageListener,
     get_message,
     return_message,
+    placeholder,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -53,10 +54,16 @@ const TextareaField: FunctionComponent<ITextareaField & IField & IFieldChange> =
         onChange(name, '');
     };
 
-    return <TextArea fill={fill} value={!value ? default_value || '' : value} onChange={handleInputChange} />;
+    return (
+        <TextArea
+            placeholder={placeholder}
+            fill={fill}
+            value={!value ? default_value || '' : value}
+            onChange={handleInputChange}
+        />
+    );
 };
 
-export default compose(
-    withMessageHandler(),
-    withTextContext()
-)(TextareaField) as FunctionComponent<ITextareaField & IField & IFieldChange>;
+export default compose(withMessageHandler(), withTextContext())(TextareaField) as FunctionComponent<
+    ITextareaField & IField & IFieldChange
+>;

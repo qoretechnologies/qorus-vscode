@@ -20,6 +20,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
+                console.log(data);
+
                 setInitialData(current => ({
                     ...current,
                     ...data,

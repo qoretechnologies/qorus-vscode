@@ -34,18 +34,24 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [outputChildren, setOutputChildren] = useState<any[]>([]);
         const [inputRecord, setInputRecord] = useState<any>(null);
         const [outputRecord, setOutputRecord] = useState<any>(null);
-        const [inputOptionProvider, setInputOptionProvider] = useState<{ name: string; type: string; path?: string }>(
-            null
-        );
-        const [outputOptionProvider, setOutputOptionProvider] = useState<{ name: string; type: string; path?: string }>(
-            null
-        );
+        const [inputOptionProvider, setInputOptionProvider] = useState<{
+            name: string;
+            type: string;
+            path?: string;
+            subtype?: string;
+        }>(null);
+        const [outputOptionProvider, setOutputOptionProvider] = useState<{
+            name: string;
+            type: string;
+            path?: string;
+            subtype?: string;
+        }>(null);
         const [mapperKeys, setMapperKeys] = useState<any>(null);
         const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
         const [hideOutputSelector, setHideOutputSelector] = useState<boolean>(false);
         const [error, setError] = useState<any>(null);
         const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
-        const [mapperSubmit, setMapperSubmit] = useState<any>('test');
+        const [mapperSubmit, setMapperSubmit] = useState<any>(null);
 
         const handleMapperSubmitSet = callback => {
             setMapperSubmit(() => callback);
@@ -75,44 +81,47 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const getUrlFromProvider: (fieldType: 'input' | 'output') => string = fieldType => {
-            const { type, name, path } = fieldType === 'input' ? inputOptionProvider : outputOptionProvider;
+            const { type, name, path, subtype } = fieldType === 'input' ? inputOptionProvider : outputOptionProvider;
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}`;
         };
 
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
-            const { type, name, path = '' } = mapper.mapper_options[`mapper-${fieldType}`];
+            const { type, name, path = '', subtype } = mapper.mapper_options[`mapper-${fieldType}`];
             // Save the provider options
             if (fieldType === 'input') {
                 setInputOptionProvider({
                     type,
                     name,
                     path,
+                    subtype,
                 });
             } else {
                 setOutputOptionProvider({
                     type,
                     name,
                     path,
+                    subtype,
                 });
             }
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}`;
         };
 
         const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
-            const { type, name, path = '' } = mapper.mapper_options[`mapper-${fieldType}`];
+            const { type, name, path = '', subtype } = mapper.mapper_options[`mapper-${fieldType}`];
             // Get the rules for the given provider
             const { url, suffix } = providers[type];
-
+            // Build the URL
+            const newUrl: string = `${url}/${name}${suffix}${path}/mapper_keys`;
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}/mapper_keys`;
+            return subtype ? newUrl.replace(subtype, '') : newUrl;
         };
 
         const insertCustomFields = (fields, customFields = {}) => {

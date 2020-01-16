@@ -33,6 +33,8 @@ export interface IMapperFieldModalProps {
     selectedFields: any;
 }
 
+const types = {};
+
 const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     onClose,
     relationData,
@@ -45,7 +47,12 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 }) => {
     const [relation, setRelation] = useState(relationData || {});
 
-    const handleChange: (key: string, value: any) => void = (key, value) => {
+    const handleChange: (key: string, value: any, type?: string) => void = (key, value, type) => {
+        // Save the type if this is auto / any field
+        if (type) {
+            types[key] = type;
+        }
+        // Set the relation
         setRelation(current => {
             const newField = { ...current };
             newField[key] = value;
@@ -72,7 +79,12 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     const getIsFieldValid: (key: string, value: any) => boolean = (key, value) => {
         let valid = true;
         // Get the key type
-        const fieldType = getKeyType(key);
+        let fieldType = getKeyType(key);
+        // Check if this type is in the types list
+        if (types[key]) {
+            // Set the type
+            fieldType = types[key];
+        }
         // Special types
         if (fieldType === 'option_hash') {
             // Check if the value exists
@@ -207,7 +219,8 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     };
 
     const getKeyType = (key: string): string => {
-        return mapperKeys[key].value_type === 'any' && mapperKeys[key].requires_field_type
+        return (mapperKeys[key].value_type === 'any' || mapperKeys[key].value_type === 'auto') &&
+            mapperKeys[key].requires_field_type
             ? output.type.base_type
             : mapperKeys[key].value_type;
     };
