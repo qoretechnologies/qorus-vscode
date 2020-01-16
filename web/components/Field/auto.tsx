@@ -10,7 +10,8 @@ import SelectField from './select';
 import { Callout } from '@blueprintjs/core';
 import NumberField from './number';
 import OptionHashField from './optionHash';
-import { getTypeFromValue } from '../../helpers/validations';
+import { getTypeFromValue, maybeParseYaml, getValueOrDefaultValue } from '../../helpers/validations';
+import { isBoolean } from 'util';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -24,18 +25,23 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     ...rest
 }) => {
     const [currentType, setType] = useState<string>(null);
+    const [currentInternalType, setInternalType] = useState<string>(null);
     const [isInitialType, setIsInitialType] = useState<boolean>(true);
 
     useMount(() => {
+        const defType = defaultType && defaultType.replace(/"/g, '').trim();
         // If value already exists, but the type is auto or any
         // set the type based on the value
-        if (value && (defaultType === 'auto' || defaultType === 'any')) {
-            setType(getTypeFromValue(value));
+        if (value && (defType === 'auto' || defType === 'any')) {
+            setInternalType(getTypeFromValue(maybeParseYaml(value)));
         } else {
-            setType(defaultType);
+            setInternalType(defType);
         }
+
+        setType(defType);
+
         // Set the default value
-        onChange(name, value || default_value || null);
+        onChange(name, getValueOrDefaultValue(value, default_value, false));
     });
 
     useEffect(() => {
@@ -46,6 +52,13 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             const typeValue: string = requestFieldData(rest['type-depends-on'], 'value');
             // Check if the field has the value set yet
             if (typeValue && typeValue !== currentType) {
+                // If this is auto / any field
+                // set the internal type
+                if (typeValue === 'auto' || typeValue === 'any') {
+                    setInternalType(value ? getTypeFromValue(maybeParseYaml(value)) : 'string');
+                } else {
+                    setInternalType(typeValue);
+                }
                 // Set the new type
                 setType(typeValue);
             }
@@ -59,7 +72,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             // Is this the first time the type is set
             if (isInitialType) {
                 // Reset the value
-                onChange(name, value, currentType);
+                onChange(name, value, currentInternalType);
                 // Set the initial type was set
                 setIsInitialType(false);
             } else {
@@ -72,11 +85,9 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     const handleChange: (name: string, value: any) => void = (name, value) => {
         // Run the onchange
         if (onChange) {
-            onChange(name, value, currentType);
+            onChange(name, value, currentInternalType);
         }
     };
-
-    console.log(value);
 
     const renderField = currentType => {
         // Render the field based on the type
@@ -128,7 +139,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     // Render type picker if the type is auto or any
     return (
         <>
-            {(defaultType === 'auto' || defaultType === 'any') && (
+            {(defaultType === 'auto' || defaultType === 'any' || currentType === 'auto' || currentType === 'any') && (
                 <SelectField
                     name="type"
                     defaultItems={[
@@ -141,13 +152,14 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                         { name: 'hash' },
                         { name: 'int' },
                     ]}
-                    value={currentType}
+                    value={currentInternalType}
                     onChange={(_name, value) => {
-                        setType(value);
+                        onChange(name, null, currentInternalType);
+                        setInternalType(value);
                     }}
                 />
             )}
-            {renderField(currentType)}
+            {renderField(currentInternalType)}
         </>
     );
 };

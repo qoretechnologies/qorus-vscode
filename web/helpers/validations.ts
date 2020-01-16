@@ -7,7 +7,7 @@ import uniqWith from 'lodash/uniqWith';
 import size from 'lodash/size';
 import jsyaml from 'js-yaml';
 import isObject from 'lodash/isPlainObject';
-import { isString, isDate } from 'util';
+import { isString, isDate, isBoolean, isUndefined, isNull } from 'util';
 
 export const validateField: (type: string, value: any, field?: IField) => boolean = (type, value, field) => {
     switch (type) {
@@ -152,7 +152,11 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
     }
 };
 
-export const maybeParseYaml: (yaml: string) => any = yaml => {
+export const maybeParseYaml: (yaml: any) => any = yaml => {
+    // If we are dealing with basic boolean
+    if (yaml === true || yaml === false) {
+        return yaml;
+    }
     // Check if the value isn't empty
     if (yaml === undefined || yaml === null || yaml === '' || !isString(yaml)) {
         return null;
@@ -178,7 +182,31 @@ export const maybeParseYaml: (yaml: string) => any = yaml => {
     return null;
 };
 
+export const isValueSet = (value: any, canBeNull?: boolean) => {
+    if (canBeNull) {
+        return !isUndefined(value);
+    }
+
+    return !isNull(value);
+};
+
+export const getValueOrDefaultValue = (value, defaultValue, canBeNull) => {
+    if (isValueSet(value, canBeNull)) {
+        return value;
+    }
+
+    if (isValueSet(defaultValue, canBeNull)) {
+        return defaultValue;
+    }
+
+    return undefined;
+};
+
 export const getTypeFromValue = (value: any) => {
+    if (isBoolean(value)) {
+        return 'bool';
+    }
+    console.log('PARSING YAML OBJECT', value, new Date(value).toString());
     if (new Date(value).toString() !== 'Invalid Date') {
         return 'date';
     }
