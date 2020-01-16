@@ -64,7 +64,7 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
                 targetTagName: 'div',
                 wrapperTagName: 'div',
             }}
-            value={!value ? default_value || null : value}
+            value={!value ? new Date(default_value) || null : new Date(value)}
             onChange={handleInputChange}
             rightElement={
                 value &&
@@ -78,7 +78,6 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
     );
 };
 
-export default compose(
-    withMessageHandler(),
-    withTextContext()
-)(DateField) as FunctionComponent<IDateField & IField & IFieldChange>;
+export default compose(withMessageHandler(), withTextContext())(DateField) as FunctionComponent<
+    IDateField & IField & IFieldChange
+>;

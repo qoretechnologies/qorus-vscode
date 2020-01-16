@@ -79,6 +79,7 @@ export interface IField {
     prefill?: any;
     name: string;
     mandatory?: boolean;
+    placeholder?: boolean;
     selected?: boolean;
     fields?: string[];
     value?: any;
