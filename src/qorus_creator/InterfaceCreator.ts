@@ -241,25 +241,27 @@ export abstract class InterfaceCreator {
                 globals.remove(item.name);
             }
 
-            if (item['local-value'] !== undefined) {
-                const tag = 'local-value';
-                switch (item.type) {
-                    case 'list':
-                    case '*list':
-                        result += `${indent}${tag}:\n`;
-                        for (let entry of item[tag]) {
-                            result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
-                        }
-                        break;
-                    case 'hash':
-                    case '*hash':
-                        result += `${indent}${tag}:\n`;
-                        for (let key in item[tag]) {
-                            result += `${indent}${indent}${key}: ${JSON.stringify(item[tag][key])}\n`;
-                        }
-                        break;
-                    default:
-                        result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
+            for (const tag of ['local-value', 'default_value']) {
+                if (item[tag] !== undefined) {
+                    const tag = 'local-value';
+                    switch (item.type) {
+                        case 'list':
+                        case '*list':
+                            result += `${indent}${tag}:\n`;
+                            for (let entry of item[tag]) {
+                                result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
+                            }
+                            break;
+                        case 'hash':
+                        case '*hash':
+                            result += `${indent}${tag}:\n`;
+                            for (let key in item[tag]) {
+                                result += `${indent}${indent}${key}: ${JSON.stringify(item[tag][key])}\n`;
+                            }
+                            break;
+                        default:
+                            result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
+                    }
                 }
             }
 
