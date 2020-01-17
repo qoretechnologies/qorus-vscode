@@ -224,11 +224,11 @@ export class InterfaceInfo {
             };
             item.parent_class = class_name;
             if (prefix) {
-                item.prefix = prefix;
+                item.prefix = prefix + (item.prefix || '');
             }
 
             const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
-                item2.name === raw_item.name && item2.prefix === raw_item.prefix
+                item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
             );
 
             if (index > -1) {
