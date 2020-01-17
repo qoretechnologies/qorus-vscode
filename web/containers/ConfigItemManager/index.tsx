@@ -69,7 +69,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             // Set the config data
             setConfigItemData(item);
         });
-        console.log(interfaceId, type);
         // Ask for the config items
         postMessage(Messages.GET_CONFIG_ITEMS, {
             'base-class-name': baseClassName,
@@ -126,6 +125,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_kind: type,
         });
     };
+
+    console.log(configItems);
 
     return (
         <>

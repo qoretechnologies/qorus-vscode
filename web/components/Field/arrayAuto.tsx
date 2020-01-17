@@ -63,11 +63,19 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
         }
     });
 
+    const canBeNull = () => {
+        if (rest.requestFieldData) {
+            return rest.requestFieldData('can_be_undefined', 'value');
+        }
+
+        return false;
+    };
+
     useEffect(() => {
         // Transform the values and send them
         const data = transformValues(false, values);
         // Send the data
-        onChange(name, data);
+        onChange(name, data, undefined, canBeNull());
     }, [values]);
 
     const addValue: () => void = () => {

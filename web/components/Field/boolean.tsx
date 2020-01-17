@@ -7,7 +7,6 @@ import { getValueOrDefaultValue } from '../../helpers/validations';
 
 const BooleanField: FunctionComponent<IField & IFieldChange> = ({ name, onChange, value, default_value }) => {
     useMount(() => {
-        console.log(name, value, getValueOrDefaultValue(value, default_value, false));
         // Set the default value
         onChange(name, getValueOrDefaultValue(value, default_value, false));
     });

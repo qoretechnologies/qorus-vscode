@@ -7,6 +7,8 @@ import { camelCase, upperFirst } from 'lodash';
 import compose from 'recompose/compose';
 import useMount from 'react-use/lib/useMount';
 import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomponents/withMessageHandler';
+import { getValueOrDefaultValue } from '../../helpers/validations';
+import { isNull } from 'util';
 
 export interface IStringField {
     t?: TTranslator;
@@ -15,6 +17,7 @@ export interface IStringField {
     addMessageListener?: TMessageListener;
     read_only?: boolean;
     placeholder?: string;
+    canBeNull?: boolean;
 }
 
 const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
@@ -30,13 +33,12 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     read_only,
     disabled,
     placeholder,
+    canBeNull,
 }) => {
     // Fetch data on mount
     useMount(() => {
         // Populate default value
-        if (value || default_value) {
-            onChange(name, value || default_value);
-        }
+        onChange(name, getValueOrDefaultValue(value, default_value, canBeNull));
         // Get backend data
         if (get_message && return_message) {
             postMessage(get_message.action);
@@ -61,9 +63,10 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     return (
         <InputGroup
             placeholder={placeholder}
-            disabled={read_only || disabled}
+            disabled={disabled}
+            readOnly={read_only}
             className={fill && Classes.FILL}
-            value={!value ? default_value || '' : value}
+            value={canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value}
             onChange={handleInputChange}
             rightElement={
                 value &&

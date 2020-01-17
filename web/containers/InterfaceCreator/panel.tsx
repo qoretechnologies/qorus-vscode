@@ -226,7 +226,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             value: clonedData && field.name in clonedData ? clonedData[field.name] : undefined,
                             hasValueSet: clonedData && field.name in clonedData,
                         }));
-                        console.log(clonedData, transformedFields);
                         // Pull the pre-selected fields
                         const preselectedFields: IField[] = filter(
                             transformedFields,
@@ -437,19 +436,19 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         addField(fieldName);
     };
 
-    const handleFieldChange: (fieldName: string, value: any, forcedType?: string, explicit?: boolean) => void = (
-        fieldName,
-        value,
-        forcedType,
-        explicit
-    ) => {
+    const handleFieldChange: (
+        fieldName: string,
+        value: any,
+        forcedType?: string,
+        canBeNull?: boolean,
+        explicit?: boolean
+    ) => void = (fieldName, value, forcedType, canBeNull, explicit) => {
         setSelectedFields(
             type,
             (currentFields: IField[]): IField[] => {
                 return currentFields.reduce((newFields: IField[], currentField: IField): IField[] => {
                     // Check if the field matches
                     if (currentField.name === fieldName) {
-                        console.log(fieldName, value);
                         // Check if this field prefills any other fields
                         const prefills: IField[] = currentFields.filter((field: IField) => field.prefill === fieldName);
                         // Update the value of all of the prefill field
@@ -461,7 +460,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 if (!field.hasValueSet) {
                                     // Modify the field
                                     setTimeout(() => {
-                                        handleFieldChange(field.name, value, null, true);
+                                        handleFieldChange(field.name, value, null, canBeNull, true);
                                     }, 300);
                                 }
                             });
@@ -496,7 +495,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 if (allowedTypes.includes(fieldType)) {
                                     // Validate all values
                                     isValid = value.every((val: string | number) =>
-                                        validateField(fieldType, val, currentField)
+                                        validateField(fieldType, val, currentField, canBeNull)
                                     );
                                 } else {
                                     isValid = false;
@@ -504,7 +503,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             }
                         } else {
                             // Basic field with predefined type
-                            isValid = validateField(finalFieldType || 'string', value, currentField);
+                            isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
                         }
                         // Check if we should change the name of the
                         // method
@@ -646,7 +645,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     iface_id: interfaceId,
                 });
             } else {
-                console.log(newData);
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                     iface_kind,
                     data: { ...newData, 'class-connections': classConnectionsData },

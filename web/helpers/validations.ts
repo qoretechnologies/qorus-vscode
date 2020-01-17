@@ -9,7 +9,18 @@ import jsyaml from 'js-yaml';
 import isObject from 'lodash/isPlainObject';
 import { isString, isDate, isBoolean, isUndefined, isNull } from 'util';
 
-export const validateField: (type: string, value: any, field?: IField) => boolean = (type, value, field) => {
+export const validateField: (type: string, value: any, field?: IField, canBeNull?: boolean) => boolean = (
+    type,
+    value,
+    field,
+    canBeNull
+) => {
+    // If the value can be null an is null
+    // immediately return true, no matter what type
+    if (canBeNull && isNull(value)) {
+        return true;
+    }
+    // Check individual types
     switch (type) {
         case 'binary':
         case 'string':
@@ -157,6 +168,10 @@ export const maybeParseYaml: (yaml: any) => any = yaml => {
     if (yaml === true || yaml === false) {
         return yaml;
     }
+    // Leave numbers as they are
+    if (isNumber(yaml)) {
+        return yaml;
+    }
     // Check if the value isn't empty
     if (yaml === undefined || yaml === null || yaml === '' || !isString(yaml)) {
         return null;
@@ -203,10 +218,12 @@ export const getValueOrDefaultValue = (value, defaultValue, canBeNull) => {
 };
 
 export const getTypeFromValue = (value: any) => {
+    if (isNull(value)) {
+        return 'null';
+    }
     if (isBoolean(value)) {
         return 'bool';
     }
-    console.log('PARSING YAML OBJECT', value, new Date(value).toString());
     if (new Date(value).toString() !== 'Invalid Date') {
         return 'date';
     }
