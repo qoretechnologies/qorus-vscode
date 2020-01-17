@@ -3,8 +3,7 @@ import React, { Component, useState, useEffect } from 'react';
 import classNames from 'classnames';
 
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
-import { graph } from '../../helpers/diagram';
-import { reduce, map, size, forEach } from 'lodash';
+import { size } from 'lodash';
 import { FieldName, FieldType } from '../FieldSelector';
 import withTextContext from '../../hocomponents/withTextContext';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
@@ -30,9 +29,14 @@ import { Messages } from '../../constants/messages';
 const ROOT_STEP_ID = 0;
 
 /**
+ * Ratio between width and height.
+ */
+const BOX_DIMENSION_RATIO = 3;
+
+/**
  * Width of one box on a diagram in SVG user units.
  */
-const BOX_MIN_WIDTH = 250;
+const BOX_WIDTH = 249;
 
 /**
  * Approximate width of one character of box text in SVG user units.
@@ -42,20 +46,9 @@ const BOX_MIN_WIDTH = 250;
 // const BOX_CHARACTER_WIDTH = 10;
 
 /**
- * Ration between width and height.
+ * Height of a step box.
  */
-const BOX_DIMENSION_RATIO = 3 / 1;
-
-/**
- * Margin between boxes.
- *
- * It expected that this margin behaves similarly to margins CSS for
- * HTML. For example, a box at the edge of diagram has a full margin
- * width diagram border and box. But between boxes margin overlap --
- * in terms of SVG, each is shifted a half of margin in each direction
- * compared to a case without margins.
- */
-const BOX_MARGIN = 20;
+const BOX_HEIGHT = BOX_WIDTH / BOX_DIMENSION_RATIO;
 
 /**
  * Box rounded corner radius.
@@ -63,9 +56,38 @@ const BOX_MARGIN = 20;
 const BOX_ROUNDED_CORNER = 5;
 
 /**
- * Minimal numbers of columns diagram must have.
+ * Horizontal margin between boxes.
  */
-const DIAGRAM_MIN_COLUMNS = 1;
+const BOX_H_MARGIN = 6;
+
+/**
+ * Vertical margin between boxes.
+ */
+const BOX_V_MARGIN = 80;
+
+/**
+ * Length of the small part of the connection lines, entering and leaving boxes.
+ */
+const BOX_LINE_SHORT = BOX_V_MARGIN / 7;
+
+/**
+ * Radius of root node circle.
+ */
+const ROOT_CIRCLE_R = 22;
+
+function strcmp(str1, str2) {
+    // http://kevin.vanzonneveld.net
+    // +   original by: Waldo Malqui Silva
+    // +      input by: Steve Hilder
+    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+    // +    revised by: gorthaur
+    // *     example 1: strcmp( 'waldo', 'owald' );
+    // *     returns 1: 1
+    // *     example 2: strcmp( 'owald', 'waldo' );
+    // *     returns 2: -1
+
+    return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
+}
 
 /**
  * Diagram with functions and dependencies between them.
@@ -80,16 +102,615 @@ const DIAGRAM_MIN_COLUMNS = 1;
  */
 export interface IStepDiagramProps {
     steps: { [key: string]: number[] };
+    highlightedGroupSteps: any;
+}
+
+/**
+ * Helper step counter. Used for assigning internal step node IDs.
+ */
+let StepCounter: number = 0;
+
+class StepNode {
+    id: number;
+    internalId: number = 0;
+    level: number = 0;
+    children: Array<StepNode> = [];
+    parents: Array<StepNode> = [];
+    sortName: string = '';
+    centerX: number = 0; // center x-coordinate
+    x: number = 0; // left x-coordinate
+    y: number = 0; // top y-coordinate
+
+    constructor(id: number, level?: number) {
+        this.internalId = ++StepCounter;
+        this.id = id;
+        if (level !== undefined) {
+            this.level = level;
+        }
+    }
+
+    /**
+     * Is this the root step?
+     */
+    isRoot(): boolean {
+        return (this.id === ROOT_STEP_ID);
+    }
+}
+
+class RowGroup {
+    nodes: StepNode[];
+    avgX: number;
+    width: number;
+    compareHalfWidth: number;
+
+    constructor(avgX: number, nodes: StepNode[] = []) {
+        this.avgX = avgX;
+        this.nodes = nodes;
+        this.recalculateWidth();
+    }
+
+    /**
+     * Check if the groups collide.
+     * @param group group to check for a collision
+     */
+    collides(group: RowGroup): boolean {
+        if (group.avgX + group.compareHalfWidth  < (this.avgX - this.width * 0.5)) {
+            return false;
+        }
+        if (this.avgX + this.compareHalfWidth < (group.avgX - group.width * 0.5)) {
+            return false;
+        }
+        return true;
+    }
+
+    addNode(node: StepNode) {
+        this.nodes.push(node);
+        this.recalculateWidth();
+    }
+
+    /**
+     * Merge in another group and combine the average position.
+     * @param group group to merge
+     */
+    mergeGroup(group: RowGroup) {
+        this.avgX = ((this.nodes.length * this.avgX) + (group.nodes.length * group.avgX))
+                        / (this.nodes.length + group.nodes.length);
+        this.nodes = this.nodes.concat(group.nodes);
+        this.recalculateWidth();
+    }
+
+    /**
+     * Recalculate width of the group.
+     */
+    private recalculateWidth() {
+        this.width = this.nodes.length * BOX_WIDTH;
+        if (this.nodes.length > 1) {
+            this.width += (this.nodes.length - 1) * BOX_H_MARGIN;
+        }
+        this.compareHalfWidth = this.width * 0.5 - 0.0001;
+    }
+}
+
+/**
+ * Check if nodes are the same node.
+ * @param a first node
+ * @param b second node
+ */
+function sameNodes(a: StepNode, b: StepNode): boolean {
+    if (a.id != b.id) {
+        return false;
+    }
+
+    if (a.internalId == b.internalId) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Check if a node array contains a specific node.
+ * @param arr array to check
+ * @param node node which we want to chexk
+ */
+function arrayContainsNode(arr: Array<StepNode>, node: StepNode): boolean {
+    for (const arrNode of arr) {
+        if (sameNodes(arrNode, node)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+class DefferedAssignment {
+    stepNode: StepNode;
+    parentId: number;
+
+    constructor(stepNode: StepNode, parentId: number) {
+        this.stepNode = stepNode;
+        this.parentId = parentId;
+    }
+}
+
+class GraphBuilder {
+    /**
+     * Find a step node in a tree.
+     * @param startNode node from which to start searching
+     * @param stepNodeId id of step node we want to find
+     */
+    static findStepNodeById(startNode: StepNode, stepNodeId: number): StepNode | undefined {
+        if (startNode.id === stepNodeId) {
+            return startNode;
+        }
+        for (const child of startNode.children) {
+            let result = GraphBuilder.findStepNodeById(child, stepNodeId);
+            if (result !== undefined) {
+                return result;
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Recursively assign levels to the steps in a tree.
+     * @param node 
+     * @param level 
+     */
+    static setStepNodeLevels(node: StepNode, level: number) {
+        if (node.level < level) {
+            node.level = level;
+        }
+        for (const child of node.children) {
+            GraphBuilder.setStepNodeLevels(child, node.level + 1);
+        }
+    }
+
+    /**
+     * Build a graph/tree of step nodes from the steps parameter.
+     * @param steps original steps parameter
+     * @return root node of the step graph/tree
+     */
+    static buildGraph(steps): StepNode {
+        const rootNode: StepNode = new StepNode(ROOT_STEP_ID);
+        const assignLater = new Array<DefferedAssignment>();
+
+        for (const stepKey in steps) {
+            if (!steps.hasOwnProperty(stepKey)) {
+                continue;
+            }
+            const stepDeps = steps[stepKey];
+            const stepNode: StepNode = new StepNode(parseInt(stepKey));
+            if (stepDeps.length === 0) {
+                stepNode.parents.push(rootNode);
+                rootNode.children.push(stepNode);
+                continue;
+            }
+            for (const dep of stepDeps) {
+                const depId = parseInt(dep);
+                const parentNode = GraphBuilder.findStepNodeById(rootNode, depId);
+                if (parentNode !== undefined) {
+                    stepNode.parents.push(parentNode);
+                    if (!arrayContainsNode(parentNode.children, stepNode)) {
+                        parentNode.children.push(stepNode);
+                    }
+                } else {
+                    // parent does not exist yet
+                    // store temporarily
+                    assignLater.push(new DefferedAssignment(stepNode, depId));
+                }
+            }
+        }
+
+        while (assignLater.length > 0) {
+            for (let i = 0; i < assignLater.length; ++i) {
+                const item = assignLater[i];
+                const parentNode = GraphBuilder.findStepNodeById(rootNode, item.parentId);
+                if (parentNode !== undefined) {
+                    item.stepNode.parents.push(parentNode);
+                    if (!arrayContainsNode(parentNode.children, item.stepNode)) {
+                        parentNode.children.push(item.stepNode);
+                    }
+                    assignLater.splice(i, 1);
+                }
+            }
+        }
+
+        GraphBuilder.setStepNodeLevels(rootNode, 0);
+        return rootNode;
+    }
+
+    /**
+     * Build a list of rows of step nodes from the graph.
+     * @param rootNode root node of the step node graph
+     * @return array of rows with step nodes of the graph
+     */
+    static buildRows(rootNode: StepNode): Array<Array<StepNode>> {
+        let rows = new Array<Array<StepNode>>();
+        let handleNode = (rows: Array<Array<StepNode>>, node: StepNode) => {
+            while (rows.length <= node.level) {
+                rows.push(new Array<StepNode>());
+            }
+            if (!arrayContainsNode(rows[node.level], node)) {
+                rows[node.level].push(node);
+                for (const child of node.children) {
+                    handleNode(rows, child);
+                }
+            }
+        };
+        handleNode(rows, rootNode);
+        return rows;
+    }
+
+    /**
+     * Get the maximum count of columns in all the rows.
+     * @param rows rows of the graph
+     * @return maximum count of columns in all the rows
+     */
+    static getRowsMaxColumns(rows: Array<Array<StepNode>>): number {
+        let columns = 0;
+        for (const row of rows) {
+            if (row.length > columns) {
+                columns = row.length;
+            }
+        }
+        return columns;
+    }
+
+    /**
+     * Calculate graph width from the rows of the graph.
+     * @param rows rows of the graph
+     * @return graph width
+     */
+    static calculateGraphWidth(rows: Array<Array<StepNode>>): number {
+        const maxColumns = GraphBuilder.getRowsMaxColumns(rows);
+        return (maxColumns * BOX_WIDTH) + (maxColumns - 1) * BOX_H_MARGIN;
+    }
+
+    /**
+     * Calculate graph height from the rows of the graph.
+     * @param rows rows of the graph
+     * @return graph height
+     */
+    static calculateGraphHeight(rows: Array<Array<StepNode>>): number {
+        return rows.length * (BOX_HEIGHT + BOX_V_MARGIN);
+    }
+
+    /**
+     * Sort rows of the graph according to their IDs.
+     * @param rows rows of the graph
+     */
+    static sortRows(rows: Array<Array<StepNode>>) {
+        let groupCounter: number = 0;
+        for (const row of rows) {
+            // generate sort names
+            for (const step of row) {
+                if (step.parents.length === 0) {
+                    step.sortName = step.id.toString();
+                } else if (step.parents.length === 1) {
+                    step.sortName = step.parents[0].sortName + '-' + step.id.toString();
+                } else {
+                    const parentNames = [];
+                    const groupId = 'G' + groupCounter.toString();
+                    const groupPrefix = groupId + '-';
+                    ++groupCounter;
+
+                    for (const parent of step.parents) {
+                        let newParentName = parent.sortName;
+                        const lastDash = newParentName.lastIndexOf('-');
+                        if (lastDash === -1) {
+                            newParentName = groupPrefix + parent.id.toString();
+                        } else {
+                            newParentName = newParentName.substr(0, lastDash + 1) + groupPrefix + parent.id.toString();
+                        }
+                        parent.sortName = newParentName;
+                        parentNames.push(newParentName);
+                    }
+                    step.sortName = parentNames[0] + '-' + step.id.toString();
+                }
+            }
+        }
+
+        // sort rows according to sort names
+        for (let i = 0; i < rows.length; ++i) {
+            rows[i] = rows[i].sort((a: StepNode, b: StepNode): number => {
+                return strcmp(a.sortName, b.sortName);
+            });
+        }
+    }
+
+    /**
+     * Assign base positions to nodes of the graph, as if they were equally distributed across their rows.
+     * @param rows rows of the graph
+     * @param graphWidth width of the graph
+     */
+    static assignBasePositionsToStepNodes(rows: Array<Array<StepNode>>, graphWidth: number) {
+        for (let i = 0; i < rows.length; ++i) {
+            const row = rows[i];
+            const rowWidth = row.length * BOX_WIDTH + (row.length > 1 ? (row.length - 1) * BOX_H_MARGIN : 0);
+            const startX = (graphWidth - rowWidth) * 0.5;
+            for (let j = 0; j < row.length; ++j) {
+                row[j].x = startX + j * (BOX_WIDTH + BOX_H_MARGIN);
+                row[j].centerX = row[j].x + BOX_WIDTH * 0.5;
+                row[j].y = i * (BOX_HEIGHT + BOX_V_MARGIN);
+            }
+        }
+    }
+
+    /**
+     * Balance out step nodes so that they are ideally located in their rows.
+     * @param rows rows of the graph
+     * @param graphWidth width of the graph
+     */
+    static balanceRows(rows: Array<Array<StepNode>>, graphWidth: number) {
+        for (const row of rows) {
+            // find groups of nodes with same parents
+            let rowGroups: RowGroup[] = [];
+            for (let j = 0; j < row.length; ++j) {
+                // calculate average center position of parents of step
+                let avgX = 0;
+                const parents = row[j].parents;
+                if (parents.length > 0) {
+                    for (const parent of parents) {
+                        avgX += parent.centerX;
+                    }
+                    avgX /= parents.length;
+                } else {
+                    avgX = graphWidth * 0.5;
+                }
+
+                // find group with same average
+                let group = rowGroups.find((group) => group.avgX === avgX);
+
+                // if exists, assign to group
+                if (group) {
+                    group.addNode(row[j]);
+                } else { // otherwise create new group
+                    group = new RowGroup(avgX, [row[j]]);
+                    rowGroups.push(group);
+                }
+            }
+
+            // flag specifying if any change had to be done to the groups
+            let noFix;
+
+            // join colliding groups
+            let joinCollidingGroups = () => {
+                for (let k = 0; (k + 1) < rowGroups.length;) {
+                    let g1 = rowGroups[k];
+                    let g2 = rowGroups[k+1];
+                    if (g1.collides(g2)) {
+                        g1.mergeGroup(g2);
+                        rowGroups.splice(k+1, 1);
+                        noFix = false;
+                    } else {
+                        ++k;
+                    }
+                }
+            };
+
+            // check groups don't overflow the graph limits
+            // and set them to correct positions if they do
+            let checkGraphLimits = () => {
+                for (const group of rowGroups) {
+                    if ((group.avgX - (group.width * 0.5)) < 0) {
+                        group.avgX = group.width * 0.5;
+                        noFix = false;
+                    } else if ((group.avgX + group.compareHalfWidth) >= graphWidth) {
+                        group.avgX = graphWidth - (group.width * 0.5);
+                        noFix = false;
+                    }
+                }
+            };
+
+            // balance the groups
+            do {
+                noFix = true;
+                joinCollidingGroups();
+                checkGraphLimits();
+            } while (!noFix);
+
+            // assign new positions according to groups
+            for (const group of rowGroups) {
+                for (let k = 0; k < group.nodes.length; ++k) {
+                    const node = group.nodes[k];
+                    node.x = group.avgX - (group.width * 0.5) + k * (BOX_WIDTH + BOX_H_MARGIN);
+                    node.centerX = node.x + (BOX_WIDTH * 0.5);
+                }
+            }
+        } 
+    }
+
+    /**
+     * Sort step nodes in the rows according to their IDs and then balance out the nodes in their rows.
+     * @param rows rows of the graph
+     */
+    static sortAndBalanceRows(rows: Array<Array<StepNode>>) {
+        const graphWidth = GraphBuilder.calculateGraphWidth(rows);
+        GraphBuilder.sortRows(rows);
+        GraphBuilder.assignBasePositionsToStepNodes(rows, graphWidth);
+        GraphBuilder.balanceRows(rows, graphWidth);
+    }
 }
 
 @withTextContext()
 @onlyUpdateForKeys(['highlightedGroupSteps', 'steps', 'stepsData', 't'])
 export default class StepDiagram extends Component<IStepDiagramProps> {
     state = {
-        nodes: null,
         rows: null,
         highlightedSteps: this.props.highlightedGroupSteps || [],
     };
+
+    renderGridPath(startX, startY, endX, endY) {
+        return (
+            <path
+                fill="none"
+                stroke="#aaa"
+                d={`M${startX},${startY} L${endX},${endY}`}
+            />
+        );
+    }
+
+    renderGrid2PartPath(startX, startY, middleX, middleY, endX, endY) {
+        return (
+            <path
+                fill="none"
+                stroke="#aaa"
+                d={`M${startX},${startY} L${middleX},${middleY} L${endX},${endY}`}
+            />
+        );
+    }
+
+    renderGrid3PartPath(aX, aY, bX, bY, cX, cY, dX, dY) {
+        return (
+            <path
+                fill="none"
+                stroke="#aaa"
+                d={`M${aX},${aY} L${bX},${bY} L${cX},${cY} L${dX},${dY}`}
+            />
+        );
+    }
+
+    getStepTransform(step) {
+        return `translate(${step.x} ${step.y})`;
+    }
+
+    getRootStepTransform(step) {
+        return `translate(${step.centerX} ${step.y + BOX_HEIGHT * 0.5})`;
+    }
+
+    renderStepConnections(step) {
+        let connections = [];
+        const startX = step.x + BOX_WIDTH * 0.5;
+        const startY = step.y + BOX_HEIGHT;
+        const bY = startY + BOX_LINE_SHORT;
+
+        for (const child of step.children) {
+            const endX = child.x + BOX_WIDTH * 0.5;
+            const endY = child.y;
+            const cY = endY - BOX_LINE_SHORT;
+            connections.push(this.renderGrid3PartPath(startX, startY, startX, bY, endX, cY, endX, endY));
+        }
+        return connections;
+    }
+
+    renderRootStepConnections(step) {
+        let connections = [];
+        const rootStartY = step.y + BOX_HEIGHT * 0.5;
+        const startX = step.x + BOX_WIDTH * 0.5;
+        const startY = step.y + BOX_HEIGHT;
+        const bY = startY + BOX_LINE_SHORT;
+
+        connections.push(this.renderGridPath(startX, rootStartY, startX, startY));
+        for (const child of step.children) {
+            const endX = child.x + BOX_WIDTH * 0.5;
+            const endY = child.y;
+            const cY = endY - BOX_LINE_SHORT;
+            connections.push(this.renderGrid3PartPath(startX, startY, startX, bY, endX, cY, endX, endY));
+        }
+        return connections;
+    }
+
+    renderRootStep(step) {
+        return (
+            <g>
+                {this.renderRootStepConnections(step)}
+                <g className={`diagram__box`} transform={this.getRootStepTransform(step)}>
+                    <circle cx="0" cy="0" r={ROOT_CIRCLE_R} fill="#ddd" />
+                </g>
+            </g>
+        );
+    }
+
+    renderNormalStep(step) {
+        const { stepsData, steps, t } = this.props;
+        const { highlightedSteps } = this.state;
+        stepsData[step.id].sortName = step.sortName;
+        return (
+            <g>
+                <g
+                    className={classNames({
+                        diagram__box: true,
+                    })}
+                    key={step.id}
+                    fill="transparent"
+                    transform={this.getStepTransform(step)}
+                >
+                    <rect {...this.getDefaultParams()} />
+                    <foreignObject x={0} y={0} width={BOX_WIDTH} height={BOX_HEIGHT}>
+                        <StepBox
+                            stepData={stepsData[step.id]}
+                            t={t}
+                            highlightedSteps={highlightedSteps}
+                            stepId={step.id}
+                            onMouseEnter={() => {
+                                // Get the step dependencies
+                                const deps: number[] = steps[step.id];
+                                // Check if the step has any dependencies
+                                if (deps.length) {
+                                    this.setState({
+                                        highlightedSteps: [...deps, step.id],
+                                    });
+                                }
+                            }}
+                            onMouseLeave={() => {
+                                this.setState({
+                                    highlightedSteps: [],
+                                });
+                            }}
+                        />
+                    </foreignObject>
+                </g>
+                {this.renderStepConnections(step)}
+            </g>
+        );
+    }
+
+    renderStep(step) {
+        if (step.isRoot()) {
+            return this.renderRootStep(step);
+        } else {
+            return this.renderNormalStep(step);
+        }
+    }
+
+    renderRows(rows) {
+        let renderedRows = [];
+        for (let i = 0; i < rows.length; ++i) {
+            const row = rows[i];
+            let rowSteps = [];
+            for (let j = 0; j < row.length; ++j) {
+                rowSteps.push(
+                    this.renderStep(row[j])
+                );
+            }
+            renderedRows.push(rowSteps);
+        }
+        return (
+            <g>
+              {renderedRows}
+            </g>
+        );
+    }
+
+    renderGraph() {
+        const rows = this.state.rows;
+        const graphWidth = GraphBuilder.calculateGraphWidth(rows);
+        const graphHeight = GraphBuilder.calculateGraphHeight(rows);
+        return (
+            <div
+                style={{
+                    width: graphWidth,
+                    transformOrigin: 'center top',
+                    height: graphHeight,
+                    margin: 'auto',
+                }}
+            >
+                <svg viewBox={`0 0 ${graphWidth} ${graphHeight}`} className="diagram">
+                    {this.renderRows(rows)}
+                </svg>
+            </div>
+        );
+    }
 
     getStepDeps(stepId: number, steps) {
         const initIds = Object.keys(steps).filter(id => steps[id].length <= 0);
@@ -99,6 +720,25 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
         const deps = Object.assign({ [ROOT_STEP_ID]: [] }, steps, ...initialDeps);
 
         return typeof stepId !== 'undefined' ? deps[stepId] : deps;
+    }
+
+    /**
+     * Returns coordinates and dimensions of a general step.
+     *
+     * Step is generally expected to be a rect so its top-right corner
+     * coordinates and width and height are retuned. Rect's corners are
+     * rounded to corner radiuses are returned too.
+     *
+     * @return {number}
+     * @see BOX_ROUNDED_CORNER
+     */
+    getDefaultParams() {
+        return {
+            rx: BOX_ROUNDED_CORNER,
+            ry: BOX_ROUNDED_CORNER,
+            width: BOX_WIDTH,
+            height: BOX_HEIGHT,
+        };
     }
 
     /**
@@ -116,17 +756,21 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see DIAGRAM_MIN_COLUMNS
      */
     componentDidMount() {
+        const bgraph = GraphBuilder.buildGraph(this.props.steps);
+        const rows = GraphBuilder.buildRows(bgraph);
+        GraphBuilder.sortAndBalanceRows(rows);
         this.setState({
-            nodes: graph(this.getStepDeps(undefined, this.props.steps)),
-            rows: this.buildRows(graph(this.getStepDeps(undefined, this.props.steps))),
+            rows: rows
         });
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.steps !== this.props.steps) {
+            const bgraph = GraphBuilder.buildGraph(nextProps.steps);
+            const rows = GraphBuilder.buildRows(bgraph);
+            GraphBuilder.sortAndBalanceRows(rows);
             this.setState({
-                nodes: graph(this.getStepDeps(undefined, nextProps.steps)),
-                rows: this.buildRows(graph(this.getStepDeps(undefined, nextProps.steps))),
+                rows: rows
             });
         }
 
@@ -137,654 +781,10 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
         }
     }
 
-    buildRows = nodes => {
-        const cols = Math.max(DIAGRAM_MIN_COLUMNS, nodes.get(ROOT_STEP_ID).width) - 1;
-        const rows = [];
-        let newRows = [];
-        const savedData = [];
-
-        for (const [id, n] of nodes) {
-            if (!rows[n.depth]) rows[n.depth] = new Array(cols);
-            if (!newRows[n.depth]) newRows[n.depth] = {};
-
-            let refColMin = cols - 1;
-            for (const na of n.above) {
-                let col = -1;
-                for (const r of rows.slice().reverse()) {
-                    col = (r || []).indexOf(na.id);
-                    if (col >= 0) break;
-                }
-                refColMin = Math.min(refColMin, col);
-            }
-
-            let refColMax = 0;
-            for (const na of n.above) {
-                let col = -1;
-                for (const r of rows.slice().reverse()) {
-                    col = (r || []).indexOf(na.id);
-                    if (col >= 0) break;
-                }
-                refColMax = Math.max(refColMax, col);
-            }
-
-            const refCol = refColMin + (refColMax - refColMin) / 2;
-            let col = Math.round(refCol + n.position * n.width * 2);
-
-            // Check if this depth and position already exists
-            while (
-                savedData.includes(`${n.depth}-${col}`) ||
-                savedData.includes(`${n.depth}-${col - 1}`) ||
-                savedData.includes(`${n.depth}-${col + 1}`)
-            ) {
-                // Add 1 to the column
-                col += 1;
-            }
-            // save the depth and column
-            savedData.push(`${n.depth}-${col}`);
-            newRows[n.depth][col] = { id };
-            rows[n.depth][col] = id;
-        }
-
-        return newRows;
-    };
-
-    /**
-     * Returns rows in a flat array suitable for iteration.
-     *
-     * @return {Array<StepArgs>}
-     * @see getRows
-     */
-    getFlattenRows() {
-        return reduce(
-            this.state.rows,
-            (res, rowData, rowIdx) => [
-                ...res,
-                ...map(rowData, ({ id }, colIdx) => ({
-                    stepId: id,
-                    colIdx: parseInt(colIdx),
-                    rowIdx,
-                })),
-            ],
-            []
-        );
-    }
-
-    /**
-     * Returns arguments for step render methods.
-     *
-     * @param {number} stepId
-     * @return {StepArgs}
-     * @see getFlattenRows
-     */
-    getStepArgs(stepId) {
-        return this.getFlattenRows().find(s => s.stepId === stepId) || null;
-    }
-
-    /**
-     * Returns flatten dependencies between steps.
-     *
-     * @return {Array<{
-     *   start: StepArgs,
-     *   end: StepArgs
-     * }>}
-     * @see getFlattenRows
-     * @see getStepDeps
-     * @see getStepArgs
-     */
-    getFlattenDeps() {
-        return this.getFlattenRows().reduce(
-            (flatten, step) =>
-                flatten.concat(
-                    this.getStepDeps(step.stepId, this.props.steps).map(depId => ({
-                        start: this.getStepArgs(depId),
-                        end: step,
-                    }))
-                ),
-            []
-        );
-    }
-
-    /**
-     * Returns width of a box.
-     *
-     * The box width is determined from the longest step name but cannot
-     * be less than {@link BOX_MIN_WIDTH}.
-     *
-     * @return {number}
-     * @see getMaxTextWidth
-     * @see BOX_MIN_WIDTH
-     * @see BOX_CHARACTER_WIDTH
-     */
-    getBoxWidth() {
-        return BOX_MIN_WIDTH;
-    }
-
-    /**
-     * Returns height of a box.
-     *
-     * The box height is determined by a ratio between width and height.
-     *
-     * @return {number}
-     * @see getBoxWidth
-     * @see BOX_DIMENSION_RATIO
-     */
-    getBoxHeight() {
-        return this.getBoxWidth() / BOX_DIMENSION_RATIO;
-    }
-
-    /**
-     * Returns number of columns on the diagram.
-     *
-     * It cannot be less than {@link DIAGRAM_MIN_COLUMNS}.
-     *
-     * @return {number}
-     * @see DIAGRAM_MIN_COLUMNS
-     * @see getRows
-     */
-    getDiagramColumns() {
-        // Get the lowest column value
-        const lowestColumn = this.state.rows.reduce((newValue, row) => {
-            let res = newValue;
-            // Find the lowest column in this row
-            forEach(row, (rowData, colIdx) => {
-                if (parseFloat(colIdx) < parseFloat(res)) {
-                    res = colIdx;
-                }
-            });
-
-            return res;
-        }, 0);
-
-        // Get the lowest column value
-        const highestColumn = this.state.rows.reduce((newValue, row) => {
-            let res = newValue;
-            // Find the lowest column in this row
-            forEach(row, (rowData, colIdx) => {
-                if (parseFloat(colIdx) > parseFloat(res)) {
-                    res = colIdx;
-                }
-            });
-
-            return res;
-        }, 0);
-
-        return ((lowestColumn - highestColumn) * -1) / 2 + 1;
-    }
-
-    /**
-     * Returns number of columns on the diagram.
-     *
-     * @return {number}
-     * @see getRows
-     */
-    getDiagramRows() {
-        return this.state.rows.length;
-    }
-
-    /**
-     * Returns width of a diagram in SVG user units.
-     *
-     * The diagram width is determined from a number columns and a size
-     * of each column (one column = one box width + box margin).
-     *
-     * @return {number}
-     * @see getDiagramColumns
-     * @see getBoxWidth
-     * @see BOX_MARGIN
-     */
-    getDiagramWidth() {
-        const columns = this.getDiagramColumns();
-
-        return columns * this.getBoxWidth();
-    }
-
-    /**
-     * Returns height of a diagram in SVG user units.
-     *
-     * The diagram height is determined from a number rows and a size of
-     * each row (one row = one box height + box margin).
-     *
-     * @return {number}
-     * @see getDiagramRows
-     * @see getBoxHeight
-     * @see BOX_MARGIN
-     */
-    getDiagramHeight() {
-        return this.getDiagramRows() * (this.getBoxHeight() + BOX_MARGIN) + BOX_MARGIN;
-    }
-
-    /**
-     * Returns center of a box on x-axis.
-     *
-     * Boxes are spread across the whole space of a row to occupy the
-     * same amount of space each.
-     *
-     * @param {number} colIdx
-     * @return {number}
-     * @see getDiagramWidth
-     * @see BOX_MARGIN
-     */
-    getBoxHorizontalCenter(colIdx) {
-        const hSpace = (this.getBoxWidth() + BOX_MARGIN) / 2;
-
-        return (BOX_MIN_WIDTH / 2) * (colIdx + 2) - BOX_MIN_WIDTH / 2;
-    }
-
-    /**
-     * Returns center of a box on y-axis.
-     *
-     * Rows are stacked from the top to the bottom.
-     *
-     * @param {number} rowIdx
-     * @return {number}
-     * @see getBoxHeight
-     * @see BOX_MARGIN
-     */
-    getBoxVerticalCenter(rowIdx) {
-        const vSpace = this.getBoxHeight() + BOX_MARGIN;
-
-        return BOX_MARGIN / 2 + vSpace * rowIdx + vSpace / 2;
-    }
-
-    /**
-     * Returns top coordinate of a box.
-     *
-     * @param {number} colIdx
-     * @return {number}
-     * @see getBoxHorizontalCenter
-     * @see getBoxWidth
-     */
-    getBoxTopCoord(colIdx) {
-        const top = this.getBoxHorizontalCenter(colIdx) + 20;
-
-        return top;
-    }
-
-    /**
-     * Returns left coordinate of a box.
-     *
-     * @param {number} rowIdx
-     * @return {number}
-     * @see getBoxVerticalCenter
-     * @see getBoxHeight
-     */
-    getBoxLeftCoord(rowIdx) {
-        const left = this.getBoxVerticalCenter(rowIdx) - this.getBoxHeight() / 2;
-
-        return left;
-    }
-
-    /**
-     * Returns coordinates and dimensions of a start step.
-     *
-     * Start (root) step is expected to be an ellipse so its center and
-     * radiuses are returned.
-     *
-     * @return {number}
-     * @see getBoxWidth
-     * @see getBoxHeight
-     */
-    getStartParams() {
-        return {
-            cx: this.getBoxWidth() / 2,
-            cy: this.getBoxHeight() / 2,
-            rx: this.getBoxWidth() / 2,
-            ry: this.getBoxHeight() / 2,
-        };
-    }
-
-    /**
-     * Returns coordinates and dimensions of a general step.
-     *
-     * Step is generally expected to be a rect so its top-right corner
-     * coordinates and width and height are retuned. Rect's corners are
-     * rounded to corner radiuses are returned too.
-     *
-     * @return {number}
-     * @see getBoxWidth
-     * @see getBoxHeight
-     * @see BOX_ROUNDED_CORNER
-     */
-    getDefaultParams() {
-        return {
-            rx: BOX_ROUNDED_CORNER,
-            ry: BOX_ROUNDED_CORNER,
-            width: this.getBoxWidth(),
-            height: this.getBoxHeight(),
-        };
-    }
-
-    getIconParams(ord) {
-        return {
-            x: this.getBoxWidth() - 20 - 22 * ord,
-            y: 16,
-        };
-    }
-
-    /**
-     * Returns translate spec for transform attribute of a box.
-     *
-     * @param {number} colIdx
-     * @param {number} rowIdx
-     * @return {string}
-     * @see getBoxTopCoord
-     * @see getBoxLeftCoord
-     */
-    getBoxTransform(colIdx, rowIdx, margin = 0) {
-        return `translate(${(BOX_MIN_WIDTH / 2) * colIdx} ${this.getBoxLeftCoord(rowIdx) + margin})`;
-    }
-
-    /**
-     * Returns mask element for a start (root) step.
-     *
-     * Mask has an identifier from slugified step name to be referenced
-     * by `mask` attribute.
-     *
-     * @param {number} stepId
-     * @param {number} colIdx
-     * @param {Array<number>} row
-     * @param {number} rowIdx
-     * @return {ReactElement}
-     * @see getStepDomId
-     * @see getStartParams
-     */
-    renderStartMask(stepId) {
-        return (
-            <mask id={stepId}>
-                <ellipse {...this.getStartParams()} className="diagram__mask" />
-            </mask>
-        );
-    }
-
-    /**
-     * Returns group element for a start (root) step.
-     *
-     * The group element contains an ellipse and a text with step name.
-     *
-     * @param {number} stepId
-     * @param {number} colIdx
-     * @param {Array<number>} row
-     * @param {number} rowIdx
-     * @return {ReactElement}
-     * @see getStepFullname
-     * @see getStartParams
-     * @see getTextParams
-     */
-    renderStartBox(stepId, colIdx, row, rowIdx) {
-        const lowestColumn = this.getLowestColumn();
-        const half = this.getDiagramColumns() / 2;
-        const left = this.getBoxWidth() * half - 22 - (BOX_MIN_WIDTH / 2) * (lowestColumn * -1);
-
-        const transform = `translate(${left} ${this.getBoxLeftCoord(rowIdx)})`;
-        return (
-            <g className={`diagram__box`} transform={transform}>
-                <circle cx="22" cy="22" r="22" fill="#ddd" />
-            </g>
-        );
-    }
-
-    /**
-     * Returns mask element for a general step.
-     *
-     * Mask has an identifier from slugified step name to be referenced
-     * by `mask` attribute.
-     *
-     * @param {number} stepId
-     * @return {ReactElement}
-     * @see getStepDomId
-     * @see getDefaultParams
-     */
-    renderDefaultMask(stepId) {
-        return (
-            <mask id={stepId}>
-                <rect {...this.getDefaultParams()} className="diagram__mask" />
-            </mask>
-        );
-    }
-
-    /**
-     * Returns group element for a general step.
-     *
-     * The group element contains a rect and a text with step name. Box
-     * can have special styling based on its type which is reflected by
-     * setting class name with that type. It is expected that all
-     * general steps have info available because it is a source of step
-     * type.
-     *
-     * @param {number} stepId
-     * @param {number} colIdx
-     * @param {Array<number>} row
-     * @param {number} rowIdx
-     * @return {ReactElement}
-     * @see getStepFullname
-     * @see getDefaultParams
-     * @see getStepInfo
-     * @see getTextParams
-     */
-    renderDefaultBox(stepId, colIdx, row, rowIdx) {
-        const { stepsData, steps, t } = this.props;
-        const { highlightedSteps } = this.state;
-
-        return (
-            <g
-                className={classNames({
-                    diagram__box: true,
-                })}
-                key={stepId}
-                fill="transparent"
-                transform={this.getBoxTransform(colIdx, rowIdx)}
-            >
-                <rect {...this.getDefaultParams()} />
-                <foreignObject x={0} y={0} width={this.getBoxWidth()} height={this.getBoxHeight()}>
-                    <StepBox
-                        stepData={stepsData[stepId]}
-                        t={t}
-                        highlightedSteps={highlightedSteps}
-                        stepId={stepId}
-                        onMouseEnter={() => {
-                            // Get the step dependencies
-                            const deps: number[] = steps[stepId];
-                            // Check if the step has any dependencies
-                            if (deps.length) {
-                                this.setState({
-                                    highlightedSteps: [...deps, stepId],
-                                });
-                            }
-                        }}
-                        onMouseLeave={() => {
-                            this.setState({
-                                highlightedSteps: [],
-                            });
-                        }}
-                    />
-                </foreignObject>
-            </g>
-        );
-    }
-
-    /**
-     * Returns mask element for either start (root) or general step.
-     *
-     * A step with identifier equals to zero is considered a start
-     * (root) step.
-     *
-     * @param {number} stepId
-     * @return {ReactElement}
-     * @see renderStartMask
-     * @see renderDefaultMask
-     * @see ROOT_STEP_ID
-     */
-    renderMask(stepId) {
-        return stepId === ROOT_STEP_ID ? this.renderStartMask(stepId) : this.renderDefaultMask(stepId);
-    }
-
-    /**
-     * Returns group element for either start (root) or general step.
-     *
-     * A step with identifier equals to zero is considered a start
-     * (root) step.
-     *
-     * @param {number} stepId
-     * @param {number} colIdx
-     * @param {Array<number>} row
-     * @param {number} rowIdx
-     * @return {ReactElement}
-     * @see renderStartBox
-     * @see renderStartBox
-     * @see ROOT_STEP_ID
-     */
-    renderBox(stepId, colIdx, row, rowIdx) {
-        return stepId === ROOT_STEP_ID
-            ? this.renderStartBox(stepId, colIdx, row, rowIdx)
-            : this.renderDefaultBox(stepId, colIdx, row, rowIdx);
-    }
-
-    /**
-     * Returns path element linking two step boxes (groups).
-     *
-     * The path has a joint right above bottom of the two
-     * boxes. Obviously, this joint is invisible for vertically aligned
-     * boxes. Otherwise, it makes sure the path is perpendicular to x-
-     * and y-axis.
-     *
-     * @param {StepArgs} start
-     * @param {StepArgs} end
-     * @return {ReactElement}
-     * @see getBoxHorizontalCenter
-     * @see getBoxVerticalCenter
-     * @see getBoxHeight
-     * @see BOX_MARGIN
-     */
-    renderPath(start, end) {
-        const startX = start.leftStart ? start.leftStart : this.getBoxHorizontalCenter(start.colIdx);
-        const startY = this.getBoxVerticalCenter(start.rowIdx);
-
-        const endX = this.getBoxHorizontalCenter(end.colIdx);
-        const endY = this.getBoxVerticalCenter(end.rowIdx);
-
-        const joint = Math.max(startY, endY) - this.getBoxHeight() / 2 - BOX_MARGIN / 2;
-
-        return (
-            <path
-                fill="none"
-                stroke="#ddd"
-                d={`M${startX},${startY} ` + `L${startX},${joint} ` + `L${endX},${joint} ` + `L${endX},${endY}`}
-            />
-        );
-    }
-
-    /**
-     * Returns all mask elements.
-     *
-     * @return {Array<ReactElement>}
-     * @see getFlattenRows
-     * @see renderMask
-     */
-    renderMasks() {
-        return this.getFlattenRows().map(({ stepId }) => this.renderMask(stepId));
-    }
-
-    /**
-     * Returns all box group elements.
-     *
-     * @return {Array<ReactElement>}
-     * @see getFlattenRows
-     * @see renderBox
-     */
-    renderBoxes() {
-        return this.getFlattenRows().map(({ stepId, colIdx, row, rowIdx }) =>
-            this.renderBox(stepId, colIdx, row, rowIdx)
-        );
-    }
-
-    /**
-     * Returns all path elements.
-     *
-     * @return {Array<ReactElement>}
-     * @see getFlattenDeps
-     * @see renderPath
-     */
-    renderPaths() {
-        return this.getFlattenDeps().map(({ start, end }, index) => {
-            // This means this is the first row
-            // Make sure that the first row paths
-            // start from the middle of the diagram
-            if (start.stepId === 0) {
-                const lowestColumn = this.getLowestColumn();
-                const half = this.getDiagramColumns() / 2;
-                const left = this.getBoxWidth() * half - (BOX_MIN_WIDTH / 2) * (lowestColumn * -1);
-
-                return this.renderPath(
-                    {
-                        rowIdx: start.rowIdx,
-                        leftStart: left,
-                    },
-                    {
-                        rowIdx: end.rowIdx,
-                        colIdx: end.colIdx,
-                    }
-                );
-            }
-            return this.renderPath(start, end);
-        });
-    }
-
-    getLowestColumn = () => {
-        return this.state.rows.reduce((newValue, row) => {
-            let res = newValue;
-            // Find the lowest column in this row
-            forEach(row, (rowData, colIdx) => {
-                if (parseFloat(colIdx) < parseFloat(res)) {
-                    res = colIdx;
-                }
-            });
-
-            return res;
-        }, 0);
-    };
-
-    getHighestColumns = () => {
-        // Get the lowest column value
-        return this.state.rows.reduce((newValue, row) => {
-            let res = newValue;
-            // Find the lowest column in this row
-            forEach(row, (rowData, colIdx) => {
-                if (parseFloat(colIdx) > parseFloat(res)) {
-                    res = colIdx;
-                }
-            });
-
-            return res;
-        }, 0);
-    };
-
-    renderContent: Function = (diagramScale, diaWidth) => {
-        const leftViewBox = (BOX_MIN_WIDTH / 2) * this.getLowestColumn();
-
-        return (
-            <div
-                style={{
-                    width: diaWidth,
-                    transformOrigin: 'center top',
-                    height: this.getDiagramHeight(),
-                    margin: 'auto',
-                }}
-            >
-                <svg viewBox={`${leftViewBox} 0 ${diaWidth} ${this.getDiagramHeight()}`} className="diagram">
-                    <defs>{this.renderMasks()}</defs>
-                    {this.renderPaths()}
-                    {this.renderBoxes()}
-                </svg>
-            </div>
-        );
-    };
-
     render() {
         if (!this.state.rows) {
             return 'Loading...';
         }
-
-        const diaWidth = this.getDiagramWidth();
 
         return (
             <div
@@ -794,7 +794,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                     flex: '1 1 auto',
                 }}
             >
-                {this.renderContent(1, diaWidth)}
+                {this.renderGraph()}
             </div>
         );
     }

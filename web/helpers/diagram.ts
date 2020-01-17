@@ -80,7 +80,9 @@ function createComparator(dir) {
  */
 function normalize(deps) {
     function ensureSafeSet(map, id) {
-        if (map.has(id)) return;
+        if (map.has(id)) {
+            return;
+        }
 
         deps[id].forEach(dId => ensureSafeSet(map, dId));
         map.set(id, deps[id].slice());
