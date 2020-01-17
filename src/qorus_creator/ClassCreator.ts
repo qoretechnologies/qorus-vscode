@@ -5,6 +5,7 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
 import { job_template } from './job_constants';
 import { workflow_template } from './workflow_constants';
+import { step_template } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
@@ -21,7 +22,7 @@ class ClassCreator extends InterfaceCreator {
                 suffix = '.qjob';
                 break;
             case 'step':
-                template = subclass_template;
+                template = step_template;
                 suffix = '.qstep';
                 break;
             case 'workflow':
