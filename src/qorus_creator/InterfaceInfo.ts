@@ -245,11 +245,17 @@ export class InterfaceInfo {
 
     getConfigItem = ({iface_id, name}) => {
         const config_items = iface_id && this.iface_by_id[iface_id] && this.iface_by_id[iface_id]['config-items'];
-        const config_item = config_items ? config_items.find(item => item.name === name) : undefined;
+        const config_item = (config_items || []).find(item => item.name === name);
+
+        let item = { ... config_item };
+        if ((item.type || '')[0] === '*') {
+            item.type = item.type.substr(1);
+            item.can_be_undefined = true;
+        }
 
         const message = {
             action: 'return-config-item',
-            item: config_item
+            item
         };
 
         qorus_webview.postMessage(message);
@@ -359,9 +365,16 @@ export class InterfaceInfo {
                         item.is_set = true;
                     }
                 }
-                item.type = (item.type || default_type);
+                if (item.type) {
+                    if (item.type[0] === '*') {
+                        item.type = item.type.substr(1);
+                        item.can_be_undefined = true;
+                    }
+                } else {
+                    item.type = default_type;
+                }
 
-                return { ...item };
+                return item;
             };
 
             const checkValueLevel = (item: any, level: string): any => {
@@ -399,7 +412,7 @@ export class InterfaceInfo {
                 items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
             }
 
-            const local_items = (items || []).map(item => fixLocalItem(item));
+            const local_items = (items || []).map(item => fixLocalItem({ ...item }));
 
             const global_items = local_items.filter(item => !item.strictly_local)
                                             .map(item => checkValueLevel({ ...item }, 'global'));
