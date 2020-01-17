@@ -242,8 +242,7 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag of ['local-value', 'default_value']) {
-                if (item[tag] !== undefined) {
-                    const tag = 'local-value';
+                if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
                     switch (item.type) {
                         case 'list':
                         case '*list':
