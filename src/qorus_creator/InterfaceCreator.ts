@@ -315,9 +315,10 @@ export abstract class InterfaceCreator {
 
         const base_class_name = headers['base-class-name'];
         if (base_class_name && !QorusProjectCodeInfo.isRootBaseClass(base_class_name)) {
-            headers.classes = headers.classes || [];
-            if (!headers.classes.some(item => item.name === base_class_name && !item.prefix)) {
-                headers.classes.unshift({name: base_class_name});
+            const classes_or_requires = headers.type === 'class' ? 'requires' : 'classes';
+            headers[classes_or_requires] = headers[classes_or_requires] || [];
+            if (!headers[classes_or_requires].some(item => item.name === base_class_name && !item.prefix)) {
+                headers[classes_or_requires].unshift({name: base_class_name});
             }
         }
 
