@@ -321,6 +321,9 @@ export class QorusProjectCodeInfo {
             return Promise.resolve();
         }
 
+        const doc: QoreTextDocument = qoreTextDocument(file_path);
+        this.addTextLines(file_path, doc.text);
+
         return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
             if (!symbols || !symbols.length) {
                 return;
