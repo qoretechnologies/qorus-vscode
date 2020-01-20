@@ -17,6 +17,8 @@ import size from 'lodash/size';
 import withTextContext from '../../hocomponents/withTextContext';
 import styled from 'styled-components';
 import { StyledSeparator } from '.';
+import { getItemType } from './table';
+import { maybeParseYaml } from '../../helpers/validations';
 
 const StyledToolbarRow = styled.div`
     clear: both;
@@ -89,7 +91,7 @@ const WorkflowConfigItemsTable: Function = ({
                 <DataOrEmptyTable condition={!globalConfig || globalConfig.length === 0} cols={4} small>
                     {props => (
                         <Tbody {...props}>
-                            {globalConfig.map((item: Object, index: number) => (
+                            {globalConfig.map((item: any, index: number) => (
                                 <React.Fragment>
                                     <Tr key={item.name} first={index === 0}>
                                         <Td className="name">{item.name}</Td>
@@ -134,16 +136,17 @@ const WorkflowConfigItemsTable: Function = ({
                                             </ButtonGroup>
                                         </ActionColumn>
                                         <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
-                                            {item.type === 'hash' ||
-                                            item.type === 'list' ||
-                                            item.type === '*hash' ||
-                                            item.type === '*list' ? (
-                                                <Tree compact data={item.value} />
+                                            {!item.isTemplatedString &&
+                                            (getItemType(item.type, item.value) === 'hash' ||
+                                                getItemType(item.type, item.value) === 'list') ? (
+                                                <Tree compact data={maybeParseYaml(item.value)} />
                                             ) : (
-                                                <ContentByType inTable content={item.value} />
+                                                <ContentByType inTable content={maybeParseYaml(item.value)} />
                                             )}
                                         </Td>
-                                        <Td className="narrow">{`<${item.type}/>`}</Td>
+                                        <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
+                                            item.type
+                                        }/>`}</Td>
                                     </Tr>
                                 </React.Fragment>
                             ))}

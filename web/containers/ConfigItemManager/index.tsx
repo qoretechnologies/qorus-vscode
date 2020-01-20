@@ -126,8 +126,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         });
     };
 
-    console.log(configItems);
-
     return (
         <>
             <StyledConfigManagerWrapper>

@@ -25,6 +25,7 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
     get_message,
     return_message,
     t,
+    disabled,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -55,6 +56,7 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
 
     return (
         <DateInput
+            disabled={disabled}
             formatDate={date => date.toISOString()}
             parseDate={str => new Date(str)}
             placeholder={'D/M/YYYY'}

@@ -60,7 +60,7 @@ const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
     </React.Fragment>
 );
 
-const getItemType = (type, value) => {
+export const getItemType = (type, value) => {
     if (type === 'any' || type === 'auto') {
         return getTypeFromValue(maybeParseYaml(value));
     }
@@ -170,11 +170,9 @@ let ItemsTable: Function = ({
                                         </ButtonGroup>
                                     </ActionColumn>
                                     <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
-                                        {(!item.isTemplatedString && console.log(getItemType(item.type, item.value))) ||
+                                        {!item.isTemplatedString ||
                                         getItemType(item.type, item.value) === 'hash' ||
-                                            getItemType(item.type, item.value) === 'list' ||
-                                            getItemType(item.type, item.value) === '*hash' ||
-                                            getItemType(item.type, item.value) === '*list' ? (
+                                        getItemType(item.type, item.value) === 'list' ? (
                                             <Tree compact data={maybeParseYaml(item.value)} />
                                         ) : (
                                             <ContentByType inTable content={maybeParseYaml(item.value)} />
@@ -185,7 +183,7 @@ let ItemsTable: Function = ({
                                     </Td>
                                     <Td className="medium">{item.level}</Td>
                                     {!title && <Td className="medium">{item.config_group}</Td>}
-                                    <Td className="narrow">{`<${item.type}/>`}</Td>
+                                    <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${item.type}/>`}</Td>
                                     <ActionColumn>
                                         <ButtonGroup>
                                             <Button

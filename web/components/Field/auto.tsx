@@ -125,11 +125,17 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             case 'string':
             case 'data':
             case 'binary':
-                return <StringField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
+                return (
+                    <StringField fill {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
+                );
             case 'bool':
-                return <BooleanField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
+                return (
+                    <BooleanField fill {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
+                );
             case 'date':
-                return <DateField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
+                return (
+                    <DateField fill {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
+                );
             case 'hash':
             case 'hash<auto>':
             case 'list':
@@ -169,27 +175,31 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     // Render type picker if the type is auto or any
     return (
         <>
-            {(defaultType === 'auto' || defaultType === 'any' || currentType === 'auto' || currentType === 'any') && (
-                <SelectField
-                    name="type"
-                    defaultItems={[
-                        { name: 'bool' },
-                        { name: 'date' },
-                        { name: 'string' },
-                        { name: 'binary' },
-                        { name: 'float' },
-                        { name: 'list' },
-                        { name: 'hash' },
-                        { name: 'int' },
-                    ]}
-                    value={currentInternalType}
-                    onChange={(_name, value) => {
-                        handleChange(name, null);
-                        setInternalType(value);
-                    }}
-                />
-            )}
             <ControlGroup fill>
+                {(defaultType === 'auto' ||
+                    defaultType === 'any' ||
+                    currentType === 'auto' ||
+                    currentType === 'any') && (
+                    <SelectField
+                        name="type"
+                        defaultItems={[
+                            { name: 'bool' },
+                            { name: 'date' },
+                            { name: 'string' },
+                            { name: 'binary' },
+                            { name: 'float' },
+                            { name: 'list' },
+                            { name: 'hash' },
+                            { name: 'int' },
+                        ]}
+                        value={currentInternalType}
+                        onChange={(_name, value) => {
+                            handleChange(name, null);
+                            setInternalType(value);
+                        }}
+                    />
+                )}
+
                 {renderField(currentInternalType)}
                 {canBeNull() && (
                     <Button
