@@ -147,12 +147,19 @@ export class InterfaceInfo {
         }
         delete item.can_be_undefined;
 
-        const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
+        const name_to_search = item.orig_name || item.name;
+        const index = this.iface_by_id[iface_id]['config-items']
+                          .findIndex(item2 => item2.name === name_to_search);
         if (index > -1) {
+            if (name_to_search !== item.name) {
+                this.iface_by_id[iface_id]['config-items'][index].name = item.name;
+            }
+
             const field_names = configItemFields(this).map(field => field.name);
             field_names.forEach(field_name => {
                 delete this.iface_by_id[iface_id]['config-items'][index][field_name];
             });
+
             this.iface_by_id[iface_id]['config-items'][index] = {
                 ... this.iface_by_id[iface_id]['config-items'][index],
                 ... item
