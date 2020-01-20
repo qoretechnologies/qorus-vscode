@@ -1167,8 +1167,10 @@ export class QorusProjectCodeInfo {
                 return;
             }
 
+            this.inheritance_pairs[class_name] = [symbol.extends.name];
             this.java_inheritance_pairs[class_name] = [symbol.extends.name];
         }).then(() => {
+            this.baseClassesFromInheritancePairs();
             this.javaBaseClassesFromInheritancePairs();
             this.setPending('java_lang_client', false);
         });
