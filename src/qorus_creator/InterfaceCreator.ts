@@ -18,6 +18,7 @@ export abstract class InterfaceCreator {
     protected lang: string;
     protected target_dir: string;
     protected file_base: string;
+    protected yaml_file_base: string;
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
@@ -28,11 +29,21 @@ export abstract class InterfaceCreator {
         this.target_dir = target_dir;
         this.lang = data.lang || 'qore';
 
-        this.file_base = target_file
-            ? path.basename(path.basename(target_file, lang_suffix[this.lang]), this.suffix || '.yaml')
-            : data.version !== undefined
+        if (this.lang === 'qore') {
+            this.file_base = target_file
+                ? path.basename(path.basename(target_file, lang_suffix[this.lang]), this.suffix || '.yaml')
+                : (data.version !== undefined
+                    ? `${data.name}-${data.version}`
+                    : data.name);
+            this.yaml_file_base = this.file_base;
+        } else {
+            this.file_base = target_file
+                ? path.basename(path.basename(target_file, lang_suffix[this.lang]), '.yaml')
+                : data['class-name'];
+            this.yaml_file_base = data.version !== undefined
                 ? `${data.name}-${data.version}`
                 : data.name;
+        }
 
         return other_data;
     }
@@ -66,11 +77,15 @@ export abstract class InterfaceCreator {
     protected abstract editImpl(params: any);
 
     protected get file_name() {
-        return this.hasCode() ? `${this.file_base}${this.suffix || ''}${lang_suffix[this.lang]}` : undefined;
+        return this.hasCode()
+            ? (this.lang !== 'java'
+                ? `${this.file_base}${this.suffix || ''}${lang_suffix[this.lang]}`
+                : `${this.file_base}${lang_suffix[this.lang]}`)
+            : undefined;
     }
 
     protected get yaml_file_name() {
-        return this.hasCode() ? `${this.file_name}.yaml` : `${this.file_base}.yaml`;
+        return this.hasCode() && this.lang !== 'java' ? `${this.file_name}.yaml` : `${this.yaml_file_base}.yaml`;
     }
 
     protected get file_path() {
