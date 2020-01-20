@@ -5,6 +5,7 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template } from './common_constants';
 import { job_template } from './job_constants';
 import { workflow_template } from './workflow_constants';
+import { step_template } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
@@ -21,7 +22,7 @@ class ClassCreator extends InterfaceCreator {
                 suffix = '.qjob';
                 break;
             case 'step':
-                template = subclass_template;
+                template = step_template;
                 suffix = '.qstep';
                 break;
             case 'workflow':
@@ -103,12 +104,14 @@ class ClassCreator extends InterfaceCreator {
         });
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
-        if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
+        const hasArrayTag = tag => iface_data && iface_data[tag] && iface_data[tag].length;
+        if (hasArrayTag('config-items')) {
             headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
+        }
 
-            if (iface_kind === 'step') {
-                this.setWorkflowConfigItemValues(iface_data);
-            }
+        if (iface_kind === 'workflow' && hasArrayTag('config-item-values')) {
+            headers += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']}, {indent: 2})
+                             .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 
         this.hasCode()
@@ -130,37 +133,6 @@ class ClassCreator extends InterfaceCreator {
         if (hasConfigItems(iface_kind)) {
             this.code_info.interface_info.setOrigConfigItems(iface_id);
         }
-    }
-
-    private setWorkflowConfigItemValues({name, version, 'config-items': items}) {
-        const items_with_wf_value = items.filter(item => item['workflow-value'] !== undefined);
-        if (!items_with_wf_value.length) {
-            return;
-        }
-
-        const workflow_data = this.code_info.workflowYamlDataByStep(`${name}:${version}`);
-        if (!workflow_data) {
-            return;
-        }
-
-        let wf_ci_values = workflow_data['config-item-values'] || [];
-
-        items_with_wf_value.forEach(item => {
-            const {name, 'workflow-value': value} = item;
-            const index = wf_ci_values.findIndex(wf_ci_value => wf_ci_value.name === name);
-            if (index > -1) {
-                wf_ci_values[index].value = value;
-            } else {
-                wf_ci_values.push({name, value});
-            }
-        });
-
-        let headers = ClassCreator.createHeaders(workflow_data);
-
-        headers += jsyaml.safeDump({'config-item-values': wf_ci_values}, {indent: 2})
-                         .replace(/\r?\n  -\r?\n/g, '\n  - ');
-
-        this.writeYamlFile(headers, workflow_data.yaml_file);
     }
 }
 

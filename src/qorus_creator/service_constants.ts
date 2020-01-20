@@ -24,7 +24,7 @@ method_template.qore = '\
 ';
 
 method_template.java = '\
-    public void ${this.name}() {\n\
+    public void ${this.name}() throws Throwable {\n\
     }\n\
 ';
 

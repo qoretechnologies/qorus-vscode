@@ -63,7 +63,7 @@ export class QorusProjectCodeInfo {
     private yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
 
     private name_2_yaml: any = {};
-    private yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
+    public yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
     private yamlDataByType = type => {
         let ret_val = {};
         for (const name in this.name_2_yaml[type] || {}) {
@@ -71,9 +71,6 @@ export class QorusProjectCodeInfo {
         }
         return ret_val;
     }
-
-    private step_2_workflow_yaml = {};
-    public workflowYamlDataByStep = name_version => this.step_2_workflow_yaml[name_version];
 
     private yaml_2_src: any = {};
     private class_2_src: any = {};
@@ -520,14 +517,6 @@ export class QorusProjectCodeInfo {
             }
         });
 
-        let wf_ci_values = [];
-        if (data.type === 'step') {
-            const workflow_data = this.workflowYamlDataByStep(`${data.name}:${data.version || default_version}`);
-            if (workflow_data) {
-                wf_ci_values = workflow_data['config-item-values'] || [];
-            }
-        }
-
         (data['config-items'] || []).forEach(item => {
             if (item.description) {
                 item.description = item.description.replace(/\r?\n/g, '\n\n');
@@ -538,14 +527,6 @@ export class QorusProjectCodeInfo {
                 item['global-value'] = global_value;
                 item.value = global_value;
                 item.level = 'global';
-                item.is_set = true;
-            }
-
-            const index = wf_ci_values.findIndex(wf_ci_value => wf_ci_value.name === item.name);
-            if (index > -1) {
-                item['workflow-value'] = wf_ci_values[index].value;
-                item.value = wf_ci_values[index].value;
-                item.level = 'workflow';
                 item.is_set = true;
             }
         });
@@ -1033,12 +1014,6 @@ export class QorusProjectCodeInfo {
             }
         }
 
-        if (yaml_data.steps) {
-            flattenDeep(yaml_data.steps).forEach(name_version => {
-                this.step_2_workflow_yaml[name_version] = yaml_data;
-            });
-        }
-
         if (!yaml_data.name || !yaml_data.type) {
             return;
         }
@@ -1048,12 +1023,6 @@ export class QorusProjectCodeInfo {
             : yaml_data.name;
 
         this.name_2_yaml[yaml_data.type][name] = file;
-
-        if (yaml_data.type === 'step') {
-            if (!this.step_2_workflow_yaml[name]) {
-                this.step_2_workflow_yaml[name] = null;
-            }
-        }
 
         if (object_info_types.includes(yaml_data.type)) {
             addObjectName(yaml_data.type, name);
