@@ -19,6 +19,7 @@ import styled from 'styled-components';
 import { StyledSeparator } from '.';
 import { getItemType } from './table';
 import { maybeParseYaml } from '../../helpers/validations';
+import { isNull } from 'util';
 
 const StyledToolbarRow = styled.div`
     clear: both;
@@ -35,129 +36,145 @@ const WorkflowConfigItemsTable: Function = ({
     handleModalToggle,
     workflow,
     t,
-}) => (
-    <>
-        {modalData && (
-            <AddConfigItemModal
-                onClose={handleModalToggle}
-                item={modalData.item && { ...modalData.item }}
-                onSubmit={modalData.onSubmit}
-                globalConfig={modalData.globalConfig}
-                isGlobal={modalData.isGlobal}
-            />
-        )}
-        <StyledToolbarRow>
-            <Pull>
-                <h3 style={{ margin: 0, padding: 0 }}>
-                    {t(workflow ? 'Workflow' : 'Global')} {t('ConfigItemValues')}
-                </h3>
-            </Pull>
-            <Pull right>
-                <ButtonGroup>
-                    <Button
-                        disabled={!size(globalItems)}
-                        icon="add"
-                        text={t('button.add-new-value')}
-                        title={t('button.add-new-value')}
-                        onClick={() => {
-                            handleModalToggle({
-                                onSubmit: (name, value, parent) => {
-                                    onSubmit(name, value, parent, workflow ? 'workflow' : 'global');
-                                    handleModalToggle(null);
-                                },
-                                globalConfig: globalItems,
-                                isGlobal: true,
-                            });
-                        }}
-                    />
-                </ButtonGroup>
-            </Pull>
-        </StyledToolbarRow>
-        {globalConfig && globalConfig.length !== 0 ? (
-            <Table striped condensed fixed hover>
-                <Thead>
-                    <FixedRow>
-                        <Th className="name" icon="application">
-                            {t('Name')}
-                        </Th>
-                        <ActionColumnHeader />
-                        <Th className="text" iconName="info-sign">
-                            {t('Name')}
-                        </Th>
-                        <Th iconName="code" />
-                    </FixedRow>
-                </Thead>
+}) => {
+    const renderValue = item => {
+        if (isUndefined(item.value)) {
+            return <span> - </span>;
+        }
+        if (isNull(item.value)) {
+            return <span> null </span>;
+        }
+        if (item.isTemplatedString) {
+            return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+        }
 
-                <DataOrEmptyTable condition={!globalConfig || globalConfig.length === 0} cols={4} small>
-                    {props => (
-                        <Tbody {...props}>
-                            {globalConfig.map((item: any, index: number) => (
-                                <React.Fragment>
-                                    <Tr key={item.name} first={index === 0}>
-                                        <Td className="name">{item.name}</Td>
-                                        <ActionColumn>
-                                            <ButtonGroup>
-                                                <Button
-                                                    icon="edit"
-                                                    small
-                                                    title={t('button.edit-this-value')}
-                                                    onClick={() => {
-                                                        handleModalToggle({
-                                                            onSubmit: (name, value, parent) => {
-                                                                onSubmit(
-                                                                    name,
-                                                                    value,
-                                                                    parent,
-                                                                    workflow ? 'workflow' : 'global'
-                                                                );
-                                                                handleModalToggle(null);
-                                                            },
-                                                            globalConfig: globalItems,
-                                                            item,
-                                                            isGlobal: true,
-                                                        });
-                                                    }}
-                                                />
-                                                <Button
-                                                    small
-                                                    icon="cross"
-                                                    title={t('button.remove-this-value')}
-                                                    intent="danger"
-                                                    onClick={() => {
-                                                        onSubmit(
-                                                            item.name,
-                                                            null,
-                                                            item.parent_class,
-                                                            workflow ? 'workflow' : 'global',
-                                                            true
-                                                        );
-                                                    }}
-                                                />
-                                            </ButtonGroup>
-                                        </ActionColumn>
-                                        <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
-                                            {!item.isTemplatedString &&
-                                            (getItemType(item.type, item.value) === 'hash' ||
-                                                getItemType(item.type, item.value) === 'list') ? (
-                                                <Tree compact data={maybeParseYaml(item.value)} />
-                                            ) : (
-                                                <ContentByType inTable content={maybeParseYaml(item.value)} />
-                                            )}
-                                        </Td>
-                                        <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
-                                            item.type
-                                        }/>`}</Td>
-                                    </Tr>
-                                </React.Fragment>
-                            ))}
-                        </Tbody>
-                    )}
-                </DataOrEmptyTable>
-            </Table>
-        ) : null}
-        <StyledSeparator />
-    </>
-);
+        if (getItemType(item.type, item.value) === 'hash' || getItemType(item.type, item.value) === 'list') {
+            <Tree compact data={maybeParseYaml(item.value)} />;
+        }
+
+        return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+    };
+    return (
+        <>
+            {modalData && (
+                <AddConfigItemModal
+                    onClose={handleModalToggle}
+                    item={modalData.item && { ...modalData.item }}
+                    onSubmit={modalData.onSubmit}
+                    globalConfig={modalData.globalConfig}
+                    isGlobal={modalData.isGlobal}
+                />
+            )}
+            <StyledToolbarRow>
+                <Pull>
+                    <h3 style={{ margin: 0, padding: 0 }}>
+                        {t(workflow ? 'Workflow' : 'Global')} {t('ConfigItemValues')}
+                    </h3>
+                </Pull>
+                <Pull right>
+                    <ButtonGroup>
+                        <Button
+                            disabled={!size(globalItems)}
+                            icon="add"
+                            text={t('button.add-new-value')}
+                            title={t('button.add-new-value')}
+                            onClick={() => {
+                                handleModalToggle({
+                                    onSubmit: (name, value, parent) => {
+                                        onSubmit(name, value, parent, workflow ? 'workflow' : 'global');
+                                        handleModalToggle(null);
+                                    },
+                                    globalConfig: globalItems,
+                                    isGlobal: true,
+                                });
+                            }}
+                        />
+                    </ButtonGroup>
+                </Pull>
+            </StyledToolbarRow>
+            {globalConfig && globalConfig.length !== 0 ? (
+                <Table striped condensed fixed hover>
+                    <Thead>
+                        <FixedRow>
+                            <Th className="name" icon="application">
+                                {t('Name')}
+                            </Th>
+                            <ActionColumnHeader />
+                            <Th className="text" iconName="info-sign">
+                                {t('Name')}
+                            </Th>
+                            <Th iconName="code" />
+                        </FixedRow>
+                    </Thead>
+
+                    <DataOrEmptyTable condition={!globalConfig || globalConfig.length === 0} cols={4} small>
+                        {props => (
+                            <Tbody {...props}>
+                                {globalConfig.map((item: any, index: number) => (
+                                    <React.Fragment>
+                                        <Tr key={item.name} first={index === 0}>
+                                            <Td className="name">{item.name}</Td>
+                                            <ActionColumn>
+                                                <ButtonGroup>
+                                                    <Button
+                                                        icon="edit"
+                                                        small
+                                                        title={t('button.edit-this-value')}
+                                                        onClick={() => {
+                                                            handleModalToggle({
+                                                                onSubmit: (name, value, parent) => {
+                                                                    onSubmit(
+                                                                        name,
+                                                                        value,
+                                                                        parent,
+                                                                        workflow ? 'workflow' : 'global'
+                                                                    );
+                                                                    handleModalToggle(null);
+                                                                },
+                                                                globalConfig: globalItems,
+                                                                item,
+                                                                isGlobal: true,
+                                                            });
+                                                        }}
+                                                    />
+                                                    <Button
+                                                        small
+                                                        icon="cross"
+                                                        title={t('button.remove-this-value')}
+                                                        intent="danger"
+                                                        onClick={() => {
+                                                            onSubmit(
+                                                                item.name,
+                                                                null,
+                                                                item.parent_class,
+                                                                workflow ? 'workflow' : 'global',
+                                                                true
+                                                            );
+                                                        }}
+                                                    />
+                                                </ButtonGroup>
+                                            </ActionColumn>
+                                            <Td
+                                                className={`text ${item.level === 'workflow' ||
+                                                    item.level === 'global'}`}
+                                            >
+                                                {renderValue(item)}
+                                            </Td>
+                                            <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
+                                                item.type
+                                            }/>`}</Td>
+                                        </Tr>
+                                    </React.Fragment>
+                                ))}
+                            </Tbody>
+                        )}
+                    </DataOrEmptyTable>
+                </Table>
+            ) : null}
+            <StyledSeparator />
+        </>
+    );
+};
 
 export default compose(
     mapProps(({ configItems, ...rest }) => ({

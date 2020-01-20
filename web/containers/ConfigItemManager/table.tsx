@@ -21,6 +21,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import Modal from './modal';
 import ReactMarkdown from 'react-markdown';
 import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
+import { isNull, isUndefined } from 'util';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -83,146 +84,164 @@ let ItemsTable: Function = ({
     onDeleteStructureClick,
     t,
     type,
-}: ConfigItemsTableProps) => (
-    <React.Fragment>
-        <Table striped condensed fixed hover>
-            <Thead>
-                <FixedRow className="toolbar-row">
-                    <Th>
-                        {groupName && (
-                            <Pull>
-                                <h3 style={{ margin: 0, padding: 0, lineHeight: '30px' }}>
-                                    <Icon icon="group-objects" /> {t('Group')}: {groupName}
-                                </h3>
+}: ConfigItemsTableProps) => {
+    const renderValue = item => {
+        if (isUndefined(item.value)) {
+            return <span> - </span>;
+        }
+        if (isNull(item.value)) {
+            return <span> null </span>;
+        }
+        if (item.isTemplatedString) {
+            return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+        }
+
+        if (getItemType(item.type, item.value) === 'hash' || getItemType(item.type, item.value) === 'list') {
+            <Tree compact data={maybeParseYaml(item.value)} />;
+        }
+
+        return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+    };
+
+    return (
+        <React.Fragment>
+            <Table striped condensed fixed hover>
+                <Thead>
+                    <FixedRow className="toolbar-row">
+                        <Th>
+                            {groupName && (
+                                <Pull>
+                                    <h3 style={{ margin: 0, padding: 0, lineHeight: '30px' }}>
+                                        <Icon icon="group-objects" /> {t('Group')}: {groupName}
+                                    </h3>
+                                </Pull>
+                            )}
+                            <Pull right>
+                                <ButtonGroup>
+                                    <Button
+                                        text={t(groupName ? 'button.ungroup' : 'button.group-up')}
+                                        icon={groupName ? 'ungroup-objects' : 'group-objects'}
+                                        onClick={handleGroupedToggle}
+                                    />
+                                    <Button
+                                        text={t('button.show-descriptions')}
+                                        icon="align-left"
+                                        onClick={handleToggleDescription}
+                                    />
+                                </ButtonGroup>
                             </Pull>
-                        )}
-                        <Pull right>
-                            <ButtonGroup>
-                                <Button
-                                    text={t(groupName ? 'button.ungroup' : 'button.group-up')}
-                                    icon={groupName ? 'ungroup-objects' : 'group-objects'}
-                                    onClick={handleGroupedToggle}
-                                />
-                                <Button
-                                    text={t('button.show-descriptions')}
-                                    icon="align-left"
-                                    onClick={handleToggleDescription}
-                                />
-                            </ButtonGroup>
-                        </Pull>
-                    </Th>
-                </FixedRow>
-                <FixedRow>
-                    <Th className="name text" iconName="application">
-                        {t('Name')}
-                    </Th>
-                    <ActionColumnHeader icon="edit" />
-                    <Th className="text" iconName="info-sign">
-                        {t('Value')}
-                    </Th>
-                    <Th>{t('Local')}</Th>
-                    <Th>{t('Level')}</Th>
-                    {!title && <Th name="config_group">{t('Group')}</Th>}
-                    <Th iconName="code" />
-                    <Th iconName="edit">{t('Structure')}</Th>
-                </FixedRow>
-            </Thead>
-            <DataOrEmptyTable condition={!configItemsData || configItemsData.length === 0} cols={7} small>
-                {props => (
-                    <Tbody {...props}>
-                        {configItemsData.map((item: any, index: number) => (
-                            <React.Fragment>
-                                <Tr
-                                    key={item.name}
-                                    first={index === 0}
-                                    className={classnames({
-                                        'row-alert': !item.value && !item.is_set,
-                                    })}
-                                >
-                                    <Td className="name">{item.name}</Td>
-                                    <ActionColumn>
-                                        <ButtonGroup>
-                                            <Button
-                                                small
-                                                icon="edit"
-                                                title={t('button.edit-this-value')}
-                                                onClick={() => {
-                                                    handleModalToggle(
-                                                        { ...item },
-                                                        (name, value, parent) => {
-                                                            onSubmit(name, value, parent, type);
-                                                            handleModalToggle(null);
-                                                        },
-                                                        intrf,
-                                                        levelType
-                                                    );
-                                                }}
-                                            />
-                                            <Button
-                                                small
-                                                icon="cross"
-                                                title={t('button.remove-this-value')}
-                                                disabled={item.level ? !item.level.startsWith(levelType || '') : true}
-                                                onClick={() => {
-                                                    onSubmit(item.name, null, item.parent_class, type, true);
-                                                }}
-                                            />
-                                        </ButtonGroup>
-                                    </ActionColumn>
-                                    <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
-                                        {!item.isTemplatedString &&
-                                        (getItemType(item.type, item.value) === 'hash' ||
-                                            getItemType(item.type, item.value) === 'list') ? (
-                                            <Tree compact data={maybeParseYaml(item.value)} />
-                                        ) : (
-                                            <ContentByType inTable content={maybeParseYaml(item.value)} />
-                                        )}
-                                    </Td>
-                                    <Td className="narrow">
-                                        <ContentByType content={item.strictly_local} />
-                                    </Td>
-                                    <Td className="medium">{item.level}</Td>
-                                    {!title && <Td className="medium">{item.config_group}</Td>}
-                                    <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${item.type}/>`}</Td>
-                                    <ActionColumn>
-                                        <ButtonGroup>
-                                            <Button
-                                                small
-                                                intent="warning"
-                                                icon="cog"
-                                                title={t('button.edit-this-config-item')}
-                                                onClick={() => {
-                                                    onEditStructureClick(item.name);
-                                                }}
-                                            />
-                                            {!item.parent && (
+                        </Th>
+                    </FixedRow>
+                    <FixedRow>
+                        <Th className="name text" iconName="application">
+                            {t('Name')}
+                        </Th>
+                        <ActionColumnHeader icon="edit" />
+                        <Th className="text" iconName="info-sign">
+                            {t('Value')}
+                        </Th>
+                        <Th>{t('Local')}</Th>
+                        <Th>{t('Level')}</Th>
+                        {!title && <Th name="config_group">{t('Group')}</Th>}
+                        <Th iconName="code" />
+                        <Th iconName="edit">{t('Structure')}</Th>
+                    </FixedRow>
+                </Thead>
+                <DataOrEmptyTable condition={!configItemsData || configItemsData.length === 0} cols={7} small>
+                    {props => (
+                        <Tbody {...props}>
+                            {configItemsData.map((item: any, index: number) => (
+                                <React.Fragment>
+                                    <Tr
+                                        key={item.name}
+                                        first={index === 0}
+                                        className={classnames({
+                                            'row-alert': !item.value && !item.is_set,
+                                        })}
+                                    >
+                                        <Td className="name">{item.name}</Td>
+                                        <ActionColumn>
+                                            <ButtonGroup>
                                                 <Button
                                                     small
-                                                    intent="danger"
-                                                    icon="trash"
+                                                    icon="edit"
+                                                    title={t('button.edit-this-value')}
                                                     onClick={() => {
-                                                        onDeleteStructureClick(item.name);
+                                                        handleModalToggle(
+                                                            { ...item },
+                                                            (name, value, parent) => {
+                                                                onSubmit(name, value, parent, type);
+                                                                handleModalToggle(null);
+                                                            },
+                                                            intrf,
+                                                            levelType
+                                                        );
                                                     }}
                                                 />
-                                            )}
-                                        </ButtonGroup>
-                                    </ActionColumn>
-                                </Tr>
-                                {showDescription && (
-                                    <Tr>
-                                        <Td className="text" colspan={groupName ? 7 : 8}>
-                                            <ReactMarkdown source={item.description} />
+                                                <Button
+                                                    small
+                                                    icon="cross"
+                                                    title={t('button.remove-this-value')}
+                                                    disabled={
+                                                        item.level ? !item.level.startsWith(levelType || '') : true
+                                                    }
+                                                    onClick={() => {
+                                                        onSubmit(item.name, null, item.parent_class, type, true);
+                                                    }}
+                                                />
+                                            </ButtonGroup>
+                                        </ActionColumn>
+                                        <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
+                                            {renderValue(item)}
                                         </Td>
+                                        <Td className="narrow">
+                                            <ContentByType content={item.strictly_local} />
+                                        </Td>
+                                        <Td className="medium">{item.level}</Td>
+                                        {!title && <Td className="medium">{item.config_group}</Td>}
+                                        <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
+                                            item.type
+                                        }/>`}</Td>
+                                        <ActionColumn>
+                                            <ButtonGroup>
+                                                <Button
+                                                    small
+                                                    intent="warning"
+                                                    icon="cog"
+                                                    title={t('button.edit-this-config-item')}
+                                                    onClick={() => {
+                                                        onEditStructureClick(item.name);
+                                                    }}
+                                                />
+                                                {!item.parent && (
+                                                    <Button
+                                                        small
+                                                        intent="danger"
+                                                        icon="trash"
+                                                        onClick={() => {
+                                                            onDeleteStructureClick(item.name);
+                                                        }}
+                                                    />
+                                                )}
+                                            </ButtonGroup>
+                                        </ActionColumn>
                                     </Tr>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </Tbody>
-                )}
-            </DataOrEmptyTable>
-        </Table>
-    </React.Fragment>
-);
+                                    {showDescription && (
+                                        <Tr>
+                                            <Td className="text" colspan={groupName ? 7 : 8}>
+                                                <ReactMarkdown source={item.description} />
+                                            </Td>
+                                        </Tr>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </Tbody>
+                    )}
+                </DataOrEmptyTable>
+            </Table>
+        </React.Fragment>
+    );
+};
 
 ItemsTable = compose(
     withState('showDescription', 'toggleDescription', false),
