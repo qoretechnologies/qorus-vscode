@@ -59,7 +59,8 @@ export class QorusProjectCodeInfo {
     public yamlDataBySrcFile = file => this.yaml_data[this.src_2_yaml[file]];
     public yamlDataByFilePath = file => this.yaml_data[file];
 
-    private class_2_yaml: any = {};
+    private class_2_yaml: any = {};       // all classes
+    private java_class_2_yaml: any = {};  // only java classes
     public yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
 
     private name_2_yaml: any = {};
@@ -784,8 +785,8 @@ export class QorusProjectCodeInfo {
                 }
                 break;
             case 'base-class':
-                this.waitForPending(['yaml', 'lang_client']).then(() => {
-                    const classes = { ...this.class_2_yaml };
+                this.waitForPending(['yaml']).then(() => {
+                    const classes = lang === 'java' ? { ...this.java_class_2_yaml } : { ...this.class_2_yaml };
                     const current_class =
                         qorus_webview.opening_data &&
                         qorus_webview.opening_data.class &&
@@ -996,6 +997,9 @@ export class QorusProjectCodeInfo {
         const class_name = yaml_data['class-name'];
         if (class_name) {
             this.class_2_yaml[class_name] = file;
+            if (yaml_data.lang === 'java') {
+                this.java_class_2_yaml[class_name] = file;
+            }
         }
 
         const addObjectName = (type: string, name: string) => {
