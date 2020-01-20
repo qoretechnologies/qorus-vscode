@@ -19,7 +19,7 @@ import styled from 'styled-components';
 import { StyledSeparator } from '.';
 import { getItemType } from './table';
 import { maybeParseYaml } from '../../helpers/validations';
-import { isNull } from 'util';
+import { isNull, isUndefined } from 'util';
 
 const StyledToolbarRow = styled.div`
     clear: both;
