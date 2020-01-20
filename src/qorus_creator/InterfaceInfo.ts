@@ -3,7 +3,7 @@ import * as shortid from 'shortid';
 import * as flattenDeep from 'lodash/flattenDeep';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
-import { defaultValue } from './config_item_constants';
+import { defaultValue, configItemFields } from './config_item_constants';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -149,6 +149,10 @@ export class InterfaceInfo {
 
         const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 => item2.name === item.name);
         if (index > -1) {
+            const field_names = configItemFields(this).map(field => field.name);
+            field_names.forEach(field_name => {
+                delete this.iface_by_id[iface_id]['config-items'][index][field_name];
+            });
             this.iface_by_id[iface_id]['config-items'][index] = {
                 ... this.iface_by_id[iface_id]['config-items'][index],
                 ... item
