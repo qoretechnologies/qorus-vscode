@@ -60,7 +60,7 @@ export class QorusProjectCodeInfo {
     public yamlDataByFilePath = file => this.yaml_data[file];
 
     private class_2_yaml: any = {};
-    private yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
+    public yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
 
     private name_2_yaml: any = {};
     public yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
@@ -73,7 +73,6 @@ export class QorusProjectCodeInfo {
     }
 
     private yaml_2_src: any = {};
-    private class_2_src: any = {};
     private file_tree: any[] = [];
     private dir_tree: any[] = [];
     private all_dir_tree: any = {};
@@ -579,7 +578,6 @@ export class QorusProjectCodeInfo {
 
         this.file_tree = [];
         this.dir_tree = [];
-        this.class_2_src = {};
         this.inheritance_pairs = {};
         this.java_inheritance_pairs = {};
         this.yaml_2_src = {};
@@ -787,7 +785,7 @@ export class QorusProjectCodeInfo {
                 break;
             case 'base-class':
                 this.waitForPending(['yaml', 'lang_client']).then(() => {
-                    const classes = { ...this.class_2_src };
+                    const classes = { ...this.class_2_yaml };
                     const current_class =
                         qorus_webview.opening_data &&
                         qorus_webview.opening_data.class &&
@@ -1120,13 +1118,12 @@ export class QorusProjectCodeInfo {
 
     private updateLanguageClientInfo(source_directories: string[]) {
         this.setPending('lang_client', true);
-        this.processDocumentSymbols(source_directories, canDefineInterfaceBaseClass, (symbol, file) => {
+        this.processDocumentSymbols(source_directories, canDefineInterfaceBaseClass, (symbol, _file) => {
             if (symbol.nodetype !== 1 || symbol.kind !== 1 || !symbol.name || !symbol.name.name) {
                 return;
             }
 
             const class_name = symbol.name.name;
-            this.class_2_src[class_name] = file;
 
             if (!symbol.inherits || !symbol.inherits.length) {
                 return;
@@ -1153,7 +1150,6 @@ export class QorusProjectCodeInfo {
             }
 
             const class_name = symbol.name;
-            this.class_2_src[class_name] = file;
 
             // we don't use vscode.workspace.openTextDocument
             // as that would spam loads of didOpen events to Java extension
@@ -1172,15 +1168,6 @@ export class QorusProjectCodeInfo {
             this.javaBaseClassesFromInheritancePairs();
             this.setPending('java_lang_client', false);
         });
-    }
-
-    classYamlData = class_name => {
-        const class_src_file = this.class_2_src[class_name];
-        const class_yaml_data = this.yamlDataBySrcFile(class_src_file);
-        if (!class_yaml_data && !QorusProjectCodeInfo.isRootBaseClass(class_name)) {
-            msg.log(t`UnableFindYamlForClass ${class_name}`);
-        }
-        return class_yaml_data;
     }
 
     private addDescToClasses(base_classes: any, root_classes: string[] = []): any[] {

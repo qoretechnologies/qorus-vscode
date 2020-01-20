@@ -199,7 +199,7 @@ export class InterfaceInfo {
         }
 
         const parent_name = raw_item.parent['interface-name'];
-        const parent_data = this.code_info.classYamlData(parent_name);
+        const parent_data = this.code_info.yamlDataByClass(parent_name);
         if (!parent_data) {
             return raw_item;
         }
@@ -217,7 +217,7 @@ export class InterfaceInfo {
     }
 
     private addClassConfigItems = (iface_id, class_name, prefix?) => {
-        const class_yaml_data = this.code_info.classYamlData(class_name);
+        const class_yaml_data = this.code_info.yamlDataByClass(class_name);
         if (!class_yaml_data) {
             return;
         }
