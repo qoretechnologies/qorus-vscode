@@ -170,9 +170,9 @@ let ItemsTable: Function = ({
                                         </ButtonGroup>
                                     </ActionColumn>
                                     <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
-                                        {!item.isTemplatedString ||
-                                        getItemType(item.type, item.value) === 'hash' ||
-                                        getItemType(item.type, item.value) === 'list' ? (
+                                        {!item.isTemplatedString &&
+                                        (getItemType(item.type, item.value) === 'hash' ||
+                                            getItemType(item.type, item.value) === 'list') ? (
                                             <Tree compact data={maybeParseYaml(item.value)} />
                                         ) : (
                                             <ContentByType inTable content={maybeParseYaml(item.value)} />
