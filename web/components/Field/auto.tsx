@@ -11,7 +11,7 @@ import { Callout, ControlGroup, Button } from '@blueprintjs/core';
 import NumberField from './number';
 import OptionHashField from './optionHash';
 import { getTypeFromValue, maybeParseYaml, getValueOrDefaultValue } from '../../helpers/validations';
-import { isBoolean, isNull } from 'util';
+import { isBoolean, isNull, isUndefined } from 'util';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -26,7 +26,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
 }) => {
     const [currentType, setType] = useState<string>(null);
     const [currentInternalType, setInternalType] = useState<string>(null);
-    const [isInitialType, setIsInitialType] = useState<boolean>(true);
     const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
 
     useMount(() => {
@@ -66,6 +65,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 }
                 // Set the new type
                 setType(typeValue);
+                handleChange(name, undefined);
             }
         }
         // If can be undefined was toggled off, but the value right now is null
@@ -75,23 +75,6 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             handleChange(name, null);
         }
     });
-
-    // Reset the value when type changes
-    useEffect(() => {
-        // Check if there is actually any type
-        if (currentType) {
-            // Is this the first time the type is set
-            if (isInitialType) {
-                // Reset the value
-                handleChange(name, value);
-                // Set the initial type was set
-                setIsInitialType(false);
-            } else {
-                // Reset the value
-                handleChange(name, null);
-            }
-        }
-    }, [currentType]);
 
     const canBeNull = () => {
         if (requestFieldData) {
@@ -103,7 +86,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
 
     const handleChange: (name: string, value: any) => void = (name, value) => {
         // Run the onchange
-        if (onChange) {
+        if (onChange && currentInternalType) {
             onChange(name, value, currentInternalType, canBeNull());
         }
     };
@@ -115,6 +98,9 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     };
 
     const renderField = currentType => {
+        if (!currentType) {
+            return null;
+        }
         // If this field is set to null
         if (isSetToNull) {
             // Render a readonly field with null
@@ -172,14 +158,15 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
         }
     };
 
+    const showPicker =
+        !isSetToNull &&
+        (defaultType === 'auto' || defaultType === 'any' || currentType === 'auto' || currentType === 'any');
+
     // Render type picker if the type is auto or any
     return (
         <>
             <ControlGroup fill>
-                {(defaultType === 'auto' ||
-                    defaultType === 'any' ||
-                    currentType === 'auto' ||
-                    currentType === 'any') && (
+                {showPicker && (
                     <SelectField
                         name="type"
                         defaultItems={[

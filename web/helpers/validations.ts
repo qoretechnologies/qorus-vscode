@@ -202,7 +202,7 @@ export const isValueSet = (value: any, canBeNull?: boolean) => {
         return !isUndefined(value);
     }
 
-    return !isNull(value);
+    return !isNull(value) && !isUndefined(value);
 };
 
 export const getValueOrDefaultValue = (value, defaultValue, canBeNull) => {
