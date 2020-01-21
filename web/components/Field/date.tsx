@@ -7,6 +7,7 @@ import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import compose from 'recompose/compose';
 import useMount from 'react-use/lib/useMount';
 import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomponents/withMessageHandler';
+import { getValueOrDefaultValue } from '../../helpers/validations';
 
 export interface IDateField {
     t?: TTranslator;
@@ -25,12 +26,13 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
     get_message,
     return_message,
     t,
+    disabled,
 }) => {
     // Fetch data on mount
     useMount(() => {
         // Populate default value
         if (default_value) {
-            onChange(name, default_value);
+            onChange(name, getValueOrDefaultValue(value, default_value || new Date(), false));
         }
         // Get backend data
         if (get_message && return_message) {
@@ -55,16 +57,20 @@ const DateField: FunctionComponent<IDateField & IField & IFieldChange> = ({
 
     return (
         <DateInput
-            formatDate={date => date.toISOString()}
+            timePickerProps={{}}
+            closeOnSelection={false}
+            disabled={disabled}
+            formatDate={date => date.toLocaleString()}
             parseDate={str => new Date(str)}
-            placeholder={'D/M/YYYY'}
+            placeholder={'YYYY-MM-DDT00:00:00Z'}
             invalidDateMessage={t('InvalidDate')}
             inputProps={{ className: Classes.FILL }}
+            defaultValue={new Date()}
             popoverProps={{
                 targetTagName: 'div',
                 wrapperTagName: 'div',
             }}
-            value={!value ? new Date(default_value) || null : new Date(value)}
+            value={!value ? new Date(default_value) : new Date(value)}
             onChange={handleInputChange}
             rightElement={
                 value &&

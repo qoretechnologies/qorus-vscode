@@ -7,9 +7,20 @@ import uniqWith from 'lodash/uniqWith';
 import size from 'lodash/size';
 import jsyaml from 'js-yaml';
 import isObject from 'lodash/isPlainObject';
-import { isString, isDate } from 'util';
+import { isString, isDate, isBoolean, isUndefined, isNull } from 'util';
 
-export const validateField: (type: string, value: any, field?: IField) => boolean = (type, value, field) => {
+export const validateField: (type: string, value: any, field?: IField, canBeNull?: boolean) => boolean = (
+    type,
+    value,
+    field,
+    canBeNull
+) => {
+    // If the value can be null an is null
+    // immediately return true, no matter what type
+    if (canBeNull && isNull(value)) {
+        return true;
+    }
+    // Check individual types
     switch (type) {
         case 'binary':
         case 'string':
@@ -152,7 +163,15 @@ export const validateField: (type: string, value: any, field?: IField) => boolea
     }
 };
 
-export const maybeParseYaml: (yaml: string) => any = yaml => {
+export const maybeParseYaml: (yaml: any) => any = yaml => {
+    // If we are dealing with basic boolean
+    if (yaml === true || yaml === false) {
+        return yaml;
+    }
+    // Leave numbers as they are
+    if (isNumber(yaml)) {
+        return yaml;
+    }
     // Check if the value isn't empty
     if (yaml === undefined || yaml === null || yaml === '' || !isString(yaml)) {
         return null;
@@ -178,7 +197,33 @@ export const maybeParseYaml: (yaml: string) => any = yaml => {
     return null;
 };
 
+export const isValueSet = (value: any, canBeNull?: boolean) => {
+    if (canBeNull) {
+        return !isUndefined(value);
+    }
+
+    return !isNull(value) && !isUndefined(value);
+};
+
+export const getValueOrDefaultValue = (value, defaultValue, canBeNull) => {
+    if (isValueSet(value, canBeNull)) {
+        return value;
+    }
+
+    if (isValueSet(defaultValue, canBeNull)) {
+        return defaultValue;
+    }
+
+    return undefined;
+};
+
 export const getTypeFromValue = (value: any) => {
+    if (isNull(value)) {
+        return 'null';
+    }
+    if (isBoolean(value)) {
+        return 'bool';
+    }
     if (new Date(value).toString() !== 'Invalid Date') {
         return 'date';
     }

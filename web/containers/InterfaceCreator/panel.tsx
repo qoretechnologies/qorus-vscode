@@ -218,13 +218,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         // Mark the selected fields
                         const transformedFields: IField[] = map(newFields, (field: IField) => ({
                             ...field,
-                            selected: (clonedData && clonedData[field.name]) || field.mandatory !== false,
+                            selected: (clonedData && field.name in clonedData) || field.mandatory !== false,
                             isValid:
-                                clonedData && clonedData[field.name]
+                                clonedData && field.name in clonedData
                                     ? validateField(field.type || 'string', clonedData[field.name], field)
                                     : false,
-                            value: clonedData ? clonedData[field.name] : undefined,
-                            hasValueSet: clonedData && clonedData[field.name],
+                            value: clonedData && field.name in clonedData ? clonedData[field.name] : undefined,
+                            hasValueSet: clonedData && field.name in clonedData,
                         }));
                         // Pull the pre-selected fields
                         const preselectedFields: IField[] = filter(
@@ -436,11 +436,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         addField(fieldName);
     };
 
-    const handleFieldChange: (fieldName: string, value: any, explicit?: boolean) => void = (
-        fieldName,
-        value,
-        explicit
-    ) => {
+    const handleFieldChange: (
+        fieldName: string,
+        value: any,
+        forcedType?: string,
+        canBeNull?: boolean,
+        explicit?: boolean
+    ) => void = (fieldName, value, forcedType, canBeNull, explicit) => {
         setSelectedFields(
             type,
             (currentFields: IField[]): IField[] => {
@@ -458,7 +460,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 if (!field.hasValueSet) {
                                     // Modify the field
                                     setTimeout(() => {
-                                        handleFieldChange(field.name, value, true);
+                                        handleFieldChange(field.name, value, null, canBeNull, true);
                                     }, 300);
                                 }
                             });
@@ -479,12 +481,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         }
                         // Validate the field
                         let isValid;
+                        const finalFieldType = forcedType || currentField.type;
                         // If this is auto field
-                        if (currentField.type === 'auto' || currentField.type === 'array-auto') {
+                        if (finalFieldType === 'auto' || finalFieldType === 'array-auto') {
                             // Get the type
                             const fieldType = requestFieldData(currentField['type-depends-on'], 'value');
                             // If this is a single field
-                            if (currentField.type === 'auto') {
+                            if (finalFieldType === 'auto') {
                                 // Validate single field
                                 isValid = validateField(fieldType, value, currentField);
                             } else {
@@ -492,7 +495,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 if (allowedTypes.includes(fieldType)) {
                                     // Validate all values
                                     isValid = value.every((val: string | number) =>
-                                        validateField(fieldType, val, currentField)
+                                        validateField(fieldType, val, currentField, canBeNull)
                                     );
                                 } else {
                                     isValid = false;
@@ -500,7 +503,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             }
                         } else {
                             // Basic field with predefined type
-                            isValid = validateField(currentField.type || 'string', value, currentField);
+                            isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
                         }
                         // Check if we should change the name of the
                         // method

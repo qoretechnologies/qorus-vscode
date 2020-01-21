@@ -12,7 +12,6 @@ import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
 
-
 export abstract class InterfaceCreator {
     protected suffix: string;
     protected lang: string;
@@ -64,8 +63,7 @@ export abstract class InterfaceCreator {
                 this.code_info.setPending('edit_info', false);
                 this.editImpl(params);
             });
-        }
-        else {
+        } else {
             if (params.edit_type === 'edit') {
                 msg.error(t`MissingEditData`);
                 return;
@@ -97,7 +95,7 @@ export abstract class InterfaceCreator {
     }
 
     protected writeYamlFile(headers: string, file_path?: string) {
-        const generated_file_info = '# This is a generated file, don\'t edit!\n';
+        const generated_file_info = "# This is a generated file, don't edit!\n";
         file_path = file_path || this.yaml_file_path;
 
         fs.writeFile(file_path, generated_file_info + headers, err => {
@@ -135,7 +133,7 @@ export abstract class InterfaceCreator {
             first_base_class_line,
             last_class_line,
             base_class_names,
-            main_base_class_ord
+            main_base_class_ord,
         } = this.edit_info;
 
         const num_inherited = base_class_names.length;
@@ -145,12 +143,12 @@ export abstract class InterfaceCreator {
             let chars = lines[position.line].split('');
             chars.splice(position.character, orig_str.length, new_name);
             lines[position.line] = chars.join('');
-        }
+        };
 
         const inherits_kw = lang_inherits[this.lang];
 
         const eraseInheritsKw = () => {
-            const strings_to_erase =[` ${inherits_kw}`, `${inherits_kw} `, `${inherits_kw}`];
+            const strings_to_erase = [` ${inherits_kw}`, `${inherits_kw} `, `${inherits_kw}`];
             for (let n = class_name_range.start.line; n <= first_base_class_line; n++) {
                 for (const string_to_erase of strings_to_erase) {
                     if (lines[n].includes(string_to_erase)) {
@@ -163,9 +161,8 @@ export abstract class InterfaceCreator {
 
         const eraseCommaAfterBaseClassName = () => {
             for (let n = main_base_class_name_range.start.line; n <= last_class_line; n++) {
-                const pos_from = n === main_base_class_name_range.start.line
-                    ? main_base_class_name_range.end.character
-                    : 0;
+                const pos_from =
+                    n === main_base_class_name_range.start.line ? main_base_class_name_range.end.character : 0;
                 for (const string_to_erase of [', ', ',']) {
                     const pos = lines[n].indexOf(string_to_erase, pos_from);
                     if (pos > -1) {
@@ -178,9 +175,8 @@ export abstract class InterfaceCreator {
 
         const eraseCommaBeforeBaseClassName = () => {
             for (let n = main_base_class_name_range.start.line; n >= first_base_class_line; n--) {
-                const pos_from = n === main_base_class_name_range.start.line
-                    ? main_base_class_name_range.start.character
-                    : 0;
+                const pos_from =
+                    n === main_base_class_name_range.start.line ? main_base_class_name_range.start.character : 0;
                 for (const string_to_erase of [', ', ',']) {
                     const pos = lines[n].lastIndexOf(string_to_erase, pos_from);
                     if (pos > -1) {
@@ -216,8 +212,7 @@ export abstract class InterfaceCreator {
             } else {
                 replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name}`);
             }
-        }
-        else if (!base_class_name && orig_base_class_name) {
+        } else if (!base_class_name && orig_base_class_name) {
             if (has_other_base_class) {
                 if (main_base_class_ord > 0) {
                     eraseBaseClassName(true);
@@ -230,8 +225,7 @@ export abstract class InterfaceCreator {
                 eraseInheritsKw();
                 eraseBaseClassName();
             }
-        }
-        else if (base_class_name !== orig_base_class_name) {
+        } else if (base_class_name !== orig_base_class_name) {
             replace(main_base_class_name_range.start, orig_base_class_name, base_class_name);
         }
 
@@ -287,18 +281,33 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level',
-                     'is_set', 'yamlData', 'orig_name', 'local-value', 'global-value',
-                     'default_value', 'remove-global-value', 'workflow-value'].includes(tag))
-                {
+                if (
+                    [
+                        'name',
+                        'parent',
+                        'parent_data',
+                        'parent_class',
+                        'value',
+                        'level',
+                        'is_set',
+                        'yamlData',
+                        'orig_name',
+                        'local-value',
+                        'global-value',
+                        'default_value',
+                        'remove-global-value',
+                        'workflow-value',
+                    ].includes(tag)
+                ) {
                     continue;
                 }
 
-                const has_parent_data: boolean = (item.parent_data || false ) && item.parent_data[tag] !== undefined;
+                const has_parent_data: boolean = (item.parent_data || false) && item.parent_data[tag] !== undefined;
 
-                if ( (!has_parent_data && item[tag] !== defaultValue(tag)) ||
-                     (has_parent_data && item[tag] !== item.parent_data[tag]) )
-                {
+                if (
+                    (!has_parent_data && item[tag] !== defaultValue(tag)) ||
+                    (has_parent_data && item[tag] !== item.parent_data[tag])
+                ) {
                     if (Array.isArray(item[tag])) {
                         result += `${indent}${tag}:\n`;
                         for (let entry of item[tag]) {
@@ -307,7 +316,8 @@ export abstract class InterfaceCreator {
                     } else {
                         switch (tag) {
                             case 'type':
-                                result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                result +=
+                                    `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
                                 result += `${indent}${tag}: "${item[tag]}"\n`;
@@ -321,7 +331,7 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    }
+    };
 
     protected static createHeaders = (headers: any): string => {
         const list_indent = '  - ';
@@ -333,7 +343,7 @@ export abstract class InterfaceCreator {
             const classes_or_requires = headers.type === 'class' ? 'requires' : 'classes';
             headers[classes_or_requires] = headers[classes_or_requires] || [];
             if (!headers[classes_or_requires].some(item => item.name === base_class_name && !item.prefix)) {
-                headers[classes_or_requires].unshift({name: base_class_name});
+                headers[classes_or_requires].unshift({ name: base_class_name });
             }
         }
 
@@ -343,7 +353,7 @@ export abstract class InterfaceCreator {
             if (!classes[class_data.name]) {
                 classes[class_data.name] = {
                     exists_prefix: false,
-                    prefixes: []
+                    prefixes: [],
                 };
             }
             classes[class_data.name].prefixes.push(class_data.prefix);
@@ -354,8 +364,7 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag in headers) {
-            if (['target_dir', 'yaml_file', 'config-item-values'].includes(tag))
-            {
+            if (['target_dir', 'yaml_file', 'config-item-values'].includes(tag)) {
                 continue;
             }
 
@@ -439,8 +448,7 @@ export abstract class InterfaceCreator {
                         }
                         break;
                 }
-            }
-            else {
+            } else {
                 switch (tag) {
                     case 'orig_name':
                     case 'method_index':
@@ -474,7 +482,7 @@ export abstract class InterfaceCreator {
                     case 'mapper_options':
                         const tag_name = tag === 'mapper_options' ? 'options' : tag;
                         result += `${tag_name}:\n`;
-                        let not_indented = jsyaml.safeDump(value, {indent: 4}).split(/\r?\n/);
+                        let not_indented = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {
                             not_indented.pop();
                         }
@@ -487,7 +495,7 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    }
+    };
 
     protected deleteOrigFilesIfDifferent(orig_file: string | undefined) {
         if (!orig_file) {
@@ -526,6 +534,6 @@ export abstract class InterfaceCreator {
     }
 
     protected fillTemplate = (template: any, vars: any, add_default_parse_options: boolean = true): string =>
-        (add_default_parse_options && this.lang === 'qore' ? default_parse_options : '')
-            + new Function('return `' + template[this.lang] + '`;').call(vars);
-};
+        (add_default_parse_options && this.lang === 'qore' ? default_parse_options : '') +
+        new Function('return `' + template[this.lang] + '`;').call(vars);
+}

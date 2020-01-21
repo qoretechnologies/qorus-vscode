@@ -1258,6 +1258,9 @@ msgstr "A list of valid workflow keys"
 msgid "field-label-statuses"
 msgstr "Statuses"
 
+msgid "field-label-any"
+msgstr "Any"
+
 msgid "field-desc-statuses"
 msgstr "A hash defining extended custom statuses descriptions as a single character key - string description"
 
@@ -1952,3 +1955,15 @@ msgstr "Only workflow can set workflow level config item value"
 
 msgid "CannotDetermineConfigItemValueType"
 msgstr "Cannot determine config item value type"
+
+msgid "AutoFieldSelectType"
+msgstr "Please select type"
+
+msgid "AutoFieldSelectType"
+msgstr "Please select type"
+
+msgid "ConfigFormatIncorrect"
+msgstr "Value is not in correct format"
+
+msgid "InvalidDate"
+msgstr "Invalid date provided"

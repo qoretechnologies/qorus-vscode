@@ -18,7 +18,15 @@ const ContentByType: Function = ({ content, inTable, noControls }) => {
     const type: string = getType(content);
     const className: string = `content-by-type ${type}`;
 
-    if (type === 'string') {
+    if (type === 'boolean') {
+        return (
+            <div className={className}>
+                <Icon icon={content ? 'small-tick' : 'cross'} />
+            </div>
+        );
+    }
+
+    if (type === 'string' || new Date(content).toString() !== 'Invalid Date') {
         const isContentDate: boolean = isDate(content);
 
         let newContent = inTable ? <Text text={content} noControls={noControls} /> : content;
@@ -39,14 +47,6 @@ const ContentByType: Function = ({ content, inTable, noControls }) => {
 
     if (type === 'object' || type === 'array') {
         return <div className={className}>{emptyTypeToString[type]}</div>;
-    }
-
-    if (type === 'boolean') {
-        return (
-            <div className={className}>
-                <Icon icon={content ? 'small-tick' : 'cross'} />
-            </div>
-        );
     }
 
     return <div className={className}>-</div>;
