@@ -37,10 +37,7 @@
         "engine"
     ],
     "activationEvents": [
-        "workspaceContains:qorusproject.json",
-        "onView:qorusInterfaces",
-        "onLanguage:java",
-        "onLanguage:qore"
+        "*"
     ],
     "main": "out/extension",
     "contributes": {

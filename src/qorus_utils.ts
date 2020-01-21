@@ -25,12 +25,6 @@ export const isTest = (file_path: string): boolean => getSuffix(file_path) === '
 
 export const isService = (file_path: string): boolean => getSuffix(file_path) === 'qsd';
 
-export const canDefineInterfaceBaseClass = (file_path: string): boolean =>
-    hasOneOfSuffixes(file_path, ['qfd', 'qclass', 'qstep']);
-
-export const javaCanDefineInterfaceBaseClass = (file_path: string): boolean =>
-    hasOneOfSuffixes(file_path, ['java']);
-
 export const isVersion3 = (version?: string): boolean =>
     !!version && version.toString().substr(0, 1) == '3';
 
