@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import compose from 'recompose/compose';
 import classnames from 'classnames';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
@@ -22,6 +22,7 @@ import Modal from './modal';
 import ReactMarkdown from 'react-markdown';
 import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
 import { isNull, isUndefined } from 'util';
+import useMount from 'react-use/lib/useMount';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -69,6 +70,67 @@ export const getItemType = (type, value) => {
     return type;
 };
 
+export const Value = ({ item }) => {
+    const [showValue, setShowValue] = useState(!item.sensitive);
+    const [hideTimer, setHideTimer] = useState<NodeJS.Timer>(null);
+
+    useEffect(() => {
+        setShowValue(!item.sensitive);
+    }, [item.sensitive]);
+
+    useEffect(() => {
+        return () => {
+            clearTimeout(hideTimer);
+        };
+    }, [hideTimer]);
+
+    if (!showValue) {
+        return (
+            <div
+                onClick={() => {
+                    setHideTimer(() => {
+                        return setTimeout(() => {
+                            setShowValue(false);
+                        }, 30000);
+                    });
+                    setShowValue(true);
+                }}
+                style={{
+                    position: 'absolute',
+                    width: '70%',
+                    top: '5px',
+                    bottom: '5px',
+                    left: '5px',
+                    backgroundColor: '#000',
+                    cursor: 'pointer',
+                    color: '#fff',
+                    textAlign: 'center',
+                    verticalAlign: 'middle',
+                }}
+            >
+                {' '}
+                Click to reveal{' '}
+            </div>
+        );
+    }
+
+    if (isUndefined(item.value)) {
+        return <span> - </span>;
+    }
+    if (isNull(item.value)) {
+        return <span> null </span>;
+    }
+    if (item.isTemplatedString) {
+        return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+    }
+
+    if (getItemType(item.type, item.value) === 'hash' || getItemType(item.type, item.value) === 'list') {
+        <Tree compact data={maybeParseYaml(item.value)} />;
+    }
+
+    return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+};
+
 let ItemsTable: Function = ({
     onSubmit,
     intrf,
@@ -85,24 +147,6 @@ let ItemsTable: Function = ({
     t,
     type,
 }: ConfigItemsTableProps) => {
-    const renderValue = item => {
-        if (isUndefined(item.value)) {
-            return <span> - </span>;
-        }
-        if (isNull(item.value)) {
-            return <span> null </span>;
-        }
-        if (item.isTemplatedString) {
-            return <ContentByType inTable content={maybeParseYaml(item.value)} />;
-        }
-
-        if (getItemType(item.type, item.value) === 'hash' || getItemType(item.type, item.value) === 'list') {
-            <Tree compact data={maybeParseYaml(item.value)} />;
-        }
-
-        return <ContentByType inTable content={maybeParseYaml(item.value)} />;
-    };
-
     return (
         <React.Fragment>
             <Table striped condensed fixed hover>
@@ -191,8 +235,11 @@ let ItemsTable: Function = ({
                                                 />
                                             </ButtonGroup>
                                         </ActionColumn>
-                                        <Td className={`text ${item.level === 'workflow' || item.level === 'global'}`}>
-                                            {renderValue(item)}
+                                        <Td
+                                            className={`text ${item.level === 'workflow' || item.level === 'global'}`}
+                                            style={{ position: 'relative' }}
+                                        >
+                                            <Value item={item} />
                                         </Td>
                                         <Td className="narrow">
                                             <ContentByType content={item.strictly_local} />

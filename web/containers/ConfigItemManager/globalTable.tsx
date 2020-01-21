@@ -17,7 +17,7 @@ import size from 'lodash/size';
 import withTextContext from '../../hocomponents/withTextContext';
 import styled from 'styled-components';
 import { StyledSeparator } from '.';
-import { getItemType } from './table';
+import { getItemType, Value } from './table';
 import { maybeParseYaml } from '../../helpers/validations';
 import { isNull, isUndefined } from 'util';
 
@@ -37,23 +37,6 @@ const WorkflowConfigItemsTable: Function = ({
     workflow,
     t,
 }) => {
-    const renderValue = item => {
-        if (isUndefined(item.value)) {
-            return <span> - </span>;
-        }
-        if (isNull(item.value)) {
-            return <span> null </span>;
-        }
-        if (item.isTemplatedString) {
-            return <ContentByType inTable content={maybeParseYaml(item.value)} />;
-        }
-
-        if (getItemType(item.type, item.value) === 'hash' || getItemType(item.type, item.value) === 'list') {
-            <Tree compact data={maybeParseYaml(item.value)} />;
-        }
-
-        return <ContentByType inTable content={maybeParseYaml(item.value)} />;
-    };
     return (
         <>
             {modalData && (
@@ -157,8 +140,9 @@ const WorkflowConfigItemsTable: Function = ({
                                             <Td
                                                 className={`text ${item.level === 'workflow' ||
                                                     item.level === 'global'}`}
+                                                style={{ position: 'relative' }}
                                             >
-                                                {renderValue(item)}
+                                                <Value item={item} />
                                             </Td>
                                             <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
                                                 item.type
