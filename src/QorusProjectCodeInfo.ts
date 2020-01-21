@@ -13,8 +13,7 @@ import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
 import { qore_vscode } from './qore_vscode';
 import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
-import { canBeParsed, canDefineInterfaceBaseClass, filesInDir, hasSuffix,
-         javaCanDefineInterfaceBaseClass, makeFileUri, suffixToIfaceKind } from './qorus_utils';
+import { canBeParsed, filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -23,7 +22,7 @@ import { qorus_webview } from './QorusWebview';
 import { field } from './qorus_creator/common_constants';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
-import { getJavaDocumentSymbolsWithWait, vscode_java } from './vscode_java';
+import { getJavaDocumentSymbolsWithWait } from './vscode_java';
 
 const object_parser_subdir = 'qorus-object-parser';
 const object_parser_script = 'qop.q -i';
@@ -35,7 +34,7 @@ const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'Qoru
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
 const all_root_classes =[...root_steps, root_service, root_job, root_workflow];
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
-const info_keys = ['file_tree', 'yaml', 'lang_client', 'java_lang_client', 'objects', 'modules'];
+const info_keys = ['file_tree', 'yaml', 'objects', 'modules'];
 const object_types_with_version = ['step', 'mapper'];
 const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items',
                                       'class', 'constant', 'function', 'connection', 'event', 'group',
@@ -879,19 +878,11 @@ export class QorusProjectCodeInfo {
                 msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
             }
 
-            if (info_list.includes('lang_client')) {
-                setTimeout(() => {
-                    this.updateLanguageClientInfo(file_data.source_directories);
-                }, 0);
-            }
-            if (info_list.includes('java_lang_client')) {
-                setTimeout(() => {
-                    this.updateJavaLanguageClientInfo(file_data.source_directories);
-                }, 0);
-            }
             if (info_list.includes('yaml')) {
                 setTimeout(() => {
                     this.updateYamlInfo(file_data.source_directories);
+                    this.baseClassesFromInheritancePairs();
+                    this.javaBaseClassesFromInheritancePairs();
                     this.notifyTrees();
                 }, 0);
             }
@@ -1047,6 +1038,13 @@ export class QorusProjectCodeInfo {
                 }
             }
         }
+
+        if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
+            this.inheritance_pairs[class_name] = [base_class_name];
+            if (yaml_data.lang) {
+                this.java_inheritance_pairs[class_name] = [base_class_name];
+            }
+        }
     }
 
     private updateYamlInfo(source_directories: string[]) {
@@ -1120,62 +1118,6 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    private updateLanguageClientInfo(source_directories: string[]) {
-        this.setPending('lang_client', true);
-        this.processDocumentSymbols(source_directories, canDefineInterfaceBaseClass, (symbol, _file) => {
-            if (symbol.nodetype !== 1 || symbol.kind !== 1 || !symbol.name || !symbol.name.name) {
-                return;
-            }
-
-            const class_name = symbol.name.name;
-
-            if (!symbol.inherits || !symbol.inherits.length) {
-                return;
-            }
-
-            this.inheritance_pairs[class_name] = [];
-
-            symbol.inherits.forEach(inherited => {
-                if (inherited.name && inherited.name.name) {
-                    this.inheritance_pairs[class_name].push(inherited.name.name);
-                }
-            });
-        }).then(() => {
-            this.baseClassesFromInheritancePairs();
-            this.setPending('lang_client', false);
-        });
-    }
-
-    private updateJavaLanguageClientInfo(source_directories: string[]) {
-        this.setPending('java_lang_client', true);
-        this.processJavaDocumentSymbols(source_directories, javaCanDefineInterfaceBaseClass, async (symbol, file) => {
-            if (symbol.kind !== 5) {
-                return;
-            }
-
-            const class_name = symbol.name;
-
-            // we don't use vscode.workspace.openTextDocument
-            // as that would spam loads of didOpen events to Java extension
-            // slowing everything down while also being slower to parse
-            // the inheritance by us than using the languageserver-types document
-            const lsdoc = lsTextDocument.create(
-                makeFileUri(file), 'java', 1, fs.readFileSync(file).toString()
-            );
-            parseJavaInheritance(lsdoc, symbol);
-            if (!symbol.extends) {
-                return;
-            }
-
-            this.inheritance_pairs[class_name] = [symbol.extends.name];
-            this.java_inheritance_pairs[class_name] = [symbol.extends.name];
-        }).then(() => {
-            this.baseClassesFromInheritancePairs();
-            this.javaBaseClassesFromInheritancePairs();
-            this.setPending('java_lang_client', false);
-        });
-    }
-
     private addDescToClasses(base_classes: any, root_classes: string[] = []): any[] {
         if (!Array.isArray(base_classes)) {
             return this.addDescToClasses(Object.keys(base_classes), root_classes);
@@ -1189,107 +1131,6 @@ export class QorusProjectCodeInfo {
             ret_val.push({name: base_class, desc});
         }
         return ret_val;
-    }
-
-    private processDocumentSymbols(
-        source_directories: string[],
-        file_filter: Function,
-        process: Function
-    ): Promise<void> {
-        return new Promise(resolve => {
-            let num_pending = 0;
-            for (let dir of source_directories) {
-                const full_dir = path.join(this.project.folder, dir);
-                if (!fs.existsSync(full_dir)) {
-                    continue;
-                }
-
-                let files = filesInDir(full_dir, file_filter);
-                for (let file of files) {
-                    num_pending++;
-
-                    const doc: QoreTextDocument = qoreTextDocument(file);
-                    qore_vscode.activate().then(() => {
-                        qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-                            symbols.forEach(symbol => {
-                                process(symbol, file);
-                            });
-                            num_pending--;
-                        });
-                    });
-                }
-            }
-
-            let interval_id: any;
-            const interval = 200;
-            let n = 500;
-
-            const checkPending = () => {
-                if (!num_pending || !--n) {
-                    clearInterval(interval_id);
-                    if (n === 0) {
-                        msg.error(t`GettingDocSymbolsTimedOut`);
-                    }
-                    resolve();
-                }
-            };
-
-            interval_id = setInterval(checkPending, interval);
-        });
-    }
-
-    private processJavaDocumentSymbols(
-        source_directories: string[],
-        file_filter: Function,
-        process: Function
-    ): Promise<void> {
-        if (!vscode_java) {
-            return null;
-        }
-        return new Promise(resolve => {
-            let num_pending = 0;
-            for (let dir of source_directories) {
-                const full_dir = path.join(this.project.folder, dir);
-                if (!fs.existsSync(full_dir)) {
-                    continue;
-                }
-
-                let files = filesInDir(full_dir, file_filter);
-                for (let file of files) {
-                    num_pending++;
-
-                    const doc = {
-                        textDocument: {
-                            uri: makeFileUri(file)
-                        }
-                    };
-                    vscode_java.activate().then(() => {
-                        vscode_java.exports.getDocumentSymbols(doc).then(symbols => {
-                            symbols.forEach(symbol => {
-                                process(symbol, file);
-                            });
-                            num_pending--;
-                        });
-                    });
-                }
-            }
-
-            let interval_id: any;
-            const interval = 200;
-            let n = 500;
-
-            const checkPending = () => {
-                if (!num_pending || !--n) {
-                    clearInterval(interval_id);
-                    if (n === 0) {
-                        msg.error(t`GettingDocSymbolsTimedOut`);
-                    }
-                    resolve();
-                }
-            };
-
-            interval_id = setInterval(checkPending, interval);
-        });
     }
 
     setPending(info_key: string, value: boolean, never_message: boolean = false) {
