@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as msg from './qorus_message';
 import { t, gettext } from 'ttag';
+import * as map from 'lodash/map';
+import * as msg from './qorus_message';
 import { instance_tree } from './QorusInstanceTree';
 import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
-import * as map from 'lodash/map';
 import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
@@ -261,6 +261,15 @@ class QorusWebview {
                             break;
                         case 'fetch-data':
                             qorus_request.fetchData(message);
+                            break;
+                        case 'get-triggers':
+                            this.panel.webview.postMessage({
+                                action: 'return-triggers',
+                                data: {
+                                    ... message.data,
+                                    triggers: project.code_info.triggers(message.data)
+                                }
+                            });
                             break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
