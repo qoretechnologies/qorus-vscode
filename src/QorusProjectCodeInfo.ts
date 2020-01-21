@@ -924,6 +924,36 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
+    triggers = ({iface_kind, 'base-class-name': base_class = undefined}) => {
+        const stepTriggers = base_class => {
+            switch (this.stepType(base_class)) {
+                case 'QorusNormalStep':
+                    return ['primary', 'validation'];
+                case 'QorusNormalArrayStep':
+                    return ['primary', 'validation', 'array'];
+                case 'QorusEventStep':
+                case 'QorusSubworkflowStep':
+                    return ['primary'];
+                case 'QorusEventArrayStep':
+                case 'QorusSubworkflowArrayStep':
+                    return ['primary', 'array'];
+                case 'QorusAsyncStep':
+                    return ['primary', 'validation', 'end'];
+                case 'QorusAsyncArrayStep':
+                    return ['primary', 'validation', 'end', 'array'];
+                default:
+                    return [];
+            }
+        };
+
+        switch (iface_kind) {
+            case 'service': return ['start', 'stop', 'init'];
+            case 'job':     return ['run'];
+            case 'step':    return stepTriggers(base_class);
+            default:        return [];
+        }
+    }
+
     javaStepType = (base_class: string): string | undefined => {
         for (const step_type of root_steps) {
             if (this.java_step_classes[step_type][base_class]) {
