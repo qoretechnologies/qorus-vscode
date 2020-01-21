@@ -44,6 +44,12 @@ export const configItemFields = interface_info => [
         'type-depends-on': 'type',
         'allowed-types': types,
     },
+    {
+        name: 'sensitive',
+        mandatory: false,
+        type: 'boolean',
+        default_value: false
+    },
 ];
 
 export const defaultValue = name => (configItemFields({}).find(field => field.name === name) || {}).default_value;
