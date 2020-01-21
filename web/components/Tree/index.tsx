@@ -8,6 +8,7 @@ import Pull from '../Pull';
 import Flex from '../Flex';
 import ContentByType from '../ContentByType';
 import { getType } from '../../helpers/functions';
+import withTextContext from '../../hocomponents/withTextContext';
 
 export const getLineCount: Function = (value: string): number => {
     try {
@@ -26,6 +27,7 @@ const qorusTypeMapper = {
     null: 'null',
 };
 
+@withTextContext()
 export default class Tree extends Component {
     props: {
         data: Object | Array<any>;

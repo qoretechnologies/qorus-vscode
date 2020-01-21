@@ -125,7 +125,7 @@ export const Value = ({ item }) => {
     }
 
     if (getItemType(item.type, item.value) === 'hash' || getItemType(item.type, item.value) === 'list') {
-        <Tree compact data={maybeParseYaml(item.value)} />;
+        return <Tree compact data={maybeParseYaml(item.value)} />;
     }
 
     return <ContentByType inTable content={maybeParseYaml(item.value)} />;
