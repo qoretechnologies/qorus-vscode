@@ -252,23 +252,20 @@ export abstract class InterfaceCreator {
 
             for (const tag of ['local-value', 'default_value']) {
                 if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
-                    switch (item.type) {
-                        case 'list':
-                        case '*list':
-                            result += `${indent}${tag}:\n`;
-                            for (let entry of item[tag]) {
-                                result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
-                            }
-                            break;
-                        case 'hash':
-                        case '*hash':
-                            result += `${indent}${tag}:\n`;
-                            for (let key in item[tag]) {
-                                result += `${indent}${indent}${key}: ${JSON.stringify(item[tag][key])}\n`;
-                            }
-                            break;
-                        default:
-                            result += `${indent}${tag}: ${JSON.stringify(item[tag])}\n`;
+                    result += `${indent}${tag}:\n`;
+                    const non_star_type = item.type.substring(item.type.indexOf("*") + 1);
+                    if (['list', 'hash'].includes(non_star_type)) {
+                        let not_indented = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
+                        if (/^\s*$/.test(not_indented.slice(-1)[0])) {
+                            not_indented.pop();
+                        }
+                        if (non_star_type === 'list') {
+                            result += not_indented.map(str => `${indent}  ${str}`).join('\n') + '\n';
+                        } else {
+                            result += not_indented.map(str => `${indent}${indent}${str}`).join('\n') + '\n';
+                        }
+                    } else {
+                        result += `${indent}${indent}${JSON.stringify(item[tag])}\n`;
                     }
                 }
             }
@@ -281,33 +278,18 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (
-                    [
-                        'name',
-                        'parent',
-                        'parent_data',
-                        'parent_class',
-                        'value',
-                        'level',
-                        'is_set',
-                        'yamlData',
-                        'orig_name',
-                        'local-value',
-                        'global-value',
-                        'default_value',
-                        'remove-global-value',
-                        'workflow-value',
-                    ].includes(tag)
-                ) {
+                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level',
+                     'is_set', 'yamlData', 'orig_name', 'local-value', 'global-value',
+                     'default_value', 'remove-global-value', 'workflow-value', ].includes(tag))
+                {
                     continue;
                 }
 
                 const has_parent_data: boolean = (item.parent_data || false) && item.parent_data[tag] !== undefined;
 
-                if (
-                    (!has_parent_data && item[tag] !== defaultValue(tag)) ||
-                    (has_parent_data && item[tag] !== item.parent_data[tag])
-                ) {
+                if ((!has_parent_data && item[tag] !== defaultValue(tag)) ||
+                    (has_parent_data && item[tag] !== item.parent_data[tag]))
+                {
                     if (Array.isArray(item[tag])) {
                         result += `${indent}${tag}:\n`;
                         for (let entry of item[tag]) {

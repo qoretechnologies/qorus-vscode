@@ -76,15 +76,7 @@ export class InterfaceInfo {
     updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove}) => {
         this.initIfaceId(iface_id, iface_kind);
 
-        const parseValue = value_type => {
-            const non_star_type = (value_type && value_type[0] === '*') ? value_type.substr(1) : value_type;
-            switch (non_star_type) {
-                case 'int': return parseInt(value);
-                case 'float': return parseFloat(value);
-                case 'bool': return JSON.parse(value);
-                default: return jsyaml.safeLoad(value);
-            }
-        };
+        const parsed_value = jsyaml.safeLoad(value);
 
         if (level === 'workflow') {
             if (iface_kind !== 'workflow') {
@@ -94,9 +86,7 @@ export class InterfaceInfo {
 
             const items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps);
             const index = items.findIndex(item => item.name === name);
-            if (index > -1 && items[index].type) {
-                const type = items[index].type;
-
+            if (index > -1) {
                 this.iface_by_id[iface_id]['config-item-values']
                     = this.iface_by_id[iface_id]['config-item-values'] || [];
 
@@ -104,12 +94,10 @@ export class InterfaceInfo {
                     .findIndex(ci_value => ci_value.name === name);
 
                 if (index2 > -1) {
-                    this.iface_by_id[iface_id]['config-item-values'][index2].value = parseValue(type);
+                    this.iface_by_id[iface_id]['config-item-values'][index2].value = parsed_value;
                 } else {
-                    this.iface_by_id[iface_id]['config-item-values'].push({name, value: parseValue(type)});
+                    this.iface_by_id[iface_id]['config-item-values'].push({name, value: parsed_value});
                 }
-            } else {
-                msg.error(t`CannotDetermineConfigItemValueType`);
             }
         } else {
             if (parent_class) {
@@ -133,7 +121,7 @@ export class InterfaceInfo {
                     return;
                 }
 
-                item[level + '-value'] = parseValue(item.type);
+                item[level + '-value'] = parsed_value;
             });
         }
         this.getConfigItems({iface_id, iface_kind});
@@ -146,6 +134,16 @@ export class InterfaceInfo {
             item.type = '*' + item.type
         }
         delete item.can_be_undefined;
+
+        if (['list', 'hash'].includes(item.type)) {
+            if (item.default_value) {
+                item.default_value = jsyaml.safeLoad(item.default_value);
+            }
+
+            if (item.allowed_values) {
+                item.allowed_values = item.allowed_values.map(value => jsyaml.safeLoad(value));
+            }
+        }
 
         const name_to_search = item.orig_name || item.name;
         const index = this.iface_by_id[iface_id]['config-items']
@@ -343,6 +341,10 @@ export class InterfaceInfo {
 
         const classes_or_requires = requires ? requires : classes;
 
+        const toYamlIfComplex = (value, type) => ['list', 'hash'].includes(type)
+            ? jsyaml.safeDump(value).replace(/\r?\n$/, '')
+            : value;
+
         this.code_info.waitForPending(['yaml']).then(() => {
             if (base_class_name) {
                 if (base_class_name !== this.iface_by_id[iface_id]['base-class-name']) {
@@ -361,8 +363,21 @@ export class InterfaceInfo {
             const default_type = defaultValue('type');
 
             const fixLocalItem = (item: any): any => {
+                item.type = item.type || default_type;
+                if (item.type[0] === '*') {
+                    item.type = item.type.substr(1);
+                    item.can_be_undefined = true;
+                }
+
+                const toYamlIfComplexLocal = value => toYamlIfComplex(value, item.type);
+
+                if (item.allowed_values) {
+                    item.allowed_values = item.allowed_values.map(value => toYamlIfComplexLocal(value));
+                }
+
                 delete item.value;
                 if (item.default_value !== undefined) {
+                    item.default_value = toYamlIfComplexLocal(item.default_value);
                     item.value = item.default_value;
                     item.level = 'default';
                     item.is_set = true;
@@ -371,18 +386,10 @@ export class InterfaceInfo {
                 for (const level of ['global', 'workflow', 'local']) {
                     const key = level + '-value';
                     if (item[key] !== undefined) {
-                        item.value = item[key];
+                        item.value = toYamlIfComplexLocal(item[key]);
                         item.level = level === 'local' ? iface_kind : level;
                         item.is_set = true;
                     }
-                }
-                if (item.type) {
-                    if (item.type[0] === '*') {
-                        item.type = item.type.substr(1);
-                        item.can_be_undefined = true;
-                    }
-                } else {
-                    item.type = default_type;
                 }
 
                 return item;
@@ -401,15 +408,21 @@ export class InterfaceInfo {
             }
 
             const addYamlData = (item: any): any => {
-                const toYaml = str => jsyaml.safeDump(str).replace(/\r?\n$/, '');
+                const toYamlIfNotComplex = value => ['list', 'hash'].includes(item.type)
+                    ? value
+                    : jsyaml.safeDump(value).replace(/\r?\n$/, '');
 
                 const hasNormalValue = value => typeof value !== 'undefined' && value !== null;
 
                 let yaml_data_tag = {
-                    ... hasNormalValue(item.value) ? {value: toYaml(item.value)} : {},
-                    ... hasNormalValue(item.default_value) ? {default_value: toYaml(item.default_value)} : {},
+                    ... hasNormalValue(item.value)
+                        ? {value: toYamlIfNotComplex(item.value)}
+                        : {},
+                    ... hasNormalValue(item.default_value)
+                        ? {default_value: toYamlIfNotComplex(item.default_value)}
+                        : {},
                     ... item.allowed_values
-                        ? {allowed_values: item.allowed_values.map(value => toYaml(value))}
+                        ? {allowed_values: item.allowed_values.map(value => toYamlIfNotComplex(value))}
                         : {}
                 };
 
@@ -436,7 +449,7 @@ export class InterfaceInfo {
                 workflow_items.forEach(item => {
                     const index = workflow_values.findIndex(item2 => item2.name === item.name);
                     if (index > -1) {
-                        item['workflow-value'] = workflow_values[index].value;
+                        item['workflow-value'] = toYamlIfComplex(workflow_values[index].value, item.type);
                     }
                     delete item.default_value;
                 });
