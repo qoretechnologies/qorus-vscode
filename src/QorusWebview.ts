@@ -267,7 +267,7 @@ class QorusWebview {
                                 action: 'return-triggers',
                                 data: {
                                     ... message.data,
-                                    triggers: project.code_info.triggers(message.data)
+                                    triggers: project.code_info.triggers(message.data).map(name => ({name}))
                                 }
                             });
                             break;
