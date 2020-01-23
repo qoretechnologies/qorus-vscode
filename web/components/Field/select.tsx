@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState, useEffect } from 'react';
 import { Select } from '@blueprintjs/select';
 import { MenuItem, Button, Tooltip, ControlGroup, Classes, Callout } from '@blueprintjs/core';
 import useMount from 'react-use/lib/useMount';
-import { includes } from 'lodash';
+import { includes, get } from 'lodash';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { TTranslator } from '../../App';
@@ -50,7 +50,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                 // Check if this is the correct
                 // object type
                 if (!return_message.object_type || data.object_type === return_message.object_type) {
-                    setItems(data[return_message.return_value]);
+                    setItems(get(data, return_message.return_value));
                 }
             });
         }
