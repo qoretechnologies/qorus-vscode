@@ -931,6 +931,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 >
                     <ClassConnectionsManager
                         classes={[...selectedFields].find((field: IField) => field.name === 'classes').value}
+                        ifaceType={type}
+                        baseClassName={requestFieldData('base-class-name', 'value')}
                         initialConnections={classConnectionsData}
                         onSubmit={classConnections => {
                             setClassConnectionsData(classConnections);

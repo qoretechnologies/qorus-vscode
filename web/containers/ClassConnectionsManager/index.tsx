@@ -58,6 +58,8 @@ export interface IClassConnectionsManagerProps {
     onSubmit: (classConnections: IClassConnections) => void;
     addMessageListener: TMessageListener;
     postMessage;
+    ifaceType: string;
+    baseClassName?: string;
 }
 
 const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
@@ -68,6 +70,8 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     onSubmit,
     addMessageListener,
     postMessage,
+    ifaceType,
+    baseClassName,
 }) => {
     const [connections, setConnections] = useState<IClassConnections>(initialConnections || {});
     const [selectedConnection, setSelectedConnection] = useState(null);
@@ -281,6 +285,8 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     onDeleteConnector={handleDeleteConnector}
                                     connection={connections[selectedConnection]}
                                     connectionName={selectedConnection}
+                                    ifaceType={ifaceType}
+                                    baseClassName={baseClassName}
                                 />
                             ) : (
                                 <NonIdealState

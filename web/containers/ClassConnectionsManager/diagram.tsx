@@ -195,6 +195,8 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     setMapper,
     handleMapperSubmitSet,
     resetAllInterfaceData,
+    ifaceType,
+    baseClassName,
 }) => {
     const [manageDialog, setManageDialog] = useState<IManageDialog>({});
     const [hasLast, setHasLast] = useState<boolean>(false);
@@ -399,11 +401,17 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                             <FieldInputWrapper>
                                                 <ControlGroup fill>
                                                     <SelectField
-                                                        defaultItems={['Trigger 1', 'Trigger 2', 'Trigger 3'].map(
-                                                            trigger => ({
-                                                                name: trigger,
-                                                            })
-                                                        )}
+                                                        get_message={{
+                                                            action: 'get-triggers',
+                                                            message_data: {
+                                                                iface_kind: ifaceType,
+                                                                'base-class-name': baseClassName,
+                                                            },
+                                                        }}
+                                                        return_message={{
+                                                            action: 'return-triggers',
+                                                            return_value: 'data.triggers',
+                                                        }}
                                                         value={manageDialog.trigger}
                                                         onChange={(_name, value) => {
                                                             setManageDialog(
