@@ -29,11 +29,6 @@ import { Messages } from '../../constants/messages';
 const ROOT_STEP_ID = 0;
 
 /**
- * Ratio between width and height.
- */
-const BOX_DIMENSION_RATIO = 3;
-
-/**
  * Width of one box on a diagram in SVG user units.
  */
 const BOX_WIDTH = 249;
@@ -48,7 +43,7 @@ const BOX_WIDTH = 249;
 /**
  * Height of a step box.
  */
-const BOX_HEIGHT = BOX_WIDTH / BOX_DIMENSION_RATIO;
+const BOX_HEIGHT = 75;
 
 /**
  * Box rounded corner radius.
@@ -58,17 +53,17 @@ const BOX_ROUNDED_CORNER = 5;
 /**
  * Horizontal margin between boxes.
  */
-const BOX_H_MARGIN = 6;
+const BOX_H_MARGIN = 1;
 
 /**
  * Vertical margin between boxes.
  */
-const BOX_V_MARGIN = 80;
+const BOX_V_MARGIN = 50;
 
 /**
  * Length of the small part of the connection lines, entering and leaving boxes.
  */
-const BOX_LINE_SHORT = BOX_V_MARGIN / 7;
+const BOX_LINE_SHORT = BOX_V_MARGIN / 8;
 
 /**
  * Radius of root node circle.
