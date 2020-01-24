@@ -1953,6 +1953,9 @@ msgstr "Error in reading global config item values"
 msgid "WorkflowConfigItemValueForNonWorkflow"
 msgstr "Only workflow can set workflow level config item value"
 
+msgid "WorkflowConfigItemValueNotFound ${ name }"
+msgstr "Workflow level config item value ${ name } not found"
+
 msgid "CannotDetermineConfigItemValueType"
 msgstr "Cannot determine config item value type"
 

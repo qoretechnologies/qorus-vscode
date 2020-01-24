@@ -27,6 +27,9 @@ export class InterfaceInfo {
             this.iface_by_id[iface_id]['config-items'] = [];
             this.iface_by_id[iface_id]['orig-config-items'] = [];
         }
+        if (iface_kind === 'workflow' && !this.iface_by_id[iface_id]['config-item-values']) {
+            this.iface_by_id[iface_id]['config-item-values'] = [];
+        }
     }
 
     resetConfigItemsToOrig = iface_id => {
@@ -84,17 +87,18 @@ export class InterfaceInfo {
                 return;
             }
 
-            const items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps);
-            const index = items.findIndex(item => item.name === name);
-            if (index > -1) {
-                this.iface_by_id[iface_id]['config-item-values']
-                    = this.iface_by_id[iface_id]['config-item-values'] || [];
+            const index = this.iface_by_id[iface_id]['config-item-values']
+                              .findIndex(ci_value => ci_value.name === name);
 
-                const index2 = this.iface_by_id[iface_id]['config-item-values']
-                    .findIndex(ci_value => ci_value.name === name);
-
-                if (index2 > -1) {
-                    this.iface_by_id[iface_id]['config-item-values'][index2].value = parsed_value;
+            if (value === null && remove) {
+                if (index > -1) {
+                    this.iface_by_id[iface_id]['config-item-values'].splice(index, 1);
+                } else {
+                    msg.error(t`WorkflowConfigItemValueNotFound ${name}`);
+                }
+            } else {
+                if (index > -1) {
+                    this.iface_by_id[iface_id]['config-item-values'][index].value = parsed_value;
                 } else {
                     this.iface_by_id[iface_id]['config-item-values'].push({name, value: parsed_value});
                 }
@@ -399,6 +403,7 @@ export class InterfaceInfo {
                 const key = level + '-value';
                 if (item[key] !== undefined) {
                     item.value = item[key];
+                    item.level = level;
                 }
                 else {
                     delete item.value;
