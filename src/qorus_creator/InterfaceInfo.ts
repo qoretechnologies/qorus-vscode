@@ -404,6 +404,7 @@ export class InterfaceInfo {
                 if (item[key] !== undefined) {
                     item.value = item[key];
                     item.level = level;
+                    item.is_set = true;
                 }
                 else {
                     delete item.value;
