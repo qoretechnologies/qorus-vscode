@@ -484,7 +484,7 @@ export class QorusProjectCodeInfo {
 
         const classes_field = data.type === 'class' ? 'requires' : 'classes';
         if (data[classes_field]) {
-            let classes = data['class-prefixes'].map(prefix_data => ({
+            let classes = (data['class-prefixes'] || []).map(prefix_data => ({
                 name: prefix_data.class,
                 prefix: prefix_data.prefix
             }));
