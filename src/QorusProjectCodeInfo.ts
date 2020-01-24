@@ -476,23 +476,27 @@ export class QorusProjectCodeInfo {
             delete data.autostart;
         }
 
-        let fields_to_complexify = ['functions', 'constants', 'mappers', 'value_maps', 'author'];
-
-        const classes_field = data.type === 'class' ? 'requires' : 'classes';
-        if (data['class-prefixes']) {
-            data[classes_field] = data['class-prefixes'].map(class_prefix_data => ({
-                name: class_prefix_data.class,
-                prefix: class_prefix_data.prefix
-            }));
-        } else {
-            fields_to_complexify.push(classes_field);
-        }
-
-        fields_to_complexify.forEach(tag => {
+        ['functions', 'constants', 'mappers', 'value_maps', 'author'].forEach(tag => {
             if (data[tag]) {
-                data[tag] = data[tag].map(value => ({ name: value }));
+                data[tag] = data[tag].map(name => ({ name }));
             }
         });
+
+        const classes_field = data.type === 'class' ? 'requires' : 'classes';
+        if (data[classes_field]) {
+            let classes = data['class-prefixes'].map(prefix_data => ({
+                name: prefix_data.class,
+                prefix: prefix_data.prefix
+            }));
+
+            data[classes_field].forEach(class_name => {
+                if (!classes.some(class_data => class_data.name === class_name)) {
+                    classes.push({name: class_name});
+                }
+            });
+
+            data[classes_field] = classes;
+        }
 
         const array_of_pairs_fields = ['tags', 'define-auth-label', 'workflow_options', 'statuses'];
         array_of_pairs_fields.forEach(tag => {
