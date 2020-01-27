@@ -818,7 +818,7 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.object_info.class)
                           .map(name => this.fixData(this.yamlDataByName('class', name)))
-                          .filter(class_obj => class_obj.class_connectors))
+                          .filter(class_obj => class_obj['class-connectors']))
                 );
                 break;
             case 'module':

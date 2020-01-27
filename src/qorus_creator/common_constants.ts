@@ -73,7 +73,7 @@ export const classFields = ({ is_editing, default_target_dir }) => [
     },
     field.tags,
     {
-        name: 'class_connectors',
+        name: 'class-connectors',
         mandatory: false,
         type: 'class-connectors',
     },

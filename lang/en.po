@@ -1378,10 +1378,10 @@ msgstr "hash"
 msgid "field-label-list"
 msgstr "list"
 
-msgid "field-label-class_connectors"
+msgid "field-label-class-connectors"
 msgstr "Connectors"
 
-msgid "field-desc-class_connectors"
+msgid "field-desc-class-connectors"
 msgstr "Connectors used for building blocks"
 
 msgid "InputMethod"

@@ -393,7 +393,7 @@ export abstract class InterfaceCreator {
                         }
                         result += class_prefixes;
                         break;
-                    case 'class_connectors':
+                    case 'class-connectors':
                         for (const connector of value) {
                             result += `${list_indent}name: ${connector.name}\n`;
                             for (const key in connector) {

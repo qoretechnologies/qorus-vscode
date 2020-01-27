@@ -43,8 +43,8 @@ export class InterfaceInfo {
         this.are_orig_config_items_set = false;
     }
 
-    setOrigConfigItems = iface_id => {
-        if (!this.checkIfaceId(iface_id)) {
+    setOrigConfigItems = (iface_id, report_unknown_iface_id = true) => {
+        if (!this.checkIfaceId(iface_id, report_unknown_iface_id)) {
             return;
         }
 
@@ -53,9 +53,11 @@ export class InterfaceInfo {
         this.are_orig_config_items_set = true;
     }
 
-    private checkIfaceId = (iface_id): boolean => {
+    private checkIfaceId = (iface_id, report_unknown_iface_id = true): boolean => {
         if (!this.iface_by_id[iface_id]) {
-            msg.log(t`UnexpectedIfaceId`);
+            if (report_unknown_iface_id) {
+                msg.log(t`UnexpectedIfaceId`);
+            }
             return false;
         }
         return true;
