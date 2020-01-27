@@ -77,9 +77,11 @@ const Connector: React.FC<IConnectorProps> = ({
                 }
             });
 
+            const class_name_parts = manageDialog.class.split(':'); // possibly with prefix 
+            const class_name = class_name_parts[1] || class_name_parts[0];
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'class',
-                name: manageDialog.class,
+                class_name
             });
         }
     }, [manageDialog]);
