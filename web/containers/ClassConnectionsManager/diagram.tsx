@@ -73,7 +73,7 @@ const Connector: React.FC<IConnectorProps> = ({
 
             addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
                 if (data.iface_kind === 'class') {
-                    setConnectors(data.class?.class_connectors || []);
+                    setConnectors(data.class?.['class-connectors'] || []);
                 }
             });
 
@@ -215,7 +215,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             // Get the class
             const connClass = classesData[connectionData.class];
             // Get the connector data
-            const connectorData = connClass['class_connectors'].find(conn => conn.name === connectionData.connector);
+            const connectorData = connClass['class-connectors'].find(conn => conn.name === connectionData.connector);
             // Return updated data
             return {
                 ...connectionData,
