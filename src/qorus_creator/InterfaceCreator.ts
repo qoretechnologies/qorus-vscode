@@ -345,7 +345,26 @@ export abstract class InterfaceCreator {
             }
         });
 
-        for (const tag in headers) {
+        let ordered_tags = [];
+        const at_the_beginning = ['type', 'name', 'desc'];
+        const at_the_end = ['class-connections'];
+        at_the_beginning.forEach(tag => {
+            if (headers[tag] !== undefined) {
+                ordered_tags.push(tag);
+            }
+        });
+        Object.keys(headers).forEach(tag => {
+            if (![...at_the_beginning, ...at_the_end].includes(tag)) {
+                ordered_tags.push(tag);
+            }
+        });
+        at_the_end.forEach(tag => {
+            if (headers[tag] !== undefined) {
+                ordered_tags.push(tag);
+            }
+        });
+
+        for (const tag of ordered_tags) {
             if (['target_dir', 'yaml_file', 'config-item-values'].includes(tag)) {
                 continue;
             }
@@ -462,13 +481,31 @@ export abstract class InterfaceCreator {
                         break;
                     case 'fields':
                     case 'mapper_options':
-                        const tag_name = tag === 'mapper_options' ? 'options' : tag;
-                        result += `${tag_name}:\n`;
+                        result += `${tag === 'mapper_options' ? 'options' : tag}:\n`;
                         let not_indented = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {
                             not_indented.pop();
                         }
                         result += not_indented.map(str => `${indent}${str}`).join('\n') + '\n';
+                        break;
+                    case 'class-connections':
+                        result += `${tag}:\n`;
+                        for (const connection_name in value) {
+                            result += `${indent}${connection_name}:\n`
+                            for (const connector of value[connection_name]) {
+                                const class_name_parts = connector.class.split(':');
+                                if (class_name_parts[1]) {
+                                    connector.prefix = class_name_parts[0];
+                                    connector.class = class_name_parts[1];
+                                }
+                                result += `${indent}${list_indent}class: ${connector.class}\n`
+                                for (const key in connector) {
+                                    if (!['class', 'id', 'index', 'isFirst', 'isBetween', 'isLast'].includes(key)) {
+                                        result += `${indent}${indent}${key}: ${connector[key]}\n`
+                                    }
+                                }
+                            }
+                        }
                         break;
                     default:
                         result += `${tag}: ${value}\n`;
