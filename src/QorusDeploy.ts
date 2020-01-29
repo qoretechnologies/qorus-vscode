@@ -151,7 +151,8 @@ class QorusDeploy {
                 options: vscode.workspace.getConfiguration('qorusDeployment'),
             },
             headers: {
-                'qorus-token': token
+                'qorus-token': token,
+                'content-type': 'application/json;charset=utf-8'
             },
             json: true
         };
