@@ -129,14 +129,14 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     return (
         <>
             <StyledConfigManagerWrapper>
-                {
+                {type !== 'workflow' && (
                     <Button
                         text={t('AddConfigItem')}
                         intent="success"
                         icon="add"
                         onClick={() => setShowConfigItemPanel(true)}
                     />
-                }
+                )}
                 <StyledSeparator />
                 <div>
                     {configItems.global_items && (

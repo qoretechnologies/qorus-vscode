@@ -179,7 +179,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                 valid={isSubItemValid(fun.id, 'mapper-methods')}
                                                 onClick={() => setActiveFunction(fun.id)}
                                             >
-                                                {fun.name || `${t('Function')} ${fun.id}`}
+                                                {fun.name || `${t('Method')} ${fun.id}`}
                                                 {fun.id === activeFunction && (
                                                     <>
                                                         <Selected />

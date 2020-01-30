@@ -986,7 +986,7 @@ msgid "field-desc-sensitive"
 msgstr "Is it a sensitive data?"
 
 msgid "field-label-codes"
-msgstr "Mapper codes"
+msgstr "Mapper code"
 
 msgid "field-desc-codes"
 msgstr "Classes with mapper methods"
@@ -1703,7 +1703,7 @@ msgid "AddNewStep"
 msgstr "Add new step"
 
 msgid "AddNewParallelStep"
-msgstr "Add new parallel step"
+msgstr "Add new step parallel to"
 
 msgid "OrSelectExisting"
 msgstr "Select existing"
@@ -1882,10 +1882,10 @@ msgid "MapperNoInstance"
 msgstr "Mappers can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
-msgstr "1. Add new functions"
+msgstr "1. Add new methods"
 
 msgid "AddFunction"
-msgstr "Add function"
+msgstr "Add method"
 
 msgid "MapperCodeNotFound ${ name }"
 msgstr "Mapper code '${ name }' not found"

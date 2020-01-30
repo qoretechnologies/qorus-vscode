@@ -454,8 +454,4 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
     );
 };
 
-export default compose(
-    withTextContext(),
-    withMessageHandler(),
-    withInitialDataConsumer()
-)(Project);
+export default compose(withTextContext(), withMessageHandler(), withInitialDataConsumer())(Project);

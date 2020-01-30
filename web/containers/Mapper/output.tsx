@@ -85,7 +85,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
                     .replace(/</g, '')
                     .replace(/>/g, '')}
             >
-                {type.types_returned.join(',')}
+                {`${type.types_returned.includes('nothing') ? '*' : ''}${type.base_type}`}
             </p>
             <Tooltip content={t('ManageMapperFieldOptions')} position="right">
                 <Button
