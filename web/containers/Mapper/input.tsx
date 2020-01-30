@@ -66,7 +66,7 @@ const MapperInput: FC<IMapperInputProps> = ({
                         .replace(/</g, '')
                         .replace(/>/g, '')}
                 >
-                    {types.join(',')}
+                    {`${types.includes('nothing') ? '*' : ''}${type.base_type}`}
                 </p>
             </StyledDragHandle>
             <AddFieldButton

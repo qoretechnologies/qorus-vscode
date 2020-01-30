@@ -47,8 +47,8 @@ export const AddStepButton: FunctionComponent<IAddStepButton> = withTextContext(
         <Tooltip
             content={
                 <p style={{ width: 100, margin: 0, padding: 0 }}>
-                    {parallel ? t('AddNewParallelStep') : t('AddNewStep')} {before ? t('Before') : t('After')}{' '}
-                    {step ? stepsData[step].name : 'all steps'}
+                    {parallel ? t('AddNewParallelStep') : t('AddNewStep')}{' '}
+                    {!parallel ? (before ? t('Before') : t('After')) : ''} {step ? stepsData[step].name : 'all steps'}
                 </p>
             }
             className="tooltip step-tooltip"

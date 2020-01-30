@@ -262,7 +262,12 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             }));
 
     return (
-        <Dialog isOpen title={t('ManageOutputMapping')} onClose={onClose} style={{ paddingBottom: 0, width: '70vw' }}>
+        <Dialog
+            isOpen
+            title={`${t('ManageOutputMapping')} for field "${output.name}"`}
+            onClose={onClose}
+            style={{ paddingBottom: 0, width: '70vw' }}
+        >
             <Box top fill scrollY style={{ flexFlow: 'row' }}>
                 <SidePanel title={t('AddValue')}>
                     <ContentWrapper>
