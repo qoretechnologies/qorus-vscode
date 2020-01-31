@@ -7,6 +7,7 @@ import { job_template } from './job_constants';
 import { workflow_template } from './workflow_constants';
 import { step_template } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
+import { connectionsCode } from './class_connections';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -43,12 +44,12 @@ class ClassCreator extends InterfaceCreator {
                 return;
         }
 
-        let header_data = this.init(data, suffix);
+        data = this.init(data, suffix);
 
-        if (iface_kind === 'step' && header_data['base-class-name']) {
-            header_data = {
-                ...header_data,
-                ...stepTypeHeaders(this.code_info.stepType(header_data['base-class-name']))
+        if (iface_kind === 'step' && data['base-class-name']) {
+            data = {
+                ...data,
+                ...stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
             };
         }
 
@@ -63,12 +64,21 @@ class ClassCreator extends InterfaceCreator {
                     break;
                 }
 
-                contents = data['base-class-name']
-                    ?   this.fillTemplate(template, {
-                            class_name: data['class-name'],
-                            base_class_name: data['base-class-name']
-                        })
-                    :   this.fillTemplate(template, { class_name: data['class-name'] });
+                let connections_within_class: string = '';
+                let connections_extra_class: string = '';
+                if (data['class-connections']) {
+                    ClassCreator.fixClassConnections(data['class-connections']);
+                    ({connections_within_class, connections_extra_class}
+                                        = connectionsCode(data['class-connections'], this.lang));
+                }
+
+                contents = this.fillTemplate(template, {
+                    class_name: data['class-name'],
+                    base_class_name: data['base-class-name'],
+                    connections_within_class,
+                    connections_extra_class
+                });
+
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
@@ -89,7 +99,7 @@ class ClassCreator extends InterfaceCreator {
                 code_lines = this.edit_info.text_lines;
                 code_lines = this.renameClassAndBaseClass(code_lines,
                                                           other_orig_data,
-                                                          header_data);
+                                                          data);
                 contents = code_lines.join('\n');
                 break;
             default:
@@ -99,7 +109,7 @@ class ClassCreator extends InterfaceCreator {
 
         let headers = ClassCreator.createHeaders({
             type: iface_kind,
-            ...header_data,
+            ...data,
             code: this.hasCode() ? this.file_name : undefined
         });
 

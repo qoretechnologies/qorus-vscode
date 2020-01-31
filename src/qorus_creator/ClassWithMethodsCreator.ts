@@ -4,6 +4,7 @@ import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { service_class_template, service_method_template } from './service_constants';
 import { mapper_code_class_template, mapper_code_method_template } from './mapper_constants';
+import { connectionsCode } from './class_connections';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -206,11 +207,11 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 rows.push(lines[i]);
             }
             return rows;
-        }
+        };
 
         let rangesToRemove = removed.map(name => this.edit_info.method_decl_ranges[name]);
         while (rangesToRemove.length) {
-            lines = removeRange(lines, rangesToRemove.pop())
+            lines = removeRange(lines, rangesToRemove.pop());
         }
         return lines;
     }
@@ -278,6 +279,16 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     }
 
     private code = (data: any, method_objects: any[] = []): any => {
+        let triggers: string[] = [];
+        let connections_within_class: string = '';
+        let connections_extra_class: string = '';
+        if (data['class-connections']) {
+            ClassWithMethodsCreator.fixClassConnections(data['class-connections']);
+            ({connections_within_class, connections_extra_class, triggers}
+                 = connectionsCode(data['class-connections'], this.lang));
+            method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
+        }
+
         let method_strings = [];
         for (let method of method_objects) {
             method_strings.push(this.fillTemplate(this.method_template, { name: method.name }, false));
@@ -287,7 +298,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         return this.fillTemplate(this.class_template, {
             class_name: data['class-name'],
             base_class_name: data['base-class-name'],
-            methods
+            methods,
+            connections_within_class,
+            connections_extra_class
         });
     }
 
@@ -297,7 +310,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let result: string = 'methods:\n';
 
         for (let method of methods) {
-            result += `${list_indent}name: ${method.name}\n`
+            result += `${list_indent}name: ${method.name}\n`;
             for (let tag in method) {
                 switch (tag) {
                     case 'name':
@@ -310,7 +323,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                         }
                         break;
                     default:
-                        result += `${indent}${tag}: ${method[tag]}\n`
+                        result += `${indent}${tag}: ${method[tag]}\n`;
                 }
             }
         }

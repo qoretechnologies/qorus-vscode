@@ -84,6 +84,8 @@ export const dash2Camel = str => {
 export const dash2Pascal = str =>
     str.split('-').map(part => part[0].toUpperCase() + part.substr(1)).join('');
 
+export const toValidIdentifier = str => dash2Camel(str.replace(/\W+/g, '-')).replace(/(^[0-9])/, '_' + '$1');
+
 export const makeFileUri = (filePath: string) => 'file://' + filePath;
 
 export const getFilePathFromUri = (uri: string | Uri) => typeof uri === 'string' ? uri.slice(7) : uri.fsPath;

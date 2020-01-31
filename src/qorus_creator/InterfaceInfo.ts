@@ -137,7 +137,7 @@ export class InterfaceInfo {
         this.initIfaceId(iface_id, iface_kind);
 
         if (item.can_be_undefined && item.type) {
-            item.type = '*' + item.type
+            item.type = '*' + item.type;
         }
         delete item.can_be_undefined;
 
@@ -217,7 +217,7 @@ export class InterfaceInfo {
         return {
             ... this.configItemInheritedData(parent_data['config-items'][index]),
             ... parent_data['config-items'][index]
-        }
+        };
     }
 
     private addClassConfigItems = (iface_id, class_name, prefix?) => {
@@ -308,7 +308,7 @@ export class InterfaceInfo {
                 !item.parent || item.parent['interface-name'] !== class_name ||
                 (is_base_class && !item.prefix)
             );
-        }
+        };
 
         const iface_data = this.iface_by_id[iface_id];
         const base_class_name = iface_data['base-class-name'];
@@ -413,7 +413,7 @@ export class InterfaceInfo {
                     delete item.is_set;
                 }
                 return { ...item };
-            }
+            };
 
             const addYamlData = (item: any): any => {
                 const toYamlIfNotComplex = value => ['list', 'hash'].includes(item.type)

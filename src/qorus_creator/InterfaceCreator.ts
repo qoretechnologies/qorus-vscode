@@ -313,7 +313,7 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    };
+    }
 
     protected static createHeaders = (headers: any): string => {
         const list_indent = '  - ';
@@ -491,17 +491,12 @@ export abstract class InterfaceCreator {
                     case 'class-connections':
                         result += `${tag}:\n`;
                         for (const connection_name in value) {
-                            result += `${indent}${connection_name}:\n`
+                            result += `${indent}${connection_name}:\n`;
                             for (const connector of value[connection_name]) {
-                                const class_name_parts = connector.class.split(':');
-                                if (class_name_parts[1]) {
-                                    connector.prefix = class_name_parts[0];
-                                    connector.class = class_name_parts[1];
-                                }
-                                result += `${indent}${list_indent}class: ${connector.class}\n`
+                                result += `${indent}${list_indent}class: ${connector.class}\n`;
                                 for (const key in connector) {
                                     if (!['class', 'id', 'index', 'isFirst', 'isBetween', 'isLast'].includes(key)) {
-                                        result += `${indent}${indent}${key}: ${connector[key]}\n`
+                                        result += `${indent}${indent}${key}: ${connector[key]}\n`;
                                     }
                                 }
                             }
@@ -514,7 +509,19 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    };
+    }
+
+    protected static fixClassConnections = data => {
+        for (const connection in data) {
+            for (const connector of data[connection]) {
+                const class_name_parts = connector.class.split(':');
+                if (class_name_parts[1]) {
+                    connector.prefix = class_name_parts[0];
+                    connector.class = class_name_parts[1];
+                }
+            }
+        }
+    }
 
     protected deleteOrigFilesIfDifferent(orig_file: string | undefined) {
         if (!orig_file) {
@@ -554,5 +561,5 @@ export abstract class InterfaceCreator {
 
     protected fillTemplate = (template: any, vars: any, add_default_parse_options: boolean = true): string =>
         (add_default_parse_options && this.lang === 'qore' ? default_parse_options : '') +
-        new Function('return `' + template[this.lang] + '`;').call(vars);
+        new Function('return `' + template[this.lang] + '`;').call(vars)
 }
