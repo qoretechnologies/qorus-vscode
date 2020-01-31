@@ -846,7 +846,7 @@ export class QorusProjectCodeInfo {
             case 'all_dirs':
                 this.waitForPending(['file_tree']).then(() => qorus_webview.postMessage({
                     action: 'return-all-directories',
-                    directories: [this.all_dir_tree]
+                    directories: this.all_dir_tree
                 }));
                 break;
             case 'mapper-type':
@@ -1214,7 +1214,6 @@ export class QorusProjectCodeInfo {
 
         let file_tree: any[] = [];
         let dir_tree: any[] = [];
-        let all_dir_tree: any = dirItem(this.project.folder, true);
 
         for (let dir of source_directories) {
             let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
@@ -1226,8 +1225,9 @@ export class QorusProjectCodeInfo {
             subDirRecursion(dir_tree_root, true);
         }
 
+        let all_dir_tree: any = [];
         let all_dir_tree_root = dirItem(this.project.folder, true);
-        all_dir_tree.dirs.push(all_dir_tree_root);
+        all_dir_tree.push(all_dir_tree_root);
         subDirRecursion(all_dir_tree_root, true);
 
         this.file_tree = file_tree;
