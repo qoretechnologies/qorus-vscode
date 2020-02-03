@@ -1192,7 +1192,7 @@ export class QorusProjectCodeInfo {
         });
 
         const subDirRecursion = (tree_item: any, only_dirs: boolean) => {
-            const dir_entries: string[] = fs.readdirSync(tree_item.abs_path);
+            const dir_entries: string[] = fs.readdirSync(tree_item.abs_path).sort();
             for (let entry of dir_entries) {
                 if (entry[0] === '.') {
                     continue;
@@ -1215,7 +1215,7 @@ export class QorusProjectCodeInfo {
         let file_tree: any[] = [];
         let dir_tree: any[] = [];
 
-        for (let dir of source_directories) {
+        for (let dir of source_directories.sort()) {
             let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
             file_tree.push(file_tree_root);
             subDirRecursion(file_tree_root, false);
