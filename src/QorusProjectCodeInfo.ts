@@ -437,6 +437,10 @@ export class QorusProjectCodeInfo {
         });
     }
 
+    getClassConnector = ({class: class_name, connector: connector_name}) =>
+        (this.yamlDataByClass(class_name)?.['class-connectors'] || [])
+                .find(connector => connector.name === connector_name)
+
     pairFile = (file: string): string | undefined => {
         if (!hasSuffix(file, 'yaml')) {
             return (this.yamlDataBySrcFile(file) || {}).yaml_file;
@@ -1346,7 +1350,7 @@ export class QorusProjectCodeInfo {
                     && (!output_condition?.type || output_condition.type === output.type)
                     && (!output_condition?.subtype || output_condition.subtype === output.subtype)
                     && (!output_condition?.path || output_condition.path === output.path);
-                    
+
             }).map((mapper) => ({
                 ...mapper,
                 name: `${mapper.name}:${mapper.version}`
