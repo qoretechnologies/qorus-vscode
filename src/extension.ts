@@ -86,9 +86,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class', 'other'].forEach(subtab => {
         const command = 'qorus.create' + dash2Pascal(subtab);
-        disposable = vscode.commands.registerCommand(command, (uri: vscode.Uri) => qorus_webview.open({
-            tab: 'CreateInterface', subtab, uri
-        }));
+        disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {
+            const uri = data instanceof vscode.Uri ? data : undefined;
+            qorus_webview.open({
+                tab: 'CreateInterface', subtab, uri
+            });
+        });
         context.subscriptions.push(disposable);
     });
 
