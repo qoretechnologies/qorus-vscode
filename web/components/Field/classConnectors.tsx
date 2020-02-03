@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import StringField from './string';
+import SelectField from './select';
 import { Button, ButtonGroup, ControlGroup, Callout } from '@blueprintjs/core';
 import styled from 'styled-components';
 import { size } from 'lodash';
@@ -23,7 +24,15 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
     name,
     onChange,
     value = [
-        { id: 1, name: '', 'input-method': '', 'output-method': '', 'input-provider': null, 'output-provider': null },
+        {
+            id: 1,
+            name: '',
+            type: 'default',
+            'input-method': '',
+            'output-method': '',
+            'input-provider': null,
+            'output-provider': null,
+        },
     ],
     t,
     initialData,
@@ -54,6 +63,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
             {
                 id: size(value) + 1,
                 name: `${requestFieldData('class-name', 'value')}${size(value) + 1}`,
+                type: 'default',
                 'input-method': '',
                 'output-method': '',
                 'input-provider': null,
@@ -77,11 +87,19 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                     <div>
                         <ControlGroup fill>
                             <Button text={`${index + 1}.`} />
+                            <SelectField
+                                defaultItems={[{ name: 'default' }, { name: 'event' }]}
+                                value={pair.type}
+                                name="type"
+                                onChange={(fieldName: string, val: string) => {
+                                    changePairData(index, fieldName, val);
+                                }}
+                            />
                             <StringField
                                 name="name"
                                 value={pair.name}
-                                onChange={(fieldName: string, value: string) => {
-                                    changePairData(index, fieldName, value);
+                                onChange={(fieldName: string, val: string) => {
+                                    changePairData(index, fieldName, val);
                                 }}
                                 placeholder={t('Name')}
                                 fill
@@ -89,8 +107,8 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                             <StringField
                                 name="input-method"
                                 value={pair['input-method']}
-                                onChange={(fieldName: string, value: string) => {
-                                    changePairData(index, fieldName, value);
+                                onChange={(fieldName: string, val: string) => {
+                                    changePairData(index, fieldName, val);
                                 }}
                                 placeholder={t('InputMethod')}
                                 fill
@@ -98,8 +116,8 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                             <StringField
                                 name="output-method"
                                 value={pair['output-method']}
-                                onChange={(fieldName: string, value: string) => {
-                                    changePairData(index, fieldName, value);
+                                onChange={(fieldName: string, val: string) => {
+                                    changePairData(index, fieldName, val);
                                 }}
                                 placeholder={t('OutputMethod')}
                                 fill

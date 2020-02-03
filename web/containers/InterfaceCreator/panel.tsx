@@ -168,18 +168,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     initialInterfaceId,
     resetMethods,
     resetAllInterfaceData,
+    isClassConnectionsManagerEnabled,
+    classConnectionsData,
+    setClassConnectionsData,
+    showClassConnectionsManager,
+    setShowClassConnectionsManager,
+    resetClassConnections,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
-    const [showClassConnectionsManager, setShowClassConnectionsManager] = useState<boolean>(false);
-    const [classConnectionsData, setClassConnectionsData] = useState<IClassConnections>(data?.['class-connections']);
     const [fieldListeners, setFieldListeners] = useState([]);
-
-    const resetClassConnections = () => {
-        setClassConnectionsData(null);
-    };
 
     useEffect(() => {
         // Remove the current listeners
@@ -743,18 +743,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         });
     };
 
-    const isClassConnectorsManagerEnabled = () => {
-        // Find the base class name field
-        const classes: IField = [...selectedFields].find((field: IField) => field.name === 'classes');
-        // Check if the field exists
-        if (classes) {
-            // The field has to be selected and valid
-            return classes.isValid;
-        }
-        // Not valid
-        return false;
-    };
-
     const isConfigManagerEnabled = () => {
         // Find the base class name field
         const baseClassName: IField = [...fieldList, ...selectedFields].find(
@@ -876,7 +864,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 {hasClassConnections && (
                                     <Button
                                         icon="code-block"
-                                        disabled={!isClassConnectorsManagerEnabled()}
+                                        disabled={!isClassConnectionsManagerEnabled()}
                                         onClick={() => setShowClassConnectionsManager(true)}
                                     >
                                         {t('ManageClassConnections')} ({size(classConnectionsData)})
@@ -891,7 +879,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             </ButtonGroup>
                         </div>
                     )}
-                    <div style={{ float: 'right', width: hasConfigManager ? '48%' : '100%' }}>
+                    <div style={{ float: 'right', width: hasConfigManager || hasClassConnections ? '48%' : '100%' }}>
                         <ButtonGroup fill>
                             {onBackClick && (
                                 <Tooltip content={'BackToooltip'}>
@@ -930,8 +918,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     style={{ width: '80vw', height: '40vh', backgroundColor: '#fff' }}
                 >
                     <ClassConnectionsManager
-                        classes={[...selectedFields].find((field: IField) => field.name === 'classes').value}
-                        ifaceType={type}
+                        ifaceType={type === 'service-methods' ? 'service' : type}
                         baseClassName={requestFieldData('base-class-name', 'value')}
                         initialConnections={classConnectionsData}
                         onSubmit={classConnections => {

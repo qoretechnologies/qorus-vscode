@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import SidePanel from '../../components/SidePanel';
-import { ContentWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
+import { ContentWrapper, ActionsWrapper, IField } from '../InterfaceCreator/panel';
 import { MethodSelector, Selected, RemoveButton } from '../InterfaceCreator/servicesView';
 import { ButtonGroup, Button, Dialog, ControlGroup, Classes, NonIdealState } from '@blueprintjs/core';
 import map from 'lodash/map';
@@ -20,6 +20,8 @@ import Content from '../../components/Content';
 import every from 'lodash/every';
 import useMount from 'react-use/lib/useMount';
 import { Messages } from '../../constants/messages';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
 export const StyledDialogBody = styled.div`
     padding: 20px 20px 0 20px;
@@ -66,18 +68,19 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     t,
     initialData,
     initialConnections,
-    classes,
     onSubmit,
     addMessageListener,
     postMessage,
     ifaceType,
     baseClassName,
+    selectedFields,
 }) => {
     const [connections, setConnections] = useState<IClassConnections>(initialConnections || {});
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [classesData, setClassesData] = useState(null);
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
     const [lastConnectorId, setLastConnectorId] = useState<number>(1);
+    const classes = selectedFields[ifaceType].find((field: IField) => field.name === 'classes').value;
 
     // Get the classes data
     useMount(() => {
@@ -322,4 +325,10 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     );
 };
 
-export default compose(withMessageHandler(), withInitialDataConsumer(), withTextContext())(ClassConnectionsManager);
+export default compose(
+    withMessageHandler(),
+    withInitialDataConsumer(),
+    withTextContext(),
+    withMethodsConsumer(),
+    withFieldsConsumer()
+)(ClassConnectionsManager);
