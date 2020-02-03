@@ -1340,12 +1340,12 @@ export class QorusProjectCodeInfo {
                 const input = mapper.mapper_options['mapper-input'];
                 const output = mapper.mapper_options['mapper-output'];
 
-                return (!input_condition.name || input_condition.name === input.name)
-                    && (!input_condition.type || input_condition.type === input.type)
-                    && (!output_condition.name || output_condition.name === output.name)
-                    && (!output_condition.type || output_condition.type === output.type)
-                    && (!output_condition.subtype || output_condition.subtype === output.subtype)
-                    && (!output_condition.path || output_condition.path === output.path);
+                return (!input_condition?.name || input_condition.name === input.name)
+                    && (!input_condition?.type || input_condition.type === input.type)
+                    && (!output_condition?.name || output_condition.name === output.name)
+                    && (!output_condition?.type || output_condition.type === output.type)
+                    && (!output_condition?.subtype || output_condition.subtype === output.subtype)
+                    && (!output_condition?.path || output_condition.path === output.path);
                     
             }).map((mapper) => ({
                 ...mapper,
