@@ -27,11 +27,9 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
         {
             id: 1,
             name: '',
-            type: 'default',
-            'input-method': '',
-            'output-method': '',
-            'input-provider': null,
-            'output-provider': null,
+            type: 'input',
+            method: '',
+            provider: null,
         },
     ],
     t,
@@ -44,15 +42,6 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
         const pair: IPair = newValue[index];
         // Update the field
         pair[key] = val;
-        // Remove the provider iv value is empty
-        if (val === '') {
-            if (key === 'input-method') {
-                pair['input-provider'] = null;
-            }
-            if (key === 'output-method') {
-                pair['output-provider'] = null;
-            }
-        }
         // Update the pairs
         onChange(name, newValue);
     };
@@ -63,11 +52,9 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
             {
                 id: size(value) + 1,
                 name: `${requestFieldData('class-name', 'value')}${size(value) + 1}`,
-                type: 'default',
-                'input-method': '',
-                'output-method': '',
-                'input-provider': null,
-                'output-provider': null,
+                type: 'input',
+                method: '',
+                provider: null,
             },
         ]);
     };
@@ -88,7 +75,12 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                         <ControlGroup fill>
                             <Button text={`${index + 1}.`} />
                             <SelectField
-                                defaultItems={[{ name: 'default' }, { name: 'event' }]}
+                                defaultItems={[
+                                    { name: 'input' },
+                                    { name: 'output' },
+                                    { name: 'input-output' },
+                                    { name: 'event' },
+                                ]}
                                 value={pair.type}
                                 name="type"
                                 onChange={(fieldName: string, val: string) => {
@@ -104,52 +96,29 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                 placeholder={t('Name')}
                                 fill
                             />
-                            <StringField
-                                name="input-method"
-                                value={pair['input-method']}
-                                onChange={(fieldName: string, val: string) => {
-                                    changePairData(index, fieldName, val);
-                                }}
-                                placeholder={t('InputMethod')}
-                                fill
-                            />
-                            <StringField
-                                name="output-method"
-                                value={pair['output-method']}
-                                onChange={(fieldName: string, val: string) => {
-                                    changePairData(index, fieldName, val);
-                                }}
-                                placeholder={t('OutputMethod')}
-                                fill
-                            />
 
+                            <StringField
+                                name="method"
+                                value={pair.method}
+                                onChange={(fieldName: string, val: string) => {
+                                    changePairData(index, fieldName, val);
+                                }}
+                                placeholder={t('Method')}
+                                fill
+                            />
                             {size(value) !== 1 && <Button icon={'trash'} onClick={() => handleRemoveClick(index)} />}
                         </ControlGroup>
                     </div>
                     <div>
                         {initialData.qorus_instance ? (
-                            <>
-                                {pair['input-method'] && (
-                                    <ConnectorField
-                                        value={pair['input-provider']}
-                                        isInitialEditing={!!initialData.class}
-                                        title="Input"
-                                        id={index}
-                                        name="input-provider"
-                                        onChange={changePairData}
-                                    />
-                                )}
-                                {pair['output-method'] && (
-                                    <ConnectorField
-                                        isInitialEditing={!!initialData.class}
-                                        value={pair['output-provider']}
-                                        title="Output"
-                                        id={index}
-                                        name="output-provider"
-                                        onChange={changePairData}
-                                    />
-                                )}
-                            </>
+                            <ConnectorField
+                                value={pair.provider}
+                                isInitialEditing={!!initialData.class}
+                                title="Provider"
+                                id={index}
+                                name="provider"
+                                onChange={changePairData}
+                            />
                         ) : (
                             <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>
                         )}
