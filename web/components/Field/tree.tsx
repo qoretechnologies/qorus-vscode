@@ -31,6 +31,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
 }) => {
     const [expanded, setExpanded] = useState<string[]>([]);
     const [items, setItems] = useState<any>([]);
+    const [collapseTimer, setCollapseTimer] = useState<NodeJS.Timer>(null);
 
     useMount(() => {
         //
@@ -62,6 +63,17 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                 onChange(name, [...value, { name: usedPath }]);
             }
         }
+
+        setCollapseTimer(current => {
+            if (current) {
+                clearTimeout(current);
+            }
+
+            return setTimeout(() => {
+                setCollapseTimer(null);
+                setExpanded([]);
+            }, 4000);
+        });
     };
 
     const handleNodeCollapse: (node: ITreeNode<{ path: string }>) => void = node => {
@@ -78,6 +90,16 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
         const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
 
         setExpanded((currentExpanded: string[]): string[] => [...currentExpanded, usedPath]);
+        setCollapseTimer(current => {
+            if (current) {
+                clearTimeout(current);
+            }
+
+            return setTimeout(() => {
+                setCollapseTimer(null);
+                setExpanded([]);
+            }, 4000);
+        });
     };
 
     const transformItems: (data: any[]) => ITreeNode<{ path: string }>[] = data => {
