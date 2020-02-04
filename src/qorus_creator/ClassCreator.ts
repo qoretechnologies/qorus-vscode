@@ -69,7 +69,7 @@ class ClassCreator extends InterfaceCreator {
                 if (data['class-connections']) {
                     ClassCreator.fixClassConnections(data['class-connections']);
                     ({connections_within_class, connections_extra_class}
-                                        = connectionsCode(data['class-connections'], this.lang));
+                                        = connectionsCode(data['class-connections'], this.code_info, this.lang));
                 }
 
                 contents = this.fillTemplate(template, {
