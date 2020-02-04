@@ -1,12 +1,12 @@
+import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier } from '../qorus_utils';
 import { lang_inherits } from './common_constants';
-import * as msg from '../qorus_message';
 
 // =================================================================
 
-export const connectionsCode = (data, lang) => {
+export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => {
     const {connections_within_class, triggers} = withinClassCode(data, lang);
-    const {connections_extra_class} = extraClassCode(data, lang);
+    const {connections_extra_class} = extraClassCode(data, code_info, lang);
     return {connections_within_class, connections_extra_class, triggers};
 };
 
@@ -61,7 +61,7 @@ const withinClassCode = (data, lang) => {
 
 // =================================================================
 
-const extraClassCode = (data, lang) => {
+const extraClassCode = (data, code_info, lang) => {
     let code = `\n${GENERATED[lang].begin}\n`;
 
     let method_codes = [];
@@ -70,6 +70,7 @@ const extraClassCode = (data, lang) => {
 
     for (const connection in data) {
         const connection_code_name = toValidIdentifier(connection);
+        let connectors = [];
         for (const connector of data[connection]) {
             const {'class': class_name, 'event-based': is_event_based = false, prefix = ''} = connector;
             const prefixed_class = prefix + class_name;
@@ -77,8 +78,9 @@ const extraClassCode = (data, lang) => {
             if (is_event_based) {
                 event_based = { prefixed_class, connection_code_name };
             }
+            connectors.push({ ...connector, ...code_info.getClassConnector(connector) });
         }
-        method_codes.push(methodCode(lang, connection_code_name, data[connection]));
+        method_codes.push(methodCode(connection_code_name, connectors, lang));
     }
 
     switch (lang) {
@@ -186,17 +188,27 @@ const triggerCodeQore = ({connection_code_name, trigger_code_name}) => {
 
 // =================================================================
 
-const methodCode = (lang, connection_code_name, data) => {
+const methodCode = (connection_code_name, connectors, lang) => {
     switch (lang) {
-        case 'qore': return methodCodeQore(connection_code_name, data);
+        case 'qore': return methodCodeQore(connection_code_name, connectors);
         default: return '';
     }
 };
 
-const methodCodeQore = (connection_code_name, data) => {
-    msg.debug({connection_code_name, data});
-    let code = `${indent1}${connection_code_name}() {\n` +
-        `${indent2}UserApi::logDebug("${connection_code_name} called");\n` +
-        `${indent1}}\n`;
+const methodCodeQore = (connection_code_name, connectors) => {
+    let code = `${indent1}${connection_code_name}(*hash<auto> data) {\n` +
+        `${indent2}UserApi::logDebug("${connection_code_name} called with data: %y", data);\n`;
+
+    connectors.forEach(connector => {
+        const prefixed_class = `${connector.prefix || ''}${connector.class}`;
+        code += `\n${indent2}UserApi::logDebug("calling`
+             + ` ${prefixed_class} ${connector.name}: %y", data);\n${indent2}`;
+        if (connector['output-method']) {
+            code += 'data = ';
+        }
+        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", data);\n`;
+    });
+
+    code += `${indent1}}\n`;
     return code;
 };
