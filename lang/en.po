@@ -1970,3 +1970,6 @@ msgstr "Value is not in correct format"
 
 msgid "InvalidDate"
 msgstr "Invalid date provided"
+
+msgid "TriggerNoMethodsAvailable"
+msgstr "No service methods available. To add a trigger to a service building block, please create at least one method."
