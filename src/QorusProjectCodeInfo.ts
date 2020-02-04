@@ -815,7 +815,6 @@ export class QorusProjectCodeInfo {
                 break;
             case 'author':
             case 'function':
-            case 'class':
             case 'constant':
             case 'mapper':
             case 'value-map':
@@ -826,12 +825,26 @@ export class QorusProjectCodeInfo {
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );
                 break;
+            case 'class':
+                this.waitForPending(['yaml']).then(() => {
+                    const class_names = Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
+                    const classes = class_names.map(class_name => {
+                        const class_data = this.yamlDataByClass(class_name);
+                        return {
+                            name: class_data['class-name'],
+                            desc: class_data.desc
+                        };
+                    });
+                    postMessage('objects', classes);
+                });
+                break;
             case 'class-with-connectors':
-                this.waitForPending(['yaml']).then(() => postMessage('objects',
-                    Object.keys(this.object_info.class)
-                          .map(name => this.fixData(this.yamlDataByName('class', name)))
-                          .filter(class_obj => class_obj['class-connectors']))
-                );
+                this.waitForPending(['yaml']).then(() => {
+                    const class_names = Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
+                    const classes = class_names.map(class_name => this.fixData(this.yamlDataByClass(class_name)))
+                                               .filter(class_obj => class_obj['class-connectors']);
+                    postMessage('objects', classes);
+                });
                 break;
             case 'module':
                 this.waitForPending(['modules']).then(() =>
@@ -1047,13 +1060,6 @@ export class QorusProjectCodeInfo {
 
         for (const name of yaml_data.author || []) {
             addObjectName('author', name);
-        }
-
-        if (class_name) {
-            addObjectName('class', class_name);
-            if (yaml_data.desc) {
-                this.object_info.class[class_name].desc = yaml_data.desc;
-            }
         }
 
         if (!yaml_data.name || !yaml_data.type) {
@@ -1350,7 +1356,6 @@ export class QorusProjectCodeInfo {
                     && (!output_condition?.type || output_condition.type === output.type)
                     && (!output_condition?.subtype || output_condition.subtype === output.subtype)
                     && (!output_condition?.path || output_condition.path === output.path);
-
             }).map((mapper) => ({
                 ...mapper,
                 name: `${mapper.name}:${mapper.version}`
