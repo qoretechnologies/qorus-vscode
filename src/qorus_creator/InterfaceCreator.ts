@@ -492,7 +492,7 @@ export abstract class InterfaceCreator {
                             for (const connector of value[connection_name]) {
                                 result += `${indent}${list_indent}class: ${connector.class}\n`;
                                 for (const key in connector) {
-                                    if (!['class', 'id', 'index', 'isFirst', 'isBetween', 'isLast'].includes(key)) {
+                                    if (['connector', 'trigger', 'mapper', 'prefix'].includes(key)) {
                                         result += `${indent}${indent}${key}: ${connector[key]}\n`;
                                     }
                                 }
