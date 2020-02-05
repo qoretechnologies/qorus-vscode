@@ -94,45 +94,54 @@ const Connector: React.FC<IConnectorProps> = ({
         <FieldWrapper>
             <FieldLabel label={t('Connector')} isValid={validateField('string', manageDialog.connector)} />
             <FieldInputWrapper>
-                {connectors.length > 0 ? (
-                    <SelectField
-                        defaultItems={connectors}
-                        predicate={(name: string) => {
-                            // Get the connector
-                            const conn = connectors.find(c => c.name === name);
-                            // Check if we should include this method
-                            if (manageDialog.isFirst) {
-                                // Filter out input only methods
-                                return conn.type === 'output' || conn.type === 'event' || conn.type === 'input-output';
-                            } else if (manageDialog.isBetween) {
-                                return conn.type === 'input-output';
-                            } else {
-                                return conn.type === 'input' || conn.type === 'input-output';
-                            }
-                        }}
-                        value={manageDialog.connector}
-                        onChange={(_name, value) => {
-                            setManageDialog(
-                                (current: IManageDialog): IManageDialog => {
-                                    const isEvent = connectors.find(c => c.name === value).type === 'event';
+                {!manageDialog.class && <Callout intent="primary">{t('PleaseSelectClass')}</Callout>}
+                {manageDialog.class && (
+                    <>
+                        {connectors.length > 0 ? (
+                            <SelectField
+                                defaultItems={connectors}
+                                predicate={(name: string) => {
+                                    // Get the connector
+                                    const conn = connectors.find(c => c.name === name);
+                                    // Check if we should include this method
+                                    if (manageDialog.isFirst) {
+                                        // Filter out input only methods
+                                        return (
+                                            conn.type === 'output' ||
+                                            conn.type === 'event' ||
+                                            conn.type === 'input-output'
+                                        );
+                                    } else if (manageDialog.isBetween) {
+                                        return conn.type === 'input-output';
+                                    } else {
+                                        return conn.type === 'input' || conn.type === 'input-output';
+                                    }
+                                }}
+                                value={manageDialog.connector}
+                                onChange={(_name, value) => {
+                                    setManageDialog(
+                                        (current: IManageDialog): IManageDialog => {
+                                            const isEvent = connectors.find(c => c.name === value).type === 'event';
 
-                                    const result = {
-                                        ...current,
-                                        connector: value,
-                                        isLast: connectors.find(c => c.name === value).type === 'input',
-                                        isEvent,
-                                        trigger: isEvent ? null : current.trigger,
-                                    };
+                                            const result = {
+                                                ...current,
+                                                connector: value,
+                                                isLast: connectors.find(c => c.name === value).type === 'input',
+                                                isEvent,
+                                                trigger: isEvent ? null : current.trigger,
+                                            };
 
-                                    return result;
-                                }
-                            );
-                        }}
-                        name="connector"
-                        fill
-                    />
-                ) : (
-                    <Callout intent="warning">{t('PleaseSelectClass')}</Callout>
+                                            return result;
+                                        }
+                                    );
+                                }}
+                                name="connector"
+                                fill
+                            />
+                        ) : (
+                            <Callout intent="danger">{t('ClassWithoutConnectorsWarning')}</Callout>
+                        )}
+                    </>
                 )}
             </FieldInputWrapper>
         </FieldWrapper>

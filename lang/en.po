@@ -1976,3 +1976,6 @@ msgstr "No service methods available. To add a trigger to a service building blo
 
 msgid "NoMapperFieldsAvailable"
 msgstr "No fields available for factory type"
+
+msgid "ClassWithoutConnectorsWarning"
+msgstr "The class selected does not have any connectors"
