@@ -915,7 +915,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     isOpen
                     title={t('ClassConnectionsManager')}
                     onClose={() => setShowClassConnectionsManager(false)}
-                    style={{ width: '80vw', height: '40vh', backgroundColor: '#fff' }}
+                    style={{ width: '80vw', minHeight: '40vh', maxHeight: '90vh', backgroundColor: '#fff' }}
                 >
                     <ClassConnectionsManager
                         ifaceType={type === 'service-methods' ? 'service' : type}

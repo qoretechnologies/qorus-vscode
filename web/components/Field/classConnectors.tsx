@@ -23,15 +23,7 @@ export const StyledPairField = styled.div`
 const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChange> = ({
     name,
     onChange,
-    value = [
-        {
-            id: 1,
-            name: '',
-            type: 'input',
-            method: '',
-            provider: null,
-        },
-    ],
+    value,
     t,
     initialData,
     requestFieldData,
@@ -51,7 +43,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
             ...value,
             {
                 id: size(value) + 1,
-                name: `${requestFieldData('class-name', 'value')}${size(value) + 1}`,
+                name: `${requestFieldData('class-name', 'value') || 'Connector'}${size(value) + 1}`,
                 type: 'input',
                 method: '',
                 provider: null,
@@ -66,6 +58,16 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
             value.filter((_p: IPair, index: number) => id !== index)
         );
     };
+
+    value = value || [
+        {
+            id: 1,
+            name: `${requestFieldData('class-name', 'value') || 'Connector'}1`,
+            type: 'input',
+            method: '',
+            provider: null,
+        },
+    ];
 
     return (
         <>

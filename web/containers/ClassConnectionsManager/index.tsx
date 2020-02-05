@@ -173,7 +173,16 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     };
 
     const isConnectionValid = (name: string) => {
-        return connections[name].length > 1;
+        if (connections[name].length > 1) {
+            return true;
+        }
+        // Check if there is only one connector
+        // and has a trigger
+        if (connections[name].length === 1) {
+            return !!connections[name][0].trigger;
+        }
+
+        return false;
     };
 
     const areAllConnectionsValid = () => {

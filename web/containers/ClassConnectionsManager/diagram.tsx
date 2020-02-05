@@ -103,7 +103,7 @@ const Connector: React.FC<IConnectorProps> = ({
                             // Check if we should include this method
                             if (manageDialog.isFirst) {
                                 // Filter out input only methods
-                                return conn.type === 'output' || conn.type === 'event';
+                                return conn.type === 'output' || conn.type === 'event' || conn.type === 'input-output';
                             } else if (manageDialog.isBetween) {
                                 return conn.type === 'input-output';
                             } else {
@@ -114,14 +114,16 @@ const Connector: React.FC<IConnectorProps> = ({
                         onChange={(_name, value) => {
                             setManageDialog(
                                 (current: IManageDialog): IManageDialog => {
+                                    const isEvent = connectors.find(c => c.name === value).type === 'event';
+
                                     const result = {
                                         ...current,
                                         connector: value,
-                                        isConnectorEventType: connectors.find(c => c.name === value).type === 'event',
                                         isLast: connectors.find(c => c.name === value).type === 'input',
+                                        isEvent,
+                                        trigger: isEvent ? null : current.trigger,
                                     };
-                                    // Remove the event based flag
-                                    delete result['event-based'];
+
                                     return result;
                                 }
                             );
@@ -262,7 +264,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
         };
     }, [manageDialog]);
 
+    const getConnectorData = (className: string, connectorName: string) =>
+        classesData[className]['class-connectors'].find(c => c.name === connectorName);
+
     const methodsCount = methods.filter(m => m.name).length;
+    const canHaveTrigger =
+        manageDialog.isFirst && getConnectorData(manageDialog.class, manageDialog.connector)?.type !== 'event';
 
     return (
         <div>
@@ -395,6 +402,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         (current: IManageDialog): IManageDialog => ({
                                                             ...current,
                                                             class: value,
+                                                            connector: null,
                                                         })
                                                     );
                                                 }}
@@ -410,27 +418,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                         postMessage={postMessage}
                                         setManageDialog={setManageDialog}
                                     />
-                                    {manageDialog.isConnectorEventType && (
-                                        <FieldWrapper>
-                                            <FieldLabel label={t('EventBased')} isValid={true} info={t('Optional')} />
-                                            <FieldInputWrapper>
-                                                <ControlGroup fill>
-                                                    <BooleanField
-                                                        value={manageDialog['event-based']}
-                                                        onChange={(_name, value) => {
-                                                            setManageDialog(
-                                                                (current: IManageDialog): IManageDialog => ({
-                                                                    ...current,
-                                                                    'event-based': value,
-                                                                })
-                                                            );
-                                                        }}
-                                                    />
-                                                </ControlGroup>
-                                            </FieldInputWrapper>
-                                        </FieldWrapper>
-                                    )}
-                                    {manageDialog.isFirst && (
+                                    {canHaveTrigger && (
                                         <FieldWrapper>
                                             <FieldLabel label={t('Trigger')} isValid={true} info={t('Optional')} />
                                             <FieldInputWrapper>
@@ -575,6 +563,23 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                     })
                                                 }
                                             />
+                                            {conn.mapper && (
+                                                <Button
+                                                    small
+                                                    minimal
+                                                    icon={<Icon icon={'trash'} iconSize={12} />}
+                                                    onClick={() => {
+                                                        onAddConnector(
+                                                            connectionName,
+                                                            {
+                                                                index,
+                                                                isEditing: true,
+                                                            },
+                                                            true
+                                                        );
+                                                    }}
+                                                />
+                                            )}
                                         </ButtonGroup>
                                     </div>
                                 </StyledMapperConnection>
@@ -615,8 +620,6 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                 class: conn.class,
                                                 trigger: conn.trigger,
                                                 connector: conn.connector,
-                                                isConnectorEventType: conn.isConnectorEventType,
-                                                'event-based': conn['event-based'],
                                                 isFirst: index === 0,
                                                 isBetween: index > 0 && index < connection.length - 1,
                                                 isLast: index === connection.length - 1,
