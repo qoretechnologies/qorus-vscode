@@ -15,6 +15,8 @@ const CONN_BASE_CLASS = 'Observer';
 const CONN_MEMBER = 'class_connections';
 const CONN_CLASS_MAP = 'class_map';
 const CONN_CALL_METHOD = 'callClassWithPrefixMethod';
+const CONN_MAPPER = 'mapper';
+const CONN_DATA = 'params';
 
 let GENERATED: any = { qore: {}, java: {} };
 GENERATED.qore.begin = '####### GENERATED SECTION! DON\'T EDIT! ########';
@@ -135,10 +137,10 @@ const classConnectionsQore = (classes, event_based_connections) => {
     if (event_based_connections.length) {
         code += '\n' +
             `${indent1}# @override ${CONN_BASE_CLASS}'s update()\n` +
-            `${indent1}update(string id, hash<auto> params) {\n`;
+            `${indent1}update(string id, hash<auto> ${CONN_DATA}) {\n`;
         event_based_connections.forEach(event_based => {code +=
             `${indent2}if (id == "${event_based.prefixed_class}::${event_based.method}") {\n` +
-            `${indent3}${event_based.connection_code_name}(params);\n` +
+            `${indent3}${event_based.connection_code_name}(${CONN_DATA});\n` +
             `${indent2}}\n`;
         });
         code += `${indent1}}\n`;
@@ -201,18 +203,29 @@ const methodCode = (connection_code_name, connectors, lang) => {
 };
 
 const methodCodeQore = (connection_code_name, connectors) => {
-    let code = `${indent1}${connection_code_name}(*hash<auto> params) {\n` +
-        `${indent2}UserApi::logDebug("${connection_code_name} called with data: %y", params);\n`;
+    let code = `${indent1}${connection_code_name}(*hash<auto> ${CONN_DATA}) {\n`;
+
+    if (connectors.some(connector => connector.mapper)) {
+        code += `${indent2}auto ${CONN_MAPPER};\n`;
+    }
+
+    code += `${indent2}UserApi::logDebug("${connection_code_name} called with data: %y", ${CONN_DATA});\n`;
 
     let n = 0;
     connectors.forEach(connector => {
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
-        code += `\n${indent2}UserApi::logDebug("calling`
-             + ` ${prefixed_class} ${connector.name}: %y", params);\n${indent2}`;
-        if (++n !== connectors.length) {
-            code += 'params = ';
+
+        if (connector.mapper) {
+            code += `\n${indent2}${CONN_MAPPER} = UserApi::getMapper("${connector.mapper}");\n` +
+            `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
         }
-        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", params);\n`;
+
+        code += `\n${indent2}UserApi::logDebug("calling`
+             + ` ${prefixed_class} ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
+        if (++n !== connectors.length) {
+            code += `${CONN_DATA} = `;
+        }
+        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", ${CONN_DATA});\n`;
     });
 
     code += `${indent1}}\n`;
