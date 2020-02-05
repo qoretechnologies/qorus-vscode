@@ -135,10 +135,10 @@ const classConnectionsQore = (classes, event_based_connections) => {
     if (event_based_connections.length) {
         code += '\n' +
             `${indent1}# @override ${CONN_BASE_CLASS}'s update()\n` +
-            `${indent1}update(string id, hash<auto> data) {\n`;
+            `${indent1}update(string id, hash<auto> params) {\n`;
         event_based_connections.forEach(event_based => {code +=
             `${indent2}if (id == "${event_based.prefixed_class}::${event_based.method}") {\n` +
-            `${indent3}${event_based.connection_code_name}(data);\n` +
+            `${indent3}${event_based.connection_code_name}(params);\n` +
             `${indent2}}\n`;
         });
         code += `${indent1}}\n`;
@@ -201,18 +201,18 @@ const methodCode = (connection_code_name, connectors, lang) => {
 };
 
 const methodCodeQore = (connection_code_name, connectors) => {
-    let code = `${indent1}${connection_code_name}(*hash<auto> data) {\n` +
-        `${indent2}UserApi::logDebug("${connection_code_name} called with data: %y", data);\n`;
+    let code = `${indent1}${connection_code_name}(*hash<auto> params) {\n` +
+        `${indent2}UserApi::logDebug("${connection_code_name} called with data: %y", params);\n`;
 
     let n = 0;
     connectors.forEach(connector => {
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
         code += `\n${indent2}UserApi::logDebug("calling`
-             + ` ${prefixed_class} ${connector.name}: %y", data);\n${indent2}`;
+             + ` ${prefixed_class} ${connector.name}: %y", params);\n${indent2}`;
         if (++n !== connectors.length) {
-            code += 'data = ';
+            code += 'params = ';
         }
-        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", data);\n`;
+        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", params);\n`;
     });
 
     code += `${indent1}}\n`;
