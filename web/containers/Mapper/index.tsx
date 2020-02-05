@@ -660,6 +660,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                     clear={clearInputs}
                     setOptionProvider={setInputOptionProvider}
                     hide={() => setHideInputSelector(true)}
+                    canSelectNull
                 />
             )}
             {!hideOutputSelector && (
@@ -702,7 +703,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             {hideInputSelector && (
                                 <>
                                     {isEditing ? (
-                                        <Tooltip content={inputRecord}>
+                                        <Tooltip content={getUrlFromProvider('input')}>
                                             <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
                                         </Tooltip>
                                     ) : (
@@ -737,7 +738,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                               ))
                             : null}
                         {size(flattenedInputs) === 0 ? (
-                            <StyledInfoMessage>{t('MapperNoInputFields')}</StyledInfoMessage>
+                            <StyledInfoMessage>
+                                {inputOptionProvider?.type === 'factory'
+                                    ? t('NoMapperFieldsAvailable')
+                                    : t('MapperNoInputFields')}
+                            </StyledInfoMessage>
                         ) : null}
                     </StyledFieldsWrapper>
                     <StyledConnectionsWrapper>

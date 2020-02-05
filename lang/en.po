@@ -1973,3 +1973,6 @@ msgstr "Invalid date provided"
 
 msgid "TriggerNoMethodsAvailable"
 msgstr "No service methods available. To add a trigger to a service building block, please create at least one method."
+
+msgid "NoMapperFieldsAvailable"
+msgstr "No fields available for factory type"

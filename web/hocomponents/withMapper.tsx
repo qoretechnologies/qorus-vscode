@@ -82,10 +82,17 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const getUrlFromProvider: (fieldType: 'input' | 'output') => string = fieldType => {
             const { type, name, path, subtype } = fieldType === 'input' ? inputOptionProvider : outputOptionProvider;
+            // Check if the type is factory
+            if (type === 'factory') {
+                // Return just the type
+                return type;
+            }
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}${
+                subtype ? subtype : ''
+            }`;
         };
 
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
@@ -110,7 +117,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}${
+                subtype ? subtype : ''
+            }`;
         };
 
         const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = fieldType => {
@@ -187,6 +196,16 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             const inputUrl = getProviderUrl('input');
             // Save the url as a record, to be accessible
             setInputRecord(inputUrl);
+            // Check if this input is a factory
+            const { type } = mapper.mapper_options[`mapper-input`];
+            if (type === 'factory') {
+                // Cancel loading
+                setInputsLoading(false);
+                // Save the empty inputs
+                setInputs({});
+                // Stop
+                return;
+            }
             // Fetch the input and output fields
             (async () => {
                 const inputs = await props.fetchData(inputUrl);
