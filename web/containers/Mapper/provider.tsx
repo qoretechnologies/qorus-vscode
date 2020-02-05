@@ -89,6 +89,15 @@ export const providers = {
         requiresRecord: true,
         type: 'datasource',
     },
+    factory: {
+        name: 'null',
+        url: '',
+        filter: null,
+        suffix: null,
+        recordSuffix: null,
+        requiresRecord: false,
+        type: 'factory',
+    },
 };
 
 const MapperProvider: FC<IProviderProps> = ({
@@ -109,6 +118,7 @@ const MapperProvider: FC<IProviderProps> = ({
     type,
     hide,
     compact,
+    canSelectNull,
 }) => {
     const handleProviderChange = provider => {
         setProvider(current => {
@@ -116,6 +126,20 @@ const MapperProvider: FC<IProviderProps> = ({
             (async () => {
                 // Clear the data
                 clear && clear(true);
+                // If user set null
+                if (provider === 'null') {
+                    setOptionProvider({
+                        type: 'factory',
+                        name: 'null',
+                        path: '/',
+                    });
+                    // Set the record data
+                    setRecord && setRecord({});
+                    setFields({});
+                    hide();
+                    // Stop
+                    return;
+                }
                 // Set loading
                 setIsLoading(true);
                 // Select the provider data
@@ -286,7 +310,13 @@ const MapperProvider: FC<IProviderProps> = ({
         });
     };
 
-    const getDefaultItems = useCallback(() => map(providers, ({ name }) => ({ name, desc: '' })), []);
+    const getDefaultItems = useCallback(
+        () =>
+            map(providers, ({ name }) => ({ name, desc: '' })).filter(prov =>
+                prov.name === 'null' ? canSelectNull : true
+            ),
+        []
+    );
 
     return (
         <StyledWrapper compact={compact}>
