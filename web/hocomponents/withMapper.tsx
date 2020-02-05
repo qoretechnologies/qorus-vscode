@@ -85,7 +85,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}${
+                subtype ? subtype : ''
+            }`;
         };
 
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
@@ -110,7 +112,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}`;
+            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}${
+                subtype ? subtype : ''
+            }`;
         };
 
         const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = fieldType => {
