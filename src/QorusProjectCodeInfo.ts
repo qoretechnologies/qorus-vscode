@@ -828,14 +828,12 @@ export class QorusProjectCodeInfo {
             case 'class':
                 this.waitForPending(['yaml']).then(() => {
                     const class_names = Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
-                    const classes = class_names.map(class_name => {
-                        const class_data = this.yamlDataByClass(class_name);
-                        return {
-                            name: class_data['class-name'],
-                            desc: class_data.desc
-                        };
-                    });
-                    postMessage('objects', classes);
+                    const classes = class_names.map(class_name => this.yamlDataByClass(class_name))
+                                               .filter(class_data => class_data.type === 'class');
+                    postMessage('objects', classes.map(class_data => ({
+                        name: class_data['class-name'],
+                        desc: class_data.desc
+                    })));
                 });
                 break;
             case 'class-with-connectors':
