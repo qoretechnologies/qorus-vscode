@@ -29,34 +29,32 @@ const indent3 = indent1.repeat(3);
 // =================================================================
 
 const withinClassCode = (data, lang) => {
-    let triggers = [];
     let code = constructorCode(lang, data);
 
-    let trigger_exists = false;
+    let triggers = {};
     for (const connection in data) {
+        const connection_code_name = toValidIdentifier(connection);
         for (const connector of data[connection]) {
             if (connector.trigger) {
-                if (!trigger_exists) {
-                    code += `\n${indent1}${GENERATED[lang].begin}\n`;
-                    trigger_exists = true;
-                } else {
-                    code += '\n';
+                const trigger_code_name = toValidIdentifier(connector.trigger);
+                if (!triggers[connector.trigger]) {
+                    triggers[connector.trigger] = [];
                 }
-
-                code += triggerCode(lang, {
-                    connection_code_name: toValidIdentifier(connection),
-                    trigger_code_name: toValidIdentifier(connector.trigger)
-                });
-
-                triggers.push(connector.trigger);
+                triggers[connector.trigger].push({connection_code_name, trigger_code_name});
             }
         }
     }
-    if (trigger_exists) {
+    if (Object.keys(triggers).length) {
+        code += `\n${indent1}${GENERATED[lang].begin}\n`;
+        Object.keys(triggers).forEach(trigger => {
+            const trigger_code_name = triggers[trigger][0].trigger_code_name;
+            const connection_code_names = triggers[trigger].map(data => data.connection_code_name);
+            code += triggerCode(lang, {trigger_code_name, connection_code_names});
+        });
         code += `${indent1}${GENERATED[lang].end}\n`;
     }
 
-    return { triggers, connections_within_class: code };
+    return { triggers: Object.keys(triggers), connections_within_class: code };
 };
 
 // =================================================================
@@ -184,12 +182,13 @@ const triggerCode = (lang, data) => {
     }
 };
 
-const triggerCodeQore = ({connection_code_name, trigger_code_name}) => {
-    return (
-        `${indent1}${trigger_code_name}() {\n` +
-        `${indent2}${CONN_MEMBER}.${connection_code_name}();\n` +
-        `${indent1}}\n`
-    );
+const triggerCodeQore = ({trigger_code_name, connection_code_names}) => {
+    let code = `${indent1}${trigger_code_name}() {\n`;
+    connection_code_names.forEach(connection_code_name => {code +=
+        `${indent2}${CONN_MEMBER}.${connection_code_name}();\n`
+    });
+    code += `${indent1}}\n`
+    return code;
 };
 
 // =================================================================
