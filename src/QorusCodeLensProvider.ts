@@ -128,9 +128,13 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         method_name: string,
         constructor_name: string = 'constructor')
     {
+        if (method_name === constructor_name) {
+            return;
+        }
+
         const method_index = (data.methods || []).findIndex(method => method.name === method_name);
 
-        if (method_index === -1 && method_name !== constructor_name) {
+        if (method_index === -1) {
             msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
             return;
         }
