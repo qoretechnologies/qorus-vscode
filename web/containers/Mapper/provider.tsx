@@ -240,7 +240,9 @@ const MapperProvider: FC<IProviderProps> = ({
                         path: `${url}/${value}`
                             .replace(`${name}`, '')
                             .replace(`${providers[provider].url}/`, '')
-                            .replace('provider/', ''),
+                            .replace('provider/', '')
+                            .replace('request', '')
+                            .replace('response', ''),
                     });
                     // Set the record data
                     setRecord && setRecord(data.fields);
