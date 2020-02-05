@@ -203,7 +203,7 @@ const methodCodeQore = (connection_code_name, connectors) => {
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
         code += `\n${indent2}UserApi::logDebug("calling`
              + ` ${prefixed_class} ${connector.name}: %y", data);\n${indent2}`;
-        if (connector['output-method']) {
+        if (['output', 'input-output'].includes(connector.type)) {
             code += 'data = ';
         }
         code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", data);\n`;
