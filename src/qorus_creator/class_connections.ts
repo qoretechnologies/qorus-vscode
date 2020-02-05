@@ -66,25 +66,28 @@ const extraClassCode = (data, code_info, lang) => {
 
     let method_codes = [];
     let classes = {};
-    let event_based = undefined;
+    let event_based_connections = [];
 
     for (const connection in data) {
         const connection_code_name = toValidIdentifier(connection);
         let connectors = [];
-        for (const connector of data[connection]) {
-            const {'class': class_name, 'event-based': is_event_based = false, prefix = ''} = connector;
+        for (let connector of data[connection]) {
+            connector = { ...connector, ...code_info.getClassConnector(connector) };
+            const {'class': class_name, type, prefix = ''} = connector;
             const prefixed_class = prefix + class_name;
             classes[prefixed_class] = { class_name, prefix };
-            if (is_event_based) {
-                event_based = { prefixed_class, connection_code_name };
+
+            if (type === 'event') {
+                event_based_connections.push({ connection_code_name, prefixed_class, method: connector.method });
             }
-            connectors.push({ ...connector, ...code_info.getClassConnector(connector) });
+
+            connectors.push(connector);
         }
         method_codes.push(methodCode(connection_code_name, connectors, lang));
     }
 
     switch (lang) {
-        case 'qore': code += classConnectionsQore(classes, event_based);
+        case 'qore': code += classConnectionsQore(classes, event_based_connections);
     }
 
     code += '\n' + method_codes.join('\n') + '}\n';
@@ -93,13 +96,13 @@ const extraClassCode = (data, code_info, lang) => {
     return { connections_extra_class: code };
 };
 
-const classConnectionsQore = (classes, event_based) => {
+const classConnectionsQore = (classes, event_based_connections) => {
     let code = `class ${CONN_CLASS}`;
-    if (event_based) {
+    if (event_based_connections.length) {
         code += ` ${lang_inherits.qore} ${CONN_BASE_CLASS} {`;
         code += ` # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector`;
     } else {
-        code += '{\n';
+        code += ' {\n';
     }
 
     code += '\n' +
@@ -118,10 +121,11 @@ const classConnectionsQore = (classes, event_based) => {
 
     code += `${indent2}};\n`;
 
-    if (event_based) {
-        code += '\n' +
-            `${indent2}# register itself as an observer\n` +
+    if (event_based_connections.length) {
+        code += '\n' + `${indent2}# register observers\n`;
+        event_based_connections.forEach(event_based => {code +=
             `${indent2}${CONN_CALL_METHOD}("${event_based.prefixed_class}", "registerObserver", self);\n`;
+        });
     }
 
     code += `${indent1}}\n\n` +
@@ -130,14 +134,16 @@ const classConnectionsQore = (classes, event_based) => {
         `${indent2}return call_object_method_args(${CONN_CLASS_MAP}{prefixed_class}, method, argv);\n` +
         `${indent1}}\n`;
 
-    if (event_based) {
+    if (event_based_connections.length) {
         code += '\n' +
             `${indent1}# @override ${CONN_BASE_CLASS}'s update()\n` +
-            `${indent1}update(string id, hash<auto> data) {\n` +
-            `${indent2}if (id == "${event_based.prefixed_class}::messageCallbackImpl") {\n` +
+            `${indent1}update(string id, hash<auto> data) {\n`;
+        event_based_connections.forEach(event_based => {code +=
+            `${indent2}if (id == "${event_based.prefixed_class}::${event_based.method}") {\n` +
             `${indent3}${event_based.connection_code_name}(data);\n` +
-            `${indent2}}\n` +
-            `${indent1}}\n`;
+            `${indent2}}\n`;
+        });
+        code += `${indent1}}\n`;
     }
 
     return code;
@@ -199,11 +205,12 @@ const methodCodeQore = (connection_code_name, connectors) => {
     let code = `${indent1}${connection_code_name}(*hash<auto> data) {\n` +
         `${indent2}UserApi::logDebug("${connection_code_name} called with data: %y", data);\n`;
 
+    let n = 0;
     connectors.forEach(connector => {
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
         code += `\n${indent2}UserApi::logDebug("calling`
              + ` ${prefixed_class} ${connector.name}: %y", data);\n${indent2}`;
-        if (['output', 'input-output'].includes(connector.type)) {
+        if (++n !== connectors.length) {
             code += 'data = ';
         }
         code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", data);\n`;
