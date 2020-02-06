@@ -319,8 +319,8 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                 get_message={{
                                                     action: 'get-mappers',
                                                     message_data: {
-                                                        'input-condition': manageDialog.inputProvider,
-                                                        'output-condition': manageDialog.outputProvider,
+                                                        'input-condition': manageDialog.outputProvider,
+                                                        'output-condition': manageDialog.inputProvider,
                                                     },
                                                 }}
                                                 return_message={{
@@ -372,8 +372,8 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         resetAllInterfaceData('mapper');
                                                         setMapper({
                                                             mapper_options: {
-                                                                'mapper-input': manageDialog.inputProvider,
-                                                                'mapper-output': manageDialog.outputProvider,
+                                                                'mapper-input': manageDialog.outputProvider,
+                                                                'mapper-output': manageDialog.inputProvider,
                                                             },
                                                         });
                                                         handleMapperSubmitSet((mapperName, mapperVersion) => {
