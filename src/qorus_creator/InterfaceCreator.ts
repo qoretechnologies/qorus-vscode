@@ -253,7 +253,7 @@ export abstract class InterfaceCreator {
             for (const tag of ['local-value', 'default_value']) {
                 if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
                     result += `${indent}${tag}:\n`;
-                    const non_star_type = item.type.substring(item.type.indexOf("*") + 1);
+                    const non_star_type = item.type?.substring(item.type.indexOf("*") + 1);
                     if (['list', 'hash'].includes(non_star_type)) {
                         let not_indented = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {
