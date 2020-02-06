@@ -29,14 +29,18 @@ export const MethodSelector = styled.div`
     transition: all 0.1s ease-in;
     position: relative;
 
+    div.bp3-button-group {
+        float: right;
+    }
+
     &:hover {
         border-color: #137cbd;
 
-        div:first-child:not(:last-child) {
+        div:not(.bp3-button-group):first-child:not(:last-child) {
             right: 35px;
         }
 
-        div:last-child {
+        div:not(.bp3-button-group):last-child {
             opacity: 0.7;
             transform: translateY(-50%) rotateZ(45deg);
 
