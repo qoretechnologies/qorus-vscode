@@ -126,7 +126,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const handleStepInsert = (data: any, targetStep: number, before?: boolean, parallel?: boolean) => {
             // Set new stepid
             setLastStepId((current: number) => {
-                const stepId = current + 1;
+                const stepId = current + 10;
 
                 setSteps(current => {
                     let steps;
