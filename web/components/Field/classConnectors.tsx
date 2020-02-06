@@ -34,6 +34,11 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
         const pair: IPair = newValue[index];
         // Update the field
         pair[key] = val;
+        // Reset providers if type changes
+        if (key === 'type') {
+            pair['input-provider'] = null;
+            pair['output-provider'] = null;
+        }
         // Update the pairs
         onChange(name, newValue);
     };
@@ -46,7 +51,8 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                 name: `${requestFieldData('class-name', 'value') || 'Connector'}${size(value) + 1}`,
                 type: 'input',
                 method: '',
-                provider: null,
+                'input-provider': null,
+                'output-provider': null,
             },
         ]);
     };
@@ -65,7 +71,8 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
             name: `${requestFieldData('class-name', 'value') || 'Connector'}1`,
             type: 'input',
             method: '',
-            provider: null,
+            'input-provider': null,
+            'output-provider': null,
         },
     ];
 
@@ -113,14 +120,28 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                     </div>
                     <div>
                         {initialData.qorus_instance ? (
-                            <ConnectorField
-                                value={pair.provider}
-                                isInitialEditing={!!initialData.class}
-                                title="Provider"
-                                id={index}
-                                name="provider"
-                                onChange={changePairData}
-                            />
+                            <>
+                                {(pair.type === 'input' || pair.type === 'input-output') && (
+                                    <ConnectorField
+                                        value={pair['input-provider']}
+                                        isInitialEditing={!!initialData.class}
+                                        title="Input provider"
+                                        id={index}
+                                        name="input-provider"
+                                        onChange={changePairData}
+                                    />
+                                )}
+                                {(pair.type === 'output' || pair.type === 'input-output' || pair.type === 'event') && (
+                                    <ConnectorField
+                                        value={pair['output-provider']}
+                                        isInitialEditing={!!initialData.class}
+                                        title="Output provider"
+                                        id={index}
+                                        name="output-provider"
+                                        onChange={changePairData}
+                                    />
+                                )}
+                            </>
                         ) : (
                             <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>
                         )}

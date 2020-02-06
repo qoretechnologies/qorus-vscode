@@ -1979,3 +1979,6 @@ msgstr "No fields available for factory type"
 
 msgid "ClassWithoutConnectorsWarning"
 msgstr "The class selected does not have any connectors"
+
+msgid "ActiveInstanceProvidersConnectors"
+msgstr "An active instance is required to add input / output providers."

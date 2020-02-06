@@ -96,10 +96,12 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         });
         // Request data for each class
         classes.forEach(classData => {
+            const splitClass = classData.name.split(':');
+            const className = splitClass[1] || splitClass[0];
             // Request the data
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'class',
-                class_name: classData.name,
+                class_name: className,
             });
         });
     });
@@ -189,8 +191,18 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         return size(connections) === 0 || every(connections, (_conn, name) => isConnectionValid(name));
     };
 
+    const getUniqueClasses = () => {
+        const uniqClasses = {};
+        classes.forEach(classData => {
+            const splitClass = classData.name.split(':');
+            const className = splitClass[1] || splitClass[0];
+            uniqClasses.className = {};
+        });
+        return size(uniqClasses);
+    };
+
     // Check if all classes are loaded
-    if (size(classesData) !== size(classes)) {
+    if (size(classesData) !== getUniqueClasses()) {
         return <p> Loading ...</p>;
     }
 

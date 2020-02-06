@@ -71,7 +71,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
                 transform: `translateX(${isDragging ? (canDrop ? '-50px' : '0') : '0'})`,
                 opacity: isDragging ? (canDrop ? 1 : 0.3) : 1,
                 borderColor: canDrop ? '#137cbd' : '#d7d7d7',
-                backgroundColor: hasRelation ? '#c9f5d4' : '#fff',
+                backgroundColor: hasRelation ? '#7fba2785' : '#fff',
             }}
             isChild={isChild}
             level={level}

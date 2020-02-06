@@ -47,6 +47,7 @@ export interface IProjectData {
 const StyledWrapper = styled.div`
     flex: 1 1 auto;
     padding: 10px;
+    overflow: auto;
 `;
 
 const StyledProjectWrapper = styled.div`

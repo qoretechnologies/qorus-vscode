@@ -67,11 +67,11 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                                 }}
                             />
                         </ButtonGroup>
-                        <StyledSeparator />
+                        {/*<StyledSeparator />
                         <ButtonGroup>
                             <Button icon="document-share" text="View File" />
                             <Button icon="trash" text="Delete" intent="danger" />
-                        </ButtonGroup>
+                        </ButtonGroup>*/}
                     </div>
                 )}
             </StyledHeader>

@@ -567,8 +567,10 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         index: index,
                                                         connector: conn.connector,
                                                         outputProvider:
-                                                            index === 0 ? null : connection[index - 1].provider,
-                                                        inputProvider: conn.provider,
+                                                            index === 0
+                                                                ? null
+                                                                : connection[index - 1]['output-provider'],
+                                                        inputProvider: conn['input-provider'],
                                                     })
                                                 }
                                             />
