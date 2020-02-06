@@ -5,8 +5,8 @@ import { lang_inherits } from './common_constants';
 // =================================================================
 
 export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => {
-    const {connections_within_class, triggers} = withinClassCode(data, lang);
-    const {connections_extra_class} = extraClassCode(data, code_info, lang);
+    const {connections_within_class, triggers} = withinClassCode(data, code_info, lang);
+    const {connections_extra_class} = extraClassCode(data['class-connections'], code_info, lang);
     return {connections_within_class, connections_extra_class, triggers};
 };
 
@@ -30,30 +30,43 @@ const indent3 = indent1.repeat(3);
 
 // =================================================================
 
-const withinClassCode = (data, lang) => {
-    let code = constructorCode(lang, data);
+const withinClassCode = (data, code_info, lang) => {
+    const {'class-connections': connections, iface_kind, 'base-class-name': base_class} = data;
+    let code = constructorCode(lang, connections);
 
     let triggers = {};
-    for (const connection in data) {
+    switch (iface_kind) {
+        case 'step':
+            triggers = code_info.stepTriggerSignatures(base_class);
+            break;
+        case 'job':
+            code_info.triggers({iface_kind}).forEach(trigger => {
+                triggers[trigger] = {signature: `${trigger}()`};
+            });
+    }
+
+    Object.keys(triggers).forEach(trigger => {
+        triggers[trigger] = {...triggers[trigger], connections: []};
+    });
+
+    for (const connection in connections) {
         const connection_code_name = toValidIdentifier(connection);
-        for (const connector of data[connection]) {
+        for (const connector of connections[connection]) {
             if (connector.trigger) {
-                const trigger_code_name = toValidIdentifier(connector.trigger);
                 if (!triggers[connector.trigger]) {
-                    triggers[connector.trigger] = [];
+                    triggers[connector.trigger] = {
+                        signature: `${connector.trigger}()`,
+                        connections: []
+                    };
                 }
-                triggers[connector.trigger].push({connection_code_name, trigger_code_name});
+                triggers[connector.trigger].connections.push(connection_code_name);
             }
         }
     }
     if (Object.keys(triggers).length) {
-        code += `\n${indent1}${GENERATED[lang].begin}\n`;
-        Object.keys(triggers).forEach(trigger => {
-            const trigger_code_name = triggers[trigger][0].trigger_code_name;
-            const connection_code_names = triggers[trigger].map(data => data.connection_code_name);
-            code += triggerCode(lang, {trigger_code_name, connection_code_names});
-        });
-        code += `${indent1}${GENERATED[lang].end}\n`;
+        code += `\n${indent1}${GENERATED[lang].begin}\n` +
+        Object.keys(triggers).map(trigger => triggerCode(lang, triggers[trigger])).join('\n') +
+        `${indent1}${GENERATED[lang].end}\n`;
     }
 
     return { triggers: Object.keys(triggers), connections_within_class: code };
@@ -177,17 +190,24 @@ const constructorCodeQore = () =>
 
 // =================================================================
 
-const triggerCode = (lang, data) => {
+const triggerCode = (lang, trigger) => {
     switch (lang) {
-        case 'qore': return triggerCodeQore(data);
+        case 'qore': return triggerCodeQore(trigger);
         default: return '';
     }
 };
 
-const triggerCodeQore = ({trigger_code_name, connection_code_names}) => {
-    let code = `${indent1}${trigger_code_name}() {\n`;
-    connection_code_names.forEach(connection_code_name => {code +=
-        `${indent2}${CONN_MEMBER}.${connection_code_name}();\n`
+const triggerCodeQore = trigger => {
+    let code = `${indent1}${trigger.signature} {\n`;
+    let params_str = '';
+    if (trigger.connections.length && trigger.arg_names?.length) {
+        code += `${indent2}hash ${CONN_DATA} = {` +
+        trigger.arg_names.map(arg_name => `"${arg_name}": ${arg_name}`).join(', ') +
+        '};\n';
+        params_str = CONN_DATA;
+    }
+    trigger.connections.forEach(connection => {code +=
+        `${indent2}${CONN_MEMBER}.${connection}(${params_str});\n`
     });
     code += `${indent1}}\n`
     return code;
