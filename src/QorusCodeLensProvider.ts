@@ -70,13 +70,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         switch (iface_kind) {
             case 'mapper-code':
             case 'service':
-                let methods_key = 'methods';
-
-                if (iface_kind === 'mapper-code') {
-                    data['mapper-methods'] = data.methods;
-                    delete data.methods;
-                    methods_key = 'mapper-methods';
-                }
+                let methods_key = iface_kind === 'service' ? 'methods' : 'mapper-methods';
 
                 let cloned_data = JSON.parse(JSON.stringify(data));
                 cloned_data[methods_key] = [...cloned_data[methods_key] || [], { name: '', desc: '' }];

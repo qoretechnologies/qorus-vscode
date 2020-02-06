@@ -555,6 +555,11 @@ export class QorusProjectCodeInfo {
             }
         }
 
+        if (data.type === 'mapper-code' && data.methods) {
+            data['mapper-methods'] = data.methods;
+            delete data.methods;
+        }
+
         if (data.schedule) {
             const ordered_values = ['minutes', 'hours', 'days', 'months', 'dow'].map(key => data.schedule[key]);
             data.schedule = ordered_values.join(' ');
