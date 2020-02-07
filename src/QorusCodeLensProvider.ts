@@ -70,13 +70,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         switch (iface_kind) {
             case 'mapper-code':
             case 'service':
-                let methods_key = 'methods';
-
-                if (iface_kind === 'mapper-code') {
-                    data['mapper-methods'] = data.methods;
-                    delete data.methods;
-                    methods_key = 'mapper-methods';
-                }
+                let methods_key = iface_kind === 'service' ? 'methods' : 'mapper-methods';
 
                 let cloned_data = JSON.parse(JSON.stringify(data));
                 cloned_data[methods_key] = [...cloned_data[methods_key] || [], { name: '', desc: '' }];
@@ -128,9 +122,13 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         method_name: string,
         constructor_name: string = 'constructor')
     {
+        if (method_name === constructor_name) {
+            return;
+        }
+
         const method_index = (data.methods || []).findIndex(method => method.name === method_name);
 
-        if (method_index === -1 && method_name !== constructor_name) {
+        if (method_index === -1) {
             msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
             return;
         }

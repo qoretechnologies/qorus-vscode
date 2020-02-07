@@ -263,7 +263,8 @@ export class InterfaceInfo {
         const config_item = (config_items || []).find(item => item.name === name);
 
         let item = { ... config_item };
-        if ((item.type || '')[0] === '*') {
+        item.type = item.type || defaultValue('type');
+        if (item.type[0] === '*') {
             item.type = item.type.substr(1);
             item.can_be_undefined = true;
         }

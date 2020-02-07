@@ -72,7 +72,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
             return setTimeout(() => {
                 setCollapseTimer(null);
                 setExpanded([]);
-            }, 4000);
+            }, 120000);
         });
     };
 
@@ -98,7 +98,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
             return setTimeout(() => {
                 setCollapseTimer(null);
                 setExpanded([]);
-            }, 4000);
+            }, 120000);
         });
     };
 

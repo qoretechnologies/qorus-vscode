@@ -65,7 +65,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
-                contents = this.code(data, methods);
+                contents = this.code(data, iface_kind, methods);
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
@@ -278,14 +278,14 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         });
     }
 
-    private code = (data: any, method_objects: any[] = []): any => {
+    private code = (data: any, iface_kind: string, method_objects: any[] = []): any => {
         let triggers: string[] = [];
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
         if (data['class-connections']) {
             ClassWithMethodsCreator.fixClassConnections(data['class-connections']);
             ({connections_within_class, connections_extra_class, triggers}
-                 = connectionsCode(data['class-connections'], this.code_info, this.lang));
+                 = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
         }
 

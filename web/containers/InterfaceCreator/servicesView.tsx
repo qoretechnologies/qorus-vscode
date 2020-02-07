@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
-import InterfaceCreatorPanel, { SearchWrapper, ContentWrapper, ActionsWrapper } from './panel';
+import InterfaceCreatorPanel, { SearchWrapper, ContentWrapper, ActionsWrapper, IField } from './panel';
 import compose from 'recompose/compose';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
@@ -11,6 +11,8 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import { omit } from 'lodash';
 import withInitialData from '../../hocomponents/withInitialData';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import { IClassConnections } from '../ClassConnectionsManager';
+import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
 
 export const MethodSelector = styled.div`
     width: 100%;
@@ -27,14 +29,18 @@ export const MethodSelector = styled.div`
     transition: all 0.1s ease-in;
     position: relative;
 
+    div.bp3-button-group {
+        float: right;
+    }
+
     &:hover {
         border-color: #137cbd;
 
-        div:first-child:not(:last-child) {
+        div:not(.bp3-button-group):first-child:not(:last-child) {
             right: 35px;
         }
 
-        div:last-child {
+        div:not(.bp3-button-group):last-child {
             opacity: 0.7;
             transform: translateY(-50%) rotateZ(45deg);
 
@@ -132,6 +138,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     isSubItemValid,
     removeSubItemFromFields,
     service,
+    selectedFields,
     interfaceId,
     initialData,
 }) => {
@@ -149,105 +156,128 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 setShowMethods,
                 methodsData,
             }) => (
-                <CreatorWrapper>
-                    <PanelWrapper>
-                        {!showMethods && (
-                            <InterfaceCreatorPanel
-                                type={'service'}
-                                submitLabel={t('Next')}
-                                hasClassConnections
-                                hasConfigManager
-                                onSubmit={() => {
-                                    setActiveMethod(1);
-                                    setShowMethods(true);
-                                }}
-                                data={service && omit(service, 'methods')}
-                                isEditing={!!service}
-                                onDataFinishLoading={
-                                    service && activeMethod
-                                        ? () => {
-                                              setShowMethods(true);
-                                          }
-                                        : null
-                                }
-                            />
-                        )}
-                        {showMethods && (
-                            <>
-                                <SidePanel title={t('AddMethodsTitle')}>
-                                    <ContentWrapper>
-                                        {methods.map((method: { id: number; name?: string }, index: number) => (
-                                            <MethodSelector
-                                                key={method.id}
-                                                active={method.id === activeMethod}
-                                                valid={isSubItemValid(method.id, 'service-methods')}
-                                                onClick={() => setActiveMethod(method.id)}
-                                            >
-                                                {method.name || `${t('Method')} ${method.id}`}
-                                                {method.id === activeMethod && (
-                                                    <>
-                                                        <Selected />
-                                                    </>
-                                                )}
-                                                {methodsCount !== 1 && (
-                                                    <RemoveButton
-                                                        onClick={() => {
-                                                            setMethods(current =>
-                                                                current.filter(
-                                                                    currentMethod => currentMethod.id !== method.id
-                                                                )
-                                                            );
-                                                            removeSubItemFromFields(method.id, 'service-methods');
-                                                            setMethodsCount((current: number) => current - 1);
-                                                        }}
-                                                    />
-                                                )}
-                                            </MethodSelector>
-                                        ))}
-                                    </ContentWrapper>
-                                    <ActionsWrapper>
-                                        <ButtonGroup fill>
-                                            <Button
-                                                text={t('AddMethod')}
-                                                icon={'plus'}
-                                                onClick={handleAddMethodClick}
-                                            />
-                                        </ButtonGroup>
-                                    </ActionsWrapper>
-                                </SidePanel>
-                                <InterfaceCreatorPanel
-                                    stepOneTitle={t('SelectFieldsSecondStep')}
-                                    stepTwoTitle={t('FillDataThirdStep')}
-                                    onBackClick={() => {
-                                        setActiveMethod(null);
-                                        setShowMethods(false);
-                                        if (service) {
-                                            initialData.changeInitialData('service.active_method', null);
-                                        }
-                                    }}
-                                    initialInterfaceId={service ? service.iface_id : interfaceId.service}
-                                    type={'service-methods'}
-                                    activeId={activeMethod}
-                                    isEditing={!!service}
-                                    allMethodsData={methodsData}
-                                    methodsList={methods}
-                                    data={methodsData && methodsData.find(method => method.id === activeMethod)}
-                                    onNameChange={(methodId: number, name: string) => {
-                                        setMethods((currentMethods: { id: number; name: string }[]) =>
-                                            currentMethods.reduce((cur, method: { id: number; name: string }) => {
-                                                if (methodId === method.id) {
-                                                    method.name = name;
+                <ClassConnectionsStateProvider type="service">
+                    {classConnectionsProps => (
+                        <>
+                            <CreatorWrapper>
+                                <PanelWrapper>
+                                    {!showMethods && (
+                                        <InterfaceCreatorPanel
+                                            type={'service'}
+                                            submitLabel={t('Next')}
+                                            hasClassConnections
+                                            {...classConnectionsProps}
+                                            hasConfigManager
+                                            onSubmit={() => {
+                                                setActiveMethod(1);
+                                                setShowMethods(true);
+                                            }}
+                                            data={service && omit(service, 'methods')}
+                                            isEditing={!!service}
+                                            onDataFinishLoading={
+                                                service && activeMethod
+                                                    ? () => {
+                                                          setShowMethods(true);
+                                                      }
+                                                    : null
+                                            }
+                                        />
+                                    )}
+                                    {showMethods && (
+                                        <>
+                                            <SidePanel title={t('AddMethodsTitle')}>
+                                                <ContentWrapper>
+                                                    {methods.map(
+                                                        (method: { id: number; name?: string }, index: number) => (
+                                                            <MethodSelector
+                                                                key={method.id}
+                                                                active={method.id === activeMethod}
+                                                                valid={isSubItemValid(method.id, 'service-methods')}
+                                                                onClick={() => setActiveMethod(method.id)}
+                                                            >
+                                                                {method.name || `${t('Method')} ${method.id}`}
+                                                                {method.id === activeMethod && (
+                                                                    <>
+                                                                        <Selected />
+                                                                    </>
+                                                                )}
+                                                                {methodsCount !== 1 && (
+                                                                    <RemoveButton
+                                                                        onClick={() => {
+                                                                            setMethods(current =>
+                                                                                current.filter(
+                                                                                    currentMethod =>
+                                                                                        currentMethod.id !== method.id
+                                                                                )
+                                                                            );
+                                                                            removeSubItemFromFields(
+                                                                                method.id,
+                                                                                'service-methods'
+                                                                            );
+                                                                            setMethodsCount(
+                                                                                (current: number) => current - 1
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                )}
+                                                            </MethodSelector>
+                                                        )
+                                                    )}
+                                                </ContentWrapper>
+                                                <ActionsWrapper>
+                                                    <ButtonGroup fill>
+                                                        <Button
+                                                            text={t('AddMethod')}
+                                                            icon={'plus'}
+                                                            onClick={handleAddMethodClick}
+                                                        />
+                                                    </ButtonGroup>
+                                                </ActionsWrapper>
+                                            </SidePanel>
+                                            <InterfaceCreatorPanel
+                                                stepOneTitle={t('SelectFieldsSecondStep')}
+                                                stepTwoTitle={t('FillDataThirdStep')}
+                                                onBackClick={() => {
+                                                    setActiveMethod(null);
+                                                    setShowMethods(false);
+                                                    if (service) {
+                                                        initialData.changeInitialData('service.active_method', null);
+                                                    }
+                                                }}
+                                                initialInterfaceId={service ? service.iface_id : interfaceId.service}
+                                                type={'service-methods'}
+                                                activeId={activeMethod}
+                                                isEditing={!!service}
+                                                allMethodsData={methodsData}
+                                                {...classConnectionsProps}
+                                                hasClassConnections
+                                                methodsList={methods}
+                                                data={
+                                                    methodsData &&
+                                                    methodsData.find(method => method.id === activeMethod)
                                                 }
+                                                onNameChange={(methodId: number, name: string) => {
+                                                    setMethods((currentMethods: { id: number; name: string }[]) =>
+                                                        currentMethods.reduce(
+                                                            (cur, method: { id: number; name: string }) => {
+                                                                if (methodId === method.id) {
+                                                                    method.name = name;
+                                                                }
 
-                                                return [...cur, method];
-                                            }, [])
-                                        );
-                                    }}
-                                />
-                            </>
-                        )}
-                    </PanelWrapper>
-                </CreatorWrapper>
+                                                                return [...cur, method];
+                                                            },
+                                                            []
+                                                        )
+                                                    );
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                </PanelWrapper>
+                            </CreatorWrapper>
+                        </>
+                    )}
+                </ClassConnectionsStateProvider>
             )}
         </MethodsContext.Consumer>
     );

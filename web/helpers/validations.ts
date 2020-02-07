@@ -52,12 +52,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             let valid = true;
             // Check if every pair has name, input method and output method
             // assigned properly
-            if (
-                !value.every(
-                    (pair: { [key: string]: string }): boolean =>
-                        pair.name !== '' && (pair['input-method'] !== '' || pair['output-method'] !== '')
-                )
-            ) {
+            if (!value.every((pair: { [key: string]: string }): boolean => pair.name !== '' && pair.method !== '')) {
                 valid = false;
             }
             // Get a list of unique values
@@ -226,13 +221,13 @@ export const getTypeFromValue = (value: any) => {
         return 'bool';
     }
 
-  if (Number(value) === value && value % 1 === 0) {
-    return 'int';
-  }
+    if (Number(value) === value && value % 1 === 0) {
+        return 'int';
+    }
 
-  if (Number(value) === value && value % 1 !== 0) {
-    return 'float';
-  }
+    if (Number(value) === value && value % 1 !== 0) {
+        return 'float';
+    }
     if (new Date(value).toString() !== 'Invalid Date') {
         return 'date';
     }

@@ -253,7 +253,7 @@ export abstract class InterfaceCreator {
             for (const tag of ['local-value', 'default_value']) {
                 if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
                     result += `${indent}${tag}:\n`;
-                    const non_star_type = item.type.substring(item.type.indexOf("*") + 1);
+                    const non_star_type = item.type?.substring(item.type.indexOf("*") + 1);
                     if (['list', 'hash'].includes(non_star_type)) {
                         let not_indented = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {
@@ -302,7 +302,7 @@ export abstract class InterfaceCreator {
                                     `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: "${item[tag]}"\n`;
+                                result += `${indent}${tag}: "${item[tag].replace(/\r?\n/g, '\\n')}"\n`;
                                 break;
                             default:
                                 result += `${indent}${tag}: ${item[tag]}\n`;
@@ -416,10 +416,7 @@ export abstract class InterfaceCreator {
                         for (const connector of value) {
                             result += `${list_indent}name: ${connector.name}\n`;
                             for (const key in connector) {
-                                if (['name', 'id'].includes(key)) {
-                                    continue;
-                                }
-                                if (['input-provider', 'output-provider'].includes(key) && connector[key]) {
+                                if (['provider', 'input-provider', 'output-provider'].includes(key) && connector[key]) {
                                     result += `${indent}${key}:\n`;
                                     for (const subkey in connector[key]) {
                                         if (connector[key][subkey] === '') {
@@ -428,7 +425,7 @@ export abstract class InterfaceCreator {
                                             result += `${indent}${indent}${subkey}: ${connector[key][subkey]}\n`;
                                         }
                                     }
-                                } else {
+                                } else if (!['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)) {
                                     result += `${indent}${key}: ${connector[key]}\n`;
                                 }
                             }
@@ -471,7 +468,7 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
-                        result += `${tag}: "${value}"\n`;
+                        result += `${tag}: "${value.replace(/\r?\n/g, '\\n')}"\n`;
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
@@ -495,7 +492,7 @@ export abstract class InterfaceCreator {
                             for (const connector of value[connection_name]) {
                                 result += `${indent}${list_indent}class: ${connector.class}\n`;
                                 for (const key in connector) {
-                                    if (!['class', 'id', 'index', 'isFirst', 'isBetween', 'isLast'].includes(key)) {
+                                    if (['connector', 'trigger', 'mapper', 'prefix'].includes(key)) {
                                         result += `${indent}${indent}${key}: ${connector[key]}\n`;
                                     }
                                 }
@@ -518,6 +515,9 @@ export abstract class InterfaceCreator {
                 if (class_name_parts[1]) {
                     connector.prefix = class_name_parts[0];
                     connector.class = class_name_parts[1];
+                }
+                if (connector.mapper) {
+                    connector.mapper = connector.mapper.split(':')[0];
                 }
             }
         }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import SidePanel from '../../components/SidePanel';
-import { ContentWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
+import { ContentWrapper, ActionsWrapper, IField } from '../InterfaceCreator/panel';
 import { MethodSelector, Selected, RemoveButton } from '../InterfaceCreator/servicesView';
 import { ButtonGroup, Button, Dialog, ControlGroup, Classes, NonIdealState } from '@blueprintjs/core';
 import map from 'lodash/map';
@@ -20,6 +20,8 @@ import Content from '../../components/Content';
 import every from 'lodash/every';
 import useMount from 'react-use/lib/useMount';
 import { Messages } from '../../constants/messages';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 
 export const StyledDialogBody = styled.div`
     padding: 20px 20px 0 20px;
@@ -66,18 +68,20 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     t,
     initialData,
     initialConnections,
-    classes,
     onSubmit,
     addMessageListener,
     postMessage,
     ifaceType,
     baseClassName,
+    selectedFields,
 }) => {
     const [connections, setConnections] = useState<IClassConnections>(initialConnections || {});
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [classesData, setClassesData] = useState(null);
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
     const [lastConnectorId, setLastConnectorId] = useState<number>(1);
+    const [lastConnectionId, setLastConnectionId] = useState<number>(1);
+    const classes = selectedFields[ifaceType].find((field: IField) => field.name === 'classes').value;
 
     // Get the classes data
     useMount(() => {
@@ -93,10 +97,12 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         });
         // Request data for each class
         classes.forEach(classData => {
+            const splitClass = classData.name.split(':');
+            const className = splitClass[1] || splitClass[0];
             // Request the data
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'class',
-                class_name: classData.name,
+                class_name: className,
             });
         });
     });
@@ -170,15 +176,34 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     };
 
     const isConnectionValid = (name: string) => {
-        return connections[name].length > 1;
+        if (connections[name].length > 1) {
+            return true;
+        }
+        // Check if there is only one connector
+        // and has a trigger
+        if (connections[name].length === 1) {
+            return !!connections[name][0].trigger;
+        }
+
+        return false;
     };
 
     const areAllConnectionsValid = () => {
         return size(connections) === 0 || every(connections, (_conn, name) => isConnectionValid(name));
     };
 
+    const getUniqueClasses = () => {
+        const uniqClasses = {};
+        classes.forEach(classData => {
+            const splitClass = classData.name.split(':');
+            const className = splitClass[1] || splitClass[0];
+            uniqClasses[className] = {};
+        });
+        return size(uniqClasses);
+    };
+
     // Check if all classes are loaded
-    if (size(classesData) !== size(classes)) {
+    if (size(classesData) !== getUniqueClasses()) {
         return <p> Loading ...</p>;
     }
 
@@ -190,23 +215,32 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                         <String
                             name="connection"
                             placeholder={t('Name')}
-                            value={manageDialog.name}
-                            onChange={(fieldName, value) => setManageDialog(current => ({ ...current, name: value }))}
+                            value={manageDialog.newName}
+                            onChange={(fieldName, value) =>
+                                setManageDialog(current => ({ ...current, newName: value }))
+                            }
                         />
                         <Button
                             intent="success"
                             text={t('Submit')}
                             icon="small-tick"
-                            disabled={!validateField('string', manageDialog.name) || !!connections[manageDialog.name]}
+                            disabled={
+                                !validateField('string', manageDialog.newName) || !!connections[manageDialog.newName]
+                            }
                             onClick={() => {
                                 setConnections(
-                                    (current: IClassConnections): IClassConnections => ({
-                                        ...current,
-                                        [manageDialog.name]: [],
-                                    })
+                                    (current: IClassConnections): IClassConnections => {
+                                        const result = {
+                                            ...current,
+                                            [manageDialog.newName]: connections[manageDialog.name],
+                                        };
+                                        delete result[manageDialog.name];
+                                        return result;
+                                    }
                                 );
+
                                 setManageDialog({});
-                                setSelectedConnection(manageDialog.name);
+                                setSelectedConnection(manageDialog.newName);
                             }}
                         />
                     </ControlGroup>
@@ -224,25 +258,29 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                 onClick={() => setSelectedConnection(name)}
                             >
                                 {name}
-                                {name === selectedConnection && (
-                                    <>
-                                        <Selected />
-                                    </>
-                                )}
-                                <RemoveButton
-                                    onClick={event => {
-                                        event.stopPropagation();
+                                <ButtonGroup>
+                                    <Button
+                                        icon="edit"
+                                        minimal
+                                        onClick={() => setManageDialog({ isOpen: true, name, newName: name })}
+                                    />
+                                    <Button
+                                        icon="trash"
+                                        minimal
+                                        onClick={event => {
+                                            event.stopPropagation();
 
-                                        setConnections(current => {
-                                            if (selectedConnection === name) {
-                                                setSelectedConnection(null);
-                                            }
-                                            const result = { ...current };
-                                            delete result[name];
-                                            return result;
-                                        });
-                                    }}
-                                />
+                                            setConnections(current => {
+                                                if (selectedConnection === name) {
+                                                    setSelectedConnection(null);
+                                                }
+                                                const result = { ...current };
+                                                delete result[name];
+                                                return result;
+                                            });
+                                        }}
+                                    />
+                                </ButtonGroup>
                             </MethodSelector>
                         ))}
                     </ContentWrapper>
@@ -255,10 +293,11 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     setConnections(
                                         (current: IClassConnections): IClassConnections => ({
                                             ...current,
-                                            [`${t('Connection')}_${size(current) + 1}`]: [],
+                                            [`${t('Connection')}_${lastConnectionId}`]: [],
                                         })
                                     );
-                                    setSelectedConnection(`${t('Connection')}_${size(connections) + 1}`);
+                                    setSelectedConnection(`${t('Connection')}_${lastConnectionId}`);
+                                    setLastConnectionId(cur => cur + 1);
                                 }}
                             />
                         </ButtonGroup>
@@ -322,4 +361,10 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     );
 };
 
-export default compose(withMessageHandler(), withInitialDataConsumer(), withTextContext())(ClassConnectionsManager);
+export default compose(
+    withMessageHandler(),
+    withInitialDataConsumer(),
+    withTextContext(),
+    withMethodsConsumer(),
+    withFieldsConsumer()
+)(ClassConnectionsManager);

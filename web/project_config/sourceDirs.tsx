@@ -23,11 +23,11 @@ const StyledDirWrapper = styled.div`
     p {
         line-height: 30px;
         border-bottom: 1px solid #eee;
-    }
 
-    .bp3-icon {
-        opacity: 0.7;
-        margin-right: 10px;
+        .bp3-icon {
+            opacity: 0.7;
+            margin-right: 10px;
+        }
     }
 `;
 

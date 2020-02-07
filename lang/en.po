@@ -1971,5 +1971,14 @@ msgstr "Value is not in correct format"
 msgid "InvalidDate"
 msgstr "Invalid date provided"
 
+msgid "TriggerNoMethodsAvailable"
+msgstr "No service methods available. To add a trigger to a service building block, please create at least one method."
+
 msgid "NoMapperFieldsAvailable"
 msgstr "No fields available for factory type"
+
+msgid "ClassWithoutConnectorsWarning"
+msgstr "The class selected does not have any connectors"
+
+msgid "ActiveInstanceProvidersConnectors"
+msgstr "An active instance is required to add input / output providers."

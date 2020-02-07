@@ -11,6 +11,7 @@ import Tab from './tab';
 import MapperCreator from '../Mapper';
 import MapperView from './mapperView';
 import LibraryView from './libraryView';
+import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
 
 export interface ICreateInterface {
     targetDir: string;
@@ -28,13 +29,18 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                     {initialData.subtab === 'workflow' && <WorkflowsView workflow={initialData.workflow} />}
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
-                            <InterfaceCreatorPanel
-                                hasClassConnections
-                                hasConfigManager
-                                type={'job'}
-                                data={initialData.job}
-                                isEditing={!!initialData.job}
-                            />
+                            <ClassConnectionsStateProvider type="job">
+                                {classConnectionsProps => (
+                                    <InterfaceCreatorPanel
+                                        hasClassConnections
+                                        hasConfigManager
+                                        type={'job'}
+                                        data={initialData.job}
+                                        isEditing={!!initialData.job}
+                                        {...classConnectionsProps}
+                                    />
+                                )}
+                            </ClassConnectionsStateProvider>
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'class' && (
@@ -49,29 +55,38 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                     )}
                     {initialData.subtab === 'step' && (
                         <CreatorWrapper>
-                            <InterfaceCreatorPanel
-                                type={'step'}
-                                data={initialData.step}
-                                hasClassConnections
-                                hasConfigManager
-                                isEditing={!!initialData.step}
-                                onSubmit={
-                                    initialData.stepCallback
-                                        ? fields => {
-                                              const nameField = fields.find(field => field.name === 'name');
-                                              const versionField = fields.find(field => field.name === 'version');
-                                              const typeField = fields.find(field => field.name === 'base-class-name');
-                                              initialData.stepCallback(
-                                                  nameField.value,
-                                                  versionField.value,
-                                                  typeField.value
-                                              );
-                                          }
-                                        : null
-                                }
-                                openFileOnSubmit={!!!initialData.stepCallback}
-                                forceSubmit
-                            />
+                            <ClassConnectionsStateProvider type="step">
+                                {classConnectionsProps => (
+                                    <InterfaceCreatorPanel
+                                        type={'step'}
+                                        data={initialData.step}
+                                        hasClassConnections
+                                        hasConfigManager
+                                        isEditing={!!initialData.step}
+                                        onSubmit={
+                                            initialData.stepCallback
+                                                ? fields => {
+                                                      const nameField = fields.find(field => field.name === 'name');
+                                                      const versionField = fields.find(
+                                                          field => field.name === 'version'
+                                                      );
+                                                      const typeField = fields.find(
+                                                          field => field.name === 'base-class-name'
+                                                      );
+                                                      initialData.stepCallback(
+                                                          nameField.value,
+                                                          versionField.value,
+                                                          typeField.value
+                                                      );
+                                                  }
+                                                : null
+                                        }
+                                        openFileOnSubmit={!!!initialData.stepCallback}
+                                        forceSubmit
+                                        {...classConnectionsProps}
+                                    />
+                                )}
+                            </ClassConnectionsStateProvider>
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'mapper' && <MapperView />}

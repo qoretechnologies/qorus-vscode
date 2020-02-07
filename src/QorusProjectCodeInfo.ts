@@ -529,17 +529,7 @@ export class QorusProjectCodeInfo {
             data[tag] = transformed_data;
         });
 
-        ['desc', 'description'].forEach(tag => {
-            if (data[tag]) {
-                data[tag] = data[tag].replace(/\r?\n/g, '\n\n');
-            }
-        });
-
         (data['config-items'] || []).forEach(item => {
-            if (item.description) {
-                item.description = item.description.replace(/\r?\n/g, '\n\n');
-            }
-
             const global_value = globals.get(item.name);
             if (global_value !== undefined) {
                 item['global-value'] = global_value;
@@ -553,6 +543,11 @@ export class QorusProjectCodeInfo {
             if (method.author) {
                 method.author = method.author.map(value => ({ name: value }));
             }
+        }
+
+        if (data.type === 'mapper-code' && data.methods) {
+            data['mapper-methods'] = data.methods;
+            delete data.methods;
         }
 
         if (data.schedule) {
@@ -828,14 +823,12 @@ export class QorusProjectCodeInfo {
             case 'class':
                 this.waitForPending(['yaml']).then(() => {
                     const class_names = Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
-                    const classes = class_names.map(class_name => {
-                        const class_data = this.yamlDataByClass(class_name);
-                        return {
-                            name: class_data['class-name'],
-                            desc: class_data.desc
-                        };
-                    });
-                    postMessage('objects', classes);
+                    const classes = class_names.map(class_name => this.yamlDataByClass(class_name))
+                                               .filter(class_data => class_data.type === 'class');
+                    postMessage('objects', classes.map(class_data => ({
+                        name: class_data['class-name'],
+                        desc: class_data.desc
+                    })));
                 });
                 break;
             case 'class-with-connectors':
@@ -954,32 +947,53 @@ export class QorusProjectCodeInfo {
     }
 
     triggers = ({iface_kind, 'base-class-name': base_class = undefined}) => {
-        const stepTriggers = base_class => {
-            switch (this.stepType(base_class)) {
-                case 'QorusNormalStep':
-                    return ['primary', 'validation'];
-                case 'QorusNormalArrayStep':
-                    return ['primary', 'validation', 'array'];
-                case 'QorusEventStep':
-                case 'QorusSubworkflowStep':
-                    return ['primary'];
-                case 'QorusEventArrayStep':
-                case 'QorusSubworkflowArrayStep':
-                    return ['primary', 'array'];
-                case 'QorusAsyncStep':
-                    return ['primary', 'validation', 'end'];
-                case 'QorusAsyncArrayStep':
-                    return ['primary', 'validation', 'end', 'array'];
-                default:
-                    return [];
-            }
-        };
-
         switch (iface_kind) {
             case 'service': return ['start', 'stop', 'init'];
             case 'job':     return ['run'];
-            case 'step':    return stepTriggers(base_class);
+            case 'step':    return Object.keys(this.stepTriggerSignatures(base_class));
             default:        return [];
+        }
+    }
+
+    stepTriggerSignatures = base_class => {
+        switch (this.stepType(base_class)) {
+            case 'QorusNormalStep':
+                return {
+                    primary: {signature: 'primary()'},
+                    validation: {signature: 'string validation()'}
+                };
+            case 'QorusNormalArrayStep':
+                return {
+                    primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
+                    validation: {signature: 'string validation(auto array_arg)', arg_names: ['array_arg']},
+                    array: {signature: 'softlist< auto > array()'}
+                };
+            case 'QorusEventStep':
+            case 'QorusSubworkflowStep':
+                return {
+                    primary: {signature: 'primary()'}
+                };
+            case 'QorusEventArrayStep':
+            case 'QorusSubworkflowArrayStep':
+                return {
+                    primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
+                    array: {signature: 'softlist< auto > array()'}
+                };
+            case 'QorusAsyncStep':
+                return {
+                    primary: {signature: 'primary()'},
+                    validation: {signature: 'string validation(*string async_key)', arg_names: ['async_key']},
+                    end: {signature: 'end(auto queue_data)', arg_names: ['queue_data']}
+                };
+            case 'QorusAsyncArrayStep':
+                return {
+                    primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
+                    validation: {signature: 'string validation(*string async_key, auto array_arg)', arg_names: ['async_key', 'array_arg']},
+                    end: {signature: 'end(auto queue_data, auto array_arg)', arg_names: ['queue_data', 'array_arg']},
+                    array: {signature: 'softlist< auto > array()'}
+                };
+            default:
+                return {};
         }
     }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IClassConnection, StyledDialogBody } from './index';
 import size from 'lodash/size';
+import find from 'lodash/find';
 import omit from 'lodash/omit';
 import { ButtonGroup, Button, Dialog, Callout, Tooltip, Icon, ControlGroup } from '@blueprintjs/core';
 import { TTranslator } from '../../App';
@@ -20,6 +21,8 @@ import compose from 'recompose/compose';
 import withGlobalOptions from '../../hocomponents/withGlobalOptions';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import useMount from 'react-use/lib/useMount';
+import BooleanField from '../../components/Field/boolean';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 
 export interface IClassConnectionsDiagramProps {
     connection: IClassConnection[];
@@ -47,6 +50,7 @@ export interface IManageDialog {
     inputProvider?: any;
     outputProvider?: any;
     trigger?: string;
+    isConnectorEventType?: boolean;
 }
 
 export interface IConnectorProps {
@@ -77,11 +81,11 @@ const Connector: React.FC<IConnectorProps> = ({
                 }
             });
 
-            const class_name_parts = manageDialog.class.split(':'); // possibly with prefix 
-            const class_name = class_name_parts[1] || class_name_parts[0];
+            const class_name_parts = manageDialog.class.split(':'); // possibly with prefix
+            const name = class_name_parts[1] || class_name_parts[0];
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'class',
-                class_name
+                class_name: name,
             });
         }
     }, [manageDialog]);
@@ -90,39 +94,54 @@ const Connector: React.FC<IConnectorProps> = ({
         <FieldWrapper>
             <FieldLabel label={t('Connector')} isValid={validateField('string', manageDialog.connector)} />
             <FieldInputWrapper>
-                {connectors.length > 0 ? (
-                    <SelectField
-                        defaultItems={connectors}
-                        predicate={(name: string) => {
-                            // Get the connector
-                            const conn = connectors.find(c => c.name === name);
-                            // Check if we should include this method
-                            if (manageDialog.isFirst) {
-                                // Filter out input only methods
-                                return !!conn['output-method'];
-                            } else if (manageDialog.isBetween) {
-                                return manageDialog.isLast
-                                    ? !!conn['input-method']
-                                    : !!(conn['input-method'] && conn['output-method']);
-                            } else {
-                                return !!conn['input-method'];
-                            }
-                        }}
-                        value={manageDialog.connector}
-                        onChange={(_name, value) => {
-                            setManageDialog(
-                                (current: IManageDialog): IManageDialog => ({
-                                    ...current,
-                                    connector: value,
-                                    isLast: !!!connectors.find(c => c.name === value)['output-method'],
-                                })
-                            );
-                        }}
-                        name="connector"
-                        fill
-                    />
-                ) : (
-                    <Callout intent="warning">{t('PleaseSelectClass')}</Callout>
+                {!manageDialog.class && <Callout intent="primary">{t('PleaseSelectClass')}</Callout>}
+                {manageDialog.class && (
+                    <>
+                        {connectors.length > 0 ? (
+                            <SelectField
+                                defaultItems={connectors}
+                                predicate={(name: string) => {
+                                    // Get the connector
+                                    const conn = connectors.find(c => c.name === name);
+                                    // Check if we should include this method
+                                    if (manageDialog.isFirst) {
+                                        // Filter out input only methods
+                                        return (
+                                            conn.type === 'output' ||
+                                            conn.type === 'event' ||
+                                            conn.type === 'input-output'
+                                        );
+                                    } else if (manageDialog.isBetween) {
+                                        return conn.type === 'input-output';
+                                    } else {
+                                        return conn.type === 'input' || conn.type === 'input-output';
+                                    }
+                                }}
+                                value={manageDialog.connector}
+                                onChange={(_name, value) => {
+                                    setManageDialog(
+                                        (current: IManageDialog): IManageDialog => {
+                                            const isEvent = connectors.find(c => c.name === value).type === 'event';
+
+                                            const result = {
+                                                ...current,
+                                                connector: value,
+                                                isLast: connectors.find(c => c.name === value).type === 'input',
+                                                isEvent,
+                                                trigger: isEvent ? null : current.trigger,
+                                            };
+
+                                            return result;
+                                        }
+                                    );
+                                }}
+                                name="connector"
+                                fill
+                            />
+                        ) : (
+                            <Callout intent="danger">{t('ClassWithoutConnectorsWarning')}</Callout>
+                        )}
+                    </>
                 )}
             </FieldInputWrapper>
         </FieldWrapper>
@@ -135,7 +154,7 @@ const StyledMapperConnection = styled.div`
     height: 80px;
     width: 2px;
     left: 50%;
-    top: 100%;
+    top: -250%;
 
     div.mapper-wrapper {
         position: absolute;
@@ -199,6 +218,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     resetAllInterfaceData,
     ifaceType,
     baseClassName,
+    methods,
 }) => {
     const [manageDialog, setManageDialog] = useState<IManageDialog>({});
     const [hasLast, setHasLast] = useState<boolean>(false);
@@ -216,15 +236,14 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             const class_name_parts = connectionData.class.split(':'); // possibly with prefix
             const class_name = class_name_parts[1] || class_name_parts[0];
             const connClass = Object.values(classesData).find(class_data => class_data['class-name'] === class_name);
-
             // Get the connector data
             const connectorData = connClass['class-connectors'].find(conn => conn.name === connectionData.connector);
             // Return updated data
             return {
                 ...connectionData,
                 ...connectorData,
-                isLast: !!!connectorData['output-method'],
-                isFirst: !!!connectorData['input-method'],
+                isLast: connectorData.type === 'input',
+                isFirst: connectorData.type === 'output' || connectorData.type === 'event',
             };
         }
     );
@@ -253,6 +272,13 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             mapperListener = null;
         };
     }, [manageDialog]);
+
+    const getConnectorData = (className: string, connectorName: string) =>
+        classesData?.[className]?.['class-connectors'].find(c => c.name === connectorName);
+
+    const methodsCount = methods.filter(m => m.name).length;
+    const canHaveTrigger =
+        manageDialog.isFirst && getConnectorData(manageDialog.class, manageDialog.connector)?.type !== 'event';
 
     return (
         <div>
@@ -293,8 +319,8 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                 get_message={{
                                                     action: 'get-mappers',
                                                     message_data: {
-                                                        'input-condition': manageDialog.inputProvider,
-                                                        'output-condition': manageDialog.outputProvider,
+                                                        'input-condition': manageDialog.outputProvider,
+                                                        'output-condition': manageDialog.inputProvider,
                                                     },
                                                 }}
                                                 return_message={{
@@ -346,8 +372,8 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         resetAllInterfaceData('mapper');
                                                         setMapper({
                                                             mapper_options: {
-                                                                'mapper-input': manageDialog.inputProvider,
-                                                                'mapper-output': manageDialog.outputProvider,
+                                                                'mapper-input': manageDialog.outputProvider,
+                                                                'mapper-output': manageDialog.inputProvider,
                                                             },
                                                         });
                                                         handleMapperSubmitSet((mapperName, mapperVersion) => {
@@ -385,6 +411,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         (current: IManageDialog): IManageDialog => ({
                                                             ...current,
                                                             class: value,
+                                                            connector: null,
                                                         })
                                                     );
                                                 }}
@@ -400,35 +427,47 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                         postMessage={postMessage}
                                         setManageDialog={setManageDialog}
                                     />
-                                    {manageDialog.isFirst && (
+                                    {canHaveTrigger && (
                                         <FieldWrapper>
                                             <FieldLabel label={t('Trigger')} isValid={true} info={t('Optional')} />
                                             <FieldInputWrapper>
                                                 <ControlGroup fill>
-                                                    <SelectField
-                                                        get_message={{
-                                                            action: 'get-triggers',
-                                                            message_data: {
-                                                                iface_kind: ifaceType,
-                                                                'base-class-name': baseClassName,
-                                                            },
-                                                        }}
-                                                        return_message={{
-                                                            action: 'return-triggers',
-                                                            return_value: 'data.triggers',
-                                                        }}
-                                                        value={manageDialog.trigger}
-                                                        onChange={(_name, value) => {
-                                                            setManageDialog(
-                                                                (current: IManageDialog): IManageDialog => ({
-                                                                    ...current,
-                                                                    trigger: value,
-                                                                })
-                                                            );
-                                                        }}
-                                                        name="trigger"
-                                                        fill
-                                                    />
+                                                    {ifaceType === 'service' && methodsCount === 0 && (
+                                                        <Callout intent="warning">
+                                                            {t('TriggerNoMethodsAvailable')}
+                                                        </Callout>
+                                                    )}
+                                                    {(ifaceType !== 'service' || methodsCount !== 0) && (
+                                                        <SelectField
+                                                            get_message={
+                                                                ifaceType !== 'service' && {
+                                                                    action: 'get-triggers',
+                                                                    message_data: {
+                                                                        iface_kind: ifaceType,
+                                                                        'base-class-name': baseClassName,
+                                                                    },
+                                                                }
+                                                            }
+                                                            return_message={
+                                                                ifaceType !== 'service' && {
+                                                                    action: 'return-triggers',
+                                                                    return_value: 'data.triggers',
+                                                                }
+                                                            }
+                                                            defaultItems={ifaceType === 'service' && methods}
+                                                            value={manageDialog.trigger}
+                                                            onChange={(_name, value) => {
+                                                                setManageDialog(
+                                                                    (current: IManageDialog): IManageDialog => ({
+                                                                        ...current,
+                                                                        trigger: value,
+                                                                    })
+                                                                );
+                                                            }}
+                                                            name="trigger"
+                                                            fill
+                                                        />
+                                                    )}
                                                     {manageDialog.trigger && (
                                                         <Button
                                                             icon="trash"
@@ -501,8 +540,11 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                 <Icon icon="play" /> {conn.trigger}
                             </StyledTrigger>
                         )}
-                        <StyledMapperField key={conn.id} style={{ marginBottom: '80px' }}>
-                            {connection.length > index + 1 && (
+                        <StyledMapperField
+                            key={conn.id}
+                            style={{ marginTop: index !== 0 || conn.trigger ? '80px' : '10px' }}
+                        >
+                            {(index !== 0 || conn.trigger) && (
                                 <StyledMapperConnection>
                                     <div className="mapper-wrapper">
                                         <Icon
@@ -524,11 +566,31 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         isMapper: true,
                                                         index: index,
                                                         connector: conn.connector,
-                                                        outputProvider: conn['output-provider'],
-                                                        inputProvider: connection[index + 1]['input-provider'],
+                                                        outputProvider:
+                                                            index === 0
+                                                                ? null
+                                                                : connection[index - 1]['output-provider'],
+                                                        inputProvider: conn['input-provider'],
                                                     })
                                                 }
                                             />
+                                            {conn.mapper && (
+                                                <Button
+                                                    small
+                                                    minimal
+                                                    icon={<Icon icon={'trash'} iconSize={12} />}
+                                                    onClick={() => {
+                                                        onAddConnector(
+                                                            connectionName,
+                                                            {
+                                                                index,
+                                                                isEditing: true,
+                                                            },
+                                                            true
+                                                        );
+                                                    }}
+                                                />
+                                            )}
                                         </ButtonGroup>
                                     </div>
                                 </StyledMapperConnection>
@@ -546,7 +608,14 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                 {!conn.isLast && (
                                     <Tooltip content={t('AddNewConnector')}>
                                         <Button
-                                            onClick={() => setManageDialog({ isOpen: true, isBetween: hasLast, index })}
+                                            onClick={() =>
+                                                setManageDialog({
+                                                    isOpen: true,
+                                                    index,
+                                                    isBetween: index + 1 > 0 && index + 1 <= connection.length - 1,
+                                                    isLast: index === connection.length - 1,
+                                                })
+                                            }
                                             minimal
                                             icon="small-plus"
                                             small
@@ -563,8 +632,8 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                 trigger: conn.trigger,
                                                 connector: conn.connector,
                                                 isFirst: index === 0,
+                                                isBetween: index > 0 && index < connection.length - 1,
                                                 isLast: index === connection.length - 1,
-                                                isBetween: hasLast,
                                                 isEditing: true,
                                                 index,
                                             })
@@ -605,5 +674,6 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
 export default compose(
     withMessageHandler(),
     withMapperConsumer(),
-    withGlobalOptionsConsumer()
+    withGlobalOptionsConsumer(),
+    withMethodsConsumer()
 )(ClassConnectionsDiagram);
