@@ -1,11 +1,12 @@
 import React, { FunctionComponent, useState } from 'react';
-import { ITreeNode, Tree } from '@blueprintjs/core';
+import { ITreeNode, Tree, Icon } from '@blueprintjs/core';
 import useMount from 'react-use/lib/useMount';
 import { size } from 'lodash';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { IField } from '.';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { TTranslator } from '../../App';
+import styled from 'styled-components';
 
 export interface ITreeField {
     get_message: { action: string; object_type: string };
@@ -18,6 +19,22 @@ export interface ITreeField {
     useRelativePath?: boolean;
 }
 
+const StyledTreeWrapper = styled.div`
+    height: 30px;
+    line-height: 30px;
+    padding-left: 7px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    .bp3-icon {
+        color: #5c7080;
+        margin-right: 5px;
+    }
+    &:hover {
+        background-color: #dfe7f3;
+    }
+`;
+
 const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     get_message,
     return_message,
@@ -29,6 +46,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     single,
     useRelativePath,
 }) => {
+    const [isRootExpanded, setRootExpanded] = useState<boolean>(false);
     const [expanded, setExpanded] = useState<string[]>([]);
     const [items, setItems] = useState<any>([]);
     const [collapseTimer, setCollapseTimer] = useState<NodeJS.Timer>(null);
@@ -71,8 +89,9 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
 
             return setTimeout(() => {
                 setCollapseTimer(null);
+                setRootExpanded(false);
                 setExpanded([]);
-            }, 120000);
+            }, 4000);
         });
     };
 
@@ -90,16 +109,6 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
         const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
 
         setExpanded((currentExpanded: string[]): string[] => [...currentExpanded, usedPath]);
-        setCollapseTimer(current => {
-            if (current) {
-                clearTimeout(current);
-            }
-
-            return setTimeout(() => {
-                setCollapseTimer(null);
-                setExpanded([]);
-            }, 120000);
-        });
     };
 
     const transformItems: (data: any[]) => ITreeNode<{ path: string }>[] = data => {
@@ -115,6 +124,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                 : useRelativePath
                 ? item.rel_path
                 : item.abs_path;
+            const isExpanded = expanded.includes(useRelativePath ? item.rel_path : item.abs_path);
             // Return the transformed data
             return [
                 ...newData,
@@ -123,8 +133,8 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                     depth: index,
                     hasCaret: !isFile && size(item.dirs) + size(item.files) !== 0,
                     isSelected: single ? value === path : value.find(sel => sel.name === path),
-                    icon: isFile ? 'document' : 'folder-close',
-                    isExpanded: expanded.includes(useRelativePath ? item.rel_path : item.abs_path),
+                    icon: isFile ? 'document' : isExpanded ? 'folder-open' : 'folder-close',
+                    isExpanded,
                     label: isFile ? item.name : item.rel_path,
                     childNodes,
                     nodeData: {
@@ -139,12 +149,20 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     };
 
     return (
-        <Tree
-            contents={transformItems(items)}
-            onNodeClick={handleNodeClick}
-            onNodeCollapse={handleNodeCollapse}
-            onNodeExpand={handleNodeExpand}
-        />
+        <>
+            <StyledTreeWrapper onClick={() => setRootExpanded(cur => !cur)}>
+                <Icon icon={isRootExpanded ? 'folder-open' : 'folder-close'} /> {isRootExpanded ? 'Hide' : 'Show'}{' '}
+                folders{' '}
+            </StyledTreeWrapper>
+            {isRootExpanded && (
+                <Tree
+                    contents={transformItems(items)}
+                    onNodeClick={handleNodeClick}
+                    onNodeCollapse={handleNodeCollapse}
+                    onNodeExpand={handleNodeExpand}
+                />
+            )}
+        </>
     );
 };
 
