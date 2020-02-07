@@ -21,7 +21,7 @@ method_template.qore = '\
 ';
 
 method_template.java = '\
-    public static void ${this.name}() {\n\
+    public static Object ${this.name}(Object ctx, Map<String, Object> record) {\n\
     }\n\
 ';
 
@@ -63,13 +63,17 @@ export const mapperFields = ({ default_target_dir }) => [
     field.classes,
 ];
 
-export const mapperCodeFields = ({ default_target_dir }) => [
+export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
     field.version,
     {
         ...field.desc,
+        mandatory: false,
+    },
+    {
+        ...field.lang(is_editing),
         mandatory: false,
     },
     field.class_name,
