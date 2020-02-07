@@ -375,7 +375,16 @@ export abstract class InterfaceCreator {
             }
 
             if (Array.isArray(value)) {
-                result += `${tag === 'workflow_options' ? 'options' : tag}:\n`;
+                switch (tag) {
+                    case 'workflow_options':
+                        result += 'options:\n';
+                        break;
+                    case 'codes':
+                        result += 'mapper-code:\n';
+                        break;
+                    default:
+                        result += `${tag}:\n`;
+                }
 
                 switch (tag) {
                     case 'tags':
@@ -394,6 +403,7 @@ export abstract class InterfaceCreator {
                     case 'mappers':
                     case 'keylist':
                     case 'groups':
+                    case 'codes':
                         for (let item of value) {
                             result += `${list_indent}${item.name}\n`;
                         }

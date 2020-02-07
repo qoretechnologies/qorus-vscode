@@ -488,11 +488,16 @@ export class QorusProjectCodeInfo {
             delete data.autostart;
         }
 
-        ['functions', 'constants', 'mappers', 'value_maps', 'author'].forEach(tag => {
+        ['functions', 'constants', 'mappers', 'value_maps', 'author', 'mapper-code'].forEach(tag => {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
             }
         });
+
+        if (data['mapper-code']) {
+            data.codes = data['mapper-code'];
+            delete data['mapper-code'];
+        }
 
         const classes_field = data.type === 'class' ? 'requires' : 'classes';
         if (data[classes_field]) {
