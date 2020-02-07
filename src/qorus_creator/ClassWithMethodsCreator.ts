@@ -41,6 +41,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 return;
         }
 
+        this.has_code = true;
+
         const {
             [methods_key]: methods,
             ...header_data

@@ -31,9 +31,9 @@ export abstract class InterfaceCreator {
         if (this.lang === 'qore') {
             this.file_base = target_file
                 ? path.basename(path.basename(target_file, lang_suffix[this.lang]), this.suffix || '.yaml')
-                : (data.version !== undefined
+                : data.version !== undefined
                     ? `${data.name}-${data.version}`
-                    : data.name);
+                    : data.name;
             this.yaml_file_base = this.file_base;
         } else {
             this.file_base = target_file
@@ -47,7 +47,7 @@ export abstract class InterfaceCreator {
         return other_data;
     }
 
-    protected hasCode = (): boolean => !!this.suffix;
+    protected has_code = false;
 
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
@@ -75,7 +75,7 @@ export abstract class InterfaceCreator {
     protected abstract editImpl(params: any);
 
     protected get file_name() {
-        return this.hasCode()
+        return this.has_code
             ? (this.lang !== 'java'
                 ? `${this.file_base}${this.suffix || ''}${lang_suffix[this.lang]}`
                 : `${this.file_base}${lang_suffix[this.lang]}`)
@@ -83,11 +83,13 @@ export abstract class InterfaceCreator {
     }
 
     protected get yaml_file_name() {
-        return this.hasCode() && this.lang !== 'java' ? `${this.file_name}.yaml` : `${this.yaml_file_base}.yaml`;
+        return this.has_code && this.lang !== 'java'
+            ? `${this.file_name}.yaml`
+            : `${this.yaml_file_base}${this.suffix || ''}.yaml`;
     }
 
     protected get file_path() {
-        return this.hasCode() ? path.join(this.target_dir, this.file_name) : undefined;
+        return this.has_code ? path.join(this.target_dir, this.file_name) : undefined;
     }
 
     protected get yaml_file_path() {
@@ -555,7 +557,7 @@ export abstract class InterfaceCreator {
         let orig_code_file;
         let orig_yaml_file;
 
-        if (this.hasCode()) {
+        if (this.has_code) {
             if (orig_file === this.file_path) {
                 return;
             }

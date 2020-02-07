@@ -37,11 +37,18 @@ class ClassCreator extends InterfaceCreator {
                 suffix = '.qclass';
                 break;
             case 'mapper':
+                suffix = '.qmapper';
+                break;
             case 'other':
+                suffix = `.q${data.type.toLowerCase()}`;
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassCreator'}`);
                 return;
+        }
+
+        if (template) {
+            this.has_code = true;
         }
 
         data = this.init(data, suffix);
@@ -59,7 +66,7 @@ class ClassCreator extends InterfaceCreator {
         let orig_file_path: string;
         switch (edit_type) {
             case 'create':
-                if (!this.hasCode()) {
+                if (!this.has_code) {
                     message = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;
                 }
@@ -90,7 +97,7 @@ class ClassCreator extends InterfaceCreator {
 
                 orig_file_path = path.join(orig_target_dir, orig_target_file);
 
-                if (!this.hasCode()) {
+                if (!this.has_code) {
                     break;
                 }
 
@@ -110,7 +117,7 @@ class ClassCreator extends InterfaceCreator {
         let headers = this.createHeaders({
             type: iface_kind,
             ...data,
-            code: this.hasCode() ? this.file_name : undefined
+            code: this.has_code ? this.file_name : undefined
         });
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
@@ -124,7 +131,7 @@ class ClassCreator extends InterfaceCreator {
                              .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 
-        this.hasCode()
+        this.has_code
             ? this.writeFiles(contents, headers, open_file_on_success)
             : this.writeYamlFile(headers);
 
