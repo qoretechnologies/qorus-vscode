@@ -6,6 +6,7 @@ import { ContentWrapper, ActionsWrapper, IField } from '../InterfaceCreator/pane
 import { MethodSelector, Selected, RemoveButton } from '../InterfaceCreator/servicesView';
 import { ButtonGroup, Button, Dialog, ControlGroup, Classes, NonIdealState } from '@blueprintjs/core';
 import map from 'lodash/map';
+import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import omit from 'lodash/omit';
 import compose from 'recompose/compose';
@@ -230,11 +231,20 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                             onClick={() => {
                                 setConnections(
                                     (current: IClassConnections): IClassConnections => {
-                                        const result = {
-                                            ...current,
-                                            [manageDialog.newName]: connections[manageDialog.name],
-                                        };
-                                        delete result[manageDialog.name];
+                                        const result = reduce(
+                                            current,
+                                            (newConnections, connection, connName) => {
+                                                // If the connection matches the old name
+                                                if (connName === manageDialog.name) {
+                                                    // Replace the connection
+                                                    return { ...newConnections, [manageDialog.newName]: connection };
+                                                }
+                                                // Return unchanged
+                                                return { ...newConnections, [connName]: connection };
+                                            },
+                                            {}
+                                        );
+
                                         return result;
                                     }
                                 );
@@ -276,6 +286,11 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                                 }
                                                 const result = { ...current };
                                                 delete result[name];
+                                                // Check if there are any connections left
+                                                if (!size(result)) {
+                                                    // reset the ID
+                                                    setLastConnectionId(1);
+                                                }
                                                 return result;
                                             });
                                         }}
