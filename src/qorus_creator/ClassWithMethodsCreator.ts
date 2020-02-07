@@ -104,7 +104,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 return;
         }
 
-        let headers = ClassWithMethodsCreator.createHeaders({
+        let headers = this.createHeaders({
             type: iface_kind,
             ...header_data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,

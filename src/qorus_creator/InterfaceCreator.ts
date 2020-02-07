@@ -315,7 +315,7 @@ export abstract class InterfaceCreator {
         return result;
     }
 
-    protected static createHeaders = (headers: any): string => {
+    protected createHeaders = (headers: any): string => {
         const list_indent = '  - ';
         const indent = '    ';
         let result: string = '';
@@ -344,6 +344,20 @@ export abstract class InterfaceCreator {
                 exists_prefix = true;
             }
         });
+
+        if (headers.fields) {
+            Object.keys(headers.fields).forEach(field_name => {
+                let field = headers.fields[field_name];
+                if (field.code) {
+                    const [name, method, ... other] = field.code.split('.');
+                    if (name && method && !other.length) {
+                        const mapper_code = this.code_info.yamlDataByName('mapper-code', name);
+                        const {'class-name': class_name, lang = 'qore'} = mapper_code;
+                        field.code = `${class_name}${lang === 'qore' ? '::': '.'}${method}`;
+                    }
+                }
+            });
+        }
 
         let ordered_tags = [];
         const at_the_beginning = ['type', 'name', 'desc'];

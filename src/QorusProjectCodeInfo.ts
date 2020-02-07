@@ -499,6 +499,18 @@ export class QorusProjectCodeInfo {
             delete data['mapper-code'];
         }
 
+        if (data.fields) {
+            Object.keys(data.fields).forEach(field_name => {
+                let field = data.fields[field_name];
+                if (field.code) {
+                    const splitter = field.code.indexOf('::') > -1 ? '::' : '.';
+                    const [class_name, method] = field.code.split(splitter);
+                    const mapper_code = this.yamlDataByClass(class_name);
+                    field.code = `${mapper_code.name}.${method}`;
+                }
+            });
+        }
+
         const classes_field = data.type === 'class' ? 'requires' : 'classes';
         if (data[classes_field]) {
             let classes = (data['class-prefixes'] || []).map(prefix_data => ({

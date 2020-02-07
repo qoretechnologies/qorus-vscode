@@ -107,7 +107,7 @@ class ClassCreator extends InterfaceCreator {
                 return;
         }
 
-        let headers = ClassCreator.createHeaders({
+        let headers = this.createHeaders({
             type: iface_kind,
             ...data,
             code: this.hasCode() ? this.file_name : undefined
