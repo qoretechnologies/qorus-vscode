@@ -284,12 +284,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
         <div>
             <Dialog
                 isOpen={mapperDialog.isOpen}
-                title={t('AddNewConnector')}
+                title={t('AddNewMapper')}
                 onClose={() => {
                     resetAllInterfaceData('mapper');
                     setMapperDialog({});
                 }}
-                style={{ height: '70vh', width: '70vh', backgroundColor: '#fff' }}
+                style={{ height: '95vh', width: '95vh', backgroundColor: '#fff' }}
             >
                 <StyledDialogBody style={{ flexFlow: 'column' }}>
                     <MapperView

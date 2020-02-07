@@ -21,6 +21,7 @@ import { useDrop } from 'react-dnd';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 
 const FIELD_HEIGHT = 35;
 const FIELD_MARGIN = 14;
@@ -318,6 +319,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     interfaceId,
     getUrlFromProvider,
     mapperSubmit,
+    resetAllInterfaceData,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -640,6 +642,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         if (mapperSubmit) {
             mapperSubmit(mapper.name, mapper.version);
         }
+        // Reset the interface data
+        resetAllInterfaceData('mapper');
     };
 
     return (
@@ -920,5 +924,6 @@ export default compose(
     withTextContext(),
     withMapperConsumer(),
     withFieldsConsumer(),
-    withMessageHandler()
+    withMessageHandler(),
+    withGlobalOptionsConsumer()
 )(MapperCreator);
