@@ -749,7 +749,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                         {size(relations) && !isDragging ? (
                             <svg
                                 height={
-                                    Math.max(flattenedInputs.length, flattenedOutputs.length) *
+                                    Math.max(flattenedInputs?.length, flattenedOutputs?.length) *
                                         (FIELD_HEIGHT + FIELD_MARGIN) +
                                     61
                                 }
@@ -859,7 +859,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   <MapperOutput
                                       key={output.path}
                                       name={output.name}
-                                      hasRelation={!isAvailableForDrop(output.path)}
+                                      hasRelation={!isAvailableForDrop(output.path) || size(relations[output.path])}
                                       {...output}
                                       field={output}
                                       onDrop={handleDrop}
