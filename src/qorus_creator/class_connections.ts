@@ -240,12 +240,11 @@ const methodCodeQore = (connection_code_name, connectors) => {
             `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
         }
 
-        code += `\n${indent2}UserApi::logDebug("calling`
-             + ` ${prefixed_class} ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
+        code += `\n${indent2}UserApi::logDebug("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
         if (++n !== connectors.length) {
             code += `${CONN_DATA} = `;
         }
-        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.name}", ${CONN_DATA});\n`;
+        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA});\n`;
     });
 
     code += `${indent1}}\n`;

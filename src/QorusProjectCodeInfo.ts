@@ -983,7 +983,7 @@ export class QorusProjectCodeInfo {
                 return {
                     primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
                     validation: {signature: 'string validation(auto array_arg)', arg_names: ['array_arg']},
-                    array: {signature: 'softlist< auto > array()'}
+                    array: {signature: 'softlist<auto> array()'}
                 };
             case 'QorusEventStep':
             case 'QorusSubworkflowStep':
@@ -994,7 +994,7 @@ export class QorusProjectCodeInfo {
             case 'QorusSubworkflowArrayStep':
                 return {
                     primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
-                    array: {signature: 'softlist< auto > array()'}
+                    array: {signature: 'softlist<auto> array()'}
                 };
             case 'QorusAsyncStep':
                 return {
@@ -1007,7 +1007,7 @@ export class QorusProjectCodeInfo {
                     primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
                     validation: {signature: 'string validation(*string async_key, auto array_arg)', arg_names: ['async_key', 'array_arg']},
                     end: {signature: 'end(auto queue_data, auto array_arg)', arg_names: ['queue_data', 'array_arg']},
-                    array: {signature: 'softlist< auto > array()'}
+                    array: {signature: 'softlist<auto> array()'}
                 };
             default:
                 return {};
