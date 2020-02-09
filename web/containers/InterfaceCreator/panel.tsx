@@ -277,7 +277,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     }, [activeId, interfaceId, initialInterfaceId]);
 
     const resetLocalFields: (newActiveId?: number) => void = newActiveId => {
-        resetAllInterfaceData(type, true);
+        resetAllInterfaceData(type, type !== 'mapper');
         // Hide the fields until they are fetched
         setShow(false);
         // Change the name if needed

@@ -320,6 +320,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     getUrlFromProvider,
     mapperSubmit,
     resetAllInterfaceData,
+    resetMapper,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -406,12 +407,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         // Remove the selected relation
         // @ts-ignore
         setRelations(current =>
-            reduce(current, (newRelations, rel, relationOutput: string) => {
-                if (rel.name && rel.name.startsWith(path)) {
-                    return { ...newRelations, [relationOutput]: omit(rel, ['name']) };
-                }
-                return { ...newRelations, [relationOutput]: rel };
-            })
+            reduce(
+                current,
+                (newRelations, rel, relationOutput: string) => {
+                    if (rel.name && rel.name.startsWith(path)) {
+                        return { ...newRelations, [relationOutput]: omit(rel, ['name']) };
+                    }
+                    return { ...newRelations, [relationOutput]: rel };
+                },
+                {}
+            )
         );
     };
 
@@ -442,8 +447,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     };
 
     const reset: () => void = () => {
-        clearInputs();
-        clearOutputs();
+        resetAllInterfaceData('mapper');
     };
 
     const isMapperValid: () => boolean = () => isFormValid && size(filterEmptyRelations(relations)) !== 0;

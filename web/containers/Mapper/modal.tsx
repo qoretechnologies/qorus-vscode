@@ -120,7 +120,6 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         if (newField.canBeNull) {
             // Transform the field type to the
             // same maybe type
-            console.log(types);
             newField.type = types.find(type => type.typename === `*${newField.type.name.replace('soft', '')}`);
         }
         // If parent is not a custom field, set this as the first
@@ -128,12 +127,10 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         if (!isParentCustom) {
             newField.firstCustomInHierarchy = true;
         }
-        console.log(newField);
         // Submit the field
         onSubmit(newField);
         onClose();
     };
-    console.log(field);
 
     return (
         <Dialog isOpen title={t('AddNewField')} onClose={onClose} style={{ paddingBottom: 0 }}>
