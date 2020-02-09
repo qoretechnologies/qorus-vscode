@@ -535,7 +535,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 type,
                 isParentCustom: field.isCustom,
                 onSubmit: data => {
-                    edit ? editField(type, field.path, data) : addField(type, field.path, data);
+                    if (edit) {
+                        editField(type, field.path, data);
+                        removeFieldRelations(field.path);
+                    } else {
+                        addField(type, field.path, data);
+                    }
                 },
             });
         }
