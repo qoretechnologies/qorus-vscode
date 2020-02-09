@@ -345,6 +345,12 @@ export default class ConfigItemsModal extends Component {
                                                                 this.setState({ templateType: 'step' });
                                                             }}
                                                         />
+                                                        <Item
+                                                            title="parse-value"
+                                                            onClick={() => {
+                                                                this.setState({ templateType: 'parse-value' });
+                                                            }}
+                                                        />
                                                     </Dropdown>
                                                     <Button text=":" className={Classes.FIXED} />
                                                     <InputGroup
