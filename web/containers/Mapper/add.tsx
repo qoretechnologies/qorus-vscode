@@ -14,15 +14,15 @@ export interface IAddFieldProps {
 const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields, field, t }) => {
     const onAddClick = useCallback(() => {
         onClick(field);
-    }, []);
+    }, [field]);
 
     const onEditClick = useCallback(() => {
         onClick(field, true);
-    }, []);
+    }, [field]);
 
     const onDeleteClick = useCallback(() => {
         onClick(field, false, true);
-    }, []);
+    }, [field]);
 
     return (
         <ButtonGroup
