@@ -155,6 +155,8 @@ export const StyledMapperField = styled.div`
     }
 
     p {
+        background-color: #d7d7d7;
+        
         &.string {
             background-color: ${TYPE_COLORS.string};
         }
@@ -403,17 +405,26 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
     };
 
-    const removeFieldRelations: (path: string) => void = path => {
+    const removeFieldRelations: (path: string, type: string) => void = (path, type) => {
         // Remove the selected relation
         // @ts-ignore
         setRelations(current =>
             reduce(
                 current,
                 (newRelations, rel, relationOutput: string) => {
-                    if (rel.name && rel.name.startsWith(path)) {
-                        return { ...newRelations, [relationOutput]: omit(rel, ['name']) };
+                    if (type === 'outputs') {
+                        if (relationOutput && relationOutput.startsWith(path)) {
+                            return { ...newRelations };
+                        }
+
+                        return { ...newRelations, [relationOutput]: rel };
+                    } else {
+                        if (rel.name && rel.name.startsWith(path)) {
+                            return { ...newRelations, [relationOutput]: omit(rel, ['name']) };
+                        }
+
+                        return { ...newRelations, [relationOutput]: rel };
                     }
-                    return { ...newRelations, [relationOutput]: rel };
                 },
                 {}
             )
@@ -505,8 +516,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         };
         // Find the field
         const field = fieldTypes[type].find(input => input.path === name);
-        // Return the color
-        return TYPE_COLORS[field.type.types_returned[0].replace(/</g, '').replace(/>/g, '')];
+        if (field) {
+            // Return the color
+            return TYPE_COLORS[field.type.types_returned[0].replace(/</g, '').replace(/>/g, '')];
+        }
+        return null;
     };
 
     const getLastChildIndex = (field: any, type: 'inputs' | 'outputs') => {
@@ -530,7 +544,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const handleClick = type => (field: any, edit?: boolean, remove?: boolean): void => {
         if (remove) {
             editField(type, field.path, null, true);
-            removeFieldRelations(field.path);
+            removeFieldRelations(field.path, type);
         } else {
             setAddDialog({
                 isOpen: true,
