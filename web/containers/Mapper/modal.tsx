@@ -146,7 +146,11 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                     isValid={validateField('string', field.name) && isUnique(field.name)}
                                 />
                                 <FieldInputWrapper>
-                                    <String onChange={onChange} name="name" value={field.name} />
+                                    <String
+                                        onChange={(path, value) => onChange(path, value.trim())}
+                                        name="name"
+                                        value={field.name}
+                                    />
                                 </FieldInputWrapper>
                             </FieldWrapper>
                             <FieldWrapper>
