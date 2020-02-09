@@ -1,10 +1,11 @@
 import React, { FC, useState, useCallback } from 'react';
-import { Button, Dialog, ButtonGroup } from '@blueprintjs/core';
+import { Button, Dialog, ButtonGroup, Callout } from '@blueprintjs/core';
 import { TTranslator } from '../../App';
 import Box from '../../components/ResponsiveBox';
 import set from 'lodash/set';
 import size from 'lodash/size';
 import String from '../../components/Field/string';
+import TextareaField from '../../components/Field/textarea';
 import { ContentWrapper, FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
 import FieldLabel from '../../components/FieldLabel';
 import { validateField } from '../../helpers/validations';
@@ -13,6 +14,7 @@ import Pull from '../../components/Pull';
 import useMount from 'react-use/lib/useMount';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import BooleanField from '../../components/Field/boolean';
+import MarkdownPreview from '../../components/Field/markdownPreview';
 
 export interface IMapperFieldModalProps {
     type: 'inputs' | 'outputs';
@@ -59,6 +61,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 
     const [field, setField] = useState(fieldData ? transformFieldData(fieldData) : defaultData);
     const [types, setTypes] = useState(null);
+    const [error, setError] = useState(null);
 
     useMount(() => {
         (async () => {
@@ -66,8 +69,12 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             const types: any = await initialData.fetchData(
                 `dataprovider/basetypes${type === 'outputs' ? '?soft=1' : ''}`
             );
-            // Save the types
-            setTypes(types.data);
+            if (types.error) {
+                setError(t('UnableToRetrieveTypes'));
+            } else {
+                // Save the types
+                setTypes(types.data);
+            }
         })();
     });
 
@@ -86,6 +93,10 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             const fieldType = types.find(type => type.name === value);
             // Set the type
             newField.type = fieldType;
+            // If type is auto
+            if (value === 'auto') {
+                newField.canBeNull = false;
+            }
             // Return new field
             return newField;
         });
@@ -109,6 +120,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         if (newField.canBeNull) {
             // Transform the field type to the
             // same maybe type
+            console.log(types);
             newField.type = types.find(type => type.typename === `*${newField.type.name.replace('soft', '')}`);
         }
         // If parent is not a custom field, set this as the first
@@ -116,16 +128,19 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         if (!isParentCustom) {
             newField.firstCustomInHierarchy = true;
         }
+        console.log(newField);
         // Submit the field
         onSubmit(newField);
         onClose();
     };
+    console.log(field);
 
     return (
         <Dialog isOpen title={t('AddNewField')} onClose={onClose} style={{ paddingBottom: 0 }}>
             <Box top fill scrollY>
                 <ContentWrapper>
-                    {!types && <p>Loading...</p>}
+                    {error && <Callout intent="danger">{error}</Callout>}
+                    {!types && !error && <p>Loading...</p>}
                     {types && (
                         <>
                             <FieldWrapper>
@@ -139,11 +154,13 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                             </FieldWrapper>
                             <FieldWrapper>
                                 <FieldLabel
+                                    info={t('MarkdownSupported')}
                                     label={t(`field-label-desc`)}
                                     isValid={validateField('string', field.desc)}
                                 />
                                 <FieldInputWrapper>
-                                    <String onChange={onChange} name="desc" value={field.desc} />
+                                    <TextareaField fill onChange={onChange} name="desc" value={field.desc} />
+                                    <MarkdownPreview value={field.desc} />
                                 </FieldInputWrapper>
                             </FieldWrapper>
                             <FieldWrapper>
@@ -163,12 +180,14 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                     />
                                 </FieldInputWrapper>
                             </FieldWrapper>
-                            <FieldWrapper>
-                                <FieldLabel label={t(`field-label-can_be_undefined`)} isValid />
-                                <FieldInputWrapper>
-                                    <BooleanField onChange={onChange} name="canBeNull" value={field.canBeNull} />
-                                </FieldInputWrapper>
-                            </FieldWrapper>
+                            {field.type?.name !== 'auto' && (
+                                <FieldWrapper>
+                                    <FieldLabel label={t(`field-label-can_be_undefined`)} isValid />
+                                    <FieldInputWrapper>
+                                        <BooleanField onChange={onChange} name="canBeNull" value={field.canBeNull} />
+                                    </FieldInputWrapper>
+                                </FieldWrapper>
+                            )}
                         </>
                     )}
                 </ContentWrapper>

@@ -1985,3 +1985,12 @@ msgstr "An active instance is required to add input / output providers."
 
 msgid "AddNewMapper"
 msgstr "Add new mapper"
+
+msgid "AddNewMapperField"
+msgstr "Add custom mapper field"
+
+msgid "AddNewField"
+msgstr "Add custom field"
+
+msgid "UnableToRetrieveTypes"
+msgstr "Unable to retrieve types from active qorus instance."
