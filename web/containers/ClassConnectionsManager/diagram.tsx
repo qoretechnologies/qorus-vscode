@@ -274,7 +274,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     }, [manageDialog]);
 
     const getConnectorData = (className: string, connectorName: string) =>
-        classesData?.[className]?.['class-connectors'].find(c => c.name === connectorName);
+        classesData?.[className]?.['class-connectors']?.find(c => c.name === connectorName);
 
     const methodsCount = methods.filter(m => m.name).length;
     const canHaveTrigger =
