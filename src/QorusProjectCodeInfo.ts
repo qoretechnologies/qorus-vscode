@@ -504,9 +504,14 @@ export class QorusProjectCodeInfo {
                 let field = data.fields[field_name];
                 if (field.code) {
                     const splitter = field.code.indexOf('::') > -1 ? '::' : '.';
-                    const [class_name, method] = field.code.split(splitter);
-                    const mapper_code = this.yamlDataByClass(class_name);
-                    field.code = `${mapper_code.name}.${method}`;
+                    const code_parts = field.code.split(splitter);
+                    if (code_parts.length === 2) {
+                        const [class_name, method] = code_parts;
+                        const mapper_code = this.yamlDataByClass(class_name);
+                        if (mapper_code) {
+                            field.code = `${mapper_code.name}.${method}`;
+                        }
+                    }
                 }
             });
         }
