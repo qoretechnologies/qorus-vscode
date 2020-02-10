@@ -1,13 +1,20 @@
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier } from '../qorus_utils';
-import { lang_inherits } from './common_constants';
 
 // =================================================================
 
 export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => {
+    const imports = lang === 'java' ? [
+        'import org.qore.jni.QoreObject;',
+        'import org.qore.lang.mapper.Mapper;',
+        'import java.util.Map;',
+        'import java.util.Optional;',
+        'import java.util.HashMap;',
+        'import java.lang.reflect.Method;'
+    ] : [];
     const {connections_within_class, triggers} = withinClassCode(data, code_info, lang);
     const {connections_extra_class} = extraClassCode(data['class-connections'], code_info, lang);
-    return {connections_within_class, connections_extra_class, triggers};
+    return {connections_within_class, connections_extra_class, triggers, imports};
 };
 
 const CONN_CLASS = 'ClassConnections';
@@ -127,7 +134,7 @@ const extraClassCode = (data, code_info, lang) => {
 const classConnectionsQore = (classes, event_based_connections) => {
     let code = `class ${CONN_CLASS}`;
     if (event_based_connections.length) {
-        code += ` ${lang_inherits.qore} ${CONN_BASE_CLASS} {`;
+        code += ` inherits ${CONN_BASE_CLASS} {`;
         code += ` # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
     } else {
         code += ' {\n';
@@ -179,7 +186,7 @@ const classConnectionsQore = (classes, event_based_connections) => {
 const classConnectionsJava = (classes, event_based_connections) => {
     let code = `class ${CONN_CLASS}`;
     if (event_based_connections.length) {
-        code += ` ${lang_inherits.java} ${CONN_BASE_CLASS} {` +
+        code += ` implements ${CONN_BASE_CLASS} {` +
             ` // has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
     } else {
         code += ' {\n';

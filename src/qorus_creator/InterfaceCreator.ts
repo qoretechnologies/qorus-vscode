@@ -7,7 +7,7 @@ import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import * as jsyaml from 'js-yaml';
-import { quotesIfNum } from '../qorus_utils';
+import { quotesIfNum, removeDuplicates } from '../qorus_utils';
 import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
@@ -585,7 +585,15 @@ export abstract class InterfaceCreator {
         });
     }
 
-    protected fillTemplate = (template: any, vars: any, add_default_parse_options: boolean = true): string =>
-        (add_default_parse_options && this.lang === 'qore' ? default_parse_options : '') +
-        new Function('return `' + template[this.lang] + '`;').call(vars)
+    protected fillTemplate = (template: string, imports: string[] = [],
+                              vars: any, add_default_parse_options: boolean = true): string =>
+    {
+        let result = add_default_parse_options && this.lang === 'qore' ? default_parse_options : '';
+        result += removeDuplicates(imports).join('\n');
+        if (imports.length) {
+            result += '\n\n';
+        }
+        result += new Function('return `' + template + '`;').call(vars);
+        return result;
+    }
 }

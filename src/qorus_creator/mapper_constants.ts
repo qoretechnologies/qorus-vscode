@@ -25,6 +25,11 @@ method_template.java = '\
     }\n\
 ';
 
+export const mapperCodeTemplates = lang => ({
+    template: class_template[lang],
+    method_template: method_template[lang]
+});
+
 export const mapper_code_class_template = class_template;
 export const mapper_code_method_template = method_template;
 

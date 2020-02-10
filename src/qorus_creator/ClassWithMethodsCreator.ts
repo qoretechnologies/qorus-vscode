@@ -2,8 +2,8 @@ import { window, Position } from 'vscode';
 import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { service_class_template, service_method_template } from './service_constants';
-import { mapper_code_class_template, mapper_code_method_template } from './mapper_constants';
+import { serviceTemplates } from './service_constants';
+import { mapperCodeTemplates } from './mapper_constants';
 import { connectionsCode } from './class_connections';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
@@ -11,8 +11,9 @@ import * as msg from '../qorus_message';
 
 
 class ClassWithMethodsCreator extends InterfaceCreator {
-    private class_template: any;
-    private method_template: any;
+    private class_template: string;
+    private method_template: string;
+    private imports: string[];
 
     editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
         let suffix: string;
@@ -21,8 +22,11 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             case 'service':
                 suffix = '.qsd';
                 methods_key = 'methods';
-                this.class_template = service_class_template;
-                this.method_template = service_method_template;
+                ({
+                    template: this.class_template,
+                    method_template: this.method_template,
+                    imports: this.imports
+                 } = serviceTemplates(data.lang));
                 if (!(data.methods || []).length) {
                     data.methods = [{
                         name: 'init',
@@ -33,8 +37,10 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             case 'mapper-code':
                 suffix = '.qmc';
                 methods_key = 'mapper-methods';
-                this.class_template = mapper_code_class_template;
-                this.method_template = mapper_code_method_template;
+                ({
+                    template: this.class_template,
+                    method_template: this.method_template,
+                 } = mapperCodeTemplates(data.lang));
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
@@ -229,7 +235,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         let new_code = line_before;
         for (let name of added) {
-            new_code += '\n' + this.fillTemplate(this.method_template, { name }, false);
+            new_code += '\n' + this.fillTemplate(this.method_template, undefined, { name }, false);
         }
         const new_code_lines = new_code.split(/\r?\n/);
         if (new_code_lines[new_code_lines.length - 1] === '') {
@@ -282,22 +288,23 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
     private code = (data: any, iface_kind: string, method_objects: any[] = []): any => {
         let triggers: string[] = [];
+        let imports: string[] = [];
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
         if (data['class-connections']) {
             ClassWithMethodsCreator.fixClassConnections(data['class-connections']);
-            ({connections_within_class, connections_extra_class, triggers}
+            ({connections_within_class, connections_extra_class, triggers, imports}
                  = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
         }
 
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(this.fillTemplate(this.method_template, { name: method.name }, false));
+            method_strings.push(this.fillTemplate(this.method_template, undefined, { name: method.name }, false));
         }
         const methods = method_strings.join('\n');
 
-        return this.fillTemplate(this.class_template, {
+        return this.fillTemplate(this.class_template, [...this.imports, ...imports], {
             class_name: data['class-name'],
             base_class_name: data['base-class-name'],
             methods,

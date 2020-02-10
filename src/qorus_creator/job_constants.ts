@@ -1,13 +1,13 @@
 import { field, subclass_template } from './common_constants';
 
-const java_headers = '\
-import com.qoretechnologies.qorus.*;\n\
-import com.qoretechnologies.qorus.job.*;\n\n';
-
-export const job_template: any = {
-    qore: subclass_template.qore,
-    java: java_headers + subclass_template.java,
+const imports = {
+    java: [
+        'import com.qoretechnologies.qorus.*;',
+        'import com.qoretechnologies.qorus.job.*;'
+    ]
 };
+
+export const jobTemplates = lang => ({template: subclass_template[lang], imports: imports[lang]});
 
 export const jobFields = ({default_target_dir, is_editing}) => [
     field.targetDir(default_target_dir),

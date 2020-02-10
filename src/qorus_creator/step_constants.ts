@@ -1,12 +1,14 @@
 import { field, subclass_template } from './common_constants';
 
-const java_headers = '\
-import com.qoretechnologies.qorus.*;\n\
-import com.qoretechnologies.qorus.step.*;\n\n';
+const imports = {
+    java: [
+        'import com.qoretechnologies.qorus.*;',
+        'import com.qoretechnologies.qorus.step.*;'
+    ]
+};
 
-export const step_template: any = {
-    qore: subclass_template.qore,
-    java: java_headers + subclass_template.java,
+export const stepTemplates = lang => {
+    return {template: subclass_template[lang], imports: imports[lang]};
 };
 
 export const stepFields = ({default_target_dir, is_editing}) => [

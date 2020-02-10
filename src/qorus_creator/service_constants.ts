@@ -1,8 +1,14 @@
-import { field } from './common_constants';
+import { field, subclass_template } from './common_constants';
 
-let class_template: any = {};
 let method_template: any = {};
 
+const imports = {
+    java: [
+        'import com.qoretechnologies.qorus.*;',
+        'import com.qoretechnologies.qorus.service.*;'
+    ]
+};
+/*
 class_template.qore = '\
 class ${this.class_name} inherits ${this.base_class_name} {\n\
 ${this.connections_within_class}\
@@ -12,14 +18,13 @@ ${this.connections_extra_class}\
 ';
 
 class_template.java = '\
-import com.qoretechnologies.qorus.*;\n\
-import com.qoretechnologies.qorus.service.*;\n\
-\n\
 class ${this.class_name} extends ${this.base_class_name} {\n\
+${this.connections_within_class}\
 ${this.methods}\
 }\n\
+${this.connections_extra_class}\
 ';
-
+*/
 method_template.qore = '\
     ${this.name}() {\n\
     }\n\
@@ -30,8 +35,11 @@ method_template.java = '\
     }\n\
 ';
 
-export const service_class_template = class_template;
-export const service_method_template = method_template;
+export const serviceTemplates = lang => ({
+    template: subclass_template[lang],
+    method_template: method_template[lang],
+    imports: imports[lang]
+});
 
 export const serviceFields = ({default_target_dir, is_editing}) => [
     field.targetDir(default_target_dir),

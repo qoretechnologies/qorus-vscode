@@ -1,13 +1,13 @@
 import { field, subclass_template } from './common_constants';
 
-const java_headers = '\
-import com.qoretechnologies.qorus.*;\n\
-import com.qoretechnologies.qorus.workflow.*;\n\n';
-
-export const workflow_template: any = {
-    qore: subclass_template.qore,
-    java: java_headers + subclass_template.java,
+const imports = {
+    java: [
+        'import com.qoretechnologies.qorus.*;',
+        'import com.qoretechnologies.qorus.workflow.*;'
+    ]
 };
+
+export const workflowTemplates = lang => ({template: subclass_template[lang], imports: imports[lang]});
 
 export const workflowFields = ({is_editing, default_target_dir}) => [
     field.targetDir(default_target_dir),
