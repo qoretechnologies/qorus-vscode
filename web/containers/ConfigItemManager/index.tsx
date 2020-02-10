@@ -47,6 +47,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     baseClassName,
     postMessage,
     addMessageListener,
+    classes,
     interfaceId,
     resetFields,
 }) => {
@@ -72,6 +73,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         // Ask for the config items
         postMessage(Messages.GET_CONFIG_ITEMS, {
             'base-class-name': baseClassName,
+            classes,
             iface_id: interfaceId,
             iface_kind: type,
         });

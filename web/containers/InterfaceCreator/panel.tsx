@@ -740,6 +740,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         postMessage(Messages.GET_CONFIG_ITEMS, {
             iface_id: interfaceId,
             iface_kind: type,
+            classes: getClasses(),
         });
     };
 
@@ -766,6 +767,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         }
         // Not valid
         return false;
+    };
+
+    const getClasses = () => {
+        return selectedFields.find((field: IField) => field.name === 'classes');
     };
 
     return (
@@ -941,6 +946,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             selectedFields &&
                             selectedFields.find((field: IField) => field.name === 'base-class-name')?.value
                         }
+                        classes={getClasses()}
                         interfaceId={interfaceId}
                         resetFields={resetFields}
                     />
