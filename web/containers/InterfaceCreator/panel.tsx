@@ -119,7 +119,7 @@ export const SearchWrapper = styled.div`
 export const ContentWrapper = styled.div`
     flex: 1;
     overflow-y: auto;
-    overflow-x: ${props => (props.scrollX ? 'auto' : 'hidden')};
+    overflow-x: auto;
     padding-right: 10px;
 `;
 

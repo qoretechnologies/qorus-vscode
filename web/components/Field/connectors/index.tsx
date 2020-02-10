@@ -13,7 +13,7 @@ export interface IConnectorFieldProps {
 }
 
 const StyledProviderUrl = styled.div`
-    height: 40px;
+    min-height: 40px;
     line-height: 40px;
 
     span {
