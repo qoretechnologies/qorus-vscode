@@ -286,7 +286,7 @@ export class QorusProjectCodeInfo {
 
     addFileCodeInfo(file: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
-        if (this.edit_info[file] && !force) {
+        if (!iface_kind || (this.edit_info[file] && !force)) {
             return Promise.resolve();
         }
 

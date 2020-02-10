@@ -30,7 +30,7 @@ export abstract class InterfaceCreator {
 
         if (this.lang === 'qore') {
             this.file_base = target_file
-                ? path.basename(path.basename(target_file, lang_suffix[this.lang]), this.suffix || '.yaml')
+                ? path.basename(path.basename(target_file, '.yaml'), this.suffix)
                 : data.version !== undefined
                     ? `${data.name}-${data.version}`
                     : data.name;
