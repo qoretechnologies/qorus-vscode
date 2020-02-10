@@ -770,7 +770,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     const getClasses = () => {
-        return selectedFields.find((field: IField) => field.name === 'classes');
+        return selectedFields.find((field: IField) => field.name === 'classes')?.value || [];
     };
 
     return (

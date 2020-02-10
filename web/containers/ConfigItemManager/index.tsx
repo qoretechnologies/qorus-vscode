@@ -70,6 +70,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             // Set the config data
             setConfigItemData(item);
         });
+        console.log(classes);
         // Ask for the config items
         postMessage(Messages.GET_CONFIG_ITEMS, {
             'base-class-name': baseClassName,
