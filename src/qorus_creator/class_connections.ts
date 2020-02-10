@@ -110,8 +110,12 @@ const extraClassCode = (data, code_info, lang) => {
     }
 
     switch (lang) {
-        case 'qore': code += classConnectionsQore(classes, event_based_connections);
-        case 'java': code += classConnectionsJava(classes, event_based_connections);
+        case 'qore':
+            code += classConnectionsQore(classes, event_based_connections);
+            break;
+        case 'java':
+            code += classConnectionsJava(classes, event_based_connections);
+            break;
     }
 
     code += '\n' + method_codes.join('\n') + '}\n';
