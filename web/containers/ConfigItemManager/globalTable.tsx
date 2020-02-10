@@ -63,8 +63,14 @@ const WorkflowConfigItemsTable: Function = ({
                             title={t('button.add-new-value')}
                             onClick={() => {
                                 handleModalToggle({
-                                    onSubmit: (name, value, parent) => {
-                                        onSubmit(name, value, parent, workflow ? 'workflow' : 'global');
+                                    onSubmit: (name, value, parent, isTemplatedString) => {
+                                        onSubmit(
+                                            name,
+                                            value,
+                                            parent,
+                                            workflow ? 'workflow' : 'global',
+                                            isTemplatedString
+                                        );
                                         handleModalToggle(null);
                                     },
                                     globalConfig: globalItems,
@@ -105,12 +111,13 @@ const WorkflowConfigItemsTable: Function = ({
                                                         title={t('button.edit-this-value')}
                                                         onClick={() => {
                                                             handleModalToggle({
-                                                                onSubmit: (name, value, parent) => {
+                                                                onSubmit: (name, value, parent, isTemplatedString) => {
                                                                     onSubmit(
                                                                         name,
                                                                         value,
                                                                         parent,
-                                                                        workflow ? 'workflow' : 'global'
+                                                                        workflow ? 'workflow' : 'global',
+                                                                        isTemplatedString
                                                                     );
                                                                     handleModalToggle(null);
                                                                 },
@@ -131,6 +138,7 @@ const WorkflowConfigItemsTable: Function = ({
                                                                 null,
                                                                 item.parent_class,
                                                                 workflow ? 'workflow' : 'global',
+                                                                item.is_templated_string,
                                                                 true
                                                             );
                                                         }}

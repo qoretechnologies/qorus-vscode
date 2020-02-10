@@ -94,7 +94,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         parent: string | null,
         level: string,
         remove?: boolean
-    ) => void = (name, value, parent, level, remove) => {
+    ) => void = (name, value, parent, level, isTemplatedString, remove) => {
         // Send message that the config item has been updated
         postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
             name,
@@ -105,6 +105,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_id: interfaceId,
             parent_class: parent,
             iface_kind: type,
+            is_templated_string: isTemplatedString,
         });
     };
 

@@ -120,7 +120,7 @@ export const Value = ({ item }) => {
     if (isNull(item.value)) {
         return <span> null </span>;
     }
-    if (item.isTemplatedString) {
+    if (item.is_templated_string) {
         return <ContentByType inTable content={maybeParseYaml(item.value)} />;
     }
 
@@ -213,8 +213,8 @@ let ItemsTable: Function = ({
                                                     onClick={() => {
                                                         handleModalToggle(
                                                             { ...item },
-                                                            (name, value, parent) => {
-                                                                onSubmit(name, value, parent, type);
+                                                            (name, value, parent, isTemplatedString) => {
+                                                                onSubmit(name, value, parent, type, isTemplatedString);
                                                                 handleModalToggle(null);
                                                             },
                                                             intrf,
@@ -230,7 +230,14 @@ let ItemsTable: Function = ({
                                                         item.level ? !item.level.startsWith(levelType || '') : true
                                                     }
                                                     onClick={() => {
-                                                        onSubmit(item.name, null, item.parent_class, type, true);
+                                                        onSubmit(
+                                                            item.name,
+                                                            null,
+                                                            item.parent_class,
+                                                            type,
+                                                            item.is_templated_string,
+                                                            true
+                                                        );
                                                     }}
                                                 />
                                             </ButtonGroup>

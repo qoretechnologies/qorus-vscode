@@ -81,7 +81,8 @@ export default class ConfigItemsModal extends Component {
                 : this.props.item.type
             : null,
         useTemplate: this.props.item
-            ? typeof this.props.item.value === 'string' && this.props.item.value.startsWith('$')
+            ? this.props.item.is_templated_string ||
+              (typeof this.props.item.value === 'string' && this.props.item.value.startsWith('$'))
             : false,
         templateType: this.props.item && this.getTemplateType(this.props.item.value),
         templateKey: this.props.item && this.getTemplateKey(this.props.item.value),
@@ -112,7 +113,7 @@ export default class ConfigItemsModal extends Component {
             newValue = jsyaml.safeDump(value);
         }
 
-        this.props.onSubmit(this.state.item.name, newValue, this.state.item.parent_class);
+        this.props.onSubmit(this.state.item.name, newValue, this.state.item.parent_class, this.state.isTemplatedString);
     };
 
     renderAllowedItems: Function = item => {
@@ -200,7 +201,11 @@ export default class ConfigItemsModal extends Component {
                             renderActiveTabPanelOnly
                             className={'fullHeightTabs'}
                             onChange={(newTabId: string): void => {
-                                this.setState({ value: null, tab: newTabId });
+                                this.setState({
+                                    value: null,
+                                    tab: newTabId,
+                                    isTemplatedString: newTabId === 'template',
+                                });
                             }}
                             selectedTabId={this.state.tab}
                         >
