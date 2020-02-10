@@ -52,6 +52,8 @@ class ClassCreator extends InterfaceCreator {
             this.has_code = true;
         }
 
+        imports = imports || [];
+
         data = this.init(data, suffix);
 
         if (iface_kind === 'step' && data['base-class-name']) {
@@ -65,7 +67,7 @@ class ClassCreator extends InterfaceCreator {
         let message: string;
         let code_lines: string[];
         let orig_file_path: string;
-        let more_imports: string[];
+        let more_imports: string[] = [];
         switch (edit_type) {
             case 'create':
                 if (!this.has_code) {

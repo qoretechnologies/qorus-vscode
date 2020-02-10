@@ -49,6 +49,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.has_code = true;
 
+        this.imports = this.imports || [];
+
         const {
             [methods_key]: methods,
             ...header_data
@@ -293,7 +295,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let connections_extra_class: string = '';
         if (data['class-connections']) {
             ClassWithMethodsCreator.fixClassConnections(data['class-connections']);
-            ({connections_within_class, connections_extra_class, triggers, imports}
+            ({connections_within_class, connections_extra_class, triggers, imports = []}
                  = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
         }

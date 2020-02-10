@@ -78,7 +78,7 @@ export class InterfaceInfo {
         return this.last_conf_group;
     }
 
-    updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove}) => {
+    updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string}) => {
         this.initIfaceId(iface_id, iface_kind);
 
         const parsed_value = jsyaml.safeLoad(value);
@@ -117,6 +117,9 @@ export class InterfaceInfo {
 
                 if (['step', 'job', 'service', 'class'].includes(level)) {
                     level = 'local';
+                    if (is_templated_string) {
+                        item.is_value_templated_string = true;
+                    }
                 }
 
                 if (value === null && remove) {
@@ -314,8 +317,11 @@ export class InterfaceInfo {
         const iface_data = this.iface_by_id[iface_id];
         const base_class_name = iface_data['base-class-name'];
 
-        (classes || iface_data.classes || iface_data.requires || []).forEach(class_data => {
-            removeClassConfigItems(class_data.name, class_data.name === base_class_name);
+        (iface_data.classes || iface_data.requires || []).forEach(class_data => {
+            const index = classes.findIndex(class_data_2 => class_data_2.name === class_data.name);
+            if (index === -1) {
+                removeClassConfigItems(class_data.name, class_data.name === base_class_name);
+            }
         });
     }
 
