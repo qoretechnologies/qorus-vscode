@@ -30,6 +30,9 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
 
         // Send message
         const postMessage: TPostMessage = (action, data = {}) => {
+            if (action === 'get-config-items') {
+                console.log(action, data);
+            }
             vscode.postMessage({
                 action,
                 ...data,

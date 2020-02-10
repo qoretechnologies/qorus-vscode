@@ -86,7 +86,7 @@ export default class ConfigItemsModal extends Component {
             : false,
         templateType: this.props.item && this.getTemplateType(this.props.item.value),
         templateKey: this.props.item && this.getTemplateKey(this.props.item.value),
-        tab: 'custom',
+        tab: this.props.item.is_templated_string ? 'template' : 'custom',
     };
 
     handleObjectChange: Function = (value, type, canBeNull): void => {

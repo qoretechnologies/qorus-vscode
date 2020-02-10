@@ -31,6 +31,7 @@ const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
     selectFirst,
     defaultSelectItems,
     canBeRemoved,
+    hideTextField,
 }) => (
     <div>
         <ControlGroup fill>
@@ -48,25 +49,29 @@ const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
                         }}
                         fill
                     />
-                    <StringField
-                        name={keyName}
-                        value={keyValue}
-                        onChange={(fieldName: string, value: string): void => {
-                            onChange(fieldName, value);
-                        }}
-                        fill
-                    />
+                    {hideTextField && (
+                        <StringField
+                            name={keyName}
+                            value={keyValue}
+                            onChange={(fieldName: string, value: string): void => {
+                                onChange(fieldName, value);
+                            }}
+                            fill
+                        />
+                    )}
                 </>
             ) : (
                 <>
-                    <StringField
-                        name={keyName}
-                        value={keyValue}
-                        onChange={(fieldName: string, value: string): void => {
-                            onChange(fieldName, value);
-                        }}
-                        fill
-                    />
+                    {!hideTextField && (
+                        <StringField
+                            name={keyName}
+                            value={keyValue}
+                            onChange={(fieldName: string, value: string): void => {
+                                onChange(fieldName, value);
+                            }}
+                            fill
+                        />
+                    )}
                     <SelectField
                         name={valueName}
                         value={valueValue}

@@ -31,7 +31,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
         // Check if the current value is empty
         if (key === 'name' && !(value[index][key] === '' || !value[index][key])) {
             // Reset the class connections if it's not
-            resetClassConnections();
+            resetClassConnections && resetClassConnections();
         }
         const newValue = [...value];
         // Get the pair based on the index
@@ -80,6 +80,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
                         onChange={(fieldName: string, value: any) => {
                             changePairData(index, fieldName, value);
                         }}
+                        hideTextField
                     />
                 </StyledPairField>
             ))}
