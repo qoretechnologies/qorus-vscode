@@ -1,23 +1,10 @@
+import * as shortid from 'shortid';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier } from '../qorus_utils';
 
 // =================================================================
 
-export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => {
-    const imports = lang === 'java' ? [
-        'import org.qore.jni.QoreObject;',
-        'import org.qore.lang.mapper.Mapper;',
-        'import java.util.Map;',
-        'import java.util.Optional;',
-        'import java.util.HashMap;',
-        'import java.lang.reflect.Method;'
-    ] : [];
-    const {connections_within_class, triggers} = withinClassCode(data, code_info, lang);
-    const {connections_extra_class} = extraClassCode(data['class-connections'], code_info, lang);
-    return {connections_within_class, connections_extra_class, triggers, imports};
-};
-
-const CONN_CLASS = 'ClassConnections';
+let CONN_CLASS = 'ClassConnections';
 const CONN_BASE_CLASS = 'Observer';
 const CONN_MEMBER = 'class_connections';
 const CONN_CLASS_MAP = 'class_map';
@@ -38,6 +25,26 @@ const indent1 = ' '.repeat(4);
 const indent2 = indent1.repeat(2);
 const indent3 = indent1.repeat(3);
 const indent4 = indent1.repeat(4);
+
+// =================================================================
+
+export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => {
+    const imports = lang === 'java' ? [
+        'import org.qore.jni.QoreObject;',
+        'import org.qore.lang.mapper.Mapper;',
+        'import java.util.Map;',
+        'import java.util.Optional;',
+        'import java.util.HashMap;',
+        'import java.lang.reflect.Method;'
+    ] : [];
+
+    CONN_CLASS += `_${shortid.generate()}`;
+
+    const {connections_within_class, triggers} = withinClassCode(data, code_info, lang);
+    const {connections_extra_class} = extraClassCode(data['class-connections'], code_info, lang);
+
+    return {connections_within_class, connections_extra_class, triggers, imports};
+};
 
 // =================================================================
 
