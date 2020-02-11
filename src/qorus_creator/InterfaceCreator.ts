@@ -29,11 +29,17 @@ export abstract class InterfaceCreator {
         this.lang = data.lang || 'qore';
 
         if (this.lang === 'qore') {
-            this.file_base = target_file
-                ? path.basename(path.basename(target_file, '.yaml'), this.suffix)
-                : data.version !== undefined
+            if (target_file) {
+                this.file_base = target_file;
+                ['yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper',
+                 'qsd', 'qmc', 'qevent', 'qgroup', 'qqueue'].forEach(suffix => {
+                    this.file_base = path.basename(this.file_base, `.${suffix}`);
+                });
+            } else {
+                this.file_base = data.version !== undefined
                     ? `${data.name}-${data.version}`
                     : data.name;
+            }
             this.yaml_file_base = this.file_base;
         } else {
             this.file_base = target_file
