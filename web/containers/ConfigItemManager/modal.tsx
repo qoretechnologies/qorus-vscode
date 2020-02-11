@@ -47,7 +47,6 @@ export default class ConfigItemsModal extends Component {
 
     getTemplateKey = value => {
         const [_type, key] = value.replace(/'/g, '').split(':');
-        console.log(key);
 
         return key;
     };
@@ -140,11 +139,19 @@ export default class ConfigItemsModal extends Component {
         );
     };
 
+    isDisabled = () => {
+        const { tab, templateType, templateKey, value, error } = this.state;
+
+        if (tab === 'template') {
+            return templateKey && templateKey !== '' && templateType && templateType !== '';
+        } else {
+            return !error;
+        }
+    };
+
     render() {
         const { onClose, isGlobal, globalConfig, t } = this.props;
         const { error, yamlData, value, item } = this.state;
-
-        console.log(this.state);
 
         return (
             <Dialog
@@ -375,7 +382,7 @@ export default class ConfigItemsModal extends Component {
                         <div>
                             <ButtonGroup className="pull-right">
                                 <Button text={t('Cancel')} onClick={onClose} />
-                                {!isGlobal && value === item.default_value ? (
+                                {!isGlobal && this.state.tab !== 'template' && value === item.default_value ? (
                                     <Popover
                                         position={Position.TOP}
                                         content={
@@ -398,7 +405,7 @@ export default class ConfigItemsModal extends Component {
                                     <Button
                                         text={t('Save')}
                                         intent="success"
-                                        disabled={error}
+                                        disabled={!this.isDisabled()}
                                         onClick={this.handleSaveClick}
                                     />
                                 )}
