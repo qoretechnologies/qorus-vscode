@@ -8,7 +8,7 @@ import ContentByType from '../ContentByType';
 
 const Text = ({ text, hasAlerts, expanded, caseSensitiveTree, noControls }) =>
     text && typeof text === 'object' ? (
-        <Tree data={text} noControls={noControls} caseSensitive={caseSensitiveTree} />
+        <Tree data={text} noControls={noControls} compact caseSensitive={caseSensitiveTree} />
     ) : (
         <Flex flexFlow="row" title={text}>
             <div
