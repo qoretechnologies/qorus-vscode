@@ -388,6 +388,10 @@ export class InterfaceInfo {
                     item.allowed_values = item.allowed_values.map(value => toYamlIfComplexLocal(value));
                 }
 
+                if (item.value !== undefined) {
+                    item['local-value'] = item.value;
+                }
+
                 delete item.value;
                 if (item.default_value !== undefined) {
                     item.default_value = toYamlIfComplexLocal(item.default_value);
