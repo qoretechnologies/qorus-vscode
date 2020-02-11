@@ -40,23 +40,16 @@ import { validateField } from '../../helpers/validations';
 @withTextContext()
 export default class ConfigItemsModal extends Component {
     getTemplateType = value => {
-        if (value && value.toString().startsWith('$')) {
-            const [type] = value.split(':');
+        const [type] = value.replace(/'/g, '').split(':');
 
-            return type.replace('$', '');
-        }
-
-        return 'config';
+        return type.replace('$', '');
     };
 
     getTemplateKey = value => {
-        if (value && value.toString().startsWith('$')) {
-            const [_type, key] = value.split(':');
+        const [_type, key] = value.replace(/'/g, '').split(':');
+        console.log(key);
 
-            return key;
-        }
-
-        return null;
+        return key;
     };
 
     state: {
@@ -80,12 +73,9 @@ export default class ConfigItemsModal extends Component {
                 ? this.props.item.currentType || null
                 : this.props.item.type
             : null,
-        useTemplate: this.props.item
-            ? this.props.item.is_templated_string ||
-              (typeof this.props.item.value === 'string' && this.props.item.value.startsWith('$'))
-            : false,
-        templateType: this.props.item && this.getTemplateType(this.props.item.value),
-        templateKey: this.props.item && this.getTemplateKey(this.props.item.value),
+        useTemplate: this.props.item ? this.props.item.is_templated_string : false,
+        templateType: this.props.item.is_templated_string && this.getTemplateType(this.props.item.value),
+        templateKey: this.props.item.is_templated_string && this.getTemplateKey(this.props.item.value),
         tab: this.props.item.is_templated_string ? 'template' : 'custom',
     };
 
@@ -111,6 +101,10 @@ export default class ConfigItemsModal extends Component {
 
         if (this.state.type === 'string' && value === '') {
             newValue = jsyaml.safeDump(value);
+        }
+
+        if (this.state.tab === 'template') {
+            newValue = `$${this.state.templateType}:${this.state.templateKey}`;
         }
 
         this.props.onSubmit(this.state.item.name, newValue, this.state.item.parent_class, this.state.isTemplatedString);
@@ -149,6 +143,8 @@ export default class ConfigItemsModal extends Component {
     render() {
         const { onClose, isGlobal, globalConfig, t } = this.props;
         const { error, yamlData, value, item } = this.state;
+
+        console.log(this.state);
 
         return (
             <Dialog
