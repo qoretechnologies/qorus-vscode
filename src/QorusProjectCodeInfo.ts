@@ -554,9 +554,14 @@ export class QorusProjectCodeInfo {
         (data['config-items'] || []).forEach(item => {
             const global_value = globals.get(item.name);
             if (global_value !== undefined) {
-                item['global-value'] = global_value;
+                item['global-value'] = global_value.value;
                 item.level = 'global';
                 item.is_set = true;
+                if (global_value.is_value_templated_string) {
+                    item.is_global_value_templated_string = true;
+                } else {
+                    delete item.is_global_value_templated_string;
+                }
             }
 
             if (item.value !== undefined) {

@@ -286,8 +286,8 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level',
-                     'is_set', 'yamlData', 'orig_name', 'local-value', 'global-value',
+                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set',
+                     'yamlData', 'orig_name', 'local-value', 'global-value', 'is_global_value_templated_string',
                      'default_value', 'remove-global-value', 'workflow-value'].includes(tag))
                 {
                     continue;

@@ -117,9 +117,6 @@ export class InterfaceInfo {
 
                 if (['step', 'job', 'service', 'class'].includes(level)) {
                     level = 'local';
-                    if (is_templated_string) {
-                        item.is_value_templated_string = true;
-                    }
                 }
 
                 if (value === null && remove) {
@@ -128,6 +125,15 @@ export class InterfaceInfo {
                         item['remove-global-value'] = true;
                     }
                     return;
+                }
+
+                const templated_key = level === 'global'
+                    ? 'is_global_value_templated_string'
+                    : 'is_value_templated_string';
+                if (is_templated_string) {
+                    item[templated_key] = true;
+                } else {
+                    delete item[templated_key];
                 }
 
                 item[level + '-value'] = parsed_value;
@@ -419,7 +425,7 @@ export class InterfaceInfo {
             const checkValueLevel = (item: any, level: string): any => {
                 const key = level + '-value';
                 if (item[key] !== undefined) {
-                    item.value = item[key];
+                    item.value = toYamlIfComplex(item[key], item.type);
                     item.level = level;
                     item.is_set = true;
                 }
@@ -427,6 +433,12 @@ export class InterfaceInfo {
                     delete item.value;
                     delete item.is_set;
                 }
+
+                delete item.is_templated_string;
+                if (level === 'global' && item.is_global_value_templated_string) {
+                    item.is_templated_string = true;
+                }
+
                 return { ...item };
             };
 

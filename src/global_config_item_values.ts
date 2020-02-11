@@ -44,7 +44,7 @@ const write = items => {
     fs.writeFileSync(filepath(), contents_str);
 };
 
-export const set = ({name, 'global-value': value}) => {
+export const set = ({name, 'global-value': value, is_global_value_templated_string}) => {
     let items = read();
     if (!items) {
         return;
@@ -53,8 +53,13 @@ export const set = ({name, 'global-value': value}) => {
     const index = items.findIndex(item => item.name === name);
     if (index > -1) {
         items[index].value = value;
+        if (is_global_value_templated_string) {
+            items[index].is_value_templated_string = true;
+        } else {
+            delete items[index].is_value_templated_string;
+        }
     } else {
-        items.push({name, value});
+        items.push({name, value, ... is_global_value_templated_string ? {is_value_templated_string: true} : {}});
     }
 
     write(items);
@@ -81,5 +86,5 @@ export const get = name => {
     }
 
     const index = items.findIndex(item => item.name === name);
-    return index > -1 ? items[index].value : undefined;
+    return index > -1 ? items[index] : undefined;
 };
