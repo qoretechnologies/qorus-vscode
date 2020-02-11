@@ -25,7 +25,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     ...rest
 }) => {
     const [currentType, setType] = useState<string>(null);
-    const [currentInternalType, setInternalType] = useState<string>(null);
+    const [currentInternalType, setInternalType] = useState<string>('string');
     const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
 
     useMount(() => {
@@ -59,7 +59,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 // If this is auto / any field
                 // set the internal type
                 if (typeValue === 'auto' || typeValue === 'any') {
-                    setInternalType(value ? getTypeFromValue(maybeParseYaml(value)) : null);
+                    setInternalType(value ? getTypeFromValue(maybeParseYaml(value)) : 'string');
                 } else {
                     setInternalType(typeValue);
                 }
@@ -179,7 +179,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                             { name: 'hash' },
                             { name: 'int' },
                         ]}
-                        value={currentInternalType}
+                        value={currentInternalType || 'string'}
                         onChange={(_name, value) => {
                             handleChange(name, null);
                             setInternalType(value);
@@ -187,7 +187,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                     />
                 )}
 
-                {renderField(currentInternalType)}
+                {renderField(currentInternalType || 'string')}
                 {canBeNull() && (
                     <Button
                         intent={isSetToNull ? 'warning' : 'none'}
