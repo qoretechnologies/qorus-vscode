@@ -405,6 +405,10 @@ export class InterfaceInfo {
                     }
                 }
 
+                if (item.is_value_templated_string) {
+                    item.is_templated_string = true;
+                }
+
                 return item;
             };
 
