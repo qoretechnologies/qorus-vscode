@@ -48,9 +48,7 @@ class ClassCreator extends InterfaceCreator {
                 return;
         }
 
-        if (template) {
-            this.has_code = true;
-        }
+        this.has_code = !!template;
 
         imports = imports || [];
 
