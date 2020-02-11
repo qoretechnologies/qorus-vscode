@@ -564,11 +564,6 @@ export class QorusProjectCodeInfo {
             }
 
             delete item.value;
-
-            if (item.is_value_templated_string) {
-                item.is_templated_string = true;
-                delete item.is_value_templated_string;
-            }
         });
 
         for (const method of data.methods || []) {
