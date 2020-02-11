@@ -304,7 +304,7 @@ export abstract class InterfaceCreator {
                                     `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: "${item[tag].replace(/\r?\n/g, '\\n')}"\n`;
+                                result += `${indent}${tag}: "${item[tag].replace(/\r?\n/g, '\\n').replace(/\"/g, '\\"')}"\n`;
                                 break;
                             default:
                                 result += `${indent}${tag}: ${item[tag]}\n`;
@@ -494,7 +494,7 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
-                        result += `${tag}: "${value.replace(/\r?\n/g, '\\n')}"\n`;
+                        result += `${tag}: "${value.replace(/\r?\n/g, '\\n').replace(/\"/g, '\\"')}"\n`;
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
