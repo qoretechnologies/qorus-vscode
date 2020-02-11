@@ -555,10 +555,15 @@ export class QorusProjectCodeInfo {
             const global_value = globals.get(item.name);
             if (global_value !== undefined) {
                 item['global-value'] = global_value;
-                item.value = global_value;
                 item.level = 'global';
                 item.is_set = true;
             }
+
+            if (item.value !== undefined) {
+                item['local-value'] = item.value;
+            }
+
+            delete item.value;
 
             if (item.is_value_templated_string) {
                 item.is_templated_string = true;
