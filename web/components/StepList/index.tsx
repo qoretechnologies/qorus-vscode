@@ -306,7 +306,6 @@ const Step = ({
     useEffect(() => {
         // Wait for the interface data message
         const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-            console.log(data);
             if (data.step && stepsData[step].name === data.step.name && stepsData[step].version == data.step.version) {
                 setStepData({
                     name: data.step.name,
@@ -315,13 +314,15 @@ const Step = ({
                 });
             }
         });
-        // Ask for the interface data on every change to
-        // this step
-        postMessage(Messages.GET_INTERFACE_DATA, {
-            iface_kind: 'step',
-            name: `${stepsData[step].name}:${stepsData[step].version}`,
-            include_tabs: false,
-        });
+        setTimeout(() => {
+            // Ask for the interface data on every change to
+            // this step
+            postMessage(Messages.GET_INTERFACE_DATA, {
+                iface_kind: 'step',
+                name: `${stepsData[step].name}:${stepsData[step].version}`,
+                include_tabs: false,
+            });
+        }, 500);
         // Remove the listener when unmounted
         return () => {
             msgListener();
