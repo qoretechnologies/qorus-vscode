@@ -42,8 +42,8 @@ export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => 
     const {connections_extra_class} = extraClassCode(data['class-connections'], code_info, lang);
 
     if (lang === 'java') {
-        if (data['class-connections'].some(connection => data['class-connections'][connection]
-                                     .some(connector => !!connector.mapper)))
+        if (Object.keys(data['class-connections']).some(connection => data['class-connections'][connection]
+                                                  .some(connector => !!connector.mapper)))
         {
             imports.push('import org.qore.lang.mapper.Mapper;');
         }
@@ -402,9 +402,9 @@ const methodCodeJava = (connection_code_name, connectors) => {
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
         if (++n !== connectors.length) {
-            code += `${CONN_DATA} = `;
+            code += `${CONN_DATA} = (Map<String, Object>)`;
         }
-        code += `(Map<String, Object>)${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", Optional.of(${CONN_DATA}));\n`;
+        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", Optional.of(${CONN_DATA}));\n`;
     });
 
     code += `${indent1}}\n`;
