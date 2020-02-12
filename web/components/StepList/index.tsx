@@ -14,7 +14,11 @@ import {
 } from '@blueprintjs/core';
 import SelectField from '../Field/select';
 import withTextContext from '../../hocomponents/withTextContext';
-import { FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../../containers/InterfaceCreator/panel';
+import InterfaceCreatorPanel, {
+    FieldWrapper,
+    FieldInputWrapper,
+    ActionsWrapper,
+} from '../../containers/InterfaceCreator/panel';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import compose from 'recompose/compose';
 import { FieldType, FieldName } from '../FieldSelector';
@@ -23,6 +27,9 @@ import { Messages } from '../../constants/messages';
 import { AddStepButton } from '../AddStepButton';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import { onlyUpdateForKeys } from 'recompose';
+import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
+import { CreatorWrapper } from '../../containers/InterfaceCreator/mapperView';
+import ClassConnectionsStateProvider from '../../containers/ClassConnectionsStateProvider';
 
 const StyledStepWrapper = styled.div`
     .bp3-popover-wrapper {
@@ -291,14 +298,15 @@ const Step = ({
     t,
 }) => {
     const [stepData, setStepData] = useState({
-        name: 'Unknown step',
+        name: 'Loading step',
         version: 0,
-        type: 'Unknown step type',
+        type: 'Loading step type',
     });
 
     useEffect(() => {
         // Wait for the interface data message
         const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+            console.log(data);
             if (data.step && stepsData[step].name === data.step.name && stepsData[step].version == data.step.version) {
                 setStepData({
                     name: data.step.name,
@@ -318,7 +326,7 @@ const Step = ({
         return () => {
             msgListener();
         };
-    }, [step, stepsData]);
+    }, [step, stepsData, steps]);
 
     return (
         <>
@@ -409,72 +417,100 @@ const NewStepPopover = compose(
     withTextContext(),
     withFieldsConsumer()
 )(({ t, onStepInsert, step, before, parallel, onSubmit, onCancel, initialData, stepsData, resetFields }) => {
+    const [stepDialog, setStepDialog] = useState<boolean>(false);
     const handleInsert: (name: string, type: string, version: string) => void = (name, type, version) => {
         onStepInsert({ name, type, version }, step, before, parallel);
         onSubmit();
     };
 
     return (
-        <StyledPopover>
-            <FieldName>
-                {t('AddNewStep')} {before ? t('Before') : t('After')} {step ? stepsData[step].name : 'all steps'}
-            </FieldName>
-            <ActionsWrapper>
-                <FieldInputWrapper>
-                    <ControlGroup fill>
-                        <Button
-                            intent="success"
-                            icon="add"
-                            text={t('AddNewStep')}
-                            onClick={() => {
-                                resetFields('step');
-                                initialData.resetInterfaceData('step');
-                                initialData.changeTab('CreateInterface', 'step');
-                                initialData.setStepSubmitCallback((stepName, stepVersion, stepType) => {
-                                    handleInsert(stepName, stepType, stepVersion);
-                                    initialData.changeTab('CreateInterface', 'workflow');
-                                    initialData.setStepSubmitCallback(null);
-                                });
-                            }}
-                            fill
-                        />
-                        <SelectField
-                            get_message={{
-                                action: 'creator-get-objects',
-                                object_type: 'workflow-step',
-                            }}
-                            return_message={{
-                                action: 'creator-return-objects',
-                                object_type: 'workflow-step',
-                                return_value: 'objects',
-                            }}
-                            predicate={(name: string) =>
-                                !some(stepsData, item => `${item.name}:${item.version}` === name)
-                            }
-                            value={name}
-                            onChange={(_name, value) => {
-                                const [name, version] = value.split(':');
+        <>
+            <Dialog
+                isOpen={stepDialog}
+                title={t('AddNewStep')}
+                onClose={() => setStepDialog(false)}
+                style={{ width: '95vw', height: '95vh', backgroundColor: '#fff ' }}
+            >
+                <StyledDialogBody style={{ flexFlow: 'column' }}>
+                    <CreatorWrapper>
+                        <ClassConnectionsStateProvider type="step">
+                            {classConnectionsProps => (
+                                <InterfaceCreatorPanel
+                                    type={'step'}
+                                    hasClassConnections
+                                    hasConfigManager
+                                    onSubmit={fields => {
+                                        const nameField = fields.find(field => field.name === 'name');
+                                        const versionField = fields.find(field => field.name === 'version');
+                                        const typeField = fields.find(field => field.name === 'base-class-name');
+                                        handleInsert(nameField.value, typeField.value, versionField.value);
+                                        setStepDialog(false);
+                                    }}
+                                    openFileOnSubmit={false}
+                                    forceSubmit
+                                    {...classConnectionsProps}
+                                />
+                            )}
+                        </ClassConnectionsStateProvider>
+                    </CreatorWrapper>
+                </StyledDialogBody>
+            </Dialog>
+            <StyledPopover>
+                <FieldName>
+                    {t('AddNewStep')} {before ? t('Before') : t('After')} {step ? stepsData[step].name : 'all steps'}
+                </FieldName>
+                <ActionsWrapper>
+                    <FieldInputWrapper>
+                        <ControlGroup fill>
+                            <Button
+                                intent="success"
+                                icon="add"
+                                text={t('AddNewStep')}
+                                onClick={() => {
+                                    resetFields('step');
+                                    initialData.resetInterfaceData('step');
+                                    setStepDialog(true);
+                                }}
+                                fill
+                            />
+                            <SelectField
+                                get_message={{
+                                    action: 'creator-get-objects',
+                                    object_type: 'workflow-step',
+                                }}
+                                return_message={{
+                                    action: 'creator-return-objects',
+                                    object_type: 'workflow-step',
+                                    return_value: 'objects',
+                                }}
+                                predicate={(name: string) =>
+                                    !some(stepsData, item => `${item.name}:${item.version}` === name)
+                                }
+                                value={name}
+                                onChange={(_name, value) => {
+                                    const [name, version] = value.split(':');
 
-                                handleInsert(name, null, version);
+                                    handleInsert(name, null, version);
+                                }}
+                                placeholder={t('OrSelectExisting')}
+                                name="name"
+                                fill
+                            />
+                        </ControlGroup>
+                    </FieldInputWrapper>
+                </ActionsWrapper>
+                <ActionsWrapper>
+                    <ButtonGroup fill>
+                        <Button
+                            text={t('Cancel')}
+                            onClick={() => {
+                                onCancel();
                             }}
-                            placeholder={t('OrSelectExisting')}
-                            name="name"
-                            fill
                         />
-                    </ControlGroup>
-                </FieldInputWrapper>
-            </ActionsWrapper>
-            <ActionsWrapper>
-                <ButtonGroup fill>
-                    <Button
-                        text={t('Cancel')}
-                        onClick={() => {
-                            onCancel();
-                        }}
-                    />
-                </ButtonGroup>
-            </ActionsWrapper>
-        </StyledPopover>
+                    </ButtonGroup>
+                </ActionsWrapper>
+            </StyledPopover>
+        </>
     );
 });
 
