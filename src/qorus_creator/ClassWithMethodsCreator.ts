@@ -294,7 +294,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
         if (data['class-connections']) {
-            ClassWithMethodsCreator.fixClassConnections(data['class-connections']);
+            ClassWithMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports = []}
                  = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));

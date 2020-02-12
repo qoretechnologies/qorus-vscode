@@ -31,7 +31,6 @@ const indent4 = indent1.repeat(4);
 export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => {
     const imports = lang === 'java' ? [
         'import org.qore.jni.QoreObject;',
-        'import org.qore.lang.mapper.Mapper;',
         'import java.util.Map;',
         'import java.util.Optional;',
         'import java.util.HashMap;',
@@ -42,6 +41,14 @@ export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => 
 
     const {connections_within_class, triggers} = withinClassCode(data, code_info, lang);
     const {connections_extra_class} = extraClassCode(data['class-connections'], code_info, lang);
+
+    if (lang === 'java') {
+        if (data['class-connections'].some(connection => data['class-connections'][connection]
+                                     .some(connector => !!connector.mapper)))
+        {
+            imports.push('import org.qore.lang.mapper.Mapper;');
+        }
+    }
 
     return {connections_within_class, connections_extra_class, triggers, imports};
 };
@@ -355,7 +362,7 @@ const methodCodeQore = (connection_code_name, connectors) => {
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
 
         if (connector.mapper) {
-            code += `\n${indent2}${CONN_MAPPER} = UserApi::getMapper("${connector.mapper}");\n` +
+            code += `\n${indent2}${CONN_MAPPER} = UserApi::getMapper("${connector.mapper.split(':')[0]}");\n` +
             `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
         }
 
@@ -385,7 +392,7 @@ const methodCodeJava = (connection_code_name, connectors) => {
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
 
         if (connector.mapper) {
-            code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper}");\n` +
+            code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}");\n` +
             `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
         }
 

@@ -76,7 +76,7 @@ class ClassCreator extends InterfaceCreator {
                 let connections_within_class: string = '';
                 let connections_extra_class: string = '';
                 if (data['class-connections']) {
-                    ClassCreator.fixClassConnections(data['class-connections']);
+                    ClassCreator.fixClassConnections(data);
                     ({connections_within_class, connections_extra_class, imports: more_imports = []}
                                         = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
                 }

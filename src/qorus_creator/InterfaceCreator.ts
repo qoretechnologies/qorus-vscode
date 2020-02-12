@@ -541,15 +541,18 @@ export abstract class InterfaceCreator {
     }
 
     protected static fixClassConnections = data => {
-        for (const connection in data) {
-            for (const connector of data[connection]) {
+        for (const connection in data['class-connections']) {
+            for (const connector of data['class-connections'][connection]) {
                 const class_name_parts = connector.class.split(':');
                 if (class_name_parts[1]) {
                     connector.prefix = class_name_parts[0];
                     connector.class = class_name_parts[1];
                 }
                 if (connector.mapper) {
-                    connector.mapper = connector.mapper.split(':')[0];
+                    data.mappers = data.mappers || [];
+                    if (!data.mappers.some(mapper => mapper.name === connector.mapper)) {
+                        data.mappers.push({name: connector.mapper});
+                    }
                 }
             }
         }
