@@ -237,7 +237,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         let new_code = line_before;
         for (let name of added) {
-            new_code += '\n' + this.fillTemplate(this.method_template, '', { name }, false);
+            new_code += '\n' + this.fillTemplate(this.method_template, undefined, { name }, false);
         }
         const new_code_lines = new_code.split(/\r?\n/);
         if (new_code_lines[new_code_lines.length - 1] === '') {
@@ -302,7 +302,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(this.fillTemplate(this.method_template, '', { name: method.name }, false));
+            method_strings.push(this.fillTemplate(this.method_template, undefined, { name: method.name }, false));
         }
         const methods = method_strings.join('\n');
 
