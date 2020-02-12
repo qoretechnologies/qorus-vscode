@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0
+
+* Qorus webview with many features is introduced
+* support for creating of Qorus interfaces such as jobs, services, steps, workflows, classes, mappers etc.
+* connecting building blocks using class-connections manager allowing to create no-code solution for complex enterprise integration scenarios
+* release package management
+* hierarchy view providing an overview of interfaces in the project
+* and much more
+
+The list of all implemented issues can be found in the following link:
+https://github.com/qoretechnologies/qorus-vscode/milestone/7?closed=1
+
 ## 0.0.8
 
 * fix: release packager page does not remember its initial state

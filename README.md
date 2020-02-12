@@ -1,64 +1,39 @@
-# qorus-vscode
+# Qorus Developer Tools
 
-A developer's front end for the Qorus Integration Engine.
+Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologies.com/qorus_integration_engine/).
+This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
+It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
-https://qoretechnologies.com/qorus_integration_engine/
+## What's new in Qorus Developer Tools 1.0.0
 
-## Features
-
-The extension makes it possible to remotely deploy Qorus interfaces directly from the Visual Studio Code editor.
+* Qorus Webview introduced
+* Configuration manager helps to easily manage configuration data of the project (no need for manual work with **qorusproject.json**).
+* Support for creating of Qorus interfaces such as jobs, services, steps, workflows, classes, mappers etc.
+* Connecting building blocks using class-connections manager allows to create no-code solution for complex enterprise integration scenarios
+* Release package management
+* Hierarchy view of all interfaces in the project
 
 ## How to use
 
-### Configuration data and corresponding tree view
+There are three main user interfaces to use the extension:
+* Webview
+* Hierarchy view
+* Commands
 
-In order to work with the extension, a project must be open in the VSCode editor. By project we mean the root directory of a project (e.g. the root of a git repository).
+### Webview
 
-Next, in the root directory, there needs to be a project configuration file **qorusproject.json** describing development environments and Qorus instances used during the project development. If the configuration file **qorusproject.json** is not present, it can be generated from a template so that the user can simply edit its contents seeing the required structure. Creation of the configuration file is offered in the context menu over each file and each folder within the project.
+The webview can be opened using the Qorus icon, which placed in the hierarchy view and also in the VS Code action bar or by qorus webview command. The webview can be used for creation/editing of Qorus interfaces, project configuration, release package management and much more.
 
-Based on the configuration file contents, *Qorus Instances* tree view is provided in the explorer pane. Switching to the *Qorus Instances* tree view is done by clicking the hexagon [Q] (Qorus) icon in the activity bar.
+![interface_creation](images/gif/interface_creation.gif)
 
-Multiple projects (directories) can be opened at the same time. While alternately editing files from different projects the *Qorus Instances* tree view changes accordingly.
+Creating Qorus mapper using the provider API support:
+![mapper_creation](images/gif/mapper_creation.gif)
 
-The configuration file structure is explained by the following example:
+### Hierarchy view
 
-```
-{
-    "qorus_instances": {
-        "local": [
-            {
-                "url": "http://localhost:8001",
-                "name": "main local Qorus instance",
-                "custom_urls": []
-            },
-            {
-                "url": "https://localhost:8011",
-                "name": "local Qorus instance"
-            }
-        ],
-        "dev": [
-            {
-                "url": "http://1.2.3.4:5678",
-                "name": "dev 1",
-                "custom_urls": [
-                    {
-                        "url": "sftp://abc@def/ghi",
-                        "name": "abc"
-                    },
-                    {
-                        "url": "sftp://xyz@uvw",
-                        "name": "xyz"
-                    }
-                ]
-            },
-            {
-                "url": "https://2.3.4.5:6789",
-                "name": "dev 2"
-            }
-        ]
-    }
-}
-```
+The hierarchy view provides an overview of the open project. In the `interfaces` tab all interfaces that are currently present in the project and based on the `src directories` configuration are shown. They can be sorted according to the folder hierarchy on the disk or according to interface types. Also the hierarchy view provides quick actions in order to perform operations on the server or make changes on local files such as deploying an interface to an active instance or creating a new interface.
+
+The `instances` tab of the hierarchy view displays all configured environments with instances and links to them based on the configuration file (**qorusproject.json**).
 
 The interpretation of the data is depicted by a tree with three levels:
 - **development environments** (here `local` and `dev`)
@@ -82,6 +57,8 @@ The corresponding tree looks as follows:
     * main URL (https://2.3.4.5:6789)
 ```
 
+![hierarchy_view](images/gif/hierarchy_view.gif)
+
 ### Deployment
 
 There are several possible deployment methods:
@@ -89,6 +66,8 @@ There are several possible deployment methods:
 - Use the `Qorus: Deploy file` command from a file's context menu (in the Explorer view).
 - Use the `Qorus: Deploy directory` command from a directory's context menu (deploys all deployable files in the directory including subdirectories).
 - Use the *Deploy* buttons shown when hovering mouse cursor over an interface or a directory in the *Qorus Interfaces* tree view.
+
+![deployment](images/gif/deployment.gif)
 
 The deployment is targeted to a Qorus instance that is currently set as **active**.
 
@@ -98,7 +77,9 @@ Active Qorus instance is marked by a green light icon. At most one Qorus instanc
 
 ### Login/Logout
 
-If a Qorus instance requires authentication (and the user has not yet logged in that instance) the `Set as active Qorus instance` command opens a login dialog. After a successful login, the instance will become active.
+If a Qorus instance requires authentication (and the user has not yet logged in that instance) the `Set as active Qorus instance` command opens a login dialog. After a successful login, the instance will become active. Also login can be performed in the webview.
+
+![login](images/gif/login.gif)
 
 Authentication tokens are stored, so that next time logging-in is not required.
 (Tokens are only stored in memory while VSCode is running, not persistently.)
