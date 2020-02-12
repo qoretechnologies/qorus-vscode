@@ -358,6 +358,11 @@ const methodCodeQore = (connection_code_name, connectors) => {
 
     let n = 0;
     connectors.forEach(connector => {
+        ++n;
+        if (connector.type === 'event') {
+            return;
+        }
+
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
 
         if (connector.mapper) {
@@ -366,7 +371,7 @@ const methodCodeQore = (connection_code_name, connectors) => {
         }
 
         code += `\n${indent2}UserApi::logDebug("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
-        if (++n !== connectors.length) {
+        if (n !== connectors.length) {
             code += `${CONN_DATA} = `;
         }
         code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA});\n`;
