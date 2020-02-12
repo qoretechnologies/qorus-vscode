@@ -298,8 +298,9 @@ export default class ConfigItemsModal extends Component {
                                             <div className="header">{t('ConfigCustomTemplate')}</div>
                                             <div className="body">
                                                 <Callout intent="primary" icon="info-sign">
-                                                    {`${t('ConfiTemplatesFormat')} $<type>:<key>`}
+                                                    {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
                                                 </Callout>
+                                                <div style={{ marginTop: '10px' }} />
                                                 <ControlGroup className="pt-fill">
                                                     <Dropdown className="pt-fixed">
                                                         <DControl icon="dollar">{this.state.templateType}</DControl>
@@ -362,6 +363,7 @@ export default class ConfigItemsModal extends Component {
                                                     </Dropdown>
                                                     <Button text=":" className={Classes.FIXED} />
                                                     <InputGroup
+                                                        fill
                                                         value={this.state.templateKey}
                                                         onChange={(event: any) => {
                                                             this.setState({

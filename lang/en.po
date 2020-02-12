@@ -1785,7 +1785,7 @@ msgstr "Set item value"
 msgid "ConfigCustomTemplate"
 msgstr "Config item template"
 
-msgid "ConfigTemplatesForma"
+msgid "ConfigTemplatesFormat"
 msgstr "Template config items are in format - "
 
 msgid "button.group-up"
