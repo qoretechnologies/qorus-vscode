@@ -1,4 +1,3 @@
-import * as shortid from 'shortid';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier } from '../qorus_utils';
 
@@ -37,7 +36,7 @@ export const connectionsCode = (data, code_info: QorusProjectCodeInfo, lang) => 
         'import java.lang.reflect.Method;'
     ] : [];
 
-    CONN_CLASS += `_${shortid.generate()}`;
+    CONN_CLASS += `_${data['class-name']}`;
 
     const {connections_within_class, triggers} = withinClassCode(data, code_info, lang);
     const {connections_extra_class} = extraClassCode(data['class-connections'], code_info, lang);
