@@ -359,15 +359,15 @@ const methodCodeQore = (connection_code_name, connectors) => {
     let n = 0;
     connectors.forEach(connector => {
         ++n;
-        if (connector.type === 'event') {
-            return;
-        }
-
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
 
         if (connector.mapper) {
             code += `\n${indent2}${CONN_MAPPER} = UserApi::getMapper("${connector.mapper.split(':')[0]}");\n` +
             `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
+        }
+
+        if (connector.type === 'event') {
+            return;
         }
 
         code += `\n${indent2}UserApi::logDebug("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
