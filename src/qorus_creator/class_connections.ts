@@ -312,9 +312,14 @@ const triggerCodeQore = trigger => {
         '};\n';
         params_str = CONN_DATA;
     }
-    trigger.connections.forEach(connection => {code +=
-        `${indent2}${CONN_MEMBER}.${connection}(${params_str});\n`
+    trigger.connections.forEach(connection => {
+        code += `${indent2}${CONN_MEMBER}.${connection}(${params_str});\n`;
     });
+
+    if (trigger.signature.indexOf('validation') > -1) {
+        code += `${indent2}return OMQ::StatRetry;\n`;
+    }
+
     code += `${indent1}}\n`
     return code;
 };
@@ -330,9 +335,14 @@ const triggerCodeJava = trigger => {
 
         params_str = CONN_DATA;
     }
-    trigger.connections.forEach(connection => {code +=
-        `${indent2}${CONN_MEMBER}.${connection}(${params_str});\n`
+    trigger.connections.forEach(connection => {
+        code += `${indent2}${CONN_MEMBER}.${connection}(${params_str});\n`;
     });
+
+    if (trigger.signature.indexOf('validation') > -1) {
+        code += `${indent2}return OMQ.StatRetry;\n`;
+    }
+
     code += `${indent1}}\n`
     return code;
 };
