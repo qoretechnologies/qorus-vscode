@@ -65,6 +65,9 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     }, [defaultItems]);
 
     const handleSelectClick: (item: any) => void = item => {
+        if (item === value) {
+            return;
+        }
         // Set the selected item
         onChange(name, item.name);
     };

@@ -2,7 +2,20 @@ import React, { FunctionComponent, useState, FormEvent, useEffect, useRef, useCa
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
-import { size, map, filter, find, includes, reduce, camelCase, upperFirst, omit, cloneDeep } from 'lodash';
+import {
+    size,
+    map,
+    filter,
+    find,
+    includes,
+    reduce,
+    camelCase,
+    upperFirst,
+    omit,
+    cloneDeep,
+    forEach,
+    uniqBy,
+} from 'lodash';
 import SidePanel from '../../components/SidePanel';
 import FieldSelector from '../../components/FieldSelector';
 import Content from '../../components/Content';
@@ -773,6 +786,64 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return selectedFields.find((field: IField) => field.name === 'classes')?.value || [];
     };
 
+    const getMappersFromClassConnections = classConnections => {
+        const mappers = [];
+        forEach(classConnections, connectionData => {
+            connectionData.forEach(connectorData => {
+                if (connectorData.mapper) {
+                    mappers.push(connectorData.mapper);
+                }
+            });
+        });
+        return mappers;
+    };
+
+    const modifyMappers = classConnections => {
+        // Get the current mappers from class connections
+        const currentCCMappers = getMappersFromClassConnections(classConnectionsData);
+        const newCCMappers: string[] = getMappersFromClassConnections(classConnections);
+        // Get the mappers field
+        const mappers = selectedFields.find(field => field.name === 'mappers');
+        // Check if the field is selected
+        if (!mappers) {
+            // If there are new mappers, add the field
+            if (size(newCCMappers)) {
+                handleAddClick('mappers');
+                // Add the mappers
+                handleFieldChange(
+                    'mappers',
+                    newCCMappers.map(mapper => ({ name: mapper }))
+                );
+                return;
+            }
+            // Stop otherwise
+            else {
+                return;
+            }
+        }
+        // Filter out only the mappers that were previously in class connections
+        let newMappers = mappers.value.filter(mapper => {
+            // Check if this mapper is in the new cc mappers
+            if (!newCCMappers.includes(mapper.name)) {
+                // It's not, it either never was there, or got removed
+                // Check if the mapper is in the current mappers
+                if (currentCCMappers.includes(mapper.name)) {
+                    // It was there before and was removed
+                    // Remove it
+                    return false;
+                }
+                // It was never in class connections, keep it
+                return true;
+            }
+            // Leave it
+            return true;
+        });
+        // Add all mappers from the new cc mappers
+        newMappers = [...newMappers, ...newCCMappers.map(mapper => ({ name: mapper }))];
+        // Save the new mappers
+        handleFieldChange('mappers', uniqBy(newMappers, 'name'));
+    };
+
     return (
         <>
             <SidePanel title={t(stepOneTitle)}>
@@ -927,6 +998,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         baseClassName={requestFieldData('base-class-name', 'value')}
                         initialConnections={classConnectionsData}
                         onSubmit={classConnections => {
+                            modifyMappers(classConnections);
                             setClassConnectionsData(classConnections);
                             setShowClassConnectionsManager(false);
                         }}
