@@ -30,7 +30,7 @@ const classTemplate = with_base_class => {
         if (with_base_class) {
             class_template[lang] += ` ${lang_inherits[lang]}` + ' ${this.base_class_name}';
         }
-        class_template[lang] += ' {\n${this.connections_within_class}}\n${this.connections_extra_class}';
+        class_template[lang] += ' {\n${this.methods}${this.connections_within_class}}\n${this.connections_extra_class}';
     });
 
     return class_template;
