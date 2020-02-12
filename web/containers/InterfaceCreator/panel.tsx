@@ -470,7 +470,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             prefills.forEach((field: IField) => {
                                 // Check if the field already has a value set
                                 // by its self
-                                if (!field.hasValueSet) {
+                                if (!field.hasValueSet && !isEditing) {
                                     // Modify the field
                                     setTimeout(() => {
                                         handleFieldChange(field.name, value, null, canBeNull, true);
@@ -570,6 +570,24 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     const handleSubmitClick: () => void = () => {
+        // Set the value flag for all selected fields
+        setSelectedFields(
+            type,
+            (currentFields: IField[]): IField[] => {
+                return currentFields.reduce((newFields: IField[], currentField: IField): IField[] => {
+                    // Add the value
+                    return [
+                        ...newFields,
+                        {
+                            ...currentField,
+                            hasValueSet: true,
+                        },
+                    ];
+                }, []);
+            },
+            activeId
+        );
+
         if (onSubmit) {
             onSubmit(selectedFields);
         }
