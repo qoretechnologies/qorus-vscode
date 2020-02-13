@@ -37,7 +37,7 @@ class QorusWebview {
                 ...other_data,
             },
         });
-    };
+    }
 
     open(initial_data: any = {}) {
         this.initial_data = initial_data;

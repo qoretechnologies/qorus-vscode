@@ -160,7 +160,7 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
 
 class QorusTreeSetActiveNode extends QorusTreeNode {
     constructor(url: any) {
-        super(t`SetActiveInstance`, vscode.TreeItemCollapsibleState.None)
+        super(t`SetActiveInstance`, vscode.TreeItemCollapsibleState.None);
         this.tooltip = t`SetActiveInstance`;
         this.command = {
             command: 'qorus.setActiveInstance',
@@ -172,7 +172,7 @@ class QorusTreeSetActiveNode extends QorusTreeNode {
 
 class QorusTreeUrlNode extends QorusTreeNode {
     constructor(url: any) {
-        super(t`OpenUi`, vscode.TreeItemCollapsibleState.None)
+        super(t`OpenUi`, vscode.TreeItemCollapsibleState.None);
         this.tooltip = t`OpenUi`;
         this.command = {
             command: 'qorus.openUrlInExternalBrowser',

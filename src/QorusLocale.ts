@@ -29,7 +29,7 @@ class QorusLocale {
             if (!fs.existsSync(po_file)) {
                 po_file = undefined;
             }
-        }
+        };
 
         if (locale) {
             setPoFile();

@@ -21,7 +21,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
 
     isFileClass = (symbol, yaml_info) =>
         symbol.kind === 5 &&
-        symbol.name === yaml_info['class-name'];
+        symbol.name === yaml_info['class-name']
 
     isMethod = (symbol) => symbol.kind === 6;
 
