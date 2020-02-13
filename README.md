@@ -24,10 +24,10 @@ There are three main user interfaces to use the extension:
 
 The webview can be opened using the Qorus icon, which placed in the hierarchy view and also in the VS Code action bar or by qorus webview command. The webview can be used for creation/editing of Qorus interfaces, project configuration, release package management and much more.
 
-![interface_creation](images/gif/interface_creation.gif)
+![interface_creation](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/interface_creation.gif?raw=true)
 
 Creating Qorus mapper using the provider API support:
-![mapper_creation](images/gif/mapper_creation.gif)
+![mapper_creation](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/mapper_creation.gif?raw=true)
 
 ### Hierarchy view
 
@@ -57,7 +57,7 @@ The corresponding tree looks as follows:
     * main URL (https://2.3.4.5:6789)
 ```
 
-![hierarchy_view](images/gif/hierarchy_view.gif)
+![hierarchy_view](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/hierarchy_view.gif?raw=true)
 
 ### Deployment
 
@@ -67,7 +67,7 @@ There are several possible deployment methods:
 - Use the `Qorus: Deploy directory` command from a directory's context menu (deploys all deployable files in the directory including subdirectories).
 - Use the *Deploy* buttons shown when hovering mouse cursor over an interface or a directory in the *Qorus Interfaces* tree view.
 
-![deployment](images/gif/deployment.gif)
+![deployment](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/deployment.gif?raw=true)
 
 The deployment is targeted to a Qorus instance that is currently set as **active**.
 
@@ -79,7 +79,7 @@ Active Qorus instance is marked by a green light icon. At most one Qorus instanc
 
 If a Qorus instance requires authentication (and the user has not yet logged in that instance) the `Set as active Qorus instance` command opens a login dialog. After a successful login, the instance will become active. Also login can be performed in the webview.
 
-![login](images/gif/login.gif)
+![login](https://github.com/qoretechnologies/qorus-vscode/blob/master/images/gif/login.gif?raw=true)
 
 Authentication tokens are stored, so that next time logging-in is not required.
 (Tokens are only stored in memory while VSCode is running, not persistently.)
