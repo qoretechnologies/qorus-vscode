@@ -1,4 +1,4 @@
-import { field, subclass_template } from './common_constants';
+import { field, subclass_with_methods_template } from './common_constants';
 
 let method_template: any = {};
 
@@ -8,23 +8,7 @@ const imports = {
         'import com.qoretechnologies.qorus.service.*;'
     ]
 };
-/*
-class_template.qore = '\
-class ${this.class_name} inherits ${this.base_class_name} {\n\
-${this.connections_within_class}\
-${this.methods}\
-}\n\
-${this.connections_extra_class}\
-';
 
-class_template.java = '\
-class ${this.class_name} extends ${this.base_class_name} {\n\
-${this.connections_within_class}\
-${this.methods}\
-}\n\
-${this.connections_extra_class}\
-';
-*/
 method_template.qore = '\
     ${this.name}() {\n\
     }\n\
@@ -36,7 +20,7 @@ method_template.java = '\
 ';
 
 export const serviceTemplates = lang => ({
-    template: subclass_template[lang],
+    template: subclass_with_methods_template[lang],
     method_template: method_template[lang],
     imports: imports[lang]
 });

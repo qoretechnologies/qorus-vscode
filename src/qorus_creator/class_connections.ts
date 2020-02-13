@@ -320,7 +320,7 @@ const triggerCodeQore = trigger => {
         code += `${indent2}return OMQ::StatRetry;\n`;
     }
 
-    code += `${indent1}}\n`
+    code += `${indent1}}\n`;
     return code;
 };
 
@@ -343,7 +343,7 @@ const triggerCodeJava = trigger => {
         code += `${indent2}return OMQ.StatRetry;\n`;
     }
 
-    code += `${indent1}}\n`
+    code += `${indent1}}\n`;
     return code;
 };
 
