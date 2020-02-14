@@ -7,7 +7,7 @@ import { jobTemplates } from './job_constants';
 import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
-import { connectionsCode } from './class_connections';
+import { classConnectionsCode } from './class_connections';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -78,7 +78,7 @@ class ClassCreator extends InterfaceCreator {
                 if (data['class-connections']) {
                     ClassCreator.fixClassConnections(data);
                     ({connections_within_class, connections_extra_class, imports: more_imports = []}
-                                        = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
+                                    = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
                 }
 
                 contents = this.fillTemplate(template, [...imports, ...more_imports], {
