@@ -117,7 +117,7 @@ class InterfaceCreatorDispatcher {
                 }
                 break;
             case 'classes':
-                interface_info.removeClasses(other_params);
+                interface_info.removeAllClasses(other_params);
                 break;
         }
     }

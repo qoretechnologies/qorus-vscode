@@ -19,7 +19,7 @@ export class InterfaceInfo {
         this.code_info = project_code_info;
     }
 
-    private initIfaceId = (iface_id, iface_kind) => {
+    private maybeInitIfaceId = (iface_id, iface_kind) => {
         if (!this.iface_by_id[iface_id]) {
             this.iface_by_id[iface_id] = {};
         }
@@ -65,7 +65,7 @@ export class InterfaceInfo {
 
     addIfaceById = (data: any, iface_kind: string): string => {
         const id = shortid.generate();
-        this.initIfaceId(id, iface_kind);
+        this.maybeInitIfaceId(id, iface_kind);
         this.iface_by_id[id] = data;
         return id;
     }
@@ -79,7 +79,7 @@ export class InterfaceInfo {
     }
 
     updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string}) => {
-        this.initIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId(iface_id, iface_kind);
 
         const parsed_value = jsyaml.safeLoad(value);
 
@@ -143,7 +143,7 @@ export class InterfaceInfo {
     }
 
     updateConfigItem = ({iface_id, iface_kind, data: item}) => {
-        this.initIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId(iface_id, iface_kind);
 
         if (item.can_be_undefined && item.type) {
             item.type = '*' + item.type;
@@ -287,7 +287,7 @@ export class InterfaceInfo {
     }
 
     removeBaseClass = ({iface_id, iface_kind}) => {
-        this.initIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId(iface_id, iface_kind);
         const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
         if (!base_class_name) {
             return;
@@ -304,8 +304,8 @@ export class InterfaceInfo {
         );
     }
 
-    removeClasses = ({iface_id, iface_kind}) => {
-        this.initIfaceId(iface_id, iface_kind);
+    removeAllClasses = ({iface_id, iface_kind}) => {
+        this.maybeInitIfaceId(iface_id, iface_kind);
         this.removeClassesConfigItems(iface_id);
         delete this.iface_by_id[iface_id].classes;
         delete this.iface_by_id[iface_id].requires;
@@ -324,7 +324,7 @@ export class InterfaceInfo {
         const base_class_name = iface_data['base-class-name'];
 
         (iface_data.classes || iface_data.requires || []).forEach(class_data => {
-            const index = classes.findIndex(class_data_2 => class_data_2.name === class_data.name);
+            const index = (classes || []).findIndex(class_data_2 => class_data_2.name === class_data.name);
             if (index === -1) {
                 removeClassConfigItems(class_data.name, class_data.name === base_class_name);
             }
@@ -351,14 +351,44 @@ export class InterfaceInfo {
         return items;
     }
 
+    private addClasses = (iface_id, classes_key, classes) => {
+        let iface_data = this.iface_by_id[iface_id];
+        if (!iface_data) {
+            return;
+        }
+
+        iface_data[classes_key] = iface_data[classes_key] || [];
+        classes.forEach(({name, prefix = ''}) => {
+            if (iface_data[classes_key].findIndex(({name: name2, prefix: prefix2 = ''}) =>
+                name === name2 && prefix === prefix2) === -1)
+            {
+                iface_data[classes_key].push({name, prefix});
+            }
+        });
+    }
+
+    removeClasses = (iface_id, classes_key, classes) => {
+        let iface_data = this.iface_by_id[iface_id];
+        if (!iface_data) {
+            return;
+        }
+
+        iface_data[classes_key] = (iface_data[classes_key] || []).filter(({name, prefix = ''}) =>
+            classes.findIndex(({name: name2, prefix: prefix2 = ''}) => name === name2 && prefix === prefix2) !== -1);
+    }
+
     getConfigItems = params => {
         const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind} = params;
         if (!iface_id) {
             return;
         }
-        this.initIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId(iface_id, iface_kind);
 
+        const classes_key = requires ? 'requires' : 'classes';
         const classes_or_requires = requires ? requires : classes;
+        if (classes_or_requires) {
+            this.addClasses(iface_id, classes_key, classes_or_requires);
+        }
 
         const toYamlIfComplex = (value, type) => ['list', 'hash'].includes(type)
             ? jsyaml.safeDump(value).replace(/\r?\n$/, '')
@@ -374,6 +404,7 @@ export class InterfaceInfo {
             }
             if (classes_or_requires) {
                 this.removeClassesConfigItems(iface_id, classes_or_requires);
+                this.removeClasses(iface_id, classes_key, classes_or_requires);
             }
             (classes_or_requires || []).forEach(class_data => {
                 class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);

@@ -518,6 +518,9 @@ export abstract class InterfaceCreator {
                         result += not_indented.map(str => `${indent}${str}`).join('\n') + '\n';
                         break;
                     case 'class-connections':
+                        if (!value || !Object.keys(value).length) {
+                            break;
+                        }
                         result += `${tag}:\n`;
                         for (const connection_name in value) {
                             result += `${indent}${connection_name}:\n`;
