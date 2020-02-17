@@ -10,6 +10,7 @@ import { IField } from '.';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { TTranslator } from '../../App';
 import withTextContext from '../../hocomponents/withTextContext';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 
 export interface IMultiSelectField {
     get_message: { action: string; object_type: string };
@@ -35,6 +36,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     simple,
     activeId,
     default_items,
+    removeCodeFromRelations,
 }) => {
     const [items, setItems] = useState<any[]>(default_items || []);
     useMount(() => {
@@ -81,8 +83,14 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
         setSelectedItems([]);
     };
 
-    const deselectItem: (name: string) => void = name => {
-        setSelectedItems(value.filter((item: any) => item.name !== name));
+    const deselectItem: (tagName: string) => void = tagName => {
+        // If this is the mapper code field
+        // remove the selected mapper code from relations
+        if (name === 'codes') {
+            removeCodeFromRelations([tagName]);
+        }
+        // Remove tag
+        setSelectedItems(value.filter((item: any) => item.name !== tagName));
     };
 
     // Clear button
@@ -133,5 +141,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 export default compose(
     withTextContext(),
     withMessageHandler(),
+    withMapperConsumer(),
     onlyUpdateForKeys(['value', 'activeId'])
 )(MultiSelectField);

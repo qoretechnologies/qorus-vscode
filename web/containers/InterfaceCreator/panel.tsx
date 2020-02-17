@@ -40,6 +40,7 @@ import isArray from 'lodash/isArray';
 import ClassConnectionsManager, { IClassConnections } from '../ClassConnectionsManager';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -187,6 +188,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     showClassConnectionsManager,
     setShowClassConnectionsManager,
     resetClassConnections,
+    removeCodeFromRelations,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -403,6 +405,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     );
 
     const removeField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
+        // If mapper code was removed, try to remove relations
+        if (type === 'mapper' && fieldName === 'codes') {
+            // Remove the code from relations
+            removeCodeFromRelations();
+        }
         // Remove the field
         setFields(
             type,
@@ -421,6 +428,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 return map(current, (field: IField) => ({
                     ...field,
                     selected: fieldName === field.name ? false : field.selected,
+                    value: fieldName === field.name ? undefined : field.value,
+                    isValid: fieldName === field.name ? false : field.isValid,
+                    hasValueSet: fieldName === field.name ? false : field.hasValueSet,
                 }));
             },
             activeId
@@ -1053,6 +1063,7 @@ export default compose(
     withFieldsConsumer(),
     withMethodsConsumer(),
     withGlobalOptionsConsumer(),
+    withMapperConsumer(),
     mapProps(
         ({
             type,

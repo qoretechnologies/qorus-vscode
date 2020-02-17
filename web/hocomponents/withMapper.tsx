@@ -351,6 +351,42 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
+        const removeCodeFromRelations = (removedMapperCode?: string[]) => {
+            setRelations(current => {
+                const newRelations = reduce(
+                    current,
+                    (newRels, relationData, relationName) => {
+                        const newRelationData = { ...relationData };
+                        // Check if this relation has code
+                        if (newRelationData.code) {
+                            // Get the mapper code without method
+                            const [mapperCodeName] = newRelationData.code.split('.');
+                            // Check if the code matches the removed code
+                            // or if the removed mapper code is empty
+                            // which means all code needs to be removed
+                            if (!removedMapperCode || removedMapperCode.includes(mapperCodeName)) {
+                                // Delete the code
+                                delete newRelationData.code;
+                            }
+                            // Check if there is any other key in the relation
+                            if (size(newRelationData)) {
+                                // Return the new relation
+                                return { ...newRels, [relationName]: newRelationData };
+                            } else {
+                                // Return without this relation
+                                return { ...newRels };
+                            }
+                        }
+                        // Return unchanged
+                        return { ...newRels, [relationName]: relationData };
+                    },
+                    {}
+                );
+
+                return newRelations;
+            });
+        };
+
         return (
             <MapperContext.Provider
                 value={{
@@ -398,6 +434,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setMapper,
                     mapperSubmit,
                     handleMapperSubmitSet,
+                    removeCodeFromRelations,
                 }}
             >
                 <Component {...props} />
