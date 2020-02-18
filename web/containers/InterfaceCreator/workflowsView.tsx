@@ -122,7 +122,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 text={t('Back')}
                                                 icon={'undo'}
                                                 onClick={() => {
-                                                    initialData.changeInitialData('workflow.show_steps', false);
+                                                    if (workflow) {
+                                                        initialData.changeInitialData('workflow.show_steps', false);
+                                                    }
                                                     setShowSteps(false);
                                                 }}
                                             />
