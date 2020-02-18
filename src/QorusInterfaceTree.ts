@@ -58,7 +58,9 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
         if (this.is_folder_view) { // folder view
             const project: QorusProject = projects.getProject();
             if (project) {
-                let fileTree = project.code_info.fileTree();
+                const fileTree = project.code_info.fileTree().sort((a, b) => {
+                    return basename(a.rel_path).localeCompare(basename(b.rel_path));
+                });
                 for (const dir of fileTree) {
                     children.push(new QorusTreeDirectoryNode(dir.rel_path, dir, this.extensionPath));
                 }
@@ -328,7 +330,8 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
 
     async getChildren(_node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
         let children = [];
-        for (const f of this.fileTree.files) {
+        const files = this.fileTree.files.sort( (a, b) => a.name.localeCompare(b.name) );
+        for (const f of files) {
             if (f.name.endsWith('.yaml')) {
                 let data = await QorusInterfaceTree.getFileData(join(f.abs_path, f.name));
                 switch (data.type) {
@@ -382,7 +385,8 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                 }
             }
         }
-        for (const dir of this.fileTree.dirs) {
+        const dirs = this.fileTree.dirs.sort( (a, b) => basename(a.rel_path).localeCompare(basename(b.rel_path)) );
+        for (const dir of dirs) {
             children.push(new QorusTreeDirectoryNode(dir.rel_path, dir, this.extensionPath));
         }
 
