@@ -422,7 +422,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     outputOptionProvider,
                     setInputOptionProvider,
                     setOutputOptionProvider,
-                    isEditing: props.isEditing,
+                    isEditing: props.isEditing || !!mapper,
                     hideInputSelector,
                     hideOutputSelector,
                     setHideInputSelector,
