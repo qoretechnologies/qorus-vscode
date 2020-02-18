@@ -20,6 +20,14 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
     if (canBeNull && isNull(value)) {
         return true;
     }
+    // Get the actual type
+    // Check if there is a `<` in the type
+    const pos: number = type.indexOf('<');
+    // If there is a <
+    if (pos > 0) {
+        // Get the type from start to the position of the `<`
+        type = type.slice(0, pos);
+    }
     // Check individual types
     switch (type) {
         case 'binary':
