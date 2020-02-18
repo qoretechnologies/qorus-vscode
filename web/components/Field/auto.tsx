@@ -97,7 +97,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
         handleChange(name, null);
     };
 
-    const renderField = currentType => {
+    const renderField = (currentType: string) => {
         if (!currentType) {
             return null;
         }
@@ -106,6 +106,14 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             // Render a readonly field with null
             return <StringField name={name} value={null} onChange={handleChange} read_only canBeNull />;
         }
+        // Check if there is a `<` in the type
+        const pos: number = currentType.indexOf('<');
+
+        if (pos > 0) {
+            // Get the type from start to the position of the `<`
+            currentType = currentType.slice(0, pos);
+        }
+
         // Render the field based on the type
         switch (currentType) {
             case 'string':
