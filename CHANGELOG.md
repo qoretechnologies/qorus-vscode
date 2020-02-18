@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+* added sorting of folders and interfaces in folder view of Interface Tree
+
 ## 1.0.0
 
 * Qorus webview with many features is introduced
