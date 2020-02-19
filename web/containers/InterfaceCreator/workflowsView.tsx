@@ -1,13 +1,13 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import InterfaceCreatorPanel, { ContentWrapper, ActionsWrapper, IField } from './panel';
 import compose from 'recompose/compose';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
 import styled from 'styled-components';
-import { ButtonGroup, Button, Tooltip, Intent } from '@blueprintjs/core';
+import { ButtonGroup, Button, Tooltip, Intent, Dialog } from '@blueprintjs/core';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import { omit } from 'lodash';
+import { omit, size } from 'lodash';
 import { StepsContext } from '../../context/steps';
 import Content from '../../components/Content';
 import StepList from '../../components/StepList';
@@ -16,6 +16,8 @@ import { isArray, reduce } from 'lodash';
 import { Messages } from '../../constants/messages';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import ManageButton from '../ConfigItemManager/manageButton';
+import ConfigItemManager from '../ConfigItemManager';
 
 export const CreatorWrapper = styled.div`
     display: flex;
@@ -32,15 +34,32 @@ export interface IServicesView {
     initialData: any;
 }
 
+export function processSteps(steps, stepsData): any[] {
+    const result = [];
+
+    steps.forEach(step => {
+        if (isArray(step)) {
+            result.push(processSteps(step, stepsData));
+        } else {
+            result.push(`${stepsData[step].name}:${stepsData[step].version}`);
+        }
+    });
+
+    return result;
+}
+
 const ServicesView: FunctionComponent<IServicesView> = ({
     t,
     workflow,
     fields,
     selectedFields,
     postMessage,
+    addMessageListener,
     initialData,
     interfaceId,
+    resetFields,
 }) => {
+    const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     return (
         <StepsContext.Consumer>
             {({
@@ -116,65 +135,77 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                 </ContentWrapper>
 
                                 <ActionsWrapper>
-                                    <ButtonGroup fill>
-                                        <Tooltip content={'BackToooltip'}>
+                                    <div style={{ float: 'left', width: '48%' }}>
+                                        <ButtonGroup fill>
+                                            <ManageButton
+                                                disabled={!size(steps)}
+                                                onClick={() => setShowConfigItemsManager(true)}
+                                            />
+                                        </ButtonGroup>
+                                    </div>
+                                    <div style={{ float: 'right', width: '48%' }}>
+                                        <ButtonGroup fill>
+                                            <Tooltip content={'BackToooltip'}>
+                                                <Button
+                                                    text={t('Back')}
+                                                    icon={'undo'}
+                                                    onClick={() => {
+                                                        if (workflow) {
+                                                            initialData.changeInitialData('workflow.show_steps', false);
+                                                        }
+                                                        setShowSteps(false);
+                                                    }}
+                                                />
+                                            </Tooltip>
                                             <Button
-                                                text={t('Back')}
-                                                icon={'undo'}
+                                                text={t('Submit')}
+                                                disabled={steps.length === 0}
+                                                icon={'tick'}
+                                                intent={Intent.SUCCESS}
                                                 onClick={() => {
-                                                    if (workflow) {
-                                                        initialData.changeInitialData('workflow.show_steps', false);
-                                                    }
-                                                    setShowSteps(false);
+                                                    // Build the finished object
+                                                    const newData = reduce(
+                                                        selectedFields.workflow,
+                                                        (result: { [key: string]: any }, field: IField) => ({
+                                                            ...result,
+                                                            [field.name]: field.value,
+                                                        }),
+                                                        {}
+                                                    );
+                                                    newData.steps = processSteps(steps, stepsData);
+
+                                                    postMessage(
+                                                        !!workflow
+                                                            ? Messages.EDIT_INTERFACE
+                                                            : Messages.CREATE_INTERFACE,
+                                                        {
+                                                            iface_kind: 'workflow',
+                                                            orig_data: workflow,
+                                                            data: newData,
+                                                            iface_id: workflow?.iface_id || interfaceId.workflow,
+                                                        }
+                                                    );
                                                 }}
                                             />
-                                        </Tooltip>
-                                        <Button
-                                            text={t('Submit')}
-                                            disabled={steps.length === 0}
-                                            icon={'tick'}
-                                            intent={Intent.SUCCESS}
-                                            onClick={() => {
-                                                function processSteps(steps): any[] {
-                                                    const result = [];
-
-                                                    steps.forEach(step => {
-                                                        if (isArray(step)) {
-                                                            result.push(processSteps(step));
-                                                        } else {
-                                                            result.push(
-                                                                `${stepsData[step].name}:${stepsData[step].version}`
-                                                            );
-                                                        }
-                                                    });
-
-                                                    return result;
-                                                }
-                                                // Build the finished object
-                                                const newData = reduce(
-                                                    selectedFields.workflow,
-                                                    (result: { [key: string]: any }, field: IField) => ({
-                                                        ...result,
-                                                        [field.name]: field.value,
-                                                    }),
-                                                    {}
-                                                );
-                                                newData.steps = processSteps(steps);
-
-                                                postMessage(
-                                                    !!workflow ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
-                                                    {
-                                                        iface_kind: 'workflow',
-                                                        orig_data: workflow,
-                                                        data: newData,
-                                                        iface_id: workflow?.iface_id || interfaceId.workflow,
-                                                    }
-                                                );
-                                            }}
-                                        />
-                                    </ButtonGroup>
+                                        </ButtonGroup>
+                                    </div>
                                 </ActionsWrapper>
                             </Content>
+                            {showConfigItemsManager ? (
+                                <Dialog
+                                    isOpen
+                                    title={t('ConfigItemsManager')}
+                                    onClose={() => setShowConfigItemsManager(false)}
+                                    style={{ width: '80vw', backgroundColor: '#fff' }}
+                                >
+                                    <ConfigItemManager
+                                        type="workflow"
+                                        interfaceId={interfaceId.workflow}
+                                        resetFields={resetFields}
+                                        steps={processSteps(steps, stepsData)}
+                                    />
+                                </Dialog>
+                            ) : null}
                         </>
                     )}
                 </CreatorWrapper>

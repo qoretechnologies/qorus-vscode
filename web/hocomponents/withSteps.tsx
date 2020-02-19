@@ -1,11 +1,16 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import { StepsContext } from '../context/steps';
 import mapProps from 'recompose/mapProps';
+import compose from 'recompose/compose';
 import { isArray, reduce } from 'lodash';
 import { transformSteps } from '../helpers/steps';
 import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
 import useMount from 'react-use/lib/useMount';
 import size from 'lodash/size';
+import withMessageHandler from './withMessageHandler';
+import withFieldsConsumer from './withFieldsConsumer';
+import { Messages } from '../constants/messages';
+import { processSteps } from '../containers/InterfaceCreator/workflowsView';
 
 const stepsParser = new WorkflowStepDependencyParser();
 
@@ -32,11 +37,24 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         useMount(() => {
             if (initialSteps) {
+                props.postMessage(Messages.GET_CONFIG_ITEMS, {
+                    iface_kind: 'workflow',
+                    iface_id: props.workflow?.iface_id || props.interfaceId.workflow,
+                    steps: processSteps(initialSteps, props.initialStepsData),
+                });
                 setSteps(initialSteps);
                 setStepsData(props.initialStepsData);
                 setParsedSteps(stepsParser.processSteps(initialSteps));
             }
         });
+
+        useEffect(() => {
+            props.postMessage(Messages.GET_CONFIG_ITEMS, {
+                iface_kind: 'workflow',
+                iface_id: props.workflow?.iface_id || props.interfaceId.workflow,
+                steps: processSteps(steps, stepsData),
+            });
+        }, [steps]);
 
         const insertNewStep: (
             stepId: number,
@@ -205,10 +223,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         );
     };
 
-    return mapProps(({ workflow, ...rest }) => ({
-        initialSteps: (workflow && transformSteps(workflow.steps, workflow['steps-info']).steps) || [],
-        initialStepsData: (workflow && transformSteps(workflow.steps, workflow['steps-info']).stepsData) || {},
-        workflow,
-        ...rest,
-    }))(EnhancedComponent);
+    return compose(
+        mapProps(({ workflow, ...rest }) => ({
+            initialSteps: (workflow && transformSteps(workflow.steps, workflow['steps-info']).steps) || [],
+            initialStepsData: (workflow && transformSteps(workflow.steps, workflow['steps-info']).stepsData) || {},
+            workflow,
+            ...rest,
+        })),
+        withFieldsConsumer(),
+        withMessageHandler()
+    )(EnhancedComponent);
 };
