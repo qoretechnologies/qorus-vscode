@@ -80,8 +80,23 @@ export class InterfaceInfo {
 
     updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string}) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
+        if (!level) {
+            msg.log(t`LevelNeededToUpdateCIValue`);
+
+            if (parent_class) {
+                this.addClassConfigItems(iface_id, parent_class);
+            }
+
+            this.getConfigItems({iface_id, iface_kind});
+
+            return;
+        }
 
         const parsed_value = jsyaml.safeLoad(value);
+
+        const templated_key = level === 'global'
+            ? 'is_global_value_templated_string'
+            : 'is_value_templated_string';
 
         if (level === 'workflow') {
             if (iface_kind !== 'workflow') {
@@ -89,8 +104,8 @@ export class InterfaceInfo {
                 return;
             }
 
-            const index = this.iface_by_id[iface_id]['config-item-values']
-                              .findIndex(ci_value => ci_value.name === name);
+            let index = this.iface_by_id[iface_id]['config-item-values']
+                            .findIndex(ci_value => ci_value.name === name);
 
             if (value === null && remove) {
                 if (index > -1) {
@@ -99,46 +114,48 @@ export class InterfaceInfo {
                     msg.error(t`WorkflowConfigItemValueNotFound ${name}`);
                 }
             } else {
+                let item;
                 if (index > -1) {
-                    this.iface_by_id[iface_id]['config-item-values'][index].value = parsed_value;
+                    item = this.iface_by_id[iface_id]['config-item-values'][index];
+                    item.value = parsed_value;
                 } else {
-                    this.iface_by_id[iface_id]['config-item-values'].push({name, value: parsed_value});
-                }
-            }
-        } else {
-            if (parent_class) {
-                this.addClassConfigItems(iface_id, parent_class);
-            }
-
-            this.iface_by_id[iface_id]['config-items'].forEach(item => {
-                if (item.name !== name || !level) {
-                    return;
+                    item = {name, value: parsed_value};
+                    this.iface_by_id[iface_id]['config-item-values'].push(item);
                 }
 
-                if (['step', 'job', 'service', 'class'].includes(level)) {
-                    level = 'local';
-                }
-
-                if (value === null && remove) {
-                    delete item[level + '-value'];
-                    if (level === 'global') {
-                        item['remove-global-value'] = true;
-                    }
-                    return;
-                }
-
-                const templated_key = level === 'global'
-                    ? 'is_global_value_templated_string'
-                    : 'is_value_templated_string';
                 if (is_templated_string) {
                     item[templated_key] = true;
                 } else {
                     delete item[templated_key];
                 }
+            }
+        } else {
+            let item = this.iface_by_id[iface_id]['config-items'].find(ci_value => ci_value.name === name);
 
-                item[level + '-value'] = parsed_value;
-            });
+            if (item === undefined) {
+                msg.error(t`ConfigItemNotFound ${name}`);
+            } else {
+                if (value === null && remove) {
+                    delete item[level + '-value'];
+                    if (level === 'global') {
+                        item['remove-global-value'] = true;
+                    }
+                } else {
+                    if (['step', 'job', 'service', 'class'].includes(level)) {
+                        level = 'local';
+                    }
+
+                    item[level + '-value'] = parsed_value;
+
+                    if (is_templated_string) {
+                        item[templated_key] = true;
+                    } else {
+                        delete item[templated_key];
+                    }
+                }
+            }
         }
+
         this.getConfigItems({iface_id, iface_kind});
     }
 
@@ -390,12 +407,13 @@ export class InterfaceInfo {
             this.addClasses(iface_id, classes_key, classes_or_requires);
         }
 
-        const toYamlIfComplex = (value, type) => ['list', 'hash'].includes(type)
-            ? jsyaml.safeDump(value).replace(/\r?\n$/, '')
-            : value;
+        const toYamlIfComplex = (value, type, is_templated_string = false) =>
+            !is_templated_value && ['list', 'hash'].includes(type)
+                ? jsyaml.safeDump(value).replace(/\r?\n$/, '')
+                : value;
 
         this.code_info.waitForPending(['yaml']).then(() => {
-            if (base_class_name) {
+            if (base_class_name ) {
                 if (base_class_name !== this.iface_by_id[iface_id]['base-class-name']) {
                     this.removeBaseClass({iface_id, iface_kind});
                 }
@@ -454,20 +472,25 @@ export class InterfaceInfo {
             };
 
             const checkValueLevel = (item: any, level: string): any => {
+                const is_templated_string =
+                    (level === 'global' && item.is_globalvalue_templated_string) ||
+                    (level !== 'global' && item.is_value_templated_string);
+
                 const key = level + '-value';
                 if (item[key] !== undefined) {
-                    item.value = toYamlIfComplex(item[key], item.type);
+                    item.value = toYamlIfComplex(item[key], item.type, is_templated_string);
                     item.level = level;
                     item.is_set = true;
+                    if (is_templated_string) {
+                        item.is_templated_string = true;
+                    } else {
+                        delete item.is_templated_string;
+                    }
                 }
                 else {
                     delete item.value;
                     delete item.is_set;
-                }
-
-                delete item.is_templated_string;
-                if (level === 'global' && item.is_global_value_templated_string) {
-                    item.is_templated_string = true;
+                    delete item.is_templated_string;
                 }
 
                 return { ...item };
@@ -513,9 +536,14 @@ export class InterfaceInfo {
                 let workflow_items = local_items.filter(item => !item.strictly_local);
 
                 workflow_items.forEach(item => {
-                    const index = workflow_values.findIndex(item2 => item2.name === item.name);
-                    if (index > -1) {
-                        item['workflow-value'] = toYamlIfComplex(workflow_values[index].value, item.type);
+                    const workflow_value = workflow_values.find(item2 => item2.name === item.name);
+                    if (workflow_value !== undefined) {
+                        item['workflow-value'] = toYamlIfComplex(workflow_values.value, item.type, workflow_value.is_value_templated_string);
+                        if (workflow_values[index].is_value_templated_string) {
+                            item.is_templated_string = true;
+                        } else {
+                            delete item.is_templated_string;
+                        }
                     }
                     delete item.default_value;
                 });
