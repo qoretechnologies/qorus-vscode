@@ -192,7 +192,7 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
-                                fields: creator.getFields({
+                                fields: creator.getSortedFields({
                                     interface_info,
                                     iface_kind: message.iface_kind,
                                     is_editing: message.is_editing || false,
