@@ -33,6 +33,7 @@ const StyledConfigWrapper = styled.div`
     flex: auto;
     height: 100%;
     padding: 20px 20px 0 20px;
+    overflow: hidden;
 `;
 
 export const StyledSeparator = styled.hr`
