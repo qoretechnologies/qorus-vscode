@@ -171,6 +171,7 @@ export default class ConfigItemsModal extends Component {
                                 {t('ConfigItemIsType')}{' '}
                                 <strong>
                                     {'<'}
+                                    {item.can_be_undefined ? '*' : ''}
                                     {item.type} {'/>'}
                                 </strong>
                             </p>
