@@ -99,6 +99,7 @@ const Connector: React.FC<IConnectorProps> = ({
                     <>
                         {connectors.length > 0 ? (
                             <SelectField
+                                autoSelect
                                 defaultItems={connectors}
                                 predicate={(name: string) => {
                                     // Get the connector
@@ -402,6 +403,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                         />
                                         <FieldInputWrapper>
                                             <SelectField
+                                                autoSelect
                                                 defaultItems={classes.map(clss => ({
                                                     name: clss.prefix ? `${clss.prefix}:${clss.name}` : clss.name,
                                                 }))}

@@ -10,6 +10,18 @@ import withTextContext from './withTextContext';
 import { Callout } from '@blueprintjs/core';
 import { IMapperRelation } from '../containers/Mapper';
 
+const addTrailingSlash = (path: string) => {
+    // Get the last character
+    const lastChar: string = path.substr(-1);
+    // Check if the last character is a slash
+    if (lastChar !== '/') {
+        // Add the slash if its not
+        path += '/';
+    }
+
+    return path;
+};
+
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
@@ -90,7 +102,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}${
+            return `${url}/${name}${suffix}${addTrailingSlash(path)}${recordSuffix && !subtype ? recordSuffix : ''}${
                 subtype ? subtype : ''
             }`;
         };
@@ -117,7 +129,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Get the rules for the given provider
             const { url, suffix, recordSuffix } = providers[type];
             // Build the URL based on the provider type
-            return `${url}/${name}${suffix}${path}${recordSuffix && !subtype ? recordSuffix : ''}${
+            return `${url}/${name}${suffix}${addTrailingSlash(path)}${recordSuffix && !subtype ? recordSuffix : ''}${
                 subtype ? subtype : ''
             }`;
         };
@@ -128,7 +140,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Get the rules for the given provider
             const { url, suffix } = providers[type];
             // Build the URL
-            const newUrl: string = `${url}/${name}${suffix}${path}/mapper_keys`;
+            const newUrl: string = `${url}/${name}${suffix}${addTrailingSlash(path)}/mapper_keys`;
             // Build the URL based on the provider type
             return subtype ? newUrl.replace(subtype, '') : newUrl;
         };

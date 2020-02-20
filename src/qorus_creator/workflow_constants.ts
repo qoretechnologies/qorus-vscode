@@ -54,7 +54,6 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
             return_value: 'objects',
         },
         mandatory: false,
-        on_change: 'get-config-items',
         notify_on_add: true,
         notify_on_remove: true,
     },
