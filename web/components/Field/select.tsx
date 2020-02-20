@@ -2,12 +2,13 @@ import React, { FunctionComponent, useState, useEffect } from 'react';
 import { Select } from '@blueprintjs/select';
 import { MenuItem, Button, Tooltip, ControlGroup, Classes, Callout } from '@blueprintjs/core';
 import useMount from 'react-use/lib/useMount';
-import { includes, get } from 'lodash';
+import { includes, get, size } from 'lodash';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { TTranslator } from '../../App';
 import withTextContext from '../../hocomponents/withTextContext';
 import { compose } from 'recompose';
+import StringField from './string';
 
 export interface ISelectField {
     addMessageListener: TMessageListener;
@@ -22,6 +23,7 @@ export interface ISelectField {
     requestFieldData: (name: string, key: string) => IField;
     messageData: any;
     warningMessageOnEmpty?: string;
+    autoSelect?: boolean;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -40,6 +42,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     disabled,
     requestFieldData,
     warningMessageOnEmpty,
+    autoSelect,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -84,18 +87,31 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         }
     };
 
-    if (items.length === 0 && !value) {
-        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
-    }
-
-    // Filter the items
-    let filteredItems: any[] =
-        query === '' ? items : items.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
+    let filteredItems: any[] = items;
 
     // If we should run the items thru predicate
     if (predicate) {
         filteredItems = filteredItems.filter(item => predicate(item.name));
     }
+
+    if (filteredItems.length === 0) {
+        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
+    }
+
+    if (autoSelect && filteredItems.length === 1) {
+        // Automaticaly select the first item
+        if (filteredItems[0].name !== value) {
+            handleSelectClick(filteredItems[0]);
+        }
+        // Show readonly string
+        return <StringField value={value || filteredItems[0].name} read_only name={name} onChange={() => {}} />;
+    }
+
+    // Filter the items
+    filteredItems =
+        query === ''
+            ? filteredItems
+            : filteredItems.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
 
     return (
         <Select
