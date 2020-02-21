@@ -23,6 +23,7 @@ import useMount from 'react-use/lib/useMount';
 import { Messages } from '../../constants/messages';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import Loader from '../../components/Loader';
 
 export const StyledDialogBody = styled.div`
     padding: 20px 20px 0 20px;
@@ -205,7 +206,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
 
     // Check if all classes are loaded
     if (size(classesData) !== getUniqueClasses()) {
-        return <p> Loading ...</p>;
+        return <Loader text="Loading..." />;
     }
 
     return (

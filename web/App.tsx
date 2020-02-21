@@ -23,6 +23,7 @@ import withMapper from './hocomponents/withMapper';
 import Pull from './components/Pull';
 import withFunctions from './hocomponents/withFunctions';
 import withGlobalOptions from './hocomponents/withGlobalOptions';
+import Loader from './components/Loader';
 
 const StyledApp = styled.div`
     display: flex;
@@ -128,7 +129,7 @@ const App: FunctionComponent<IApp> = ({
     });
 
     if (!texts) {
-        return <p> Loading translations... </p>;
+        return <Loader text="Loading translations..." />;
     }
 
     const t: TTranslator = text_id => {

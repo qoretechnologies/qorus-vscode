@@ -12,6 +12,7 @@ import map from 'lodash/map';
 import EnvironmentPanel from './environment';
 import Add from './add';
 import SourceDirsDialog from './sourceDirs';
+import Loader from '../components/Loader';
 
 export interface IProject {
     addMessageListener: TMessageListener;
@@ -418,7 +419,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                     </Callout>
                 )}
                 {!projectData ? (
-                    <p>Loading...</p>
+                    <Loader text="Loading..." />
                 ) : (
                     <StyledProjectWrapper changedOnDisk={changedOnDisk}>
                         <StyledProjectHeader>

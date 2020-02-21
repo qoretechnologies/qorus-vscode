@@ -41,6 +41,7 @@ import ClassConnectionsManager, { IClassConnections } from '../ClassConnectionsM
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import Loader from '../../components/Loader';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -711,7 +712,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     if (!size(fields) || !show) {
-        return <p>{t('LoadingFields')}</p>;
+        return <Loader text={t('LoadingFields')} />;
     }
 
     // Filter out the selected fields

@@ -11,6 +11,7 @@ import useEffectOnce from 'react-use/lib/useEffectOnce';
 import size from 'lodash/size';
 import { StyledNoData } from './environment';
 import { TTranslator } from '../App';
+import Loader from '../components/Loader';
 
 const StyledDirWrapper = styled.div`
     min-width: 300px;
@@ -76,7 +77,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
             style={{ backgroundColor: '#fff' }}
         >
             {!sourceDirs ? (
-                <p> Loading...</p>
+                <Loader text="Loading..." />
             ) : (
                 <>
                     <StyledDirHeader>
