@@ -479,9 +479,10 @@ export class InterfaceInfo {
             };
 
             const addYamlData = (item: any): any => {
-                const toYamlIfNotComplex = value => ['list', 'hash'].includes(item.type)
-                    ? value
-                    : jsyaml.safeDump(value).replace(/\r?\n$/, '');
+                const toYamlIfNotComplex = value =>
+                    !item.is_templated_string && ['list', 'hash'].includes(item.type)
+                        ? value
+                        : jsyaml.safeDump(value).replace(/\r?\n$/, '');
 
                 const hasNormalValue = value => typeof value !== 'undefined' && value !== null;
 
