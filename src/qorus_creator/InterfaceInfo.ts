@@ -386,7 +386,7 @@ export class InterfaceInfo {
     }
 
     getConfigItems = params => {
-        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind} = params;
+        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
         if (!iface_id) {
             return;
         }
@@ -504,6 +504,9 @@ export class InterfaceInfo {
 
             let items: any[];
             if (iface_kind === 'workflow') {
+                if (steps) {
+                    this.iface_by_id[iface_id].steps = steps;
+                }
                 items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps)
                             .filter(item => !item.strictly_local);
 
