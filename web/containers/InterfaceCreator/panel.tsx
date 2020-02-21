@@ -42,6 +42,8 @@ import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import Loader from '../../components/Loader';
+import withStepsConsumer from '../../hocomponents/withStepsConsumer';
+import { processSteps } from './workflowsView';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -190,12 +192,27 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     setShowClassConnectionsManager,
     resetClassConnections,
     removeCodeFromRelations,
+    steps,
+    stepsData,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
+
+    const getClasses = () => {
+        return selectedFields.find((field: IField) => field.name === 'classes')?.value || [];
+    };
+
+    const fetchConfigItems: (currentIfaceId: string) => void = currentIfaceId => {
+        postMessage(Messages.GET_CONFIG_ITEMS, {
+            iface_id: currentIfaceId || interfaceId,
+            iface_kind: type,
+            classes: type === 'workflow' ? undefined : getClasses(),
+            steps: type === 'workflow' && size(steps) ? processSteps(steps, stepsData) : undefined,
+        });
+    };
 
     useEffect(() => {
         // Remove the current listeners
@@ -270,14 +287,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         // Set the mount to false
                         isInitialMount.current = false;
                     }
+                    const currentInterfaceId = data ? clonedData.iface_id : shortid.generate();
                     // Check if the interface id exists, which means user
                     // has already been on this view
                     if (!interfaceId) {
                         // Create it if this is brand new interface
-                        setInterfaceId(type, data ? clonedData.iface_id : shortid.generate());
+                        setInterfaceId(type, currentInterfaceId);
                     }
                     // Set show
                     setShow(true);
+                    // Fetch config items
+                    fetchConfigItems(interfaceId || currentInterfaceId);
                 }
             }
         );
@@ -778,15 +798,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return false;
     };
 
-    const fetchConfigItems: () => void = () => {
-        postMessage(Messages.GET_CONFIG_ITEMS, {
-            iface_id: interfaceId,
-            iface_kind: type,
-            classes: getClasses(),
-        });
-    };
-
     const isConfigManagerEnabled = () => {
+        if (type === 'workflow') {
+            return !!size(steps);
+        }
         // Find the base class name field
         const baseClassName: IField = [...fieldList, ...selectedFields].find(
             (field: IField) => field.name === 'base-class-name'
@@ -809,10 +824,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         }
         // Not valid
         return false;
-    };
-
-    const getClasses = () => {
-        return selectedFields.find((field: IField) => field.name === 'classes')?.value || [];
     };
 
     const getMappersFromClassConnections = classConnections => {
@@ -1050,6 +1061,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         classes={getClasses()}
                         interfaceId={interfaceId}
                         resetFields={resetFields}
+                        steps={processSteps(steps, stepsData)}
                     />
                 </Dialog>
             ) : null}
@@ -1065,6 +1077,7 @@ export default compose(
     withMethodsConsumer(),
     withGlobalOptionsConsumer(),
     withMapperConsumer(),
+    withStepsConsumer(),
     mapProps(
         ({
             type,

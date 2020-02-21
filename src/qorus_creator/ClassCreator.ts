@@ -141,7 +141,8 @@ class ClassCreator extends InterfaceCreator {
         }
 
         if (iface_kind === 'workflow' && hasArrayTag('config-item-values')) {
-            headers += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']}, {indent: 2})
+            headers += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']},
+                                       {indent: 2, skipInvalid: true})
                              .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 

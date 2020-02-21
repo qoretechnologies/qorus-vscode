@@ -95,3 +95,5 @@ export const toValidIdentifier = str => dash2Camel(str.replace(/\W+/g, '-')).rep
 export const makeFileUri = (filePath: string) => 'file://' + filePath;
 
 export const getFilePathFromUri = (uri: string | Uri) => typeof uri === 'string' ? uri.slice(7) : uri.fsPath;
+
+export const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));

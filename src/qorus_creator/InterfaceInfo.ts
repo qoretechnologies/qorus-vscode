@@ -4,7 +4,7 @@ import * as flattenDeep from 'lodash/flattenDeep';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue, configItemFields } from './config_item_constants';
-import { hasConfigItems } from '../qorus_utils';
+import { hasConfigItems, deepCopy } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -37,8 +37,7 @@ export class InterfaceInfo {
             return;
         }
 
-        this.iface_by_id[iface_id]['config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['orig-config-items'] || []));
+        this.iface_by_id[iface_id]['config-items'] = deepCopy(this.iface_by_id[iface_id]['orig-config-items'] || []);
         this.iface_by_id[iface_id]['orig-config-items'] = [];
         this.are_orig_config_items_set = false;
     }
@@ -48,8 +47,7 @@ export class InterfaceInfo {
             return;
         }
 
-        this.iface_by_id[iface_id]['orig-config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['config-items'] || []));
+        this.iface_by_id[iface_id]['orig-config-items'] = deepCopy(this.iface_by_id[iface_id]['config-items'] || []);
         this.are_orig_config_items_set = true;
     }
 
@@ -356,7 +354,7 @@ export class InterfaceInfo {
                 }
             });
         });
-        return items;
+        return deepCopy(items);
     }
 
     private addClasses = (iface_id, classes_key, classes) => {
@@ -386,7 +384,7 @@ export class InterfaceInfo {
     }
 
     getConfigItems = params => {
-        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind} = params;
+        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
         if (!iface_id) {
             return;
         }
@@ -481,9 +479,10 @@ export class InterfaceInfo {
             };
 
             const addYamlData = (item: any): any => {
-                const toYamlIfNotComplex = value => ['list', 'hash'].includes(item.type)
-                    ? value
-                    : jsyaml.safeDump(value).replace(/\r?\n$/, '');
+                const toYamlIfNotComplex = value =>
+                    !item.is_templated_string && ['list', 'hash'].includes(item.type)
+                        ? value
+                        : jsyaml.safeDump(value).replace(/\r?\n$/, '');
 
                 const hasNormalValue = value => typeof value !== 'undefined' && value !== null;
 
@@ -504,6 +503,9 @@ export class InterfaceInfo {
 
             let items: any[];
             if (iface_kind === 'workflow') {
+                if (steps) {
+                    this.iface_by_id[iface_id].steps = steps;
+                }
                 items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps)
                             .filter(item => !item.strictly_local);
 

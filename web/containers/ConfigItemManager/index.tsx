@@ -51,6 +51,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     classes,
     interfaceId,
     resetFields,
+    steps,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<any>(false);
@@ -77,6 +78,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             classes,
             iface_id: interfaceId,
             iface_kind: type,
+            steps,
         });
     });
 
