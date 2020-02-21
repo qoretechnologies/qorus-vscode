@@ -90,6 +90,10 @@ export class InterfaceInfo {
             return;
         }
 
+        if (['step', 'job', 'service', 'class'].includes(level)) {
+            level = 'local';
+        }
+
         const parsed_value = jsyaml.safeLoad(value);
 
         const templated_key = level === 'global'
@@ -135,10 +139,6 @@ export class InterfaceInfo {
                         item['remove-global-value'] = true;
                     }
                 } else {
-                    if (['step', 'job', 'service', 'class'].includes(level)) {
-                        level = 'local';
-                    }
-
                     item[level + '-value'] = parsed_value;
                     item[templated_key] = is_templated_string;
                 }
