@@ -4,7 +4,7 @@ import * as flattenDeep from 'lodash/flattenDeep';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue, configItemFields } from './config_item_constants';
-import { hasConfigItems } from '../qorus_utils';
+import { hasConfigItems, deepCopy } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -37,8 +37,7 @@ export class InterfaceInfo {
             return;
         }
 
-        this.iface_by_id[iface_id]['config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['orig-config-items'] || []));
+        this.iface_by_id[iface_id]['config-items'] = deepCopy(this.iface_by_id[iface_id]['orig-config-items'] || []);
         this.iface_by_id[iface_id]['orig-config-items'] = [];
         this.are_orig_config_items_set = false;
     }
@@ -48,8 +47,7 @@ export class InterfaceInfo {
             return;
         }
 
-        this.iface_by_id[iface_id]['orig-config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['config-items'] || []));
+        this.iface_by_id[iface_id]['orig-config-items'] = deepCopy(this.iface_by_id[iface_id]['config-items'] || []);
         this.are_orig_config_items_set = true;
     }
 
@@ -356,7 +354,7 @@ export class InterfaceInfo {
                 }
             });
         });
-        return items;
+        return deepCopy(items);
     }
 
     private addClasses = (iface_id, classes_key, classes) => {
