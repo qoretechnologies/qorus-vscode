@@ -296,7 +296,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Set show
                     setShow(true);
                     // Fetch config items
-                    fetchConfigItems(currentInterfaceId);
+                    fetchConfigItems(interfaceId || currentInterfaceId);
                 }
             }
         );
