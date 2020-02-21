@@ -20,6 +20,13 @@
 -   step types in the workflow step diagram now properly show the step types, instead of base class names
 -   config items are now fetched properly for all interfaces
 -   buttons are no longer rendered out of the dialog body of config item manager, when the window height is too small
+-   on changing/removing classes remove config items of removed classes
+-   if interface is created as codeless but after editing is no longer codeless then saving crashes
+-   fixed getting the step type: it was computed to early, before the inheritance information was known
+-   implemented the is-templated-string flag for workflow config item values
+-   fields in the interface edit forms are now sorted
+-   when adding steps in the workflow step diagram, their config items are now immediately fetched so that workflow level config item values can be set
+-   fixed error where workflow config item values are copied from another workflow with same steps
 
 ## 1.0.0
 
