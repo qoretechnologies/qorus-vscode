@@ -399,8 +399,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
-        console.log(mapper);
-
         return (
             <MapperContext.Provider
                 value={{

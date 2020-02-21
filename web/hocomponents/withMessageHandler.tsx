@@ -12,6 +12,9 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
         const addMessageListener: TMessageListener = (action, callback) => {
             // Register the listener
             const messageListener = (event: MessageEvent) => {
+                if (event.data.action === 'return-mappers') {
+                    console.log(event.data.action, event.data);
+                }
                 // Check if the action is equal
                 if (event.data.action === action) {
                     // Run the callback with the action data
@@ -30,6 +33,9 @@ export default () => (Component: FunctionComponent): FunctionComponent => {
 
         // Send message
         const postMessage: TPostMessage = (action, data = {}) => {
+            if (action === 'get-mappers') {
+                console.log(action, data);
+            }
             vscode.postMessage({
                 action,
                 ...data,
