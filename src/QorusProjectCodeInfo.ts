@@ -552,19 +552,16 @@ export class QorusProjectCodeInfo {
         });
 
         (data['config-items'] || []).forEach(item => {
-            const global_value = globals.get(item.name);
-            if (global_value !== undefined) {
-                item['global-value'] = global_value.value;
-                item.level = 'global';
-                item.is_set = true;
-                if (global_value.is_value_templated_string) {
-                    item.is_global_value_templated_string = true;
-                } else {
-                    delete item.is_global_value_templated_string;
+
+            if (!item.stricty_local) {
+                const global_value = globals.get(item.name);
+                if (global_value !== undefined) {
+                    item['global-value'] = global_value.value;
+                    item.is_global_value_templated_string = global_value.is_value_templated_string;
                 }
             }
 
-            if (item.value !== undefined) {
+            if (data.type !== 'workflow' && item.value !== undefined) {
                 item['local-value'] = item.value;
             }
 
@@ -589,6 +586,15 @@ export class QorusProjectCodeInfo {
 
         if (data.steps) {
             data['steps-info'] = this.stepData(data.steps);
+        }
+
+        if (data.type === 'step' && data['base-class-name']) {
+            const step_type = (data.lang === 'java')
+                ? this.javaStepType(data['base-class-name'])
+                : this.stepType(data['base-class-name']);
+            if (step_type) {
+                data['step-type'] = step_type;
+            }
         }
 
         if (!data.target_file && data.yaml_file) {
@@ -1183,15 +1189,6 @@ export class QorusProjectCodeInfo {
 
         if (base_class_name) {
             this.yaml_data[file]['base-class-name'] = base_class_name;
-
-            if (yaml_data.type === 'step') {
-                const step_type = (yaml_data.lang === 'java')
-                    ? this.javaStepType(base_class_name)
-                    : this.stepType(base_class_name);
-                if (step_type) {
-                    this.yaml_data[file]['step-type'] = step_type;
-                }
-            }
         }
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {

@@ -4,7 +4,7 @@ import * as flattenDeep from 'lodash/flattenDeep';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue, configItemFields } from './config_item_constants';
-import { hasConfigItems } from '../qorus_utils';
+import { hasConfigItems, deepCopy } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -19,7 +19,7 @@ export class InterfaceInfo {
         this.code_info = project_code_info;
     }
 
-    private initIfaceId = (iface_id, iface_kind) => {
+    private maybeInitIfaceId = (iface_id, iface_kind) => {
         if (!this.iface_by_id[iface_id]) {
             this.iface_by_id[iface_id] = {};
         }
@@ -37,8 +37,7 @@ export class InterfaceInfo {
             return;
         }
 
-        this.iface_by_id[iface_id]['config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['orig-config-items'] || []));
+        this.iface_by_id[iface_id]['config-items'] = deepCopy(this.iface_by_id[iface_id]['orig-config-items'] || []);
         this.iface_by_id[iface_id]['orig-config-items'] = [];
         this.are_orig_config_items_set = false;
     }
@@ -48,8 +47,7 @@ export class InterfaceInfo {
             return;
         }
 
-        this.iface_by_id[iface_id]['orig-config-items'] =
-            JSON.parse(JSON.stringify(this.iface_by_id[iface_id]['config-items'] || []));
+        this.iface_by_id[iface_id]['orig-config-items'] = deepCopy(this.iface_by_id[iface_id]['config-items'] || []);
         this.are_orig_config_items_set = true;
     }
 
@@ -65,7 +63,7 @@ export class InterfaceInfo {
 
     addIfaceById = (data: any, iface_kind: string): string => {
         const id = shortid.generate();
-        this.initIfaceId(id, iface_kind);
+        this.maybeInitIfaceId(id, iface_kind);
         this.iface_by_id[id] = data;
         return id;
     }
@@ -79,9 +77,28 @@ export class InterfaceInfo {
     }
 
     updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string}) => {
-        this.initIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId(iface_id, iface_kind);
+        if (!level) {
+            msg.log(t`LevelNeededToUpdateCIValue`);
+
+            if (parent_class) {
+                this.addClassConfigItems(iface_id, parent_class);
+            }
+
+            this.getConfigItems({iface_id, iface_kind});
+
+            return;
+        }
+
+        if (['step', 'job', 'service', 'class'].includes(level)) {
+            level = 'local';
+        }
 
         const parsed_value = jsyaml.safeLoad(value);
+
+        const templated_key = level === 'global'
+            ? 'is_global_value_templated_string'
+            : 'is_value_templated_string';
 
         if (level === 'workflow') {
             if (iface_kind !== 'workflow') {
@@ -89,8 +106,8 @@ export class InterfaceInfo {
                 return;
             }
 
-            const index = this.iface_by_id[iface_id]['config-item-values']
-                              .findIndex(ci_value => ci_value.name === name);
+            let index = this.iface_by_id[iface_id]['config-item-values']
+                            .findIndex(ci_value => ci_value.name === name);
 
             if (value === null && remove) {
                 if (index > -1) {
@@ -99,51 +116,40 @@ export class InterfaceInfo {
                     msg.error(t`WorkflowConfigItemValueNotFound ${name}`);
                 }
             } else {
+                let item;
                 if (index > -1) {
-                    this.iface_by_id[iface_id]['config-item-values'][index].value = parsed_value;
+                    item = this.iface_by_id[iface_id]['config-item-values'][index];
+                    item.value = parsed_value;
                 } else {
-                    this.iface_by_id[iface_id]['config-item-values'].push({name, value: parsed_value});
+                    item = {name, value: parsed_value};
+                    this.iface_by_id[iface_id]['config-item-values'].push(item);
                 }
+
+                item[templated_key] = is_templated_string;
             }
         } else {
-            if (parent_class) {
-                this.addClassConfigItems(iface_id, parent_class);
-            }
+            let item = this.iface_by_id[iface_id]['config-items'].find(ci_value => ci_value.name === name);
 
-            this.iface_by_id[iface_id]['config-items'].forEach(item => {
-                if (item.name !== name || !level) {
-                    return;
-                }
-
-                if (['step', 'job', 'service', 'class'].includes(level)) {
-                    level = 'local';
-                }
-
+            if (item === undefined) {
+                msg.error(t`ConfigItemNotFound ${name}`);
+            } else {
                 if (value === null && remove) {
                     delete item[level + '-value'];
                     if (level === 'global') {
                         item['remove-global-value'] = true;
                     }
-                    return;
-                }
-
-                const templated_key = level === 'global'
-                    ? 'is_global_value_templated_string'
-                    : 'is_value_templated_string';
-                if (is_templated_string) {
-                    item[templated_key] = true;
                 } else {
-                    delete item[templated_key];
+                    item[level + '-value'] = parsed_value;
+                    item[templated_key] = is_templated_string;
                 }
-
-                item[level + '-value'] = parsed_value;
-            });
+            }
         }
+
         this.getConfigItems({iface_id, iface_kind});
     }
 
     updateConfigItem = ({iface_id, iface_kind, data: item}) => {
-        this.initIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId(iface_id, iface_kind);
 
         if (item.can_be_undefined && item.type) {
             item.type = '*' + item.type;
@@ -287,7 +293,7 @@ export class InterfaceInfo {
     }
 
     removeBaseClass = ({iface_id, iface_kind}) => {
-        this.initIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId(iface_id, iface_kind);
         const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
         if (!base_class_name) {
             return;
@@ -304,8 +310,8 @@ export class InterfaceInfo {
         );
     }
 
-    removeClasses = ({iface_id, iface_kind}) => {
-        this.initIfaceId(iface_id, iface_kind);
+    removeAllClasses = ({iface_id, iface_kind}) => {
+        this.maybeInitIfaceId(iface_id, iface_kind);
         this.removeClassesConfigItems(iface_id);
         delete this.iface_by_id[iface_id].classes;
         delete this.iface_by_id[iface_id].requires;
@@ -324,7 +330,7 @@ export class InterfaceInfo {
         const base_class_name = iface_data['base-class-name'];
 
         (iface_data.classes || iface_data.requires || []).forEach(class_data => {
-            const index = classes.findIndex(class_data_2 => class_data_2.name === class_data.name);
+            const index = (classes || []).findIndex(class_data_2 => class_data_2.name === class_data.name);
             if (index === -1) {
                 removeClassConfigItems(class_data.name, class_data.name === base_class_name);
             }
@@ -348,24 +354,56 @@ export class InterfaceInfo {
                 }
             });
         });
-        return items;
+        return deepCopy(items);
+    }
+
+    private addClasses = (iface_id, classes_key, classes) => {
+        let iface_data = this.iface_by_id[iface_id];
+        if (!iface_data) {
+            return;
+        }
+
+        iface_data[classes_key] = iface_data[classes_key] || [];
+        classes.forEach(({name, prefix = ''}) => {
+            if (iface_data[classes_key].findIndex(({name: name2, prefix: prefix2 = ''}) =>
+                name === name2 && prefix === prefix2) === -1)
+            {
+                iface_data[classes_key].push({name, prefix});
+            }
+        });
+    }
+
+    removeClasses = (iface_id, classes_key, classes) => {
+        let iface_data = this.iface_by_id[iface_id];
+        if (!iface_data) {
+            return;
+        }
+
+        iface_data[classes_key] = (iface_data[classes_key] || []).filter(({name, prefix = ''}) =>
+            classes.findIndex(({name: name2, prefix: prefix2 = ''}) => name === name2 && prefix === prefix2) !== -1);
     }
 
     getConfigItems = params => {
-        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind} = params;
+        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
         if (!iface_id) {
             return;
         }
-        this.initIfaceId(iface_id, iface_kind);
-
-        const classes_or_requires = requires ? requires : classes;
-
-        const toYamlIfComplex = (value, type) => ['list', 'hash'].includes(type)
-            ? jsyaml.safeDump(value).replace(/\r?\n$/, '')
-            : value;
+        this.maybeInitIfaceId(iface_id, iface_kind);
 
         this.code_info.waitForPending(['yaml']).then(() => {
-            if (base_class_name) {
+
+            const classes_key = requires ? 'requires' : 'classes';
+            const classes_or_requires = requires ? requires : classes;
+            if (classes_or_requires) {
+                this.addClasses(iface_id, classes_key, classes_or_requires);
+            }
+
+            const toYamlIfComplex = (value, type, is_templated_string = false) =>
+                !is_templated_string && ['list', 'hash'].includes(type)
+                    ? jsyaml.safeDump(value).replace(/\r?\n$/, '')
+                    : value;
+
+            if (base_class_name ) {
                 if (base_class_name !== this.iface_by_id[iface_id]['base-class-name']) {
                     this.removeBaseClass({iface_id, iface_kind});
                 }
@@ -374,12 +412,17 @@ export class InterfaceInfo {
             }
             if (classes_or_requires) {
                 this.removeClassesConfigItems(iface_id, classes_or_requires);
+                this.removeClasses(iface_id, classes_key, classes_or_requires);
             }
             (classes_or_requires || []).forEach(class_data => {
                 class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
             });
 
             const default_type = defaultValue('type');
+
+            const isTemplatedString = (level, item) =>
+                (level === 'global' && item.is_global_value_templated_string) ||
+                (level !== 'global' && item.is_value_templated_string);
 
             const fixLocalItem = (item: any): any => {
                 item.type = item.type || default_type;
@@ -388,7 +431,8 @@ export class InterfaceInfo {
                     item.can_be_undefined = true;
                 }
 
-                const toYamlIfComplexLocal = value => toYamlIfComplex(value, item.type);
+                const toYamlIfComplexLocal = (value, is_templated_string = false) =>
+                    toYamlIfComplex(value, item.type, is_templated_string);
 
                 if (item.allowed_values) {
                     item.allowed_values = item.allowed_values.map(value => toYamlIfComplexLocal(value));
@@ -409,7 +453,7 @@ export class InterfaceInfo {
                 for (const level of ['global', 'workflow', 'local']) {
                     const key = level + '-value';
                     if (item[key] !== undefined) {
-                        item.value = toYamlIfComplexLocal(item[key]);
+                        item.value = toYamlIfComplexLocal(item[key], isTemplatedString(level, item));
                         item.level = level === 'local' ? iface_kind : level;
                         item.is_set = true;
                     }
@@ -423,29 +467,22 @@ export class InterfaceInfo {
             };
 
             const checkValueLevel = (item: any, level: string): any => {
-                const key = level + '-value';
-                if (item[key] !== undefined) {
-                    item.value = toYamlIfComplex(item[key], item.type);
-                    item.level = level;
-                    item.is_set = true;
-                }
-                else {
+                if (item[level + '-value'] !== undefined) {
+                    item.is_templated_string = isTemplatedString(level, item);
+                    item.value = toYamlIfComplex(item[level + '-value'], item.type, item.is_templated_string);
+                } else {
                     delete item.value;
                     delete item.is_set;
+                    delete item.is_templated_string;
                 }
-
-                delete item.is_templated_string;
-                if (level === 'global' && item.is_global_value_templated_string) {
-                    item.is_templated_string = true;
-                }
-
-                return { ...item };
+                return item;
             };
 
             const addYamlData = (item: any): any => {
-                const toYamlIfNotComplex = value => ['list', 'hash'].includes(item.type)
-                    ? value
-                    : jsyaml.safeDump(value).replace(/\r?\n$/, '');
+                const toYamlIfNotComplex = value =>
+                    !item.is_templated_string && ['list', 'hash'].includes(item.type)
+                        ? value
+                        : jsyaml.safeDump(value).replace(/\r?\n$/, '');
 
                 const hasNormalValue = value => typeof value !== 'undefined' && value !== null;
 
@@ -466,7 +503,22 @@ export class InterfaceInfo {
 
             let items: any[];
             if (iface_kind === 'workflow') {
-                items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps);
+                if (steps) {
+                    this.iface_by_id[iface_id].steps = steps;
+                }
+                items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps)
+                            .filter(item => !item.strictly_local);
+
+                const workflow_values = this.iface_by_id[iface_id]['config-item-values'] || [];
+
+                items.forEach(item => {
+                    delete item.default_value;
+                    const workflow_value = workflow_values.find(item2 => item2.name === item.name);
+                    if (workflow_value !== undefined) {
+                        item['workflow-value'] = toYamlIfComplex(workflow_value.value, item.type, workflow_value.is_value_templated_string);
+                        item.is_value_templated_string = workflow_value.is_value_templated_string;
+                    }
+                });
             } else {
                 items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
             }
@@ -478,22 +530,11 @@ export class InterfaceInfo {
 
             let message: any;
             if (iface_kind === 'workflow') {
-                const workflow_values = this.iface_by_id[iface_id]['config-item-values'] || [];
-                let workflow_items = local_items.filter(item => !item.strictly_local);
-
-                workflow_items.forEach(item => {
-                    const index = workflow_values.findIndex(item2 => item2.name === item.name);
-                    if (index > -1) {
-                        item['workflow-value'] = toYamlIfComplex(workflow_values[index].value, item.type);
-                    }
-                    delete item.default_value;
-                });
-                workflow_items = workflow_items.map(item => checkValueLevel({ ...item }, 'workflow'));
+                const workflow_items = local_items.map(item => checkValueLevel({ ...item }, 'workflow'));
 
                 message = {
                     action: 'return-config-items',
                     workflow_items: workflow_items.map(item => addYamlData(item)),
-                    global_items: global_items.map(item => addYamlData(item))
                 };
             } else {
                 message = {

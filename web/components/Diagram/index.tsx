@@ -81,7 +81,7 @@ function strcmp(str1, str2) {
     // *     example 2: strcmp( 'owald', 'waldo' );
     // *     returns 2: -1
 
-    return ( ( str1 == str2 ) ? 0 : ( ( str1 > str2 ) ? 1 : -1 ) );
+    return str1 == str2 ? 0 : str1 > str2 ? 1 : -1;
 }
 
 /**
@@ -128,7 +128,7 @@ class StepNode {
      * Is this the root step?
      */
     isRoot(): boolean {
-        return (this.id === ROOT_STEP_ID);
+        return this.id === ROOT_STEP_ID;
     }
 }
 
@@ -149,10 +149,10 @@ class RowGroup {
      * @param group group to check for a collision
      */
     collides(group: RowGroup): boolean {
-        if (group.avgX + group.compareHalfWidth  < (this.avgX - this.width * 0.5)) {
+        if (group.avgX + group.compareHalfWidth < this.avgX - this.width * 0.5) {
             return false;
         }
-        if (this.avgX + this.compareHalfWidth < (group.avgX - group.width * 0.5)) {
+        if (this.avgX + this.compareHalfWidth < group.avgX - group.width * 0.5) {
             return false;
         }
         return true;
@@ -168,8 +168,9 @@ class RowGroup {
      * @param group group to merge
      */
     mergeGroup(group: RowGroup) {
-        this.avgX = ((this.nodes.length * this.avgX) + (group.nodes.length * group.avgX))
-                        / (this.nodes.length + group.nodes.length);
+        this.avgX =
+            (this.nodes.length * this.avgX + group.nodes.length * group.avgX) /
+            (this.nodes.length + group.nodes.length);
         this.nodes = this.nodes.concat(group.nodes);
         this.recalculateWidth();
     }
@@ -248,8 +249,8 @@ class GraphBuilder {
 
     /**
      * Recursively assign levels to the steps in a tree.
-     * @param node 
-     * @param level 
+     * @param node
+     * @param level
      */
     static setStepNodeLevels(node: StepNode, level: number) {
         if (node.level < level) {
@@ -358,7 +359,7 @@ class GraphBuilder {
      */
     static calculateGraphWidth(rows: Array<Array<StepNode>>): number {
         const maxColumns = GraphBuilder.getRowsMaxColumns(rows);
-        return (maxColumns * BOX_WIDTH) + (maxColumns - 1) * BOX_H_MARGIN;
+        return maxColumns * BOX_WIDTH + (maxColumns - 1) * BOX_H_MARGIN;
     }
 
     /**
@@ -454,12 +455,13 @@ class GraphBuilder {
                 }
 
                 // find group with same average
-                let group = rowGroups.find((group) => group.avgX === avgX);
+                let group = rowGroups.find(group => group.avgX === avgX);
 
                 // if exists, assign to group
                 if (group) {
                     group.addNode(row[j]);
-                } else { // otherwise create new group
+                } else {
+                    // otherwise create new group
                     group = new RowGroup(avgX, [row[j]]);
                     rowGroups.push(group);
                 }
@@ -470,12 +472,12 @@ class GraphBuilder {
 
             // join colliding groups
             let joinCollidingGroups = () => {
-                for (let k = 0; (k + 1) < rowGroups.length;) {
+                for (let k = 0; k + 1 < rowGroups.length; ) {
                     let g1 = rowGroups[k];
-                    let g2 = rowGroups[k+1];
+                    let g2 = rowGroups[k + 1];
                     if (g1.collides(g2)) {
                         g1.mergeGroup(g2);
-                        rowGroups.splice(k+1, 1);
+                        rowGroups.splice(k + 1, 1);
                         noFix = false;
                     } else {
                         ++k;
@@ -487,11 +489,11 @@ class GraphBuilder {
             // and set them to correct positions if they do
             let checkGraphLimits = () => {
                 for (const group of rowGroups) {
-                    if ((group.avgX - (group.width * 0.5)) < 0) {
+                    if (group.avgX - group.width * 0.5 < 0) {
                         group.avgX = group.width * 0.5;
                         noFix = false;
-                    } else if ((group.avgX + group.compareHalfWidth) >= graphWidth) {
-                        group.avgX = graphWidth - (group.width * 0.5);
+                    } else if (group.avgX + group.compareHalfWidth >= graphWidth) {
+                        group.avgX = graphWidth - group.width * 0.5;
                         noFix = false;
                     }
                 }
@@ -508,11 +510,11 @@ class GraphBuilder {
             for (const group of rowGroups) {
                 for (let k = 0; k < group.nodes.length; ++k) {
                     const node = group.nodes[k];
-                    node.x = group.avgX - (group.width * 0.5) + k * (BOX_WIDTH + BOX_H_MARGIN);
-                    node.centerX = node.x + (BOX_WIDTH * 0.5);
+                    node.x = group.avgX - group.width * 0.5 + k * (BOX_WIDTH + BOX_H_MARGIN);
+                    node.centerX = node.x + BOX_WIDTH * 0.5;
                 }
             }
-        } 
+        }
     }
 
     /**
@@ -536,33 +538,15 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     };
 
     renderGridPath(startX, startY, endX, endY) {
-        return (
-            <path
-                fill="none"
-                stroke="#aaa"
-                d={`M${startX},${startY} L${endX},${endY}`}
-            />
-        );
+        return <path fill="none" stroke="#aaa" d={`M${startX},${startY} L${endX},${endY}`} />;
     }
 
     renderGrid2PartPath(startX, startY, middleX, middleY, endX, endY) {
-        return (
-            <path
-                fill="none"
-                stroke="#aaa"
-                d={`M${startX},${startY} L${middleX},${middleY} L${endX},${endY}`}
-            />
-        );
+        return <path fill="none" stroke="#aaa" d={`M${startX},${startY} L${middleX},${middleY} L${endX},${endY}`} />;
     }
 
     renderGrid3PartPath(aX, aY, bX, bY, cX, cY, dX, dY) {
-        return (
-            <path
-                fill="none"
-                stroke="#aaa"
-                d={`M${aX},${aY} L${bX},${bY} L${cX},${cY} L${dX},${dY}`}
-            />
-        );
+        return <path fill="none" stroke="#aaa" d={`M${aX},${aY} L${bX},${bY} L${cX},${cY} L${dX},${dY}`} />;
     }
 
     getStepTransform(step) {
@@ -674,17 +658,11 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
             const row = rows[i];
             let rowSteps = [];
             for (let j = 0; j < row.length; ++j) {
-                rowSteps.push(
-                    this.renderStep(row[j])
-                );
+                rowSteps.push(this.renderStep(row[j]));
             }
             renderedRows.push(rowSteps);
         }
-        return (
-            <g>
-              {renderedRows}
-            </g>
-        );
+        return <g>{renderedRows}</g>;
     }
 
     renderGraph() {
@@ -755,7 +733,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
         const rows = GraphBuilder.buildRows(bgraph);
         GraphBuilder.sortAndBalanceRows(rows);
         this.setState({
-            rows: rows
+            rows: rows,
         });
     }
 
@@ -765,7 +743,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
             const rows = GraphBuilder.buildRows(bgraph);
             GraphBuilder.sortAndBalanceRows(rows);
             this.setState({
-                rows: rows
+                rows: rows,
             });
         }
 
@@ -823,7 +801,7 @@ const StepBox = withMessageHandler()(
                     setStepData({
                         name: data.step.name,
                         version: data.step.version,
-                        type: data.step['base-class-name'],
+                        type: data.step['step-type'],
                     });
                 }
             });

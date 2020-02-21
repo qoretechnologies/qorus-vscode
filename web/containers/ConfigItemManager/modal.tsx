@@ -76,6 +76,7 @@ export default class ConfigItemsModal extends Component {
         templateType: this.props.item?.is_templated_string && this.getTemplateType(this.props.item.value),
         templateKey: this.props.item?.is_templated_string && this.getTemplateKey(this.props.item.value),
         tab: this.props.item?.is_templated_string ? 'template' : 'custom',
+        isTemplatedString: this.props.item?.is_templated_string,
     };
 
     handleObjectChange: Function = (value, type, canBeNull): void => {
@@ -162,8 +163,18 @@ export default class ConfigItemsModal extends Component {
             >
                 <StyledDialogBody style={{ flexFlow: 'column' }}>
                     {item && item.description && (
-                        <Callout icon="info-sign">
+                        <Callout icon="info-sign" title={t('Description')}>
                             <ReactMarkdown source={item.description} />
+                            --
+                            <p>
+                                {' '}
+                                {t('ConfigItemIsType')}{' '}
+                                <strong>
+                                    {'<'}
+                                    {item.can_be_undefined ? '*' : ''}
+                                    {item.type} {'/>'}
+                                </strong>
+                            </p>
                         </Callout>
                     )}
                     {isGlobal && (

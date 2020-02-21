@@ -4,7 +4,7 @@ import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { mapperCodeTemplates } from './mapper_constants';
-import { connectionsCode } from './class_connections';
+import { classConnectionsCode } from './class_connections';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -296,7 +296,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         if (data['class-connections']) {
             ClassWithMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports = []}
-                 = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
+                 = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
         }
 

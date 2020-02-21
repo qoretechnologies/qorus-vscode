@@ -7,7 +7,7 @@ import { jobTemplates } from './job_constants';
 import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
-import { connectionsCode } from './class_connections';
+import { classConnectionsCode } from './class_connections';
 import { hasConfigItems } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -61,24 +61,24 @@ class ClassCreator extends InterfaceCreator {
             };
         }
 
+        let connections_within_class: string = '';
+        let connections_extra_class: string = '';
+        let more_imports: string[] = [];
+        if (data['class-connections']) {
+            ClassCreator.fixClassConnections(data);
+            ({connections_within_class, connections_extra_class, imports: more_imports = []}
+                            = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
+        }
+
         let contents: string;
         let message: string;
         let code_lines: string[];
         let orig_file_path: string;
-        let more_imports: string[] = [];
         switch (edit_type) {
             case 'create':
                 if (!this.has_code) {
                     message = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;
-                }
-
-                let connections_within_class: string = '';
-                let connections_extra_class: string = '';
-                if (data['class-connections']) {
-                    ClassCreator.fixClassConnections(data);
-                    ({connections_within_class, connections_extra_class, imports: more_imports = []}
-                                        = connectionsCode({...data, iface_kind}, this.code_info, this.lang));
                 }
 
                 contents = this.fillTemplate(template, [...imports, ...more_imports], {
@@ -105,11 +105,23 @@ class ClassCreator extends InterfaceCreator {
 
                 this.edit_info = this.code_info.editInfo(orig_file_path);
 
-                code_lines = this.edit_info.text_lines;
-                code_lines = this.renameClassAndBaseClass(code_lines,
-                                                          other_orig_data,
-                                                          data);
-                contents = code_lines.join('\n');
+                if (this.edit_info) {
+                    code_lines = this.edit_info.text_lines;
+                    code_lines = this.renameClassAndBaseClass(code_lines,
+                                                              other_orig_data,
+                                                              data);
+                    contents = code_lines.join('\n');
+                } else {
+                    // this case happens when on create it was a codeless interfaces (this.has_code = false)
+                    // but on edit a class_name or base_class_name was added, so now there is a new code file
+                    // (this.edit_info is undefined since orig_file_path is undefined)
+                    contents = this.fillTemplate(template, [...imports, ...more_imports], {
+                        class_name: data['class-name'],
+                        base_class_name: data['base-class-name'],
+                        connections_within_class,
+                        connections_extra_class
+                    });
+                }
                 break;
             default:
                 msg.error(t`UnknownEditType`);
@@ -129,7 +141,8 @@ class ClassCreator extends InterfaceCreator {
         }
 
         if (iface_kind === 'workflow' && hasArrayTag('config-item-values')) {
-            headers += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']}, {indent: 2})
+            headers += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']},
+                                       {indent: 2, skipInvalid: true})
                              .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 

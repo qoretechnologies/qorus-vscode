@@ -9,10 +9,11 @@ import { stepFields } from './step_constants';
 import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_constants';
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
+import { gettext } from 'ttag';
 
 
 class InterfaceCreatorDispatcher {
-    getFields(params: any): any[] {
+    getFields = (params: any): any[] => {
         switch (params.iface_kind) {
             case 'service':
                 return serviceFields(params);
@@ -39,6 +40,15 @@ class InterfaceCreatorDispatcher {
             default:
                 return [];
         }
+    }
+
+    getSortedFields = (params: any): any[] => {
+        const sorter = (a, b) => {
+            const nameA = gettext(`field-label-${a.name}`).toUpperCase();
+            const nameB = gettext(`field-label-${b.name}`).toUpperCase();
+            return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+        };
+        return this.getFields(params).sort(sorter);
     }
 
     editInterface({iface_kind: iface_kinds, interface_info, ...other_params}) {
@@ -117,7 +127,7 @@ class InterfaceCreatorDispatcher {
                 }
                 break;
             case 'classes':
-                interface_info.removeClasses(other_params);
+                interface_info.removeAllClasses(other_params);
                 break;
         }
     }
