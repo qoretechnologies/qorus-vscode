@@ -253,7 +253,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
         mapperListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
             if (data.iface_kind === 'mapper') {
                 resetAllInterfaceData('mapper');
-                setMapper(data.mapper);
+                setMapper({ ...data.mapper, isFromConnectors: true });
                 handleMapperSubmitSet((mapperName, mapperVersion) => {
                     resetAllInterfaceData('mapper');
                     setManageDialog(
@@ -372,6 +372,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                     onClick={() => {
                                                         resetAllInterfaceData('mapper');
                                                         setMapper({
+                                                            isFromConnectors: true,
                                                             mapper_options: {
                                                                 'mapper-input': manageDialog.outputProvider,
                                                                 'mapper-output': manageDialog.inputProvider,

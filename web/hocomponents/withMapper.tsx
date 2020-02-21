@@ -399,6 +399,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
+        console.log(mapper);
+
         return (
             <MapperContext.Provider
                 value={{
@@ -434,7 +436,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     outputOptionProvider,
                     setInputOptionProvider,
                     setOutputOptionProvider,
-                    isEditing: props.isEditing || !!mapper,
+                    isEditing: props.isEditing,
+                    isFromConnectors: mapper?.isFromConnectors,
                     hideInputSelector,
                     hideOutputSelector,
                     setHideInputSelector,
