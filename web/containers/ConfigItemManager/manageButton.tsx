@@ -13,17 +13,26 @@ export interface IManageConfigButton {
     addMessageListener: TMessageListener;
     disabled: boolean;
     onClick: () => void;
+    type?: string;
 }
 
-const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({ t, addMessageListener, disabled, onClick }) => {
+const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({
+    t,
+    addMessageListener,
+    disabled,
+    onClick,
+    type,
+}) => {
     const [configCount, setConfigCount] = useState<number>(0);
 
     useEffectOnce(() => {
         // Listen for changes in config items for
         // this interface
         const messageHandler = addMessageListener(Messages.RETURN_CONFIG_ITEMS, data => {
+            const itemCount =
+                type === 'workflow' ? size(data.workflow_items?.filter(item => item.is_set)) : size(data.items);
             // Set the new config count
-            setConfigCount(size(data.items));
+            setConfigCount(itemCount);
         });
         // Unregister the message handler
         return () => {

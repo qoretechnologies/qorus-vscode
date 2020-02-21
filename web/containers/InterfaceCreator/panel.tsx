@@ -988,6 +988,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 )}
                                 {hasConfigManager && (
                                     <ManageConfigButton
+                                        type={type}
                                         disabled={!isConfigManagerEnabled()}
                                         onClick={() => setShowConfigItemsManager(true)}
                                     />

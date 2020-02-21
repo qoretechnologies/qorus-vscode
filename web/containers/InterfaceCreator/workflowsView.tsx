@@ -138,6 +138,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                     <div style={{ float: 'left', width: '48%' }}>
                                         <ButtonGroup fill>
                                             <ManageButton
+                                                type="workflow"
                                                 disabled={!size(steps)}
                                                 onClick={() => setShowConfigItemsManager(true)}
                                             />
