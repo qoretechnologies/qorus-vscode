@@ -316,7 +316,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     hideOutputSelector,
     setHideInputSelector,
     setHideOutputSelector,
-    isEditing,
+    isEditingMapper: isEditing,
     postMessage,
     interfaceId,
     getUrlFromProvider,
