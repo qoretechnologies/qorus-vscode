@@ -1452,6 +1452,10 @@ export class QorusProjectCodeInfo {
                 const input = mapper.mapper_options['mapper-input'];
                 const output = mapper.mapper_options['mapper-output'];
 
+                if (!input || !output) {
+                    return false;
+                }
+
                 return (!input_condition?.name || input_condition.name === input.name)
                     && (!input_condition?.type || input_condition.type === input.type)
                     && (!output_condition?.name || output_condition.name === output.name)
