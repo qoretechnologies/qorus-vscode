@@ -1074,11 +1074,11 @@ export default compose(
     withInitialDataConsumer(),
     withTextContext(),
     withMessageHandler(),
-    withFieldsConsumer(),
     withMethodsConsumer(),
     withGlobalOptionsConsumer(),
     withMapperConsumer(),
     withStepsConsumer(),
+    withFieldsConsumer(),
     mapProps(
         ({
             type,

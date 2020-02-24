@@ -305,7 +305,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }
         }, [qorus_instance, mapper]);
 
-        if (!error && qorus_instance && (!mapperKeys || (props.isEditing && (!inputs || !outputs)))) {
+        if (!error && qorus_instance && (!mapperKeys || (props.isEditingMapper && (!inputs || !outputs)))) {
             return <p> Loading ... </p>;
         }
 
@@ -434,7 +434,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     outputOptionProvider,
                     setInputOptionProvider,
                     setOutputOptionProvider,
-                    isEditing: props.isEditing,
+                    isEditingMapper: props.isEditingMapper,
                     isFromConnectors: mapper?.isFromConnectors,
                     hideInputSelector,
                     hideOutputSelector,
@@ -459,7 +459,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         mapProps(({ mapper, ...rest }) => ({
             initialShow: !!mapper,
             mapper,
-            isEditing: !!mapper,
+            isEditingMapper: !!mapper,
             ...rest,
         })),
         withTextContext()
