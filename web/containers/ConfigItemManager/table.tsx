@@ -70,7 +70,7 @@ export const getItemType = (type, value) => {
     return type;
 };
 
-export const Value = ({ item }) => {
+export const Value = ({ item, useDefault }) => {
     const [showValue, setShowValue] = useState(!item.sensitive);
     const [hideTimer, setHideTimer] = useState<NodeJS.Timer>(null);
 
@@ -83,6 +83,8 @@ export const Value = ({ item }) => {
             clearTimeout(hideTimer);
         };
     }, [hideTimer]);
+
+    const value = useDefault ? item.default_value : item.value;
 
     if (!showValue) {
         return (
@@ -114,21 +116,25 @@ export const Value = ({ item }) => {
         );
     }
 
-    if (isUndefined(item.value)) {
+    if (isUndefined(value)) {
         return <span> - </span>;
     }
-    if (isNull(item.value)) {
+    if (isNull(value)) {
         return <span> null </span>;
     }
     if (item.is_templated_string) {
-        return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+        return <ContentByType inTable content={maybeParseYaml(value)} />;
     }
 
-    if (getItemType(item.type, item.value) === 'hash' || getItemType(item.type, item.value) === 'list') {
-        return <Tree compact data={maybeParseYaml(item.value)} />;
+    const type = item.type === 'auto' || item.type === 'any' ? getItemType(item.type, value) : item.type;
+
+    console.log(item.name, type);
+
+    if (type === 'hash' || type === 'list') {
+        return <Tree compact data={maybeParseYaml(value)} />;
     }
 
-    return <ContentByType inTable content={maybeParseYaml(item.value)} />;
+    return <ContentByType inTable content={maybeParseYaml(value)} />;
 };
 
 let ItemsTable: Function = ({

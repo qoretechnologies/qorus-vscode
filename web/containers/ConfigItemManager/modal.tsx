@@ -36,6 +36,7 @@ import ReactMarkdown from 'react-markdown';
 import AutoField from '../../components/Field/auto';
 import { StyledDialogBody } from '../ClassConnectionsManager';
 import { validateField } from '../../helpers/validations';
+import { Value } from './table';
 
 @withTextContext()
 export default class ConfigItemsModal extends Component {
@@ -239,25 +240,7 @@ export default class ConfigItemsModal extends Component {
                                                 {!isGlobal && (
                                                     <Pull right>
                                                         <ButtonGroup>
-                                                            <Tooltip
-                                                                content={
-                                                                    this.state.type === 'hash' ||
-                                                                    this.state.type === 'list' ? (
-                                                                        <Tree
-                                                                            data={item.default_value}
-                                                                            noButtons
-                                                                            expanded
-                                                                            compact
-                                                                        />
-                                                                    ) : (
-                                                                        <ContentByType
-                                                                            inTable
-                                                                            noControls
-                                                                            content={item.default_value}
-                                                                        />
-                                                                    )
-                                                                }
-                                                            >
+                                                            <Tooltip content={<Value item={item} useDefault />}>
                                                                 <Button
                                                                     text={t('SetDefaultValue')}
                                                                     disabled={!item.default_value}
