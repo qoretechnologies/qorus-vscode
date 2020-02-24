@@ -1,3 +1,4 @@
+import * as flattenDeep from 'lodash/flattenDeep';
 import { class_creator } from './ClassCreator';
 import { class_with_methods_creator } from './ClassWithMethodsCreator';
 import { qorus_webview } from '../QorusWebview';
@@ -43,12 +44,21 @@ class InterfaceCreatorDispatcher {
     }
 
     getSortedFields = (params: any): any[] => {
+        const not_to_sort = ['target_dir', 'name', 'description', 'desc'];
+        let unsorted = this.getFields(params);
+        let at_the_beginning = [];
+        not_to_sort.forEach(field_name => {
+            const index = unsorted.findIndex(({name}) => name === field_name);
+            if (index > -1) {
+                at_the_beginning.push(unsorted.splice(index, 1));
+            }
+        });
         const sorter = (a, b) => {
             const nameA = gettext(`field-label-${a.name}`).toUpperCase();
             const nameB = gettext(`field-label-${b.name}`).toUpperCase();
             return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
         };
-        return this.getFields(params).sort(sorter);
+        return [...flattenDeep(at_the_beginning), ...unsorted.sort(sorter)];
     }
 
     editInterface({iface_kind: iface_kinds, interface_info, ...other_params}) {
