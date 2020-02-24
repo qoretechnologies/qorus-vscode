@@ -488,7 +488,9 @@ export class QorusProjectCodeInfo {
             delete data.autostart;
         }
 
-        ['functions', 'constants', 'mappers', 'value_maps', 'author', 'mapper-code'].forEach(tag => {
+        ['functions', 'constants', 'mappers', 'value_maps', 'author',
+            'mapper-code', 'groups', 'events', 'queues'].forEach(tag =>
+        {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
             }
