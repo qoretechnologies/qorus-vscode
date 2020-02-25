@@ -7,6 +7,7 @@ import { MethodSelector, Selected, RemoveButton } from '../InterfaceCreator/serv
 import { ButtonGroup, Button, Dialog, ControlGroup, Classes, NonIdealState } from '@blueprintjs/core';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
+import forEach from 'lodash/forEach';
 import size from 'lodash/size';
 import omit from 'lodash/omit';
 import compose from 'recompose/compose';
@@ -77,12 +78,25 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     baseClassName,
     selectedFields,
 }) => {
+    const getConnectorsCount = connections => {
+        if (connections) {
+            let count = 0;
+
+            forEach(connections, conn => {
+                count += size(conn);
+            });
+            return count;
+        }
+
+        return 1;
+    };
+
     const [connections, setConnections] = useState<IClassConnections>(initialConnections || {});
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [classesData, setClassesData] = useState(null);
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
-    const [lastConnectorId, setLastConnectorId] = useState<number>(1);
-    const [lastConnectionId, setLastConnectionId] = useState<number>(1);
+    const [lastConnectorId, setLastConnectorId] = useState<number>(getConnectorsCount(initialConnections));
+    const [lastConnectionId, setLastConnectionId] = useState<number>(initialConnections ? size(initialConnections) : 0);
     const classes = selectedFields[ifaceType].find((field: IField) => field.name === 'classes').value;
 
     // Get the classes data
@@ -309,10 +323,10 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     setConnections(
                                         (current: IClassConnections): IClassConnections => ({
                                             ...current,
-                                            [`${t('Connection')}_${lastConnectionId}`]: [],
+                                            [`${t('Connection')}_${lastConnectionId + 1}`]: [],
                                         })
                                     );
-                                    setSelectedConnection(`${t('Connection')}_${lastConnectionId}`);
+                                    setSelectedConnection(`${t('Connection')}_${lastConnectionId + 1}`);
                                     setLastConnectionId(cur => cur + 1);
                                 }}
                             />
