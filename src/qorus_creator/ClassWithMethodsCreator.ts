@@ -293,18 +293,23 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let imports: string[] = [];
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
+        let both_connections_and_methods = false;
         if (data['class-connections']) {
             ClassWithMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports = []}
                  = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
+            both_connections_and_methods = !!method_objects.length;
         }
 
         let method_strings = [];
         for (let method of method_objects) {
             method_strings.push(this.fillTemplate(this.method_template, undefined, { name: method.name }, false));
         }
-        const methods = method_strings.join('\n');
+        let methods = method_strings.join('\n');
+        if (both_connections_and_methods) {
+            methods += '\n';
+        }
 
         return this.fillTemplate(this.class_template, [...this.imports, ...imports], {
             class_name: data['class-name'],

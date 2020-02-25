@@ -97,7 +97,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
         `${indent1}${GENERATED[lang].end}\n`;
     }
 
-    const connections_extra_class = `\n${GENERATED[lang].begin}\n` +
+    const connections_extra_class = `\n\n${GENERATED[lang].begin}\n` +
         extraClassCode[lang](classes, event_based_connections) + '\n' +
         method_codes.join('\n') + '}\n' +
         `${GENERATED[lang].end}\n`;
