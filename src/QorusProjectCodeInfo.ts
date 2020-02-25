@@ -504,7 +504,7 @@ export class QorusProjectCodeInfo {
         ['desc', 'description'].forEach(tag => {
             if (data[tag]) {
                 data[tag] = data[tag].replace(/^\"/, '');
-                if (data[tag][data[tag].length-2] !== '"') {
+                if (data[tag][data[tag].length-2] !== '\\') {
                     data[tag] = data[tag].replace(/\"$/, '');
                 }
             }
