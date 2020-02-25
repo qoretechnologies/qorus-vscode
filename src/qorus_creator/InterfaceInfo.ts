@@ -212,27 +212,26 @@ export class InterfaceInfo {
         this.getConfigItems({iface_id, iface_kind});
     }
 
-    private configItemInheritedData = raw_item => {
-        if (!raw_item.parent) {
-            return raw_item;
+    private configItemInheritedData = this_item => {
+        if (!this_item.parent) {
+            return this_item;
         }
 
-        const parent_name = raw_item.parent['interface-name'];
+        const parent_name = this_item.parent['interface-name'];
         const parent_data = this.code_info.yamlDataByClass(parent_name);
         if (!parent_data) {
-            return raw_item;
+            return this_item;
         }
 
-        const index = (parent_data['config-items'] || []).findIndex(item => item.name === raw_item.name);
+        const index = (parent_data['config-items'] || []).findIndex(item => item.name === this_item.name);
         if (index === -1) {
-            msg.error(t`ParentDoesNotHaveConfigItem ${parent_name} ${raw_item.name}`);
-            return raw_item;
+            msg.error(t`ParentDoesNotHaveConfigItem ${parent_name} ${this_item.name}`);
+            return this_item;
         }
 
-        return {
-            ... this.configItemInheritedData(parent_data['config-items'][index]),
-            ... parent_data['config-items'][index]
-        };
+        const inherited_item = this.configItemInheritedData(parent_data['config-items'][index]);
+
+        return { ...inherited_item, ...this_item };
     }
 
     private addClassConfigItems = (iface_id, class_name, prefix?) => {
