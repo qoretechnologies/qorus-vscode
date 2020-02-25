@@ -243,6 +243,14 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
+    private static fixMarkdown = value =>
+        '\"' +
+         value.replace(/\r?\n/g, '\\n')
+              .replace(/\\\"/g, '\"')
+              .replace(/\"/g, '\\"')
+              .replace(/\"\"/g, '\"') +
+       '\"'
+
     protected static createConfigItemHeaders = (items: any[]): string => {
         const list_indent = '  - ';
         const indent = '    ';
@@ -306,11 +314,10 @@ export abstract class InterfaceCreator {
                     } else {
                         switch (tag) {
                             case 'type':
-                                result +=
-                                    `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: "${item[tag].replace(/\r?\n/g, '\\n').replace(/\"/g, '\\"')}"\n`;
+                                result += `${indent}${tag}: ${InterfaceCreator.fixMarkdown(item[tag])}\n`;
                                 break;
                             default:
                                 result += `${indent}${tag}: ${item[tag]}\n`;
@@ -500,7 +507,7 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
-                        result += `${tag}: "${value.replace(/\r?\n/g, '\\n').replace(/\"/g, '\\"')}"\n`;
+                        result += `${tag}: ${InterfaceCreator.fixMarkdown(value)}\n`;
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;

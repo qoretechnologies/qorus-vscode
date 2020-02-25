@@ -501,6 +501,15 @@ export class QorusProjectCodeInfo {
             delete data['mapper-code'];
         }
 
+        ['desc', 'description'].forEach(tag => {
+            if (data[tag]) {
+                data[tag] = data[tag].replace(/^\"/, '');
+                if (data[tag][data[tag].length-2] !== '"') {
+                    data[tag] = data[tag].replace(/\"$/, '');
+                }
+            }
+        });
+
         if (data.fields) {
             Object.keys(data.fields).forEach(field_name => {
                 let field = data.fields[field_name];
