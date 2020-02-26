@@ -166,33 +166,35 @@ export class InterfaceInfo {
             }
         }
 
+        let iface = this.iface_by_id[iface_id];
         const name_to_search = item.orig_name || item.name;
-        const index = this.iface_by_id[iface_id]['config-items']
+        const index = iface['config-items']
                           .findIndex(item2 => item2.name === name_to_search);
         if (index > -1) {
             if (name_to_search !== item.name) {
-                this.iface_by_id[iface_id]['config-items'][index].name = item.name;
+                iface['config-items'][index].name = item.name;
             }
 
             const field_names = configItemFields(this).map(field => field.name);
             field_names.forEach(field_name => {
-                delete this.iface_by_id[iface_id]['config-items'][index][field_name];
+                delete iface['config-items'][index][field_name];
             });
 
             this.iface_by_id[iface_id]['config-items'][index] = {
-                ... this.iface_by_id[iface_id]['config-items'][index],
+                ... iface['config-items'][index],
                 ... item
             };
         }
         else {
-            this.iface_by_id[iface_id]['config-items'].push(item);
+            iface['config-items'].push(item);
         }
 
         if (item.config_group) {
             this.last_conf_group = item.config_group;
         }
 
-        this.getConfigItems({iface_id, iface_kind});
+        const {'base-class-name': base_class_name, classes, requires, steps} = iface;
+        this.getConfigItems({iface_id, iface_kind, 'base-class-name': base_class_name, classes, requires, steps});
     }
 
     deleteConfigItem = ({iface_id, iface_kind, name}) => {
@@ -263,7 +265,7 @@ export class InterfaceInfo {
             if (index > -1) {
                 this.iface_by_id[iface_id]['config-items'][index] = {
                     ... item,
-                    ... this.iface_by_id[iface_id]['config-items'][index],
+                    ... this.iface_by_id[iface_id]['config-items'][index]
                 };
             }
             else {
