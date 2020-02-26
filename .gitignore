@@ -1,5 +1,9 @@
-out
 dist
+out
 node_modules
-package-lock.json
+test-resources
 *.swp
+*.vsix
+package-lock.json
+ui-test/node_modules
+ui-test/package-lock.json

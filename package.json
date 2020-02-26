@@ -1240,11 +1240,13 @@
     "scripts": {
         "vscode:prepublish": "npm run compile && npm run build",
         "compile": "tsc -p ./src",
+        "compile:test": "cd ui-test && tsc -p ./src",
         "watch": "tsc -watch -p ./src",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "start": "NODE_ENV=development babel-node server.js",
-        "build": "NODE_ENV=production webpack"
+        "build": "NODE_ENV=production webpack",
+        "ui-test": "npm run compile:test && ui-test/node_modules/.bin/extest setup-and-run ui-test/out/*.js"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",
