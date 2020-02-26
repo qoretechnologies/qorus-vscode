@@ -3,7 +3,7 @@ import { field, subclass_template } from './common_constants';
 const imports = {
     java: [
         'import com.qoretechnologies.qorus.*;',
-        'import com.qoretechnologies.qorus.step.*;'
+        'import com.qoretechnologies.qorus.workflow.*;'
     ]
 };
 
