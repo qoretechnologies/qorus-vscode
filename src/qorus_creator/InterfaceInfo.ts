@@ -295,18 +295,25 @@ export class InterfaceInfo {
 
     removeBaseClass = ({iface_id, iface_kind}) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
-        const base_class_name = this.iface_by_id[iface_id]['base-class-name'];
+        let iface = this.iface_by_id[iface_id];
+
+        const base_class_name = iface['base-class-name'];
         if (!base_class_name) {
             return;
         }
 
-        delete this.iface_by_id[iface_id]['base-class-name'];
+        delete iface['base-class-name'];
 
         if (!hasConfigItems(iface_kind)) {
             return;
         }
 
-        this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
+        const classes = iface.requires || iface.classes || [];
+        if (classes.findIndex(({name, prefix = ''}) => base_class_name === name && prefix === '') > -1) {
+            return;
+        }
+
+        this.iface_by_id[iface_id]['config-items'] = iface['config-items'].filter(item =>
             !item.parent || item.parent['interface-name'] !== base_class_name || item.prefix
         );
     }
