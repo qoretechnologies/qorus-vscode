@@ -240,7 +240,7 @@ export class InterfaceInfo {
             return;
         }
 
-        const version = class_yaml_data.version || default_version;
+        const version = (class_yaml_data.version || default_version).toString();
 
         (class_yaml_data['config-items'] || []).forEach(raw_item => {
             let item = { ...this.configItemInheritedData(raw_item) };
@@ -249,7 +249,7 @@ export class InterfaceInfo {
             item.parent = {
                 'interface-type': 'class',
                 'interface-name': class_name,
-                'interface-version': version.toString()
+                'interface-version': version
             };
             item.parent_class = class_name;
             if (prefix) {
@@ -262,8 +262,8 @@ export class InterfaceInfo {
 
             if (index > -1) {
                 this.iface_by_id[iface_id]['config-items'][index] = {
+                    ... item,
                     ... this.iface_by_id[iface_id]['config-items'][index],
-                    ... item
                 };
             }
             else {
