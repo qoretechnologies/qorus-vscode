@@ -222,9 +222,6 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export const DeleteInterfacesContainer = compose(
-    connect(
-        mapStateToProps,
-        mapDispatchToProps
-    ),
+    connect(mapStateToProps, mapDispatchToProps),
     withTextContext()
 )(DeleteInterfaces);
