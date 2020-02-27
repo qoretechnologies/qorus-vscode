@@ -196,18 +196,22 @@ export abstract class InterfaceCreator {
         };
 
         const eraseBaseClassName = (only_without_space: boolean = false) => {
-            let strings_to_erase = [orig_base_class_name];
-            if (!only_without_space) {
-                strings_to_erase.unshift(`${orig_base_class_name} `);
-                strings_to_erase.unshift(` ${orig_base_class_name}`);
-            }
+            const n = main_base_class_name_range.start.line;
+            const pos = main_base_class_name_range.start.character;
+            const length = main_base_class_name_range.end.character - main_base_class_name_range.start.character;
 
-            const line = main_base_class_name_range.start.line;
-            for (const string_to_erase of strings_to_erase) {
-                if (lines[line].includes(string_to_erase)) {
-                    lines[line] = lines[line].replace(string_to_erase, '');
+            if (!only_without_space) {
+                if (lines[n].substr(pos, length + 1) === `${orig_base_class_name} `) {
+                    lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + length + 1);
                     return;
                 }
+                if (lines[n].substr(pos - 1, length + 1) === ` ${orig_base_class_name}`) {
+                    lines[n] = lines[n].substr(0, pos - 1) + lines[n].substr(pos + length);
+                    return;
+                }
+            }
+            if (lines[n].substr(pos, length) === `${orig_base_class_name}`) {
+                lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + length);
             }
         };
 
@@ -230,8 +234,8 @@ export abstract class InterfaceCreator {
                     eraseBaseClassName(true);
                 }
             } else {
-                eraseInheritsKw();
                 eraseBaseClassName();
+                eraseInheritsKw();
             }
         } else if (base_class_name !== orig_base_class_name) {
             replace(main_base_class_name_range.start, orig_base_class_name, base_class_name);
