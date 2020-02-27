@@ -3,7 +3,12 @@ out
 node_modules
 test-resources
 *.swp
+<<<<<<< HEAD
 *.vsix
 package-lock.json
 ui-test/node_modules
 ui-test/package-lock.json
+=======
+test-resources
+*.vsix
+>>>>>>> develop
