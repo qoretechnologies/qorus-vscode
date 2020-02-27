@@ -6,9 +6,6 @@ export const isDeployable = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep',
                                  'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java', 'yaml', 'qmc']);
 
-export const canBeParsed = (file_path: string): boolean =>
-    hasOneOfSuffixes(file_path, ['qfd', 'qsd', 'qjob', 'qclass', 'qconst', 'qmapper', 'qvmap', 'java']);
-
 export const expectsYamlFile = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qstep', 'qmc', 'java']);
 

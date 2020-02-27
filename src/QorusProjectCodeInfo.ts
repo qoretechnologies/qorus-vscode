@@ -1,4 +1,3 @@
-import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as isArray from 'lodash/isArray';
@@ -13,8 +12,7 @@ import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
 import { qore_vscode } from './qore_vscode';
 import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
-import { canBeParsed, filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind } from './qorus_utils';
-import { qorus_vscode } from './qorus_vscode';
+import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
@@ -24,17 +22,14 @@ import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
 import { getJavaDocumentSymbolsWithWait } from './vscode_java';
 
-const object_parser_subdir = 'qorus-object-parser';
-const object_parser_script = 'qop.q -i';
-const object_chunk_length = 100;
 const root_service = 'QorusService';
 const root_job = 'QorusJob';
 const root_workflow = 'QorusWorkflow';
 const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
                     'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
-const all_root_classes =[...root_steps, root_service, root_job, root_workflow];
+const all_root_classes = [...root_steps, root_service, root_job, root_workflow];
 const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
-const info_keys = ['file_tree', 'yaml', 'objects', 'modules'];
+const info_keys = ['file_tree', 'yaml', 'modules'];
 const object_types_with_version = ['step', 'mapper'];
 const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items',
                                       'class', 'constant', 'function', 'connection', 'event', 'group',
@@ -43,7 +38,6 @@ const object_types = [...object_types_with_version, ...object_types_without_vers
 export const default_version = '1.0';
 
 const log_update_messages = false;
-const log_qop_stderr = false;
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
@@ -96,7 +90,6 @@ export class QorusProjectCodeInfo {
     private yaml_files_watcher: vscode.FileSystemWatcher;
     private base_classes_files_watcher: vscode.FileSystemWatcher;
     private java_files_watcher: vscode.FileSystemWatcher;
-    private parsable_files_watcher: vscode.FileSystemWatcher;
     private module_files_watcher: vscode.FileSystemWatcher;
     private config_file_watcher: vscode.FileSystemWatcher;
 
@@ -692,12 +685,6 @@ export class QorusProjectCodeInfo {
         this.java_files_watcher.onDidChange(() => this.update(['java_lang_client']));
         this.java_files_watcher.onDidDelete(() => this.update(['java_lang_client']));
 
-        this.parsable_files_watcher
-            = vscode.workspace.createFileSystemWatcher('**/*.{qfd,qsd,qjob,qclass,qconst,qmapper,qvmap,java}');
-        this.parsable_files_watcher.onDidCreate(() => this.update(['objects']));
-        this.parsable_files_watcher.onDidChange(() => this.update(['objects']));
-        this.parsable_files_watcher.onDidDelete(() => this.update(['objects']));
-
         this.module_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.qm');
         this.module_files_watcher.onDidCreate(() => this.update(['modules']));
         this.module_files_watcher.onDidDelete(() => this.update(['modules']));
@@ -865,7 +852,7 @@ export class QorusProjectCodeInfo {
             case 'group':
             case 'event':
             case 'queue':
-                this.waitForPending(['objects', 'yaml']).then(() => postMessage('objects',
+                this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );
                 break;
@@ -955,11 +942,6 @@ export class QorusProjectCodeInfo {
                     this.baseClassesFromInheritancePairs();
                     this.javaBaseClassesFromInheritancePairs();
                     this.notifyTrees();
-                }, 0);
-            }
-            if (info_list.includes('objects')) {
-                setTimeout(() => {
-                    this.updateObjects(file_data.source_directories);
                 }, 0);
             }
             if (info_list.includes('modules')) {
@@ -1355,97 +1337,6 @@ export class QorusProjectCodeInfo {
         this.dir_tree = dir_tree;
         this.all_dir_tree = all_dir_tree;
         this.setPending('file_tree', false);
-    }
-
-    private async updateObjects(source_directories: string[]) {
-        this.setPending('objects', true);
-        try {
-            await qorus_vscode.waitForContext();
-        } catch (error) {
-            this.setPending('objects', false);
-            return;
-        }
-
-        const object_parser_dir = path.join(qorus_vscode.context.extensionPath, object_parser_subdir);
-        const object_parser_path = path.join(object_parser_dir, object_parser_script);
-        let num_pending = 0;
-        let child_process_failed: boolean = false;
-
-        for (let dir of source_directories) {
-            if (child_process_failed) {
-                break;
-            }
-
-            const full_dir = path.join(this.project.folder, dir);
-            if (!fs.existsSync(full_dir)) {
-                continue;
-            }
-
-            let files = filesInDir(full_dir, canBeParsed);
-
-            while (files.length) {
-                if (child_process_failed) {
-                    break;
-                }
-
-                this.setPending('objects', true, true);
-                num_pending++;
-
-                let command_parts = files.splice(0, object_chunk_length);
-                command_parts.unshift(object_parser_path);
-                const command: string = command_parts.join(' ');
-                const options = {
-                    maxBuffer: 99999999,
-                    env: {
-                        ...process.env,
-                        QORE_MODULE_DIR: object_parser_dir,
-                    },
-                };
-
-                child_process.exec(command, options, (error, stdout, stderr) => {
-                    if (stderr && log_qop_stderr) {
-                        msg.error(stderr);
-                    }
-
-                    if (error) {
-                        msg.error(t`QopError ${error}`);
-                        this.setPending('objects', false, true);
-                        child_process_failed = true;
-                        return;
-                    }
-
-                    const objects: any[] = JSON.parse(stdout.toString()) || [];
-
-                    for (let obj of objects) {
-                        const authors = obj.tags.author || obj.tags.serviceauthor || [];
-                        for (const author of authors) {
-                            this.object_info.author[author] = { name: author };
-                        }
-
-                        obj.type = obj.type.replace(/ /g, '-');
-
-                        if (!object_info_types.includes(obj.type)) {
-                            continue;
-                        }
-                        if (obj.type === 'function' && obj.tags.type !== 'GENERIC') {
-                            continue;
-                        }
-
-                        const name = object_types_with_version.includes(obj.type)
-                            ? `${obj.tags.name}:${obj.tags.version || default_version}`
-                            : obj.tags.name;
-
-                        this.object_info[obj.type][name] = {
-                            name: name,
-                            desc: obj.tags.desc,
-                        };
-                    }
-                    if (--num_pending == 0) {
-                        this.setPending('objects', false);
-                    }
-                });
-            }
-        }
     }
 
     getMappers = ({'input-condition': input_condition, 'output-condition': output_condition}) => {
