@@ -48,7 +48,7 @@ export const suffixToIfaceKind = (suffix: string): string | undefined => {
 
 export const hasConfigItems = iface_kind => ['job', 'service', 'class', 'step'].includes(iface_kind);
 
-// returns all files in the directory and its subdirecories satisfying filter condition (if provided)
+// returns all files in the directory and its subdirectories satisfying filter condition (if provided)
 // filter: function accepting a filename as an argument and returning a boolean value
 export const filesInDir = (dir: string, filter?: Function): string[]  => {
     let files = [];

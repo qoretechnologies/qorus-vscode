@@ -987,102 +987,100 @@ export class QorusProjectCodeInfo {
     }
 
     stepTriggerSignatures = (base_class, lang = 'qore') => {
-        switch (lang) {
-            case 'qore': return this.stepTriggerSignaturesQore(base_class);
-            case 'java': return this.stepTriggerSignaturesJava(base_class);
-            default: return {};
-        }
-    }
+        const stepTriggerSignatures: any = {};
 
-    private stepTriggerSignaturesQore = base_class => {
-        switch (this.stepType(base_class)) {
-            case 'QorusNormalStep':
-                return {
-                    primary: {signature: 'primary()'},
-                    validation: {signature: 'string validation()'}
-                };
-            case 'QorusNormalArrayStep':
-                return {
-                    primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
-                    validation: {signature: 'string validation(auto array_arg)', arg_names: ['array_arg']},
-                    array: {signature: 'softlist<auto> array()'}
-                };
-            case 'QorusEventStep':
-            case 'QorusSubworkflowStep':
-                return {
-                    primary: {signature: 'primary()'}
-                };
-            case 'QorusEventArrayStep':
-            case 'QorusSubworkflowArrayStep':
-                return {
-                    primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
-                    array: {signature: 'softlist<auto> array()'}
-                };
-            case 'QorusAsyncStep':
-                return {
-                    primary: {signature: 'primary()'},
-                    validation: {signature: 'string validation(*string async_key)', arg_names: ['async_key']},
-                    end: {signature: 'end(auto queue_data)', arg_names: ['queue_data']}
-                };
-            case 'QorusAsyncArrayStep':
-                return {
-                    primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
-                    validation: {signature: 'string validation(*string async_key, auto array_arg)', arg_names: ['async_key', 'array_arg']},
-                    end: {signature: 'end(auto queue_data, auto array_arg)', arg_names: ['queue_data', 'array_arg']},
-                    array: {signature: 'softlist<auto> array()'}
-                };
-            default:
-                return {};
-        }
-    }
-
-    private stepTriggerSignaturesJava = base_class => {
-        const fixSignature = triggers => {
-            Object.keys(triggers).forEach(trigger => {
-                triggers[trigger].signature = `public ${triggers[trigger].signature} throws Throwable`;
-            });
-            return triggers;
+        stepTriggerSignatures.qore = base_class => {
+            switch (this.stepType(base_class)) {
+                case 'QorusNormalStep':
+                    return {
+                        primary: {signature: 'primary()'},
+                        validation: {signature: 'string validation()'}
+                    };
+                case 'QorusNormalArrayStep':
+                    return {
+                        primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
+                        validation: {signature: 'string validation(auto array_arg)', arg_names: ['array_arg']},
+                        array: {signature: 'softlist<auto> array()'}
+                    };
+                case 'QorusEventStep':
+                case 'QorusSubworkflowStep':
+                    return {
+                        primary: {signature: 'primary()'}
+                    };
+                case 'QorusEventArrayStep':
+                case 'QorusSubworkflowArrayStep':
+                    return {
+                        primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
+                        array: {signature: 'softlist<auto> array()'}
+                    };
+                case 'QorusAsyncStep':
+                    return {
+                        primary: {signature: 'primary()'},
+                        validation: {signature: 'string validation(*string async_key)', arg_names: ['async_key']},
+                        end: {signature: 'end(auto queue_data)', arg_names: ['queue_data']}
+                    };
+                case 'QorusAsyncArrayStep':
+                    return {
+                        primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
+                        validation: {signature: 'string validation(*string async_key, auto array_arg)', arg_names: ['async_key', 'array_arg']},
+                        end: {signature: 'end(auto queue_data, auto array_arg)', arg_names: ['queue_data', 'array_arg']},
+                        array: {signature: 'softlist<auto> array()'}
+                    };
+                default:
+                    return {};
+            }
         };
 
-        switch (this.javaStepType(base_class)) {
-            case 'QorusNormalStep':
-                return fixSignature({
-                    primary: {signature: 'void primary()'},
-                    validation: {signature: 'String validation()'}
+        stepTriggerSignatures.java = base_class => {
+            const fixSignature = triggers => {
+                Object.keys(triggers).forEach(trigger => {
+                    triggers[trigger].signature = `public ${triggers[trigger].signature} throws Throwable`;
                 });
-            case 'QorusNormalArrayStep':
-                return fixSignature({
-                    primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
-                    validation: {signature: 'String validation(Object array_arg)', arg_names: ['array_arg']},
-                    array: {signature: 'Object[] array()'}
-                });
-            case 'QorusEventStep':
-            case 'QorusSubworkflowStep':
-                return fixSignature({
-                    primary: {signature: 'void primary()'}
-                });
-            case 'QorusEventArrayStep':
-            case 'QorusSubworkflowArrayStep':
-                return fixSignature({
-                    primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
-                    array: {signature: 'Object[] array()'}
-                });
-            case 'QorusAsyncStep':
-                return fixSignature({
-                    primary: {signature: 'void primary()'},
-                    validation: {signature: 'String validation(String async_key)', arg_names: ['async_key']},
-                    end: {signature: 'void end(Object queue_data)', arg_names: ['queue_data']}
-                });
-            case 'QorusAsyncArrayStep':
-                return fixSignature({
-                    primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
-                    validation: {signature: 'String validation(String async_key, Object array_arg)', arg_names: ['async_key', 'array_arg']},
-                    end: {signature: 'void end(Object queue_data, Object array_arg)', arg_names: ['queue_data', 'array_arg']},
-                    array: {signature: 'void Object[] array()'}
-                });
-            default:
-                return {};
-        }
+                return triggers;
+            };
+
+            switch (this.javaStepType(base_class)) {
+                case 'QorusNormalStep':
+                    return fixSignature({
+                        primary: {signature: 'void primary()'},
+                        validation: {signature: 'String validation()'}
+                    });
+                case 'QorusNormalArrayStep':
+                    return fixSignature({
+                        primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
+                        validation: {signature: 'String validation(Object array_arg)', arg_names: ['array_arg']},
+                        array: {signature: 'Object[] array()'}
+                    });
+                case 'QorusEventStep':
+                case 'QorusSubworkflowStep':
+                    return fixSignature({
+                        primary: {signature: 'void primary()'}
+                    });
+                case 'QorusEventArrayStep':
+                case 'QorusSubworkflowArrayStep':
+                    return fixSignature({
+                        primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
+                        array: {signature: 'Object[] array()'}
+                    });
+                case 'QorusAsyncStep':
+                    return fixSignature({
+                        primary: {signature: 'void primary()'},
+                        validation: {signature: 'String validation(String async_key)', arg_names: ['async_key']},
+                        end: {signature: 'void end(Object queue_data)', arg_names: ['queue_data']}
+                    });
+                case 'QorusAsyncArrayStep':
+                    return fixSignature({
+                        primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
+                        validation: {signature: 'String validation(String async_key, Object array_arg)', arg_names: ['async_key', 'array_arg']},
+                        end: {signature: 'void end(Object queue_data, Object array_arg)', arg_names: ['queue_data', 'array_arg']},
+                        array: {signature: 'void Object[] array()'}
+                    });
+                default:
+                    return {};
+            }
+        };
+
+        return stepTriggerSignatures[lang](base_class);
     }
 
     javaStepType = (base_class: string): string | undefined => {
