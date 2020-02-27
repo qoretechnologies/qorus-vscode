@@ -22,7 +22,7 @@ export const default_parse_options = '\
 %enable-all-warnings\n\n\
 ';
 
-const classTemplate = (with_base_class, with_methods) => {
+const classTemplate = (with_base_class) => {
     let class_template: any = {};
 
     supported_langs.forEach(lang => {
@@ -31,19 +31,30 @@ const classTemplate = (with_base_class, with_methods) => {
             class_template[lang] += ` ${lang_inherits[lang]}` + ' ${this.base_class_name}';
         }
         class_template[lang] += ' {\n';
-        if (with_methods) {
-            class_template[lang] += '${this.methods}';
-        }
+        class_template[lang] += '${this.methods}';
         class_template[lang] += '${this.connections_within_class}}${this.connections_extra_class}';
     });
 
     return class_template;
 };
 
-export const class_template = classTemplate(false, false);
-export const subclass_template = classTemplate(true, false);
-export const class_with_methods_template = classTemplate(false, true);
-export const subclass_with_methods_template = classTemplate(true, true);
+export const class_template = classTemplate(false);
+export const subclass_template = classTemplate(true);
+
+
+let method_template: any = {};
+
+method_template.qore = '\
+    ${this.name}() {\n\
+    }\n\
+';
+
+method_template.java = '\
+    public void ${this.name}() throws Throwable {\n\
+    }\n\
+';
+
+export const simple_method_template = method_template;
 
 export const classFields = ({ is_editing, default_target_dir }) => [
     field.targetDir(default_target_dir),
