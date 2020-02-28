@@ -85,9 +85,31 @@ class ClassCreator extends InterfaceCreator {
 
                 if (iface_kind === 'job' && !triggers.includes('run')) {
                     methods = this.fillTemplate(simple_method_template[this.lang], undefined, { name: 'run' }, false);
-                    if (data['class-connections']) {
-                        methods += '\n';
-                    }
+                }
+
+                else if (iface_kind === 'step') {
+                    const mandatory_step_methods =
+                        this.code_info.mandatoryStepMethods(data['base-class-name'], this.lang);
+                    msg.debug({mandatory_step_methods});
+                    let method_strings = [];
+                    const indent = '    ';
+                    Object.keys(mandatory_step_methods).forEach(method_name => {
+                        if (triggers.includes(method_name)) {
+                            return;
+                        }
+                        const method_data = mandatory_step_methods[method_name];
+                        let method_string = `${indent}${method_data.signature} {\n`;
+                        if (method_data.body) {
+                            method_string += `${indent}${indent}${method_data.body}\n`;
+                        }
+                        method_string += `${indent}}\n`;
+                        method_strings.push(method_string);
+                    });
+                    methods = method_strings.join('\n');
+                }
+
+                if (methods && data['class-connections']) {
+                    methods += '\n';
                 }
 
                 contents = this.fillTemplate(template, [...imports, ...more_imports], {

@@ -3,7 +3,7 @@ import { toValidIdentifier } from '../qorus_utils';
 
 // =================================================================
 
-let CONN_CLASS = 'ClassConnections';
+const CONN_CLASS = 'ClassConnections';
 const CONN_BASE_CLASS = 'Observer';
 const CONN_MEMBER = { qore: 'class_connections', java: 'classConnections' };
 const CONN_CLASS_MAP = { qore: 'class_map', java: 'classMap' };
@@ -39,7 +39,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
         'class-name': class_name
     } = data;
 
-    CONN_CLASS += `_${data['class-name']}`;
+    const conn_class_name = `${CONN_CLASS}_${data['class-name']}`;
 
     let triggers = {};
     switch (iface_kind) {
@@ -89,7 +89,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
         method_codes.push(methodCode[lang](connection_code_name, connectors));
     }
 
-    let connections_within_class = constructorCode[lang](class_name);
+    let connections_within_class = constructorCode[lang](class_name, conn_class_name);
 
     if (Object.keys(triggers).length) {
         connections_within_class += `\n${indent1}${GENERATED[lang].begin}\n` +
@@ -98,7 +98,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
     }
 
     const connections_extra_class = `\n\n${GENERATED[lang].begin}\n` +
-        extraClassCode[lang](classes, event_based_connections) + '\n' +
+        extraClassCode[lang](conn_class_name, classes, event_based_connections) + '\n' +
         method_codes.join('\n') + '}\n' +
         `${GENERATED[lang].end}\n`;
 
@@ -136,26 +136,26 @@ getImports.java = data => {
 
 let constructorCode: any = {};
 
-constructorCode.qore = () =>
+constructorCode.qore = (_class_name, conn_class_name) =>
     `${indent1}private {\n` +
     `${indent2}${GENERATED.qore.begin}\n` +
-    `${indent2}${CONN_CLASS} ${CONN_MEMBER.qore};\n` +
+    `${indent2}${conn_class_name} ${CONN_MEMBER.qore};\n` +
     `${indent2}${GENERATED.qore.end}\n` +
     `${indent1}}\n\n` +
     `${indent1}constructor() {\n` +
     `${indent2}${GENERATED.qore.begin}\n` +
-    `${indent2}${CONN_MEMBER.qore} = new ${CONN_CLASS}();\n` +
+    `${indent2}${CONN_MEMBER.qore} = new ${conn_class_name}();\n` +
     `${indent2}${GENERATED.qore.end}\n` +
     `${indent1}}\n`;
 
-constructorCode.java = class_name =>
+constructorCode.java = (class_name, conn_class_name) =>
     `${indent1}${GENERATED.java.begin}\n` +
-    `${indent1}${CONN_CLASS} ${CONN_MEMBER.java};\n` +
+    `${indent1}${conn_class_name} ${CONN_MEMBER.java};\n` +
     `${indent1}${GENERATED.java.end}\n` +
     `${indent1}\n\n` +
     `${indent1}${class_name}() ${THROWS} {\n` +
     `${indent2}${GENERATED.java.begin}\n` +
-    `${indent2}${CONN_MEMBER.java} = new ${CONN_CLASS}();\n` +
+    `${indent2}${CONN_MEMBER.java} = new ${conn_class_name}();\n` +
     `${indent2}${GENERATED.java.end}\n` +
     `${indent1}}\n`;
 
@@ -163,8 +163,8 @@ constructorCode.java = class_name =>
 
 let extraClassCode: any = {};
 
-extraClassCode.qore = (classes, event_based_connections) => {
-    let code = `class ${CONN_CLASS}`;
+extraClassCode.qore = (conn_class_name, classes, event_based_connections) => {
+    let code = `class ${conn_class_name}`;
     if (event_based_connections.length) {
         code += ` inherits ${CONN_BASE_CLASS} {`;
         code += ` # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
@@ -196,7 +196,7 @@ extraClassCode.qore = (classes, event_based_connections) => {
 
     code += `${indent1}}\n\n` +
         `${indent1}auto ${CONN_CALL_METHOD}(string prefixed_class, string method) {\n` +
-        `${indent2}UserApi::logDebug("${CONN_CLASS}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class);\n` +
+        `${indent2}UserApi::logDebug("${conn_class_name}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class);\n` +
         `${indent2}return call_object_method_args(${CONN_CLASS_MAP.qore}{prefixed_class}, method, argv);\n` +
         `${indent1}}\n`;
 
@@ -215,8 +215,8 @@ extraClassCode.qore = (classes, event_based_connections) => {
     return code;
 };
 
-extraClassCode.java = (classes, event_based_connections) => {
-    let code = `class ${CONN_CLASS}`;
+extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
+    let code = `class ${conn_class_name}`;
     if (event_based_connections.length) {
         code += ` implements ${CONN_BASE_CLASS} {` +
             ` // has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
@@ -226,7 +226,7 @@ extraClassCode.java = (classes, event_based_connections) => {
 
     code += `${indent1}// map of prefixed class names to class instances\n` +
         `${indent1}private final HashMap<String, Object> ${CONN_CLASS_MAP.java};\n\n` +
-        `${indent1}${CONN_CLASS}() ${THROWS} {\n` +
+        `${indent1}${conn_class_name}() ${THROWS} {\n` +
         `${indent2}${CONN_CLASS_MAP.java} = new HashMap<String, Object>() {\n` +
         `${indent3}{\n`;
 
@@ -248,7 +248,7 @@ extraClassCode.java = (classes, event_based_connections) => {
     code += `${indent1}}\n\n` +
         `${indent1}Object ${CONN_CALL_METHOD}(final String prefixedClass, final String methodName,\n` +
         `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS} {\n` +
-        `${indent2}UserApi.logInfo("${CONN_CLASS}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
+        `${indent2}UserApi.logInfo("${conn_class_name}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
         `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +
         `${indent2}if (object instanceof QoreObject) {\n` +
         `${indent3}QoreObject qoreObject = (QoreObject)object;\n` +
@@ -364,8 +364,12 @@ triggerCode.qore = trigger => {
         code += `${indent2}${CONN_MEMBER.qore}.${connection}(${params_str});\n`;
     });
 
-    if (trigger.signature.indexOf('validation') > -1) {
+    if (trigger.signature.indexOf(' validation(') > -1) {
         code += `${indent2}return OMQ::StatRetry;\n`;
+    }
+
+    if (trigger.signature.indexOf(' array(') > -1) {
+        code += `${indent2}return ();\n`;
     }
 
     code += `${indent1}}\n`;
@@ -387,8 +391,12 @@ triggerCode.java = trigger => {
         code += `${indent2}${CONN_MEMBER.java}.${connection}(${params_str});\n`;
     });
 
-    if (trigger.signature.indexOf('validation') > -1) {
+    if (trigger.signature.indexOf(' validation(') > -1) {
         code += `${indent2}return OMQ.StatRetry;\n`;
+    }
+
+    if (trigger.signature.indexOf(' array(') > -1) {
+        code += `${indent2}return new Object[0];\n`;
     }
 
     code += `${indent1}}\n`;

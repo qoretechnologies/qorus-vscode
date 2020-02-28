@@ -977,6 +977,27 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
+    mandatoryStepMethods = (base_class, lang) => {
+        let { primary, array } = this.stepTriggerSignatures(base_class, lang);
+        if (!primary) {
+            return {};
+        }
+
+        primary.body = '';
+
+        if (!array) {
+            return { primary };
+        }
+
+        const array_body = {
+            qore: 'return ();',
+            java: 'return new Object[0];'
+        };
+
+        array.body = array_body[lang] || '';
+        return { primary, array };
+    }
+
     triggers = ({iface_kind, 'base-class-name': base_class = undefined}) => {
         switch (iface_kind) {
             case 'service': return ['start', 'stop', 'init'];
@@ -987,7 +1008,7 @@ export class QorusProjectCodeInfo {
     }
 
     stepTriggerSignatures = (base_class, lang = 'qore') => {
-        const stepTriggerSignatures: any = {};
+        let stepTriggerSignatures: any = {};
 
         stepTriggerSignatures.qore = base_class => {
             switch (this.stepType(base_class)) {
