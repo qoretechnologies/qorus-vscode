@@ -370,6 +370,9 @@ msgstr "Project configuration file has changed on disk. Do you want to reload or
 msgid "OpenUi"
 msgstr "Open UI"
 
+msgid "LabelDescription"
+msgstr "Description:"
+
 msgid "LabelUsername"
 msgstr "Username:"
 

@@ -272,7 +272,7 @@ export class QorusProjectCodeInfo {
             return false;
         }
 
-        this.addMethodInfo(file, decl.name, decl.range, decl.selectionRange);
+        this.addMethodInfo(file, decl.name.replace('()', ''), decl.range, decl.selectionRange);
 
         return true;
     }
