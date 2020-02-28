@@ -165,7 +165,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
             }
         }
         if (method) {
-            const markdown = new MarkdownString('**' + t`LabelDescription` + "** " + method.desc);
+            const markdown = new MarkdownString('**' + t`LabelDescription` + '** ' + method.desc);
             markdown.isTrusted = true;
             return new Hover(markdown);
         }
