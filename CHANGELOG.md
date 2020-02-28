@@ -21,6 +21,10 @@
 -   fixed: on removing a base class do not remove its config items if it's also in the requires/classes list
 -   fixed inheritance of config item default values and values
 -   fixed all interface source is sometimes deleted and corrupted YAML is saved
+-   fixed saving of inherited config items
+-   fixed sending of empty classes in some cases, resulting in source code being deleted
+-   fixed tooltip for default config item value in config item value dialog
+-   fixed scrollbar not showing in the delete interface view
 
 ## 1.0.1
 
