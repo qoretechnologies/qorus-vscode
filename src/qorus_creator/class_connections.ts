@@ -48,7 +48,9 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
             break;
         case 'job':
             code_info.triggers({iface_kind}).forEach(trigger => {
-                triggers[trigger] = {signature: lang === 'java' ? `public void ${trigger}()` : `${trigger}()`};
+                triggers[trigger] = {
+                    signature: lang === 'java' ? `public void ${trigger}() ${THROWS}` : `${trigger}()`
+                };
             });
             break;
     }
@@ -61,6 +63,21 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
     let event_based_connections = [];
     let method_codes = [];
 
+    const isSimple = trigger =>
+        iface_kind !== 'service' || code_info.triggers({iface_kind: 'service'}).includes(trigger);
+
+    const signature = trigger => {
+        if (isSimple(trigger)) {
+            return lang === 'java'
+                ? `public void ${trigger}() ${THROWS}`
+                : `${trigger}()`;
+        } else {
+            return lang === 'java'
+                ? `public Object ${trigger}(Optional<Map<String, Object>> params) ${THROWS}`
+                : `auto ${trigger}(*hash<auto> params)`;
+        }
+    };
+
     for (const connection in connections) {
         const connection_code_name = toValidIdentifier(connection);
         let connectors = [];
@@ -68,7 +85,8 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
             if (connector.trigger) {
                 if (!triggers[connector.trigger]) {
                     triggers[connector.trigger] = {
-                        signature: `${connector.trigger}()`,
+                        signature: signature(connector.trigger),
+                        does_return: !isSimple(connector.trigger),
                         connections: []
                     };
                 }
@@ -267,7 +285,7 @@ extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
     if (event_based_connections.length) {
         code += '\n' +
             `${indent1}// override ${CONN_BASE_CLASS}'s update()\n` +
-            `${indent1}public void update(String id, Map<String, Object> ${CONN_DATA}) ${THROWS} {\n`;
+            `${indent1}public void update(String id, Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS} {\n`;
         event_based_connections.forEach(event_based => {code +=
             `${indent2}if (id == "${event_based.prefixed_class}::${event_based.method}") {\n` +
             `${indent3}${event_based.connection_code_name}(${CONN_DATA});\n` +
@@ -284,7 +302,7 @@ extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
 let methodCode: any = {};
 
 methodCode.qore = (connection_code_name, connectors) => {
-    let code = `${indent1}${connection_code_name}(*hash<auto> ${CONN_DATA}) {\n`;
+    let code = `${indent1}auto ${connection_code_name}(*hash<auto> ${CONN_DATA}) {\n`;
 
     if (connectors.some(connector => connector.mapper)) {
         code += `${indent2}auto ${CONN_MAPPER};\n`;
@@ -309,7 +327,10 @@ methodCode.qore = (connection_code_name, connectors) => {
         code += `\n${indent2}UserApi::logDebug("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
         if (n !== connectors.length) {
             code += `${CONN_DATA} = `;
+        } else {
+            code += 'return ';
         }
+
         code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA});\n`;
     });
 
@@ -319,7 +340,7 @@ methodCode.qore = (connection_code_name, connectors) => {
 
 methodCode.java = (connection_code_name, connectors) => {
     let code = `${indent1}@SuppressWarnings("unchecked")\n` +
-        `${indent1}public void ${connection_code_name}(Map<String, Object> ${CONN_DATA}) ${THROWS} {\n`;
+        `${indent1}public Object ${connection_code_name}(Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS} {\n`;
 
     if (connectors.some(connector => connector.mapper)) {
         code += `${indent2}Mapper ${CONN_MAPPER};\n`;
@@ -338,9 +359,11 @@ methodCode.java = (connection_code_name, connectors) => {
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
         if (++n !== connectors.length) {
-            code += `${CONN_DATA} = (Map<String, Object>)`;
+            code += `${CONN_DATA} = (Optional<Map<String, Object>>)`;
+        } else {
+            code += 'return ';
         }
-        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", Optional.of(${CONN_DATA}));\n`;
+        code += `${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA});\n`;
     });
 
     code += `${indent1}}\n`;
@@ -361,7 +384,11 @@ triggerCode.qore = trigger => {
         params_str = CONN_DATA;
     }
     trigger.connections.forEach(connection => {
-        code += `${indent2}${CONN_MEMBER.qore}.${connection}(${params_str});\n`;
+        code += indent2;
+        if (trigger.does_return) {
+            code += 'return ';
+        }
+        code += `${CONN_MEMBER.qore}.${connection}(${params_str});\n`;
     });
 
     if (trigger.signature.indexOf(' validation(') > -1) {
@@ -388,7 +415,11 @@ triggerCode.java = trigger => {
         params_str = CONN_DATA;
     }
     trigger.connections.forEach(connection => {
-        code += `${indent2}${CONN_MEMBER.java}.${connection}(${params_str});\n`;
+        code += indent2;
+        if (trigger.does_return) {
+            code += 'return ';
+        }
+        code += `${CONN_MEMBER.java}.${connection}(${params_str});\n`;
     });
 
     if (trigger.signature.indexOf(' validation(') > -1) {
