@@ -156,7 +156,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
     }
 
     createMethodHover(symbol, yaml_info) {
-        const methodName = symbol.name.replace(/\(.*\)/, '');
+        const methodName = symbol.name.replace(/\(.*\)/, '').replace(/.*::/, '');
         let method;
         for (const m of yaml_info.methods || []) {
             if (m.name === methodName) {
@@ -165,7 +165,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
             }
         }
         if (method) {
-            const markdown = new MarkdownString(method.desc);
+            const markdown = new MarkdownString('**' + t`LabelDescription` + '** ' + method.desc);
             markdown.isTrusted = true;
             return new Hover(markdown);
         }

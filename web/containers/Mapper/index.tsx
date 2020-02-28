@@ -316,13 +316,14 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     hideOutputSelector,
     setHideInputSelector,
     setHideOutputSelector,
-    isEditing,
+    isEditingMapper: isEditing,
     postMessage,
     interfaceId,
     getUrlFromProvider,
     mapperSubmit,
     resetAllInterfaceData,
     resetMapper,
+    isFromConnectors,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -712,7 +713,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             <div
                 style={{
                     width: '100%',
-                    marginTop: isEditing || (hideInputSelector && hideOutputSelector) ? 0 : '15px',
+                    marginTop: isFromConnectors || isEditing || (hideInputSelector && hideOutputSelector) ? 0 : '15px',
                     padding: 10,
                     flex: 1,
                     overflow: 'auto',
@@ -729,7 +730,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             {t('Input')}{' '}
                             {hideInputSelector && (
                                 <>
-                                    {isEditing ? (
+                                    {isEditing || isFromConnectors ? (
                                         <Tooltip content={getUrlFromProvider('input')}>
                                             <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
                                         </Tooltip>
@@ -861,7 +862,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             {t('Output')}{' '}
                             {hideOutputSelector && (
                                 <>
-                                    {isEditing ? (
+                                    {isEditing || isFromConnectors ? (
                                         <Tooltip content={outputRecord}>
                                             <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
                                         </Tooltip>

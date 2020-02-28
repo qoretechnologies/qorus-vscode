@@ -6,9 +6,6 @@ export const isDeployable = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep',
                                  'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java', 'yaml', 'qmc']);
 
-export const canBeParsed = (file_path: string): boolean =>
-    hasOneOfSuffixes(file_path, ['qfd', 'qsd', 'qjob', 'qclass', 'qconst', 'qmapper', 'qvmap', 'java']);
-
 export const expectsYamlFile = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qstep', 'qmc', 'java']);
 
@@ -51,7 +48,7 @@ export const suffixToIfaceKind = (suffix: string): string | undefined => {
 
 export const hasConfigItems = iface_kind => ['job', 'service', 'class', 'step'].includes(iface_kind);
 
-// returns all files in the directory and its subdirecories satisfying filter condition (if provided)
+// returns all files in the directory and its subdirectories satisfying filter condition (if provided)
 // filter: function accepting a filename as an argument and returning a boolean value
 export const filesInDir = (dir: string, filter?: Function): string[]  => {
     let files = [];

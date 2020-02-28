@@ -115,6 +115,15 @@ export abstract class InterfaceCreator {
     }
 
     protected writeFiles(contents: string, headers: string, open_file_on_success: boolean = true) {
+        contents = contents.replace(/(\t| )+\n/g, '\n');
+        while (contents.match(/\n\n\n/)) {
+            contents = contents.replace(/\n\n\n/g, '\n\n');
+        }
+        contents.replace(/\n\n$/, '\n');
+        if (contents[contents.length - 1] !== '\n') {
+            contents += '\n';
+        }
+
         fs.writeFile(this.file_path, contents, err => {
             if (err) {
                 msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
@@ -196,18 +205,22 @@ export abstract class InterfaceCreator {
         };
 
         const eraseBaseClassName = (only_without_space: boolean = false) => {
-            let strings_to_erase = [orig_base_class_name];
-            if (!only_without_space) {
-                strings_to_erase.unshift(`${orig_base_class_name} `);
-                strings_to_erase.unshift(` ${orig_base_class_name}`);
-            }
+            const n = main_base_class_name_range.start.line;
+            const pos = main_base_class_name_range.start.character;
+            const length = main_base_class_name_range.end.character - main_base_class_name_range.start.character;
 
-            const line = main_base_class_name_range.start.line;
-            for (const string_to_erase of strings_to_erase) {
-                if (lines[line].includes(string_to_erase)) {
-                    lines[line] = lines[line].replace(string_to_erase, '');
+            if (!only_without_space) {
+                if (lines[n].substr(pos, length + 1) === `${orig_base_class_name} `) {
+                    lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + length + 1);
                     return;
                 }
+                if (lines[n].substr(pos - 1, length + 1) === ` ${orig_base_class_name}`) {
+                    lines[n] = lines[n].substr(0, pos - 1) + lines[n].substr(pos + length);
+                    return;
+                }
+            }
+            if (lines[n].substr(pos, length) === `${orig_base_class_name}`) {
+                lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + length);
             }
         };
 
@@ -230,8 +243,8 @@ export abstract class InterfaceCreator {
                     eraseBaseClassName(true);
                 }
             } else {
-                eraseInheritsKw();
                 eraseBaseClassName();
+                eraseInheritsKw();
             }
         } else if (base_class_name !== orig_base_class_name) {
             replace(main_base_class_name_range.start, orig_base_class_name, base_class_name);
@@ -242,6 +255,14 @@ export abstract class InterfaceCreator {
         }
         return lines;
     }
+
+    private static fixMarkdown = value =>
+        '\"' +
+         value.replace(/\r?\n/g, '\\n')
+              .replace(/\\\"/g, '\"')
+              .replace(/\"/g, '\\"')
+              .replace(/\"\"/g, '\"') +
+       '\"'
 
     protected static createConfigItemHeaders = (items: any[]): string => {
         const list_indent = '  - ';
@@ -306,11 +327,10 @@ export abstract class InterfaceCreator {
                     } else {
                         switch (tag) {
                             case 'type':
-                                result +=
-                                    `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: "${item[tag].replace(/\r?\n/g, '\\n').replace(/\"/g, '\\"')}"\n`;
+                                result += `${indent}${tag}: ${InterfaceCreator.fixMarkdown(item[tag])}\n`;
                                 break;
                             default:
                                 result += `${indent}${tag}: ${item[tag]}\n`;
@@ -500,7 +520,7 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
-                        result += `${tag}: "${value.replace(/\r?\n/g, '\\n').replace(/\"/g, '\\"')}"\n`;
+                        result += `${tag}: ${InterfaceCreator.fixMarkdown(value)}\n`;
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;

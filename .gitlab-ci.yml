@@ -15,11 +15,6 @@ package_build:
   script:
     - apk add git nodejs npm
     - npm -g i vsce
-    - |
-        if [ -e ".gitmodules" ]; then
-          git config --file=.gitmodules submodule.qorus-object-parser.url https://${QOP_DEPLOY_TOKEN}:${QOP_DEPLOY_PASS}@git.qoretechnologies.com/qorus/qorus-object-parser.git
-          git submodule update --init
-        fi
     - npm install
     - npm run build
     - vsce package

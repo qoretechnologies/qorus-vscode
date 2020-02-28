@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as jsyaml from 'js-yaml';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { class_template, subclass_template } from './common_constants';
+import { class_template, subclass_template, simple_method_template } from './common_constants';
 import { jobTemplates } from './job_constants';
 import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
@@ -61,15 +61,17 @@ class ClassCreator extends InterfaceCreator {
             };
         }
 
+        let triggers: string[] = [];
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
         let more_imports: string[] = [];
         if (data['class-connections']) {
             ClassCreator.fixClassConnections(data);
-            ({connections_within_class, connections_extra_class, imports: more_imports = []}
+            ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
                             = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
         }
 
+        let methods = '';
         let contents: string;
         let message: string;
         let code_lines: string[];
@@ -81,9 +83,39 @@ class ClassCreator extends InterfaceCreator {
                     break;
                 }
 
+                if (iface_kind === 'job' && !triggers.includes('run')) {
+                    methods = this.fillTemplate(simple_method_template[this.lang], undefined, { name: 'run' }, false);
+                }
+
+                else if (iface_kind === 'step') {
+                    const mandatory_step_methods =
+                        this.code_info.mandatoryStepMethods(data['base-class-name'], this.lang);
+                    msg.debug({mandatory_step_methods});
+                    let method_strings = [];
+                    const indent = '    ';
+                    Object.keys(mandatory_step_methods).forEach(method_name => {
+                        if (triggers.includes(method_name)) {
+                            return;
+                        }
+                        const method_data = mandatory_step_methods[method_name];
+                        let method_string = `${indent}${method_data.signature} {\n`;
+                        if (method_data.body) {
+                            method_string += `${indent}${indent}${method_data.body}\n`;
+                        }
+                        method_string += `${indent}}\n`;
+                        method_strings.push(method_string);
+                    });
+                    methods = method_strings.join('\n');
+                }
+
+                if (methods && data['class-connections']) {
+                    methods += '\n';
+                }
+
                 contents = this.fillTemplate(template, [...imports, ...more_imports], {
                     class_name: data['class-name'],
                     base_class_name: data['base-class-name'],
+                    methods,
                     connections_within_class,
                     connections_extra_class
                 });
@@ -118,6 +150,7 @@ class ClassCreator extends InterfaceCreator {
                     contents = this.fillTemplate(template, [...imports, ...more_imports], {
                         class_name: data['class-name'],
                         base_class_name: data['base-class-name'],
+                        methods,
                         connections_within_class,
                         connections_extra_class
                     });

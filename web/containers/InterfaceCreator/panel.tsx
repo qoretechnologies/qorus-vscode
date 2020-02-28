@@ -202,7 +202,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [fieldListeners, setFieldListeners] = useState([]);
 
     const getClasses = () => {
-        return selectedFields.find((field: IField) => field.name === 'classes')?.value || [];
+        const classes = selectedFields?.find((field: IField) => field.name === 'classes');
+
+        if (classes) {
+            return selectedFields?.find((field: IField) => field.name === 'classes')?.value;
+        }
+
+        return undefined;
     };
 
     const fetchConfigItems: (currentIfaceId: string) => void = currentIfaceId => {
@@ -1074,11 +1080,11 @@ export default compose(
     withInitialDataConsumer(),
     withTextContext(),
     withMessageHandler(),
-    withFieldsConsumer(),
     withMethodsConsumer(),
     withGlobalOptionsConsumer(),
     withMapperConsumer(),
     withStepsConsumer(),
+    withFieldsConsumer(),
     mapProps(
         ({
             type,
