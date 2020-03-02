@@ -542,23 +542,26 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         return 0;
     };
 
-    const handleClick = type => (field: any, edit?: boolean, remove?: boolean): void => {
+    const handleClick = type => (field?: any, edit?: boolean, remove?: boolean): void => {
         if (remove) {
             editField(type, field.path, null, true);
             removeFieldRelations(field.path, type);
         } else {
+            // Save the fields into a accessible object
+            const fields = { inputs, outputs };
+
             setAddDialog({
                 isOpen: true,
-                siblings: field.type.fields,
+                siblings: field ? field?.type?.fields : fields[type],
                 fieldData: edit ? field : null,
                 type,
-                isParentCustom: field.isCustom,
+                isParentCustom: field?.isCustom,
                 onSubmit: data => {
                     if (edit) {
                         editField(type, field.path, data);
                         removeFieldRelations(field.path, type);
                     } else {
-                        addField(type, field.path, data);
+                        addField(type, field?.path || '', data);
                     }
                 },
             });
@@ -772,6 +775,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                     : t('MapperNoInputFields')}
                             </StyledInfoMessage>
                         ) : null}
+                        {inputOptionProvider?.can_manage_fields && (
+                            <Button
+                                fill
+                                text={t('AddNewField')}
+                                minimal
+                                intent="success"
+                                icon="add"
+                                onClick={() => handleClick('inputs')()}
+                            />
+                        )}
                     </StyledFieldsWrapper>
                     <StyledConnectionsWrapper>
                         {size(relations) && !isDragging ? (
@@ -903,6 +916,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                         {size(flattenedOutputs) === 0 ? (
                             <StyledInfoMessage>{t('MapperNoOutputFields')}</StyledInfoMessage>
                         ) : null}
+                        {outputOptionProvider?.can_manage_fields && (
+                            <Button
+                                fill
+                                text={t('AddNewField')}
+                                minimal
+                                intent="success"
+                                icon="add"
+                                onClick={() => handleClick('outputs')()}
+                            />
+                        )}
                     </StyledFieldsWrapper>
                 </StyledMapperWrapper>
             </div>

@@ -51,12 +51,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             type: string;
             path?: string;
             subtype?: string;
+            can_manage_fields?: boolean;
         }>(null);
         const [outputOptionProvider, setOutputOptionProvider] = useState<{
             name: string;
             type: string;
             path?: string;
             subtype?: string;
+            can_manage_fields?: boolean;
         }>(null);
         const [mapperKeys, setMapperKeys] = useState<any>(null);
         const [hideInputSelector, setHideInputSelector] = useState<boolean>(false);
@@ -109,7 +111,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
             // Get the mapper options data
-            const { type, name, path = '', subtype } = mapper.mapper_options[`mapper-${fieldType}`];
+            const { type, name, path = '', subtype, can_manage_fields } = mapper.mapper_options[`mapper-${fieldType}`];
             // Save the provider options
             if (fieldType === 'input') {
                 setInputOptionProvider({
@@ -117,6 +119,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     name,
                     path,
                     subtype,
+                    can_manage_fields,
                 });
             } else {
                 setOutputOptionProvider({
@@ -124,6 +127,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     name,
                     path,
                     subtype,
+                    can_manage_fields,
                 });
             }
             // Get the rules for the given provider
@@ -316,6 +320,12 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             fieldSetters[fieldsType](current => {
                 // Clone the current fields
                 const result: any = { ...current };
+                // If we are adding field to the top
+                if (path === '') {
+                    // Simply add the field
+                    result[data.name] = data;
+                    return result;
+                }
                 // Build the path
                 const fields: string[] = path.split('.');
                 let newPath: string;
