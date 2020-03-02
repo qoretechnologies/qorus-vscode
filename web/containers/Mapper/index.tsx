@@ -775,7 +775,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                     : t('MapperNoInputFields')}
                             </StyledInfoMessage>
                         ) : null}
-                        {inputOptionProvider?.can_manage_fields && (
+                        {hideInputSelector && inputOptionProvider?.can_manage_fields && (
                             <Button
                                 fill
                                 text={t('AddNewField')}
@@ -916,7 +916,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                         {size(flattenedOutputs) === 0 ? (
                             <StyledInfoMessage>{t('MapperNoOutputFields')}</StyledInfoMessage>
                         ) : null}
-                        {outputOptionProvider?.can_manage_fields && (
+                        {hideOutputSelector && outputOptionProvider?.can_manage_fields && (
                             <Button
                                 fill
                                 text={t('AddNewField')}
