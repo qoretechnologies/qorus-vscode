@@ -80,6 +80,8 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
         };
     };
 
+    let exists_qore_connector = false; // used only for java
+
     for (const connection in connections) {
         const connection_code_name = toValidIdentifier(connection);
         let connectors = [];
@@ -94,7 +96,13 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
             connector = { ...connector, ...code_info.getClassConnector(connector) };
             const {'class': connector_class, type, prefix = ''} = connector;
             const prefixed_class = prefix + connector_class;
-            classes[prefixed_class] = { connector_class, prefix };
+
+            let class_lang = 'qore';
+            if (lang === 'java') {
+                class_lang = code_info.yamlDataByClass(connector_class)?.lang || 'qore';
+                exists_qore_connector = exists_qore_connector || (class_lang === 'qore');
+            }
+            classes[prefixed_class] = { connector_class, prefix, class_lang };
 
             if (type === 'event') {
                 event_based_connections.push({ connection_code_name, prefixed_class, method: connector.method });
@@ -122,7 +130,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
         triggers: Object.keys(triggers),
         connections_within_class,
         connections_extra_class,
-        imports: getImports[lang](data['class-connections'])
+        imports: getImports[lang](data['class-connections'], exists_qore_connector)
     };
 };
 
@@ -132,7 +140,7 @@ let getImports: any = {};
 
 getImports.qore = () => [];
 
-getImports.java = data => {
+getImports.java = (data, exists_qore_connector) => {
     let imports = [
         'import org.qore.jni.QoreObject;',
         'import java.util.Map;',
@@ -140,6 +148,10 @@ getImports.java = data => {
         'import java.util.HashMap;',
         'import java.lang.reflect.Method;'
     ];
+
+    if (exists_qore_connector) {
+        imports.unshift('import org.qore.jni.QoreJavaApi;');
+    }
 
     if (Object.keys(data).some(connection => data[connection].some(connector => !!connector.mapper))) {
         imports.push('import org.qore.lang.mapper.Mapper;');
@@ -240,19 +252,36 @@ extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
         code += ' {\n';
     }
 
+    const some_qore_class = Object.keys(classes).some(prefixed_class => classes[prefixed_class].class_lang === 'qore');
+
     code += `${indent1}// map of prefixed class names to class instances\n` +
         `${indent1}private final HashMap<String, Object> ${CONN_CLASS_MAP.java};\n\n` +
-        `${indent1}${conn_class_name}() ${THROWS} {\n` +
-        `${indent2}${CONN_CLASS_MAP.java} = new HashMap<String, Object>() {\n` +
-        `${indent3}{\n`;
+        `${indent1}${conn_class_name}() ${THROWS} {\n`;
+
+    if (some_qore_class) {
+        code += `${indent2}UserApi.startCapturingObjects();\n`;
+    }
+
+    code += `${indent2}${CONN_CLASS_MAP.java} = new HashMap<String, Object>() {\n${indent3}{\n`;
 
     for (const prefixed_class in classes) {
         const class_data = classes[prefixed_class];
-        const prefix_arg = class_data.prefix ? `"${class_data.prefix}"` : '';
-        code += `${indent4}put("${prefixed_class}", new ${class_data.connector_class}(${prefix_arg}));\n`;
+        const class_name = class_data.connector_class;
+
+        if (class_data.class_lang === 'qore') {
+            const prefix_arg = class_data.prefix ? `, "${class_data.prefix}"` : '';
+            code += `${indent4}put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
+        } else {
+            const prefix_arg = class_data.prefix ? `"${class_data.prefix}"` : '';
+            code += `${indent4}put("${prefixed_class}", new ${class_data.connector_class}(${prefix_arg}));\n`;
+        }
     }
 
-    code += `${indent3}}\n${indent2}};\n${indent1}\n`;
+    code += `${indent3}}\n${indent2}};\n`;
+    if (some_qore_class) {
+        code += `${indent2}UserApi.stopCapturingObjects();\n`;
+    }
+    code += `${indent1}\n`;
 
     if (event_based_connections.length) {
         code += `${indent2}// register observers\n`;
