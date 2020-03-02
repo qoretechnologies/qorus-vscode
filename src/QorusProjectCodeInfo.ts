@@ -439,8 +439,8 @@ export class QorusProjectCodeInfo {
             return (this.yamlDataBySrcFile(file) || {}).yaml_file;
         }
 
-        const yaml_data = this.yaml_data[file] || {};
-        if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function'].includes(yaml_data.type)) {
+        const type = this.yaml_data[file]?.type;
+        if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function', 'mapper-code'].includes(type)) {
             return this.yaml_2_src[file];
         }
         return undefined;
