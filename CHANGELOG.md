@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3
+
+#### Bug fixes
+
+-   fixed generating mapper code
+-   fixed deploying mapper code
+-   modules made deployable
+-   fixed passing params in generated class connections code
+-   fixed using qore classes in generated java class connections code
+
 ## 1.0.2
 
 #### New features
