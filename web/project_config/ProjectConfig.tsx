@@ -423,7 +423,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                 ) : (
                     <StyledProjectWrapper changedOnDisk={changedOnDisk}>
                         <StyledProjectHeader>
-                            <Add onSubmit={handleEnvironmentAdd} minimal={false} big text={t('AddNewEnvironment')} />
+                            <Add onSubmit={handleEnvironmentAdd} id="new-environment" minimal={false} big text={t('AddNewEnvironment')} />
 
                             <Button
                                 icon="folder-new"

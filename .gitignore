@@ -5,3 +5,4 @@ test-resources
 *.swp
 *.vsix
 ui-test/node_modules
+package-lock.json

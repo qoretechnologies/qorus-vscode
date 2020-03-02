@@ -1,0 +1,12 @@
+{
+    "qorus_instances": {
+        "HQ": [
+            {
+                "name": "rippy main",
+                "url": "https://admin:admin@rippy:8092",
+                "custom_urls": []
+            }
+        ]
+    },
+    "source_directories": ["src"]
+}

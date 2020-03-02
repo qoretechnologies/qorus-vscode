@@ -198,7 +198,12 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                             }}
                             small
                         />
-                        <Button icon="trash" onClick={() => onEnvironmentDeleteClick(id)} small />
+                        <Button
+                            icon="trash"
+                            onClick={() => onEnvironmentDeleteClick(id)}
+                            small
+                            name="delete-environment"
+                        />
                     </ButtonGroup>
                 </StyledNameWrapper>
             </StyledEnvHeader>

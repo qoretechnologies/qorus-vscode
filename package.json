@@ -1246,7 +1246,8 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "start": "NODE_ENV=development babel-node server.js",
         "build": "NODE_ENV=production webpack",
-        "ui-test": "npm run compile:test && ui-test/node_modules/.bin/extest setup-and-run ui-test/out/*.js"
+        "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
+        "ui-run-tests": "rm -rf ui-test/test_project/* && cp -r ui-test/mock/* ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",
