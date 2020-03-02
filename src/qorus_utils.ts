@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { Uri } from 'vscode';
 
 export const isDeployable = (file_path: string): boolean =>
-    hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep',
+    hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep', 'qm',
                                  'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java', 'yaml', 'qmc']);
 
 export const expectsYamlFile = (file_path: string): boolean =>
