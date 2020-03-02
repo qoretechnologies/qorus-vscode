@@ -135,6 +135,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     });
                     // Set the record data
                     setRecord && setRecord({});
+                    setChildren([]);
                     setFields({});
                     hide();
                     // Stop
