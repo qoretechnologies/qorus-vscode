@@ -21,12 +21,15 @@ export abstract class InterfaceCreator {
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
-    protected init(data: any, suffix: string): any {
+    protected setLang = data => {
+        this.lang = data.lang || 'qore';
+    }
+
+    protected initFileBases(data: any, suffix: string): any {
         this.suffix = suffix;
         const { target_dir, target_file, ...other_data } = data;
 
         this.target_dir = target_dir;
-        this.lang = data.lang || 'qore';
 
         if (this.lang === 'qore') {
             if (target_file) {
