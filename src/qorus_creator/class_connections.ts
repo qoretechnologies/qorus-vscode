@@ -63,19 +63,21 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
     let event_based_connections = [];
     let method_codes = [];
 
-    const isSimple = trigger =>
-        iface_kind !== 'service' || code_info.triggers({iface_kind: 'service'}).includes(trigger);
-
-    const signature = trigger => {
-        if (isSimple(trigger)) {
-            return lang === 'java'
+    const serviceTrigger = trigger => {
+        const is_standard = code_info.triggers({iface_kind: 'service'}).includes(trigger);
+        const signature = is_standard
+            ? lang === 'java'
                 ? `public void ${trigger}() ${THROWS}`
-                : `${trigger}()`;
-        } else {
-            return lang === 'java'
-                ? `public Object ${trigger}(Optional<Map<String, Object>> params) ${THROWS}`
-                : `auto ${trigger}(*hash<auto> params)`;
-        }
+                : `${trigger}()`
+            : lang === 'java'
+                ? `public Object ${trigger}(Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS}`
+                : `auto ${trigger}(*hash<auto> ${CONN_DATA})`;
+
+        return {
+            signature,
+            is_nonstandard_service: !is_standard,
+            connections: []
+        };
     };
 
     for (const connection in connections) {
@@ -83,12 +85,8 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
         let connectors = [];
         for (let connector of connections[connection]) {
             if (connector.trigger) {
-                if (!triggers[connector.trigger]) {
-                    triggers[connector.trigger] = {
-                        signature: signature(connector.trigger),
-                        does_return: !isSimple(connector.trigger),
-                        connections: []
-                    };
+                if (iface_kind === 'service' && !triggers[connector.trigger]) {
+                    triggers[connector.trigger] = serviceTrigger(connector.trigger);
                 }
                 triggers[connector.trigger].connections.push(connection_code_name);
             }
@@ -377,15 +375,20 @@ let triggerCode: any = {};
 triggerCode.qore = trigger => {
     let code = `${indent1}${trigger.signature} {\n`;
     let params_str = '';
-    if (trigger.connections.length && trigger.arg_names?.length) {
-        code += `${indent2}hash ${CONN_DATA} = {` +
-        trigger.arg_names.map(arg_name => `"${arg_name}": ${arg_name}`).join(', ') +
-        '};\n';
-        params_str = CONN_DATA;
+    if (trigger.connections.length) {
+        if (trigger.arg_names?.length) { // for steps
+            code += `${indent2}hash ${CONN_DATA} = {` +
+            trigger.arg_names.map(arg_name => `"${arg_name}": ${arg_name}`).join(', ') +
+            '};\n';
+            params_str = CONN_DATA;
+        }
+        if (trigger.is_nonstandard_service) { // for non-standard service triggers
+            params_str = CONN_DATA;
+        }
     }
     trigger.connections.forEach(connection => {
         code += indent2;
-        if (trigger.does_return) {
+        if (trigger.is_nonstandard_service) {
             code += 'return ';
         }
         code += `${CONN_MEMBER.qore}.${connection}(${params_str});\n`;
@@ -405,18 +408,23 @@ triggerCode.qore = trigger => {
 
 triggerCode.java = trigger => {
     let code = `${indent1}${trigger.signature} {\n`;
-    let params_str = '';
-    if (trigger.connections.length && trigger.arg_names?.length) {
-        code += `${indent2}Map<String, Object> ${CONN_DATA} = new HashMap<String, Object>() {\n` +
-        `${indent3}{\n` +
-        trigger.arg_names.map(arg_name => `${indent4}put("${arg_name}", ${arg_name});\n`).join('\n') +
-        `${indent3}}\n${indent2}};\n`;
+    let params_str = 'Optional.empty()';
+    if (trigger.connections.length) { // for steps
+        if (trigger.arg_names?.length) {
+            code += `${indent2}Map<String, Object> ${CONN_DATA} = new HashMap<String, Object>() {\n` +
+            `${indent3}{\n` +
+            trigger.arg_names.map(arg_name => `${indent4}put("${arg_name}", ${arg_name});\n`).join('\n') +
+            `${indent3}}\n${indent2}};\n`;
 
-        params_str = CONN_DATA;
+            params_str = CONN_DATA;
+        }
+        if (trigger.is_nonstandard_service) { // for non-standard service triggers
+            params_str = CONN_DATA;
+        }
     }
     trigger.connections.forEach(connection => {
         code += indent2;
-        if (trigger.does_return) {
+        if (trigger.is_nonstandard_service) {
             code += 'return ';
         }
         code += `${CONN_MEMBER.java}.${connection}(${params_str});\n`;
