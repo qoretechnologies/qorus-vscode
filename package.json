@@ -219,6 +219,33 @@
                 }
             },
             {
+                "command": "qorus.createGroup",
+                "title": "Create New Group",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createEvent",
+                "title": "Create New Event",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createQueue",
+                "title": "Create New Queue",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deleteClass",
                 "title": "Delete Class",
                 "category": "Qorus",
@@ -968,6 +995,21 @@
                 {
                     "command": "qorus.createWorkflow",
                     "when": "view == qorusInterfaces && viewItem == workflow-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createGroup",
+                    "when": "view == qorusInterfaces && viewItem == group-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createEvent",
+                    "when": "view == qorusInterfaces && viewItem == event-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createQueue",
+                    "when": "view == qorusInterfaces && viewItem == queue-category",
                     "group": "inline"
                 },
                 {

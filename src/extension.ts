@@ -3,7 +3,7 @@ import { t } from 'ttag';
 import * as vscode from 'vscode';
 
 import * as msg from './qorus_message';
-import { dash2Pascal } from './qorus_utils';
+import { dash2Pascal, capitalize } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { QorusCodeLensProvider } from './QorusCodeLensProvider';
 import { deployer } from './QorusDeploy';
@@ -84,12 +84,23 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
-    ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class', 'other'].forEach(subtab => {
-        const command = 'qorus.create' + dash2Pascal(subtab);
+    ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code',
+        'class', 'other', 'group', 'event', 'queue'].forEach(iface_kind =>
+    {
+        const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {
             const uri = data instanceof vscode.Uri ? data : undefined;
+
+            if (['group', 'event', 'queue'].includes(iface_kind)) {
+                const iface_info: InterfaceInfo = projects.currentInterfaceInfo();
+                iface_info.last_other_iface_kind = iface_kind;
+                iface_kind = 'other';
+            }
+
             qorus_webview.open({
-                tab: 'CreateInterface', subtab, uri
+                tab: 'CreateInterface',
+                subtab: iface_kind,
+                uri
             });
         });
         context.subscriptions.push(disposable);
@@ -98,12 +109,13 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.editInterface',
                                                  (data: any, iface_kind: string) =>
     {
-        const code_info: InterfaceInfo = projects.currentInterfaceInfo();
-        const iface_id = code_info.addIfaceById(data, iface_kind);
+        const iface_info: InterfaceInfo = projects.currentInterfaceInfo();
+        const iface_id = iface_info.addIfaceById(data, iface_kind);
 
         if (['group', 'event', 'queue'].includes(iface_kind)) {
             iface_kind = 'other';
-            data.type = data.type[0].toUpperCase() + data.type.substr(1);
+            data.type = capitalize(data.type);
+            iface_info.last_other_iface_kind = undefined;
         }
 
         qorus_webview.open({

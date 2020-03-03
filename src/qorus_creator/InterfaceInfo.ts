@@ -4,7 +4,7 @@ import * as flattenDeep from 'lodash/flattenDeep';
 import { qorus_webview } from '../QorusWebview';
 import { default_version, QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { defaultValue, configItemFields } from './config_item_constants';
-import { hasConfigItems, deepCopy } from '../qorus_utils';
+import { hasConfigItems, deepCopy, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -12,8 +12,10 @@ import * as msg from '../qorus_message';
 export class InterfaceInfo {
     private code_info: QorusProjectCodeInfo;
     private iface_by_id = {};
-    private last_conf_group: string;
     private are_orig_config_items_set: boolean = false;
+
+    private last_conf_group: string | undefined;
+    private last_other_if_kind: string | undefined; // one of ['Group', 'Event', 'Queue']
 
     constructor(project_code_info: QorusProjectCodeInfo) {
         this.code_info = project_code_info;
@@ -74,6 +76,14 @@ export class InterfaceInfo {
 
     get last_config_group(): string | undefined {
         return this.last_conf_group;
+    }
+
+    get last_other_iface_kind(): string | undefined {
+        return this.last_other_if_kind;
+    }
+
+    set last_other_iface_kind(other_iface_kind: string | undefined) {
+        this.last_other_if_kind = other_iface_kind && capitalize(other_iface_kind);
     }
 
     updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string}) => {
