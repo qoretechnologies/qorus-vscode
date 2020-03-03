@@ -277,12 +277,19 @@ export class InterfaceInfo {
     getConfigItem = ({iface_id, name}) => {
         const config_items = iface_id && this.iface_by_id[iface_id] && this.iface_by_id[iface_id]['config-items'];
         const config_item = (config_items || []).find(item => item.name === name);
+        if (!config_item) {
+            return;
+        }
 
         let item = { ... config_item };
         item.type = item.type || defaultValue('type');
         if (item.type[0] === '*') {
             item.type = item.type.substr(1);
             item.can_be_undefined = true;
+        }
+
+        if (item.default_value !== undefined && ['list', 'hash'].includes(item.type)) {
+            item.default_value = jsyaml.safeDump(item.default_value).replace(/\r?\n$/, '');
         }
 
         const message = {
@@ -396,6 +403,10 @@ export class InterfaceInfo {
         if (!iface_id) {
             return;
         }
+        if (!['workflow', 'job', 'service', 'class', 'step'].includes(iface_kind)) {
+            return;
+        }
+
         this.maybeInitIfaceId(iface_id, iface_kind);
 
         this.code_info.waitForPending(['yaml']).then(() => {
