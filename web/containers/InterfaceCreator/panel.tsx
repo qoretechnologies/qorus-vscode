@@ -322,6 +322,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         resetAllInterfaceData(type, type !== 'mapper');
         // Hide the fields until they are fetched
         setShow(false);
+        // Reset class connecitons
+        resetClassConnections && resetClassConnections();
         // Change the name if needed
         if (onNameChange) {
             onNameChange(newActiveId, null);
@@ -733,6 +735,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             } else {
                 // Reset the interface data
                 resetAllInterfaceData(type);
+                resetClassConnections && resetClassConnections();
             }
         }
     };

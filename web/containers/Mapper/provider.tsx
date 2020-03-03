@@ -135,6 +135,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     });
                     // Set the record data
                     setRecord && setRecord({});
+                    setChildren([]);
                     setFields({});
                     hide();
                     // Stop
@@ -259,6 +260,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     // Set the provider option
                     setOptionProvider({
                         type: providers[provider].type,
+                        can_manage_fields: data.can_manage_fields,
                         name,
                         subtype: value === 'request' || value === 'response' ? value : undefined,
                         path: `${url}/${value}`
@@ -294,6 +296,7 @@ const MapperProvider: FC<IProviderProps> = ({
                         setOptionProvider({
                             type: providers[provider].type,
                             name,
+                            can_manage_fields: record.data.can_manage_fields,
                             path: `${url}/${value}`
                                 .replace(`${name}`, '')
                                 .replace(`${providers[provider].url}/`, '')

@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.3
+
+#### Bug fixes
+
+-   fixed generating mapper code
+-   fixed deploying mapper code
+-   modules made deployable
+-   fixed passing params in generated class connections code
+-   fixed using qore classes in generated java class connections code
+-   adding custom field for hash typed mappers now works properly
+-   selecting factory provider now properly removes all previous children
+-   submitting an interface now properly resets class connections
+
 ## 1.0.2
 
 #### New features

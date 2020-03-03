@@ -16,6 +16,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private imports: string[];
 
     editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
+        this.setLang(data);
+
         let suffix: string;
         let methods_key: string;
         switch (iface_kind) {
@@ -26,7 +28,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                     template: this.class_template,
                     method_template: this.method_template,
                     imports: this.imports
-                 } = serviceTemplates(data.lang));
+                 } = serviceTemplates(this.lang));
                 if (!(data.methods || []).length) {
                     data.methods = [{
                         name: 'init',
@@ -40,7 +42,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 ({
                     template: this.class_template,
                     method_template: this.method_template,
-                 } = mapperCodeTemplates(data.lang));
+                 } = mapperCodeTemplates(this.lang));
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
@@ -54,7 +56,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         const {
             [methods_key]: methods,
             ...header_data
-        } = this.init(data, suffix);
+        } = this.initFileBases(data, suffix);
 
         const {
             target_dir: orig_target_dir,

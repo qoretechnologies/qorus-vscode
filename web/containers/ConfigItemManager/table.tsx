@@ -128,8 +128,6 @@ export const Value = ({ item, useDefault }) => {
 
     const type = item.type === 'auto' || item.type === 'any' ? getItemType(item.type, value) : item.type;
 
-    console.log(item.name, type);
-
     if (type === 'hash' || type === 'list') {
         return <Tree compact data={maybeParseYaml(value)} />;
     }

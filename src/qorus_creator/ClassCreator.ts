@@ -15,26 +15,28 @@ import * as msg from '../qorus_message';
 
 class ClassCreator extends InterfaceCreator {
     editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
+        this.setLang(data);
+
         let template: string;
         let imports: string[];
         let suffix: string;
         switch (iface_kind) {
             case 'job':
-                ({template, imports} = jobTemplates(data.lang));
+                ({template, imports} = jobTemplates(this.lang));
                 suffix = '.qjob';
                 break;
             case 'step':
-                ({template, imports} = stepTemplates(data.lang));
+                ({template, imports} = stepTemplates(this.lang));
                 suffix = '.qstep';
                 break;
             case 'workflow':
                 if (data['class-name']) {
-                    ({template, imports} = workflowTemplates(data.lang));
+                    ({template, imports} = workflowTemplates(this.lang));
                     suffix = '.qwf';
                 }
                 break;
             case 'class':
-                template = (data['base-class-name'] ? subclass_template : class_template)[data.lang];
+                template = (data['base-class-name'] ? subclass_template : class_template)[this.lang];
                 suffix = '.qclass';
                 break;
             case 'mapper':
@@ -52,7 +54,7 @@ class ClassCreator extends InterfaceCreator {
 
         imports = imports || [];
 
-        data = this.init(data, suffix);
+        data = this.initFileBases(data, suffix);
 
         if (iface_kind === 'step' && data['base-class-name']) {
             data = {
