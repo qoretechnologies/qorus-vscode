@@ -1,6 +1,4 @@
-import { field, subclass_with_methods_template } from './common_constants';
-
-let method_template: any = {};
+import { field, subclass_template, simple_method_template } from './common_constants';
 
 const imports = {
     java: [
@@ -9,19 +7,9 @@ const imports = {
     ]
 };
 
-method_template.qore = '\
-    ${this.name}() {\n\
-    }\n\
-';
-
-method_template.java = '\
-    public void ${this.name}() throws Throwable {\n\
-    }\n\
-';
-
 export const serviceTemplates = lang => ({
-    template: subclass_with_methods_template[lang],
-    method_template: method_template[lang],
+    template: subclass_template[lang],
+    method_template: simple_method_template[lang],
     imports: imports[lang]
 });
 

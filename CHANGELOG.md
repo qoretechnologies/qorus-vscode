@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.0.3
+
+#### Bug fixes
+
+-   fixed generating mapper code
+-   fixed deploying mapper code
+-   modules made deployable
+-   fixed passing params in generated class connections code
+-   fixed using qore classes in generated java class connections code
+-   adding custom field for hash typed mappers now works properly
+-   selecting factory provider now properly removes all previous children
+-   submitting an interface now properly resets class connections
+
+## 1.0.2
+
+#### New features
+
+-   generate dummy implemenation of abstract step methods and the run method for jobs
+-   qorus object parser removed
+-   some form fields are no longer subject so sorting, namely: targetr dir, name, desc
+
+#### Bug fixes
+
+-   fixed deleting and renaming of java service methods
+-   fixed: group/queue/event names being changed to "undefined" on edit
+-   fixed crashing when mapper data are incorrect
+-   fixed formatting of markdown code in yaml
+-   fixed imports for java steps
+-   fixed: inherited config items sometimes are not saved
+-   fixed disappering of some fields in edit forms
+-   fixed erasing base class name from the code file
+-   fixed: on removing a base class do not remove its config items if it's also in the requires/classes list
+-   fixed inheritance of config item default values and values
+-   fixed all interface source is sometimes deleted and corrupted YAML is saved
+-   fixed saving of inherited config items
+-   fixed sending of empty classes in some cases, resulting in source code being deleted
+-   fixed tooltip for default config item value in config item value dialog
+-   fixed scrollbar not showing in the delete interface view
+
 ## 1.0.1
 
 #### New features
@@ -27,6 +66,7 @@
 -   fields in the interface edit forms are now sorted
 -   when adding steps in the workflow step diagram, their config items are now immediately fetched so that workflow level config item values can be set
 -   fixed error where workflow config item values are copied from another workflow with same steps
+-   fixed deleting local config item values
 
 ## 1.0.0
 

@@ -21,12 +21,15 @@ export abstract class InterfaceCreator {
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
-    protected init(data: any, suffix: string): any {
+    protected setLang = data => {
+        this.lang = data.lang || 'qore';
+    }
+
+    protected initFileBases(data: any, suffix: string): any {
         this.suffix = suffix;
         const { target_dir, target_file, ...other_data } = data;
 
         this.target_dir = target_dir;
-        this.lang = data.lang || 'qore';
 
         if (this.lang === 'qore') {
             if (target_file) {
@@ -115,6 +118,15 @@ export abstract class InterfaceCreator {
     }
 
     protected writeFiles(contents: string, headers: string, open_file_on_success: boolean = true) {
+        contents = contents.replace(/(\t| )+\n/g, '\n');
+        while (contents.match(/\n\n\n/)) {
+            contents = contents.replace(/\n\n\n/g, '\n\n');
+        }
+        contents.replace(/\n\n$/, '\n');
+        if (contents[contents.length - 1] !== '\n') {
+            contents += '\n';
+        }
+
         fs.writeFile(this.file_path, contents, err => {
             if (err) {
                 msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);

@@ -7,7 +7,10 @@ const imports = {
     ]
 };
 
-export const jobTemplates = lang => ({template: subclass_template[lang], imports: imports[lang]});
+export const jobTemplates = lang => ({
+    template: subclass_template[lang],
+    imports: imports[lang]
+});
 
 export const jobFields = ({default_target_dir, is_editing}) => [
     field.targetDir(default_target_dir),

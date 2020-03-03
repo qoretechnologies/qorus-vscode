@@ -272,7 +272,7 @@ export class QorusProjectCodeInfo {
             return false;
         }
 
-        this.addMethodInfo(file, decl.name, decl.range, decl.selectionRange);
+        this.addMethodInfo(file, decl.name.replace('()', ''), decl.range, decl.selectionRange);
 
         return true;
     }
@@ -439,8 +439,8 @@ export class QorusProjectCodeInfo {
             return (this.yamlDataBySrcFile(file) || {}).yaml_file;
         }
 
-        const yaml_data = this.yaml_data[file] || {};
-        if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function'].includes(yaml_data.type)) {
+        const type = this.yaml_data[file]?.type;
+        if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function', 'mapper-code'].includes(type)) {
             return this.yaml_2_src[file];
         }
         return undefined;
@@ -977,6 +977,27 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
+    mandatoryStepMethods = (base_class, lang) => {
+        let { primary, array } = this.stepTriggerSignatures(base_class, lang);
+        if (!primary) {
+            return {};
+        }
+
+        primary.body = '';
+
+        if (!array) {
+            return { primary };
+        }
+
+        const array_body = {
+            qore: 'return ();',
+            java: 'return new Object[0];'
+        };
+
+        array.body = array_body[lang] || '';
+        return { primary, array };
+    }
+
     triggers = ({iface_kind, 'base-class-name': base_class = undefined}) => {
         switch (iface_kind) {
             case 'service': return ['start', 'stop', 'init'];
@@ -987,7 +1008,7 @@ export class QorusProjectCodeInfo {
     }
 
     stepTriggerSignatures = (base_class, lang = 'qore') => {
-        const stepTriggerSignatures: any = {};
+        let stepTriggerSignatures: any = {};
 
         stepTriggerSignatures.qore = base_class => {
             switch (this.stepType(base_class)) {
