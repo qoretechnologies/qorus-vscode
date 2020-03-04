@@ -52,11 +52,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         this.has_code = true;
 
         this.imports = this.imports || [];
+        const methods = data[methods_key];
 
-        const {
-            [methods_key]: methods,
-            ...header_data
-        } = this.initFileBases(data, suffix);
+        data = this.initFileBases(data, suffix);
 
         const {
             target_dir: orig_target_dir,
@@ -86,9 +84,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
                 code_lines = this.edit_info.text_lines;
                 code_lines = this.addMethods(code_lines, method_renaming_map.added);
-                code_lines = this.renameClassAndBaseClass(code_lines,
-                                                          other_orig_data,
-                                                          header_data);
+                code_lines = this.renameClassAndBaseClass(code_lines, other_orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
                 contents = code_lines.join('\n');
@@ -118,7 +114,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         let headers = this.createHeaders({
             type: iface_kind,
-            ...header_data,
+            ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
             code: this.file_name
         });
