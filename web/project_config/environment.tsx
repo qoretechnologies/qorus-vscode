@@ -173,6 +173,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                         <InputGroup
                             fill
                             value={envName}
+                            name="environment-edit-input"
                             onChange={handleNameChange}
                             onKeyUp={(event: React.KeyboardEvent) => {
                                 if (event.key === 'Enter') {
@@ -181,7 +182,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                             }}
                         />
                     ) : (
-                        <StyledName>{envName}</StyledName>
+                        <StyledName name="environment-name">{envName}</StyledName>
                     )}
 
                     <ButtonGroup minimal>
@@ -189,6 +190,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                         <Button
                             icon={isEditing ? 'small-tick' : 'edit'}
                             intent={isEditing ? 'success' : 'none'}
+                            name={isEditing ? 'edit-environment-submit' : 'edit-environment'}
                             onClick={() => {
                                 if (isEditing) {
                                     handleNameSubmit();
@@ -211,7 +213,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                 <StyledSubHeader>
                     <span>{t('Instances')} </span>
                     <div className="pull-right">
-                        <Add withUrl onSubmit={handleInstanceSubmit} text={t('AddInstance')} />
+                        <Add withUrl onSubmit={handleInstanceSubmit} id="instance" text={t('AddInstance')} />
                     </div>
                 </StyledSubHeader>
                 {size(qoruses) ? (

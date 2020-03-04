@@ -100,7 +100,7 @@ export default withTextContext()(
                             onChange={handleNameChange}
                             onKeyUp={handleEnterPress}
                             small={!big}
-                            id={id}
+                            name={id}
                             style={{
                                 width: !minimal ? '250px' : 'auto',
                             }}
@@ -112,6 +112,7 @@ export default withTextContext()(
                                 onChange={handleUrlChange}
                                 onKeyUp={handleEnterPress}
                                 small={!big}
+                                name={`${id}-url`}
                             />
                         )}
 
@@ -121,7 +122,7 @@ export default withTextContext()(
                             intent="success"
                             onClick={handleCreateClick}
                             small={!big}
-                            id={`${id}-submit`}
+                            name={`${id}-submit`}
                         />
                     </ButtonGroup>
                 ) : (
@@ -132,7 +133,7 @@ export default withTextContext()(
                             onClick={handleAddClick}
                             small={!big}
                             intent="success"
-                            id={`${id}-add`}
+                            name={`${id}-add`}
                         />
                     </ButtonGroup>
                 )}

@@ -64,14 +64,14 @@ describe('Webview Simple Test', function() {
     });
 
     it('Adds new environment', async () => {
-        const environmentButton = await webview.findWebElement(By.id('new-environment-add'));
+        const environmentButton = await webview.findWebElement(By.name('new-environment-add'));
         await environmentButton.click();
 
-        const environmentInput = await webview.findWebElement(By.id('new-environment'));
+        const environmentInput = await webview.findWebElement(By.name('new-environment'));
         expect(environmentInput).to.exist;
         await environmentInput.sendKeys('test environment');
 
-        const environmentSubmit = await webview.findWebElement(By.id('new-environment-submit'));
+        const environmentSubmit = await webview.findWebElement(By.name('new-environment-submit'));
         await environmentSubmit.click();
 
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
@@ -86,5 +86,49 @@ describe('Webview Simple Test', function() {
         await environmentDeleteButtons[1].click();
         environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
         expect(environmentPanels).to.have.length(1);
+    });
+
+    it('Renames an environment', async () => {
+        const environmentEditButtons = await webview.findWebElements(By.name('edit-environment'));
+        await environmentEditButtons[0].click();
+        const environmentEditInput = await webview.findWebElements(By.name('environment-edit-input'));
+        expect(environmentEditInput).to.have.length(1);
+        await environmentEditInput[0].sendKeys('Edited');
+        const environmentEditSubmit = await webview.findWebElements(By.name('edit-environment-submit'));
+        await environmentEditSubmit[0].click();
+        const environmentNames = await webview.findWebElements(By.name('environment-name'));
+        const newText = await environmentNames[0].getText();
+        expect(newText).to.equal('HQEdited');
+    });
+
+    it('Adds new instance', async () => {
+        await (await webview.findWebElements(By.name('instance-add')))[0].click();
+        await (await webview.findWebElement(By.name('instance'))).sendKeys('test');
+        await (await webview.findWebElement(By.name('instance-url'))).sendKeys('https://google.com');
+        await (await webview.findWebElement(By.name('instance-submit'))).click();
+
+        const instances = await webview.findWebElements(By.name('instance-item'));
+        const links = await webview.findWebElements(By.name('instance-link'));
+
+        expect(instances).to.have.length(2);
+        expect(links).to.have.length(2);
+        expect(await links[1].getText()).to.equal('test');
+        expect(await links[1].getAttribute('href')).to.equal('https://google.com/');
+    });
+
+    it('Adds new url', async () => {
+        await (await webview.findWebElements(By.name('instance-expand')))[0].click();
+        await (await webview.findWebElement(By.name('other-url-add'))).click();
+        await (await webview.findWebElement(By.name('other-url'))).sendKeys('second url');
+        await (await webview.findWebElement(By.name('other-url-url'))).sendKeys('https://twitter.com');
+        await (await webview.findWebElement(By.name('other-url-submit'))).click();
+
+        const items = await webview.findWebElements(By.name('other-url-item'));
+        const links = await webview.findWebElements(By.name('other-url-link'));
+
+        expect(items).to.have.length(1);
+        expect(links).to.have.length(1);
+        expect(await items[0].getText()).to.equal('1. second url [https://twitter.com]');
+        expect(await links[0].getAttribute('href')).to.equal('https://twitter.com/');
     });
 });

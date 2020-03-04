@@ -108,21 +108,29 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                     withUrl
                     defaultAdding
                     fill
+                    id="instance"
                     onCancel={handleAddCancel}
                     onSubmit={handleDataChange}
                 />
             ) : (
-                <StyledInstanceWrapper className={isExpanded && 'expanded'}>
+                <StyledInstanceWrapper className={isExpanded && 'expanded'} name="instance-item">
                     <div className="pull-left" style={{ width: '68%', wordBreak: 'break-word' }}>
                         <Icon icon="dot" intent={isActive ? 'success' : 'none'} />
                         <span className={Classes.TEXT_MUTED}>
                             {' '}
-                            <a href={url}>{name}</a>
+                            <a href={url} name="instance-link">
+                                {name}
+                            </a>
                         </span>
                     </div>
                     <div className="button-wrapper pull-right">
                         <ButtonGroup minimal>
-                            <Button icon="chevron-down" small onClick={() => setExpanded(!isExpanded)} />
+                            <Button
+                                icon="chevron-down"
+                                small
+                                onClick={() => setExpanded(!isExpanded)}
+                                name="instance-expand"
+                            />
                             <Button
                                 icon="power"
                                 intent={isActive ? 'success' : 'none'}
@@ -137,16 +145,16 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
             )}
             {isExpanded && (
                 <>
-                    <StyledUrlWrapper>
+                    <StyledUrlWrapper name="instance-url">
                         <span>
                             {t('MainUrl')} - <a href={url}>{safe_url}</a>
                         </span>
                     </StyledUrlWrapper>
-                    <StyledUrlWrapper>
+                    <StyledUrlWrapper name="instance-other-urls">
                         <StyledSubHeader>
                             <span>{t('OtherUrls')}</span>
                             <div className="pull-right">
-                                <Add withUrl fill text={t('AddNewUrl')} onSubmit={handleUrlSubmit} />
+                                <Add withUrl fill text={t('AddNewUrl')} onSubmit={handleUrlSubmit} id="other-url" />
                             </div>
                         </StyledSubHeader>
                         {urls.length === 0 && (

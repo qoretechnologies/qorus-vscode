@@ -32,15 +32,17 @@ const StyledUrl = styled.div`
 `;
 
 const QorusUrl: FunctionComponent<IQorusUrlProps> = ({ name, url, safe_url, instanceId, onDelete, envId, id }) => (
-    <StyledUrl>
+    <StyledUrl name="other-url-item">
         {id + 1}. {name}
         <span className={Classes.TEXT_MUTED}>
             {' '}
-            <a href={url}>[{safe_url}]</a>
+            <a href={url} name="other-url-link">
+                [{safe_url}]
+            </a>
         </span>
         <div className="button-wrapper pull-right">
             <ButtonGroup minimal>
-                <Button icon="trash" small onClick={() => onDelete(envId, instanceId, name)} />
+                <Button icon="trash" small onClick={() => onDelete(envId, instanceId, name)} name="other-url-delete" />
             </ButtonGroup>
         </div>
     </StyledUrl>
