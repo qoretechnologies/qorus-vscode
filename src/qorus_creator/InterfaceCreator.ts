@@ -410,7 +410,9 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag of ordered_tags) {
-            if (['target_dir', 'yaml_file', 'config-item-values'].includes(tag)) {
+            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
+                 'active_method', 'yaml_file', 'config-item-values'].includes(tag))
+            {
                 continue;
             }
 
@@ -503,9 +505,6 @@ export abstract class InterfaceCreator {
                 }
             } else {
                 switch (tag) {
-                    case 'orig_name':
-                    case 'method_index':
-                        break;
                     case 'schedule':
                         const cron_values = value.split(' ');
                         if (cron_values.length !== 5) {
