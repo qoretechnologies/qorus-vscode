@@ -17,7 +17,7 @@ function sleep(ms: number) {
 }
 
 describe('Webview Simple Test', function() {
-    this.timeout(180000);
+    this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
     let editor: EditorView;
@@ -39,7 +39,7 @@ describe('Webview Simple Test', function() {
         await input.setText('/Users/filipwitosz/Code/Projects/qorus-vscode/ui-test/test_project');
         await input.confirm();
 
-        await sleep(5000);
+        await sleep(10000);
 
         await workbench.executeCommand('Qorus: Webview');
 
@@ -116,6 +116,34 @@ describe('Webview Simple Test', function() {
         expect(await links[1].getAttribute('href')).to.equal('https://google.com/');
     });
 
+    it('Edits an instance', async () => {
+        await (await webview.findWebElements(By.name('instance-edit')))[1].click();
+        await (await webview.findWebElement(By.name('instance'))).clear();
+        await (await webview.findWebElement(By.name('instance'))).sendKeys('new instance');
+        await (await webview.findWebElement(By.name('instance-url'))).clear();
+        await (await webview.findWebElement(By.name('instance-url'))).sendKeys('https://synthax.io');
+        await (await webview.findWebElement(By.name('instance-submit'))).click();
+
+        const instances = await webview.findWebElements(By.name('instance-item'));
+        const links = await webview.findWebElements(By.name('instance-link'));
+
+        expect(instances).to.have.length(2);
+        expect(links).to.have.length(2);
+        expect(await links[1].getText()).to.equal('new instance');
+        expect(await links[1].getAttribute('href')).to.equal('https://synthax.io/');
+    });
+
+    it('Deletes an instance', async () => {
+        await (await webview.findWebElements(By.name('instance-delete')))[1].click();
+
+        const instances = await webview.findWebElements(By.name('instance-item'));
+        const links = await webview.findWebElements(By.name('instance-link'));
+
+        expect(instances).to.have.length(1);
+        expect(links).to.have.length(1);
+        expect(await links[0].getText()).to.equal('rippy main');
+    });
+
     it('Adds new url', async () => {
         await (await webview.findWebElements(By.name('instance-expand')))[0].click();
         await (await webview.findWebElement(By.name('other-url-add'))).click();
@@ -130,5 +158,45 @@ describe('Webview Simple Test', function() {
         expect(links).to.have.length(1);
         expect(await items[0].getText()).to.equal('1. second url [https://twitter.com]');
         expect(await links[0].getAttribute('href')).to.equal('https://twitter.com/');
+    });
+
+    it('Deletes url', async () => {
+        await (await webview.findWebElement(By.name('other-url-delete'))).click();
+
+        const items = await webview.findWebElements(By.name('other-url-item'));
+
+        expect(items).to.have.length(0);
+    });
+
+    it('Adds and removes source directory', async () => {
+        await (await webview.findWebElement(By.name('manage-source-dirs'))).click();
+
+        await sleep(100);
+
+        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(1);
+
+        await (await webview.findWebElement(By.name('folder-expander'))).click();
+        await (await webview.findWebElements(By.className('bp3-tree-node-caret')))[0].click();
+
+        await sleep(100);
+
+        await (await webview.findWebElements(By.className('bp3-tree-node-content')))[1].click();
+
+        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(2);
+
+        await (await webview.findWebElements(By.name('source-dir-remove')))[0].click();
+
+        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(1);
+
+        await (await webview.findWebElements(By.className('bp3-dialog-close-button')))[0].click();
+    });
+
+    it('Opens workflow create page', async () => {
+        await (await webview.findWebElement(By.name('CreateInterface'))).click();
+        await (await webview.findWebElement(By.name('Workflow'))).click();
+
+        await sleep(3000);
+
+        expect(await webview.findWebElements(By.className('jDUMiU'))).to.have.length(4);
     });
 });

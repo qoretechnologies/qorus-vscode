@@ -137,8 +137,8 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                                 small
                                 onClick={() => onSetActive(url, !isActive)}
                             />
-                            <Button icon="edit" small onClick={() => setIsEditing(true)} />
-                            <Button icon="trash" small onClick={() => onDelete(id)} />
+                            <Button icon="edit" small onClick={() => setIsEditing(true)} name="instance-edit" />
+                            <Button icon="trash" small onClick={() => onDelete(id)} name="instance-delete" />
                         </ButtonGroup>
                     </div>
                 </StyledInstanceWrapper>

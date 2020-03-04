@@ -946,7 +946,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         selectedFieldList,
                         (field: IField) =>
                             !field.internal && (
-                                <FieldWrapper key={field.name}>
+                                <FieldWrapper key={field.name} name="selected-field">
                                     <FieldLabel
                                         info={field.markdown && t('MarkdownSupported')}
                                         label={t(`field-label-${field.name}`)}

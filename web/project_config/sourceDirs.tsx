@@ -86,7 +86,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                     <StyledDirWrapper>
                         {size(sourceDirs) ? (
                             sourceDirs.map(dir => (
-                                <p key={dir}>
+                                <p key={dir} name="source-dir">
                                     <Icon icon="folder-close" />
                                     {dir}
                                     <Button
@@ -95,6 +95,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                                         icon="trash"
                                         onClick={() => onDeleteClick(dir)}
                                         style={{ marginTop: '3px', float: 'right' }}
+                                        name="source-dir-remove"
                                     />
                                 </p>
                             ))
