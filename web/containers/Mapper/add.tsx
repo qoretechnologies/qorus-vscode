@@ -32,17 +32,6 @@ const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields
                 right: '8px',
             }}
         >
-            {canManageFields && (
-                <Tooltip content={t('AddNewMapperField')}>
-                    <Button
-                        onClick={onAddClick}
-                        minimal
-                        icon="small-plus"
-                        small
-                        style={{ minWidth: '18px', minHeight: '18px' }}
-                    />
-                </Tooltip>
-            )}
             {isCustom ? (
                 <Tooltip content={t('EditMapperField')}>
                     <Button
@@ -64,6 +53,17 @@ const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields
                         small
                         minimal
                         intent="danger"
+                        style={{ minWidth: '18px', minHeight: '18px' }}
+                    />
+                </Tooltip>
+            )}
+            {canManageFields && (
+                <Tooltip content={t('AddNewMapperField')}>
+                    <Button
+                        onClick={onAddClick}
+                        minimal
+                        icon="small-plus"
+                        small
                         style={{ minWidth: '18px', minHeight: '18px' }}
                     />
                 </Tooltip>
