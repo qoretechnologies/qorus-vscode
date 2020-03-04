@@ -438,8 +438,8 @@ triggerCode.qore = trigger => {
 triggerCode.java = trigger => {
     let code = `${indent1}${trigger.signature} {\n`;
     let params_str = 'Optional.empty()';
-    if (trigger.connections.length) { // for steps
-        if (trigger.arg_names?.length) {
+    if (trigger.connections.length) {
+        if (trigger.arg_names?.length) { // for steps
             code += `${indent2}Map<String, Object> ${CONN_DATA} = new HashMap<String, Object>() {\n` +
             `${indent3}{\n` +
             trigger.arg_names.map(arg_name => `${indent4}put("${arg_name}", ${arg_name});\n`).join('\n') +
