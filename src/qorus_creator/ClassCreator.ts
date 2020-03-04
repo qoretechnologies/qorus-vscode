@@ -1,4 +1,3 @@
-import * as path from 'path';
 import * as jsyaml from 'js-yaml';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
@@ -15,7 +14,7 @@ import * as msg from '../qorus_message';
 
 class ClassCreator extends InterfaceCreator {
     editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
-        this.setLang(data);
+        this.lang = data.lang || 'qore';
 
         let template: string;
         let imports: string[];
@@ -54,7 +53,7 @@ class ClassCreator extends InterfaceCreator {
 
         imports = imports || [];
 
-        data = this.initFileBases(data, suffix);
+        this.init(data, orig_data, suffix);
 
         if (iface_kind === 'step' && data['base-class-name']) {
             data = {
@@ -77,9 +76,9 @@ class ClassCreator extends InterfaceCreator {
         let contents: string;
         let message: string;
         let code_lines: string[];
-        let orig_file_path: string;
         switch (edit_type) {
             case 'create':
+            case 'recreate':
                 if (!this.has_code) {
                     message = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;
@@ -125,25 +124,13 @@ class ClassCreator extends InterfaceCreator {
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
-                const {
-                    target_dir: orig_target_dir,
-                    target_file: orig_target_file,
-                    ...other_orig_data
-                } = orig_data;
-
-                orig_file_path = path.join(orig_target_dir, orig_target_file);
-
                 if (!this.has_code) {
                     break;
                 }
 
-                this.edit_info = this.code_info.editInfo(orig_file_path);
-
                 if (this.edit_info) {
                     code_lines = this.edit_info.text_lines;
-                    code_lines = this.renameClassAndBaseClass(code_lines,
-                                                              other_orig_data,
-                                                              data);
+                    code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                     contents = code_lines.join('\n');
                 } else {
                     // this case happens when on create it was a codeless interfaces (this.has_code = false)
@@ -196,7 +183,7 @@ class ClassCreator extends InterfaceCreator {
             [iface_kind]: data
         };
 
-        this.deleteOrigFilesIfDifferent(orig_file_path);
+        this.deleteOrigFilesIfDifferent();
         if (hasConfigItems(iface_kind)) {
             this.code_info.interface_info.setOrigConfigItems(iface_id, edit_type === 'edit');
         }
