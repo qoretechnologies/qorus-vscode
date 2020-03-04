@@ -482,7 +482,7 @@ export class QorusProjectCodeInfo {
         }
 
         ['functions', 'constants', 'mappers', 'value_maps', 'author',
-            'mapper-code', 'groups', 'events', 'queues'].forEach(tag =>
+            'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
