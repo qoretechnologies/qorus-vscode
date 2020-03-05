@@ -59,7 +59,7 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
     return (
         <InputGroup
             className={fill && Classes.FILL}
-            value={!value ? default_value || '' : value}
+            value={value ?? default_value ?? ''}
             onChange={handleInputChange}
             type="number"
             step={type === 'int' || type === 'number' ? 1 : 0.1}
@@ -74,7 +74,6 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
     );
 };
 
-export default compose(
-    withMessageHandler(),
-    withTextContext()
-)(NumberField) as FunctionComponent<INumberField & IField & IFieldChange>;
+export default compose(withMessageHandler(), withTextContext())(NumberField) as FunctionComponent<
+    INumberField & IField & IFieldChange
+>;
