@@ -1,7 +1,8 @@
-out
 dist
+out
 node_modules
-package-lock.json
-*.swp
 test-resources
+qorusproject.json
+*.swp
 *.vsix
+
