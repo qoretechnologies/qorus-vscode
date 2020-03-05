@@ -8,6 +8,7 @@
 -   fixed displaying the workflow keylist tag
 -   editing groups, events and queues is now possible
 -   fixed handling default config item values of complex types
+-   interfaces with class connections can now be re-created
 
 ## 1.0.3
 
