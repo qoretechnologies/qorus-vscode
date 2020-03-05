@@ -22,7 +22,7 @@ export abstract class InterfaceCreator {
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
-    protected init(data: any, orig_data: any = {}, suffix: string): any {
+    protected setPaths(data: any, orig_data: any = {}, suffix: string): any {
         this.suffix = suffix;
 
         const { target_dir, target_file } = data;
@@ -52,7 +52,6 @@ export abstract class InterfaceCreator {
                 : data.name;
         }
 
-        this.code_info = projects.currentProjectCodeInfo();
         if (orig_target_dir && orig_target_file) {
             this.orig_file_path = path.join(orig_target_dir, orig_target_file);
             this.edit_info = this.code_info.editInfo(this.orig_file_path);
@@ -62,6 +61,8 @@ export abstract class InterfaceCreator {
     protected has_code = false;
 
     edit(params: any) {
+        this.code_info = projects.currentProjectCodeInfo();
+
         // temporary solution: editing an interface with class connections leads to creating it anew
         // (until editing is implemented)
         if (params.edit_type === 'edit' && params.data['class-connections']) {

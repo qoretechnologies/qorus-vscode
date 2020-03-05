@@ -53,7 +53,7 @@ class ClassCreator extends InterfaceCreator {
 
         imports = imports || [];
 
-        this.init(data, orig_data, suffix);
+        this.setPaths(data, orig_data, suffix);
 
         if (iface_kind === 'step' && data['base-class-name']) {
             data = {

@@ -53,7 +53,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         this.imports = this.imports || [];
         const methods = data[methods_key];
 
-        this.init(data, orig_data, suffix);
+        this.setPaths(data, orig_data, suffix);
 
         let contents: string;
         let message: string;
