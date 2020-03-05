@@ -18,16 +18,15 @@ export abstract class InterfaceCreator {
     protected target_dir: string;
     protected file_base: string;
     protected yaml_file_base: string;
+    protected orig_file_path;
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
-    protected setLang = data => {
-        this.lang = data.lang || 'qore';
-    }
-
-    protected initFileBases(data: any, suffix: string): any {
+    protected setPaths(data: any, orig_data: any = {}, suffix: string): any {
         this.suffix = suffix;
-        const { target_dir, target_file, ...other_data } = data;
+
+        const { target_dir, target_file } = data;
+        const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data;
 
         this.target_dir = target_dir;
 
@@ -53,13 +52,24 @@ export abstract class InterfaceCreator {
                 : data.name;
         }
 
-        return other_data;
+        if (orig_target_dir && orig_target_file) {
+            this.orig_file_path = path.join(orig_target_dir, orig_target_file);
+            this.edit_info = this.code_info.editInfo(this.orig_file_path);
+        }
     }
 
     protected has_code = false;
 
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
+
+        // temporary solution: editing an interface with class connections leads to creating it anew
+        // (until editing is implemented)
+        if (params.edit_type === 'edit' && params.data['class-connections']) {
+            params.edit_type = 'recreate';
+            this.editImpl(params);
+        }
+
         if (params.orig_data) {
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
@@ -410,7 +420,9 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag of ordered_tags) {
-            if (['target_dir', 'yaml_file', 'config-item-values'].includes(tag)) {
+            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
+                 'active_method', 'yaml_file', 'config-item-values'].includes(tag))
+            {
                 continue;
             }
 
@@ -503,9 +515,6 @@ export abstract class InterfaceCreator {
                 }
             } else {
                 switch (tag) {
-                    case 'orig_name':
-                    case 'method_index':
-                        break;
                     case 'schedule':
                         const cron_values = value.split(' ');
                         if (cron_values.length !== 5) {
@@ -584,8 +593,8 @@ export abstract class InterfaceCreator {
         }
     }
 
-    protected deleteOrigFilesIfDifferent(orig_file: string | undefined) {
-        if (!orig_file) {
+    protected deleteOrigFilesIfDifferent() {
+        if (!this.orig_file_path) {
             return;
         }
 
@@ -593,18 +602,18 @@ export abstract class InterfaceCreator {
         let orig_yaml_file;
 
         if (this.has_code) {
-            if (orig_file === this.file_path) {
+            if (this.orig_file_path === this.file_path) {
                 return;
             }
 
-            orig_code_file = orig_file;
-            orig_yaml_file = (this.code_info.yamlDataBySrcFile(orig_file) || {}).yaml_file;
+            orig_code_file = this.orig_file_path;
+            orig_yaml_file = (this.code_info.yamlDataBySrcFile(this.orig_file_path) || {}).yaml_file;
         } else {
-            if (orig_file === this.yaml_file_path) {
+            if (this.orig_file_path === this.yaml_file_path) {
                 return;
             }
 
-            orig_yaml_file = orig_file;
+            orig_yaml_file = this.orig_file_path;
         }
 
         [orig_code_file, orig_yaml_file].forEach(file => {

@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -212,6 +212,33 @@
             {
                 "command": "qorus.createWorkflow",
                 "title": "Create New Workflow",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createGroup",
+                "title": "Create New Group",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createEvent",
+                "title": "Create New Event",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createQueue",
+                "title": "Create New Queue",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/create-new.svg",
@@ -971,6 +998,21 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.createGroup",
+                    "when": "view == qorusInterfaces && viewItem == group-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createEvent",
+                    "when": "view == qorusInterfaces && viewItem == event-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createQueue",
+                    "when": "view == qorusInterfaces && viewItem == queue-category",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.views.deleteClass",
                     "when": "view == qorusInterfaces && viewItem == class",
                     "group": "inline"
@@ -1252,6 +1294,7 @@
         "@babel/node": "^7.6.1",
         "@babel/plugin-proposal-class-properties": "^7.5.5",
         "@babel/plugin-proposal-decorators": "^7.6.0",
+        "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
         "@babel/plugin-proposal-optional-chaining": "^7.6.0",
         "@babel/preset-env": "^7.6.0",
         "@babel/preset-react": "^7.0.0",

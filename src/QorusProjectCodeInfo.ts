@@ -482,7 +482,7 @@ export class QorusProjectCodeInfo {
         }
 
         ['functions', 'constants', 'mappers', 'value_maps', 'author',
-            'mapper-code', 'groups', 'events', 'queues'].forEach(tag =>
+            'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
@@ -1309,6 +1309,7 @@ export class QorusProjectCodeInfo {
         const dirItem = (abs_path: string, only_dirs: boolean) => ({
             abs_path,
             rel_path: this.project.relativeDirPath(abs_path),
+            basename: path.basename(abs_path),
             dirs: [],
             ... only_dirs ? {} : { files: [] }
         });
@@ -1328,6 +1329,7 @@ export class QorusProjectCodeInfo {
                     tree_item.files.push({
                         abs_path: tree_item.abs_path,
                         rel_path: vscode.workspace.asRelativePath(tree_item.abs_path, false),
+                        basename: entry,
                         name: entry,
                     });
                 }

@@ -1,5 +1,4 @@
 import { window, Position } from 'vscode';
-import * as path from 'path';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
@@ -16,7 +15,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private imports: string[];
 
     editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
-        this.setLang(data);
+        this.lang = data.lang || 'qore';
 
         let suffix: string;
         let methods_key: string;
@@ -52,43 +51,26 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         this.has_code = true;
 
         this.imports = this.imports || [];
+        const methods = data[methods_key];
 
-        const {
-            [methods_key]: methods,
-            ...header_data
-        } = this.initFileBases(data, suffix);
-
-        const {
-            target_dir: orig_target_dir,
-            target_file: orig_target_file,
-            [methods_key]: orig_methods,
-            ...other_orig_data
-        } = orig_data || data || {};
-
-        let orig_file_path: string;
-
-        if (['edit', 'delete-method'].includes(edit_type)) {
-            orig_file_path = path.join(orig_target_dir, orig_target_file);
-            this.edit_info = this.code_info.editInfo(orig_file_path);
-        }
+        this.setPaths(data, orig_data, suffix);
 
         let contents: string;
         let message: string;
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
+            case 'recreate':
                 contents = this.code(data, iface_kind, methods);
                 message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
-                const orig_method_names: string[] = (orig_methods || []).map(method => method.name);
+                const orig_method_names: string[] = (orig_data[methods_key] || []).map(method => method.name);
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = this.edit_info.text_lines;
                 code_lines = this.addMethods(code_lines, method_renaming_map.added);
-                code_lines = this.renameClassAndBaseClass(code_lines,
-                                                          other_orig_data,
-                                                          header_data);
+                code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
                 contents = code_lines.join('\n');
@@ -118,7 +100,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         let headers = this.createHeaders({
             type: iface_kind,
-            ...header_data,
+            ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
             code: this.file_name
         });
@@ -143,7 +125,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             [iface_kind]: data
         };
 
-        this.deleteOrigFilesIfDifferent(orig_file_path);
+        this.deleteOrigFilesIfDifferent();
         if (hasConfigItems(iface_kind)) {
             this.code_info.interface_info.setOrigConfigItems(iface_id, edit_type === 'edit');
         }
