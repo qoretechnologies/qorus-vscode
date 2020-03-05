@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.4
+
+#### Bug fixes
+
+-   mappers used in class connections are now added automatically to the mappers tag
+-   fixed displaying the workflow keylist tag
+-   editing groups, events and queues is now possible
+-   fixed handling default config item values of complex types
+-   interfaces with class connections can now be re-created
+
 ## 1.0.3
 
 #### Bug fixes

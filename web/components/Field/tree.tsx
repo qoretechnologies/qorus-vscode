@@ -49,7 +49,6 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     const [isRootExpanded, setRootExpanded] = useState<boolean>(false);
     const [expanded, setExpanded] = useState<string[]>([]);
     const [items, setItems] = useState<any>([]);
-    const [collapseTimer, setCollapseTimer] = useState<NodeJS.Timer>(null);
 
     useMount(() => {
         //
@@ -81,18 +80,6 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                 onChange(name, [...value, { name: usedPath }]);
             }
         }
-
-        setCollapseTimer(current => {
-            if (current) {
-                clearTimeout(current);
-            }
-
-            return setTimeout(() => {
-                setCollapseTimer(null);
-                setRootExpanded(false);
-                setExpanded([]);
-            }, 4000);
-        });
     };
 
     const handleNodeCollapse: (node: ITreeNode<{ path: string }>) => void = node => {
@@ -135,7 +122,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                     isSelected: single ? value === path : value.find(sel => sel.name === path),
                     icon: isFile ? 'document' : isExpanded ? 'folder-open' : 'folder-close',
                     isExpanded,
-                    label: isFile ? item.name : item.rel_path,
+                    label: item.basename,
                     childNodes,
                     nodeData: {
                         path,
