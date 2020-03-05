@@ -1,4 +1,3 @@
-import { unlink } from 'fs';
 import { join } from 'path';
 import { t } from 'ttag';
 import { commands, ExtensionContext, Uri, window as vswindow, workspace } from 'vscode';
@@ -7,9 +6,10 @@ import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
 import { interface_tree } from './QorusInterfaceTree';
 import { projects } from './QorusProject';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { deployer } from './QorusDeploy';
 
-export function registerInterfaceTreeCommands(context: ExtensionContext) {
+export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
     let disposable;
 
     // view switching commands
@@ -29,33 +29,12 @@ export function registerInterfaceTreeCommands(context: ExtensionContext) {
                 t`ConfirmDeleteInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`
             ).then(
                 selection => {
-                    if (selection === undefined || selection === t`No`) {
+                    if (selection !== t`Yes`) {
                         return;
                     }
+
                     const iface_data = data.data;
-
-                    // delete yaml file
-                    if (iface_data['yaml_file']) {
-                        unlink(iface_data.yaml_file, (err) => {
-                            if (err) {
-                                msg.warning(t`FailedDeletingIfaceMetaFile ${iface_kind} ${iface_data.yaml_file} ${err}`);
-                            } else {
-                                msg.info(t`DeletedIfaceMetaFile ${iface_kind} ${iface_data.yaml_file}`);
-                            }
-                        });
-                    }
-
-                    // delete code file
-                    if (iface_data.target_dir && iface_data.target_file) {
-                        const codeFile = join(iface_data.target_dir, iface_data.target_file);
-                        unlink(codeFile, (err) => {
-                            if (err) {
-                                msg.warning(t`FailedDeletingIfaceCodeFile ${iface_kind} ${codeFile} ${err}`);
-                            } else {
-                                msg.info(t`DeletedIfaceCodeFile ${iface_kind} ${codeFile}`);
-                            }
-                        });
-                    }
+                    QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
                 }
             );
         });
