@@ -62,6 +62,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
 
     return (
         <InputGroup
+            name={`field-${name}`}
             placeholder={placeholder}
             disabled={disabled}
             readOnly={read_only}

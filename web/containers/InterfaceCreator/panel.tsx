@@ -1029,6 +1029,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 text={t(submitLabel)}
                                 disabled={!isFormValid(type)}
                                 icon={'tick'}
+                                name={`interface-creator-submit-${type}`}
                                 intent={Intent.SUCCESS}
                                 onClick={handleSubmitClick}
                             />

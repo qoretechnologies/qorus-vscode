@@ -54,6 +54,13 @@ export const AddStepButton: FunctionComponent<IAddStepButton> = withTextContext(
             className="tooltip step-tooltip"
         >
             <StyledStepButton
+                name={
+                    !step
+                        ? `add-step-${before ? 'before' : 'after'}-all`
+                        : `add-step-${before ? 'before' : 'after'}-${parallel ? 'parallel' : 'in-series'}-to-${
+                              stepsData[step].name
+                          }`
+                }
                 bottom={bottom}
                 top={top}
                 left={left}

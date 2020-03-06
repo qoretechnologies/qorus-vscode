@@ -8,5 +8,7 @@
             }
         ]
     },
-    "source_directories": ["src"]
+    "source_directories": [
+        "src"
+    ]
 }

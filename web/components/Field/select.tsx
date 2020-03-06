@@ -118,6 +118,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             items={filteredItems}
             itemRenderer={(item, data) => (
                 <MenuItem
+                    name={`field-${name}-item`}
                     title={item.desc}
                     icon={value && item.name === value ? 'tick' : 'blank'}
                     text={item.name}
@@ -139,6 +140,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             disabled={disabled}
         >
             <Button
+                name={`field-${name}`}
                 text={value ? value : placeholder || t('PleaseSelect')}
                 rightIcon={'caret-down'}
                 onClick={handleClick}

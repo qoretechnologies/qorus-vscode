@@ -168,6 +168,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                         />
                                     </Tooltip>
                                     <Button
+                                        name="interface-creator-submit-workflow-steps"
                                         text={t('Submit')}
                                         disabled={steps.length === 0}
                                         icon={'tick'}

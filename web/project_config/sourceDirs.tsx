@@ -113,6 +113,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                             onChange={(_name, value) => onSubmitClick(value.map(path => path.name || path))}
                             value={sourceDirs.map(dir => ({ name: dir }))}
                             useRelativePath
+                            name="source-dirs"
                             get_message={{
                                 action: Messages.GET_PROJECT_DIRS,
                             }}

@@ -51,14 +51,96 @@ describe('Webview Simple Test', function() {
 
         editorView = await new EditorView().openEditor('Qorus Manager');
         webview = await new WebView(new EditorView(), 'Qorus Manager');
-    });
 
-    it('Shows environment page', async () => {
         await webview.wait();
         await webview.switchToFrame();
 
         await sleep(3000);
+    });
 
+    const clickElement = async (name: string, position?: number, useClassName?: boolean) => {
+        if (position) {
+            await (await webview.findWebElements(By[useClassName ? 'className' : 'name'](name)))[position - 1].click();
+        } else {
+            await (await webview.findWebElement(By.name(name))).click();
+        }
+    };
+
+    const fillTextField = async (name: string, value: string | number, position?: number) => {
+        if (position) {
+            await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
+        } else {
+            await (await webview.findWebElement(By.name(name))).sendKeys(value);
+        }
+    };
+
+    const selectNthFolder = async (name: string, position: number) => {
+        await clickElement(`folder-expander-${name}`);
+        await clickElement('bp3-tree-node-content', position, true);
+    };
+
+    const selectNthDropdownItem = async (name: string, position: number) => {
+        await clickElement(`field-${name}`);
+        await sleep(500);
+        await clickElement(`field-${name}-item`, position);
+    };
+
+    const submitInterface = async (iface: string) => {
+        await clickElement(`interface-creator-submit-${iface}`);
+    };
+
+    it.only('Opens workflow create page', async () => {
+        await clickElement('CreateInterface');
+        await clickElement('Workflow');
+
+        await sleep(3000);
+
+        expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
+    });
+
+    it.only('Can create workflow', async () => {
+        // Submit disabled by default
+        expect(
+            await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
+        ).to.equal('true');
+
+        await selectNthFolder('target_dir', 1);
+        await fillTextField('field-name', 'Workflow test');
+        await fillTextField('field-desc', 'Workflow test description');
+        await fillTextField('field-version', '1.0');
+
+        const workflowNext = await webview.findWebElement(By.name('interface-creator-submit-workflow'));
+
+        expect(await workflowNext.getAttribute('disabled')).to.equal(null);
+
+        await workflowNext.click();
+
+        // STEP PAGE
+        await sleep(2000);
+        await clickElement('add-step-after-all');
+        await sleep(500);
+        await clickElement('create-new-step');
+        await sleep(3000);
+
+        await selectNthFolder('target_dir', 1);
+        await fillTextField('field-name', 'Step test');
+        await fillTextField('field-desc', 'Step test description');
+        await selectNthDropdownItem('base-class-name', 6);
+        await fillTextField('field-version', '1.0');
+        await submitInterface('step');
+
+        expect(await webview.findWebElements(By.name('steplist-step'))).to.have.length(1);
+        expect(
+            await (await webview.findWebElement(By.name('interface-creator-submit-workflow-steps'))).getAttribute(
+                'disabled'
+            )
+        ).to.equal(null);
+
+        await submitInterface('workflow-steps');
+        await sleep(4000);
+    });
+
+    it('Shows environment page', async () => {
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
         expect(environmentPanels).to.have.length(1);
     });
@@ -171,16 +253,18 @@ describe('Webview Simple Test', function() {
     it('Adds and removes source directory', async () => {
         await (await webview.findWebElement(By.name('manage-source-dirs'))).click();
 
-        await sleep(100);
+        await sleep(500);
 
         expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(1);
 
-        await (await webview.findWebElement(By.name('folder-expander'))).click();
+        await (await webview.findWebElement(By.name('folder-expander-source-dirs'))).click();
         await (await webview.findWebElements(By.className('bp3-tree-node-caret')))[0].click();
 
-        await sleep(100);
+        await sleep(500);
 
         await (await webview.findWebElements(By.className('bp3-tree-node-content')))[1].click();
+
+        await sleep(500);
 
         expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(2);
 
@@ -188,15 +272,6 @@ describe('Webview Simple Test', function() {
 
         expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(1);
 
-        await (await webview.findWebElements(By.className('bp3-dialog-close-button')))[0].click();
-    });
-
-    it('Opens workflow create page', async () => {
-        await (await webview.findWebElement(By.name('CreateInterface'))).click();
-        await (await webview.findWebElement(By.name('Workflow'))).click();
-
-        await sleep(3000);
-
-        expect(await webview.findWebElements(By.className('jDUMiU'))).to.have.length(4);
+        await (await webview.findWebElement(By.className('bp3-overlay'))).click();
     });
 });
