@@ -118,7 +118,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
             // Request the data
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'class',
-                class_name: className,
+                name: className,
             });
         });
     });
