@@ -778,6 +778,7 @@ export class QorusProjectCodeInfo {
         switch (object_type) {
             case 'workflow-step':
             case 'mapper-code':
+            case 'class':
                 this.waitForPending(['yaml']).then(() => {
                     const objects = this.yamlDataByType(object_type === 'workflow-step' ? 'step' : object_type);
                     postMessage('objects', Object.keys(objects).map(key => ({
@@ -855,17 +856,6 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );
-                break;
-            case 'class':
-                this.waitForPending(['yaml']).then(() => {
-                    const class_names = Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
-                    const classes = class_names.map(class_name => this.yamlDataByClass(class_name))
-                                               .filter(class_data => class_data.type === 'class');
-                    postMessage('objects', classes.map(class_data => ({
-                        name: class_data['class-name'],
-                        desc: class_data.desc
-                    })));
-                });
                 break;
             case 'class-with-connectors':
                 this.waitForPending(['yaml']).then(() => {
