@@ -407,14 +407,28 @@ export class InterfaceInfo {
             classes.findIndex(({name: name2, prefix: prefix2 = ''}) => name === name2 && prefix === prefix2) !== -1);
     }
 
+    private addClassNames = classes => {
+        if (!classes) {
+            return undefined;
+        }
+
+        return classes.map(class_data => {
+            class_data['class-name'] = this.code_info.yamlDataByName('class', class_data.name)?.['class-name'];
+            return class_data['class-name'];
+        });
+    }
+
     getConfigItems = params => {
-        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
+        let {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
         if (!iface_id) {
             return;
         }
         if (!['workflow', 'job', 'service', 'class', 'step'].includes(iface_kind)) {
             return;
         }
+
+        requires = this.addClassNames(requires);
+        classes = this.addClassNames(classes);
 
         this.maybeInitIfaceId(iface_id, iface_kind);
 
@@ -443,7 +457,7 @@ export class InterfaceInfo {
                 this.removeClasses(iface_id, classes_key, classes_or_requires);
             }
             (classes_or_requires || []).forEach(class_data => {
-                class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
+                class_data['class_name'] && this.addClassConfigItems(iface_id, class_data['class-name'], class_data.prefix);
             });
 
             const default_type = defaultValue('type');
