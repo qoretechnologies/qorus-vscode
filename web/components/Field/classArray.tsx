@@ -52,7 +52,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
         // Check if this field had a class selected
         if (pairData.name) {
             // Reset the class connections if it's not
-            resetClassConnections();
+            resetClassConnections && resetClassConnections();
         }
         // Remove the selected pair
         onChange(
