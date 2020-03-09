@@ -36,7 +36,7 @@ describe('Webview Simple Test', function() {
         const input: InputBox = await new InputBox();
 
         await input.wait();
-        await input.setText('/Users/filipwitosz/Code/Projects/qorus-vscode/ui-test/test_project');
+        await input.setText('/builds/mirror/qorus-vscode/ui-test/test_project');
         await input.confirm();
 
         await sleep(10000);
@@ -59,7 +59,7 @@ describe('Webview Simple Test', function() {
     });
 
     const clickElement = async (name: string, position?: number, useClassName?: boolean) => {
-        if (position) {
+        if (position !== undefined) {
             await (await webview.findWebElements(By[useClassName ? 'className' : 'name'](name)))[position - 1].click();
         } else {
             await (await webview.findWebElement(By.name(name))).click();
@@ -89,7 +89,7 @@ describe('Webview Simple Test', function() {
         await clickElement(`interface-creator-submit-${iface}`);
     };
 
-    it.only('Opens workflow create page', async () => {
+    it('Opens workflow create page', async () => {
         await clickElement('CreateInterface');
         await clickElement('Workflow');
 
@@ -98,7 +98,7 @@ describe('Webview Simple Test', function() {
         expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
     });
 
-    it.only('Can create workflow', async () => {
+    it('Can create workflow', async () => {
         // Submit disabled by default
         expect(
             await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
@@ -141,6 +141,10 @@ describe('Webview Simple Test', function() {
     });
 
     it('Shows environment page', async () => {
+        await clickElement('ProjectConfig');
+
+        await sleep(3000);
+
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
         expect(environmentPanels).to.have.length(1);
     });
