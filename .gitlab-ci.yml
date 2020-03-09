@@ -20,7 +20,7 @@ test:
     - sed -i 's/const args = \[/const args = \["--disable-gpu", /' node_modules/vscode-extension-tester/out/webdriver/browser.js
 
     - cd ..
-    - mkdir -p test-resources/settings ui-test/test_project/src /tmp/vscode-ext
+    - mkdir -p test-resources/settings ui-test/test_project /tmp/vscode-ext
     - export PATH=`pwd`/node_modules/.bin:${PATH}
     - ui-test/node_modules/.bin/extest setup-tests
     - sed -i 's/width:1024,height:768/width:1920,height:1080/' test-resources/VSCode-linux-x64/resources/app/out/vs/code/electron-main/main.js
