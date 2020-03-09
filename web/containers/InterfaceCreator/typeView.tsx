@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
-import { CreatorWrapper } from './mapperView';
 import Suggest from '../../components/Field/suggest';
+import FileField from '../../components/Field/fileString';
+import String from '../../components/Field/string';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import { StyledMapperWrapper, StyledFieldsWrapper } from '../Mapper';
 import MapperFieldModal from '../Mapper/modal';
 import withTextContext from '../../hocomponents/withTextContext';
-import { ActionsWrapper } from './panel';
+import { ActionsWrapper, FieldWrapper, FieldInputWrapper } from './panel';
 import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
 import { set, unset, get, size, map } from 'lodash';
 import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
-import MapperOutput from '../Mapper/output';
 import MapperInput from '../Mapper/input';
+import withMessageHandler from '../../hocomponents/withMessageHandler';
+import { Messages } from '../../constants/messages';
+import FieldLabel from '../../components/FieldLabel';
+import { validateField } from '../../helpers/validations';
 
-const TypeView = ({ initialData, t }) => {
-    const [val, setVal] = useState('');
+const TypeView = ({ initialData, t, postMessage }) => {
+    const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
-    const [fields, setFields] = useState({});
+    const [fields, setFields] = useState(initialData?.type?.fields || {});
+    const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
+    const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
 
     useMount(() => {
         (async () => {
@@ -31,6 +37,8 @@ const TypeView = ({ initialData, t }) => {
         setVal('');
         setAddDialog({});
         setFields({});
+        setTargetDir('');
+        setTargetFile('');
     };
 
     const addField = (path, data) => {
@@ -109,11 +117,56 @@ const TypeView = ({ initialData, t }) => {
         }
     };
 
+    const handleSubmitClick = () => {
+        postMessage(initialData.type ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
+            iface_kind: 'type',
+            target_dir: targetDir,
+            target_file: targetFile,
+            path: val,
+            typeinfo: {
+                base_type: 'hash<auto>',
+                can_manage_fields: true,
+                fields,
+            },
+        });
+        reset();
+    };
+
     const flattenedFields = flattenFields(fields);
 
     return (
         <>
-            <Suggest defaultItems={types} value={val} onChange={(_name, value) => setVal(value)} />
+            <FieldWrapper>
+                <FieldLabel label={t('TargetDir')} info={t('Optional')} isValid />
+                <FieldInputWrapper>
+                    <FileField
+                        onChange={(_name, value) => setTargetDir(value)}
+                        name="target-dir"
+                        value={targetDir}
+                        get_message={{
+                            action: 'creator-get-directories',
+                            object_type: 'target_dir',
+                        }}
+                        return_message={{
+                            action: 'creator-return-directories',
+                            object_type: 'target_dir',
+                            return_value: 'directories',
+                        }}
+                    />
+                </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper>
+                <FieldLabel label={t('field-label-target_file')} info={t('Optional')} isValid />
+                <FieldInputWrapper>
+                    <String onChange={(_name, value) => setTargetFile(value)} name="target-dir" value={targetFile} />
+                </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper>
+                <FieldLabel label={t('Path')} isValid={validateField('string', val)} />
+                <FieldInputWrapper>
+                    <Suggest defaultItems={types} value={val} onChange={(_name, value) => setVal(value)} />
+                </FieldInputWrapper>
+            </FieldWrapper>
             <div
                 style={{
                     width: '100%',
@@ -164,8 +217,8 @@ const TypeView = ({ initialData, t }) => {
                         </Tooltip>
                         <Button
                             text={t('Submit')}
-                            //onClick={handleSubmitClick}
-                            disabled={false}
+                            onClick={handleSubmitClick}
+                            disabled={!(size(fields) && validateField('string', val))}
                             icon={'tick'}
                             intent={Intent.SUCCESS}
                         />
@@ -177,4 +230,4 @@ const TypeView = ({ initialData, t }) => {
     );
 };
 
-export default compose(withInitialDataConsumer(), withTextContext())(TypeView);
+export default compose(withInitialDataConsumer(), withTextContext(), withMessageHandler())(TypeView);
