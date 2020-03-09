@@ -520,20 +520,24 @@ export class QorusProjectCodeInfo {
             });
         }
 
-        const classes_field = data.type === 'class' ? 'requires' : 'classes';
-        if (data[classes_field]) {
+        const classes_or_requires = data.type === 'class' ? 'requires' : 'classes';
+        if (data[classes_or_requires]) {
             let classes = (data['class-prefixes'] || []).map(prefix_data => ({
-                name: prefix_data.class,
+                'class-name': prefix_data.class,
+                name: this.yamlDataByClass(prefix_data.class)?.name,
                 prefix: prefix_data.prefix
             }));
 
-            data[classes_field].forEach(class_name => {
-                if (!classes.some(class_data => class_data.name === class_name)) {
-                    classes.push({name: class_name});
+            data[classes_or_requires].forEach(class_name => {
+                if (!classes.some(class_data => class_data['class-name'] === class_name)) {
+                    classes.push({
+                        name: this.yamlDataByClass(class_name)?.name,
+                        'class-name': class_name
+                    });
                 }
             });
 
-            data[classes_field] = classes;
+            data[classes_or_requires] = classes;
         }
 
         const array_of_pairs_fields = ['tags', 'define-auth-label', 'workflow_options', 'statuses'];

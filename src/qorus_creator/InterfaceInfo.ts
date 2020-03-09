@@ -414,7 +414,7 @@ export class InterfaceInfo {
 
         return classes.map(class_data => {
             class_data['class-name'] = this.code_info.yamlDataByName('class', class_data.name)?.['class-name'];
-            return class_data['class-name'];
+            return class_data;
         });
     }
 
