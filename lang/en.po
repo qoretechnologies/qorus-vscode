@@ -2000,3 +2000,6 @@ msgstr "Unable to retrieve types from active qorus instance."
 
 msgid "ConfigItemIsType"
 msgstr "This config item is of type: "
+
+msgid "SelectExistingTypeOrNew"
+msgstr "Select existing type or add new..."

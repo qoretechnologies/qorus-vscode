@@ -1355,6 +1355,7 @@
         "gettext-parser": "^2.0.0",
         "js-yaml": "^3.13.1",
         "moment": "^2.24.0",
+        "react-autocomplete": "^1.8.1",
         "react-dnd": "^9.4.0",
         "react-dnd-html5-backend": "^9.4.0",
         "react-markdown": "^4.2.2",

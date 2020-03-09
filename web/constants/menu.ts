@@ -33,6 +33,7 @@ export const MENU = {
                 { name: 'Class', icon: 'code-block', tab: 'CreateInterface', subtab: 'class' },
                 { name: 'Mapper', icon: 'layout-group-by', tab: 'CreateInterface', subtab: 'mapper' },
                 { name: 'Mapper Code', icon: 'function', tab: 'CreateInterface', subtab: 'mapper-code' },
+                { name: 'Type', icon: 'asterisk', tab: 'CreateInterface', subtab: 'type' },
                 { name: 'Other', icon: 'more', tab: 'CreateInterface', subtab: 'other' },
             ],
         },
