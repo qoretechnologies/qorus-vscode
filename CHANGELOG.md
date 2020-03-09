@@ -53,6 +53,7 @@
 -   fixed sending of empty classes in some cases, resulting in source code being deleted
 -   fixed tooltip for default config item value in config item value dialog
 -   fixed scrollbar not showing in the delete interface view
+-   fixed showing of service method info on mouse hover
 
 ## 1.0.1
 
