@@ -70,7 +70,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
                 ? `public void ${trigger}() ${THROWS}`
                 : `${trigger}()`
             : lang === 'java'
-                ? `public Object ${trigger}(Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS}`
+                ? `public Object ${trigger}(Map<String, Object> ${CONN_DATA}) ${THROWS}`
                 : `auto ${trigger}(*hash<auto> ${CONN_DATA})`;
 
         return {
@@ -381,7 +381,7 @@ methodCode.java = (connection_code_name, connectors) => {
 
         if (connector.mapper) {
             code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}");\n` +
-            `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
+            `${indent2}${CONN_DATA} = Optional.of(${CONN_MAPPER}.mapData(${CONN_DATA}.get()));\n`;
         }
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
@@ -448,7 +448,7 @@ triggerCode.java = trigger => {
             params_str = CONN_DATA;
         }
         if (trigger.is_nonstandard_service) { // for non-standard service triggers
-            params_str = CONN_DATA;
+            params_str = `Optional.of(${CONN_DATA})`;
         }
     }
     trigger.connections.forEach(connection => {
