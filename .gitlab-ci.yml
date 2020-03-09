@@ -8,30 +8,67 @@ test:
   tags:
     - docker-exec
   script:
-    - npm install
-    - npm install --save-dev vsce
-    - cd ui-test
-    - npm install
-
-    # if the grep fails, the grep and sed commands must be edited
-    - grep '" --install-extension' node_modules/vscode-extension-tester/out/util/codeUtil.js
-    - sed -i 's/--install-extension/--user-data-dir test-resources\/settings --install-extension/' node_modules/vscode-extension-tester/out/util/codeUtil.js
-    - grep 'const args = \[' node_modules/vscode-extension-tester/out/webdriver/browser.js
-    - sed -i 's/const args = \[/const args = \["--disable-gpu", /' node_modules/vscode-extension-tester/out/webdriver/browser.js
-
-    - cd ..
-    - mkdir -p test-resources/settings ui-test/test_project /tmp/vscode-ext
-    - export PATH=`pwd`/node_modules/.bin:${PATH}
-    - ui-test/node_modules/.bin/extest setup-tests
-    - sed -i 's/width:1024,height:768/width:1920,height:1080/' test-resources/VSCode-linux-x64/resources/app/out/vs/code/electron-main/main.js
-    - test-resources/VSCode-linux-x64/bin/code --user-data-dir test-resources/settings --install-extension qoretechnologies.qore-vscode
-
-    - cp -r ui-test/mock/* ui-test/test_project/
-    - npm run compile:test
+    - export rootdir=`pwd`
+    - export PATH=${rootdir}/node_modules/.bin:${PATH}
     - export DISPLAY=:1
-    - Xvfb ${DISPLAY} -screen 0 1920x1080x24 &
-    - sleep 3
-    - ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js
+    - |
+        curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
+        -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
+        -d "{\"state\": \"pending\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
+    - |
+        do_install() {
+          cd ${rootdir}
+          npm install \
+          && npm install --save-dev vsce \
+          && cd ui-test \
+          && npm install
+        }
+
+        patch_extester() {
+          # if the grep fails, the grep and sed commands must be edited
+          cd ${rootdir}/ui-test/node_modules/vscode-extension-tester/out
+          grep '" --install-extension' util/codeUtil.js \
+          && sed -i 's/--install-extension/--user-data-dir test-resources\/settings --install-extension/' util/codeUtil.js \
+          && grep 'const args = \[' webdriver/browser.js \
+          && sed -i 's/const args = \[/const args = \["--disable-gpu", /' webdriver/browser.js \
+        }
+
+        setup_tests() {
+          cd ${rootdir}
+          mkdir -p test-resources/settings ui-test/test_project \
+          && ui-test/node_modules/.bin/extest setup-tests \
+          && sed -i 's/width:1024,height:768/width:1920,height:1080/' test-resources/VSCode-linux-x64/resources/app/out/vs/code/electron-main/main.js \
+          && test-resources/VSCode-linux-x64/bin/code --user-data-dir test-resources/settings --install-extension qoretechnologies.qore-vscode \
+          && cp -r ui-test/mock/* ui-test/test_project/ \
+          && npm run compile:test
+        }
+
+        run_tests() {
+          cd ${rootdir}
+          Xvfb ${DISPLAY} -screen 0 1920x1080x24 &
+          sleep 3
+          ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js
+        }
+
+        do_tests() {
+          do_install && patch_extester && setup_tests && run_tests
+        }
+    - |
+        set +e
+        set -x
+        if do_tests; then
+          set +x
+          curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
+            -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
+            -d "{\"state\": \"success\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
+          exit 0
+        else
+          set +x
+          curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
+            -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
+            -d "{\"state\": \"failure\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
+          exit 1
+        fi
 
 package_build:
   stage: build
