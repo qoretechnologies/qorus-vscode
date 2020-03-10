@@ -11,7 +11,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { ActionsWrapper, FieldWrapper, FieldInputWrapper } from './panel';
 import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
 import { set, unset, get, size, map } from 'lodash';
-import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
+import { flattenFields, getLastChildIndex, filterInternalData } from '../../helpers/mapper';
 import MapperInput from '../Mapper/input';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
@@ -120,13 +120,16 @@ const TypeView = ({ initialData, t, postMessage }) => {
     const handleSubmitClick = () => {
         postMessage(initialData.type ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
             iface_kind: 'type',
-            target_dir: targetDir,
-            target_file: targetFile,
-            path: val,
-            typeinfo: {
-                base_type: 'hash<auto>',
-                can_manage_fields: true,
-                fields,
+            orig_data: initialData.type,
+            data: {
+                target_dir: targetDir,
+                target_file: targetFile,
+                path: val,
+                typeinfo: {
+                    base_type: 'hash<auto>',
+                    can_manage_fields: true,
+                    fields: filterInternalData(fields),
+                },
             },
         });
         reset();
