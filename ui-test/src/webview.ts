@@ -79,6 +79,10 @@ describe('Webview Simple Test', function() {
         await clickElement('bp3-tree-node-content', position, true);
     };
 
+    const selectField = async (name: string) => {
+        await clickElement(`field-select-${name}`);
+    };
+
     const selectNthDropdownItem = async (name: string, position: number) => {
         await clickElement(`field-${name}`);
         await sleep(500);
@@ -245,6 +249,14 @@ describe('Webview Simple Test', function() {
         await fillTextField('field-name', 'Workflow test');
         await fillTextField('field-desc', 'Workflow test description');
         await fillTextField('field-version', '1.0');
+        await selectField('class-name');
+
+        await sleep(2000);
+
+        expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(7);
+
+        await fillTextField('field-class-name', 'TestWorkflow');
+        await selectNthDropdownItem('base-class-name', 1);
 
         const workflowNext = await webview.findWebElement(By.name('interface-creator-submit-workflow'));
 
