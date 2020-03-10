@@ -603,11 +603,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             ...mapperOptions,
             'mapper-input': {
                 ...inputOptionProvider,
-                'custom-fields': filterInternalData(getCustomFields('inputs')),
+                'custom-fields': getCustomFields('inputs'),
             },
             'mapper-output': {
                 ...outputOptionProvider,
-                'custom-fields': filterInternalData(getCustomFields('outputs')),
+                'custom-fields': getCustomFields('outputs'),
             },
         };
         // Post the data

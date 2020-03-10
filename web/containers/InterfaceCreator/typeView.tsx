@@ -22,7 +22,7 @@ const TypeView = ({ initialData, t, postMessage }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
-    const [fields, setFields] = useState(initialData?.type?.fields || {});
+    const [fields, setFields] = useState(initialData?.type?.typeinfo?.fields || {});
     const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
 
@@ -128,7 +128,7 @@ const TypeView = ({ initialData, t, postMessage }) => {
                 typeinfo: {
                     base_type: 'hash<auto>',
                     can_manage_fields: true,
-                    fields: filterInternalData(fields),
+                    fields,
                 },
             },
         });

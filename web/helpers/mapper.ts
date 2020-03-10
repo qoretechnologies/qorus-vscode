@@ -55,8 +55,6 @@ export const filterInternalData = fields => {
                     ...omit(fieldData, [
                         'canBeNull',
                         'firstCustomInHierarchy',
-                        'path',
-                        'parentPath',
                         'parent',
                         'isChild',
                         'isCustom',
