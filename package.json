@@ -84,75 +84,93 @@
         "commands": [
             {
                 "command": "qorus.setActiveInstance",
-                "title": "Qorus: Set as active Qorus instance"
+                "title": "Set As Active Qorus Instance",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.setInactiveInstanceStayLoggedIn",
-                "title": "Qorus: Set as inactive Qorus instance, stay logged in"
+                "title": "Set As Inactive Qorus Instance & Stay Logged In",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.setInactiveInstance",
-                "title": "Qorus: Set as inactive Qorus instance"
+                "title": "Set As Inactive Qorus Instance",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.logout",
-                "title": "Qorus: Logout"
+                "title": "Logout",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.loginAndSetActiveInstance",
-                "title": "Qorus: Login, set as active Qorus instance"
+                "title": "Login & Set As Active Qorus Instance",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.loginAndStayInactiveInstance",
-                "title": "Qorus: Login, stay inactive Qorus instance"
+                "title": "Login & Stay Inactive Qorus Instance",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.manageProjectConfig",
-                "title": "Qorus: Manage project configuration"
+                "title": "Manage Project Configuration",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.makeRelease",
-                "title": "Qorus: Make release"
+                "title": "Make Release",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.deleteInterfaces",
-                "title": "Qorus: Delete interfaces"
+                "title": "Delete Interfaces",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.deployCurrentFile",
-                "title": "Qorus: Deploy current file"
+                "title": "Deploy Current File",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.deployFile",
-                "title": "Qorus: Deploy file"
+                "title": "Deploy File",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.deployDir",
-                "title": "Qorus: Deploy directory"
+                "title": "Deploy Directory",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.openUrlInExternalBrowser",
-                "title": "Qorus: Open URL in an external tool"
+                "title": "Open URL In An External Tool",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.testCurrentFile",
-                "title": "Qorus: Execute current test file"
+                "title": "Execute Current Test File",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.testFile",
-                "title": "Qorus: Execute test file"
+                "title": "Execute Test File",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.testDir",
-                "title": "Qorus: Execute test files from directory"
+                "title": "Execute Test Files From Directory",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.createOther",
-                "title": "Qorus: Create other entity"
+                "title": "Create Other Entity",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.webview",
-                "title": "Qorus: Webview",
+                "title": "Webview",
+                "category": "Qorus",
                 "icon": "images/qorus_logo_28.png"
             },
             {
