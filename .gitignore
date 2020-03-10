@@ -1,7 +1,6 @@
-out
 dist
+out
 node_modules
-package-lock.json
-*.swp
 test-resources
+*.swp
 *.vsix

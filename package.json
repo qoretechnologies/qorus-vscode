@@ -1320,7 +1320,7 @@
         "@blueprintjs/core": "^3.18.0",
         "@types/glob": "^5.0.35",
         "@types/mocha": "^2.2.43",
-        "@types/node": "^7.10.7",
+        "@types/node": "^10.16.0",
         "@types/prop-types": "^15.7.2",
         "@types/react": "^16.8.15",
         "@types/react-dom": "^16.8.4",
@@ -1369,7 +1369,7 @@
         "compressjs": "^1.0.3",
         "cron-validator": "^1.0.2",
         "cronstrue": "^1.81.0",
-        "fs-copy-file": "^2.1.2",
+        "fs-extra": "^8.1.0",
         "gettext-parser": "^2.0.0",
         "js-yaml": "^3.13.1",
         "moment": "^2.24.0",
@@ -1388,6 +1388,7 @@
         "ttag": "^1.7.18",
         "url-parse": "^1.4.7",
         "vscode-languageserver-types": "^3.14",
+        "xml-js": "^1.6.11",
         "yamljs": "^0.3.0"
     }
 }
