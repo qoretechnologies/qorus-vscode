@@ -113,11 +113,6 @@
                 "category": "Qorus"
             },
             {
-                "command": "qorus.manageProjectConfig",
-                "title": "Manage Project Configuration",
-                "category": "Qorus"
-            },
-            {
                 "command": "qorus.makeRelease",
                 "title": "Make Release",
                 "category": "Qorus"
