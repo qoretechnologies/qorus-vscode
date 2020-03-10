@@ -358,6 +358,15 @@
                 }
             },
             {
+                "command": "qorus.views.deleteType",
+                "title": "Delete Type",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deleteService",
                 "title": "Delete Service",
                 "category": "Qorus",
@@ -743,6 +752,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.deleteType",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.deleteService",
                     "when": "false"
                 },
@@ -1104,6 +1117,11 @@
                 {
                     "command": "qorus.views.deleteQueue",
                     "when": "view == qorusInterfaces && viewItem == queue",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteType",
+                    "when": "view == qorusInterfaces && viewItem == type",
                     "group": "inline"
                 },
                 {
