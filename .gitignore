@@ -2,7 +2,5 @@ dist
 out
 node_modules
 test-resources
-qorusproject.json
 *.swp
 *.vsix
-
