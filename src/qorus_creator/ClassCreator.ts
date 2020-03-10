@@ -39,7 +39,8 @@ class ClassCreator extends InterfaceCreator {
                 suffix = '.qclass';
                 break;
             case 'mapper':
-                suffix = '.qmapper';
+            case 'type':
+                suffix = `.q${iface_kind}`;
                 break;
             case 'other':
                 suffix = `.q${data.type.toLowerCase()}`;

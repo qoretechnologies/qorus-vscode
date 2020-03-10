@@ -542,6 +542,7 @@ export abstract class InterfaceCreator {
                         break;
                     case 'fields':
                     case 'mapper_options':
+                    case 'typeinfo':
                         result += `${tag === 'mapper_options' ? 'options' : tag}:\n`;
                         let not_indented = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {

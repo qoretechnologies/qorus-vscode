@@ -75,6 +75,7 @@ class InterfaceCreatorDispatcher {
             case 'step':
             case 'other':
             case 'mapper':
+            case 'type':
                 class_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':
