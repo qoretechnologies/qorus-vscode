@@ -201,6 +201,18 @@ class QorusTreeGroupNode extends QorusSingleInterfaceNode {
     }
 }
 
+class QorusTreeTypeNode extends QorusSingleInterfaceNode {
+    constructor(name: string, data: any) {
+        super(name, TreeItemCollapsibleState.None);
+        this.name = name;
+        this.data = data;
+        this.tooltip = data.desc;
+        this.description = data.version || '';
+        this.contextValue = 'type';
+        this.iconPath = qorusIcons.getValueMapIcon();
+    }
+}
+
 class QorusTreeJobNode extends QorusSingleInterfaceNode {
     constructor(name: string, data: any) {
         super(name, TreeItemCollapsibleState.None);
@@ -421,6 +433,7 @@ class QorusTreeOtherCategoriesNode extends QorusInterfaceTreeNode {
         children.push(new QorusTreeErrorCategoryNode());
         children.push(new QorusTreeEventCategoryNode());
         children.push(new QorusTreeGroupCategoryNode());
+        children.push(new QorusTreeTypeCategoryNode());
         //children.push(new QorusTreeValueMapCategoryNode());
 
         return children;
@@ -557,6 +570,25 @@ class QorusTreeGroupCategoryNode extends QorusTreeCategoryNode {
         let children = [];
         for (const iface of interfaces) {
             children.push(new QorusTreeGroupNode(iface.name, iface.data));
+        }
+        return children;
+    }
+}
+
+class QorusTreeTypeCategoryNode extends QorusTreeCategoryNode {
+    constructor() {
+        super(t`Types`, 'type', TreeItemCollapsibleState.Expanded);
+    }
+
+    async getChildren(): Promise<QorusTreeTypeNode[]> {
+        let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
+        if (interfaces === undefined) {
+            return [];
+        }
+
+        let children = [];
+        for (const iface of interfaces) {
+            children.push(new QorusTreeTypeNode(iface.name, iface.data));
         }
         return children;
     }

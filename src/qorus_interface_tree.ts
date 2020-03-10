@@ -89,7 +89,7 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step',
-     'workflow', 'group', 'event', 'queue'].forEach(iface_kind => {
+     'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind => {
         const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             const code_info = projects.currentProjectCodeInfo();

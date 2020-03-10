@@ -574,6 +574,15 @@
                 }
             },
             {
+                "command": "qorus.views.editType",
+                "title": "Edit Type Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
                 "command": "qorus.views.editQueue",
                 "title": "Edit Queue Metadata",
                 "category": "Qorus",
@@ -818,6 +827,10 @@
                 },
                 {
                     "command": "qorus.views.editEvent",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editType",
                     "when": "false"
                 },
                 {
@@ -1193,6 +1206,11 @@
                 {
                     "command": "qorus.views.editEvent",
                     "when": "view == qorusInterfaces && viewItem == event",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editType",
+                    "when": "view == qorusInterfaces && viewItem == type",
                     "group": "inline"
                 },
                 {

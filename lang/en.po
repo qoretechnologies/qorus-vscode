@@ -742,6 +742,9 @@ msgstr "Functions"
 msgid "Groups"
 msgstr "Groups"
 
+msgid "Types"
+msgstr "Types"
+
 msgid "Job"
 msgstr "Job"
 
