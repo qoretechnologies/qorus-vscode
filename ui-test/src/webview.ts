@@ -36,7 +36,7 @@ describe('Webview Simple Test', function() {
         const input: InputBox = await new InputBox();
 
         await input.wait();
-        await input.setText('/builds/mirror/qorus-vscode/ui-test/test_project');
+        await input.setText(process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project');
         await input.confirm();
 
         await sleep(10000);
@@ -89,60 +89,7 @@ describe('Webview Simple Test', function() {
         await clickElement(`interface-creator-submit-${iface}`);
     };
 
-    it('Opens workflow create page', async () => {
-        await clickElement('CreateInterface');
-        await clickElement('Workflow');
-
-        await sleep(3000);
-
-        expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
-    });
-
-    it('Can create workflow', async () => {
-        // Submit disabled by default
-        expect(
-            await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
-        ).to.equal('true');
-
-        await selectNthFolder('target_dir', 1);
-        await fillTextField('field-name', 'Workflow test');
-        await fillTextField('field-desc', 'Workflow test description');
-        await fillTextField('field-version', '1.0');
-
-        const workflowNext = await webview.findWebElement(By.name('interface-creator-submit-workflow'));
-
-        expect(await workflowNext.getAttribute('disabled')).to.equal(null);
-
-        await workflowNext.click();
-
-        // STEP PAGE
-        await sleep(2000);
-        await clickElement('add-step-after-all');
-        await sleep(500);
-        await clickElement('create-new-step');
-        await sleep(3000);
-
-        await selectNthFolder('target_dir', 1);
-        await fillTextField('field-name', 'Step test');
-        await fillTextField('field-desc', 'Step test description');
-        await selectNthDropdownItem('base-class-name', 6);
-        await fillTextField('field-version', '1.0');
-        await submitInterface('step');
-
-        expect(await webview.findWebElements(By.name('steplist-step'))).to.have.length(1);
-        expect(
-            await (await webview.findWebElement(By.name('interface-creator-submit-workflow-steps'))).getAttribute(
-                'disabled'
-            )
-        ).to.equal(null);
-
-        await submitInterface('workflow-steps');
-        await sleep(4000);
-    });
-
     it('Shows environment page', async () => {
-        await clickElement('ProjectConfig');
-
         await sleep(3000);
 
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
@@ -277,5 +224,56 @@ describe('Webview Simple Test', function() {
         expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(1);
 
         await (await webview.findWebElement(By.className('bp3-overlay'))).click();
+    });
+
+    it('Opens workflow create page', async () => {
+        await clickElement('CreateInterface');
+        await clickElement('Workflow');
+
+        await sleep(3000);
+
+        expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
+    });
+
+    it('Can create workflow', async () => {
+        // Submit disabled by default
+        expect(
+            await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
+        ).to.equal('true');
+
+        await selectNthFolder('target_dir', 1);
+        await fillTextField('field-name', 'Workflow test');
+        await fillTextField('field-desc', 'Workflow test description');
+        await fillTextField('field-version', '1.0');
+
+        const workflowNext = await webview.findWebElement(By.name('interface-creator-submit-workflow'));
+
+        expect(await workflowNext.getAttribute('disabled')).to.equal(null);
+
+        await workflowNext.click();
+
+        // STEP PAGE
+        await sleep(2000);
+        await clickElement('add-step-after-all');
+        await sleep(500);
+        await clickElement('create-new-step');
+        await sleep(3000);
+
+        await selectNthFolder('target_dir', 1);
+        await fillTextField('field-name', 'Step test');
+        await fillTextField('field-desc', 'Step test description');
+        await selectNthDropdownItem('base-class-name', 6);
+        await fillTextField('field-version', '1.0');
+        await submitInterface('step');
+
+        expect(await webview.findWebElements(By.name('steplist-step'))).to.have.length(1);
+        expect(
+            await (await webview.findWebElement(By.name('interface-creator-submit-workflow-steps'))).getAttribute(
+                'disabled'
+            )
+        ).to.equal(null);
+
+        await submitInterface('workflow-steps');
+        await sleep(4000);
     });
 });
