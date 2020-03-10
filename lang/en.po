@@ -1794,8 +1794,14 @@ msgstr "Template config items are in format - "
 msgid "button.group-up"
 msgstr "Show grouped"
 
-msgid "button.ungroup"
-msgstr "Show All"
+msgid "button.edit-this-value"
+msgstr "Edit config item value"
+
+msgid "button.remove-this-value"
+msgstr "Remove config item value"
+
+msgid "button.show-descriptions"
+msgstr "Show descriptions"
 
 msgid "UnableFindYamlForClass ${ class }"
 msgstr "Unable to find yaml file for class ${ class }"

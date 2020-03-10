@@ -1,5 +1,13 @@
+import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { copySync, removeSync } from 'fs-extra';
+import { homedir } from 'os';
+import { join } from 'path';
 import { Range } from 'vscode';
 import { TextDocument } from 'vscode-languageserver-types';
+
+import * as msg from './qorus_message';
+import { compareVersion } from './qorus_utils';
+
 
 function getDocumentTextLine(doc: TextDocument, line: number): string {
     const beginOffset = doc.offsetAt({line: line, character: 0});
@@ -160,4 +168,59 @@ export function parseJavaInheritance(document: TextDocument, symbol) {
             }
         };
     }
+}
+
+const QorusJavaApiSrcVerFile = 'qorus-java-api-ver.txt';
+const QorusJavaApiSrcDirName = 'qorus-java-api';
+const QorusJavaApiSrcHomeDir = join('.qorus-vscode', QorusJavaApiSrcDirName);
+
+//! return path to dir where Qorus Java API sources should be saved for user
+export function getQorusJavaApiSrcPath(): string {
+    return join(homedir(), QorusJavaApiSrcHomeDir);
+}
+
+//! return path to extension dir from where Qorus Java API sources are available
+export function getQorusJavaApiSrcExtPath(extensionPath: string): string {
+    return join(extensionPath, QorusJavaApiSrcDirName);
+}
+
+//! install Qorus Java API sources into a dot-folder in user's home directory
+export function installQorusJavaApiSources(extensionPath: string): boolean {
+    const src_dir = getQorusJavaApiSrcPath();
+    if (!existsSync(src_dir)) {
+        try {
+            mkdirSync(src_dir, {recursive: true, mode: 0o755});
+        } catch (err) {
+            msg.log('Failed creating Qorus Java API source directory: ' + err);
+            return false;
+        }
+    }
+
+    const ext_src_dir = getQorusJavaApiSrcExtPath(extensionPath);
+    const com_dir = join(src_dir, 'com');
+    if (!existsSync(com_dir)) {
+        try {
+            copySync(ext_src_dir, src_dir, {preserveTimestamps: true});
+        } catch (err) {
+            msg.log('Failed copying Qorus Java API sources: ' + err);
+            return false;
+        }
+    } else {
+        try {
+            // compare installed version to the one available from extension
+            let cur_ver = readFileSync(join(src_dir, QorusJavaApiSrcVerFile), 'utf8');
+            let ext_ver = readFileSync(join(ext_src_dir, QorusJavaApiSrcVerFile));
+            const result = compareVersion(cur_ver, ext_ver);
+
+            // update to the newest version
+            if (result === -1) {
+                removeSync(src_dir);
+                copySync(ext_src_dir, src_dir, {preserveTimestamps: true});
+            }
+        } catch (err) {
+            msg.log('Failed copying Qorus Java API sources: ' + err);
+            return false;
+        }
+    }
+    return true;
 }

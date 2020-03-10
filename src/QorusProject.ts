@@ -1,24 +1,31 @@
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { qorus_webview } from './QorusWebview';
-import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
-import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
-import { instance_tree } from './QorusInstanceTree';
-import * as msg from './qorus_message';
 import { t } from 'ttag';
-import { project_template } from './qorus_project_template';
 import * as urlParser from 'url-parse';
+import * as vscode from 'vscode';
+
+import { instance_tree } from './QorusInstanceTree';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { QorusProjectJavaConfig } from './QorusProjectJavaConfig';
+import { qorus_webview } from './QorusWebview';
+import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import * as msg from './qorus_message';
+import { project_template } from './qorus_project_template';
 
 export const config_filename = 'qorusproject.json';
 
 export class QorusProject {
     private project_folder: string;
     private project_code_info: QorusProjectCodeInfo;
+    private java_config: QorusProjectJavaConfig;
 
     constructor(project_folder: string) {
         this.project_folder = project_folder;
         this.project_code_info = new QorusProjectCodeInfo(this);
+
+        this.java_config = new QorusProjectJavaConfig(project_folder);
+        this.fixJavaClasspathFile();
+        this.fixJavaProjectFile();
     }
 
     get config_file(): string {
@@ -98,6 +105,20 @@ export class QorusProject {
         if (!this.configFileExists()) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
             msg.info(t`ProjectConfigHasBeenInitialized`);
+        }
+    }
+
+    fixJavaClasspathFile() {
+        if (! this.java_config.loadClasspath()) {
+            this.java_config.fixClasspath();
+            this.java_config.writeClasspathFile();
+        }
+    }
+
+    fixJavaProjectFile() {
+        if (! this.java_config.loadProject()) {
+            this.java_config.fixProject();
+            this.java_config.writeProjectFile();
         }
     }
 
