@@ -358,6 +358,15 @@
                 }
             },
             {
+                "command": "qorus.views.deleteType",
+                "title": "Delete Type",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deleteService",
                 "title": "Delete Service",
                 "category": "Qorus",
@@ -504,6 +513,15 @@
             {
                 "command": "qorus.views.deployQueue",
                 "title": "Deploy Queue",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployType",
+                "title": "Deploy Type",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/cloud-upload.svg",
@@ -734,6 +752,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.deleteType",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.deleteService",
                     "when": "false"
                 },
@@ -799,6 +821,10 @@
                 },
                 {
                     "command": "qorus.views.deployQueue",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployType",
                     "when": "false"
                 },
                 {
@@ -1094,6 +1120,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.views.deleteType",
+                    "when": "view == qorusInterfaces && viewItem == type",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.views.deleteService",
                     "when": "view == qorusInterfaces && viewItem == service",
                     "group": "inline"
@@ -1171,6 +1202,11 @@
                 {
                     "command": "qorus.views.deployQueue",
                     "when": "view == qorusInterfaces && viewItem == queue",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployType",
+                    "when": "view == qorusInterfaces && viewItem == type",
                     "group": "inline"
                 },
                 {
