@@ -511,6 +511,15 @@
                 }
             },
             {
+                "command": "qorus.views.deployType",
+                "title": "Deploy Type",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deployService",
                 "title": "Deploy Service",
                 "category": "Qorus",
@@ -799,6 +808,10 @@
                 },
                 {
                     "command": "qorus.views.deployQueue",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployType",
                     "when": "false"
                 },
                 {
@@ -1171,6 +1184,11 @@
                 {
                     "command": "qorus.views.deployQueue",
                     "when": "view == qorusInterfaces && viewItem == queue",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployType",
+                    "when": "view == qorusInterfaces && viewItem == type",
                     "group": "inline"
                 },
                 {
