@@ -144,7 +144,7 @@
             },
             {
                 "command": "qorus.openUrlInExternalBrowser",
-                "title": "Open URL In An External Tool",
+                "title": "Open URL in an External Tool",
                 "category": "Qorus"
             },
             {
@@ -159,7 +159,7 @@
             },
             {
                 "command": "qorus.testDir",
-                "title": "Execute Test Files From Directory",
+                "title": "Execute Test Files from Directory",
                 "category": "Qorus"
             },
             {
@@ -652,7 +652,7 @@
             },
             {
                 "command": "qorus.views.switchToCategoryView",
-                "title": "Switch To Category View",
+                "title": "Switch to Category View",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/category-view.svg",
@@ -661,7 +661,7 @@
             },
             {
                 "command": "qorus.views.switchToFolderView",
-                "title": "Switch To Folder View",
+                "title": "Switch to Folder View",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/folder-view.svg",
