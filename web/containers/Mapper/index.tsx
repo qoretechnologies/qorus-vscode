@@ -22,7 +22,7 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
-import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
+import { flattenFields, getLastChildIndex, filterInternalData } from '../../helpers/mapper';
 
 const FIELD_HEIGHT = 35;
 const FIELD_MARGIN = 14;
@@ -603,11 +603,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             ...mapperOptions,
             'mapper-input': {
                 ...inputOptionProvider,
-                'custom-fields': getCustomFields('inputs'),
+                'custom-fields': filterInternalData(getCustomFields('inputs')),
             },
             'mapper-output': {
                 ...outputOptionProvider,
-                'custom-fields': getCustomFields('outputs'),
+                'custom-fields': filterInternalData(getCustomFields('outputs')),
             },
         };
         // Post the data

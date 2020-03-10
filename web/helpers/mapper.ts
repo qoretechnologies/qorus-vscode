@@ -1,4 +1,4 @@
-import { reduce, size, findIndex } from 'lodash';
+import { reduce, size, findIndex, omit } from 'lodash';
 // This functions flattens the fields, by taking all the
 // deep fields from `type` and adds them right after their
 // respective parent field
@@ -43,4 +43,32 @@ export const getLastChildIndex = (field: any, fields: any[]) => {
     }
     // Return nothing
     return 0;
+};
+
+export const filterInternalData = fields => {
+    return reduce(
+        fields,
+        (newFields, fieldData, field) => {
+            return {
+                ...newFields,
+                [field]: {
+                    ...omit(fieldData, [
+                        'canBeNull',
+                        'firstCustomInHierarchy',
+                        'path',
+                        'parentPath',
+                        'parent',
+                        'isChild',
+                        'isCustom',
+                        'level',
+                    ]),
+                    type: {
+                        ...fieldData.type,
+                        fields: filterInternalData(fieldData.type.fields),
+                    },
+                },
+            };
+        },
+        {}
+    );
 };
