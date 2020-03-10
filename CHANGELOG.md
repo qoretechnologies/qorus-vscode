@@ -9,6 +9,11 @@
 -   editing groups, events and queues is now possible
 -   fixed handling default config item values of complex types
 -   interfaces with class connections can now be re-created
+-   fixed misinterpreting of string values that look like yaml code
+-   it is now possible to set 0 for int and float config items
+-   strings starting with `-` are no longer misinterpeted as lists in config items
+-   the add new field button is no longer replaced by delete button when hovering mapper field
+-   folder tree list is no longer hidden after 4 seconds when choosing a folder
 
 ## 1.0.3
 
@@ -48,6 +53,7 @@
 -   fixed sending of empty classes in some cases, resulting in source code being deleted
 -   fixed tooltip for default config item value in config item value dialog
 -   fixed scrollbar not showing in the delete interface view
+-   fixed showing of service method info on mouse hover
 
 ## 1.0.1
 

@@ -1394,4 +1394,46 @@ export class QorusProjectCodeInfo {
             });
         });
     }
+
+    deleteInterfaceFromWebview = ({iface_kind, name}) => {
+        vscode.window.showWarningMessage(
+            t`ConfirmDeleteInterface ${iface_kind} ${name}`, t`Yes`, t`No`
+        ).then(
+            selection => {
+                if (selection !== t`Yes`) {
+                    return;
+                }
+
+                const iface_data = this.yamlDataByName(iface_kind, name);
+                QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
+            }
+        );
+    }
+
+    static deleteInterface = ({iface_kind, iface_data}) => {
+        iface_data = iface_data || {};
+        const yaml_file = iface_data.yaml_file;
+        const code_file = iface_data.target_dir && iface_data.target_file
+                            && path.join(iface_data.target_dir, iface_data.target_file);
+
+        if (yaml_file) {
+            fs.unlink(yaml_file, (err) => {
+                if (err) {
+                    msg.warning(t`FailedDeletingIfaceMetaFile ${iface_kind} ${yaml_file} ${err}`);
+                } else {
+                    msg.info(t`DeletedIfaceMetaFile ${iface_kind} ${yaml_file}`);
+                }
+            });
+        }
+
+        if (code_file) {
+            fs.unlink(code_file, (err) => {
+                if (err) {
+                    msg.warning(t`FailedDeletingIfaceCodeFile ${iface_kind} ${code_file} ${err}`);
+                } else {
+                    msg.info(t`DeletedIfaceCodeFile ${iface_kind} ${code_file}`);
+                }
+            });
+        }
+    }
 }

@@ -271,6 +271,13 @@ class QorusWebview {
                                 }
                             });
                             break;
+                        case 'open-file':
+                            vscode.workspace.openTextDocument(message.file_path)
+                                  .then(doc => vscode.window.showTextDocument(doc));
+                            break;
+                        case 'delete-interface':
+                            project.code_info.deleteInterfaceFromWebview(message);
+                            break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
                     }
