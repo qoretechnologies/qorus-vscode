@@ -104,7 +104,7 @@ export class InterfaceInfo {
             level = 'local';
         }
 
-        const parsed_value = jsyaml.safeLoad(value);
+        const parseIfComplex = item => ['list', 'hash'].includes(item.type) ? jsyaml.safeLoad(value) : value;
 
         const templated_key = level === 'global'
             ? 'is_global_value_templated_string'
@@ -129,10 +129,9 @@ export class InterfaceInfo {
                 let item;
                 if (index > -1) {
                     item = this.iface_by_id[iface_id]['config-item-values'][index];
-                    item.value = parsed_value;
+                    item.value = parseIfComplex(item);
                 } else {
-                    item = {name, value: parsed_value};
-                    this.iface_by_id[iface_id]['config-item-values'].push(item);
+                    msg.error(t`ConfigItemNotFound ${name}`);
                 }
 
                 item[templated_key] = is_templated_string;
@@ -149,7 +148,7 @@ export class InterfaceInfo {
                         item['remove-global-value'] = true;
                     }
                 } else {
-                    item[level + '-value'] = parsed_value;
+                    item[level + '-value'] = parseIfComplex(item);
                     item[templated_key] = is_templated_string;
                 }
             }

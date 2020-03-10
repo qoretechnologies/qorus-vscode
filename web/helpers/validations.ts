@@ -95,7 +95,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'number':
             return !isNaN(value) && getTypeFromValue(value) === 'int';
         case 'float':
-            return !isNaN(value) && getTypeFromValue(value) === 'float';
+            return !isNaN(value) && (getTypeFromValue(value) === 'float' || getTypeFromValue(value) === 'int');
         case 'select-array':
         case 'array':
         case 'file-tree':
@@ -229,11 +229,11 @@ export const getTypeFromValue = (value: any) => {
         return 'bool';
     }
 
-    if (Number(value) === value && value % 1 === 0) {
+    if (value === 0 || (Number(value) === value && value % 1 === 0)) {
         return 'int';
     }
 
-    if (Number(value) === value && value % 1 !== 0) {
+    if (value === 0 || value === 0.0 || (Number(value) === value && value % 1 !== 0)) {
         return 'float';
     }
     if (new Date(value).toString() !== 'Invalid Date') {
