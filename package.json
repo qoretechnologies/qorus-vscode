@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "1.0.5",
+    "version": "1.1.0",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -1302,7 +1302,7 @@
         "start": "NODE_ENV=development babel-node server.js",
         "build": "NODE_ENV=production webpack",
         "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
-        "ui-run-tests": "rm -rf ui-test/test_project/* && cp -r ui-test/mock/* ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js && rm -rf ui-test/test_project/*"
+        "ui-run-tests": "rm -rf ui-test/test_project && git clone -b develop --single-branch --depth 1 https://fwitosz:fwitosz42@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && npm run compile:test && ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js && rm -rf ui-test/test_project"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",

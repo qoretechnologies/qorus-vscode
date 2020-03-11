@@ -80,7 +80,7 @@ describe('Webview Simple Test', function() {
     };
 
     const selectField = async (name: string) => {
-        await clickElement(`field-select-${name}`);
+        await clickElement(`field-selector-${name}`);
     };
 
     const selectNthDropdownItem = async (name: string, position: number) => {
@@ -97,7 +97,7 @@ describe('Webview Simple Test', function() {
         await sleep(3000);
 
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
-        expect(environmentPanels).to.have.length(1);
+        expect(environmentPanels).to.have.length(3);
     });
 
     it('Adds new environment', async () => {
@@ -112,17 +112,17 @@ describe('Webview Simple Test', function() {
         await environmentSubmit.click();
 
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
-        expect(environmentPanels).to.have.length(2);
+        expect(environmentPanels).to.have.length(4);
     });
 
     it('Deletes an environment', async () => {
         let environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
-        expect(environmentPanels).to.have.length(2);
+        expect(environmentPanels).to.have.length(4);
         const environmentDeleteButtons = await webview.findWebElements(By.name('delete-environment'));
-        expect(environmentDeleteButtons).to.have.length(2);
-        await environmentDeleteButtons[1].click();
+        expect(environmentDeleteButtons).to.have.length(4);
+        await environmentDeleteButtons[3].click();
         environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
-        expect(environmentPanels).to.have.length(1);
+        expect(environmentPanels).to.have.length(3);
     });
 
     it('Renames an environment', async () => {
@@ -135,7 +135,7 @@ describe('Webview Simple Test', function() {
         await environmentEditSubmit[0].click();
         const environmentNames = await webview.findWebElements(By.name('environment-name'));
         const newText = await environmentNames[0].getText();
-        expect(newText).to.equal('HQEdited');
+        expect(newText).to.equal('David - GreybeardEdited');
     });
 
     it('Adds new instance', async () => {
@@ -147,14 +147,14 @@ describe('Webview Simple Test', function() {
         const instances = await webview.findWebElements(By.name('instance-item'));
         const links = await webview.findWebElements(By.name('instance-link'));
 
-        expect(instances).to.have.length(2);
-        expect(links).to.have.length(2);
-        expect(await links[1].getText()).to.equal('test');
-        expect(await links[1].getAttribute('href')).to.equal('https://google.com/');
+        expect(instances).to.have.length(8);
+        expect(links).to.have.length(8);
+        expect(await links[4].getText()).to.equal('test');
+        expect(await links[4].getAttribute('href')).to.equal('https://google.com/');
     });
 
     it('Edits an instance', async () => {
-        await (await webview.findWebElements(By.name('instance-edit')))[1].click();
+        await (await webview.findWebElements(By.name('instance-edit')))[4].click();
         await (await webview.findWebElement(By.name('instance'))).clear();
         await (await webview.findWebElement(By.name('instance'))).sendKeys('new instance');
         await (await webview.findWebElement(By.name('instance-url'))).clear();
@@ -164,21 +164,21 @@ describe('Webview Simple Test', function() {
         const instances = await webview.findWebElements(By.name('instance-item'));
         const links = await webview.findWebElements(By.name('instance-link'));
 
-        expect(instances).to.have.length(2);
-        expect(links).to.have.length(2);
-        expect(await links[1].getText()).to.equal('new instance');
-        expect(await links[1].getAttribute('href')).to.equal('https://synthax.io/');
+        expect(instances).to.have.length(8);
+        expect(links).to.have.length(8);
+        expect(await links[4].getText()).to.equal('new instance');
+        expect(await links[4].getAttribute('href')).to.equal('https://synthax.io/');
     });
 
     it('Deletes an instance', async () => {
-        await (await webview.findWebElements(By.name('instance-delete')))[1].click();
+        await (await webview.findWebElements(By.name('instance-delete')))[4].click();
 
         const instances = await webview.findWebElements(By.name('instance-item'));
         const links = await webview.findWebElements(By.name('instance-link'));
 
-        expect(instances).to.have.length(1);
-        expect(links).to.have.length(1);
-        expect(await links[0].getText()).to.equal('rippy main');
+        expect(instances).to.have.length(7);
+        expect(links).to.have.length(7);
+        expect(await links[0].getText()).to.equal('greybeard-1');
     });
 
     it('Adds new url', async () => {
@@ -210,27 +210,30 @@ describe('Webview Simple Test', function() {
 
         await sleep(500);
 
-        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(1);
+        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(17);
 
         await (await webview.findWebElement(By.name('folder-expander-source-dirs'))).click();
         await (await webview.findWebElements(By.className('bp3-tree-node-caret')))[0].click();
 
         await sleep(500);
 
-        await (await webview.findWebElements(By.className('bp3-tree-node-content')))[1].click();
+        await (await webview.findWebElements(By.className('bp3-tree-node-content')))[10].click();
 
         await sleep(500);
 
-        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(2);
+        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(18);
 
         await (await webview.findWebElements(By.name('source-dir-remove')))[0].click();
 
-        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(1);
+        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(17);
 
         await (await webview.findWebElement(By.className('bp3-overlay'))).click();
+        await (await webview.findWebElement(By.className('bp3-dialog-close-button'))).click();
+
+        await sleep(2000);
     });
 
-    it('Opens workflow create page', async () => {
+    it.only('Opens workflow create page', async () => {
         await clickElement('CreateInterface');
         await clickElement('Workflow');
 
@@ -239,7 +242,7 @@ describe('Webview Simple Test', function() {
         expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
     });
 
-    it('Can create workflow', async () => {
+    it.only('Can create workflow', async () => {
         // Submit disabled by default
         expect(
             await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
@@ -272,7 +275,7 @@ describe('Webview Simple Test', function() {
         await sleep(3000);
 
         await selectNthFolder('target_dir', 1);
-        await fillTextField('field-name', 'Step test');
+        await fillTextField('field-name', 'Step test', 2);
         await fillTextField('field-desc', 'Step test description');
         await selectNthDropdownItem('base-class-name', 6);
         await fillTextField('field-version', '1.0');

@@ -50,6 +50,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                                 data={initialData.class}
                                 isEditing={!!initialData.class}
                                 hasConfigManager
+                                definitionsOnly
                             />
                         </CreatorWrapper>
                     )}

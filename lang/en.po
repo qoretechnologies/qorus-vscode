@@ -1794,6 +1794,9 @@ msgstr "Template config items are in format - "
 msgid "button.group-up"
 msgstr "Show grouped"
 
+msgid "button.ungroup"
+msgstr "Show all"
+
 msgid "button.edit-this-value"
 msgstr "Edit config item value"
 

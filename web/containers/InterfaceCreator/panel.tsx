@@ -84,6 +84,7 @@ export interface IInterfaceCreatorPanel {
     setInterfaceId: (interfaceType: string, id: string) => void;
     disabledFields?: string[];
     hasClassConnections?: boolean;
+    definitionsOnly?: boolean;
 }
 
 export interface IField {
@@ -194,6 +195,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     removeCodeFromRelations,
     steps,
     stepsData,
+    definitionsOnly,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -1070,6 +1072,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             selectedFields.find((field: IField) => field.name === 'base-class-name')?.value
                         }
                         classes={getClasses()}
+                        definitionsOnly={definitionsOnly}
                         interfaceId={interfaceId}
                         resetFields={resetFields}
                         steps={processSteps(steps, stepsData)}
