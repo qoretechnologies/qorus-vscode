@@ -127,6 +127,7 @@ const TypeView = ({ initialData, t, postMessage }) => {
                 path: val,
                 typeinfo: {
                     base_type: 'hash<auto>',
+                    name: 'hash<auto>',
                     can_manage_fields: true,
                     fields,
                 },
