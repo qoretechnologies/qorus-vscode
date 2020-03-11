@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Provider, { providers } from '../../../containers/Mapper/provider';
-import { Button, Tag } from '@blueprintjs/core';
+import { Tag } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 export interface IConnectorFieldProps {
-    title: string;
-    onChange: (id: number, name: string, data: any) => void;
-    id: number;
+    title?: string;
+    onChange: (name: string, data: any) => void;
     name: string;
     value: any;
     isInitialEditing?: boolean;
@@ -21,7 +20,7 @@ const StyledProviderUrl = styled.div`
     }
 `;
 
-const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, id, name, value, isInitialEditing }) => {
+const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, name, value, isInitialEditing }) => {
     const [nodes, setChildren] = useState([]);
     const [provider, setProvider] = useState(null);
     const [optionProvider, setOptionProvider] = useState(value);
@@ -42,13 +41,13 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, id, n
     };
 
     useEffect(() => {
-        onChange(id, name, optionProvider);
+        onChange(name, optionProvider);
     }, [optionProvider, isEditing]);
 
     if (isEditing && value) {
         return (
             <StyledProviderUrl>
-                <span>{title}:</span>{' '}
+                {title && <span>{title}:</span>}{' '}
                 <Tag minimal large onRemove={clear}>
                     {getUrlFromProvider(value)}{' '}
                 </Tag>
