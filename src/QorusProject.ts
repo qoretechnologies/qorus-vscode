@@ -4,8 +4,8 @@ import { t } from 'ttag';
 import * as urlParser from 'url-parse';
 import * as vscode from 'vscode';
 
-import { instance_tree } from './QorusInstanceTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { instance_tree } from './QorusInstanceTree';
 import { QorusProjectJavaConfig } from './QorusProjectJavaConfig';
 import { qorus_webview } from './QorusWebview';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
