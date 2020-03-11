@@ -23,8 +23,8 @@ sed -i 's/const args = \[/const args = \["--disable-gpu", /' webdriver/browser.j
 
 # setup test environment
 cd ${rootdir}
-mkdir -p test-resources/settings ui-test/test_project
-cp -r ui-test/mock/* ui-test/test_project/
+mkdir -p test-resources/settings
+git clone -b develop --single-branch --depth 1 "https://${DEMOS_DEPLOY_USER}:${DEMOS_DEPLOY_PASS}@git.qoretechnologies.com/qorus/demos.git" ui-test/test_project
 npm run compile:test
 
 # extester setup
