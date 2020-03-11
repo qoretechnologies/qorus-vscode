@@ -1887,11 +1887,11 @@ msgstr "No fields available. Please make sure input provider was selected"
 msgid "MapperNoOutputFields"
 msgstr "No fields available. Please make sure output provider was selected"
 
-msgid "MapperNoInstanceTitle"
+msgid "NoInstanceTitle"
 msgstr "Active instance not set"
 
-msgid "MapperNoInstance"
-msgstr "Mappers can only be created with an active Qorus instance selected"
+msgid "NoInstance"
+msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
 msgstr "1. Add new methods"

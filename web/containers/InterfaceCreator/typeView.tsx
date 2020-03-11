@@ -9,7 +9,7 @@ import { StyledMapperWrapper, StyledFieldsWrapper } from '../Mapper';
 import MapperFieldModal from '../Mapper/modal';
 import withTextContext from '../../hocomponents/withTextContext';
 import { ActionsWrapper, FieldWrapper, FieldInputWrapper } from './panel';
-import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
+import { ButtonGroup, Tooltip, Button, Intent, Callout } from '@blueprintjs/core';
 import { set, unset, get, size, map } from 'lodash';
 import { flattenFields, getLastChildIndex, filterInternalData } from '../../helpers/mapper';
 import MapperInput from '../Mapper/input';
@@ -17,21 +17,15 @@ import withMessageHandler from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
 import FieldLabel from '../../components/FieldLabel';
 import { validateField } from '../../helpers/validations';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 
-const TypeView = ({ initialData, t, postMessage }) => {
+const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
     const [fields, setFields] = useState(initialData?.type?.typeinfo?.fields || {});
     const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
-
-    useMount(() => {
-        (async () => {
-            const data = await initialData.fetchData('/system/metadata/types');
-            setTypes(data.data);
-        })();
-    });
 
     const reset = () => {
         setVal('');
@@ -40,6 +34,29 @@ const TypeView = ({ initialData, t, postMessage }) => {
         setTargetDir('');
         setTargetFile('');
     };
+
+    useMount(() => {
+        setTypeReset(() => reset);
+
+        if (initialData.qorus_instance) {
+            (async () => {
+                const data = await initialData.fetchData('/system/metadata/types');
+                setTypes(data.data);
+            })();
+        }
+
+        return () => {
+            setTypeReset(null);
+        };
+    });
+
+    if (!initialData.qorus_instance) {
+        return (
+            <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+                {t('NoInstance')}
+            </Callout>
+        );
+    }
 
     const addField = (path, data) => {
         // Set the new fields
@@ -122,8 +139,8 @@ const TypeView = ({ initialData, t, postMessage }) => {
             iface_kind: 'type',
             orig_data: initialData.type,
             data: {
-                target_dir: targetDir,
-                target_file: targetFile,
+                target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
+                target_file: !targetFile || targetFile === '' ? undefined : targetFile,
                 path: val,
                 typeinfo: {
                     base_type: 'hash<auto>',
@@ -234,4 +251,9 @@ const TypeView = ({ initialData, t, postMessage }) => {
     );
 };
 
-export default compose(withInitialDataConsumer(), withTextContext(), withMessageHandler())(TypeView);
+export default compose(
+    withInitialDataConsumer(),
+    withTextContext(),
+    withMessageHandler(),
+    withGlobalOptionsConsumer()
+)(TypeView);
