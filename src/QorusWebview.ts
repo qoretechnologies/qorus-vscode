@@ -155,7 +155,7 @@ class QorusWebview {
                             break;
                         case 'config-add-dir':
                             this.message_on_config_file_change = false;
-                            project.addSourceDir();
+                            project.addSourceDirWithFilePicker();
                             break;
                         case 'config-remove-dir':
                             this.message_on_config_file_change = false;
