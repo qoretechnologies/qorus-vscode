@@ -2012,3 +2012,9 @@ msgstr "This config item is of type: "
 
 msgid "SelectExistingTypeOrNew"
 msgstr "Select existing type or add new..."
+
+msgid "TargetDirUnknown"
+msgstr "Target directory unknown"
+
+msgid "FailedCreateDir ${ dir }"
+msgstr "Creating directory ${ dir } failed"

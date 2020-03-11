@@ -259,6 +259,15 @@
                 }
             },
             {
+                "command": "qorus.createType",
+                "title": "Create New Type",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deleteClass",
                 "title": "Delete Class",
                 "category": "Qorus",
@@ -1062,6 +1071,11 @@
                 {
                     "command": "qorus.createQueue",
                     "when": "view == qorusInterfaces && viewItem == queue-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createType",
+                    "when": "view == qorusInterfaces && viewItem == type-category",
                     "group": "inline"
                 },
                 {
