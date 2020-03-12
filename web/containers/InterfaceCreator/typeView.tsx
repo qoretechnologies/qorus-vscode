@@ -28,11 +28,11 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
 
     const reset = () => {
-        setVal('');
+        setVal(initialData?.type?.path || '');
         setAddDialog({});
-        setFields({});
-        setTargetDir('');
-        setTargetFile('');
+        setFields(initialData?.type?.typeinfo?.fields || {});
+        setTargetDir(initialData?.type?.target_dir || '');
+        setTargetFile(initialData?.type?.target_file || '');
     };
 
     useMount(() => {
