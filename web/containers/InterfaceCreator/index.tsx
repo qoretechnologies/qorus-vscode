@@ -12,6 +12,7 @@ import MapperCreator from '../Mapper';
 import MapperView from './mapperView';
 import LibraryView from './libraryView';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
+import TypeView from './typeView';
 
 export interface ICreateInterface {
     targetDir: string;
@@ -99,6 +100,9 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                                 isEditing={!!initialData.other}
                             />
                         </CreatorWrapper>
+                    )}
+                    {initialData.subtab === 'type' && (
+                        <TypeView />
                     )}
                 </Tab>
             </div>

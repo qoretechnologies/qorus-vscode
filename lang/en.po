@@ -742,6 +742,9 @@ msgstr "Functions"
 msgid "Groups"
 msgstr "Groups"
 
+msgid "Types"
+msgstr "Types"
+
 msgid "Job"
 msgstr "Job"
 
@@ -1887,11 +1890,11 @@ msgstr "No fields available. Please make sure input provider was selected"
 msgid "MapperNoOutputFields"
 msgstr "No fields available. Please make sure output provider was selected"
 
-msgid "MapperNoInstanceTitle"
+msgid "NoInstanceTitle"
 msgstr "Active instance not set"
 
-msgid "MapperNoInstance"
-msgstr "Mappers can only be created with an active Qorus instance selected"
+msgid "NoInstance"
+msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
 msgstr "1. Add new methods"
@@ -2009,3 +2012,12 @@ msgstr "Unable to retrieve types from active qorus instance."
 
 msgid "ConfigItemIsType"
 msgstr "This config item is of type: "
+
+msgid "SelectExistingTypeOrNew"
+msgstr "Select existing type or add new..."
+
+msgid "TargetDirUnknown"
+msgstr "Target directory unknown"
+
+msgid "FailedCreateDir ${ dir }"
+msgstr "Creating directory ${ dir } failed"

@@ -22,6 +22,7 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import { flattenFields, getLastChildIndex, filterInternalData } from '../../helpers/mapper';
 
 const FIELD_HEIGHT = 35;
 const FIELD_MARGIN = 14;
@@ -42,7 +43,7 @@ const TYPE_COLORS = {
     any: '#a9a9a9',
 };
 
-const StyledMapperWrapper = styled.div`
+export const StyledMapperWrapper = styled.div`
     width: 900px;
     display: flex;
     flex-flow: row;
@@ -52,7 +53,7 @@ const StyledMapperWrapper = styled.div`
     height: 100%;
 `;
 
-const StyledFieldsWrapper = styled.div`
+export const StyledFieldsWrapper = styled.div`
     flex: 1 1 auto;
     height: 100%;
     width: 300px;
@@ -359,36 +360,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         });
     };
 
-    // This functions flattens the fields, by taking all the
-    // deep fields from `type` and adds them right after their
-    // respective parent field
-    const flattenFields: (fields: any, isChild?: boolean, parent?: string, level?: number, path?: string) => any[] = (
-        fields,
-        isChild = false,
-        parent,
-        level = 0,
-        path = ''
-    ) =>
-        reduce(
-            fields,
-            (newFields, field, name) => {
-                let res = [...newFields];
-                // Build the path for the child fields
-                const newPath = level === 0 ? name : `${path}.${name}`;
-                const parentPath = level !== 0 && `${path}`;
-                // Add the current field
-                res = [...res, { name, ...{ ...field, isChild, level, parent, path: newPath, parentPath } }];
-                // Check if this field has hierarchy
-                if (size(field.type.fields)) {
-                    // Recursively add deep fields
-                    res = [...res, ...flattenFields(field.type.fields, true, name, level + 1, newPath)];
-                }
-                // Return the new fields
-                return res;
-            },
-            []
-        );
-
     const removeRelation: (outputPath: string) => void = outputPath => {
         // Remove the selected relation
         // @ts-ignore
@@ -522,24 +493,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             return TYPE_COLORS[field.type.types_returned[0].replace(/</g, '').replace(/>/g, '')];
         }
         return null;
-    };
-
-    const getLastChildIndex = (field: any, type: 'inputs' | 'outputs') => {
-        // Save the fields into a accessible object
-        const fields = { inputs: flattenedInputs, outputs: flattenedOutputs };
-        // Only get the child index for fields
-        // that actually have children
-        if (size(field.type.fields)) {
-            // Get the name of the last field
-            const name: string = Object.keys(field.type.fields).find(
-                (_name, index) => index === size(field.type.fields) - 1
-            );
-            // Get the index of the last field in this
-            // hierarchy based on the name
-            return findIndex(fields[type], curField => curField.path === `${field.path}.${name}`);
-        }
-        // Return nothing
-        return 0;
     };
 
     const handleClick = type => (field?: any, edit?: boolean, remove?: boolean): void => {
@@ -762,7 +715,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       {...input}
                                       field={input}
                                       id={index + 1}
-                                      lastChildIndex={getLastChildIndex(input, 'inputs') - index}
+                                      lastChildIndex={getLastChildIndex(input, flattenedInputs) - index}
                                       onClick={handleClick('inputs')}
                                       hasAvailableOutput={hasAvailableRelation(input.type.types_returned)}
                                   />
@@ -906,7 +859,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       onDrop={handleDrop}
                                       id={index + 1}
                                       accepts={output.type.types_accepted}
-                                      lastChildIndex={getLastChildIndex(output, 'outputs') - index}
+                                      lastChildIndex={getLastChildIndex(output, flattenedOutputs) - index}
                                       onClick={handleClick('outputs')}
                                       onManageClick={() => handleManageClick(output)}
                                       t={t}
