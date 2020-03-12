@@ -545,7 +545,7 @@ msgid "ReleasePackage"
 msgstr "Make release"
 
 msgid "QorusWebviewTitle"
-msgstr "Qorus Manager"
+msgstr "Qorus Webview"
 
 msgid "CreateQorusInterface"
 msgstr "Create interface"
