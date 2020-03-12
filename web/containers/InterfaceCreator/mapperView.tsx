@@ -46,8 +46,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
 }) => {
     if (!qorus_instance) {
         return (
-            <Callout title={t('MapperNoInstanceTitle')} icon="warning-sign" intent="warning">
-                {t('MapperNoInstance')}
+            <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+                {t('NoInstance')}
             </Callout>
         );
     }

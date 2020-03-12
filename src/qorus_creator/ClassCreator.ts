@@ -39,7 +39,8 @@ class ClassCreator extends InterfaceCreator {
                 suffix = '.qclass';
                 break;
             case 'mapper':
-                suffix = '.qmapper';
+            case 'type':
+                suffix = `.q${iface_kind}`;
                 break;
             case 'other':
                 suffix = `.q${data.type.toLowerCase()}`;
@@ -53,7 +54,7 @@ class ClassCreator extends InterfaceCreator {
 
         imports = imports || [];
 
-        this.setPaths(data, orig_data, suffix);
+        this.setPaths(data, orig_data, suffix, iface_kind);
 
         if (iface_kind === 'step' && data['base-class-name']) {
             data = {

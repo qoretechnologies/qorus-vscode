@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "1.0.5",
+    "version": "1.1.0",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -259,6 +259,15 @@
                 }
             },
             {
+                "command": "qorus.createType",
+                "title": "Create New Type",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deleteClass",
                 "title": "Delete Class",
                 "category": "Qorus",
@@ -351,6 +360,15 @@
             {
                 "command": "qorus.views.deleteQueue",
                 "title": "Delete Queue",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deleteType",
+                "title": "Delete Type",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/trash.svg",
@@ -511,6 +529,15 @@
                 }
             },
             {
+                "command": "qorus.views.deployType",
+                "title": "Deploy Type",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deployService",
                 "title": "Deploy Service",
                 "category": "Qorus",
@@ -567,6 +594,15 @@
             {
                 "command": "qorus.views.editEvent",
                 "title": "Edit Event Metadata",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editType",
+                "title": "Edit Type Metadata",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -725,6 +761,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.deleteType",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.deleteService",
                     "when": "false"
                 },
@@ -793,6 +833,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.deployType",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.deployService",
                     "when": "false"
                 },
@@ -818,6 +862,10 @@
                 },
                 {
                     "command": "qorus.views.editEvent",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editType",
                     "when": "false"
                 },
                 {
@@ -1026,6 +1074,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.createType",
+                    "when": "view == qorusInterfaces && viewItem == type-category",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.views.deleteClass",
                     "when": "view == qorusInterfaces && viewItem == class",
                     "group": "inline"
@@ -1078,6 +1131,11 @@
                 {
                     "command": "qorus.views.deleteQueue",
                     "when": "view == qorusInterfaces && viewItem == queue",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteType",
+                    "when": "view == qorusInterfaces && viewItem == type",
                     "group": "inline"
                 },
                 {
@@ -1161,6 +1219,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.views.deployType",
+                    "when": "view == qorusInterfaces && viewItem == type",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.views.deployService",
                     "when": "view == qorusInterfaces && viewItem == service",
                     "group": "inline"
@@ -1193,6 +1256,11 @@
                 {
                     "command": "qorus.views.editEvent",
                     "when": "view == qorusInterfaces && viewItem == event",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editType",
+                    "when": "view == qorusInterfaces && viewItem == type",
                     "group": "inline"
                 },
                 {
@@ -1368,6 +1436,7 @@
         "gettext-parser": "^2.0.0",
         "js-yaml": "^3.13.1",
         "moment": "^2.24.0",
+        "react-autocomplete": "^1.8.1",
         "react-dnd": "^9.4.0",
         "react-dnd-html5-backend": "^9.4.0",
         "react-markdown": "^4.2.2",
