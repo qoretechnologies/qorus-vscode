@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Provider, { providers } from '../../../containers/Mapper/provider';
-import { Tag } from '@blueprintjs/core';
+import { Tag, Callout } from '@blueprintjs/core';
 import styled from 'styled-components';
+import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
+import withTextContext from '../../../hocomponents/withTextContext';
+import compose from 'recompose/compose';
+import { TTranslator } from '../../../App';
 
 export interface IConnectorFieldProps {
     title?: string;
@@ -9,6 +13,8 @@ export interface IConnectorFieldProps {
     name: string;
     value: any;
     isInitialEditing?: boolean;
+    initialData: any;
+    t: TTranslator;
 }
 
 const StyledProviderUrl = styled.div`
@@ -20,7 +26,15 @@ const StyledProviderUrl = styled.div`
     }
 `;
 
-const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, name, value, isInitialEditing }) => {
+const ConnectorField: React.FC<IConnectorFieldProps> = ({
+    title,
+    onChange,
+    name,
+    value,
+    isInitialEditing,
+    initialData,
+    t,
+}) => {
     const [nodes, setChildren] = useState([]);
     const [provider, setProvider] = useState(null);
     const [optionProvider, setOptionProvider] = useState(value);
@@ -55,6 +69,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, name,
         );
     }
 
+    if (!initialData.qorus_instance) {
+        return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
+    }
+
     return (
         <Provider
             nodes={nodes}
@@ -71,4 +89,4 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, name,
     );
 };
 
-export default ConnectorField;
+export default compose(withTextContext(), withInitialDataConsumer())(ConnectorField);

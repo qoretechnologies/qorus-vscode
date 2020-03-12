@@ -23,6 +23,7 @@ import MarkdownPreview from './markdownPreview';
 import isArray from 'lodash/isArray';
 import MapperOptionsField from './mapperOptions';
 import ClassConnectors from './classConnectors';
+import TypeSelector from './typeSelector';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -69,6 +70,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                 {type === 'array-auto' && <ArrayAutoField {...rest} type={type} />}
                 {type === 'number' && <NumberField {...rest} type={type} />}
                 {type === 'class-array' && <ClassArrayField {...rest} type={type} />}
+                {type === 'type-selector' && <TypeSelector {...rest} type={type} />}
                 {type === 'mapper-options' && (
                     <MapperOptionsField
                         {...rest}

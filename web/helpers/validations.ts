@@ -138,6 +138,12 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             const [code, method] = value.split('.');
             // Both fields need to be strings & filled
             return validateField('string', code) && validateField('string', method);
+        case 'type-selector':
+            if (!value) {
+                return false;
+            }
+
+            return value.type && value.path && value.name;
         case 'auto':
         case 'any': {
             // Parse the string as yaml

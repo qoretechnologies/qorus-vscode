@@ -22,16 +22,8 @@ const TypeSelectorField: FunctionComponent<TTranslator & IField & IFieldChange> 
         onChange(name, val);
     };
 
-    return initialData.qorus_instance ? (
-        <ConnectorField
-            value={value}
-            isInitialEditing={!!initialData.workflow}
-            title={t('StaticDataProvider')}
-            name={name}
-            onChange={handleChange}
-        />
-    ) : (
-        <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>
+    return (
+        <ConnectorField value={value} isInitialEditing={!!initialData.workflow} name={name} onChange={handleChange} />
     );
 };
 
