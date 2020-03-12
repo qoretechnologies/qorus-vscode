@@ -22,11 +22,11 @@ export abstract class InterfaceCreator {
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
-    protected setPaths(data: any, orig_data: any = {}, suffix: string, iface_kind?: string): any {
+    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
         this.suffix = suffix;
 
         let { target_dir, target_file } = data;
-        const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data;
+        const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
 
         if (target_dir) {
             this.target_dir = target_dir;
