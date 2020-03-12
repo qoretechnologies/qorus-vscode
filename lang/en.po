@@ -1111,6 +1111,12 @@ msgstr "Autostart"
 msgid "field-desc-workflow-autostart"
 msgstr "The number of workflow execution instances to start when the system starts"
 
+msgid "field-label-staticdata-type"
+msgstr "Static data type"
+
+msgid "field-desc-staticdata-type"
+msgstr "Static data type"
+
 msgid "field-label-internal"
 msgstr "Internal"
 
