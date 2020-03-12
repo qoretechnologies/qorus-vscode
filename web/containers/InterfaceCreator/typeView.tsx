@@ -10,7 +10,7 @@ import MapperFieldModal from '../Mapper/modal';
 import withTextContext from '../../hocomponents/withTextContext';
 import { ActionsWrapper, FieldWrapper, FieldInputWrapper } from './panel';
 import { ButtonGroup, Tooltip, Button, Intent, Callout } from '@blueprintjs/core';
-import { set, unset, get, size, map } from 'lodash';
+import { set, unset, get, size, map, cloneDeep } from 'lodash';
 import { flattenFields, getLastChildIndex, filterInternalData } from '../../helpers/mapper';
 import MapperInput from '../Mapper/input';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
@@ -23,7 +23,7 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
-    const [fields, setFields] = useState(initialData?.type?.typeinfo?.fields || {});
+    const [fields, setFields] = useState(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {});
     const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
 
@@ -31,7 +31,7 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
         if (soft) {
             setVal(initialData?.type?.path || '');
             setAddDialog({});
-            setFields(initialData?.type?.typeinfo?.fields || {});
+            setFields(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {});
             setTargetDir(initialData?.type?.target_dir || '');
             setTargetFile(initialData?.type?.target_file || '');
         } else {
