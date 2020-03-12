@@ -27,12 +27,20 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
     const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
 
-    const reset = () => {
-        setVal(initialData?.type?.path || '');
-        setAddDialog({});
-        setFields(initialData?.type?.typeinfo?.fields || {});
-        setTargetDir(initialData?.type?.target_dir || '');
-        setTargetFile(initialData?.type?.target_file || '');
+    const reset = (soft?: boolean) => {
+        if (soft) {
+            setVal(initialData?.type?.path || '');
+            setAddDialog({});
+            setFields(initialData?.type?.typeinfo?.fields || {});
+            setTargetDir(initialData?.type?.target_dir || '');
+            setTargetFile(initialData?.type?.target_file || '');
+        } else {
+            setVal('');
+            setAddDialog({});
+            setFields({});
+            setTargetDir('');
+            setTargetFile('');
+        }
     };
 
     useMount(() => {
@@ -234,7 +242,7 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
                 <div style={{ float: 'right', width: '100%' }}>
                     <ButtonGroup fill>
                         <Tooltip content={t('ResetTooltip')}>
-                            <Button text={t('Reset')} icon={'history'} onClick={reset} />
+                            <Button text={t('Reset')} icon={'history'} onClick={() => reset(true)} />
                         </Tooltip>
                         <Button
                             text={t('Submit')}
