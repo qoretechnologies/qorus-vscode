@@ -33,7 +33,7 @@ export const mapperCodeTemplates = lang => ({
 export const mapper_code_class_template = class_template;
 export const mapper_code_method_template = method_template;
 
-export const mapperFields = ({ default_target_dir }) => [
+export const mapperFields = ({ default_target_dir, context }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -66,6 +66,13 @@ export const mapperFields = ({ default_target_dir }) => [
         },
     },
     field.classes,
+    {
+        name: 'context',
+        type: 'context-selector',
+        default_value: context?.name,
+        mandatory: !!context?.name,
+        disabled: !!context?.name,
+    },
 ];
 
 export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
