@@ -477,8 +477,10 @@ export class QorusProjectCodeInfo {
 
         const message = {
             action: 'return-objects-with-static-data',
-            objects: objects_with_static_data
+            objects: objects_with_static_data,
+            iface_kind
         };
+
         qorus_webview.postMessage(message);
     }
 
