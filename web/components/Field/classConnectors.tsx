@@ -126,9 +126,8 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                         value={pair['input-provider']}
                                         isInitialEditing={!!initialData.class}
                                         title="Input provider"
-                                        id={index}
                                         name="input-provider"
-                                        onChange={changePairData}
+                                        onChange={(fieldName, val) => changePairData(index, fieldName, val)}
                                     />
                                 )}
                                 {(pair.type === 'output' || pair.type === 'input-output' || pair.type === 'event') && (
@@ -136,9 +135,8 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                         value={pair['output-provider']}
                                         isInitialEditing={!!initialData.class}
                                         title="Output provider"
-                                        id={index}
                                         name="output-provider"
-                                        onChange={changePairData}
+                                        onChange={(fieldName, val) => changePairData(index, fieldName, val)}
                                     />
                                 )}
                             </>

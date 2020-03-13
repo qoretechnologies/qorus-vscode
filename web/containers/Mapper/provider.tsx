@@ -24,12 +24,12 @@ export interface IProviderProps {
     hide: any;
 }
 
-const StyledWrapper = styled.div<{ compact?: boolean }>`
+const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
     margin-bottom: 10px;
-    ${({ compact }) =>
+    ${({ compact, hasTitle }) =>
         compact
             ? css`
-                  margin-top: 10px;
+                  margin-top: ${hasTitle ? '10px' : 0};
               `
             : css`
                   margin: 0 auto;
@@ -322,9 +322,9 @@ const MapperProvider: FC<IProviderProps> = ({
     );
 
     return (
-        <StyledWrapper compact={compact}>
+        <StyledWrapper compact={compact} hasTitle={!!title}>
             {!compact && <StyledHeader>{title}</StyledHeader>}
-            {compact && <span>{title}: </span>}{' '}
+            {compact && title && <span>{title}: </span>}{' '}
             <ButtonGroup>
                 <SelectField
                     name="input"

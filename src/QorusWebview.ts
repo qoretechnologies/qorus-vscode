@@ -155,7 +155,7 @@ class QorusWebview {
                             break;
                         case 'config-add-dir':
                             this.message_on_config_file_change = false;
-                            project.addSourceDir();
+                            project.addSourceDirWithFilePicker();
                             break;
                         case 'config-remove-dir':
                             this.message_on_config_file_change = false;
@@ -193,9 +193,8 @@ class QorusWebview {
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
                                 fields: creator.getSortedFields({
+                                    ... message,
                                     interface_info,
-                                    iface_kind: message.iface_kind,
-                                    is_editing: message.is_editing || false,
                                     default_target_dir: initial_data.uri && initial_data.uri.fsPath,
                                 }),
                             });

@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Provider, { providers } from '../../../containers/Mapper/provider';
-import { Button, Tag } from '@blueprintjs/core';
+import { Tag, Callout } from '@blueprintjs/core';
 import styled from 'styled-components';
+import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
+import withTextContext from '../../../hocomponents/withTextContext';
+import compose from 'recompose/compose';
+import { TTranslator } from '../../../App';
 
 export interface IConnectorFieldProps {
-    title: string;
-    onChange: (id: number, name: string, data: any) => void;
-    id: number;
+    title?: string;
+    onChange: (name: string, data: any) => void;
     name: string;
     value: any;
     isInitialEditing?: boolean;
+    initialData: any;
+    t: TTranslator;
 }
 
 const StyledProviderUrl = styled.div`
@@ -21,7 +26,15 @@ const StyledProviderUrl = styled.div`
     }
 `;
 
-const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, id, name, value, isInitialEditing }) => {
+const ConnectorField: React.FC<IConnectorFieldProps> = ({
+    title,
+    onChange,
+    name,
+    value,
+    isInitialEditing,
+    initialData,
+    t,
+}) => {
     const [nodes, setChildren] = useState([]);
     const [provider, setProvider] = useState(null);
     const [optionProvider, setOptionProvider] = useState(value);
@@ -42,18 +55,22 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, id, n
     };
 
     useEffect(() => {
-        onChange(id, name, optionProvider);
+        onChange(name, optionProvider);
     }, [optionProvider, isEditing]);
 
     if (isEditing && value) {
         return (
             <StyledProviderUrl>
-                <span>{title}:</span>{' '}
+                {title && <span>{title}:</span>}{' '}
                 <Tag minimal large onRemove={clear}>
                     {getUrlFromProvider(value)}{' '}
                 </Tag>
             </StyledProviderUrl>
         );
+    }
+
+    if (!initialData.qorus_instance) {
+        return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
     }
 
     return (
@@ -72,4 +89,4 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({ title, onChange, id, n
     );
 };
 
-export default ConnectorField;
+export default compose(withTextContext(), withInitialDataConsumer())(ConnectorField);

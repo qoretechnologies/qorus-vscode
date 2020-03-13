@@ -33,7 +33,7 @@ const info_keys = ['file_tree', 'yaml', 'modules'];
 const object_types_with_version = ['step', 'mapper'];
 const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items',
                                       'class', 'constant', 'function', 'connection', 'event', 'group',
-                                      'queue', 'value-map', 'mapper-code'];
+                                      'queue', 'value-map', 'mapper-code', 'type'];
 const object_types = [...object_types_with_version, ...object_types_without_version];
 export const default_version = '1.0';
 
@@ -857,6 +857,7 @@ export class QorusProjectCodeInfo {
             case 'group':
             case 'event':
             case 'queue':
+            case 'type':
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
                 );
@@ -1177,13 +1178,19 @@ export class QorusProjectCodeInfo {
             addObjectName('author', name);
         }
 
-        if (!yaml_data.name || !yaml_data.type) {
+        if (!yaml_data.type) {
             return;
         }
 
         const name = object_types_with_version.includes(yaml_data.type)
             ? `${yaml_data.name}:${yaml_data.version || default_version}`
-            : yaml_data.name;
+            : yaml_data.type === 'type'
+                ? yaml_data.path
+                : yaml_data.name;
+
+        if (!name) {
+            return;
+        }
 
         this.name_2_yaml[yaml_data.type][name] = file;
 

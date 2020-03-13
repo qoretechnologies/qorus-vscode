@@ -36,6 +36,7 @@ type ConfigItemsTableProps = {
     levelType: string;
     stepId?: number;
     type: string;
+    definitionsOnly?: boolean;
 };
 
 const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
@@ -150,6 +151,7 @@ let ItemsTable: Function = ({
     onDeleteStructureClick,
     t,
     type,
+    definitionsOnly,
 }: ConfigItemsTableProps) => {
     return (
         <React.Fragment>
@@ -184,7 +186,7 @@ let ItemsTable: Function = ({
                         <Th className="name text" iconName="application">
                             {t('Name')}
                         </Th>
-                        <ActionColumnHeader icon="edit" />
+                        {!definitionsOnly && <ActionColumnHeader icon="edit" />}
                         <Th className="text" iconName="info-sign">
                             {t('Value')}
                         </Th>
@@ -195,7 +197,11 @@ let ItemsTable: Function = ({
                         <Th iconName="edit">{t('Structure')}</Th>
                     </FixedRow>
                 </Thead>
-                <DataOrEmptyTable condition={!configItemsData || configItemsData.length === 0} cols={7} small>
+                <DataOrEmptyTable
+                    condition={!configItemsData || configItemsData.length === 0}
+                    cols={definitionsOnly ? 6 : 7}
+                    small
+                >
                     {props => (
                         <Tbody {...props}>
                             {configItemsData.map((item: any, index: number) => (
@@ -208,44 +214,52 @@ let ItemsTable: Function = ({
                                         })}
                                     >
                                         <Td className="name">{item.name}</Td>
-                                        <ActionColumn>
-                                            <ButtonGroup>
-                                                <Button
-                                                    small
-                                                    icon="edit"
-                                                    title={t('button.edit-this-value')}
-                                                    onClick={() => {
-                                                        handleModalToggle(
-                                                            { ...item },
-                                                            (name, value, parent, isTemplatedString) => {
-                                                                onSubmit(name, value, parent, type, isTemplatedString);
-                                                                handleModalToggle(null);
-                                                            },
-                                                            intrf,
-                                                            levelType
-                                                        );
-                                                    }}
-                                                />
-                                                <Button
-                                                    small
-                                                    icon="cross"
-                                                    title={t('button.remove-this-value')}
-                                                    disabled={
-                                                        item.level ? !item.level.startsWith(levelType || '') : true
-                                                    }
-                                                    onClick={() => {
-                                                        onSubmit(
-                                                            item.name,
-                                                            null,
-                                                            item.parent_class,
-                                                            type,
-                                                            item.is_templated_string,
-                                                            true
-                                                        );
-                                                    }}
-                                                />
-                                            </ButtonGroup>
-                                        </ActionColumn>
+                                        {!definitionsOnly && (
+                                            <ActionColumn>
+                                                <ButtonGroup>
+                                                    <Button
+                                                        small
+                                                        icon="edit"
+                                                        title={t('button.edit-this-value')}
+                                                        onClick={() => {
+                                                            handleModalToggle(
+                                                                { ...item },
+                                                                (name, value, parent, isTemplatedString) => {
+                                                                    onSubmit(
+                                                                        name,
+                                                                        value,
+                                                                        parent,
+                                                                        type,
+                                                                        isTemplatedString
+                                                                    );
+                                                                    handleModalToggle(null);
+                                                                },
+                                                                intrf,
+                                                                levelType
+                                                            );
+                                                        }}
+                                                    />
+                                                    <Button
+                                                        small
+                                                        icon="cross"
+                                                        title={t('button.remove-this-value')}
+                                                        disabled={
+                                                            item.level ? !item.level.startsWith(levelType || '') : true
+                                                        }
+                                                        onClick={() => {
+                                                            onSubmit(
+                                                                item.name,
+                                                                null,
+                                                                item.parent_class,
+                                                                type,
+                                                                item.is_templated_string,
+                                                                true
+                                                            );
+                                                        }}
+                                                    />
+                                                </ButtonGroup>
+                                            </ActionColumn>
+                                        )}
                                         <Td
                                             className={`text ${item.level === 'workflow' || item.level === 'global'}`}
                                             style={{ position: 'relative' }}

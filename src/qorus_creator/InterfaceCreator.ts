@@ -22,18 +22,33 @@ export abstract class InterfaceCreator {
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
-    protected setPaths(data: any, orig_data: any = {}, suffix: string): any {
+    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
         this.suffix = suffix;
 
-        const { target_dir, target_file } = data;
-        const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data;
+        let { target_dir, target_file } = data;
+        const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
 
-        this.target_dir = target_dir;
+        if (target_dir) {
+            this.target_dir = target_dir;
+        } else {
+            if (iface_kind !== 'type') {
+                msg.error(t`TargetDirUnknown`);
+                return;
+            }
+            this.target_dir = projects.getProject()?.dirForTypePath(data.path);
+            if (!this.target_dir) {
+                return;
+            }
+        }
+
+        if (iface_kind === 'type' && !target_file) {
+            target_file = path.basename(data.path)
+        }
 
         if (this.lang === 'qore') {
             if (target_file) {
                 this.file_base = target_file;
-                ['yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper',
+                ['yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype',
                  'qsd', 'qmc', 'qevent', 'qgroup', 'qqueue'].forEach(suffix => {
                     this.file_base = path.basename(this.file_base, `.${suffix}`);
                 });
@@ -548,6 +563,8 @@ export abstract class InterfaceCreator {
                         break;
                     case 'fields':
                     case 'mapper_options':
+                    case 'typeinfo':
+                    case 'staticdata-type':
                         result += `${tag === 'mapper_options' ? 'options' : tag}:\n`;
                         let not_indented = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
                         if (/^\s*$/.test(not_indented.slice(-1)[0])) {

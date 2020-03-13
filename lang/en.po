@@ -545,7 +545,7 @@ msgid "ReleasePackage"
 msgstr "Make release"
 
 msgid "QorusWebviewTitle"
-msgstr "Qorus Manager"
+msgstr "Qorus Webview"
 
 msgid "CreateQorusInterface"
 msgstr "Create interface"
@@ -741,6 +741,9 @@ msgstr "Functions"
 
 msgid "Groups"
 msgstr "Groups"
+
+msgid "Types"
+msgstr "Types"
 
 msgid "Job"
 msgstr "Job"
@@ -1110,6 +1113,12 @@ msgstr "Autostart"
 
 msgid "field-desc-workflow-autostart"
 msgstr "The number of workflow execution instances to start when the system starts"
+
+msgid "field-label-staticdata-type"
+msgstr "Static data type"
+
+msgid "field-desc-staticdata-type"
+msgstr "Static data type"
 
 msgid "field-label-internal"
 msgstr "Internal"
@@ -1795,7 +1804,16 @@ msgid "button.group-up"
 msgstr "Show grouped"
 
 msgid "button.ungroup"
-msgstr "Show All"
+msgstr "Show all"
+
+msgid "button.edit-this-value"
+msgstr "Edit config item value"
+
+msgid "button.remove-this-value"
+msgstr "Remove config item value"
+
+msgid "button.show-descriptions"
+msgstr "Show descriptions"
 
 msgid "UnableFindYamlForClass ${ class }"
 msgstr "Unable to find yaml file for class ${ class }"
@@ -1878,11 +1896,11 @@ msgstr "No fields available. Please make sure input provider was selected"
 msgid "MapperNoOutputFields"
 msgstr "No fields available. Please make sure output provider was selected"
 
-msgid "MapperNoInstanceTitle"
+msgid "NoInstanceTitle"
 msgstr "Active instance not set"
 
-msgid "MapperNoInstance"
-msgstr "Mappers can only be created with an active Qorus instance selected"
+msgid "NoInstance"
+msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
 msgstr "1. Add new methods"
@@ -2000,3 +2018,12 @@ msgstr "Unable to retrieve types from active qorus instance."
 
 msgid "ConfigItemIsType"
 msgstr "This config item is of type: "
+
+msgid "SelectExistingTypeOrNew"
+msgstr "Select existing type or add new..."
+
+msgid "TargetDirUnknown"
+msgstr "Target directory unknown"
+
+msgid "FailedCreateDir ${ dir }"
+msgstr "Creating directory ${ dir } failed"

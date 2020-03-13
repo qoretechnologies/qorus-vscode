@@ -71,6 +71,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
             children.push(new QorusTreeServiceCategoryNode());
             children.push(new QorusTreeJobCategoryNode());
             children.push(new QorusTreeClassCategoryNode());
+            children.push(new QorusTreeTypeCategoryNode());
             children.push(new QorusTreeMapperCategoryNode());
             children.push(new QorusTreeMapperCodeCategoryNode());
             children.push(new QorusTreeOtherCategoriesNode());
@@ -198,6 +199,18 @@ class QorusTreeGroupNode extends QorusSingleInterfaceNode {
         this.description = data.version || '';
         this.contextValue = 'group';
         this.iconPath = qorusIcons.getGroupIcon();
+    }
+}
+
+class QorusTreeTypeNode extends QorusSingleInterfaceNode {
+    constructor(name: string, data: any) {
+        super(name, TreeItemCollapsibleState.None);
+        this.name = name;
+        this.data = data;
+        this.tooltip = data.desc;
+        this.description = data.version || '';
+        this.contextValue = 'type';
+        this.iconPath = qorusIcons.getValueMapIcon();
     }
 }
 
@@ -434,7 +447,7 @@ class QorusTreeClassCategoryNode extends QorusTreeCategoryNode {
         super(t`Classes`, 'class', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeClassNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -453,7 +466,7 @@ class QorusTreeConnectionCategoryNode extends QorusTreeCategoryNode {
         super(t`Connections`, 'connection', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeConnectionNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -472,7 +485,7 @@ class QorusTreeConstantCategoryNode extends QorusTreeCategoryNode {
         super(t`Constants`, 'constant', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeConstantNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -491,7 +504,7 @@ class QorusTreeErrorCategoryNode extends QorusTreeCategoryNode {
         super(t`Errors`, 'error', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeErrorNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -510,7 +523,7 @@ class QorusTreeEventCategoryNode extends QorusTreeCategoryNode {
         super(t`Events`, 'event', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeEventNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -529,7 +542,7 @@ class QorusTreeFunctionCategoryNode extends QorusTreeCategoryNode {
         super(t`Functions`, 'function', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeFunctionNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -548,7 +561,7 @@ class QorusTreeGroupCategoryNode extends QorusTreeCategoryNode {
         super(t`Groups`, 'group', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeGroupNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -562,12 +575,31 @@ class QorusTreeGroupCategoryNode extends QorusTreeCategoryNode {
     }
 }
 
+class QorusTreeTypeCategoryNode extends QorusTreeCategoryNode {
+    constructor() {
+        super(t`Types`, 'type', TreeItemCollapsibleState.Expanded);
+    }
+
+    async getChildren(): Promise<QorusTreeTypeNode[]> {
+        let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
+        if (interfaces === undefined) {
+            return [];
+        }
+
+        let children = [];
+        for (const iface of interfaces) {
+            children.push(new QorusTreeTypeNode(iface.name, iface.data));
+        }
+        return children;
+    }
+}
+
 class QorusTreeJobCategoryNode extends QorusTreeCategoryNode {
     constructor() {
         super(t`Jobs`, 'job', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeJobNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -586,7 +618,7 @@ class QorusTreeMapperCategoryNode extends QorusTreeCategoryNode {
         super(t`Mappers`, 'mapper', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeMapperNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -605,7 +637,7 @@ class QorusTreeMapperCodeCategoryNode extends QorusTreeCategoryNode {
         super(t`MapperCode`, 'mapper-code', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeMapperCodeNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -624,7 +656,7 @@ class QorusTreeQueueCategoryNode extends QorusTreeCategoryNode {
         super(t`Queues`, 'queue', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeQueueNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -643,7 +675,7 @@ class QorusTreeServiceCategoryNode extends QorusTreeCategoryNode {
         super(t`Services`, 'service', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeServiceNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -662,7 +694,7 @@ class QorusTreeStepCategoryNode extends QorusTreeCategoryNode {
         super(t`Steps`, 'step', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeStepNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
@@ -681,7 +713,7 @@ class QorusTreeValueMapCategoryNode extends QorusTreeCategoryNode {
         super(t`ValueMaps`, 'value-map', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeWorkflowNode[]> {
+    async getChildren(): Promise<QorusTreeValueMapNode[]> {
         let interfaces = await QorusInterfaceTree.getInterfaces(this.category);
         if (interfaces === undefined) {
             return [];
