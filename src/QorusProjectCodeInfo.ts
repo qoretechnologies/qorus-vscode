@@ -587,6 +587,10 @@ export class QorusProjectCodeInfo {
             delete data.methods;
         }
 
+        if (data.type === 'class') {
+            data['class-class-name'] = data['class-name'] = data.name;
+        }
+
         if (data.schedule) {
             const ordered_values = ['minutes', 'hours', 'days', 'months', 'dow'].map(key => data.schedule[key]);
             data.schedule = ordered_values.join(' ');

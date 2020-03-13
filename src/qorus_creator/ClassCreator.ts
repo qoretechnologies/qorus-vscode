@@ -35,6 +35,7 @@ class ClassCreator extends InterfaceCreator {
                 }
                 break;
             case 'class':
+                data.name = data['class-name'] = data['class-class-name'];
                 template = (data['base-class-name'] ? subclass_template : class_template)[this.lang];
                 suffix = '.qclass';
                 break;
@@ -115,7 +116,7 @@ class ClassCreator extends InterfaceCreator {
                 }
 
                 contents = this.fillTemplate(template, [...imports, ...more_imports], {
-                    class_name: data['class-name'],
+                    class_name: data['class-class-name'] || data['class-name'],
                     base_class_name: data['base-class-name'],
                     methods,
                     connections_within_class,

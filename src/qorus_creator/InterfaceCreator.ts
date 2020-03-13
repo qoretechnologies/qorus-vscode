@@ -441,7 +441,7 @@ export abstract class InterfaceCreator {
 
         for (const tag of ordered_tags) {
             if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
-                 'active_method', 'yaml_file', 'config-item-values'].includes(tag))
+                 'active_method', 'yaml_file', 'config-item-values', 'class-class-name'].includes(tag))
             {
                 continue;
             }
@@ -587,6 +587,11 @@ export abstract class InterfaceCreator {
                                     }
                                 }
                             }
+                        }
+                        break;
+                    case 'class-name':
+                        if (headers.type !== 'class') {
+                            result += `${tag}: ${value}\n`;
                         }
                         break;
                     default:
