@@ -252,6 +252,9 @@ class QorusWebview {
                         case 'delete-config-item':
                             interface_info.deleteConfigItem(message);
                             break;
+                        case 'get-objects-with-static-data':
+                            project.code_info.getObjectsWithStaticData(message);
+                            break;
                         case 'set-active-instance':
                             qorus_request.setActiveInstance(message.url);
                             break;

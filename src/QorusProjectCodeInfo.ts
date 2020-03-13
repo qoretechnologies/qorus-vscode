@@ -469,6 +469,19 @@ export class QorusProjectCodeInfo {
         });
     }
 
+    getObjectsWithStaticData = ({iface_kind}) => {
+        const all_objects = this.yamlDataByType(iface_kind);
+        const objects_with_static_data = Object.keys(all_objects)
+            .filter(name => all_objects[name]['staticdata-type'])
+            .map(name => ({name}));
+
+        const message = {
+            action: 'return-objects-with-static-data',
+            objects: objects_with_static_data
+        };
+        qorus_webview.postMessage(message);
+    }
+
     fixData(orig_data: any): any {
         let data = {...orig_data};
 
