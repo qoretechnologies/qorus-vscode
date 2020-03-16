@@ -69,9 +69,9 @@ export const mapperFields = ({ default_target_dir, context }) => [
     {
         name: 'context',
         type: 'context-selector',
-        default_value: context?.name,
-        mandatory: !!context?.name,
-        disabled: !!context?.name,
+        default_value: context,
+        mandatory: !!context,
+        disabled: !!context,
     },
 ];
 
