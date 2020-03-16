@@ -255,6 +255,9 @@ class QorusWebview {
                         case 'get-objects-with-static-data':
                             project.code_info.getObjectsWithStaticData(message);
                             break;
+                        case 'get-fields-from-type':
+                            project.code_info.getFieldsFromType(message);
+                            break;
                         case 'set-active-instance':
                             qorus_request.setActiveInstance(message.url);
                             break;

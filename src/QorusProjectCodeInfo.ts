@@ -507,6 +507,38 @@ export class QorusProjectCodeInfo {
         qorus_request.doRequest('system/interfacesWithDataContext', 'GET', onSuccess, onError);
     }
 
+    getFieldsFromType = message => {
+        const {name, path, url} = message;
+
+        const postMessage = (data?) => {
+            qorus_webview.postMessage({
+                action: 'return-fields-from-type',
+                data
+            });
+        };
+
+        const type = this.yamlDataByName('type', path.join(name, path));
+        if (type) {
+            const {typeinfo} = type;
+            if (typeinfo) {
+                postMessage(typeinfo);
+                return;
+            }
+        }
+
+        const onSuccess = response => {
+            const data = JSON.parse(response);
+            qorus_webview.postMessage(data);
+        };
+
+        const onError = error => {
+            msg.error(error);
+            qorus_webview.postMessage();
+        };
+
+        qorus_request.doRequest(url, 'GET', onSuccess, onError);
+    }
+
     fixData(orig_data: any): any {
         let data = {...orig_data};
 
