@@ -528,12 +528,12 @@ export class QorusProjectCodeInfo {
 
         const onSuccess = response => {
             const data = JSON.parse(response);
-            qorus_webview.postMessage(data);
+            postMessage(data);
         };
 
         const onError = error => {
             msg.error(error);
-            qorus_webview.postMessage();
+            postMessage();
         };
 
         qorus_request.doRequest(url, 'GET', onSuccess, onError);
