@@ -906,7 +906,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         const iVersion: IField = allSelectedFields[ifaceType].find(field => field.name === 'version');
         const iStaticData: IField = allSelectedFields[ifaceType].find(field => field.name === 'staticdata-type');
 
-        if (!iName || !iVersion || iStaticData) {
+        if (!iName || !iVersion || !iStaticData) {
             return null;
         }
 
