@@ -202,6 +202,9 @@ export class QorusRequest extends QorusLogin {
         const { ok, active_instance, token } = this.activeQorusInstanceAndToken();
         if (!ok) {
             msg.error(t`UnableGetActiveQorusInstanceData`);
+            if (onError) {
+                onError();
+            }
             return;
         }
 

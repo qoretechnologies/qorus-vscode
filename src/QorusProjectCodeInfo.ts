@@ -12,7 +12,7 @@ import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
 import { qore_vscode } from './qore_vscode';
 import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
-import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind } from './qorus_utils';
+import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind, removeDuplicates } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
@@ -470,18 +470,36 @@ export class QorusProjectCodeInfo {
     }
 
     getObjectsWithStaticData = ({iface_kind}) => {
-        const all_objects = this.yamlDataByType(iface_kind);
-        const objects_with_static_data = Object.keys(all_objects)
-            .filter(name => all_objects[name]['staticdata-type'])
-            .map(name => ({name}));
+        const all_local_objects = this.yamlDataByType(iface_kind);
+        let local_objects = Object.keys(all_local_objects)
+                                  .filter(name => all_local_objects[name]['staticdata-type']);
 
-        const message = {
-            action: 'return-objects-with-static-data',
-            objects: objects_with_static_data,
-            iface_kind
+        const processResult = result => {
+            const parsed_result = JSON.parse(result) || [];
+            const qorus_objects = parsed_result.filter(obj => obj.iface_kind === iface_kind)
+                                               .map(({name}) => name);
+
+            const objects = removeDuplicates([...local_objects, ...qorus_objects]).map(name => ({name}));
+
+            const message = {
+                action: 'return-objects-with-static-data',
+                objects,
+                iface_kind
+            };
+
+            qorus_webview.postMessage(message);
         };
 
-        qorus_webview.postMessage(message);
+        const onSuccess = response => {
+            processResult(response);
+        };
+
+        const onError = error => {
+            msg.error(error);
+            processResult(null);
+        };
+
+        qorus_request.doRequest('system/interfacesWithDataContext', 'GET', onSuccess, onError);
     }
 
     fixData(orig_data: any): any {
