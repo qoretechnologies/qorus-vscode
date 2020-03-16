@@ -472,14 +472,19 @@ export class QorusProjectCodeInfo {
     getObjectsWithStaticData = ({iface_kind}) => {
         const all_local_objects = this.yamlDataByType(iface_kind);
         let local_objects = Object.keys(all_local_objects)
-                                  .filter(name => all_local_objects[name]['staticdata-type']);
+                                  .filter(name => all_local_objects[name]['staticdata-type'])
+                                  .map(name => ({name}));
 
         const processResult = result => {
             const parsed_result = JSON.parse(result) || [];
-            const qorus_objects = parsed_result.filter(obj => obj.iface_kind === iface_kind)
-                                               .map(({name}) => name);
+            const qorus_objects = parsed_result.filter(obj => obj.iface_kind === iface_kind);
 
-            const objects = removeDuplicates([...local_objects, ...qorus_objects]).map(name => ({name}));
+            const objects = [...local_objects, ...qorus_objects].reduce((acc, obj) => {
+                if (!acc.some(({name}) => name === obj.name)) {
+                    acc.push({name: obj.name});
+                }
+                return acc;
+            }, []);
 
             const message = {
                 action: 'return-objects-with-static-data',
