@@ -508,7 +508,7 @@ export class QorusProjectCodeInfo {
     }
 
     getFieldsFromType = message => {
-        const {name, path, url} = message;
+        const {name, path: path_in_data, url} = message;
 
         const postMessage = (data?) => {
             qorus_webview.postMessage({
@@ -517,7 +517,7 @@ export class QorusProjectCodeInfo {
             });
         };
 
-        const type = this.yamlDataByName('type', path.join(name, path));
+        const type = this.yamlDataByName('type', path.join(name, path_in_data));
         if (type) {
             const {typeinfo} = type;
             if (typeinfo) {
