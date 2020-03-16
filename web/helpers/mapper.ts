@@ -1,4 +1,6 @@
 import { reduce, size, findIndex, omit } from 'lodash';
+import { providers } from '../containers/Mapper/provider';
+import { addTrailingSlash } from '../hocomponents/withMapper';
 // This functions flattens the fields, by taking all the
 // deep fields from `type` and adds them right after their
 // respective parent field

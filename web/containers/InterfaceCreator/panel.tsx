@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useState, FormEvent, useEffect, useRef, useCallback } from 'react';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { Messages } from '../../constants/messages';
 import {
@@ -37,7 +36,7 @@ import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import shortid from 'shortid';
 import isArray from 'lodash/isArray';
-import ClassConnectionsManager, { IClassConnections } from '../ClassConnectionsManager';
+import ClassConnectionsManager from '../ClassConnectionsManager';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
@@ -85,6 +84,10 @@ export interface IInterfaceCreatorPanel {
     disabledFields?: string[];
     hasClassConnections?: boolean;
     definitionsOnly?: boolean;
+    context?: {
+        iface_kind: string;
+        name: string;
+    };
 }
 
 export interface IField {
@@ -111,6 +114,7 @@ export interface IField {
     disabled?: boolean;
     requires_fields?: string[];
     resetClassConnections?: () => void;
+    read_only?: boolean;
 }
 
 export declare interface IFieldChange {
@@ -196,6 +200,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     steps,
     stepsData,
     definitionsOnly,
+    context,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -312,7 +317,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Set the new message listener
         setMessageListener(() => messageListenerHandler);
         // Fetch the fields
-        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing });
+        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
         // Cleanup on unmount
         return () => {
             // Remove the message listener if it exists
@@ -385,7 +390,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Set the new message listener
         setMessageListener(() => messageListenerHandler);
         // Fetch the fields
-        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing });
+        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
     };
 
     const addField: (fieldName: string, notify?: boolean) => void = useCallback(
@@ -895,6 +900,19 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         handleFieldChange('mappers', uniqBy(newMappers, 'name'));
     };
 
+    const getInterfaceName = () => {
+        const ifaceType: string = type === 'step' ? 'workflow' : type;
+        const iName: IField = allSelectedFields[ifaceType].find(field => field.name === 'name');
+        const iVersion: IField = allSelectedFields[ifaceType].find(field => field.name === 'version');
+        const iStaticData: IField = allSelectedFields[ifaceType].find(field => field.name === 'staticdata-type');
+
+        if (!iName.isValid || !iVersion.isValid || !iStaticData || !iStaticData.isValid) {
+            return null;
+        }
+
+        return `${iName.value}:${iVersion.value}`;
+    };
+
     return (
         <>
             <SidePanel title={t(stepOneTitle)}>
@@ -1048,6 +1066,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <ClassConnectionsManager
                         ifaceType={type === 'service-methods' ? 'service' : type}
                         baseClassName={requestFieldData('base-class-name', 'value')}
+                        interfaceContext={{
+                            iface_kind: type === 'step' ? 'workflow' : type,
+                            name: getInterfaceName(),
+                        }}
                         initialConnections={classConnectionsData}
                         onSubmit={classConnections => {
                             modifyMappers(classConnections);

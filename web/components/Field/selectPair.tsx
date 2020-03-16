@@ -16,6 +16,7 @@ export interface IPairField {
     selectFirst?: boolean;
     defaultSelectItems?: any[];
     canBeRemoved?: boolean;
+    hideTextField?: boolean;
 }
 
 const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({

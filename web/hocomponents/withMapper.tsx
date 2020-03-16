@@ -9,8 +9,10 @@ import { providers } from '../containers/Mapper/provider';
 import withTextContext from './withTextContext';
 import { Callout } from '@blueprintjs/core';
 import { IMapperRelation } from '../containers/Mapper';
+import withMessageHandler from './withMessageHandler';
+import { Messages } from '../constants/messages';
 
-const addTrailingSlash = (path: string) => {
+export const addTrailingSlash = (path: string) => {
     // Get the last character
     const lastChar: string = path.substr(-1);
     // Check if the last character is a slash
@@ -94,8 +96,12 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setMapper(null);
         };
 
-        const getUrlFromProvider: (fieldType: 'input' | 'output') => string = fieldType => {
-            const { type, name, path, subtype } = fieldType === 'input' ? inputOptionProvider : outputOptionProvider;
+        const getUrlFromProvider: (fieldType: 'input' | 'output', provider?: any) => string = (fieldType, provider) => {
+            const { type, name, path, subtype } = provider
+                ? provider
+                : fieldType === 'input'
+                ? inputOptionProvider
+                : outputOptionProvider;
             // Check if the type is factory
             if (type === 'factory') {
                 // Return just the type
@@ -299,11 +305,37 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 })();
                 // Check if user is editing a mapper
                 if (mapper) {
+                    props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+                        if (mapper?.contextData && data?.[mapper.contextData.iface_kind]) {
+                            // Save the static data
+                            const staticData = data[mapper.contextData.iface_kind]['staticdata-type'];
+                            // Get the url from the context provider
+                            const url = getUrlFromProvider(null, staticData);
+                            // Send the URL to backend
+                            props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
+                                console.log(data);
+                            });
+                            props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
+                                ...staticData,
+                                url,
+                            });
+                        }
+                    });
+                    // Process input fields
                     if (mapper.mapper_options['mapper-input']) {
                         getInputsData();
                     }
+                    // Process output fields
                     if (mapper.mapper_options['mapper-output']) {
                         getOutputsData(mapperKeys);
+                    }
+                    // If this mapper has context
+                    if (mapper.contextData) {
+                        // Ask for the context interface
+                        props.postMessage(Messages.GET_INTERFACE_DATA, {
+                            iface_kind: mapper.contextData.iface_kind,
+                            name: mapper.contextData.name,
+                        });
                     }
                 }
             }
@@ -472,6 +504,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             isEditingMapper: !!mapper,
             ...rest,
         })),
-        withTextContext()
+        withTextContext(),
+        withMessageHandler()
     )(EnhancedComponent);
 };
