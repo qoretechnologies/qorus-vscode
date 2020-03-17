@@ -5,6 +5,7 @@ import SelectField from './select';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import String from './string';
 import useMount from 'react-use/lib/useMount';
+import { Messages } from '../../constants/messages';
 
 export interface IContextField {
     value: {
@@ -20,37 +21,41 @@ const ContextField: FunctionComponent<IContextField & IFieldChange & IField> = (
     name,
     read_only,
     disabled,
+    addMessageListener,
+    postMessage,
 }) => {
     const [ifaces, setIfaces] = useState(null);
 
     useMount(() => {
-        if (default_value) {
-            onChange(name, default_value);
+        addMessageListener(Messages.RETURN_OBJECTS_WITH_STATIC_DATA, data => {
+            // Save the interfaces returned from the backend
+            setIfaces(data.objects);
+        });
+        // Save the default value
+        if (default_value || value) {
+            const val = default_value || value;
+            onChange(name, val);
+            // Ask for the context interface
+            postMessage(Messages.GET_INTERFACE_DATA, {
+                iface_kind: val.iface_kind,
+                name: val.name,
+                custom_data: {
+                    event: 'context',
+                    iface_kind: val.iface_kind,
+                },
+            });
         }
     });
 
     useEffect(() => {
         if (value.iface_kind) {
-            // Fetch the interfaces
-            setIfaces(
-                value.iface_kind === 'workflow'
-                    ? [
-                          {
-                              name: 'Workflow123:1.0',
-                          },
-                          {
-                              name: 'SuperWorkflow555:1.0',
-                          },
-                      ]
-                    : [
-                          {
-                              name: 'Service6666:1.0',
-                          },
-                          {
-                              name: 'AnotherService555:1.0',
-                          },
-                      ]
-            );
+            // Reset the ifaces
+            setIfaces(null);
+            // When the interface changes, ask for a list of interfaces
+            // with static data defined
+            postMessage(Messages.GET_OBJECTS_WITH_STATIC_DATA, {
+                iface_kind: value.iface_kind,
+            });
         }
     }, [value.iface_kind]);
 
@@ -68,9 +73,6 @@ const ContextField: FunctionComponent<IContextField & IFieldChange & IField> = (
                         {
                             name: 'workflow',
                         },
-                        {
-                            name: 'service',
-                        },
                     ]}
                     onChange={(_fieldName: string, val: string) => {
                         onChange(name, { iface_kind: val });
@@ -85,6 +87,15 @@ const ContextField: FunctionComponent<IContextField & IFieldChange & IField> = (
                         defaultItems={ifaces}
                         onChange={(_fieldName: string, val: string) => {
                             onChange(name, { ...value, name: val });
+                            // Ask for the context interface
+                            postMessage(Messages.GET_INTERFACE_DATA, {
+                                iface_kind: value.iface_kind,
+                                name: val,
+                                custom_data: {
+                                    event: 'context',
+                                    iface_kind: value.iface_kind,
+                                },
+                            });
                         }}
                         fill
                     />

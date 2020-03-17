@@ -297,6 +297,27 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         useEffect(() => {
             if (qorus_instance) {
+                props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+                    console.log(data);
+                    if (data?.custom_data?.event === 'context') {
+                        // Save the static data
+                        const staticData = data[data.custom_data.iface_kind]['staticdata-type'];
+                        // Get the url from the context provider
+                        const url = getUrlFromProvider(null, staticData);
+                        // Send the URL to backend
+                        props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
+                            if (data) {
+                                // Save the inputs if the data exist
+                                setContextInputs(data.fields || data);
+                            }
+                        });
+                        // Ask backend for the fields for this particular type
+                        props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
+                            ...staticData,
+                            url,
+                        });
+                    }
+                });
                 let mapperKeys;
                 // Fetch the mapper keys
                 (async () => {
@@ -306,22 +327,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 })();
                 // Check if user is editing a mapper
                 if (mapper) {
-                    props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                        if (mapper?.['context-selector'] && data?.[mapper['context-selector'].iface_kind]) {
-                            // Save the static data
-                            const staticData = data[mapper['context-selector'].iface_kind]['staticdata-type'];
-                            // Get the url from the context provider
-                            const url = getUrlFromProvider(null, staticData);
-                            // Send the URL to backend
-                            props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
-                                console.log(data);
-                            });
-                            props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
-                                ...staticData,
-                                url,
-                            });
-                        }
-                    });
                     // Process input fields
                     if (mapper.mapper_options['mapper-input']) {
                         getInputsData();
@@ -336,6 +341,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         props.postMessage(Messages.GET_INTERFACE_DATA, {
                             iface_kind: mapper['context-selector'].iface_kind,
                             name: mapper['context-selector'].name,
+                            custom_data: {
+                                event: 'context',
+                                iface_kind: mapper['context-selector'].iface_kind,
+                            },
                         });
                     }
                 }
@@ -491,6 +500,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     mapperSubmit,
                     handleMapperSubmitSet,
                     removeCodeFromRelations,
+                    contextInputs,
                 }}
             >
                 <Component {...props} />

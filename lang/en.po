@@ -2033,3 +2033,6 @@ msgstr "Target directory unknown"
 
 msgid "FailedCreateDir ${ dir }"
 msgstr "Creating directory ${ dir } failed"
+
+msgid "StaticData"
+msgstr "Static data"

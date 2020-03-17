@@ -72,3 +72,9 @@ export const filterInternalData = fields => {
         {}
     );
 };
+
+export const hasStaticDataField = (context: string) => context.startsWith('$static');
+
+export const getStaticDataFieldname = (context: string) => {
+    return context.match(/\{([^}]+)\}/)[1];
+};
