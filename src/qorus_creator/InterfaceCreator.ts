@@ -407,7 +407,7 @@ export abstract class InterfaceCreator {
                 if (field.code) {
                     const [name, method, ... other] = field.code.split('.');
                     if (name && method && !other.length) {
-                        const mapper_code = this.code_info.yamlDataByName('mapper-code', name);
+                        const mapper_code = this.code_info.yaml_info.yamlDataByName('mapper-code', name);
                         const {'class-name': class_name, lang = 'qore'} = mapper_code;
                         field.code = `${class_name}${lang === 'qore' ? '::': '.'}${method}`;
                     }
@@ -624,7 +624,7 @@ export abstract class InterfaceCreator {
             }
 
             orig_code_file = this.orig_file_path;
-            orig_yaml_file = (this.code_info.yamlDataBySrcFile(this.orig_file_path) || {}).yaml_file;
+            orig_yaml_file = (this.code_info.yaml_info.yamlDataBySrcFile(this.orig_file_path) || {}).yaml_file;
         } else {
             if (this.orig_file_path === this.yaml_file_path) {
                 return;

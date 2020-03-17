@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as jsyaml from 'js-yaml';
 import * as isArray from 'lodash/isArray';
 import * as isObject from 'lodash/isObject';
 import * as sortBy from 'lodash/sortBy';
@@ -9,9 +8,12 @@ import { t, gettext } from 'ttag';
 import * as vscode from 'vscode';
 import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
 
+import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
 import { qore_vscode } from './qore_vscode';
 import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
+import { types_with_version, root_steps, root_service, root_job, root_workflow,
+         all_root_classes } from './qorus_constants';
 import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -22,69 +24,23 @@ import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
 import { getJavaDocumentSymbolsWithWait } from './vscode_java';
 
-const root_service = 'QorusService';
-const root_job = 'QorusJob';
-const root_workflow = 'QorusWorkflow';
-const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep', 'QorusSubworkflowStep',
-                    'QorusAsyncArrayStep', 'QorusEventArrayStep', 'QorusNormalArrayStep', 'QorusSubworkflowArrayStep'];
-const all_root_classes = [...root_steps, root_service, root_job, root_workflow];
-const object_info_types = ['class', 'function', 'constant', 'mapper', 'value-map', 'group', 'event', 'queue'];
 const info_keys = ['file_tree', 'yaml', 'modules'];
-const object_types_with_version = ['step', 'mapper'];
-const object_types_without_version = ['service', 'job', 'workflow', 'config-item-values', 'config-items',
-                                      'class', 'constant', 'function', 'connection', 'event', 'group',
-                                      'queue', 'value-map', 'mapper-code', 'type'];
-const object_types = [...object_types_with_version, ...object_types_without_version];
-export const default_version = '1.0';
 
 const log_update_messages = false;
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
     private iface_info: InterfaceInfo;
+    private yaml_files_info: QorusProjectYamlInfo;
 
     private info_update_pending: any = {};
-    private object_info: any = {};
-
-    private yaml_data: any = {};
-
-    private src_2_yaml: any = {};
-    public yamlDataBySrcFile = file => this.yaml_data[this.src_2_yaml[file]];
-    public yamlDataByFilePath = file => this.yaml_data[file];
-
-    private class_2_yaml: any = {};       // all classes
-    private java_class_2_yaml: any = {};  // only java classes
-    public yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
-
-    private name_2_yaml: any = {};
-    public yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
-    private yamlDataByType = type => {
-        let ret_val = {};
-        for (const name in this.name_2_yaml[type] || {}) {
-            ret_val[name] = this.yamlDataByName(type, name);
-        }
-        return ret_val;
-    }
-
-    private yaml_2_src: any = {};
     private file_tree: any[] = [];
     private dir_tree: any[] = [];
     private all_dir_tree: any = {};
-    private inheritance_pairs: any = {};
     private edit_info: any = {};
     private modules: string[] = [];
-    private service_classes = {};
-    private job_classes = {};
-    private workflow_classes = {};
-    private step_classes = {};
     private source_directories = [];
     private mapper_types: any[] = [];
-
-    private java_inheritance_pairs: any = {};
-    private java_job_classes = {};
-    private java_service_classes = {};
-    private java_step_classes = {};
-    private java_workflow_classes = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -97,14 +53,19 @@ export class QorusProjectCodeInfo {
 
     constructor(project: QorusProject) {
         this.project = project;
+        this.yaml_files_info = new QorusProjectYamlInfo();
+        this.iface_info = new InterfaceInfo(this.yaml_files_info);
         this.initInfo();
         this.initFileWatchers();
         this.update(undefined, true);
-        this.iface_info = new InterfaceInfo(this);
     }
 
     get interface_info(): any {
         return this.iface_info;
+    }
+
+    get yaml_info(): any {
+        return this.yaml_files_info;
     }
 
     addText(document: vscode.TextDocument) {
@@ -307,7 +268,7 @@ export class QorusProjectCodeInfo {
     }
 
     addJavaFileCodeInfo(file_path: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
-        const yaml_info = this.yamlDataBySrcFile(file_path);
+        const yaml_info = this.yaml_info.yamlDataBySrcFile(file_path);
         const iface_kind = yaml_info.type;
         if (this.edit_info[file_path] && !force) {
             return Promise.resolve();
@@ -370,13 +331,13 @@ export class QorusProjectCodeInfo {
 
     interfaceDataByFile(file_path): Promise<any> {
         return this.waitForPending(['yaml']).then(() => {
-            return this.yamlDataByFilePath(file_path);
+            return this.yaml_info.yamlDataByFilePath(file_path);
         });
     }
 
     interfaceDataByType(iface_kind): Promise<any[]> {
         return this.waitForPending(['yaml']).then(() => {
-            const yaml_data = this.yamlDataByType(iface_kind);
+            const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
             const interfaces = Object.keys(yaml_data).map(name => ({
                 name,
                 data: yaml_data[name]
@@ -387,7 +348,7 @@ export class QorusProjectCodeInfo {
 
     getListOfInterfaces = iface_kind => {
         this.waitForPending(['yaml']).then(() => {
-            const yaml_data = this.yamlDataByType(iface_kind);
+            const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
             const interfaces = Object.keys(yaml_data).map(name => ({
                 name,
                 desc: yaml_data[name].desc
@@ -405,10 +366,10 @@ export class QorusProjectCodeInfo {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
             let raw_data;
             if (class_name) {
-                raw_data = this.yamlDataByClass(class_name);
+                raw_data = this.yaml_info.yamlDataByClass(class_name);
             } else {
-                const name_key = object_types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-                raw_data = this.yamlDataByName(iface_kind, name_key);
+                const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
+                raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
             }
             const data = this.fixData(raw_data);
 
@@ -431,17 +392,17 @@ export class QorusProjectCodeInfo {
     }
 
     getClassConnector = ({class: class_name, connector: connector_name}) =>
-        (this.yamlDataByClass(class_name)?.['class-connectors'] || [])
+        (this.yaml_info.yamlDataByClass(class_name)?.['class-connectors'] || [])
                 .find(connector => connector.name === connector_name)
 
     pairFile = (file: string): string | undefined => {
         if (!hasSuffix(file, 'yaml')) {
-            return (this.yamlDataBySrcFile(file) || {}).yaml_file;
+            return (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
         }
 
-        const type = this.yaml_data[file]?.type;
+        const type = this.yaml_info.getVaue(file, 'type');
         if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function', 'mapper-code'].includes(type)) {
-            return this.yaml_2_src[file];
+            return this.yaml_info.getSrcFile(file);
         }
         return undefined;
     }
@@ -450,14 +411,14 @@ export class QorusProjectCodeInfo {
         const step_names: string[] = flattenDeep(step_structure);
         let step_data = {};
         step_names.forEach(name => {
-            step_data[name] = { ...this.yamlDataByName('step', name) };
+            step_data[name] = { ...this.yaml_info.yamlDataByName('step', name) };
             delete step_data[name].yaml_file;
         });
         return step_data;
     }
 
     getMapperCodeMethods = name => {
-        const mapper_code = this.yamlDataByName('mapper-code', name);
+        const mapper_code = this.yaml_info.yamlDataByName('mapper-code', name);
         if (!mapper_code) {
             msg.log(t`MapperCodeNotFound ${name}`);
         }
@@ -511,7 +472,7 @@ export class QorusProjectCodeInfo {
                     const code_parts = field.code.split(splitter);
                     if (code_parts.length === 2) {
                         const [class_name, method] = code_parts;
-                        const mapper_code = this.yamlDataByClass(class_name);
+                        const mapper_code = this.yaml_info.yamlDataByClass(class_name);
                         if (mapper_code) {
                             field.code = `${mapper_code.name}.${method}`;
                         }
@@ -612,57 +573,10 @@ export class QorusProjectCodeInfo {
     }
 
     private initInfo() {
-        for (const type of [...object_info_types, 'author']) {
-            this.object_info[type] = {};
-        }
-
-        this.job_classes = { [root_job]: true };
-        this.service_classes = { [root_service]: true };
-        this.workflow_classes = { [root_workflow]: true };
-
-        this.java_job_classes = { [root_job]: true };
-        this.java_service_classes = { [root_service]: true };
-        this.java_workflow_classes = { [root_workflow]: true };
-
-        for (const step_type of root_steps) {
-            this.step_classes[step_type] = { [step_type]: true };
-            this.java_step_classes[step_type] = { [step_type]: true };
-        }
-
         this.file_tree = [];
         this.dir_tree = [];
-        this.inheritance_pairs = {};
-        this.java_inheritance_pairs = {};
-        this.yaml_2_src = {};
 
-        this.clearYamlInfo();
-    }
-
-    private clearYamlInfo = () => {
-        this.yaml_data = {};
-
-        this.src_2_yaml = {};
-        this.class_2_yaml = {};
-
-        for (const type of object_types) {
-            this.name_2_yaml[type] = {};
-        }
-    }
-
-    private flattenedStepClasses = () => {
-        let ret_val = {};
-        for (const step_type of root_steps) {
-            Object.assign(ret_val, this.step_classes[step_type]);
-        }
-        return ret_val;
-    }
-
-    private flattenedJavaStepClasses = () => {
-        let ret_val = {};
-        for (const step_type of root_steps) {
-            Object.assign(ret_val, this.java_step_classes[step_type]);
-        }
-        return ret_val;
+        this.yaml_info.initData();
     }
 
     private initFileWatchers() {
@@ -671,7 +585,7 @@ export class QorusProjectCodeInfo {
         this.all_files_watcher.onDidDelete(() => this.update(['file_tree']));
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
-        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
+        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.yaml_info.addSingleYamlInfo(uri.fsPath));
         this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
@@ -779,7 +693,7 @@ export class QorusProjectCodeInfo {
             case 'workflow-step':
             case 'mapper-code':
                 this.waitForPending(['yaml']).then(() => {
-                    const objects = this.yamlDataByType(object_type === 'workflow-step' ? 'step' : object_type);
+                    const objects = this.yaml_info.yamlDataByType(object_type === 'workflow-step' ? 'step' : object_type);
                     postMessage('objects', Object.keys(objects).map(key => ({
                         name: key,
                         desc: objects[key].desc
@@ -789,50 +703,50 @@ export class QorusProjectCodeInfo {
             case 'service-base-class':
                 if (lang === 'java') {
                     this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.java_service_classes, [root_service]))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaServiceClasses(), [root_service]))
                     );
                 } else {
                     this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.service_classes, [root_service]))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(), [root_service]))
                     );
                 }
                 break;
             case 'job-base-class':
                 if (lang === 'java') {
                     this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.java_job_classes, [root_job]))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaJobClasses(), [root_job]))
                     );
                 } else {
                     this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.job_classes, [root_job]))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.jobClasses(), [root_job]))
                     );
                 }
                 break;
             case 'workflow-base-class':
                 if (lang === 'java') {
                     this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.java_workflow_classes, [root_workflow]))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaWorkflowClasses(), [root_workflow]))
                     );
                 } else {
                     this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.workflow_classes, [root_workflow]))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.workflowClasses(), [root_workflow]))
                     );
                 }
                 break;
             case 'step-base-class':
                 if (lang === 'java') {
                     this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.flattenedJavaStepClasses(), root_steps))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.allJavaStepClasses(), root_steps))
                     );
                 } else {
                     this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.flattenedStepClasses(), root_steps))
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.allStepClasses(), root_steps))
                     );
                 }
                 break;
             case 'base-class':
                 this.waitForPending(['yaml']).then(() => {
-                    const classes = lang === 'java' ? { ...this.java_class_2_yaml } : { ...this.class_2_yaml };
+                    const classes = this.yaml_info.classes(lang);
                     const current_class =
                         qorus_webview.opening_data &&
                         qorus_webview.opening_data.class &&
@@ -845,6 +759,8 @@ export class QorusProjectCodeInfo {
                 });
                 break;
             case 'author':
+                this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));
+                break;
             case 'function':
             case 'constant':
             case 'mapper':
@@ -854,13 +770,13 @@ export class QorusProjectCodeInfo {
             case 'queue':
             case 'type':
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
-                    Object.keys(this.object_info[object_type]).map(key => this.object_info[object_type][key]))
-                );
+                    Object.keys(this.yaml_info.yamlDataByType(object_type)).map(name => ({name}))
+                ));
                 break;
             case 'class':
                 this.waitForPending(['yaml']).then(() => {
-                    const class_names = Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
-                    const classes = class_names.map(class_name => this.yamlDataByClass(class_name))
+                    const class_names = this.yaml_info.classNames(lang);
+                    const classes = class_names.map(class_name => this.yaml_info.yamlDataByClass(class_name))
                                                .filter(class_data => class_data.type === 'class');
                     postMessage('objects', classes.map(class_data => ({
                         name: class_data['class-name'],
@@ -870,8 +786,8 @@ export class QorusProjectCodeInfo {
                 break;
             case 'class-with-connectors':
                 this.waitForPending(['yaml']).then(() => {
-                    const class_names = Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
-                    const classes = class_names.map(class_name => this.fixData(this.yamlDataByClass(class_name)))
+                    const class_names = this.yaml_info.classNames(lang);
+                    const classes = class_names.map(class_name => this.fixData(this.yaml_info.yamlDataByClass(class_name)))
                                                .filter(class_obj => class_obj['class-connectors']);
                     postMessage('objects', classes);
                 });
@@ -940,8 +856,8 @@ export class QorusProjectCodeInfo {
             if (info_list.includes('yaml')) {
                 setTimeout(() => {
                     this.updateYamlInfo(file_data.source_directories);
-                    this.baseClassesFromInheritancePairs();
-                    this.javaBaseClassesFromInheritancePairs();
+                    this.yaml_info.baseClassesFromInheritancePairs();
+                    this.yaml_info.javaBaseClassesFromInheritancePairs();
                     this.notifyTrees();
                 }, 0);
             }
@@ -971,7 +887,7 @@ export class QorusProjectCodeInfo {
 
     stepType = (base_class: string): string | undefined => {
         for (const step_type of root_steps) {
-            if (this.step_classes[step_type][base_class]) {
+            if (this.yaml_info.stepClasses(step_type)[base_class]) {
                 return step_type;
             }
         }
@@ -1107,7 +1023,7 @@ export class QorusProjectCodeInfo {
 
     javaStepType = (base_class: string): string | undefined => {
         for (const step_type of root_steps) {
-            if (this.java_step_classes[step_type][base_class]) {
+            if (this.yaml_info.javaStepClasses(step_type)[base_class]) {
                 return step_type;
             }
         }
@@ -1143,84 +1059,9 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    addSingleYamlInfo(file: string) {
-        let parsed_data: any;
-        try {
-            parsed_data = jsyaml.safeLoad(fs.readFileSync(file));
-        } catch (error) {
-            msg.debug({ file, error });
-            return;
-        }
-
-        let yaml_data = {
-            ...parsed_data,
-            yaml_file: file,
-            target_dir: path.dirname(file),
-        };
-        yaml_data.target_file = yaml_data.code;
-
-        this.yaml_data[file] = yaml_data;
-
-        if (yaml_data.code) {
-            const src = path.join(path.dirname(file), yaml_data.code);
-            this.src_2_yaml[src] = file;
-            this.yaml_2_src[file] = src;
-        }
-        const class_name = yaml_data['class-name'];
-        if (class_name) {
-            this.class_2_yaml[class_name] = file;
-            if (yaml_data.lang === 'java') {
-                this.java_class_2_yaml[class_name] = file;
-            }
-        }
-
-        const addObjectName = (type: string, name: string) => {
-            if (!this.object_info[type][name]) {
-                this.object_info[type][name] = { name };
-            }
-        };
-
-        for (const name of yaml_data.author || []) {
-            addObjectName('author', name);
-        }
-
-        if (!yaml_data.type) {
-            return;
-        }
-
-        const name = object_types_with_version.includes(yaml_data.type)
-            ? `${yaml_data.name}:${yaml_data.version || default_version}`
-            : yaml_data.type === 'type'
-                ? yaml_data.path
-                : yaml_data.name;
-
-        if (!name) {
-            return;
-        }
-
-        this.name_2_yaml[yaml_data.type][name] = file;
-
-        if (object_info_types.includes(yaml_data.type)) {
-            addObjectName(yaml_data.type, name);
-        }
-
-        const base_class_name = this.yaml_data[file]['base-class-name'];
-
-        if (base_class_name) {
-            this.yaml_data[file]['base-class-name'] = base_class_name;
-        }
-
-        if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
-            this.inheritance_pairs[class_name] = [base_class_name];
-            if (yaml_data.lang) {
-                this.java_inheritance_pairs[class_name] = [base_class_name];
-            }
-        }
-    }
-
     private updateYamlInfo(source_directories: string[]) {
         this.setPending('yaml', true);
-        this.clearYamlInfo();
+        this.yaml_info.initData();
         for (let dir of source_directories) {
             const full_dir = path.join(this.project.folder, dir);
             if (!fs.existsSync(full_dir)) {
@@ -1229,7 +1070,7 @@ export class QorusProjectCodeInfo {
 
             let files = filesInDir(full_dir, path => hasSuffix(path, 'yaml'));
             for (let file of files) {
-                this.addSingleYamlInfo(file);
+                this.yaml_info.addSingleYamlInfo(file);
             }
         }
         this.setPending('yaml', false);
@@ -1253,42 +1094,6 @@ export class QorusProjectCodeInfo {
         this.setPending('modules', false);
     }
 
-    private baseClasses = (base_classes: any, inheritance_pairs: any): any => {
-        let any_new = true;
-        while (any_new) {
-            any_new = false;
-            for (let name in inheritance_pairs) {
-                if (inheritance_pairs[name].some(base_class_name => base_classes[base_class_name])) {
-                    base_classes[name] = true;
-                    delete inheritance_pairs[name];
-                    any_new = true;
-                    break;
-                }
-            }
-        }
-        return base_classes;
-    }
-
-    private baseClassesFromInheritancePairs() {
-        this.baseClasses(this.service_classes, { ...this.inheritance_pairs });
-        this.baseClasses(this.job_classes, { ...this.inheritance_pairs });
-        this.baseClasses(this.workflow_classes, { ...this.inheritance_pairs });
-        for (const step_type of root_steps) {
-            this.step_classes[step_type] =
-                this.baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
-        }
-    }
-
-    private javaBaseClassesFromInheritancePairs() {
-        this.baseClasses(this.java_service_classes, { ...this.java_inheritance_pairs });
-        this.baseClasses(this.java_job_classes, { ...this.java_inheritance_pairs });
-        this.baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
-        for (const step_type of root_steps) {
-            this.java_step_classes[step_type] =
-                this.baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
-        }
-    }
-
     private addDescToClasses(base_classes: any, root_classes: string[] = []): any[] {
         if (!Array.isArray(base_classes)) {
             return this.addDescToClasses(Object.keys(base_classes), root_classes);
@@ -1298,7 +1103,7 @@ export class QorusProjectCodeInfo {
         for (const base_class of base_classes) {
             const desc = root_classes.includes(base_class)
                 ? gettext(`${base_class}Desc`)
-                : (this.yamlDataByClass(base_class) || {}).desc;
+                : (this.yaml_info.yamlDataByClass(base_class) || {}).desc;
             ret_val.push({name: base_class, desc});
         }
         return ret_val;
@@ -1369,8 +1174,8 @@ export class QorusProjectCodeInfo {
 
     getMappers = ({'input-condition': input_condition, 'output-condition': output_condition}) => {
         this.waitForPending(['yaml']).then(() => {
-            const all_mappers: any[] = Object.keys(this.object_info.mapper)
-                                             .map(name => this.fixData(this.yamlDataByName('mapper', name)));
+            const all_mappers: any[] = Object.keys(this.yaml_info.yamlDataByType('mapper'))
+                                             .map(name => this.fixData(this.yaml_info.yamlDataByName('mapper', name)));
 
             const filtered_mappers = all_mappers.filter(mapper => {
                 if (!mapper.mapper_options) {
@@ -1411,7 +1216,7 @@ export class QorusProjectCodeInfo {
                     return;
                 }
 
-                const iface_data = this.yamlDataByName(iface_kind, name);
+                const iface_data = this.yaml_info.yamlDataByName(iface_kind, name);
                 QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
             }
         );

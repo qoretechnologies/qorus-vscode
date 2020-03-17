@@ -183,7 +183,7 @@ export class QorusHoverProvider extends QorusHoverProviderBase {
         let symbols = await qore_vscode.exports.getDocumentSymbols(document);
 
         const filePath = getFilePathFromUri(document.uri);
-        const yaml_info = this.code_info.yamlDataBySrcFile(filePath);
+        const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(filePath);
         if (!yaml_info) {
             return undefined;
         }
