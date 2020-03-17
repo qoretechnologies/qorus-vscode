@@ -408,15 +408,15 @@ export class InterfaceInfo {
             classes.findIndex(({name: name2, prefix: prefix2 = ''}) => name === name2 && prefix === prefix2) !== -1);
     }
 
-    private addClassNames = classes => {
+    addClassNames = classes => {
         if (!classes) {
             return undefined;
         }
 
-        return classes.map(class_data => {
-            class_data['class-name'] = this.yaml_info.yamlDataByName('class', class_data.name)?.['class-name'];
-            return class_data;
-        });
+        return classes.map(class_data => ({
+            ...class_data,
+            'class-name': class_data.name
+        }));
     }
 
     getConfigItems = params => {

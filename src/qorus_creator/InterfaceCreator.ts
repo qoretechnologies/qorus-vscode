@@ -391,10 +391,9 @@ export abstract class InterfaceCreator {
 
         let classes = {};
         let exists_prefix = false;
-        (headers.classes || headers.requires || []).forEach(class_data => {
+        (headers[classes_or_requires] || []).forEach(class_data => {
             if (!classes[class_data.name]) {
                 classes[class_data.name] = {
-                    'class-name': this.code_info.yaml_info.yamlDataByName('class', class_data.name)?.['class-name'],
                     exists_prefix: false,
                     prefixes: [],
                 };
@@ -490,10 +489,10 @@ export abstract class InterfaceCreator {
                         let class_prefixes = exists_prefix ? 'class-prefixes:\n' : '';
                         for (let name in classes) {
                             const class_data = classes[name];
-                            result += `${list_indent}${class_data['class-name']}\n`;
+                            result += `${list_indent}${name}\n`;
                             if (class_data.exists_prefix) {
                                 for (const prefix of class_data.prefixes) {
-                                    class_prefixes += `${list_indent}class: ${class_data['class-name']}\n`;
+                                    class_prefixes += `${list_indent}class: ${name}\n`;
                                     class_prefixes += `${indent}prefix: ${prefix || null}\n`;
                                 }
                             }
