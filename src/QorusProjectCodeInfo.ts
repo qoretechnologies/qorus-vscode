@@ -401,7 +401,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getInterfaceData = ({ iface_kind, name, class_name, include_tabs, event_type }) => {
+    getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
             let raw_data;
             if (class_name) {
@@ -418,7 +418,7 @@ export class QorusProjectCodeInfo {
                 action: 'return-interface-data',
                 data: {
                     iface_kind,
-                    event_type,
+                    custom_data,
                     [iface_kind]: { ...data, iface_id },
                     ... include_tabs
                         ? {
