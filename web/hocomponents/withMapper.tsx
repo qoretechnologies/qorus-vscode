@@ -31,6 +31,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [mapper, setMapper] = useState<any>(props.mapper);
         const [showMapperConnections, setShowMapperConnections] = useState<boolean>(false);
         const [inputs, setInputs] = useState<any>(null);
+        const [contextInputs, setContextInputs] = useState<any>(null);
         const [outputs, setOutputs] = useState<any>(null);
         const [inputProvider, setInputProvider] = useState<string>(null);
         const [outputProvider, setOutputProvider] = useState<string>(null);
@@ -306,9 +307,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Check if user is editing a mapper
                 if (mapper) {
                     props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                        if (mapper?.contextData && data?.[mapper.contextData.iface_kind]) {
+                        if (mapper?.['context-selector'] && data?.[mapper['context-selector'].iface_kind]) {
                             // Save the static data
-                            const staticData = data[mapper.contextData.iface_kind]['staticdata-type'];
+                            const staticData = data[mapper['context-selector'].iface_kind]['staticdata-type'];
                             // Get the url from the context provider
                             const url = getUrlFromProvider(null, staticData);
                             // Send the URL to backend
@@ -330,11 +331,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         getOutputsData(mapperKeys);
                     }
                     // If this mapper has context
-                    if (mapper.contextData) {
+                    if (mapper['context-selector']) {
                         // Ask for the context interface
                         props.postMessage(Messages.GET_INTERFACE_DATA, {
-                            iface_kind: mapper.contextData.iface_kind,
-                            name: mapper.contextData.name,
+                            iface_kind: mapper['context-selector'].iface_kind,
+                            name: mapper['context-selector'].name,
                         });
                     }
                 }

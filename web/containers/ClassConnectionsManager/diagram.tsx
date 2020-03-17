@@ -375,7 +375,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         resetAllInterfaceData('mapper');
                                                         setMapper({
                                                             isFromConnectors: true,
-                                                            contextData: interfaceContext,
+                                                            'context-selector': interfaceContext,
                                                             mapper_options: {
                                                                 'mapper-input': manageDialog.outputProvider,
                                                                 'mapper-output': manageDialog.inputProvider,
