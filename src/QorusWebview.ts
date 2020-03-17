@@ -232,7 +232,9 @@ class QorusWebview {
                             project.code_info.getInterfaceData(message);
                             break;
                         case 'get-config-items':
-                            interface_info.getConfigItems(message);
+                            project.code_info.waitForPending(['yaml']).then(() => {
+                                interface_info.getConfigItems(message);
+                            });
                             break;
                         case 'get-config-item':
                             interface_info.getConfigItem(message);
