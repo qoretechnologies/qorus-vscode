@@ -484,17 +484,13 @@ export class QorusProjectCodeInfo {
         const classes_or_requires = data.type === 'class' ? 'requires' : 'classes';
         if (data[classes_or_requires]) {
             let classes = (data['class-prefixes'] || []).map(prefix_data => ({
-                'class-name': prefix_data.class,
-                name: this.yaml_info.yamlDataByClass(prefix_data.class)?.name,
+                name: prefix_data.class,
                 prefix: prefix_data.prefix
             }));
 
-            data[classes_or_requires].forEach(class_name => {
-                if (!classes.some(class_data => class_data['class-name'] === class_name)) {
-                    classes.push({
-                        name: this.yaml_info.yamlDataByClass(class_name)?.name,
-                        'class-name': class_name
-                    });
+            data[classes_or_requires].forEach(name => {
+                if (!classes.some(class_data => class_data.name === name)) {
+                    classes.push({name});
                 }
             });
 
