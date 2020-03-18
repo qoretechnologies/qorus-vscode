@@ -432,7 +432,7 @@ export class QorusProjectCodeInfo {
     }
 
     getObjectsWithStaticData = ({iface_kind}) => {
-        const all_local_objects = this.yamlDataByType(iface_kind);
+        const all_local_objects = this.yaml_info.yamlDataByType(iface_kind);
         let local_objects = Object.keys(all_local_objects)
                                   .filter(name => all_local_objects[name]['staticdata-type'])
                                   .map(name => ({name}));
@@ -479,7 +479,7 @@ export class QorusProjectCodeInfo {
             });
         };
 
-        const type = this.yamlDataByName('type', path.join(name, path_in_data));
+        const type = this.yaml_info.yamlDataByName('type', path.join(name, path_in_data));
         if (type) {
             const {typeinfo} = type;
             if (typeinfo) {
