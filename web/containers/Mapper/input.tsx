@@ -19,6 +19,7 @@ export interface IMapperInputProps {
     path: string;
     hasAvailableOutput: boolean;
     usesContext?: boolean;
+    isWholeInput?: boolean;
 }
 
 const StyledDragHandle = styled.div`
@@ -40,9 +41,10 @@ const MapperInput: FC<IMapperInputProps> = ({
     path,
     hasAvailableOutput,
     usesContext,
+    isWholeInput,
 }) => {
     const [{ opacity }, dragRef] = useDrag({
-        item: { type: 'input', types, id: path, usesContext },
+        item: { type: 'input', types, id: path, usesContext, isWholeInput },
         collect: monitor => ({
             opacity: monitor.isDragging() ? 0.2 : 1,
         }),
@@ -55,23 +57,26 @@ const MapperInput: FC<IMapperInputProps> = ({
             style={{ opacity }}
             input
             isChild={isChild}
+            isInputHash={isWholeInput}
             isDisabled={!hasAvailableOutput}
             level={level}
             childrenCount={lastChildIndex}
-            title={field.desc}
+            title={field?.desc}
         >
             <StyledDragHandle ref={hasAvailableOutput ? dragRef : undefined} style={{ opacity: finalOpacity }}>
-                <h4>{name}</h4>
-                <p
-                    className={types
-                        .join(' ')
-                        .replace(/</g, '')
-                        .replace(/>/g, '')}
-                >
-                    {`${types.includes('nothing') ? '*' : ''}${type.base_type}`}
-                </p>
+                <h4 style={{ fontSize: isWholeInput ? '16px' : '14px' }}>{name}</h4>
+                {!isWholeInput && (
+                    <p
+                        className={`${types
+                            .join(' ')
+                            .replace(/</g, '')
+                            .replace(/>/g, '')} type`}
+                    >
+                        {`${types.includes('nothing') ? '*' : ''}${type.base_type}`}
+                    </p>
+                )}
             </StyledDragHandle>
-            {!usesContext && (
+            {!usesContext && field && (
                 <AddFieldButton
                     field={field}
                     isCustom={isCustom}
