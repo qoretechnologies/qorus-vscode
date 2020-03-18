@@ -332,6 +332,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     resetMapper,
     isFromConnectors,
     contextInputs,
+    hasInitialInput,
+    hasInitialOutput,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -695,7 +697,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             {t('Input')}{' '}
                             {hideInputSelector && (
                                 <>
-                                    {isEditing || isFromConnectors ? (
+                                    {isEditing || (isFromConnectors && hasInitialInput) ? (
                                         <Tooltip content={getUrlFromProvider('input')}>
                                             <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
                                         </Tooltip>
@@ -737,6 +739,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                     : t('MapperNoInputFields')}
                             </StyledInfoMessage>
                         ) : null}
+                        {hideInputSelector && inputOptionProvider?.can_manage_fields && (
+                            <Button
+                                fill
+                                text={t('AddNewField')}
+                                minimal
+                                intent="success"
+                                icon="add"
+                                onClick={() => handleClick('inputs')()}
+                            />
+                        )}
                         {size(flattenedContextInputs) !== 0 && (
                             <h3 style={{ textAlign: 'center' }}>{t('StaticData')}</h3>
                         )}
@@ -755,23 +767,13 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   />
                               ))
                             : null}
-                        {hideInputSelector && inputOptionProvider?.can_manage_fields && (
-                            <Button
-                                fill
-                                text={t('AddNewField')}
-                                minimal
-                                intent="success"
-                                icon="add"
-                                onClick={() => handleClick('inputs')()}
-                            />
-                        )}
                     </StyledFieldsWrapper>
                     <StyledConnectionsWrapper>
                         {size(relations) && !isDragging ? (
                             <svg
                                 height={
                                     Math.max(
-                                        [...flattenedInputs, ...flattenedContextInputs]?.length,
+                                        [...(flattenedInputs || []), ...flattenedContextInputs]?.length,
                                         flattenedOutputs?.length
                                     ) *
                                         (FIELD_HEIGHT + FIELD_MARGIN) +
@@ -861,7 +863,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                                     input.path ===
                                                                     getStaticDataFieldname(relation.context)
                                                             ) +
-                                                                (flattenedInputs?.length || 0) +
+                                                                (flattenedInputs?.length ||
+                                                                    (hideInputSelector &&
+                                                                    inputOptionProvider?.can_manage_fields
+                                                                        ? 2
+                                                                        : 1)) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                                             (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
@@ -905,7 +911,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                             input =>
                                                                 input.path === getStaticDataFieldname(relation.context)
                                                         ) +
-                                                            (flattenedInputs?.length || 0) +
+                                                            (flattenedInputs?.length ||
+                                                                (hideInputSelector &&
+                                                                inputOptionProvider?.can_manage_fields
+                                                                    ? 2
+                                                                    : 0.5)) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
                                                         (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
@@ -937,7 +947,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             {t('Output')}{' '}
                             {hideOutputSelector && (
                                 <>
-                                    {isEditing || isFromConnectors ? (
+                                    {isEditing || (isFromConnectors && hasInitialOutput) ? (
                                         <Tooltip content={outputRecord}>
                                             <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
                                         </Tooltip>

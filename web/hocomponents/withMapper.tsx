@@ -488,6 +488,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setOutputOptionProvider,
                     isEditingMapper: props.isEditingMapper,
                     isFromConnectors: mapper?.isFromConnectors,
+                    hasInitialInput: mapper?.hasInitialInput,
+                    hasInitialOutput: mapper?.hasInitialOutput,
                     hideInputSelector,
                     hideOutputSelector,
                     setHideInputSelector,
