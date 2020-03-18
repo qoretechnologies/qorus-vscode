@@ -12,6 +12,10 @@ import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
 
+const list_indent = '  - ';
+const indent = '    ';
+
+
 export abstract class InterfaceCreator {
     protected suffix: string;
     protected lang: string;
@@ -284,17 +288,23 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
-    private static fixMarkdown = value =>
-        '\"' +
-         value.replace(/\r?\n/g, '\\n')
-              .replace(/\\\"/g, '\"')
-              .replace(/\"/g, '\\"')
-              .replace(/\"\"/g, '\"') +
-       '\"'
+    private static indentYamlDump = (value, indent_level, is_on_new_line) => {
+        let lines = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
+        if (/^\s*$/.test(lines.slice(-1)[0])) {
+            lines.pop();
+        }
+        let result = '';
+        if (is_on_new_line) {
+            result += indent.repeat(indent_level);
+        }
+        result += `${lines.shift()}\n`;
+        if (lines.length) {
+            result += lines.map(str => `${indent.repeat(indent_level)}${str}`).join('\n') + '\n';
+        }
+        return result;
+    }
 
     protected static createConfigItemHeaders = (items: any[]): string => {
-        const list_indent = '  - ';
-        const indent = '    ';
         let result: string = 'config-items:\n';
 
         for (const item of [...items]) {
@@ -312,14 +322,14 @@ export abstract class InterfaceCreator {
                     result += `${indent}${tag === 'local-value' ? 'value' : tag}:\n`;
                     const non_star_type = item.type?.substring(item.type.indexOf("*") + 1);
                     if (['list', 'hash'].includes(non_star_type)) {
-                        let not_indented = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
-                        if (/^\s*$/.test(not_indented.slice(-1)[0])) {
-                            not_indented.pop();
+                        let lines = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
+                        if (/^\s*$/.test(lines.slice(-1)[0])) {
+                            lines.pop();
                         }
                         if (non_star_type === 'list') {
-                            result += not_indented.map(str => `${indent}  ${str}`).join('\n') + '\n';
+                            result += lines.map(str => `${indent}  ${str}`).join('\n') + '\n';
                         } else {
-                            result += not_indented.map(str => `${indent}${indent}${str}`).join('\n') + '\n';
+                            result += lines.map(str => `${indent}${indent}${str}`).join('\n') + '\n';
                         }
                     } else {
                         result += `${indent}${indent}${JSON.stringify(item[tag])}\n`;
@@ -358,7 +368,8 @@ export abstract class InterfaceCreator {
                                 result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: ${InterfaceCreator.fixMarkdown(item[tag])}\n`;
+                                result += `${indent}${tag}: ` +
+                                    InterfaceCreator.indentYamlDump(item[tag], 1, false);
                                 break;
                             default:
                                 result += `${indent}${tag}: ${item[tag]}\n`;
@@ -372,8 +383,6 @@ export abstract class InterfaceCreator {
     }
 
     protected createHeaders = (headers: any): string => {
-        const list_indent = '  - ';
-        const indent = '    ';
         let result: string = '';
 
         const base_class_name = headers['base-class-name'];
@@ -545,10 +554,6 @@ export abstract class InterfaceCreator {
                     case 'workflow-autostart':
                         result += `autostart: ${value}\n`;
                         break;
-                    case 'desc':
-                    case 'description':
-                        result += `${tag}: ${InterfaceCreator.fixMarkdown(value)}\n`;
-                        break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
                         break;
@@ -560,12 +565,13 @@ export abstract class InterfaceCreator {
                     case 'typeinfo':
                     case 'staticdata-type':
                     case 'context':
-                        result += `${tag === 'mapper_options' ? 'options' : tag}:\n`;
-                        let not_indented = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
-                        if (/^\s*$/.test(not_indented.slice(-1)[0])) {
-                            not_indented.pop();
-                        }
-                        result += not_indented.map(str => `${indent}${str}`).join('\n') + '\n';
+                        result += `${tag === 'mapper_options' ? 'options' : tag}:\n` +
+                            InterfaceCreator.indentYamlDump(value, 1, true);
+                        break;
+                    case 'desc':
+                    case 'description':
+                        result += `${tag}: ` +
+                            InterfaceCreator.indentYamlDump(value, 0, false);
                         break;
                     case 'class-connections':
                         if (!value || !Object.keys(value).length) {
