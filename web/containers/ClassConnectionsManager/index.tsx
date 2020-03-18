@@ -65,6 +65,7 @@ export interface IClassConnectionsManagerProps {
     postMessage;
     ifaceType: string;
     baseClassName?: string;
+    interfaceContext?: string;
 }
 
 const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
@@ -77,6 +78,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     ifaceType,
     baseClassName,
     selectedFields,
+    interfaceContext,
 }) => {
     const getConnectorsCount = connections => {
         if (connections) {
@@ -356,6 +358,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     connectionName={selectedConnection}
                                     ifaceType={ifaceType}
                                     baseClassName={baseClassName}
+                                    interfaceContext={interfaceContext}
                                 />
                             ) : (
                                 <NonIdealState

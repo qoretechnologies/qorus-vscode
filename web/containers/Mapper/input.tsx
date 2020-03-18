@@ -18,6 +18,7 @@ export interface IMapperInputProps {
     isCustom: boolean;
     path: string;
     hasAvailableOutput: boolean;
+    usesContext?: boolean;
 }
 
 const StyledDragHandle = styled.div`
@@ -38,9 +39,10 @@ const MapperInput: FC<IMapperInputProps> = ({
     type,
     path,
     hasAvailableOutput,
+    usesContext,
 }) => {
     const [{ opacity }, dragRef] = useDrag({
-        item: { type: 'input', types, id: path },
+        item: { type: 'input', types, id: path, usesContext },
         collect: monitor => ({
             opacity: monitor.isDragging() ? 0.2 : 1,
         }),
@@ -69,12 +71,14 @@ const MapperInput: FC<IMapperInputProps> = ({
                     {`${types.includes('nothing') ? '*' : ''}${type.base_type}`}
                 </p>
             </StyledDragHandle>
-            <AddFieldButton
-                field={field}
-                isCustom={isCustom}
-                canManageFields={type.can_manage_fields}
-                onClick={onClick}
-            />
+            {!usesContext && (
+                <AddFieldButton
+                    field={field}
+                    isCustom={isCustom}
+                    canManageFields={type.can_manage_fields}
+                    onClick={onClick}
+                />
+            )}
         </StyledMapperField>
     );
 };

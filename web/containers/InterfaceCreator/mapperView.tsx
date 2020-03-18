@@ -43,6 +43,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     changeInitialData,
     inConnections,
     isEditing,
+    ifaceType,
+    interfaceContext,
 }) => {
     if (!qorus_instance) {
         return (
@@ -70,6 +72,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                     <InterfaceCreatorPanel
                         type={'mapper'}
                         submitLabel={t('Next')}
+                        context={interfaceContext}
                         onSubmit={() => {
                             setShowMapperConnections(true);
                         }}
@@ -95,6 +98,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                     }}
                     isFormValid={isFormValid('mapper')}
                     methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
+                    context={selectedFields.mapper.find((field: IField) => field.name === 'context-selector')?.value}
                     isEditing={isEditing || !!mapper}
                 />
             )}

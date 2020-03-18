@@ -220,6 +220,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     ifaceType,
     baseClassName,
     methods,
+    interfaceContext,
 }) => {
     const [manageDialog, setManageDialog] = useState<IManageDialog>({});
     const [hasLast, setHasLast] = useState<boolean>(false);
@@ -295,6 +296,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                 <StyledDialogBody style={{ flexFlow: 'column' }}>
                     <MapperView
                         inConnections
+                        interfaceContext={interfaceContext}
                         isEditing={mapperDialog.isEditing}
                         defaultMapper={mapperDialog.isEditing && mapperDialog.mapper}
                     />
@@ -373,6 +375,9 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         resetAllInterfaceData('mapper');
                                                         setMapper({
                                                             isFromConnectors: true,
+                                                            hasInitialInput: !!manageDialog.outputProvider,
+                                                            hasInitialOutput: !!manageDialog.inputProvider,
+                                                            'context-selector': interfaceContext,
                                                             mapper_options: {
                                                                 'mapper-input': manageDialog.outputProvider,
                                                                 'mapper-output': manageDialog.inputProvider,

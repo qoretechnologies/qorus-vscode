@@ -40,4 +40,8 @@ export const Messages = {
     CREATOR_DISABLE_FIELD: 'creator-disable-field',
     GET_MAPPER_CODE_METHODS: 'get-mapper-code-methods',
     RETURN_MAPPER_CODE_METHODS: 'return-mapper-code-methods',
+    GET_FIELDS_FROM_TYPE: 'get-fields-from-type',
+    RETURN_FIELDS_FROM_TYPE: 'return-fields-from-type',
+    GET_OBJECTS_WITH_STATIC_DATA: 'get-objects-with-static-data',
+    RETURN_OBJECTS_WITH_STATIC_DATA: 'return-objects-with-static-data',
 };
