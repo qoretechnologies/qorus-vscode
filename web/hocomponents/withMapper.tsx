@@ -9,8 +9,10 @@ import { providers } from '../containers/Mapper/provider';
 import withTextContext from './withTextContext';
 import { Callout } from '@blueprintjs/core';
 import { IMapperRelation } from '../containers/Mapper';
+import withMessageHandler from './withMessageHandler';
+import { Messages } from '../constants/messages';
 
-const addTrailingSlash = (path: string) => {
+export const addTrailingSlash = (path: string) => {
     // Get the last character
     const lastChar: string = path.substr(-1);
     // Check if the last character is a slash
@@ -29,6 +31,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [mapper, setMapper] = useState<any>(props.mapper);
         const [showMapperConnections, setShowMapperConnections] = useState<boolean>(false);
         const [inputs, setInputs] = useState<any>(null);
+        const [contextInputs, setContextInputs] = useState<any>(null);
         const [outputs, setOutputs] = useState<any>(null);
         const [inputProvider, setInputProvider] = useState<string>(null);
         const [outputProvider, setOutputProvider] = useState<string>(null);
@@ -94,8 +97,12 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setMapper(null);
         };
 
-        const getUrlFromProvider: (fieldType: 'input' | 'output') => string = fieldType => {
-            const { type, name, path, subtype } = fieldType === 'input' ? inputOptionProvider : outputOptionProvider;
+        const getUrlFromProvider: (fieldType: 'input' | 'output', provider?: any) => string = (fieldType, provider) => {
+            const { type, name, path, subtype } = provider
+                ? provider
+                : fieldType === 'input'
+                ? inputOptionProvider
+                : outputOptionProvider;
             // Check if the type is factory
             if (type === 'factory') {
                 // Return just the type
@@ -290,6 +297,27 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         useEffect(() => {
             if (qorus_instance) {
+                props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+                    console.log(data);
+                    if (data?.custom_data?.event === 'context') {
+                        // Save the static data
+                        const staticData = data[data.custom_data.iface_kind]['staticdata-type'];
+                        // Get the url from the context provider
+                        const url = getUrlFromProvider(null, staticData);
+                        // Send the URL to backend
+                        props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
+                            if (data) {
+                                // Save the inputs if the data exist
+                                setContextInputs(data.fields || data);
+                            }
+                        });
+                        // Ask backend for the fields for this particular type
+                        props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
+                            ...staticData,
+                            url,
+                        });
+                    }
+                });
                 let mapperKeys;
                 // Fetch the mapper keys
                 (async () => {
@@ -299,11 +327,25 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 })();
                 // Check if user is editing a mapper
                 if (mapper) {
+                    // Process input fields
                     if (mapper.mapper_options['mapper-input']) {
                         getInputsData();
                     }
+                    // Process output fields
                     if (mapper.mapper_options['mapper-output']) {
                         getOutputsData(mapperKeys);
+                    }
+                    // If this mapper has context
+                    if (mapper['context-selector']) {
+                        // Ask for the context interface
+                        props.postMessage(Messages.GET_INTERFACE_DATA, {
+                            iface_kind: mapper['context-selector'].iface_kind,
+                            name: mapper['context-selector'].name,
+                            custom_data: {
+                                event: 'context',
+                                iface_kind: mapper['context-selector'].iface_kind,
+                            },
+                        });
                     }
                 }
             }
@@ -446,6 +488,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setOutputOptionProvider,
                     isEditingMapper: props.isEditingMapper,
                     isFromConnectors: mapper?.isFromConnectors,
+                    hasInitialInput: mapper?.hasInitialInput,
+                    hasInitialOutput: mapper?.hasInitialOutput,
                     hideInputSelector,
                     hideOutputSelector,
                     setHideInputSelector,
@@ -458,6 +502,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     mapperSubmit,
                     handleMapperSubmitSet,
                     removeCodeFromRelations,
+                    contextInputs,
                 }}
             >
                 <Component {...props} />
@@ -472,6 +517,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             isEditingMapper: !!mapper,
             ...rest,
         })),
-        withTextContext()
+        withTextContext(),
+        withMessageHandler()
     )(EnhancedComponent);
 };

@@ -68,7 +68,6 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
     }, [defaultItems]);
 
     const handleChange: (item: any) => void = item => {
-        console.log(item);
         if (item === value) {
             return;
         }

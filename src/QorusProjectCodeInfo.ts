@@ -362,7 +362,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getInterfaceData = ({ iface_kind, name, class_name, include_tabs }) => {
+    getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
             let raw_data;
             if (class_name) {
@@ -379,6 +379,7 @@ export class QorusProjectCodeInfo {
                 action: 'return-interface-data',
                 data: {
                     iface_kind,
+                    custom_data,
                     [iface_kind]: { ...data, iface_id },
                     ... include_tabs
                         ? {
@@ -428,6 +429,76 @@ export class QorusProjectCodeInfo {
             name,
             methods
         });
+    }
+
+    getObjectsWithStaticData = ({iface_kind}) => {
+        const all_local_objects = this.yaml_info.yamlDataByType(iface_kind);
+        let local_objects = Object.keys(all_local_objects)
+                                  .filter(name => all_local_objects[name]['staticdata-type'])
+                                  .map(name => ({name}));
+
+        const processResult = result => {
+            const parsed_result = JSON.parse(result) || [];
+            const qorus_objects = parsed_result.filter(obj => obj.iface_kind === iface_kind);
+
+            const objects = [...local_objects, ...qorus_objects].reduce((acc, obj) => {
+                if (!acc.some(({name}) => name === obj.name)) {
+                    acc.push({name: obj.name});
+                }
+                return acc;
+            }, []);
+
+            const message = {
+                action: 'return-objects-with-static-data',
+                objects,
+                iface_kind
+            };
+
+            qorus_webview.postMessage(message);
+        };
+
+        const onSuccess = response => {
+            processResult(response);
+        };
+
+        const onError = error => {
+            msg.error(error);
+            processResult(null);
+        };
+
+        qorus_request.doRequest('system/interfacesWithDataContext', 'GET', onSuccess, onError);
+    }
+
+    getFieldsFromType = message => {
+        const {name, path: path_in_data, url} = message;
+
+        const postMessage = (data?) => {
+            qorus_webview.postMessage({
+                action: 'return-fields-from-type',
+                data
+            });
+        };
+
+        const type = this.yaml_info.yamlDataByName('type', path.join(name, path_in_data));
+        if (type) {
+            const {typeinfo} = type;
+            if (typeinfo) {
+                postMessage(typeinfo);
+                return;
+            }
+        }
+
+        const onSuccess = response => {
+            const data = JSON.parse(response);
+            postMessage(data);
+        };
+
+        const onError = error => {
+            msg.error(error);
+            postMessage();
+        };
+
+        qorus_request.doRequest(url, 'GET', onSuccess, onError);
     }
 
     fixData(orig_data: any): any {

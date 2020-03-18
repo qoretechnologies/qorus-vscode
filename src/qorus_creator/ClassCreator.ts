@@ -93,7 +93,6 @@ class ClassCreator extends InterfaceCreator {
                 else if (iface_kind === 'step') {
                     const mandatory_step_methods =
                         this.code_info.mandatoryStepMethods(data['base-class-name'], this.lang);
-                    msg.debug({mandatory_step_methods});
                     let method_strings = [];
                     const indent = '    ';
                     Object.keys(mandatory_step_methods).forEach(method_name => {

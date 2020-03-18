@@ -44,7 +44,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
     const [{ canDrop, isDragging }, dropRef] = useDrop({
         accept: 'input',
         drop: item => {
-            onDrop(item.id, path);
+            onDrop(item.id, path, item.usesContext);
         },
         canDrop: item => {
             if (

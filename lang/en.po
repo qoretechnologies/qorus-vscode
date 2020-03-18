@@ -1402,6 +1402,12 @@ msgstr "Connectors"
 msgid "field-desc-class-connectors"
 msgstr "Connectors used for building blocks"
 
+msgid "field-label-context"
+msgstr "Context"
+
+msgid "field-desc-context"
+msgstr "Context"
+
 msgid "InputMethod"
 msgstr "Input method"
 
@@ -2033,3 +2039,6 @@ msgstr "Target directory unknown"
 
 msgid "FailedCreateDir ${ dir }"
 msgstr "Creating directory ${ dir } failed"
+
+msgid "StaticData"
+msgstr "Static data"
