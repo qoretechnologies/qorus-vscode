@@ -791,7 +791,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   />
                               ))
                             : null}
-                        {size(flattenedInputs) === 0 ? (
+                        {size(flattenedInputs) === 0 &&
+                        !(hideInputSelector && inputOptionProvider?.can_manage_fields) ? (
                             <StyledInfoMessage>
                                 {inputOptionProvider?.type === 'factory'
                                     ? t('NoMapperFieldsAvailable')
@@ -805,6 +806,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                 minimal
                                 intent="success"
                                 icon="add"
+                                style={{ marginBottom: '10px' }}
                                 onClick={() => handleClick('inputs')()}
                             />
                         )}
@@ -855,8 +857,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                         flattenedOutputs?.length
                                     ) *
                                         (FIELD_HEIGHT + FIELD_MARGIN) +
-                                    61 +
-                                    35
+                                    126
                                 }
                             >
                                 {map(relations, (relation, outputPath) => (
@@ -988,22 +989,18 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         id={outputPath}
                                                         x1="0"
                                                         y1={
-                                                            (flattenedContextInputs.findIndex(
-                                                                input =>
-                                                                    input.path ===
-                                                                    getStaticDataFieldname(relation.context)
-                                                            ) +
-                                                                (flattenedInputs?.length ||
-                                                                    (hideInputSelector &&
-                                                                    inputOptionProvider?.can_manage_fields
-                                                                        ? 2
-                                                                        : 1)) +
+                                                            63 +
+                                                            63 +
+                                                            (size(flattenedInputs) +
+                                                                (inputOptionProvider?.can_manage_fields ? 1 : 0) +
+                                                                flattenedContextInputs.findIndex(
+                                                                    input =>
+                                                                        input.path ===
+                                                                        getStaticDataFieldname(relation.context)
+                                                                ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
-                                                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                            53 -
-                                                            0.5 +
-                                                            40
+                                                            (FIELD_HEIGHT / 2 + FIELD_MARGIN)
                                                         }
                                                         x2={0}
                                                         y2={
@@ -1037,21 +1034,18 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     onClick={() => removeRelation(outputPath, true, true)}
                                                     x1={0}
                                                     y1={
-                                                        (flattenedContextInputs.findIndex(
-                                                            input =>
-                                                                input.path === getStaticDataFieldname(relation.context)
-                                                        ) +
-                                                            (flattenedInputs?.length ||
-                                                                (hideInputSelector &&
-                                                                inputOptionProvider?.can_manage_fields
-                                                                    ? 2
-                                                                    : 0.5)) +
+                                                        63 +
+                                                        63 +
+                                                        (size(flattenedInputs) +
+                                                            (inputOptionProvider?.can_manage_fields ? 1 : 0) +
+                                                            flattenedContextInputs.findIndex(
+                                                                input =>
+                                                                    input.path ===
+                                                                    getStaticDataFieldname(relation.context)
+                                                            ) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
-                                                        (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                        53 -
-                                                        1.5 +
-                                                        40
+                                                        (FIELD_HEIGHT / 2 + FIELD_MARGIN)
                                                     }
                                                     x2={300}
                                                     y2={
@@ -1074,17 +1068,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         id={outputPath}
                                                         x1="0"
                                                         y1={
-                                                            ((flattenedInputs?.length ||
-                                                                (hideInputSelector &&
-                                                                inputOptionProvider?.can_manage_fields
-                                                                    ? 2
-                                                                    : 1)) +
-                                                                1) *
+                                                            63 +
+                                                            (size(flattenedInputs) +
+                                                                (inputOptionProvider?.can_manage_fields ? 1 : 0)) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
-                                                            (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                            37 -
-                                                            0.5 +
-                                                            40
+                                                            (FIELD_HEIGHT / 2 + FIELD_MARGIN)
                                                         }
                                                         x2={0}
                                                         y2={
@@ -1117,16 +1105,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     onClick={() => removeRelation(outputPath, true)}
                                                     x1={0}
                                                     y1={
-                                                        ((flattenedInputs?.length ||
-                                                            (hideInputSelector && inputOptionProvider?.can_manage_fields
-                                                                ? 2
-                                                                : 1)) +
-                                                            1) *
+                                                        63 +
+                                                        63 +
+                                                        (size(flattenedInputs) +
+                                                            (inputOptionProvider?.can_manage_fields ? 1 : 0)) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
-                                                        (FIELD_HEIGHT / 2 + FIELD_MARGIN) +
-                                                        37 -
-                                                        0.5 +
-                                                        40
+                                                        31.5
                                                     }
                                                     x2={300}
                                                     y2={
