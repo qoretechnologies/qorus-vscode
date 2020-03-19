@@ -1069,10 +1069,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x1="0"
                                                         y1={
                                                             63 +
+                                                            63 +
                                                             (size(flattenedInputs) +
                                                                 (inputOptionProvider?.can_manage_fields ? 1 : 0)) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
-                                                            (FIELD_HEIGHT / 2 + FIELD_MARGIN)
+                                                            31.5
                                                         }
                                                         x2={0}
                                                         y2={
