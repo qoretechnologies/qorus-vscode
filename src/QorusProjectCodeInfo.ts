@@ -817,17 +817,17 @@ export class QorusProjectCodeInfo {
                 break;
             case 'base-class':
                 this.waitForPending(['yaml']).then(() => {
-                    const classes = this.yaml_info.classes(lang);
-                    const current_class =
-                        qorus_webview.opening_data &&
-                        qorus_webview.opening_data.class &&
-                        qorus_webview.opening_data.class['class-name'];
-                    delete classes[current_class];
-                    postMessage('objects', this.addDescToClasses(
-                        [ ...Object.keys(classes), ...all_root_classes ],
-                        all_root_classes,
-                    ));
+                    const classes = this.yaml_info.yamlDataByType('class');
+                    const user_classes = Object.keys(classes).map(key => ({
+                        name: key,
+                        desc: classes[key].desc
+                    }));
+
+                    const qorus_root_classes = this.addDescToClasses(all_root_classes, all_root_classes);
+
+                    postMessage('objects', [ ...user_classes, ...qorus_root_classes ]);
                 });
+
                 break;
             case 'author':
                 this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));
