@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { IClassConnection, StyledDialogBody } from './index';
 import size from 'lodash/size';
 import find from 'lodash/find';
@@ -23,6 +23,7 @@ import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsu
 import useMount from 'react-use/lib/useMount';
 import BooleanField from '../../components/Field/boolean';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import { InitialContext } from '../../context/init';
 
 export interface IClassConnectionsDiagramProps {
     connection: IClassConnection[];
@@ -225,6 +226,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     const [manageDialog, setManageDialog] = useState<IManageDialog>({});
     const [hasLast, setHasLast] = useState<boolean>(false);
     const [mapperDialog, setMapperDialog] = useState({});
+    const initContext = useContext(InitialContext);
 
     const isConnectorValid = () => {
         return manageDialog.isMapper
@@ -359,10 +361,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         icon="trash"
                                                         intent="danger"
                                                         onClick={() => {
-                                                            setManageDialog(current => ({
-                                                                ...current,
-                                                                mapper: null,
-                                                            }));
+                                                            initContext.confirmAction('ConfirmRemoveMapper', () =>
+                                                                setManageDialog(current => ({
+                                                                    ...current,
+                                                                    mapper: null,
+                                                                }))
+                                                            );
                                                         }}
                                                     />
                                                 </>

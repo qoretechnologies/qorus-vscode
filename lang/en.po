@@ -2039,3 +2039,15 @@ msgstr "Static data"
 
 msgid "StaticDataFieldDesc"
 msgstr "Static data provided by context"
+
+msgid "ConfirmRemoveItem"
+msgstr "Are you sure you want to remove this item?"
+
+msgid "ConfirmRemoveConnector"
+msgstr "Are you sure you want to remove this connector?"
+
+msgid "ConfirmRemoveOption"
+msgstr "Are you sure you want to remove this option?"
+
+msgid "ConfirmRemoveField"
+msgstr "Are you sure you want to remove this field?"

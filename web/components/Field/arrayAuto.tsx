@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useEffect, useContext } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { IField } from '.';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
@@ -8,6 +8,7 @@ import map from 'lodash/map';
 import size from 'lodash/size';
 import AutoField from './auto';
 import { StyledPairField } from './multiPair';
+import { InitialContext } from '../../context/init';
 
 export const allowedTypes: string[] = ['string', 'int', 'float', 'date'];
 
@@ -38,6 +39,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
     const [values, setValues] = useState<{ [id: number]: string | number | null }>(transformValues(true, value));
     const [type, setType] = useState<string>(null);
     const [lastId, setLastId] = useState<number>(1);
+    const initContext = useContext(InitialContext);
 
     useMount(() => {
         // Set the default value
@@ -122,7 +124,13 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
                         <Button text={`${name}.`} className={Classes.FIXED} />
                         <AutoField {...rest} name={name} value={val} onChange={handleChange} />
                         {size(values) !== 1 && (
-                            <Button className={Classes.FIXED} icon={'trash'} onClick={() => handleRemoveClick(name)} />
+                            <Button
+                                className={Classes.FIXED}
+                                icon={'trash'}
+                                onClick={() =>
+                                    initContext.confirmAction('ConfirmRemoveItem', () => handleRemoveClick(name))
+                                }
+                            />
                         )}
                     </ControlGroup>
                 </StyledPairField>

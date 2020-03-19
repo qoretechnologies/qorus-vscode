@@ -115,7 +115,16 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                 placeholder={t('Method')}
                                 fill
                             />
-                            {size(value) !== 1 && <Button icon={'trash'} onClick={() => handleRemoveClick(index)} />}
+                            {size(value) !== 1 && (
+                                <Button
+                                    icon={'trash'}
+                                    onClick={() =>
+                                        initialData.confirmAction('ConfirmRemoveConnector', () =>
+                                            handleRemoveClick(index)
+                                        )
+                                    }
+                                />
+                            )}
                         </ControlGroup>
                     </div>
                     <div>
