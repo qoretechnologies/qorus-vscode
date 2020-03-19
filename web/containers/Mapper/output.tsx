@@ -7,7 +7,7 @@ import { Button, Tooltip } from '@blueprintjs/core';
 import { TTranslator } from '../../App';
 
 export interface IMapperOutputProps {
-    onDrop: (inputPath: string, outputPath: string) => any;
+    onDrop: (inputPath: string, outputPath: string, usesContext?: boolean, isInputHash?: boolean) => any;
     id: number;
     accepts: string[];
     name: string;
@@ -44,7 +44,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
     const [{ canDrop, isDragging }, dropRef] = useDrop({
         accept: 'input',
         drop: item => {
-            onDrop(item.id, path, item.usesContext);
+            onDrop(item.id, path, item.usesContext, item.isWholeInput);
         },
         canDrop: item => {
             if (
@@ -80,10 +80,10 @@ const MapperOutput: FC<IMapperOutputProps> = ({
         >
             <h4>{name}</h4>
             <p
-                className={type.types_returned
+                className={`${type.types_returned
                     .join(' ')
                     .replace(/</g, '')
-                    .replace(/>/g, '')}
+                    .replace(/>/g, '')} type`}
             >
                 {`${type.types_returned.includes('nothing') ? '*' : ''}${type.base_type}`}
             </p>
