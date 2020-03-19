@@ -552,6 +552,10 @@ export class QorusProjectCodeInfo {
             });
         }
 
+        if (data.type === 'class' && data['class-name'] && data.name !== data['class-name']) {
+            data.name = data['class-name'];
+        }
+
         const classes_or_requires = data.type === 'class' ? 'requires' : 'classes';
         if (data[classes_or_requires]) {
             let classes = (data['class-prefixes'] || []).map(prefix_data => ({
