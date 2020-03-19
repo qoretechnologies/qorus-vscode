@@ -105,7 +105,8 @@ export class InterfaceInfo {
             level = 'local';
         }
 
-        const parseIfComplex = item => ['list', 'hash'].includes(item.type) ? jsyaml.safeLoad(value) : value;
+        const parseIfComplex = item =>
+            ['list', 'hash', '*list', '*hash'].includes(item.type) ? jsyaml.safeLoad(value) : value;
 
         const templated_key = level === 'global'
             ? 'is_global_value_templated_string'
