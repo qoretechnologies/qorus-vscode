@@ -900,6 +900,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         handleFieldChange('mappers', uniqBy(newMappers, 'name'));
     };
 
+    const supportsContext = () => {
+        const supportedIfaces = ['workflow'];
+        const ifaceType: string = type === 'step' ? 'workflow' : type;
+
+        return supportedIfaces.includes(ifaceType);
+    };
+
     const getInterfaceName = () => {
         const ifaceType: string = type === 'step' ? 'workflow' : type;
         const iName: IField = allSelectedFields[ifaceType].find(field => field.name === 'name');
@@ -1070,10 +1077,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <ClassConnectionsManager
                         ifaceType={type === 'service-methods' ? 'service' : type}
                         baseClassName={requestFieldData('base-class-name', 'value')}
-                        interfaceContext={{
-                            iface_kind: type === 'step' ? 'workflow' : type,
-                            name: getInterfaceName(),
-                        }}
+                        interfaceContext={
+                            supportsContext() &&
+                            getInterfaceName() && {
+                                iface_kind: type === 'step' ? 'workflow' : type,
+                                name: getInterfaceName(),
+                            }
+                        }
                         initialConnections={classConnectionsData}
                         onSubmit={classConnections => {
                             modifyMappers(classConnections);
