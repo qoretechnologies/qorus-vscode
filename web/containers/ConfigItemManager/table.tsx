@@ -1,5 +1,5 @@
 // @flow
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import compose from 'recompose/compose';
 import classnames from 'classnames';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
@@ -23,6 +23,7 @@ import ReactMarkdown from 'react-markdown';
 import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
 import { isNull, isUndefined } from 'util';
 import useMount from 'react-use/lib/useMount';
+import { InitialContext } from '../../context/init';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -153,6 +154,8 @@ let ItemsTable: Function = ({
     type,
     definitionsOnly,
 }: ConfigItemsTableProps) => {
+    const initContext = useContext(InitialContext);
+
     return (
         <React.Fragment>
             <Table striped condensed fixed hover>
@@ -291,7 +294,9 @@ let ItemsTable: Function = ({
                                                         intent="danger"
                                                         icon="trash"
                                                         onClick={() => {
-                                                            onDeleteStructureClick(item.name);
+                                                            initContext.confirmAction('ConfirmRemoveConfigItem', () => {
+                                                                onDeleteStructureClick(item.name);
+                                                            });
                                                         }}
                                                     />
                                                 )}
