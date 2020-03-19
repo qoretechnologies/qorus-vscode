@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { ButtonGroup, Button, InputGroup, ControlGroup, Classes, Icon } from '@blueprintjs/core';
 import { IQorusInstance } from './ProjectConfig';
@@ -7,6 +7,7 @@ import withTextContext from '../hocomponents/withTextContext';
 import { TTranslator } from '../App';
 import size from 'lodash/size';
 import Add from './add';
+import { InitialContext } from '../context/init';
 
 export interface IEnvironmentPanel {
     id: number;
@@ -117,6 +118,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     activeInstance,
     t,
 }) => {
+    const initContext = useContext(InitialContext);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [envName, setEnvName] = useState<string>(name);
 
@@ -198,7 +200,11 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                             }}
                             small
                         />
-                        <Button icon="trash" onClick={() => onEnvironmentDeleteClick(id)} small />
+                        <Button
+                            icon="trash"
+                            onClick={() => initContext.confirmAction('Pls confirm', () => onEnvironmentDeleteClick(id))}
+                            small
+                        />
                     </ButtonGroup>
                 </StyledNameWrapper>
             </StyledEnvHeader>

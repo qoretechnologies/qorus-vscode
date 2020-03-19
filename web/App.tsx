@@ -1,6 +1,16 @@
 import React, { Component, FunctionComponent, useState } from 'react';
 import { connect } from 'react-redux';
-import { Alignment, Button, HTMLTable, Navbar, NavbarDivider, NavbarGroup, ButtonGroup } from '@blueprintjs/core';
+import {
+    Alignment,
+    Button,
+    HTMLTable,
+    Navbar,
+    NavbarDivider,
+    NavbarGroup,
+    ButtonGroup,
+    Dialog,
+    Classes,
+} from '@blueprintjs/core';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import InterfaceCreator from './containers/InterfaceCreator';
@@ -85,8 +95,11 @@ const App: FunctionComponent<IApp> = ({
     qorus_instance,
     changeTab,
     path,
+    confirmDialog,
+    setConfirmDialog,
 }) => {
     const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
+
     useEffectOnce(() => {
         // New text was received
         addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
@@ -169,6 +182,26 @@ const App: FunctionComponent<IApp> = ({
                     </>
                 </StyledApp>
             </TextContext.Provider>
+            {confirmDialog.isOpen && (
+                <Dialog isOpen title={t('ConfirmDialogTitle')} onClose={() => setConfirmDialog({})}>
+                    <div className={Classes.DIALOG_BODY}>{t(confirmDialog.text)}</div>
+                    <div className={Classes.DIALOG_FOOTER}>
+                        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                            <ButtonGroup>
+                                <Button text={t('Cancel')} onClick={() => setConfirmDialog({})} />
+                                <Button
+                                    text={t('Confirm')}
+                                    intent="success"
+                                    onClick={() => {
+                                        confirmDialog.onSubmit();
+                                        setConfirmDialog({});
+                                    }}
+                                />
+                            </ButtonGroup>
+                        </div>
+                    </div>
+                </Dialog>
+            )}
         </>
     );
 };

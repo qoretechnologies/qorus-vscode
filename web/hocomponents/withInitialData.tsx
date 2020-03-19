@@ -11,6 +11,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [initialData, setInitialData] = useState<any>({
             tab: 'ProjectConfig',
         });
+        const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; onSubmit: () => any; text: string }>({});
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
@@ -39,6 +40,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
             props.postMessage(Messages.GET_INITIAL_DATA);
         });
+
+        const confirmAction: (text: string, action: () => any) => void = (text, action) => {
+            setConfirmDialog({
+                isOpen: true,
+                text,
+                onSubmit: action,
+            });
+        };
 
         const changeTab: (tab: string, subtab?: string) => void = (tab, subtab) => {
             setInitialData(current => ({
@@ -122,6 +131,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setActiveInstance,
                     fetchData,
                     changeInitialData,
+                    confirmDialog,
+                    setConfirmDialog,
+                    confirmAction,
                 }}
             >
                 <InitialContext.Consumer>
