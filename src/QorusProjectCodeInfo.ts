@@ -401,7 +401,7 @@ export class QorusProjectCodeInfo {
             return (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
         }
 
-        const type = this.yaml_info.getVaue(file, 'type');
+        const type = this.yaml_info.getValue(file, 'type');
         if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function', 'mapper-code'].includes(type)) {
             return this.yaml_info.getSrcFile(file);
         }
