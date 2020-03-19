@@ -2040,6 +2040,9 @@ msgstr "Static data"
 msgid "StaticDataFieldDesc"
 msgstr "Static data provided by context"
 
+msgid "ConfirmDialogTitle"
+msgstr "Please confirm your action"
+
 msgid "ConfirmRemoveItem"
 msgstr "Are you sure you want to remove this item?"
 
@@ -2051,3 +2054,18 @@ msgstr "Are you sure you want to remove this option?"
 
 msgid "ConfirmRemoveField"
 msgstr "Are you sure you want to remove this field?"
+
+msgid "ConfirmRemoveTrigger"
+msgstr "Are you sure you want to remove this trigger?"
+
+msgid "ConfirmRemoveMapper"
+msgstr "Are you sure you want to remove this mapper?"
+
+msgid "ConfirmRemoveConnector"
+msgstr "Are you sure you want to remove this connector?"
+
+msgid "ConfirmRemoveConnection"
+msgstr "Are you sure you want to remove this connection?"
+
+msgid "ConfirmRemoveConfigItem"
+msgstr "Are you sure you want to remove this config item?"

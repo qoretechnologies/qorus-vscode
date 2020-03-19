@@ -485,10 +485,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                             icon="trash"
                                                             intent="danger"
                                                             onClick={() => {
-                                                                setManageDialog(current => ({
-                                                                    ...current,
-                                                                    trigger: null,
-                                                                }));
+                                                                initContext.confirmAction('ConfirmRemoveTrigger', () =>
+                                                                    setManageDialog(current => ({
+                                                                        ...current,
+                                                                        trigger: null,
+                                                                    }))
+                                                                );
                                                             }}
                                                         />
                                                     )}
@@ -592,13 +594,15 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                     minimal
                                                     icon={<Icon icon={'trash'} iconSize={12} />}
                                                     onClick={() => {
-                                                        onAddConnector(
-                                                            connectionName,
-                                                            {
-                                                                index,
-                                                                isEditing: true,
-                                                            },
-                                                            true
+                                                        initContext.confirmAction('ConfirmRemoveMapper', () =>
+                                                            onAddConnector(
+                                                                connectionName,
+                                                                {
+                                                                    index,
+                                                                    isEditing: true,
+                                                                },
+                                                                true
+                                                            )
                                                         );
                                                     }}
                                                 />
@@ -660,12 +664,14 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                     <Tooltip content={t('RemoveConnector')}>
                                         <Button
                                             onClick={() => {
-                                                onDeleteConnector(connectionName, index);
-                                                // If this was the last connector
-                                                if (conn.isLast) {
-                                                    // Remove the last flag
-                                                    setHasLast(false);
-                                                }
+                                                initContext.confirmAction('ConfirmRemoveConnector', () => {
+                                                    onDeleteConnector(connectionName, index);
+                                                    // If this was the last connector
+                                                    if (conn.isLast) {
+                                                        // Remove the last flag
+                                                        setHasLast(false);
+                                                    }
+                                                });
                                             }}
                                             minimal
                                             icon="trash"
