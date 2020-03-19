@@ -34,7 +34,7 @@ export class QorusProjectYamlInfo {
     private yaml_2_src: any = {};
 
     private authors: any = {};
-    getAuthors = Object.keys(this.authors).map(name => ({name}));
+    getAuthors = () => Object.keys(this.authors).map(name => ({name}));
 
     private inheritance_pairs: any = {};
     private java_inheritance_pairs: any = {};

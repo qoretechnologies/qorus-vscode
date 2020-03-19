@@ -604,7 +604,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                 </StyledMapperConnection>
                             )}
                             <h4>{conn.connector}</h4>
-                            <p className="string">{conn.class}</p>
+                            <p className="type string">{conn.class}</p>
 
                             <ButtonGroup
                                 style={{

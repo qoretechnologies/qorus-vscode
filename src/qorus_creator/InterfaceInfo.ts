@@ -105,7 +105,8 @@ export class InterfaceInfo {
             level = 'local';
         }
 
-        const parseIfComplex = item => ['list', 'hash'].includes(item.type) ? jsyaml.safeLoad(value) : value;
+        const parseIfComplex = item =>
+            ['list', 'hash', '*list', '*hash'].includes(item.type) ? jsyaml.safeLoad(value) : value;
 
         const templated_key = level === 'global'
             ? 'is_global_value_templated_string'
@@ -161,11 +162,6 @@ export class InterfaceInfo {
     updateConfigItem = ({iface_id, iface_kind, data: item}) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
 
-        if (item.can_be_undefined && item.type) {
-            item.type = '*' + item.type;
-        }
-        delete item.can_be_undefined;
-
         if (['list', 'hash'].includes(item.type)) {
             if (item.default_value) {
                 item.default_value = jsyaml.safeLoad(item.default_value);
@@ -175,6 +171,11 @@ export class InterfaceInfo {
                 item.allowed_values = item.allowed_values.map(value => jsyaml.safeLoad(value));
             }
         }
+
+        if (item.can_be_undefined && item.type) {
+            item.type = '*' + item.type;
+        }
+        delete item.can_be_undefined;
 
         let iface = this.iface_by_id[iface_id];
         const name_to_search = item.orig_name || item.name;

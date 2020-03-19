@@ -199,7 +199,7 @@ let ItemsTable: Function = ({
                 </Thead>
                 <DataOrEmptyTable
                     condition={!configItemsData || configItemsData.length === 0}
-                    cols={definitionsOnly ? 6 : 7}
+                    cols={definitionsOnly ? (groupName ? 6 : 7) : groupName ? 7 : 8}
                     small
                 >
                     {props => (
@@ -300,7 +300,10 @@ let ItemsTable: Function = ({
                                     </Tr>
                                     {showDescription && (
                                         <Tr>
-                                            <Td className="text" colspan={groupName ? 7 : 8}>
+                                            <Td
+                                                className="text"
+                                                colspan={definitionsOnly ? (groupName ? 6 : 7) : groupName ? 7 : 8}
+                                            >
                                                 <ReactMarkdown source={item.description} />
                                             </Td>
                                         </Tr>

@@ -2042,3 +2042,6 @@ msgstr "Creating directory ${ dir } failed"
 
 msgid "StaticData"
 msgstr "Static data"
+
+msgid "StaticDataFieldDesc"
+msgstr "Static data provided by context"
