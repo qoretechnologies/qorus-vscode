@@ -2069,3 +2069,12 @@ msgstr "Are you sure you want to remove this connection?"
 
 msgid "ConfirmRemoveConfigItem"
 msgstr "Are you sure you want to remove this config item?"
+
+msgid "ConfirmRemoveInstance"
+msgstr "Are you sure you want to remove this instance?"
+
+msgid "ConfirmRemoveSourceDir"
+msgstr "Are you sure you want to remove this source directory?"
+
+msgid "ConfirmRemoveEnv"
+msgstr "Are you sure you want to remove this environment?"

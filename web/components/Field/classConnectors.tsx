@@ -118,6 +118,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                             {size(value) !== 1 && (
                                 <Button
                                     icon={'trash'}
+                                    intent="danger"
                                     onClick={() =>
                                         initialData.confirmAction('ConfirmRemoveConnector', () =>
                                             handleRemoveClick(index)

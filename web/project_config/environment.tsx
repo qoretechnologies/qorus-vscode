@@ -202,7 +202,10 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                         />
                         <Button
                             icon="trash"
-                            onClick={() => initContext.confirmAction('Pls confirm', () => onEnvironmentDeleteClick(id))}
+                            intent="danger"
+                            onClick={() =>
+                                initContext.confirmAction('ConfirmRemoveEnv', () => onEnvironmentDeleteClick(id))
+                            }
                             small
                         />
                     </ButtonGroup>

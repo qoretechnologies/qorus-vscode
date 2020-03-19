@@ -183,15 +183,16 @@ const App: FunctionComponent<IApp> = ({
                 </StyledApp>
             </TextContext.Provider>
             {confirmDialog.isOpen && (
-                <Dialog isOpen title={t('ConfirmDialogTitle')} onClose={() => setConfirmDialog({})}>
+                <Dialog isOpen icon="warning-sign" title={t('ConfirmDialogTitle')} onClose={() => setConfirmDialog({})}>
                     <div className={Classes.DIALOG_BODY}>{t(confirmDialog.text)}</div>
                     <div className={Classes.DIALOG_FOOTER}>
                         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
                             <ButtonGroup>
-                                <Button text={t('Cancel')} onClick={() => setConfirmDialog({})} />
+                                <Button text={t('Cancel')} onClick={() => setConfirmDialog({})} id="remove-cancel" />
                                 <Button
-                                    text={t('Confirm')}
-                                    intent="success"
+                                    id="remove-confirm"
+                                    text={t('Remove')}
+                                    intent="danger"
                                     onClick={() => {
                                         confirmDialog.onSubmit();
                                         setConfirmDialog({});

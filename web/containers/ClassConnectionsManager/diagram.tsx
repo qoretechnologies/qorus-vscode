@@ -592,7 +592,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                 <Button
                                                     small
                                                     minimal
-                                                    icon={<Icon icon={'trash'} iconSize={12} />}
+                                                    icon={<Icon icon={'trash'} intent="danger" iconSize={12} />}
                                                     onClick={() => {
                                                         initContext.confirmAction('ConfirmRemoveMapper', () =>
                                                             onAddConnector(

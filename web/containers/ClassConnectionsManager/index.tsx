@@ -295,6 +295,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     />
                                     <Button
                                         icon="trash"
+                                        intent="danger"
                                         minimal
                                         onClick={event => {
                                             event.stopPropagation();

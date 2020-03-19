@@ -34,6 +34,7 @@ const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, r
                     )}
                     <Button
                         icon={'trash'}
+                        intent="danger"
                         disabled={!removable}
                         onClick={() => onClick && initContext.confirmAction('ConfirmRemoveField', () => onClick(name))}
                     />

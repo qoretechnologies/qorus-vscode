@@ -127,6 +127,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
                             <Button
                                 className={Classes.FIXED}
                                 icon={'trash'}
+                                intent="danger"
                                 onClick={() =>
                                     initContext.confirmAction('ConfirmRemoveItem', () => handleRemoveClick(name))
                                 }

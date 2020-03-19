@@ -92,6 +92,7 @@ const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
                 {canBeRemoved && (
                     <Button
                         icon={'trash'}
+                        intent="danger"
                         onClick={() => initContext.confirmAction('ConfirmRemoveItem', onRemoveClick)}
                     />
                 )}

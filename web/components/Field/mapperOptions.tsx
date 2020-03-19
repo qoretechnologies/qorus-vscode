@@ -164,6 +164,7 @@ const MapperOptionsField: FunctionComponent<{
                             {size(value) !== 1 && (
                                 <Button
                                     icon={'trash'}
+                                    intent="danger"
                                     onClick={() =>
                                         initialData.confirmAction('ConfirmRemoveOption', () => handleRemoveClick(index))
                                     }

@@ -93,6 +93,7 @@ const OptionHashField: FunctionComponent<{ t: TTranslator; items: any[]; options
                             {index !== 1 && (
                                 <Button
                                     icon={'trash'}
+                                    intent="danger"
                                     onClick={() =>
                                         initContext.confirmAction('ConfirRemoveItem', () => handleRemoveClick(index))
                                     }
