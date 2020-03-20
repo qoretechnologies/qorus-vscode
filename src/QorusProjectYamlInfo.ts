@@ -18,7 +18,6 @@ export class QorusProjectYamlInfo {
 
     private class_2_yaml: any = {};       // all classes
     private java_class_2_yaml: any = {};  // only java classes
-    yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
     classes = lang => lang === 'java' ? { ...this.java_class_2_yaml } : { ...this.class_2_yaml };
     classNames = lang => Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
 
@@ -120,6 +119,10 @@ export class QorusProjectYamlInfo {
             return;
         }
 
+        if (!data.type) {
+            return;
+        }
+
         // possibly fix old classes with both name and class-name
         if (data.type === 'class' && data['class-name'] && data.name !== data['class-name']) {
             data.name = data['class-name'];
@@ -166,7 +169,7 @@ export class QorusProjectYamlInfo {
             this.src_2_yaml[src] = file;
             this.yaml_2_src[file] = src;
         }
-        const class_name = yaml_data['class-name'];
+        const class_name = yaml_data.type === 'class' ? yaml_data.name : yaml_data['class-name'];
         if (class_name) {
             this.class_2_yaml[class_name] = file;
             if (yaml_data.lang === 'java') {
@@ -177,10 +180,6 @@ export class QorusProjectYamlInfo {
         (yaml_data.author || []).forEach(name => {
             this.authors[name] = true;
         });
-
-        if (!yaml_data.type) {
-            return;
-        }
 
         const name = types_with_version.includes(yaml_data.type)
             ? `${yaml_data.name}:${yaml_data.version || default_version}`

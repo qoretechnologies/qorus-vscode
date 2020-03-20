@@ -231,7 +231,7 @@ export class InterfaceInfo {
         }
 
         const parent_name = this_item.parent['interface-name'];
-        const parent_data = this.yaml_info.yamlDataByClass(parent_name);
+        const parent_data = this.yaml_info.yamlDataByName('class', parent_name);
         if (!parent_data) {
             return this_item;
         }

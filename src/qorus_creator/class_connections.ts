@@ -99,7 +99,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
 
             let class_lang = 'qore';
             if (lang === 'java') {
-                class_lang = code_info.yaml_info.yamlDataByClass(connector_class)?.lang || 'qore';
+                class_lang = code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || 'qore';
                 exists_qore_connector = exists_qore_connector || (class_lang === 'qore');
             }
             classes[prefixed_class] = { connector_class, prefix, class_lang };
