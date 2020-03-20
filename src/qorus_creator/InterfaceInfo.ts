@@ -248,7 +248,7 @@ export class InterfaceInfo {
     }
 
     private addClassConfigItems = (iface_id, class_name, prefix?) => {
-        const class_yaml_data = this.yaml_info.yamlDataByClass(class_name);
+        const class_yaml_data = this.yaml_info.yamlDataByName('class', class_name);
         if (!class_yaml_data) {
             return;
         }
