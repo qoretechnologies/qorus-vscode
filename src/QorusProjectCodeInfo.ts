@@ -855,10 +855,11 @@ export class QorusProjectCodeInfo {
                 break;
             case 'class-with-connectors':
                 this.waitForPending(['yaml']).then(() => {
-                    const class_names = this.yaml_info.classNames(lang);
-                    const classes =
-                        class_names.map(class_name => this.fixData(this.yaml_info.yamlDataByName('class', class_name)))
-                                   .filter(class_obj => class_obj['class-connectors']);
+                    let classes = this.yaml_info.yamlDataByType('class').filter(data => data['class-connectors']);
+                    if (lang === 'java') {
+                        classes = classes.filter(({lang}) => lang === 'java');
+                    }
+                    classes = classes.map(data => this.fixData(data));
                     postMessage('objects', classes);
                 });
                 break;

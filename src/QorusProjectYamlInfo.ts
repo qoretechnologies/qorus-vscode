@@ -16,11 +16,6 @@ export class QorusProjectYamlInfo {
     yamlDataBySrcFile = file => this.yaml_data[this.src_2_yaml[file]];
     yamlDataByFilePath = file => this.yaml_data[file];
 
-    private class_2_yaml: any = {};       // all classes
-    private java_class_2_yaml: any = {};  // only java classes
-    classes = lang => lang === 'java' ? { ...this.java_class_2_yaml } : { ...this.class_2_yaml };
-    classNames = lang => Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
-
     private name_2_yaml: any = {};
     yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
     yamlDataByType = type => {
@@ -84,7 +79,6 @@ export class QorusProjectYamlInfo {
 
         this.yaml_2_src = {};
         this.src_2_yaml = {};
-        this.class_2_yaml = {};
         this.authors = {};
 
         for (const type of types) {
@@ -169,13 +163,6 @@ export class QorusProjectYamlInfo {
             this.src_2_yaml[src] = file;
             this.yaml_2_src[file] = src;
         }
-        const class_name = yaml_data.type === 'class' ? yaml_data.name : yaml_data['class-name'];
-        if (class_name) {
-            this.class_2_yaml[class_name] = file;
-            if (yaml_data.lang === 'java') {
-                this.java_class_2_yaml[class_name] = file;
-            }
-        }
 
         (yaml_data.author || []).forEach(name => {
             this.authors[name] = true;
@@ -193,6 +180,7 @@ export class QorusProjectYamlInfo {
 
         this.name_2_yaml[yaml_data.type][name] = file;
 
+        const class_name = yaml_data.type === 'class' ? yaml_data.name : yaml_data['class-name'];
         const base_class_name = yaml_data['base-class-name'];
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
