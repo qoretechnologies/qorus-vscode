@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useContext } from 'react';
 import { IQorusInstance } from './ProjectConfig';
 import styled from 'styled-components';
 import { Icon, Button, ButtonGroup, Classes } from '@blueprintjs/core';
@@ -7,6 +7,7 @@ import withTextContext from '../hocomponents/withTextContext';
 import QorusUrl from './url';
 import { TTranslator } from '../App';
 import { StyledSubHeader, StyledNoData } from './environment';
+import { InitialContext } from '../context/init';
 
 export interface IQorusInstanceProps extends IQorusInstance {
     onDataChange: (instanceId: number, name: string, url?: string) => void;
@@ -81,6 +82,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
 }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isExpanded, setExpanded] = useState<boolean>(false);
+    const initContext = useContext(InitialContext);
 
     const handleDataChange: (newName: string, url: string) => void = (newName, url) => {
         // Change the data of this instance
@@ -130,7 +132,12 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                                 onClick={() => onSetActive(url, !isActive)}
                             />
                             <Button icon="edit" small onClick={() => setIsEditing(true)} />
-                            <Button icon="trash" small onClick={() => onDelete(id)} />
+                            <Button
+                                icon="trash"
+                                intent="danger"
+                                small
+                                onClick={() => initContext.confirmAction('ConfirmRemoveInstance', () => onDelete(id))}
+                            />
                         </ButtonGroup>
                     </div>
                 </StyledInstanceWrapper>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import SidePanel from '../../components/SidePanel';
@@ -25,6 +25,7 @@ import { Messages } from '../../constants/messages';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import Loader from '../../components/Loader';
+import { InitialContext } from '../../context/init';
 
 export const StyledDialogBody = styled.div`
     padding: 20px 20px 0 20px;
@@ -100,6 +101,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     const [lastConnectorId, setLastConnectorId] = useState<number>(getConnectorsCount(initialConnections));
     const [lastConnectionId, setLastConnectionId] = useState<number>(initialConnections ? size(initialConnections) : 0);
     const classes = selectedFields[ifaceType].find((field: IField) => field.name === 'classes').value;
+    const initContext = useContext(InitialContext);
 
     // Get the classes data
     useMount(() => {
@@ -293,22 +295,24 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     />
                                     <Button
                                         icon="trash"
+                                        intent="danger"
                                         minimal
                                         onClick={event => {
                                             event.stopPropagation();
-
-                                            setConnections(current => {
-                                                if (selectedConnection === name) {
-                                                    setSelectedConnection(null);
-                                                }
-                                                const result = { ...current };
-                                                delete result[name];
-                                                // Check if there are any connections left
-                                                if (!size(result)) {
-                                                    // reset the ID
-                                                    setLastConnectionId(1);
-                                                }
-                                                return result;
+                                            initContext.confirmAction('ConfirmRemoveConnection', () => {
+                                                setConnections(current => {
+                                                    if (selectedConnection === name) {
+                                                        setSelectedConnection(null);
+                                                    }
+                                                    const result = { ...current };
+                                                    delete result[name];
+                                                    // Check if there are any connections left
+                                                    if (!size(result)) {
+                                                        // reset the ID
+                                                        setLastConnectionId(1);
+                                                    }
+                                                    return result;
+                                                });
                                             });
                                         }}
                                     />

@@ -982,7 +982,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 />
                                             </>
                                         )}
-                                        {!!relation.context && hasStaticDataField(relation.context) ? (
+                                        {!!relation.context &&
+                                        hasStaticDataField(relation.context) &&
+                                        size(flattenedContextInputs) ? (
                                             <>
                                                 <defs>
                                                     <linearGradient
@@ -1061,7 +1063,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 />
                                             </>
                                         ) : null}
-                                        {!!relation.context && relation.context === '$static:*' ? (
+                                        {!!relation.context &&
+                                        relation.context === '$static:*' &&
+                                        size(flattenedContextInputs) ? (
                                             <>
                                                 <defs>
                                                     <linearGradient

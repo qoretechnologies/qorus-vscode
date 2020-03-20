@@ -1,7 +1,8 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useContext } from 'react';
 import { Button, ButtonGroup, Tooltip } from '@blueprintjs/core';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
+import { InitialContext } from '../../context/init';
 
 export interface IAddFieldProps {
     onClick: any;
@@ -12,6 +13,8 @@ export interface IAddFieldProps {
 }
 
 const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields, field, t }) => {
+    const initContext = useContext(InitialContext);
+
     const onAddClick = useCallback(() => {
         onClick(field);
     }, [field]);
@@ -48,7 +51,7 @@ const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields
                 <Tooltip content={t('RemoveMapperField')}>
                     <Button
                         className="field-manage"
-                        onClick={onDeleteClick}
+                        onClick={() => initContext.confirmAction('ConfirmRemoveField', onDeleteClick)}
                         icon="trash"
                         small
                         minimal
