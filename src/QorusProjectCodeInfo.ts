@@ -853,16 +853,6 @@ export class QorusProjectCodeInfo {
                     Object.keys(this.yaml_info.yamlDataByType(object_type)).map(name => ({name}))
                 ));
                 break;
-            case 'class-with-connectors':
-                this.waitForPending(['yaml']).then(() => {
-                    let classes = this.yaml_info.yamlDataByType('class').filter(data => data['class-connectors']);
-                    if (lang === 'java') {
-                        classes = classes.filter(({lang}) => lang === 'java');
-                    }
-                    classes = classes.map(data => this.fixData(data));
-                    postMessage('objects', classes);
-                });
-                break;
             case 'module':
                 this.waitForPending(['modules']).then(() =>
                     postMessage('objects', this.modules.map(name => ({ name })))
