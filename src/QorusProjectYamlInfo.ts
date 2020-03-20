@@ -118,7 +118,7 @@ export class QorusProjectYamlInfo {
         }
 
         // possibly fix old classes with both name and class-name
-        if (data.type === 'class' && data['class-name'] && data.name !== data['class-name']) {
+        if (['class', 'mapper-code'].includes(data.type) && data['class-name'] && data.name !== data['class-name']) {
             data.name = data['class-name'];
             delete data['class-name'];
 
@@ -180,7 +180,7 @@ export class QorusProjectYamlInfo {
 
         this.name_2_yaml[yaml_data.type][name] = file;
 
-        const class_name = yaml_data.type === 'class' ? yaml_data.name : yaml_data['class-name'];
+        const class_name = ['class', 'mapper-code'].includes(yaml_data.type) ? yaml_data.name : yaml_data['class-name'];
         const base_class_name = yaml_data['base-class-name'];
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {

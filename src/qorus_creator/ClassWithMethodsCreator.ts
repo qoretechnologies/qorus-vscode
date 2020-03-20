@@ -36,6 +36,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 }
                 break;
             case 'mapper-code':
+                data.name = data['class-name'] = data['class-class-name'];
                 suffix = '.qmc';
                 methods_key = 'mapper-methods';
                 ({

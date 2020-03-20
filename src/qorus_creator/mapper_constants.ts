@@ -78,7 +78,9 @@ export const mapperFields = ({ default_target_dir, context }) => [
 export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
-    field.name,
+    {
+        name: 'class-class-name',
+    },
     field.version,
     {
         ...field.desc,
@@ -88,7 +90,6 @@ export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
         ...field.lang(is_editing),
         mandatory: false,
     },
-    field.class_name,
     field.author,
 ];
 

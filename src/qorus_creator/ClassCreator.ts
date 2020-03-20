@@ -115,7 +115,7 @@ class ClassCreator extends InterfaceCreator {
                 }
 
                 contents = this.fillTemplate(template, [...imports, ...more_imports], {
-                    class_name: data['class-class-name'] || data['class-name'],
+                    class_name: data['class-name'],
                     base_class_name: data['base-class-name'],
                     methods,
                     connections_within_class,

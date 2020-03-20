@@ -552,7 +552,7 @@ export class QorusProjectCodeInfo {
             });
         }
 
-        if (data.type === 'class' && data['class-name'] && data.name !== data['class-name']) {
+        if (['class', 'mapper-code'].includes(data.type) && data['class-name'] && data.name !== data['class-name']) {
             data.name = data['class-name'];
         }
 
@@ -619,7 +619,7 @@ export class QorusProjectCodeInfo {
             delete data.methods;
         }
 
-        if (data.type === 'class') {
+        if (['class', 'mapper-code'].includes(data.type)) {
             data['class-class-name'] = data['class-name'] = data.name;
         }
 
