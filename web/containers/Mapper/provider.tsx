@@ -1,10 +1,13 @@
-import React, { FC, useCallback, useState, useEffect } from 'react';
-import { Button, ButtonGroup, Spinner } from '@blueprintjs/core';
+import React, { FC, useCallback, useState, useEffect, useContext } from 'react';
+import { Button, ButtonGroup, Spinner, Dialog, Classes, Callout } from '@blueprintjs/core';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import SelectField from '../../components/Field/select';
 import map from 'lodash/map';
 import size from 'lodash/size';
 import styled, { css } from 'styled-components';
+import { TextContext } from '../../context/text';
+import String from '../../components/Field/string';
+import { validateField } from '../../helpers/validations';
 
 export interface IProviderProps {
     type: 'inputs' | 'outputs';
@@ -120,6 +123,9 @@ const MapperProvider: FC<IProviderProps> = ({
     compact,
     canSelectNull,
 }) => {
+    const [wildcardDiagram, setWildcardDiagram] = useState(null);
+    const t = useContext(TextContext);
+
     const handleProviderChange = provider => {
         setProvider(current => {
             // Fetch the url of the provider
@@ -322,47 +328,90 @@ const MapperProvider: FC<IProviderProps> = ({
     );
 
     return (
-        <StyledWrapper compact={compact} hasTitle={!!title}>
-            {!compact && <StyledHeader>{title}</StyledHeader>}
-            {compact && title && <span>{title}: </span>}{' '}
-            <ButtonGroup>
-                <SelectField
-                    name="input"
-                    disabled={isLoading}
-                    defaultItems={getDefaultItems()}
-                    onChange={(_name, value) => {
-                        handleProviderChange(value);
-                    }}
-                    value={provider}
-                />
-                {nodes.map((child, index) => (
+        <>
+            {wildcardDiagram?.isOpen && (
+                <Dialog title={t('Wildcard')} isOpen isCloseButtonShown={false}>
+                    <div className={Classes.DIALOG_BODY}>
+                        <Callout intent="primary">{t('WildcardReplace')}</Callout>
+                        <br />
+                        <String
+                            name="wildcard"
+                            onChange={(_name, value) => setWildcardDiagram(cur => ({ ...cur, value }))}
+                            value={wildcardDiagram.value}
+                        />
+                    </div>
+                    <div className={Classes.DIALOG_FOOTER}>
+                        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                            <Button
+                                intent="success"
+                                disabled={!validateField('string', wildcardDiagram.value)}
+                                onClick={() => {
+                                    handleChildFieldChange(
+                                        wildcardDiagram.value,
+                                        wildcardDiagram.url,
+                                        wildcardDiagram.index,
+                                        wildcardDiagram.suffix
+                                    );
+                                    setWildcardDiagram(null);
+                                }}
+                                text={t('Submit')}
+                            />
+                        </div>
+                    </div>
+                </Dialog>
+            )}
+            <StyledWrapper compact={compact} hasTitle={!!title}>
+                {!compact && <StyledHeader>{title}</StyledHeader>}
+                {compact && title && <span>{title}: </span>}{' '}
+                <ButtonGroup>
                     <SelectField
-                        key={title + index}
-                        name="smth"
+                        name="input"
                         disabled={isLoading}
-                        defaultItems={child.values}
+                        defaultItems={getDefaultItems()}
                         onChange={(_name, value) => {
-                            // Get the child data
-                            const { url, suffix } = child.values.find(val => val.name === value);
-                            // Change the child
-                            handleChildFieldChange(value, url, index, suffix);
+                            handleProviderChange(value);
                         }}
-                        value={child.value}
+                        value={provider}
                     />
-                ))}
-                {isLoading && <Spinner size={15} />}
-                {record && (
-                    <Button
-                        intent="success"
-                        icon="small-tick"
-                        onClick={() => {
-                            setFields(record);
-                            hide();
-                        }}
-                    />
-                )}
-            </ButtonGroup>
-        </StyledWrapper>
+                    {nodes.map((child, index) => (
+                        <SelectField
+                            key={title + index}
+                            name="smth"
+                            disabled={isLoading}
+                            defaultItems={child.values}
+                            onChange={(_name, value) => {
+                                // Get the child data
+                                const { url, suffix } = child.values.find(val => val.name === value);
+                                // If the value is a wildcard present a dialog that the user has to fill
+                                if (value === '*') {
+                                    setWildcardDiagram({
+                                        index,
+                                        isOpen: true,
+                                        url,
+                                        suffix,
+                                    });
+                                } else {
+                                    // Change the child
+                                    handleChildFieldChange(value, url, index, suffix);
+                                }
+                            }}
+                            value={child.value}
+                        />
+                    ))}
+                    {isLoading && <Spinner size={15} />}
+                    {record && (
+                        <Button
+                            intent="success"
+                            icon="small-tick"
+                            onClick={() => {
+                                setFields(record);
+                                hide();
+                            }}
+                        />
+                    )}
+                </ButtonGroup>
+            </StyledWrapper>
+        </>
     );
 };
 
