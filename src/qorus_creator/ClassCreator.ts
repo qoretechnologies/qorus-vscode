@@ -7,7 +7,7 @@ import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { classConnectionsCode } from './class_connections';
-import { hasConfigItems } from '../qorus_utils';
+import { hasConfigItems, toValidIdentifier } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -35,7 +35,7 @@ class ClassCreator extends InterfaceCreator {
                 }
                 break;
             case 'class':
-                data.name = data['class-name'] = data['class-class-name'];
+                data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
                 template = (data['base-class-name'] ? subclass_template : class_template)[this.lang];
                 suffix = '.qclass';
                 break;
