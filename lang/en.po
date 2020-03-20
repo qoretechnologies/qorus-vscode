@@ -2084,3 +2084,6 @@ msgstr "Are you sure you want to remove this source directory?"
 
 msgid "ConfirmRemoveEnv"
 msgstr "Are you sure you want to remove this environment?"
+
+msgid "WildcardReplace"
+msgstr "Wildcards (*) need to be replaced with an actual value. If you wish to change this value later, please select the wildcard (*) again."
