@@ -71,7 +71,7 @@ export const classConnectionsCode = (data, code_info: QorusProjectCodeInfo, lang
                 : `${trigger}()`
             : lang === 'java'
                 ? `public Object ${trigger}(Map<String, Object> ${CONN_DATA}) ${THROWS}`
-                : `auto ${trigger}(*hash<auto> ${CONN_DATA})`;
+                : `auto ${trigger}(auto ${CONN_DATA})`;
 
         return {
             signature,
@@ -292,7 +292,7 @@ extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
 
     code += `${indent1}}\n\n` +
         `${indent1}Object ${CONN_CALL_METHOD}(final String prefixedClass, final String methodName,\n` +
-        `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS} {\n` +
+        `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Optional<Object> ${CONN_DATA}) ${THROWS} {\n` +
         `${indent2}UserApi.logInfo("${conn_class_name}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
         `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +
         `${indent2}if (object instanceof QoreObject) {\n` +
@@ -329,7 +329,7 @@ extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
 let methodCode: any = {};
 
 methodCode.qore = (connection_code_name, connectors) => {
-    let code = `${indent1}auto ${connection_code_name}(*hash<auto> ${CONN_DATA}) {\n`;
+    let code = `${indent1}auto ${connection_code_name}(auto ${CONN_DATA}) {\n`;
 
     if (connectors.some(connector => connector.mapper)) {
         code += `${indent2}auto ${CONN_MAPPER};\n`;
@@ -367,7 +367,7 @@ methodCode.qore = (connection_code_name, connectors) => {
 
 methodCode.java = (connection_code_name, connectors) => {
     let code = `${indent1}@SuppressWarnings("unchecked")\n` +
-        `${indent1}public Object ${connection_code_name}(Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS} {\n`;
+        `${indent1}public Object ${connection_code_name}(Optional<Object> ${CONN_DATA}) ${THROWS} {\n`;
 
     if (connectors.some(connector => connector.mapper)) {
         code += `${indent2}Mapper ${CONN_MAPPER};\n`;
@@ -386,7 +386,7 @@ methodCode.java = (connection_code_name, connectors) => {
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
         if (++n !== connectors.length) {
-            code += `${CONN_DATA} = (Optional<Map<String, Object>>)`;
+            code += `${CONN_DATA} = (Optional<Object>)`;
         } else {
             code += 'return ';
         }
