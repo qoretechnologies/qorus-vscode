@@ -19,7 +19,7 @@ import { qorus_request } from './QorusRequest';
 import { tester } from './QorusTest';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
-import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import { registerInterfaceTreeCommands } from './qorus_interface_tree';
 

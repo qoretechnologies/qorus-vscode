@@ -13,8 +13,8 @@ import { otherFields } from './other_constants';
 import { gettext } from 'ttag';
 
 
-class InterfaceCreatorDispatcher {
-    getFields = (params: any): any[] => {
+export class InterfaceCreatorDispatcher {
+    static getFields = (params: any): any[] => {
         switch (params.iface_kind) {
             case 'service':
                 return serviceFields(params);
@@ -43,9 +43,9 @@ class InterfaceCreatorDispatcher {
         }
     }
 
-    getSortedFields = (params: any): any[] => {
+    static getSortedFields = (params: any): any[] => {
         const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc'];
-        let unsorted = [ ...this.getFields(params) ];
+        let unsorted = [ ...InterfaceCreatorDispatcher.getFields(params) ];
         let at_the_beginning = [];
         not_to_sort.forEach(field_name => {
             const index = unsorted.findIndex(({name}) => name === field_name);
@@ -61,7 +61,7 @@ class InterfaceCreatorDispatcher {
         return [...flattenDeep(at_the_beginning), ...unsorted.sort(sorter)];
     }
 
-    editInterface({iface_kind: iface_kinds, interface_info, ...other_params}) {
+    static editInterface({iface_kind: iface_kinds, interface_info, ...other_params}) {
         const [iface_kind, sub_iface_kind] = iface_kinds.split(/:/);
 
         switch (sub_iface_kind || iface_kind) {
@@ -84,7 +84,7 @@ class InterfaceCreatorDispatcher {
         }
     }
 
-    fieldAdded({field, iface_id, iface_kind}) {
+    static fieldAdded({field, iface_id, iface_kind}) {
         const addField = field =>
             qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
 
@@ -110,7 +110,7 @@ class InterfaceCreatorDispatcher {
         }
     }
 
-    fieldRemoved({field, interface_info, ...other_params}) {
+    static fieldRemoved({field, interface_info, ...other_params}) {
         const {iface_id, iface_kind} = other_params;
 
         const removeField = field =>
@@ -144,9 +144,7 @@ class InterfaceCreatorDispatcher {
         }
     }
 
-    deleteMethod(data: any, iface_kind: string) {
+    static deleteMethod(data: any, iface_kind: string) {
         class_with_methods_creator.deleteMethod(data, iface_kind);
     }
 }
-
-export const creator = new InterfaceCreatorDispatcher();
