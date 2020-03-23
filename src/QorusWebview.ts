@@ -254,6 +254,9 @@ class QorusWebview {
                         case 'delete-config-item':
                             interface_info.deleteConfigItem(message);
                             break;
+                        case 'config-item-type-changed':
+                            creator.configItemTypeChanged(message);
+                            break;
                         case 'get-objects-with-static-data':
                             project.code_info.getObjectsWithStaticData(message);
                             break;

@@ -11,6 +11,7 @@ import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_c
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 import { gettext } from 'ttag';
+import * as msg from '../qorus_message';
 
 
 export class InterfaceCreatorDispatcher {
@@ -81,6 +82,24 @@ export class InterfaceCreatorDispatcher {
             case 'config-item':
                 interface_info.updateConfigItem({...other_params, iface_kind});
                 break;
+        }
+    }
+
+    static configItemTypeChanged({type, iface_id, iface_kind}) {
+        if (type === 'any') {
+            qorus_webview.postMessage({
+                action: 'creator-remove-field',
+                field: 'can_be_undefined',
+                iface_id,
+                iface_kind
+            });
+        } else {
+            qorus_webview.postMessage({
+                action: 'creator-add-field',
+                field: 'can_be_undefined',
+                iface_id,
+                iface_kind
+            });
         }
     }
 
