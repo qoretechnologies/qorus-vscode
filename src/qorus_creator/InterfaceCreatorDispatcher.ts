@@ -11,7 +11,6 @@ import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_c
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 import { gettext } from 'ttag';
-import * as msg from '../qorus_message';
 
 
 export class InterfaceCreatorDispatcher {
