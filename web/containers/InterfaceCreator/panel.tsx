@@ -43,6 +43,7 @@ import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import Loader from '../../components/Loader';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import { processSteps } from './workflowsView';
+import { AppToaster } from '../../components/Toast';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -615,7 +616,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         });
     };
 
-    const handleSubmitClick: () => void = () => {
+    const handleSubmitClick: () => void = async () => {
         // Set the value flag for all selected fields
         setSelectedFields(
             type,
@@ -637,6 +638,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmit) {
             onSubmit(selectedFields);
         }
+
+        let result;
 
         if (!onSubmit || forceSubmit) {
             let newData: { [key: string]: any };
@@ -713,36 +716,48 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     }),
                     {}
                 );
-                postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-                    iface_kind,
-                    data: { ...newData, 'class-connections': classConnectionsData },
-                    orig_data: data,
-                    workflow,
-                    open_file_on_success: openFileOnSubmit !== false,
-                    iface_id: interfaceId,
-                });
+                result = await initialData.callBackend(
+                    isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+                    undefined,
+                    {
+                        iface_kind,
+                        data: { ...newData, 'class-connections': classConnectionsData },
+                        orig_data: data,
+                        workflow,
+                        open_file_on_success: openFileOnSubmit !== false,
+                        iface_id: interfaceId,
+                    },
+                    t(`Saving ${type}...`)
+                );
             } else {
-                postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-                    iface_kind,
-                    data: { ...newData, 'class-connections': classConnectionsData },
-                    orig_data:
-                        type === 'service-methods'
-                            ? initialData.service
-                            : type === 'mapper-methods'
-                            ? initialData['mapper-code']
-                            : data,
-                    open_file_on_success: openFileOnSubmit !== false,
-                    iface_id: interfaceId,
-                });
+                result = await initialData.callBackend(
+                    isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+                    undefined,
+                    {
+                        iface_kind,
+                        data: { ...newData, 'class-connections': classConnectionsData },
+                        orig_data:
+                            type === 'service-methods'
+                                ? initialData.service
+                                : type === 'mapper-methods'
+                                ? initialData['mapper-code']
+                                : data,
+                        open_file_on_success: openFileOnSubmit !== false,
+                        iface_id: interfaceId,
+                    },
+                    t(`Saving ${type}...`)
+                );
             }
-            // If this is config item, reset only the fields
-            // local fields will be unmounted
-            if (type === 'config-item') {
-                resetFields(type);
-            } else {
-                // Reset the interface data
-                resetAllInterfaceData(type);
-                resetClassConnections && resetClassConnections();
+            if (result.ok) {
+                // If this is config item, reset only the fields
+                // local fields will be unmounted
+                if (type === 'config-item') {
+                    resetFields(type);
+                } else {
+                    // Reset the interface data
+                    resetAllInterfaceData(type);
+                    resetClassConnections && resetClassConnections();
+                }
             }
         }
     };

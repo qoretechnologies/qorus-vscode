@@ -4,6 +4,8 @@ import useMount from 'react-use/lib/useMount';
 import { Messages } from '../constants/messages';
 import shortid from 'shortid';
 import set from 'lodash/set';
+import { AppToaster } from '../components/Toast';
+import { Toaster } from '@blueprintjs/core';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -117,6 +119,71 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
+        const callBackend: (
+            getMessage: string,
+            returnMessage: string,
+            data: any,
+            toastMessage?: string
+        ) => Promise<any> = async (getMessage, returnMessage, data, toastMessage) => {
+            // Create the unique ID for this request
+            const uniqueId: string = shortid.generate();
+            // Create new toast
+            AppToaster.show(
+                {
+                    message: toastMessage || 'Request in progress',
+                    intent: 'warning',
+                    timeout: 30000,
+                    icon: 'info-sign',
+                },
+                uniqueId
+            );
+
+            return new Promise((resolve, reject) => {
+                // Create a timeout that will reject the request
+                // after 2 minutes
+                let timeout: NodeJS.Timer | null = setTimeout(() => {
+                    AppToaster.show(
+                        {
+                            message: 'Request timed out',
+                            intent: 'danger',
+                            timeout: 3000,
+                            icon: 'error',
+                        },
+                        uniqueId
+                    );
+                    resolve({
+                        ok: false,
+                        message: 'Request timed out',
+                    });
+                }, 30000);
+                // Watch for the request to complete
+                // if the ID matches then resolve
+                props.addMessageListener(getMessage, data => {
+                    if (data.request_id === uniqueId) {
+                        AppToaster.show(
+                            {
+                                message: data.message,
+                                intent: data.ok ? 'success' : 'danger',
+                                timeout: 3000,
+                                icon: data.ok ? 'small-tick' : 'error',
+                            },
+                            uniqueId
+                        );
+
+                        clearTimeout(timeout);
+                        timeout = null;
+                        resolve(data);
+                    }
+                });
+
+                // Fetch the data
+                props.postMessage(returnMessage || `${getMessage}-complete`, {
+                    request_id: uniqueId,
+                    ...data,
+                });
+            });
+        };
+
         if (!initialData) {
             return null;
         }
@@ -134,6 +201,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     confirmDialog,
                     setConfirmDialog,
                     confirmAction,
+                    callBackend,
                 }}
             >
                 <InitialContext.Consumer>
