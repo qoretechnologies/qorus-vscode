@@ -86,7 +86,7 @@ const Connector: React.FC<IConnectorProps> = ({
             const name = class_name_parts[1] || class_name_parts[0];
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'class',
-                class_name: name,
+                name: name,
             });
         }
     }, [manageDialog]);
@@ -239,7 +239,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             // Get the class
             const class_name_parts = connectionData.class.split(':'); // possibly with prefix
             const class_name = class_name_parts[1] || class_name_parts[0];
-            const connClass = Object.values(classesData).find(class_data => class_data['class-name'] === class_name);
+            const connClass = Object.values(classesData).find(class_data => class_data.name === class_name);
             // Get the connector data
             const connectorData = connClass['class-connectors'].find(conn => conn.name === connectionData.connector);
             // Return updated data

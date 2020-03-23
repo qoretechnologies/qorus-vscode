@@ -44,7 +44,7 @@ class InterfaceCreatorDispatcher {
     }
 
     getSortedFields = (params: any): any[] => {
-        const not_to_sort = ['target_dir', 'name', 'description', 'desc'];
+        const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc'];
         let unsorted = [ ...this.getFields(params) ];
         let at_the_beginning = [];
         not_to_sort.forEach(field_name => {
@@ -138,6 +138,7 @@ class InterfaceCreatorDispatcher {
                 }
                 break;
             case 'classes':
+            case 'requires':
                 interface_info.removeAllClasses(other_params);
                 break;
         }

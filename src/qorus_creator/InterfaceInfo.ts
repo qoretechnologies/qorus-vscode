@@ -231,7 +231,7 @@ export class InterfaceInfo {
         }
 
         const parent_name = this_item.parent['interface-name'];
-        const parent_data = this.yaml_info.yamlDataByClass(parent_name);
+        const parent_data = this.yaml_info.yamlDataByName('class', parent_name);
         if (!parent_data) {
             return this_item;
         }
@@ -248,7 +248,7 @@ export class InterfaceInfo {
     }
 
     private addClassConfigItems = (iface_id, class_name, prefix?) => {
-        const class_yaml_data = this.yaml_info.yamlDataByClass(class_name);
+        const class_yaml_data = this.yaml_info.yamlDataByName('class', class_name);
         if (!class_yaml_data) {
             return;
         }
@@ -409,14 +409,28 @@ export class InterfaceInfo {
             classes.findIndex(({name: name2, prefix: prefix2 = ''}) => name === name2 && prefix === prefix2) !== -1);
     }
 
+    addClassNames = classes => {
+        if (!classes) {
+            return undefined;
+        }
+
+        return classes.map(class_data => ({
+            ...class_data,
+            'class-name': class_data.name
+        }));
+    }
+
     getConfigItems = params => {
-        const {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
+        let {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
         if (!iface_id) {
             return;
         }
         if (!['workflow', 'job', 'service', 'class', 'step'].includes(iface_kind)) {
             return;
         }
+
+        requires = this.addClassNames(requires);
+        classes = this.addClassNames(classes);
 
         this.maybeInitIfaceId(iface_id, iface_kind);
 

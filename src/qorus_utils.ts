@@ -80,14 +80,18 @@ export const removeDuplicates = values => {
 export const dash2Camel = str => {
     let parts = str.split('-');
     const first = parts.splice(0, 1);
-    parts = parts.map(part => part[0].toUpperCase() + part.substr(1));
+    parts = parts.map(part => (part[0] || '').toUpperCase() + part.substr(1));
     return [first, ...parts].join('');
 };
 
 export const dash2Pascal = str =>
-    str.split('-').map(part => part[0].toUpperCase() + part.substr(1)).join('');
+    str.split('-').map(part => (part[0] || '').toUpperCase() + part.substr(1)).join('');
 
-export const toValidIdentifier = str => dash2Camel(str.replace(/\W+/g, '-')).replace(/(^[0-9])/, '_' + '$1');
+export const toValidIdentifier = (str, capitalize = false) => {
+    str = str.trim().replace(/\W+/g, '-');
+    str = capitalize ? dash2Pascal(str) : dash2Camel(str);
+    return str.replace(/(^[0-9])/, '_' + '$1');
+}
 
 export const makeFileUri = (filePath: string) => 'file://' + filePath;
 

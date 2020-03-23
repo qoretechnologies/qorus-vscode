@@ -59,11 +59,12 @@ export const simple_method_template = method_template;
 export const classFields = ({ is_editing, default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
-    field.name,
     field.desc,
     field.author,
     field.version,
-    field.class_name,
+    {
+        name: 'class-class-name',
+    },
     field.lang(is_editing),
     {
         name: 'base-class-name',

@@ -385,18 +385,22 @@ export abstract class InterfaceCreator {
     protected createHeaders = (headers: any): string => {
         let result: string = '';
 
+        const classes_or_requires = headers.type === 'class' ? 'requires' : 'classes';
+        headers[classes_or_requires] = this.code_info.interface_info.addClassNames(headers[classes_or_requires]);
+
         const base_class_name = headers['base-class-name'];
         if (base_class_name && !QorusProjectCodeInfo.isRootBaseClass(base_class_name)) {
-            const classes_or_requires = headers.type === 'class' ? 'requires' : 'classes';
             headers[classes_or_requires] = headers[classes_or_requires] || [];
-            if (!headers[classes_or_requires].some(item => item.name === base_class_name && !item.prefix)) {
+            if (!headers[classes_or_requires]
+                    .some(class_data => class_data['class-name'] === base_class_name && !class_data.prefix))
+            {
                 headers[classes_or_requires].unshift({ name: base_class_name });
             }
         }
 
         let classes = {};
         let exists_prefix = false;
-        (headers.classes || headers.requires || []).forEach(class_data => {
+        (headers[classes_or_requires] || []).forEach(class_data => {
             if (!classes[class_data.name]) {
                 classes[class_data.name] = {
                     exists_prefix: false,
@@ -445,7 +449,7 @@ export abstract class InterfaceCreator {
 
         for (const tag of ordered_tags) {
             if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
-                 'active_method', 'yaml_file', 'config-item-values'].includes(tag))
+                 'active_method', 'yaml_file', 'config-item-values', 'class-class-name'].includes(tag))
             {
                 continue;
             }
@@ -492,11 +496,12 @@ export abstract class InterfaceCreator {
                     case 'classes':
                     case 'requires':
                         let class_prefixes = exists_prefix ? 'class-prefixes:\n' : '';
-                        for (let class_name in classes) {
-                            result += `${list_indent}${class_name}\n`;
-                            if (classes[class_name].exists_prefix) {
-                                for (const prefix of classes[class_name].prefixes) {
-                                    class_prefixes += `${list_indent}class: ${class_name}\n`;
+                        for (let name in classes) {
+                            const class_data = classes[name];
+                            result += `${list_indent}${name}\n`;
+                            if (class_data.exists_prefix) {
+                                for (const prefix of class_data.prefixes) {
+                                    class_prefixes += `${list_indent}class: ${name}\n`;
                                     class_prefixes += `${indent}prefix: ${prefix || null}\n`;
                                 }
                             }
@@ -588,6 +593,11 @@ export abstract class InterfaceCreator {
                                     }
                                 }
                             }
+                        }
+                        break;
+                    case 'class-name':
+                        if (headers.type !== 'class') {
+                            result += `${tag}: ${value}\n`;
                         }
                         break;
                     default:

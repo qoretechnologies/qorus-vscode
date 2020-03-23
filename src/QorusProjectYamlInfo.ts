@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as path from 'path';
+import { t } from 'ttag';
 
 import * as msg from './qorus_message';
 import { root_steps, root_job, root_service, root_workflow,
@@ -14,12 +15,6 @@ export class QorusProjectYamlInfo {
     private src_2_yaml: any = {};
     yamlDataBySrcFile = file => this.yaml_data[this.src_2_yaml[file]];
     yamlDataByFilePath = file => this.yaml_data[file];
-
-    private class_2_yaml: any = {};       // all classes
-    private java_class_2_yaml: any = {};  // only java classes
-    yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
-    classes = lang => lang === 'java' ? { ...this.java_class_2_yaml } : { ...this.class_2_yaml };
-    classNames = lang => Object.keys(lang === 'java' ? this.java_class_2_yaml : this.class_2_yaml);
 
     private name_2_yaml: any = {};
     yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
@@ -84,7 +79,6 @@ export class QorusProjectYamlInfo {
 
         this.yaml_2_src = {};
         this.src_2_yaml = {};
-        this.class_2_yaml = {};
         this.authors = {};
 
         for (const type of types) {
@@ -109,16 +103,54 @@ export class QorusProjectYamlInfo {
     }
 
     addSingleYamlInfo(file: string) {
-        let parsed_data: any;
+        let data: any;
+        let file_contents;
         try {
-            parsed_data = jsyaml.safeLoad(fs.readFileSync(file));
+            file_contents = fs.readFileSync(file);
+            data = jsyaml.safeLoad(file_contents);
         } catch (error) {
             msg.debug({ file, error });
             return;
         }
 
+        if (!data.type) {
+            return;
+        }
+
+        // possibly fix old classes with both name and class-name
+        if (['class', 'mapper-code'].includes(data.type) && data['class-name'] && data.name !== data['class-name']) {
+            data.name = data['class-name'];
+            delete data['class-name'];
+
+            const lines = file_contents.toString().split(/\r?\n/);
+            let fixed_lines = [];
+            lines.forEach(line => {
+                if (line.substr(0, 5) === 'name:') {
+                    return;
+                }
+                if (line.substr(0, 11) === 'class-name:') {
+                    fixed_lines.push(line.substr(6));
+                } else {
+                    fixed_lines.push(line);
+                }
+            });
+
+            while (/^\s*$/.test(fixed_lines.slice(-1)[0])) {
+                fixed_lines.pop();
+            }
+
+            fs.writeFile(file, fixed_lines.join('\n') + '\n', err => {
+                if (err) {
+                    msg.error(t`WriteFileError ${file} ${err.toString()}`);
+                }
+            });
+
+            this.addSingleYamlInfo(file);
+            return;
+        }
+
         let yaml_data = {
-            ...parsed_data,
+            ...data,
             yaml_file: file,
             target_dir: path.dirname(file),
         };
@@ -131,21 +163,10 @@ export class QorusProjectYamlInfo {
             this.src_2_yaml[src] = file;
             this.yaml_2_src[file] = src;
         }
-        const class_name = yaml_data['class-name'];
-        if (class_name) {
-            this.class_2_yaml[class_name] = file;
-            if (yaml_data.lang === 'java') {
-                this.java_class_2_yaml[class_name] = file;
-            }
-        }
 
         (yaml_data.author || []).forEach(name => {
             this.authors[name] = true;
         });
-
-        if (!yaml_data.type) {
-            return;
-        }
 
         const name = types_with_version.includes(yaml_data.type)
             ? `${yaml_data.name}:${yaml_data.version || default_version}`
@@ -159,11 +180,8 @@ export class QorusProjectYamlInfo {
 
         this.name_2_yaml[yaml_data.type][name] = file;
 
-        const base_class_name = this.yaml_data[file]['base-class-name'];
-
-        if (base_class_name) {
-            this.yaml_data[file]['base-class-name'] = base_class_name;
-        }
+        const class_name = ['class', 'mapper-code'].includes(yaml_data.type) ? yaml_data.name : yaml_data['class-name'];
+        const base_class_name = yaml_data['base-class-name'];
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
             this.inheritance_pairs[class_name] = [base_class_name];
