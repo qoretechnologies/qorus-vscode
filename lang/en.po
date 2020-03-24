@@ -1012,6 +1012,9 @@ msgstr "The name of the service"
 msgid "field-label-version"
 msgstr "Version"
 
+msgid "field-desc-version"
+msgstr "Version string for the interface object"
+
 msgid "field-label-serviceversion"
 msgstr "Version"
 
