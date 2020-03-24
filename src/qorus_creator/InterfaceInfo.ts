@@ -87,7 +87,9 @@ export class InterfaceInfo {
         this.last_other_if_kind = other_iface_kind && capitalize(other_iface_kind);
     }
 
-    updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string}) => {
+    updateConfigItemValue =
+        ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string, true_type}) =>
+    {
         this.maybeInitIfaceId(iface_id, iface_kind);
         if (!level) {
             msg.log(t`LevelNeededToUpdateCIValue`);
@@ -105,8 +107,10 @@ export class InterfaceInfo {
             level = 'local';
         }
 
-        const parseIfComplex = item =>
-            ['list', 'hash', '*list', '*hash'].includes(item.type) ? jsyaml.safeLoad(value) : value;
+        const parseIfComplex = item => {
+            const type = item.type === 'any' && true_type ? true_type : item.type;
+            return ['list', 'hash', '*list', '*hash'].includes(type) ? jsyaml.safeLoad(value) : value;
+        };
 
         const templated_key = level === 'global'
             ? 'is_global_value_templated_string'
@@ -137,6 +141,7 @@ export class InterfaceInfo {
                 }
 
                 item[templated_key] = is_templated_string;
+                item.true_type = true_type;
             }
         } else {
             let item = this.iface_by_id[iface_id]['config-items'].find(ci_value => ci_value.name === name);
@@ -152,6 +157,7 @@ export class InterfaceInfo {
                 } else {
                     item[level + '-value'] = parseIfComplex(item);
                     item[templated_key] = is_templated_string;
+                    item.true_type = true_type;
                 }
             }
         }

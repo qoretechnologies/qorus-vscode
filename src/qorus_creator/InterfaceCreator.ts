@@ -317,10 +317,12 @@ export abstract class InterfaceCreator {
                 globals.remove(item.name);
             }
 
+            const type = item.type === 'any' && item.true_type ? item.true_type : item.type;
+
             for (const tag of ['value', 'local-value', 'default_value']) {
                 if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
                     result += `${indent}${tag === 'local-value' ? 'value' : tag}:\n`;
-                    const non_star_type = item.type?.substring(item.type.indexOf("*") + 1);
+                    const non_star_type = type?.substring(type.indexOf("*") + 1);
                     if (['list', 'hash'].includes(non_star_type)) {
                         let lines = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
                         if (/^\s*$/.test(lines.slice(-1)[0])) {
@@ -345,7 +347,7 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set',
+                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set', 'true_type',
                      'yamlData', 'orig_name', 'local-value', 'global-value', 'is_global_value_templated_string',
                      'default_value', 'remove-global-value', 'workflow-value'].includes(tag))
                 {
