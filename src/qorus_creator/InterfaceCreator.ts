@@ -22,11 +22,13 @@ export abstract class InterfaceCreator {
     protected target_dir: string;
     protected file_base: string;
     protected yaml_file_base: string;
-    protected orig_file_path;
+    protected orig_file_path: string;
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
 
     protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
+        this.orig_file_path = undefined;
+        this.edit_info = undefined;
         this.suffix = suffix;
 
         let { target_dir, target_file } = data;
