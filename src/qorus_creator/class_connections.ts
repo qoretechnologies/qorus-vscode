@@ -399,6 +399,10 @@ methodCode.java = (connection_code_name, connectors) => {
 
 // =================================================================
 
+const isArray = trigger => trigger.signature.indexOf(' array(') > -1;
+const isValidation = trigger => trigger.signature.indexOf(' validation(') > -1;
+const hasReturn = trigger => trigger.is_nonstandard_service || isValidation(trigger) || isArray(trigger);
+
 let triggerCode: any = {};
 
 triggerCode.qore = trigger => {
@@ -415,20 +419,23 @@ triggerCode.qore = trigger => {
             params_str = CONN_DATA;
         }
     }
+
+    let n = 0;
     trigger.connections.forEach(connection => {
         code += indent2;
-        if (trigger.is_nonstandard_service) {
+        if (++n === trigger.connections.length && hasReturn(trigger)) {
             code += 'return ';
         }
         code += `${CONN_MEMBER.qore}.${connection}(${params_str});\n`;
     });
 
-    if (trigger.signature.indexOf(' validation(') > -1) {
-        code += `${indent2}return OMQ::StatRetry;\n`;
-    }
-
-    if (trigger.signature.indexOf(' array(') > -1) {
-        code += `${indent2}return ();\n`;
+    if (!trigger.connections.length) {
+        if (isValidation(trigger)) {
+            code += `${indent2}return OMQ::StatRetry;\n`;
+        }
+        else if (isArray(trigger)) {
+            code += `${indent2}return ();\n`;
+        }
     }
 
     code += `${indent1}}\n`;
@@ -451,20 +458,23 @@ triggerCode.java = trigger => {
             params_str = `Optional.of(${CONN_DATA})`;
         }
     }
+
+    let n = 0;
     trigger.connections.forEach(connection => {
         code += indent2;
-        if (trigger.is_nonstandard_service) {
+        if (++n === trigger.connections.length && hasReturn(trigger)) {
             code += 'return ';
         }
         code += `${CONN_MEMBER.java}.${connection}(${params_str});\n`;
     });
 
-    if (trigger.signature.indexOf(' validation(') > -1) {
-        code += `${indent2}return OMQ.StatRetry;\n`;
-    }
-
-    if (trigger.signature.indexOf(' array(') > -1) {
-        code += `${indent2}return new Object[0];\n`;
+    if (!trigger.connections.length) {
+        if (isValidation(trigger)) {
+            code += `${indent2}return OMQ.StatRetry;\n`;
+        }
+        else if (isArray(trigger)) {
+            code += `${indent2}return new Object[0];\n`;
+        }
     }
 
     code += `${indent1}}\n`;
