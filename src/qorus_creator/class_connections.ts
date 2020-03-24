@@ -344,7 +344,7 @@ methodCode.qore = (connection_code_name, connectors) => {
 
         if (connector.mapper) {
             code += `\n${indent2}${CONN_MAPPER} = UserApi::getMapper("${connector.mapper.split(':')[0]}");\n` +
-            `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
+            `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAll(${CONN_DATA});\n`;
         }
 
         if (connector.type === 'event') {
@@ -381,7 +381,7 @@ methodCode.java = (connection_code_name, connectors) => {
 
         if (connector.mapper) {
             code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}");\n` +
-            `${indent2}${CONN_DATA} = Optional.of(${CONN_MAPPER}.mapData(${CONN_DATA}.get()));\n`;
+            `${indent2}${CONN_DATA} = Optional.of(${CONN_MAPPER}.mapAll(${CONN_DATA}.get()));\n`;
         }
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
