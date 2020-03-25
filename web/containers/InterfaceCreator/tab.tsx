@@ -47,7 +47,7 @@ const StyledSeparator = styled.div`
 `;
 
 const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData }) => {
-    const isEditing: () => boolean = () => !!initialData[type];
+    const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
 
     return (
