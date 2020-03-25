@@ -729,7 +729,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                     iface_kind,
-                    data: { ...newData, 'class-connections': classConnectionsData, true_type },
+                    data: { ...newData, 'class-connections': classConnectionsData, default_value_true_type: true_type },
                     orig_data:
                         type === 'service-methods'
                             ? initialData.service

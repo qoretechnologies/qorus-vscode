@@ -107,7 +107,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
             name,
             value,
-            true_type: getTypeFromValue(maybeParseYaml(value)),
+            value_true_type: getTypeFromValue(maybeParseYaml(value)),
             file_name: configItems.file_name,
             remove,
             level,
