@@ -28,7 +28,7 @@ import FieldLabel from '../../components/FieldLabel';
 import styled from 'styled-components';
 import FieldActions from '../../components/FieldActions';
 import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip, Dialog } from '@blueprintjs/core';
-import { validateField } from '../../helpers/validations';
+import { validateField, getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import ConfigItemManager from '../ConfigItemManager';
@@ -720,9 +720,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     iface_id: interfaceId,
                 });
             } else {
+                let true_type: string;
+                //* If this is config item get the true type of the default_value field
+                if (type === 'config-item' && newData.default_value) {
+                    // Get the default value field
+                    true_type = getTypeFromValue(maybeParseYaml(newData.default_value));
+                }
+
                 postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
                     iface_kind,
-                    data: { ...newData, 'class-connections': classConnectionsData },
+                    data: { ...newData, 'class-connections': classConnectionsData, true_type },
                     orig_data:
                         type === 'service-methods'
                             ? initialData.service
