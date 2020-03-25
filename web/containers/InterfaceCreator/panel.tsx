@@ -393,52 +393,49 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
     };
 
-    const addField: (fieldName: string, notify?: boolean) => void = useCallback(
-        (fieldName, notify = true) => {
-            // Check if the field is already selected
-            const selectedField: IField = find(selectedFields, (field: IField) => field.name === fieldName);
-            // Add it if it's not
-            if (!selectedField) {
-                // Remove the field
-                setFields(
+    const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
+        // Check if the field is already selected
+        const selectedField: IField = find(selectedFields, (field: IField) => field.name === fieldName);
+        // Add it if it's not
+        if (!selectedField) {
+            // Remove the field
+            setFields(
+                type,
+                (current: IField[]) =>
+                    map(current, (field: IField) => ({
+                        ...field,
+                        selected: fieldName === field.name ? true : field.selected,
+                    })),
+                activeId
+            );
+            // Get the field
+            const field: IField = find(fields, (field: IField) => field.name === fieldName);
+            if (field) {
+                // Add the field to selected list
+                setSelectedFields(
                     type,
-                    (current: IField[]) =>
-                        map(current, (field: IField) => ({
-                            ...field,
-                            selected: fieldName === field.name ? true : field.selected,
-                        })),
+                    (current: IField[]) => {
+                        // Check if this field should notify
+                        if (field.notify_on_add && notify) {
+                            postMessage(Messages.CREATOR_FIELD_ADDED, {
+                                field: fieldName,
+                                iface_id: interfaceId,
+                                iface_kind: type,
+                            });
+                        }
+                        return [
+                            ...current,
+                            {
+                                ...field,
+                                selected: true,
+                            },
+                        ];
+                    },
                     activeId
                 );
-                // Get the field
-                const field: IField = find(fields, (field: IField) => field.name === fieldName);
-                if (field) {
-                    // Add the field to selected list
-                    setSelectedFields(
-                        type,
-                        (current: IField[]) => {
-                            // Check if this field should notify
-                            if (field.notify_on_add && notify) {
-                                postMessage(Messages.CREATOR_FIELD_ADDED, {
-                                    field: fieldName,
-                                    iface_id: interfaceId,
-                                    iface_kind: type,
-                                });
-                            }
-                            return [
-                                ...current,
-                                {
-                                    ...field,
-                                    selected: true,
-                                },
-                            ];
-                        },
-                        activeId
-                    );
-                }
             }
-        },
-        [fields]
-    );
+        }
+    };
 
     const removeField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
         // If mapper code was removed, try to remove relations
@@ -461,6 +458,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     });
                 }
 
+                // Add the field to selected list
+                setSelectedFields(
+                    type,
+                    (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName),
+                    activeId
+                );
+
                 return map(current, (field: IField) => ({
                     ...field,
                     selected: fieldName === field.name ? false : field.selected,
@@ -469,12 +473,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     hasValueSet: fieldName === field.name ? false : field.hasValueSet,
                 }));
             },
-            activeId
-        );
-        // Add the field to selected list
-        setSelectedFields(
-            type,
-            (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName),
             activeId
         );
     };

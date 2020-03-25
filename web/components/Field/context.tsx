@@ -6,6 +6,7 @@ import withMessageHandler from '../../hocomponents/withMessageHandler';
 import String from './string';
 import useMount from 'react-use/lib/useMount';
 import { Messages } from '../../constants/messages';
+import size from 'lodash/size';
 
 export interface IContextField {
     value: {
@@ -32,7 +33,7 @@ const ContextField: FunctionComponent<IContextField & IFieldChange & IField> = (
             setIfaces(data.objects);
         });
         // Save the default value
-        if (default_value || value) {
+        if (default_value || (value && size(value))) {
             const val = default_value || value;
             onChange(name, val);
             // Ask for the context interface
