@@ -28,9 +28,10 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         const file_name = path.basename(file_path);
 
         const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
-        // Tests don't have YAML
-        if (!yaml_info && !isTest(file_path)) {
-            msg.error(t`UnableFindYamlForSrc ${file_name}`);
+        if (!yaml_info) {
+            if (!isTest(file_path)) {
+                msg.error(t`UnableFindYamlForSrc ${file_name}`);
+            }
             return Promise.resolve([]);
         }
 

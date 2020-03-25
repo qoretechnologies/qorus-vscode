@@ -19,11 +19,13 @@ const hasOneOfSuffixes = (file_path: string, suffixes: string[]): boolean => {
 };
 
 export const isTest = (file_path: string): boolean => {
-    let suffix: string | undefined = getSuffix(file_path);
-    if (suffix == 'qtest') {
+    const suffix: string | undefined = getSuffix(file_path);
+
+    if (suffix === 'qtest') {
         return true;
-    } else if (suffix == 'java') {
-        return getFileName(file_path).endsWith('Test');
+    }
+    if (suffix === 'java') {
+        return path.basename(file_path, '.java').endsWith('Test');
     }
 
     return false;
@@ -35,7 +37,6 @@ export const isVersion3 = (version?: string): boolean =>
     !!version && version.toString().substr(0, 1) == '3';
 
 const getSuffix = (file_path: string): string | undefined => file_path.split('.').pop();
-const getFileName = (file_path: string): string | undefined => file_path.split('.').slice(-2, -1).pop();
 
 export const suffixToIfaceKind = (suffix: string): string | undefined => {
     switch (suffix.split('.').pop()) {
