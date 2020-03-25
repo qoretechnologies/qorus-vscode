@@ -18,7 +18,18 @@ const hasOneOfSuffixes = (file_path: string, suffixes: string[]): boolean => {
     return suffix ? suffixes.includes(suffix) : false;
 };
 
-export const isTest = (file_path: string): boolean => getSuffix(file_path) === 'qtest';
+export const isTest = (file_path: string): boolean => {
+    const suffix: string | undefined = getSuffix(file_path);
+
+    if (suffix === 'qtest') {
+        return true;
+    }
+    if (suffix === 'java') {
+        return path.basename(file_path, '.java').endsWith('Test');
+    }
+
+    return false;
+};
 
 export const isService = (file_path: string): boolean => getSuffix(file_path) === 'qsd';
 
