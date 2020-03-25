@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.1.0
+
+#### New features
+
+-   Open file and Delete file buttons
+-   new interface type 'Type'
+-   new workflow property 'Static data type'
+-   new mapper property 'Context'
+-   interfaces of type class or mapper code no longer have the 'Class name' property
+
+#### Bug fixes
+
+-   config item values of type 'Any' cannot be 'undefined'
+-   fixed the 'Authors' form input data
+-   fixed saving the multiline (markdown) descriptions
+-   fixed handling the config items values of type 'Any' whose actual type is hash or list
+-   fixed return statement in generated class connections code
+-   prevented parsing strings looking like yaml
+
 ## 1.0.4
 
 #### Bug fixes
