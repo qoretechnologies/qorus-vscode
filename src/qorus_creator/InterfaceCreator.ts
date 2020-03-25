@@ -349,7 +349,7 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set', 'true_type',
+                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set', 'value_true_type',
                      'yamlData', 'orig_name', 'local-value', 'global-value', 'is_global_value_templated_string',
                      'default_value', 'remove-global-value', 'workflow-value'].includes(tag))
                 {
@@ -370,6 +370,9 @@ export abstract class InterfaceCreator {
                         switch (tag) {
                             case 'type':
                                 result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                break;
+                            case 'true_type':
+                                result += `${indent}value_true_type: ${item.true_type}\n`;
                                 break;
                             case 'description':
                                 result += `${indent}${tag}: ` +

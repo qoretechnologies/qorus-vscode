@@ -472,6 +472,8 @@ export class InterfaceInfo {
             (level === 'global' && item.is_global_value_templated_string) ||
             (level !== 'global' && item.is_value_templated_string);
 
+        const trueType = item => item.type === 'any' && item.true_type ? item.true_type : item.type;
+
         const fixLocalItem = (item: any): any => {
             item.type = item.type || default_type;
             if (item.type[0] === '*') {
@@ -480,7 +482,7 @@ export class InterfaceInfo {
             }
 
             const toYamlIfComplexLocal = (value, is_templated_string = false) =>
-                toYamlIfComplex(value, item.type, is_templated_string);
+                toYamlIfComplex(value, trueType(item), is_templated_string);
 
             if (item.allowed_values) {
                 item.allowed_values = item.allowed_values.map(value => toYamlIfComplexLocal(value));
@@ -517,7 +519,7 @@ export class InterfaceInfo {
         const checkValueLevel = (item: any, level: string): any => {
             if (item[level + '-value'] !== undefined) {
                 item.is_templated_string = isTemplatedString(level, item);
-                item.value = toYamlIfComplex(item[level + '-value'], item.type, item.is_templated_string);
+                item.value = toYamlIfComplex(item[level + '-value'], trueType(item), item.is_templated_string);
             } else {
                 delete item.value;
                 delete item.is_set;
@@ -528,7 +530,7 @@ export class InterfaceInfo {
 
         const addYamlData = (item: any): any => {
             const toYamlIfNotComplex = value =>
-                !item.is_templated_string && ['list', 'hash'].includes(item.type)
+                !item.is_templated_string && ['list', 'hash'].includes(trueType(item))
                     ? value
                     : jsyaml.safeDump(value).replace(/\r?\n$/, '');
 
@@ -563,7 +565,7 @@ export class InterfaceInfo {
                 delete item.default_value;
                 const workflow_value = workflow_values.find(item2 => item2.name === item.name);
                 if (workflow_value !== undefined) {
-                    item['workflow-value'] = toYamlIfComplex(workflow_value.value, item.type, workflow_value.is_value_templated_string);
+                    item['workflow-value'] = toYamlIfComplex(workflow_value.value, trueType(item), workflow_value.is_value_templated_string);
                     item.is_value_templated_string = workflow_value.is_value_templated_string;
                 }
             });

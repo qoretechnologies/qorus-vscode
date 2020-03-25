@@ -592,7 +592,6 @@ export class QorusProjectCodeInfo {
         });
 
         (data['config-items'] || []).forEach(item => {
-
             if (!item.stricty_local) {
                 const global_value = globals.get(item.name);
                 if (global_value !== undefined) {
@@ -603,6 +602,11 @@ export class QorusProjectCodeInfo {
 
             if (data.type !== 'workflow' && item.value !== undefined) {
                 item['local-value'] = item.value;
+            }
+
+            if (item.value_true_type) {
+                item.true_type = item.value_true_type;
+                delete item.value_true_type;
             }
 
             delete item.value;
