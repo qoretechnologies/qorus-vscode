@@ -113,7 +113,7 @@ export class QorusProjectYamlInfo {
             return;
         }
 
-        if (!data.type) {
+        if (!data?.type) {
             return;
         }
 
