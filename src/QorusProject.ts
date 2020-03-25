@@ -105,18 +105,26 @@ export class QorusProject {
         if (!this.configFileExists()) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
             msg.info(t`ProjectConfigHasBeenInitialized`);
+            this.fixJavaClasspathFile();
+            this.fixJavaProjectFile();
         }
     }
 
     fixJavaClasspathFile() {
-        if (! this.java_config.loadClasspath()) {
+        if (!this.configFileExists()) {
+            return;
+        }
+        if (!this.java_config.loadClasspath()) {
             this.java_config.fixClasspath();
             this.java_config.writeClasspathFile();
         }
     }
 
     fixJavaProjectFile() {
-        if (! this.java_config.loadProject()) {
+        if (!this.configFileExists()) {
+            return;
+        }
+        if (!this.java_config.loadProject()) {
             this.java_config.fixProject();
             this.java_config.writeProjectFile();
         }
