@@ -309,7 +309,11 @@ export class InterfaceInfo {
             item.can_be_undefined = true;
         }
 
-        if (item.default_value !== undefined && ['list', 'hash'].includes(item.type)) {
+        const default_value_true_type = item.type === 'any' && item.default_value_true_type
+            ? item.default_value_true_type
+            : item.type;
+
+        if (item.default_value !== undefined && ['list', 'hash'].includes(default_value_true_type)) {
             item.default_value = jsyaml.safeDump(item.default_value).replace(/\r?\n$/, '');
         }
 
