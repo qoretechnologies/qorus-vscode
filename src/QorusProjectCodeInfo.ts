@@ -456,7 +456,7 @@ export class QorusProjectCodeInfo {
 
             qorus_webview.postMessage(message);
         };
-
+/*
         const onSuccess = response => {
             processResult(response);
         };
@@ -467,6 +467,8 @@ export class QorusProjectCodeInfo {
         };
 
         qorus_request.doRequest('system/interfacesWithDataContext', 'GET', onSuccess, onError);
+*/
+        processResult(null);
     }
 
     getFieldsFromType = message => {
