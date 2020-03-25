@@ -319,11 +319,19 @@ export abstract class InterfaceCreator {
                 globals.remove(item.name);
             }
 
-            const type = item.type === 'any' && item.true_type ? item.true_type : item.type;
-
             for (const tag of ['value', 'local-value', 'default_value']) {
                 if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
                     result += `${indent}${tag === 'local-value' ? 'value' : tag}:\n`;
+
+                    let type = item.type;
+                    if (type === 'any') {
+                        if (tag === 'default_value') {
+                            type = item.default_value_true_type || type;
+                        } else {
+                            type = item.value_true_type || type;
+                        }
+                    }
+
                     const non_star_type = type?.substring(type.indexOf("*") + 1);
                     if (['list', 'hash'].includes(non_star_type)) {
                         let lines = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
@@ -349,7 +357,11 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag in item) {
-                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set', 'value_true_type',
+                if (item[tag] === undefined) {
+                    continue;
+                }
+
+                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set',
                      'yamlData', 'orig_name', 'local-value', 'global-value', 'is_global_value_templated_string',
                      'default_value', 'remove-global-value', 'workflow-value'].includes(tag))
                 {
@@ -370,9 +382,6 @@ export abstract class InterfaceCreator {
                         switch (tag) {
                             case 'type':
                                 result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
-                                break;
-                            case 'true_type':
-                                result += `${indent}value_true_type: ${item.true_type}\n`;
                                 break;
                             case 'description':
                                 result += `${indent}${tag}: ` +

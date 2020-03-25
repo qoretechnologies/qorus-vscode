@@ -606,11 +606,6 @@ export class QorusProjectCodeInfo {
                 item['local-value'] = item.value;
             }
 
-            if (item.value_true_type) {
-                item.true_type = item.value_true_type;
-                delete item.value_true_type;
-            }
-
             delete item.value;
         });
 
