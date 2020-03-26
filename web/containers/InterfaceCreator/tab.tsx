@@ -1,11 +1,16 @@
 import React from 'react';
-import styled from 'styled-components';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+
 import compose from 'recompose/compose';
-import { ButtonGroup, Button } from '@blueprintjs/core';
+import styled from 'styled-components';
+
+import { Button, ButtonGroup } from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import { Messages } from '../../constants/messages';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
 
 export interface ITabProps {
     initialData: any;
@@ -15,6 +20,7 @@ export interface ITabProps {
     isEditing: boolean;
     name: string;
     resetAllInterfaceData: (type: string) => any;
+    postMessage: TPostMessage;
 }
 
 const StyledTab = styled.div`
@@ -46,9 +52,14 @@ const StyledSeparator = styled.div`
     vertical-align: bottom;
 `;
 
-const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData }) => {
+const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData, postMessage }) => {
     const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
+    const hasCodeFile = () =>
+        isEditing() &&
+        !!initialData[type].target_dir &&
+        !!initialData[type].target_file &&
+        !initialData[type].target_file.endsWith('.yaml');
 
     return (
         <StyledTab>
@@ -67,11 +78,22 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                                 }}
                             />
                         </ButtonGroup>
-                        {/*<StyledSeparator />
+                        <StyledSeparator />
+
                         <ButtonGroup>
-                            <Button icon="document-share" text="View File" />
+                            {hasCodeFile() && (
+                                <Button
+                                    icon="document-share"
+                                    text="View File"
+                                    onClick={() => {
+                                        postMessage(Messages.VIEW_FILE, {
+                                            file_path: `${initialData[type].target_dir}/${initialData[type].target_file}`,
+                                        });
+                                    }}
+                                />
+                            )}
                             <Button icon="trash" text="Delete" intent="danger" />
-                        </ButtonGroup>*/}
+                        </ButtonGroup>
                     </div>
                 )}
             </StyledHeader>
@@ -80,4 +102,9 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
     );
 };
 
-export default compose(withInitialDataConsumer(), withTextContext(), withGlobalOptionsConsumer())(Tab);
+export default compose(
+    withInitialDataConsumer(),
+    withTextContext(),
+    withGlobalOptionsConsumer(),
+    withMessageHandler()
+)(Tab);
