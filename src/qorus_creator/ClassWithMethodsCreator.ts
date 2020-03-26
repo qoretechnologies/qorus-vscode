@@ -14,7 +14,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private method_template: string;
     private imports: string[];
 
-    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
+    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id}) {
         this.lang = data.lang || 'qore';
 
         let suffix: string;
@@ -114,12 +114,12 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods), open_file_on_success);
 
         if (['create', 'edit'].includes(edit_type)) {
-            const message_data = {
+            qorus_webview.postMessage({
                 action: `creator-${edit_type}-interface-complete`,
+                request_id,
                 ok: true,
                 message: 'some message'
-            };
-            qorus_webview.postMessage(message_data);
+            });
         }
 
         if (message) {

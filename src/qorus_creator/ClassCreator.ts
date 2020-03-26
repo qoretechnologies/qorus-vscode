@@ -13,7 +13,7 @@ import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
+    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id}) {
         this.lang = data.lang || 'qore';
 
         let template: string;
@@ -174,13 +174,12 @@ class ClassCreator extends InterfaceCreator {
             : this.writeYamlFile(headers);
 
         if (['create', 'edit'].includes(edit_type)) {
-            const message_data = {
+            qorus_webview.postMessage({
                 action: `creator-${edit_type}-interface-complete`,
+                request_id,
                 ok: true,
                 message: 'some message'
-            };
-            msg.debug({message_data});
-            qorus_webview.postMessage(message_data);
+            });
         }
 
         if (message) {
