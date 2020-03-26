@@ -1,10 +1,4 @@
-import React, {
-    FormEvent,
-    FunctionComponent,
-    useEffect,
-    useRef,
-    useState
-} from 'react';
+import React, { FormEvent, FunctionComponent, useEffect, useRef, useState } from 'react';
 
 import {
     camelCase,
@@ -26,15 +20,7 @@ import mapProps from 'recompose/mapProps';
 import shortid from 'shortid';
 import styled from 'styled-components';
 
-import {
-    Button,
-    ButtonGroup,
-    Classes,
-    Dialog,
-    InputGroup,
-    Intent,
-    Tooltip
-} from '@blueprintjs/core';
+import { Button, ButtonGroup, Classes, Dialog, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
@@ -104,6 +90,7 @@ export interface IInterfaceCreatorPanel {
         iface_kind: string;
         name: string;
     };
+    onSubmitSuccess: () => any;
 }
 
 export interface IField {
@@ -773,6 +760,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 );
             }
             if (result.ok) {
+                if (onSubmitSuccess) {
+                    onSubmitSuccess();
+                }
                 // If this is config item, reset only the fields
                 // local fields will be unmounted
                 if (type === 'config-item') {
