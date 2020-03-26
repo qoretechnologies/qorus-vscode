@@ -438,7 +438,7 @@ triggerCode.qore = trigger => {
 
 triggerCode.java = trigger => {
     let code = `${indent1}${trigger.signature} {\n`;
-    let params_str = 'Optional.empty()';
+    let params_str = 'null';
     if (trigger.connections.length) {
         if (trigger.arg_names?.length) { // for steps
             code += `${indent2}Map<String, Object> ${CONN_DATA} = new HashMap<String, Object>() {\n` +
