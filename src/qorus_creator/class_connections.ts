@@ -291,28 +291,22 @@ extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
     }
 
     code += `${indent1}}\n\n` +
-        `${indent1}Object ${CONN_CALL_METHOD}(final String prefixedClass, final String methodName,\n` +
-        `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Optional<Object> ${CONN_DATA}) ${THROWS} {\n` +
+        `${indent1}Object callClassWithPrefixMethod(final String prefixedClass, final String methodName,\n` +
+        `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Object ${CONN_DATA}) ${THROWS} {\n` +
         `${indent2}UserApi.logInfo("${conn_class_name}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
         `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +
         `${indent2}if (object instanceof QoreObject) {\n` +
         `${indent3}QoreObject qoreObject = (QoreObject)object;\n` +
-        `${indent3}if (${CONN_DATA}.isPresent()) {\n` +
-        `${indent4}return qoreObject.callMethod(methodName, ${CONN_DATA}.get());\n` +
-        `${indent3}}\n` +
-        `${indent3}return qoreObject.callMethod(methodName);\n` +
-        `${indent2}} else if (${CONN_DATA}.isPresent()) {\n` +
-        `${indent3}final Method method = object.getClass().getMethod(methodName, Object.class);\n` +
-        `${indent3}return method.invoke(object, ${CONN_DATA}.get());\n` +
+        `${indent3}return qoreObject.callMethod(methodName, ${CONN_DATA});\n` +
         `${indent2}} else {\n` +
-        `${indent3}final Method method = object.getClass().getMethod(methodName);\n` +
-        `${indent3}return method.invoke(object);\n` +
+        `${indent3}final Method method = object.getClass().getMethod(methodName, Object.class);\n` +
+        `${indent3}return method.invoke(object, ${CONN_DATA});\n` +
         `${indent2}}\n${indent1}}\n`;
 
     if (event_based_connections.length) {
         code += '\n' +
             `${indent1}// override ${CONN_BASE_CLASS}'s update()\n` +
-            `${indent1}public void update(String id, Optional<Map<String, Object>> ${CONN_DATA}) ${THROWS} {\n`;
+            `${indent1}public void update(String id, Map<String, Object> ${CONN_DATA}) ${THROWS} {\n`;
         event_based_connections.forEach(event_based => {code +=
             `${indent2}if (id == "${event_based.prefixed_class}::${event_based.method}") {\n` +
             `${indent3}${event_based.connection_code_name}(${CONN_DATA});\n` +
@@ -367,7 +361,7 @@ methodCode.qore = (connection_code_name, connectors) => {
 
 methodCode.java = (connection_code_name, connectors) => {
     let code = `${indent1}@SuppressWarnings("unchecked")\n` +
-        `${indent1}public Object ${connection_code_name}(Optional<Object> ${CONN_DATA}) ${THROWS} {\n`;
+        `${indent1}public Object ${connection_code_name}(Object ${CONN_DATA}) ${THROWS} {\n`;
 
     if (connectors.some(connector => connector.mapper)) {
         code += `${indent2}Mapper ${CONN_MAPPER};\n`;
@@ -381,12 +375,12 @@ methodCode.java = (connection_code_name, connectors) => {
 
         if (connector.mapper) {
             code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}");\n` +
-            `${indent2}${CONN_DATA} = Optional.of(${CONN_MAPPER}.mapData(${CONN_DATA}.get()));\n`;
+            `${indent2}${CONN_DATA} = Optional.of(${CONN_MAPPER}.mapData((Map<String, Object>)${CONN_DATA}));\n`;
         }
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
         if (++n !== connectors.length) {
-            code += `${CONN_DATA} = (Optional<Object>)`;
+            code += `${CONN_DATA} = `;
         } else {
             code += 'return ';
         }
