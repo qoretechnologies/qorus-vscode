@@ -9,6 +9,8 @@
 -   new workflow property 'Static data type'
 -   new mapper property 'Context'
 -   interfaces of type class or mapper code no longer have the 'Class name' property
+-   All delete actions now have a confirmation dialog
+-   The entire input hash is now mappable in mappers
 
 #### Bug fixes
 
@@ -18,6 +20,9 @@
 -   fixed handling the config items values of type 'Any' whose actual type is hash or list
 -   fixed return statement in generated class connections code
 -   prevented parsing strings looking like yaml
+-   classes no longer have editable config item values
+-   added missing button translations in the config items table
+-   creating a hash<auto> field with null set to true no longer crashes the webview
 
 ## 1.0.4
 
