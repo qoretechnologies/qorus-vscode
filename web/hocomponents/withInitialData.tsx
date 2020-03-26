@@ -1,9 +1,11 @@
 import React, { FunctionComponent, useState } from 'react';
-import { InitialContext } from '../context/init';
-import useMount from 'react-use/lib/useMount';
-import { Messages } from '../constants/messages';
-import shortid from 'shortid';
+
 import set from 'lodash/set';
+import useMount from 'react-use/lib/useMount';
+import shortid from 'shortid';
+
+import { Messages } from '../constants/messages';
+import { InitialContext } from '../context/init';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -101,11 +103,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }, 120000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
-                props.addMessageListener('fetch-data-complete', data => {
+                const listener = props.addMessageListener('fetch-data-complete', data => {
                     if (data.id === uniqueId) {
                         clearTimeout(timeout);
                         timeout = null;
                         resolve(data);
+                        //* Remove the listener after the call is done
+                        listener();
                     }
                 });
                 // Fetch the data
