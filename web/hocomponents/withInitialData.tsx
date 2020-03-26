@@ -161,7 +161,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }, 30000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
-                props.addMessageListener(getMessage, data => {
+                props.addMessageListener(returnMessage || `${getMessage}-complete`, data => {
                     if (data.request_id === uniqueId) {
                         AppToaster.show(
                             {
@@ -180,7 +180,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 });
 
                 // Fetch the data
-                props.postMessage(returnMessage || `${getMessage}-complete`, {
+                props.postMessage(getMessage, {
                     request_id: uniqueId,
                     ...data,
                 });

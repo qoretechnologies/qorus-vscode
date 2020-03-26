@@ -1,34 +1,36 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import MapperInput from './input';
-import MapperOutput from './output';
-import { ActionsWrapper, IField } from '../InterfaceCreator/panel';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { ButtonGroup, Tooltip, Button, Intent, Icon } from '@blueprintjs/core';
-import size from 'lodash/size';
+
 import map from 'lodash/map';
-import reduce from 'lodash/reduce';
 import omit from 'lodash/omit';
-import findIndex from 'lodash/findIndex';
-import { TTranslator } from '../../App';
-import withTextContext from '../../hocomponents/withTextContext';
-import compose from 'recompose/compose';
-import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import MapperFieldModal from './modal';
-import Provider from './provider';
-import MappingModal from './mappingModal';
+import reduce from 'lodash/reduce';
+import size from 'lodash/size';
 import { useDrop } from 'react-dnd';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
-import { Messages } from '../../constants/messages';
-import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import compose from 'recompose/compose';
+import styled, { css } from 'styled-components';
+
 import {
-    flattenFields,
-    getLastChildIndex,
-    filterInternalData,
-    hasStaticDataField,
-    getStaticDataFieldname,
-} from '../../helpers/mapper';
+    Button,
+    ButtonGroup,
+    Icon,
+    Intent,
+    Tooltip
+} from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import { Messages } from '../../constants/messages';
+import { flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField } from '../../helpers/mapper';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+import { ActionsWrapper, IField } from '../InterfaceCreator/panel';
+import MapperInput from './input';
+import MappingModal from './mappingModal';
+import MapperFieldModal from './modal';
+import MapperOutput from './output';
+import Provider from './provider';
 
 const FIELD_HEIGHT = 35;
 const FIELD_MARGIN = 14;
@@ -619,7 +621,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     };
 
-    const handleSubmitClick = () => {
+    const handleSubmitClick = async () => {
         // Build the mapper object
         const mapper = reduce(
             selectedFields.mapper,
@@ -653,20 +655,27 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 'custom-fields': getCustomFields('outputs'),
             },
         };
-        // Post the data
-        postMessage(!isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE, {
-            iface_kind: 'mapper',
-            data: mapper,
-            orig_data: initialData.mapper,
-            open_file_on_success: !mapperSubmit,
-            iface_id: interfaceId.mapper,
-        });
-        // If on submit
-        if (mapperSubmit) {
-            mapperSubmit(mapper.name, mapper.version);
+        const result = initialData.callBackend(
+            !isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE,
+            undefined,
+            {
+                iface_kind: 'mapper',
+                data: mapper,
+                orig_data: initialData.mapper,
+                open_file_on_success: !mapperSubmit,
+                iface_id: interfaceId.mapper,
+            },
+            t('Saving mapper...')
+        );
+
+        if (result.ok) {
+            // If on submit
+            if (mapperSubmit) {
+                mapperSubmit(mapper.name, mapper.version);
+            }
+            // Reset the interface data
+            resetAllInterfaceData('mapper');
         }
-        // Reset the interface data
-        resetAllInterfaceData('mapper');
     };
 
     return (

@@ -1,23 +1,39 @@
 import React, { useState } from 'react';
-import Suggest from '../../components/Field/suggest';
-import FileField from '../../components/Field/fileString';
-import String from '../../components/Field/string';
+
+import {
+    cloneDeep,
+    get,
+    map,
+    set,
+    size,
+    unset
+} from 'lodash';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { StyledMapperWrapper, StyledFieldsWrapper } from '../Mapper';
-import MapperFieldModal from '../Mapper/modal';
-import withTextContext from '../../hocomponents/withTextContext';
-import { ActionsWrapper, FieldWrapper, FieldInputWrapper } from './panel';
-import { ButtonGroup, Tooltip, Button, Intent, Callout } from '@blueprintjs/core';
-import { set, unset, get, size, map, cloneDeep } from 'lodash';
-import { flattenFields, getLastChildIndex, filterInternalData } from '../../helpers/mapper';
-import MapperInput from '../Mapper/input';
-import withMessageHandler from '../../hocomponents/withMessageHandler';
-import { Messages } from '../../constants/messages';
+
+import {
+    Button,
+    ButtonGroup,
+    Callout,
+    Intent,
+    Tooltip
+} from '@blueprintjs/core';
+
+import FileField from '../../components/Field/fileString';
+import String from '../../components/Field/string';
+import Suggest from '../../components/Field/suggest';
 import FieldLabel from '../../components/FieldLabel';
+import { Messages } from '../../constants/messages';
+import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
 import { validateField } from '../../helpers/validations';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMessageHandler from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+import { StyledFieldsWrapper, StyledMapperWrapper } from '../Mapper';
+import MapperInput from '../Mapper/input';
+import MapperFieldModal from '../Mapper/modal';
+import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from './panel';
 
 const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
@@ -142,23 +158,31 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
         }
     };
 
-    const handleSubmitClick = () => {
-        postMessage(initialData.type ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-            iface_kind: 'type',
-            orig_data: initialData.type,
-            data: {
-                target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
-                target_file: !targetFile || targetFile === '' ? undefined : targetFile,
-                path: val,
-                typeinfo: {
-                    base_type: 'hash<auto>',
-                    name: 'hash<auto>',
-                    can_manage_fields: true,
-                    fields,
+    const handleSubmitClick = async () => {
+        const result = await initialData.callBackend(
+            initialData.type ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+            undefined,
+            {
+                iface_kind: 'type',
+                orig_data: initialData.type,
+                data: {
+                    target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
+                    target_file: !targetFile || targetFile === '' ? undefined : targetFile,
+                    path: val,
+                    typeinfo: {
+                        base_type: 'hash<auto>',
+                        name: 'hash<auto>',
+                        can_manage_fields: true,
+                        fields,
+                    },
                 },
             },
-        });
-        reset();
+            t('Saving type...')
+        );
+
+        if (result.ok) {
+            reset();
+        }
     };
 
     const flattenedFields = flattenFields(fields);
