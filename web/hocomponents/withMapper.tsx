@@ -298,8 +298,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         useEffect(() => {
             if (qorus_instance) {
                 props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                    console.log(data);
-                    if (data?.custom_data?.event === 'context') {
+                    if (
+                        data?.custom_data?.event === 'context' &&
+                        data[data.custom_data.iface_kind]['staticdata-type']
+                    ) {
+                        console.log(data);
                         // Save the static data
                         const staticData = data[data.custom_data.iface_kind]['staticdata-type'];
                         // Get the url from the context provider
@@ -514,7 +517,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         mapProps(({ mapper, ...rest }) => ({
             initialShow: !!mapper,
             mapper,
-            isEditingMapper: !!mapper,
+            isEditingMapper: !!mapper?.name,
             ...rest,
         })),
         withTextContext(),

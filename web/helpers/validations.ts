@@ -8,6 +8,7 @@ import size from 'lodash/size';
 import jsyaml from 'js-yaml';
 import isObject from 'lodash/isPlainObject';
 import { isString, isDate, isBoolean, isUndefined, isNull } from 'util';
+import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 
 export const validateField: (type: string, value: any, field?: IField, canBeNull?: boolean) => boolean = (
     type,
@@ -186,6 +187,10 @@ export const maybeParseYaml: (yaml: any) => any = yaml => {
     }
     // Leave numbers as they are
     if (isNumber(yaml)) {
+        return yaml;
+    }
+    // Leave dates
+    if (isDateValid(yaml)) {
         return yaml;
     }
     // Check if the value isn't empty

@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.qoretechnologies.qorus.job","l":"JobApi"},{"p":"com.qoretechnologies.qorus.job","l":"QorusJob"}]

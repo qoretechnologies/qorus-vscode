@@ -1,49 +1,64 @@
-import React, { FunctionComponent, useState, FormEvent, useEffect, useRef, useCallback } from 'react';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
-import { Messages } from '../../constants/messages';
+import React, {
+    FormEvent,
+    FunctionComponent,
+    useEffect,
+    useRef,
+    useState
+} from 'react';
+
 import {
-    size,
-    map,
+    camelCase,
+    cloneDeep,
     filter,
     find,
-    includes,
-    reduce,
-    camelCase,
-    upperFirst,
-    omit,
-    cloneDeep,
     forEach,
+    includes,
+    map,
+    omit,
+    reduce,
+    size,
     uniqBy,
+    upperFirst
 } from 'lodash';
-import SidePanel from '../../components/SidePanel';
-import FieldSelector from '../../components/FieldSelector';
-import Content from '../../components/Content';
+import isArray from 'lodash/isArray';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
-import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
-import Field from '../../components/Field';
-import FieldLabel from '../../components/FieldLabel';
+import shortid from 'shortid';
 import styled from 'styled-components';
+
+import {
+    Button,
+    ButtonGroup,
+    Classes,
+    Dialog,
+    InputGroup,
+    Intent,
+    Tooltip
+} from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import Content from '../../components/Content';
+import Field from '../../components/Field';
+import { allowedTypes } from '../../components/Field/arrayAuto';
 import FieldActions from '../../components/FieldActions';
-import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip, Dialog } from '@blueprintjs/core';
-import { validateField } from '../../helpers/validations';
+import FieldLabel from '../../components/FieldLabel';
+import FieldSelector from '../../components/FieldSelector';
+import Loader from '../../components/Loader';
+import SidePanel from '../../components/SidePanel';
+import { Messages } from '../../constants/messages';
+import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import withStepsConsumer from '../../hocomponents/withStepsConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
+import ClassConnectionsManager from '../ClassConnectionsManager';
 import ConfigItemManager from '../ConfigItemManager';
 import ManageConfigButton from '../ConfigItemManager/manageButton';
-import { allowedTypes } from '../../components/Field/arrayAuto';
-import shortid from 'shortid';
-import isArray from 'lodash/isArray';
-import ClassConnectionsManager from '../ClassConnectionsManager';
-import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
-import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
-import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import Loader from '../../components/Loader';
-import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import { processSteps } from './workflowsView';
-import { AppToaster } from '../../components/Toast';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -394,52 +409,49 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
     };
 
-    const addField: (fieldName: string, notify?: boolean) => void = useCallback(
-        (fieldName, notify = true) => {
-            // Check if the field is already selected
-            const selectedField: IField = find(selectedFields, (field: IField) => field.name === fieldName);
-            // Add it if it's not
-            if (!selectedField) {
-                // Remove the field
-                setFields(
+    const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
+        // Check if the field is already selected
+        const selectedField: IField = find(selectedFields, (field: IField) => field.name === fieldName);
+        // Add it if it's not
+        if (!selectedField) {
+            // Remove the field
+            setFields(
+                type,
+                (current: IField[]) =>
+                    map(current, (field: IField) => ({
+                        ...field,
+                        selected: fieldName === field.name ? true : field.selected,
+                    })),
+                activeId
+            );
+            // Get the field
+            const field: IField = find(fields, (field: IField) => field.name === fieldName);
+            if (field) {
+                // Add the field to selected list
+                setSelectedFields(
                     type,
-                    (current: IField[]) =>
-                        map(current, (field: IField) => ({
-                            ...field,
-                            selected: fieldName === field.name ? true : field.selected,
-                        })),
+                    (current: IField[]) => {
+                        // Check if this field should notify
+                        if (field.notify_on_add && notify) {
+                            postMessage(Messages.CREATOR_FIELD_ADDED, {
+                                field: fieldName,
+                                iface_id: interfaceId,
+                                iface_kind: type,
+                            });
+                        }
+                        return [
+                            ...current,
+                            {
+                                ...field,
+                                selected: true,
+                            },
+                        ];
+                    },
                     activeId
                 );
-                // Get the field
-                const field: IField = find(fields, (field: IField) => field.name === fieldName);
-                if (field) {
-                    // Add the field to selected list
-                    setSelectedFields(
-                        type,
-                        (current: IField[]) => {
-                            // Check if this field should notify
-                            if (field.notify_on_add && notify) {
-                                postMessage(Messages.CREATOR_FIELD_ADDED, {
-                                    field: fieldName,
-                                    iface_id: interfaceId,
-                                    iface_kind: type,
-                                });
-                            }
-                            return [
-                                ...current,
-                                {
-                                    ...field,
-                                    selected: true,
-                                },
-                            ];
-                        },
-                        activeId
-                    );
-                }
             }
-        },
-        [fields]
-    );
+        }
+    };
 
     const removeField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
         // If mapper code was removed, try to remove relations
@@ -462,6 +474,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     });
                 }
 
+                // Add the field to selected list
+                setSelectedFields(
+                    type,
+                    (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName),
+                    activeId
+                );
+
                 return map(current, (field: IField) => ({
                     ...field,
                     selected: fieldName === field.name ? false : field.selected,
@@ -470,12 +489,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     hasValueSet: fieldName === field.name ? false : field.hasValueSet,
                 }));
             },
-            activeId
-        );
-        // Add the field to selected list
-        setSelectedFields(
-            type,
-            (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName),
             activeId
         );
     };
@@ -730,12 +743,23 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     t(`Saving ${type}...`)
                 );
             } else {
+                let true_type: string;
+                //* If this is config item get the true type of the default_value field
+                if (type === 'config-item' && newData.default_value) {
+                    // Get the default value field
+                    true_type = getTypeFromValue(maybeParseYaml(newData.default_value));
+                }
+
                 result = await initialData.callBackend(
                     isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
                     undefined,
                     {
                         iface_kind,
-                        data: { ...newData, 'class-connections': classConnectionsData },
+                        data: {
+                            ...newData,
+                            'class-connections': classConnectionsData,
+                            default_value_true_type: true_type,
+                        },
                         orig_data:
                             type === 'service-methods'
                                 ? initialData.service

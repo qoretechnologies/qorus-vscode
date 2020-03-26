@@ -456,7 +456,7 @@ export class QorusProjectCodeInfo {
 
             qorus_webview.postMessage(message);
         };
-
+/*
         const onSuccess = response => {
             processResult(response);
         };
@@ -467,6 +467,8 @@ export class QorusProjectCodeInfo {
         };
 
         qorus_request.doRequest('system/interfacesWithDataContext', 'GET', onSuccess, onError);
+*/
+        processResult(null);
     }
 
     getFieldsFromType = message => {
@@ -592,7 +594,6 @@ export class QorusProjectCodeInfo {
         });
 
         (data['config-items'] || []).forEach(item => {
-
             if (!item.stricty_local) {
                 const global_value = globals.get(item.name);
                 if (global_value !== undefined) {

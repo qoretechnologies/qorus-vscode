@@ -87,7 +87,9 @@ export class InterfaceInfo {
         this.last_other_if_kind = other_iface_kind && capitalize(other_iface_kind);
     }
 
-    updateConfigItemValue = ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string}) => {
+    updateConfigItemValue =
+        ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string, value_true_type}) =>
+    {
         this.maybeInitIfaceId(iface_id, iface_kind);
         if (!level) {
             msg.log(t`LevelNeededToUpdateCIValue`);
@@ -105,8 +107,10 @@ export class InterfaceInfo {
             level = 'local';
         }
 
-        const parseIfComplex = item =>
-            ['list', 'hash', '*list', '*hash'].includes(item.type) ? jsyaml.safeLoad(value) : value;
+        const parseIfComplex = item => {
+            const type = item.type === 'any' && value_true_type ? value_true_type : item.type;
+            return ['list', 'hash', '*list', '*hash'].includes(type) ? jsyaml.safeLoad(value) : value;
+        };
 
         const templated_key = level === 'global'
             ? 'is_global_value_templated_string'
@@ -137,6 +141,7 @@ export class InterfaceInfo {
                 }
 
                 item[templated_key] = is_templated_string;
+                item.value_true_type = value_true_type;
             }
         } else {
             let item = this.iface_by_id[iface_id]['config-items'].find(ci_value => ci_value.name === name);
@@ -152,6 +157,7 @@ export class InterfaceInfo {
                 } else {
                     item[level + '-value'] = parseIfComplex(item);
                     item[templated_key] = is_templated_string;
+                    item.value_true_type = value_true_type;
                 }
             }
         }
@@ -162,7 +168,11 @@ export class InterfaceInfo {
     updateConfigItem = ({iface_id, iface_kind, data: item}) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
 
-        if (['list', 'hash'].includes(item.type)) {
+        const default_value_true_type = item.type === 'any' && item.default_value_true_type
+            ? item.default_value_true_type
+            : item.type;
+
+        if (['list', 'hash'].includes(default_value_true_type)) {
             if (item.default_value) {
                 item.default_value = jsyaml.safeLoad(item.default_value);
             }
@@ -299,7 +309,11 @@ export class InterfaceInfo {
             item.can_be_undefined = true;
         }
 
-        if (item.default_value !== undefined && ['list', 'hash'].includes(item.type)) {
+        const default_value_true_type = item.type === 'any' && item.default_value_true_type
+            ? item.default_value_true_type
+            : item.type;
+
+        if (item.default_value !== undefined && ['list', 'hash'].includes(default_value_true_type)) {
             item.default_value = jsyaml.safeDump(item.default_value).replace(/\r?\n$/, '');
         }
 
@@ -466,6 +480,12 @@ export class InterfaceInfo {
             (level === 'global' && item.is_global_value_templated_string) ||
             (level !== 'global' && item.is_value_templated_string);
 
+        const valueTrueType = item =>
+            item.type === 'any' && item.value_true_type ? item.value_true_type : item.type;
+
+        const defaultValueTrueType = item =>
+            item.type === 'any' && item.default_value_true_type ? item.default_value_true_type : item.type;
+
         const fixLocalItem = (item: any): any => {
             item.type = item.type || default_type;
             if (item.type[0] === '*') {
@@ -473,11 +493,8 @@ export class InterfaceInfo {
                 item.can_be_undefined = true;
             }
 
-            const toYamlIfComplexLocal = (value, is_templated_string = false) =>
-                toYamlIfComplex(value, item.type, is_templated_string);
-
             if (item.allowed_values) {
-                item.allowed_values = item.allowed_values.map(value => toYamlIfComplexLocal(value));
+                item.allowed_values = item.allowed_values.map(value => toYamlIfComplex(value, valueTrueType(item)));
             }
 
             if (item.value !== undefined) {
@@ -486,16 +503,19 @@ export class InterfaceInfo {
 
             delete item.value;
             if (item.default_value !== undefined) {
-                item.default_value = toYamlIfComplexLocal(item.default_value);
+                item.default_value = toYamlIfComplex(item.default_value, defaultValueTrueType(item));
                 item.value = item.default_value;
                 item.level = 'default';
                 item.is_set = true;
+                if (item.type === 'any' && item.default_value_true_type && !item.value_true_type) {
+                    item.value_true_type = item.default_value_true_type;
+                }
             }
 
             for (const level of ['global', 'workflow', 'local']) {
                 const key = level + '-value';
                 if (item[key] !== undefined) {
-                    item.value = toYamlIfComplexLocal(item[key], isTemplatedString(level, item));
+                    item.value = toYamlIfComplex(item[key], valueTrueType(item), isTemplatedString(level, item));
                     item.level = level === 'local' ? iface_kind : level;
                     item.is_set = true;
                 }
@@ -511,7 +531,7 @@ export class InterfaceInfo {
         const checkValueLevel = (item: any, level: string): any => {
             if (item[level + '-value'] !== undefined) {
                 item.is_templated_string = isTemplatedString(level, item);
-                item.value = toYamlIfComplex(item[level + '-value'], item.type, item.is_templated_string);
+                item.value = toYamlIfComplex(item[level + '-value'], valueTrueType(item), item.is_templated_string);
             } else {
                 delete item.value;
                 delete item.is_set;
@@ -521,8 +541,8 @@ export class InterfaceInfo {
         };
 
         const addYamlData = (item: any): any => {
-            const toYamlIfNotComplex = value =>
-                !item.is_templated_string && ['list', 'hash'].includes(item.type)
+            const toYamlIfNotComplex = (value, type = valueTrueType(item)) =>
+                !item.is_templated_string && ['list', 'hash'].includes(type)
                     ? value
                     : jsyaml.safeDump(value).replace(/\r?\n$/, '');
 
@@ -533,7 +553,7 @@ export class InterfaceInfo {
                     ? {value: toYamlIfNotComplex(item.value)}
                     : {},
                 ... hasNormalValue(item.default_value)
-                    ? {default_value: toYamlIfNotComplex(item.default_value)}
+                    ? {default_value: toYamlIfNotComplex(item.default_value, defaultValueTrueType(item))}
                     : {},
                 ... item.allowed_values
                     ? {allowed_values: item.allowed_values.map(value => toYamlIfNotComplex(value))}
@@ -557,7 +577,7 @@ export class InterfaceInfo {
                 delete item.default_value;
                 const workflow_value = workflow_values.find(item2 => item2.name === item.name);
                 if (workflow_value !== undefined) {
-                    item['workflow-value'] = toYamlIfComplex(workflow_value.value, item.type, workflow_value.is_value_templated_string);
+                    item['workflow-value'] = toYamlIfComplex(workflow_value.value, valueTrueType(item), workflow_value.is_value_templated_string);
                     item.is_value_templated_string = workflow_value.is_value_templated_string;
                 }
             });
