@@ -173,6 +173,16 @@ class ClassCreator extends InterfaceCreator {
             ? this.writeFiles(contents, headers, open_file_on_success)
             : this.writeYamlFile(headers);
 
+        if (['create', 'edit'].includes(edit_type)) {
+            const message_data = {
+                action: `creator-${edit_type}-interface-complete`,
+                ok: true,
+                message: 'some message'
+            };
+            msg.debug({message_data});
+            qorus_webview.postMessage(message_data);
+        }
+
         if (message) {
             msg.info(message);
         }

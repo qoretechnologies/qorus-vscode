@@ -113,6 +113,15 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods), open_file_on_success);
 
+        if (['create', 'edit'].includes(edit_type)) {
+            const message_data = {
+                action: `creator-${edit_type}-interface-complete`,
+                ok: true,
+                message: 'some message'
+            };
+            qorus_webview.postMessage(message_data);
+        }
+
         if (message) {
             msg.info(message);
         }
