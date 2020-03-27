@@ -7,7 +7,7 @@ import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { classConnectionsCode } from './class_connections';
-import { hasConfigItems, toValidIdentifier } from '../qorus_utils';
+import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -178,7 +178,7 @@ class ClassCreator extends InterfaceCreator {
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: true,
-                message: 'some message'
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)}, ${data.name}`
             });
         }
 

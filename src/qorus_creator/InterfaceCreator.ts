@@ -195,7 +195,7 @@ export abstract class InterfaceCreator {
                 break;
             case 'edit':
                 const {name: orig_name, version: orig_version} = orig_data || {};
-                const orig_name_version = with_version ? `${orig_name}:${orig_version || default_version}` : name;
+                const orig_name_version = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
                 if (search_name === orig_name_version) {
                     return {ok: true};
                 }
@@ -206,9 +206,7 @@ export abstract class InterfaceCreator {
 
         const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, search_name);
         if (iface) {
-            const message = t`IfaceAlreadyExists ${capitalize(iface_kind)}, ${search_name}`;
-            msg.error(message);
-            return {ok: false, message};
+            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)}, ${search_name}`};
         }
         return {ok: true};
     }

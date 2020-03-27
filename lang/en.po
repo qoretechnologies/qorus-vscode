@@ -2102,3 +2102,6 @@ msgstr "Allowed values property is not supported for the selected type"
 
 msgid "IfaceAlreadyExists ${ iface }, ${ name }"
 msgstr "${ iface } with name ${ name } already exists"
+
+msgid "IfaceSavedSuccessfully ${ iface }, ${ name }"
+msgstr "${ iface } ${ name } has been saved successfully"
