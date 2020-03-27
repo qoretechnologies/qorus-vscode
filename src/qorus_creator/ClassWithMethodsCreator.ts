@@ -14,7 +14,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private method_template: string;
     private imports: string[];
 
-    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id}) {
+    editImpl = params => {
+        const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
         this.lang = data.lang || 'qore';
 
         let suffix: string;
@@ -56,14 +57,25 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix);
 
+        const {ok, message} = this.checkExistingInterface(params);
+        if (!ok) {
+            qorus_webview.postMessage({
+                action: `creator-${params.edit_type}-interface-complete`,
+                request_id: params.request_id,
+                ok,
+                message
+            });
+            return;
+        }
+
         let contents: string;
-        let message: string;
+        let info: string;
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
             case 'recreate':
                 contents = this.code(data, iface_kind, methods);
-                message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
+                info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
                 const orig_method_names: string[] = (orig_data[methods_key] || []).map(method => method.name);
@@ -84,9 +96,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 code_lines = this.removeMethods(this.edit_info.text_lines, [method_name]);
                 contents = code_lines.join('\n');
                 if (iface_kind === 'service') {
-                    message = t`ServiceMethodHasBeenDeleted ${method_name}`;
+                    info = t`ServiceMethodHasBeenDeleted ${method_name}`;
                 } else {
-                    message = t`MapperCodeMethodHasBeenDeleted ${method_name}`;
+                    info = t`MapperCodeMethodHasBeenDeleted ${method_name}`;
                 }
 
                 data[methods_key].splice(data.method_index, 1);
@@ -118,12 +130,12 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: true,
-                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)}, ${data.name}`
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`
             });
         }
 
-        if (message) {
-            msg.info(message);
+        if (info) {
+            msg.info(info);
         }
 
         delete data.method_index;
