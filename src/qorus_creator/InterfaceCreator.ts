@@ -1,7 +1,6 @@
 import { workspace, window, Position } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { qorus_webview } from '../QorusWebview';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { field } from './common_constants';
@@ -85,16 +84,6 @@ export abstract class InterfaceCreator {
 
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
-        const {ok, message} = this.checkExistingInterface(params);
-        if (!ok) {
-            qorus_webview.postMessage({
-                action: `creator-${params.edit_type}-interface-complete`,
-                request_id: params.request_id,
-                ok,
-                message
-            });
-            return;
-        }
 
         // temporary solution: editing an interface with class connections leads to creating it anew
         // (until editing is implemented)
@@ -184,19 +173,21 @@ export abstract class InterfaceCreator {
         });
     }
 
-    private checkExistingInterface = (params: any): any => {
-        const { iface_kind, edit_type, data: {name, version}, orig_data, } = params;
+    protected checkExistingInterface = (params: any): any => {
+        msg.debug({params});
+        const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
+        const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
 
         const with_version = types_with_version.includes(iface_kind);
-        const search_name = with_version ? `${name}:${version || default_version}` : name;
+
+        const iface_name = with_version ? `${name}:${version || default_version}` : name;
+        const orig_iface_name = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
 
         switch (edit_type) {
             case 'create':
                 break;
             case 'edit':
-                const {name: orig_name, version: orig_version} = orig_data || {};
-                const orig_name_version = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
-                if (search_name === orig_name_version) {
+                if (iface_name === orig_iface_name && class_name === orig_class_name) {
                     return {ok: true};
                 }
                 break;
@@ -204,9 +195,15 @@ export abstract class InterfaceCreator {
                 return {ok: true};
         }
 
-        const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, search_name);
+        let iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
         if (iface) {
-            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${search_name}`};
+            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
+        }
+        if (!['class', 'mapper-code'].includes(iface_kind)) {
+            iface = this.code_info.yaml_info.yamlDataByClass(class_name);
+            if (iface) {
+                return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
+            }
         }
         return {ok: true};
     }

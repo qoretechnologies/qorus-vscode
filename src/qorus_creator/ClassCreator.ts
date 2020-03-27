@@ -13,7 +13,8 @@ import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id}) {
+    editImpl = params => {
+        const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
         this.lang = data.lang || 'qore';
 
         let template: string;
@@ -57,11 +58,15 @@ class ClassCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix, iface_kind);
 
-        if (iface_kind === 'step' && data['base-class-name']) {
-            data = {
-                ...data,
-                ...stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
-            };
+        const {ok, message} = this.checkExistingInterface(params);
+        if (!ok) {
+            qorus_webview.postMessage({
+                action: `creator-${params.edit_type}-interface-complete`,
+                request_id: params.request_id,
+                ok,
+                message
+            });
+            return;
         }
 
         let triggers: string[] = [];
@@ -76,13 +81,13 @@ class ClassCreator extends InterfaceCreator {
 
         let methods = '';
         let contents: string;
-        let message: string;
+        let info: string;
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
             case 'recreate':
                 if (!this.has_code) {
-                    message = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
+                    info = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;
                 }
 
@@ -122,7 +127,7 @@ class ClassCreator extends InterfaceCreator {
                     connections_extra_class
                 });
 
-                message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
+                info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
                 if (!this.has_code) {
@@ -153,7 +158,10 @@ class ClassCreator extends InterfaceCreator {
 
         let headers = this.createHeaders({
             type: iface_kind,
-            ...data,
+            ... data,
+            ... iface_kind === 'step' && data['base-class-name']
+                ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
+                : {},
             code: this.has_code ? this.file_name : undefined
         });
 
@@ -182,8 +190,8 @@ class ClassCreator extends InterfaceCreator {
             });
         }
 
-        if (message) {
-            msg.info(message);
+        if (info) {
+            msg.info(info);
         }
 
         delete data.yaml_file;
