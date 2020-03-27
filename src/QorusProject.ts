@@ -41,7 +41,7 @@ export class QorusProject {
     }
 
     get folder(): string {
-        return path.dirname(this.config_file);
+        return this.project_folder;
     }
 
     configFileExists(): boolean {
@@ -105,24 +105,41 @@ export class QorusProject {
         if (!this.configFileExists()) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
             msg.info(t`ProjectConfigHasBeenInitialized`);
+            this.fixJavaClasspathFile();
+            this.fixJavaProjectFile();
         }
     }
 
     fixJavaClasspathFile() {
-        if (! this.java_config.loadClasspath()) {
+        if (!this.configFileExists()) {
+            return;
+        }
+        if (!this.java_config.loadClasspath()) {
             this.java_config.fixClasspath();
             this.java_config.writeClasspathFile();
         }
     }
 
     fixJavaProjectFile() {
-        if (! this.java_config.loadProject()) {
+        if (!this.configFileExists()) {
+            return;
+        }
+        if (!this.java_config.loadProject()) {
             this.java_config.fixProject();
             this.java_config.writeProjectFile();
         }
     }
 
-    addSourceDir() {
+    private addSourceDir(dir) {
+        this.validateConfigFileAndDo(file_data => {
+            if (file_data.source_directories.indexOf(dir) === -1) {
+                file_data.source_directories.push(dir);
+                this.writeConfig(file_data);
+            }
+        });
+    }
+
+    addSourceDirWithFilePicker() {
         this.validateConfigFileAndDo(file_data => {
             vscode.window
                 .showOpenDialog({
@@ -176,8 +193,50 @@ export class QorusProject {
         this.writeConfig(file_data);
     }
 
+    dirForTypePath = type_path => {
+        if (['/', '\\'].includes(type_path[0])) {
+            type_path = type_path.substr(1);
+        }
+        const relative_dir = path.dirname(type_path);
+        const dir = path.join(this.project_folder, relative_dir);
+
+        if (!fs.existsSync(dir)) {
+            try {
+                fs.mkdirSync(dir, {recursive: true, mode: 0o755});
+                this.addSourceDir(relative_dir);
+            }
+            catch (e) {
+                msg.error(t`FailedCreateDir ${dir}`);
+                msg.log(e);
+                return undefined;
+            }
+        }
+        return dir;
+    }
+
     private writeConfig(file_data: any) {
+        const removeSubdirs = dirs => {
+            const isSubdir = (dir1, dir2) =>
+                dir1.search(dir2) === 0 && ['/', '\\'].includes(dir1[dir2.length]);
+
+            for (let i = 0; i < dirs.length - 1; i++) {
+                for (let ii = i + 1; ii < dirs.length; ii++) {
+                    if (isSubdir(dirs[i], dirs[ii])) {
+                        dirs.splice(i, 1);
+                        return removeSubdirs(dirs);
+                    }
+                    if (isSubdir(dirs[ii], dirs[i])) {
+                        dirs.splice(ii, 1);
+                        return removeSubdirs(dirs);
+                    }
+                }
+            }
+            return dirs;
+        }
+
+        file_data.source_directories = removeSubdirs(file_data.source_directories);
         fs.writeFileSync(this.config_file, JSON.stringify(file_data, null, 4) + '\n');
+
         qorus_webview.postMessage({
             action: 'config-return-data',
             data: QorusProject.file2data(file_data),

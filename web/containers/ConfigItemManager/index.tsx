@@ -12,6 +12,7 @@ import { Messages } from '../../constants/messages';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import { FieldName } from '../../components/FieldSelector';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
 
 export interface IConfigItemManager {
     t: TTranslator;
@@ -106,6 +107,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
             name,
             value,
+            value_true_type: getTypeFromValue(maybeParseYaml(value)),
             file_name: configItems.file_name,
             remove,
             level,

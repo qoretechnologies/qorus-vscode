@@ -22,7 +22,7 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
 
     // delete commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface_kind => {
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow', 'type'].forEach(iface_kind => {
         const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             vswindow.showWarningMessage(
@@ -43,14 +43,14 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
 
     // deploy commands
     ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow'].forEach(iface_kind => {
+     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow', 'type'].forEach(iface_kind => {
         const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             vswindow.showWarningMessage(
                 t`ConfirmDeployInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`
             ).then(
                 selection => {
-                    if (selection === undefined || selection === t`No`) {
+                    if (selection !== t`Yes`) {
                         return;
                     }
 
@@ -89,7 +89,7 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step',
-     'workflow', 'group', 'event', 'queue'].forEach(iface_kind => {
+     'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind => {
         const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             const code_info = projects.currentProjectCodeInfo();

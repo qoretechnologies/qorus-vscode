@@ -8,7 +8,7 @@ import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
-import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
@@ -155,7 +155,7 @@ class QorusWebview {
                             break;
                         case 'config-add-dir':
                             this.message_on_config_file_change = false;
-                            project.addSourceDir();
+                            project.addSourceDirWithFilePicker();
                             break;
                         case 'config-remove-dir':
                             this.message_on_config_file_change = false;
@@ -193,9 +193,8 @@ class QorusWebview {
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
                                 fields: creator.getSortedFields({
+                                    ... message,
                                     interface_info,
-                                    iface_kind: message.iface_kind,
-                                    is_editing: message.is_editing || false,
                                     default_target_dir: initial_data.uri && initial_data.uri.fsPath,
                                 }),
                             });
@@ -233,7 +232,9 @@ class QorusWebview {
                             project.code_info.getInterfaceData(message);
                             break;
                         case 'get-config-items':
-                            interface_info.getConfigItems(message);
+                            project.code_info.waitForPending(['yaml']).then(() => {
+                                interface_info.getConfigItems(message);
+                            });
                             break;
                         case 'get-config-item':
                             interface_info.getConfigItem(message);
@@ -252,6 +253,15 @@ class QorusWebview {
                             break;
                         case 'delete-config-item':
                             interface_info.deleteConfigItem(message);
+                            break;
+                        case 'config-item-type-changed':
+                            creator.configItemTypeChanged(message);
+                            break;
+                        case 'get-objects-with-static-data':
+                            project.code_info.getObjectsWithStaticData(message);
+                            break;
+                        case 'get-fields-from-type':
+                            project.code_info.getFieldsFromType(message);
                             break;
                         case 'set-active-instance':
                             qorus_request.setActiveInstance(message.url);

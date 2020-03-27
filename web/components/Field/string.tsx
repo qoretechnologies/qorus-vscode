@@ -38,7 +38,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     // Fetch data on mount
     useMount(() => {
         // Populate default value
-        onChange(name, getValueOrDefaultValue(value, default_value, canBeNull));
+        onChange && onChange(name, getValueOrDefaultValue(value, default_value, canBeNull));
         // Get backend data
         if (get_message && return_message) {
             postMessage(get_message.action);

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useContext } from 'react';
 import withTextContext from '../hocomponents/withTextContext';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../hocomponents/withMessageHandler';
 import compose from 'recompose/compose';
@@ -12,6 +12,7 @@ import size from 'lodash/size';
 import { StyledNoData } from './environment';
 import { TTranslator } from '../App';
 import Loader from '../components/Loader';
+import { InitialContext } from '../context/init';
 
 const StyledDirWrapper = styled.div`
     min-width: 300px;
@@ -57,6 +58,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
     t,
 }) => {
     const [sourceDirs, setSourceDirs] = useState<string[]>(null);
+    const initContext = useContext(InitialContext);
 
     useEffectOnce(() => {
         // Update the source dirs on message
@@ -93,7 +95,12 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                                         minimal
                                         small
                                         icon="trash"
-                                        onClick={() => onDeleteClick(dir)}
+                                        intent="danger"
+                                        onClick={() =>
+                                            initContext.confirmAction('ConfirmRemoveSourceDir', () =>
+                                                onDeleteClick(dir)
+                                            )
+                                        }
                                         style={{ marginTop: '3px', float: 'right' }}
                                         name="source-dir-remove"
                                     />

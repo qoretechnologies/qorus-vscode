@@ -1,5 +1,5 @@
 // @flow
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import compose from 'recompose/compose';
 import classnames from 'classnames';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
@@ -23,6 +23,7 @@ import ReactMarkdown from 'react-markdown';
 import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
 import { isNull, isUndefined } from 'util';
 import useMount from 'react-use/lib/useMount';
+import { InitialContext } from '../../context/init';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -153,6 +154,8 @@ let ItemsTable: Function = ({
     type,
     definitionsOnly,
 }: ConfigItemsTableProps) => {
+    const initContext = useContext(InitialContext);
+
     return (
         <React.Fragment>
             <Table striped condensed fixed hover>
@@ -199,7 +202,7 @@ let ItemsTable: Function = ({
                 </Thead>
                 <DataOrEmptyTable
                     condition={!configItemsData || configItemsData.length === 0}
-                    cols={definitionsOnly ? 6 : 7}
+                    cols={definitionsOnly ? (groupName ? 6 : 7) : groupName ? 7 : 8}
                     small
                 >
                     {props => (
@@ -291,7 +294,9 @@ let ItemsTable: Function = ({
                                                         intent="danger"
                                                         icon="trash"
                                                         onClick={() => {
-                                                            onDeleteStructureClick(item.name);
+                                                            initContext.confirmAction('ConfirmRemoveConfigItem', () => {
+                                                                onDeleteStructureClick(item.name);
+                                                            });
                                                         }}
                                                     />
                                                 )}
@@ -300,7 +305,10 @@ let ItemsTable: Function = ({
                                     </Tr>
                                     {showDescription && (
                                         <Tr>
-                                            <Td className="text" colspan={groupName ? 7 : 8}>
+                                            <Td
+                                                className="text"
+                                                colspan={definitionsOnly ? (groupName ? 6 : 7) : groupName ? 7 : 8}
+                                            >
                                                 <ReactMarkdown source={item.description} />
                                             </Td>
                                         </Tr>

@@ -6,7 +6,7 @@ import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import * as msg from './qorus_message';
-import { dash2Pascal, makeFileUri, suffixToIfaceKind, expectsYamlFile } from './qorus_utils';
+import { dash2Pascal, makeFileUri, suffixToIfaceKind, expectsYamlFile, isTest } from './qorus_utils';
 import { qore_vscode } from './qore_vscode';
 
 export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
@@ -27,9 +27,11 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         const dir_path = path.dirname(file_path);
         const file_name = path.basename(file_path);
 
-        const yaml_info = this.code_info.yamlDataBySrcFile(file_path);
+        const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
         if (!yaml_info) {
-            msg.error(t`UnableFindYamlForSrc ${file_name}`);
+            if (!isTest(file_path)) {
+                msg.error(t`UnableFindYamlForSrc ${file_name}`);
+            }
             return Promise.resolve([]);
         }
 
@@ -64,7 +66,6 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
             return;
         }
 
-        data = this.code_info.fixData(data);
         const range = symbol.range ? symbol.range : loc2range(symbol.name.loc);
 
         switch (iface_kind) {
@@ -133,8 +134,6 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
             return;
         }
 
-        data = this.code_info.fixData(data);
-
         if (iface_kind === 'mapper-code') {
             data['mapper-methods'] = data.methods;
             delete data.methods;
@@ -168,6 +167,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
                 return this.previous_lenses;
             }
             let lenses: CodeLens[] = [];
+            data = this.code_info.fixData(data);
 
             symbols.forEach(symbol => {
                 if (!this.code_info.isSymbolExpectedClass(symbol, data['class-name'])) {

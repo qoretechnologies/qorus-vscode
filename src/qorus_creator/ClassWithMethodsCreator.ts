@@ -4,7 +4,7 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { mapperCodeTemplates } from './mapper_constants';
 import { classConnectionsCode } from './class_connections';
-import { hasConfigItems } from '../qorus_utils';
+import { hasConfigItems, toValidIdentifier } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -36,6 +36,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 }
                 break;
             case 'mapper-code':
+                data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
                 suffix = '.qmc';
                 methods_key = 'mapper-methods';
                 ({

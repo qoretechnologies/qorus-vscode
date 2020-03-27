@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GlobalContext } from '../context/global';
 import compose from 'recompose/compose';
 import withStepsConsumer from './withStepsConsumer';
@@ -10,6 +10,8 @@ import withMapperConsumer from './withMapperConsumer';
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: any): any => {
     const EnhancedComponent = (props: any) => {
+        const [typeReset, setTypeReset] = useState(null);
+
         const handleInterfaceReset: (type: string, soft?: boolean) => void = (type, soft) => {
             // Reset the initial data
             if (!soft) {
@@ -49,6 +51,10 @@ export default () => (Component: any): any => {
                     // Reset mapper
                     props.resetMapper();
                     break;
+                case 'type':
+                    // Reset type
+                    typeReset && typeReset();
+                    break;
                 default:
                     break;
             }
@@ -58,6 +64,7 @@ export default () => (Component: any): any => {
             <GlobalContext.Provider
                 value={{
                     resetAllInterfaceData: handleInterfaceReset,
+                    setTypeReset,
                 }}
             >
                 <Component {...props} />

@@ -161,7 +161,15 @@ const MapperOptionsField: FunctionComponent<{
                                     t={t}
                                 />
                             ) : null}
-                            {size(value) !== 1 && <Button icon={'trash'} onClick={() => handleRemoveClick(index)} />}
+                            {size(value) !== 1 && (
+                                <Button
+                                    icon={'trash'}
+                                    intent="danger"
+                                    onClick={() =>
+                                        initialData.confirmAction('ConfirmRemoveOption', () => handleRemoveClick(index))
+                                    }
+                                />
+                            )}
                         </ControlGroup>
                     </div>
                 </StyledPairField>

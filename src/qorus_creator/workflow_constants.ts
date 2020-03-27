@@ -58,6 +58,11 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
         notify_on_remove: true,
     },
     {
+        name: 'staticdata-type',
+        type: 'type-selector',
+        mandatory: false,
+    },
+    {
         name: 'workflow-autostart',
         type: 'number',
         mandatory: false,

@@ -14,9 +14,11 @@ export const configItemFields = interface_info => [
         type: 'enum',
         items: types.map(type => ({ value: type })),
         default_value: 'string',
+        on_change: 'config-item-type-changed',
     },
     {
         name: 'can_be_undefined',
+        mandatory: false,
         type: 'boolean',
         default_value: false,
     },

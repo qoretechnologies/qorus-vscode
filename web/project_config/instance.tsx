@@ -1,12 +1,16 @@
-import React, { FunctionComponent, useState } from 'react';
-import { IQorusInstance } from './ProjectConfig';
+import React, { FunctionComponent, useContext, useState } from 'react';
+
 import styled from 'styled-components';
-import { Icon, Button, ButtonGroup, Classes } from '@blueprintjs/core';
-import Add from './add';
-import withTextContext from '../hocomponents/withTextContext';
-import QorusUrl from './url';
+
+import { Button, ButtonGroup, Classes, Icon } from '@blueprintjs/core';
+
 import { TTranslator } from '../App';
-import { StyledSubHeader, StyledNoData } from './environment';
+import { InitialContext } from '../context/init';
+import withTextContext from '../hocomponents/withTextContext';
+import Add from './add';
+import { StyledNoData, StyledSubHeader } from './environment';
+import { IQorusInstance } from './ProjectConfig';
+import QorusUrl from './url';
 
 export interface IQorusInstanceProps extends IQorusInstance {
     onDataChange: (instanceId: number, name: string, url?: string) => void;
@@ -81,6 +85,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
 }) => {
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isExpanded, setExpanded] = useState<boolean>(false);
+    const initContext = useContext(InitialContext);
 
     const handleDataChange: (newName: string, url: string) => void = (newName, url) => {
         // Change the data of this instance
@@ -138,7 +143,13 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                                 onClick={() => onSetActive(url, !isActive)}
                             />
                             <Button icon="edit" small onClick={() => setIsEditing(true)} name="instance-edit" />
-                            <Button icon="trash" small onClick={() => onDelete(id)} name="instance-delete" />
+                            <Button
+                                icon="trash"
+                                intent="danger"
+                                small
+                                name="instance-delete"
+                                onClick={() => initContext.confirmAction('ConfirmRemoveInstance', () => onDelete(id))}
+                            />
                         </ButtonGroup>
                     </div>
                 </StyledInstanceWrapper>

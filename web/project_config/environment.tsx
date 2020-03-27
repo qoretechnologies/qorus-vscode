@@ -1,12 +1,16 @@
-import React, { FunctionComponent, useState } from 'react';
-import styled from 'styled-components';
-import { ButtonGroup, Button, InputGroup, ControlGroup, Classes, Icon } from '@blueprintjs/core';
-import { IQorusInstance } from './ProjectConfig';
-import QorusInstance from './instance';
-import withTextContext from '../hocomponents/withTextContext';
-import { TTranslator } from '../App';
+import React, { FunctionComponent, useContext, useState } from 'react';
+
 import size from 'lodash/size';
+import styled from 'styled-components';
+
+import { Button, ButtonGroup, Icon, InputGroup } from '@blueprintjs/core';
+
+import { TTranslator } from '../App';
+import { InitialContext } from '../context/init';
+import withTextContext from '../hocomponents/withTextContext';
 import Add from './add';
+import QorusInstance from './instance';
+import { IQorusInstance } from './ProjectConfig';
 
 export interface IEnvironmentPanel {
     id: number;
@@ -117,6 +121,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     activeInstance,
     t,
 }) => {
+    const initContext = useContext(InitialContext);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [envName, setEnvName] = useState<string>(name);
 
@@ -202,9 +207,12 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                         />
                         <Button
                             icon="trash"
-                            onClick={() => onEnvironmentDeleteClick(id)}
-                            small
                             name="delete-environment"
+                            intent="danger"
+                            onClick={() =>
+                                initContext.confirmAction('ConfirmRemoveEnv', () => onEnvironmentDeleteClick(id))
+                            }
+                            small
                         />
                     </ButtonGroup>
                 </StyledNameWrapper>

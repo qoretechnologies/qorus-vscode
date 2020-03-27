@@ -8,6 +8,7 @@ import size from 'lodash/size';
 import jsyaml from 'js-yaml';
 import isObject from 'lodash/isPlainObject';
 import { isString, isDate, isBoolean, isUndefined, isNull } from 'util';
+import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 
 export const validateField: (type: string, value: any, field?: IField, canBeNull?: boolean) => boolean = (
     type,
@@ -138,6 +139,18 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             const [code, method] = value.split('.');
             // Both fields need to be strings & filled
             return validateField('string', code) && validateField('string', method);
+        case 'type-selector':
+            if (!value) {
+                return false;
+            }
+            // Type path and name are required
+            return value.type && value.path && value.name;
+        case 'context-selector':
+            if (isString(value)) {
+                const cont: string[] = value.split(':');
+                return validateField('string', cont[0]) && validateField('string', cont[1]);
+            }
+            return !!value.iface_kind && !!value.name;
         case 'auto':
         case 'any': {
             // Parse the string as yaml
@@ -174,6 +187,10 @@ export const maybeParseYaml: (yaml: any) => any = yaml => {
     }
     // Leave numbers as they are
     if (isNumber(yaml)) {
+        return yaml;
+    }
+    // Leave dates
+    if (isDateValid(yaml)) {
         return yaml;
     }
     // Check if the value isn't empty

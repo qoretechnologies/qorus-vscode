@@ -1,9 +1,11 @@
 import React, { FunctionComponent, useState } from 'react';
-import { InitialContext } from '../context/init';
-import useMount from 'react-use/lib/useMount';
-import { Messages } from '../constants/messages';
-import shortid from 'shortid';
+
 import set from 'lodash/set';
+import useMount from 'react-use/lib/useMount';
+import shortid from 'shortid';
+
+import { Messages } from '../constants/messages';
+import { InitialContext } from '../context/init';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -11,6 +13,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [initialData, setInitialData] = useState<any>({
             tab: 'ProjectConfig',
         });
+        const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; onSubmit: () => any; text: string }>({});
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
@@ -39,6 +42,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
             props.postMessage(Messages.GET_INITIAL_DATA);
         });
+
+        const confirmAction: (text: string, action: () => any) => void = (text, action) => {
+            setConfirmDialog({
+                isOpen: true,
+                text,
+                onSubmit: action,
+            });
+        };
 
         const changeTab: (tab: string, subtab?: string) => void = (tab, subtab) => {
             setInitialData(current => ({
@@ -92,11 +103,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }, 120000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
-                props.addMessageListener('fetch-data-complete', data => {
+                const listener = props.addMessageListener('fetch-data-complete', data => {
                     if (data.id === uniqueId) {
                         clearTimeout(timeout);
                         timeout = null;
                         resolve(data);
+                        //* Remove the listener after the call is done
+                        listener();
                     }
                 });
                 // Fetch the data
@@ -122,6 +135,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setActiveInstance,
                     fetchData,
                     changeInitialData,
+                    confirmDialog,
+                    setConfirmDialog,
+                    confirmAction,
                 }}
             >
                 <InitialContext.Consumer>

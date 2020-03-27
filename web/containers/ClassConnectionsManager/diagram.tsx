@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { IClassConnection, StyledDialogBody } from './index';
 import size from 'lodash/size';
 import find from 'lodash/find';
@@ -23,6 +23,7 @@ import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsu
 import useMount from 'react-use/lib/useMount';
 import BooleanField from '../../components/Field/boolean';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import { InitialContext } from '../../context/init';
 
 export interface IClassConnectionsDiagramProps {
     connection: IClassConnection[];
@@ -85,7 +86,7 @@ const Connector: React.FC<IConnectorProps> = ({
             const name = class_name_parts[1] || class_name_parts[0];
             postMessage(Messages.GET_INTERFACE_DATA, {
                 iface_kind: 'class',
-                class_name: name,
+                name: name,
             });
         }
     }, [manageDialog]);
@@ -220,10 +221,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     ifaceType,
     baseClassName,
     methods,
+    interfaceContext,
 }) => {
     const [manageDialog, setManageDialog] = useState<IManageDialog>({});
     const [hasLast, setHasLast] = useState<boolean>(false);
     const [mapperDialog, setMapperDialog] = useState({});
+    const initContext = useContext(InitialContext);
 
     const isConnectorValid = () => {
         return manageDialog.isMapper
@@ -236,7 +239,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             // Get the class
             const class_name_parts = connectionData.class.split(':'); // possibly with prefix
             const class_name = class_name_parts[1] || class_name_parts[0];
-            const connClass = Object.values(classesData).find(class_data => class_data['class-name'] === class_name);
+            const connClass = Object.values(classesData).find(class_data => class_data.name === class_name);
             // Get the connector data
             const connectorData = connClass['class-connectors'].find(conn => conn.name === connectionData.connector);
             // Return updated data
@@ -295,6 +298,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                 <StyledDialogBody style={{ flexFlow: 'column' }}>
                     <MapperView
                         inConnections
+                        interfaceContext={interfaceContext}
                         isEditing={mapperDialog.isEditing}
                         defaultMapper={mapperDialog.isEditing && mapperDialog.mapper}
                     />
@@ -357,10 +361,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         icon="trash"
                                                         intent="danger"
                                                         onClick={() => {
-                                                            setManageDialog(current => ({
-                                                                ...current,
-                                                                mapper: null,
-                                                            }));
+                                                            initContext.confirmAction('ConfirmRemoveMapper', () =>
+                                                                setManageDialog(current => ({
+                                                                    ...current,
+                                                                    mapper: null,
+                                                                }))
+                                                            );
                                                         }}
                                                     />
                                                 </>
@@ -373,6 +379,9 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                         resetAllInterfaceData('mapper');
                                                         setMapper({
                                                             isFromConnectors: true,
+                                                            hasInitialInput: !!manageDialog.outputProvider,
+                                                            hasInitialOutput: !!manageDialog.inputProvider,
+                                                            'context-selector': interfaceContext,
                                                             mapper_options: {
                                                                 'mapper-input': manageDialog.outputProvider,
                                                                 'mapper-output': manageDialog.inputProvider,
@@ -476,10 +485,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                             icon="trash"
                                                             intent="danger"
                                                             onClick={() => {
-                                                                setManageDialog(current => ({
-                                                                    ...current,
-                                                                    trigger: null,
-                                                                }));
+                                                                initContext.confirmAction('ConfirmRemoveTrigger', () =>
+                                                                    setManageDialog(current => ({
+                                                                        ...current,
+                                                                        trigger: null,
+                                                                    }))
+                                                                );
                                                             }}
                                                         />
                                                     )}
@@ -581,15 +592,17 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                 <Button
                                                     small
                                                     minimal
-                                                    icon={<Icon icon={'trash'} iconSize={12} />}
+                                                    icon={<Icon icon={'trash'} intent="danger" iconSize={12} />}
                                                     onClick={() => {
-                                                        onAddConnector(
-                                                            connectionName,
-                                                            {
-                                                                index,
-                                                                isEditing: true,
-                                                            },
-                                                            true
+                                                        initContext.confirmAction('ConfirmRemoveMapper', () =>
+                                                            onAddConnector(
+                                                                connectionName,
+                                                                {
+                                                                    index,
+                                                                    isEditing: true,
+                                                                },
+                                                                true
+                                                            )
                                                         );
                                                     }}
                                                 />
@@ -599,7 +612,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                 </StyledMapperConnection>
                             )}
                             <h4>{conn.connector}</h4>
-                            <p className="string">{conn.class}</p>
+                            <p className="type string">{conn.class}</p>
 
                             <ButtonGroup
                                 style={{
@@ -651,12 +664,14 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                     <Tooltip content={t('RemoveConnector')}>
                                         <Button
                                             onClick={() => {
-                                                onDeleteConnector(connectionName, index);
-                                                // If this was the last connector
-                                                if (conn.isLast) {
-                                                    // Remove the last flag
-                                                    setHasLast(false);
-                                                }
+                                                initContext.confirmAction('ConfirmRemoveConnector', () => {
+                                                    onDeleteConnector(connectionName, index);
+                                                    // If this was the last connector
+                                                    if (conn.isLast) {
+                                                        // Remove the last flag
+                                                        setHasLast(false);
+                                                    }
+                                                });
                                             }}
                                             minimal
                                             icon="trash"

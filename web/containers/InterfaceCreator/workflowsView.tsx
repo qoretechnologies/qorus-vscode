@@ -20,6 +20,7 @@ import ManageButton from '../ConfigItemManager/manageButton';
 import ConfigItemManager from '../ConfigItemManager';
 import useMount from 'react-use/lib/useMount';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 
 export const CreatorWrapper = styled.div`
     display: flex;
@@ -73,6 +74,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     handleStepUpdate,
     parsedSteps,
     stepsData,
+    resetAllInterfaceData,
 }) => {
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
 
@@ -194,6 +196,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     iface_id: workflow?.iface_id || interfaceId.workflow,
                                                 }
                                             );
+                                            resetAllInterfaceData('workflow');
                                         }}
                                     />
                                 </ButtonGroup>
@@ -226,5 +229,6 @@ export default compose(
     withFieldsConsumer(),
     withMessageHandler(),
     withInitialDataConsumer(),
+    withGlobalOptionsConsumer(),
     withStepsConsumer()
 )(ServicesView);
