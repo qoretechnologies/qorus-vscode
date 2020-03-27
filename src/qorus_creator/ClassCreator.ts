@@ -178,7 +178,7 @@ class ClassCreator extends InterfaceCreator {
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: true,
-                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)}, ${data.name}`
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`
             });
         }
 

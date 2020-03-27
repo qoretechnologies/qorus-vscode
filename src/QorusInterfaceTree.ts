@@ -347,6 +347,9 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
         for (const f of files) {
             if (f.name.endsWith('.yaml')) {
                 let data = await QorusInterfaceTree.getFileData(join(f.abs_path, f.name));
+                if (!data) { // some 'non-Qorus' yaml file
+                    continue;
+                }
                 switch (data.type) {
                     case 'class':
                         children.push(new QorusTreeClassNode(data.name, data));
