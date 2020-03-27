@@ -12,6 +12,7 @@ import { Messages } from '../../constants/messages';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import { FieldName } from '../../components/FieldSelector';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
 
 export interface IConfigItemManager {
     t: TTranslator;
@@ -20,6 +21,7 @@ export interface IConfigItemManager {
     addMessageListener: TMessageListener;
     baseClassName: string;
     interfaceId: string;
+    definitionsOnly?: boolean;
 }
 
 const StyledConfigManagerWrapper = styled.div`
@@ -52,6 +54,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     interfaceId,
     resetFields,
     steps,
+    definitionsOnly,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<any>(false);
@@ -104,6 +107,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
             name,
             value,
+            value_true_type: getTypeFromValue(maybeParseYaml(value)),
             file_name: configItems.file_name,
             remove,
             level,
@@ -146,16 +150,26 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                 <StyledSeparator />
                 <div>
                     {configItems.global_items && (
-                        <GlobalTable configItems={configItems.global_items} onSubmit={handleSubmit} />
+                        <GlobalTable
+                            definitionsOnly={definitionsOnly}
+                            configItems={configItems.global_items}
+                            onSubmit={handleSubmit}
+                        />
                     )}
                     {(type === 'step' || type === 'workflow') && configItems.workflow_items ? (
-                        <GlobalTable configItems={configItems.workflow_items} workflow onSubmit={handleSubmit} />
+                        <GlobalTable
+                            definitionsOnly={definitionsOnly}
+                            configItems={configItems.workflow_items}
+                            workflow
+                            onSubmit={handleSubmit}
+                        />
                     ) : null}
                     {configItems.items && type !== 'workflow' ? (
                         <ConfigItemsTable
                             configItems={{
                                 data: configItems.items,
                             }}
+                            definitionsOnly={definitionsOnly}
                             onEditStructureClick={handleEditStructureClick}
                             onDeleteStructureClick={handleDeleteStructureClick}
                             onSubmit={handleSubmit}

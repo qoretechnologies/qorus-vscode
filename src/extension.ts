@@ -3,6 +3,7 @@ import { t } from 'ttag';
 import * as vscode from 'vscode';
 
 import * as msg from './qorus_message';
+import { installQorusJavaApiSources } from './qorus_java_utils';
 import { dash2Pascal, capitalize } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { QorusCodeLensProvider } from './QorusCodeLensProvider';
@@ -18,7 +19,7 @@ import { qorus_request } from './QorusRequest';
 import { tester } from './QorusTest';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
-import { creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import { registerInterfaceTreeCommands } from './qorus_interface_tree';
 
@@ -27,8 +28,9 @@ qorus_locale.setLocale();
 export async function activate(context: vscode.ExtensionContext) {
     qorus_vscode.context = context;
     qorusIcons.update(context.extensionPath);
-    let disposable;
+    installQorusJavaApiSources(context.extensionPath);
 
+    let disposable;
     disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
                                                                () => deployer.deployCurrentFile());
     context.subscriptions.push(disposable);
@@ -40,14 +42,12 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () => tester.testCurrentFile());
+    context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.testFile', (uri: vscode.Uri) => tester.testFile(uri));
     context.subscriptions.push(disposable);
 
-    context.subscriptions.push(disposable);
-
     disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) => tester.testDir(uri));
-
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.setActiveInstance',
@@ -85,7 +85,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code',
-        'class', 'other', 'group', 'event', 'queue'].forEach(iface_kind =>
+        'class', 'other', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
     {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {

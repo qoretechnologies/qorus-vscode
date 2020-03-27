@@ -1,17 +1,17 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as moment from 'moment';
 import * as fs from 'fs';
+import * as moment from 'moment';
 import * as os from 'os';
+import * as path from 'path';
+import { t } from 'ttag';
+import * as vscode from 'vscode';
+
+import { deployer } from './QorusDeploy';
 import { projects, QorusProject } from './QorusProject';
 import { QorusRepository } from './QorusRepository';
 import { QorusRepositoryGit } from './QorusRepositoryGit';
-import { deployer } from './QorusDeploy';
 import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
 import { filesInDir, isDeployable } from './qorus_utils';
-import { t } from 'ttag';
-const copyFile = require('fs-copy-file');
 
 
 class QorusRelease {
@@ -178,7 +178,7 @@ class QorusRelease {
             filters: {[t`QorusRelaseFilePicker`]: ['tar.bz2']},
             defaultUri: vscode.Uri.file(path.join(os.homedir(), path.basename(this.package_path)))
         }).then(file => {
-            copyFile(this.package_path, file.fsPath, error => {
+            fs.copyFile(this.package_path, file.fsPath, error => {
                 if (error) {
                     msg.error(t`ReleaseFileSaveError ${error}`);
                     return;

@@ -545,7 +545,7 @@ msgid "ReleasePackage"
 msgstr "Make release"
 
 msgid "QorusWebviewTitle"
-msgstr "Qorus Manager"
+msgstr "Qorus Webview"
 
 msgid "CreateQorusInterface"
 msgstr "Create interface"
@@ -741,6 +741,9 @@ msgstr "Functions"
 
 msgid "Groups"
 msgstr "Groups"
+
+msgid "Types"
+msgstr "Types"
 
 msgid "Job"
 msgstr "Job"
@@ -970,6 +973,12 @@ msgstr "Class name"
 msgid "field-desc-class-name"
 msgstr "Class name"
 
+msgid "field-label-class-class-name"
+msgstr "Name"
+
+msgid "field-desc-class-class-name"
+msgstr "Both interface name and class code name"
+
 msgid "field-label-base-class-name"
 msgstr "Base class name"
 
@@ -1002,6 +1011,9 @@ msgstr "The name of the service"
 
 msgid "field-label-version"
 msgstr "Version"
+
+msgid "field-desc-version"
+msgstr "Version string for the interface object"
 
 msgid "field-label-serviceversion"
 msgstr "Version"
@@ -1110,6 +1122,12 @@ msgstr "Autostart"
 
 msgid "field-desc-workflow-autostart"
 msgstr "The number of workflow execution instances to start when the system starts"
+
+msgid "field-label-staticdata-type"
+msgstr "Static data type"
+
+msgid "field-desc-staticdata-type"
+msgstr "Static data type"
 
 msgid "field-label-internal"
 msgstr "Internal"
@@ -1336,6 +1354,12 @@ msgstr "Description"
 msgid "field-label-description"
 msgstr "Description"
 
+msgid "field-desc-desc"
+msgstr "Description"
+
+msgid "field-desc-description"
+msgstr "Description"
+
 msgid "field-label-label"
 msgstr "Label"
 
@@ -1386,6 +1410,12 @@ msgstr "Connectors"
 
 msgid "field-desc-class-connectors"
 msgstr "Connectors used for building blocks"
+
+msgid "field-label-context"
+msgstr "Context"
+
+msgid "field-desc-context"
+msgstr "Context"
 
 msgid "InputMethod"
 msgstr "Input method"
@@ -1795,7 +1825,16 @@ msgid "button.group-up"
 msgstr "Show grouped"
 
 msgid "button.ungroup"
-msgstr "Show All"
+msgstr "Show all"
+
+msgid "button.edit-this-value"
+msgstr "Edit config item value"
+
+msgid "button.remove-this-value"
+msgstr "Remove config item value"
+
+msgid "button.show-descriptions"
+msgstr "Show descriptions"
 
 msgid "UnableFindYamlForClass ${ class }"
 msgstr "Unable to find yaml file for class ${ class }"
@@ -1878,11 +1917,11 @@ msgstr "No fields available. Please make sure input provider was selected"
 msgid "MapperNoOutputFields"
 msgstr "No fields available. Please make sure output provider was selected"
 
-msgid "MapperNoInstanceTitle"
+msgid "NoInstanceTitle"
 msgstr "Active instance not set"
 
-msgid "MapperNoInstance"
-msgstr "Mappers can only be created with an active Qorus instance selected"
+msgid "NoInstance"
+msgstr "This item can only be created with an active Qorus instance selected"
 
 msgid "AddFunctionsTitle"
 msgstr "1. Add new methods"
@@ -2000,3 +2039,63 @@ msgstr "Unable to retrieve types from active qorus instance."
 
 msgid "ConfigItemIsType"
 msgstr "This config item is of type: "
+
+msgid "SelectExistingTypeOrNew"
+msgstr "Select existing type or add new..."
+
+msgid "TargetDirUnknown"
+msgstr "Target directory unknown"
+
+msgid "FailedCreateDir ${ dir }"
+msgstr "Creating directory ${ dir } failed"
+
+msgid "StaticData"
+msgstr "Static data"
+
+msgid "StaticDataFieldDesc"
+msgstr "Static data provided by context"
+
+msgid "ConfirmDialogTitle"
+msgstr "Please confirm your action"
+
+msgid "ConfirmRemoveItem"
+msgstr "Are you sure you want to remove this item?"
+
+msgid "ConfirmRemoveConnector"
+msgstr "Are you sure you want to remove this connector?"
+
+msgid "ConfirmRemoveOption"
+msgstr "Are you sure you want to remove this option?"
+
+msgid "ConfirmRemoveField"
+msgstr "Are you sure you want to remove this field?"
+
+msgid "ConfirmRemoveTrigger"
+msgstr "Are you sure you want to remove this trigger?"
+
+msgid "ConfirmRemoveMapper"
+msgstr "Are you sure you want to remove this mapper?"
+
+msgid "ConfirmRemoveConnector"
+msgstr "Are you sure you want to remove this connector?"
+
+msgid "ConfirmRemoveConnection"
+msgstr "Are you sure you want to remove this connection?"
+
+msgid "ConfirmRemoveConfigItem"
+msgstr "Are you sure you want to remove this config item?"
+
+msgid "ConfirmRemoveInstance"
+msgstr "Are you sure you want to remove this instance?"
+
+msgid "ConfirmRemoveSourceDir"
+msgstr "Are you sure you want to remove this source directory?"
+
+msgid "ConfirmRemoveEnv"
+msgstr "Are you sure you want to remove this environment?"
+
+msgid "WildcardReplace"
+msgstr "Wildcards (*) need to be replaced with an actual value. If you wish to change this value later, please select the wildcard (*) again."
+
+msgid "AllowedValuesWarningType"
+msgstr "Allowed values property is not supported for the selected type"

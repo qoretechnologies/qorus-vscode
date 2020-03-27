@@ -118,9 +118,18 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         const newField = { ...field };
         // Check if the field can be null
         if (newField.canBeNull) {
+            let type = newField.type.name;
+            // Get the actual type
+            // Check if there is a `<` in the type
+            const pos: number = type.indexOf('<');
+            // If there is a <
+            if (pos > 0) {
+                // Get the type from start to the position of the `<`
+                type = type.slice(0, pos);
+            }
             // Transform the field type to the
             // same maybe type
-            newField.type = types.find(type => type.typename === `*${newField.type.name.replace('soft', '')}`);
+            newField.type = types.find(t => t.typename === `*${type.replace('soft', '')}`);
         }
         // If parent is not a custom field, set this as the first
         // custom field in the hierarchy

@@ -7,7 +7,7 @@ import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { classConnectionsCode } from './class_connections';
-import { hasConfigItems } from '../qorus_utils';
+import { hasConfigItems, toValidIdentifier } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -35,11 +35,13 @@ class ClassCreator extends InterfaceCreator {
                 }
                 break;
             case 'class':
+                data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
                 template = (data['base-class-name'] ? subclass_template : class_template)[this.lang];
                 suffix = '.qclass';
                 break;
             case 'mapper':
-                suffix = '.qmapper';
+            case 'type':
+                suffix = `.q${iface_kind}`;
                 break;
             case 'other':
                 suffix = `.q${data.type.toLowerCase()}`;
@@ -53,7 +55,7 @@ class ClassCreator extends InterfaceCreator {
 
         imports = imports || [];
 
-        this.setPaths(data, orig_data, suffix);
+        this.setPaths(data, orig_data, suffix, iface_kind);
 
         if (iface_kind === 'step' && data['base-class-name']) {
             data = {
@@ -91,7 +93,6 @@ class ClassCreator extends InterfaceCreator {
                 else if (iface_kind === 'step') {
                     const mandatory_step_methods =
                         this.code_info.mandatoryStepMethods(data['base-class-name'], this.lang);
-                    msg.debug({mandatory_step_methods});
                     let method_strings = [];
                     const indent = '    ';
                     Object.keys(mandatory_step_methods).forEach(method_name => {

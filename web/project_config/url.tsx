@@ -1,6 +1,7 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useContext } from 'react';
 import styled from 'styled-components';
 import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
+import { InitialContext } from '../context/init';
 
 export interface IQorusUrlProps {
     name: string;
@@ -31,19 +32,30 @@ const StyledUrl = styled.div`
     }
 `;
 
-const QorusUrl: FunctionComponent<IQorusUrlProps> = ({ name, url, safe_url, instanceId, onDelete, envId, id }) => (
-    <StyledUrl>
-        {id + 1}. {name}
-        <span className={Classes.TEXT_MUTED}>
-            {' '}
-            <a href={url}>[{safe_url}]</a>
-        </span>
-        <div className="button-wrapper pull-right">
-            <ButtonGroup minimal>
-                <Button icon="trash" small onClick={() => onDelete(envId, instanceId, name)} />
-            </ButtonGroup>
-        </div>
-    </StyledUrl>
-);
+const QorusUrl: FunctionComponent<IQorusUrlProps> = ({ name, url, safe_url, instanceId, onDelete, envId, id }) => {
+    const initContext = useContext(InitialContext);
+
+    return (
+        <StyledUrl>
+            {id + 1}. {name}
+            <span className={Classes.TEXT_MUTED}>
+                {' '}
+                <a href={url}>[{safe_url}]</a>
+            </span>
+            <div className="button-wrapper pull-right">
+                <ButtonGroup minimal>
+                    <Button
+                        icon="trash"
+                        intent="danger"
+                        small
+                        onClick={() =>
+                            initContext.confirmAction('ConfirmRemoveUrl', () => onDelete(envId, instanceId, name))
+                        }
+                    />
+                </ButtonGroup>
+            </div>
+        </StyledUrl>
+    );
+};
 
 export default QorusUrl;

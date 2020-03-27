@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useContext } from 'react';
 import SelectField from './select';
 import { Button, ButtonGroup, ControlGroup } from '@blueprintjs/core';
 import styled from 'styled-components';
@@ -7,6 +7,7 @@ import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
 import AutoField from './auto';
+import { InitialContext } from '../../context/init';
 
 type IPair = {
     id: number;
@@ -28,6 +29,7 @@ const OptionHashField: FunctionComponent<{ t: TTranslator; items: any[]; options
     t,
     options,
 }) => {
+    const initContext = useContext(InitialContext);
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
         const newValue = [...value];
         // Get the pair based on the index
@@ -88,7 +90,15 @@ const OptionHashField: FunctionComponent<{ t: TTranslator; items: any[]; options
                                     t={t}
                                 />
                             ) : null}
-                            {index !== 1 && <Button icon={'trash'} onClick={() => handleRemoveClick(index)} />}
+                            {index !== 1 && (
+                                <Button
+                                    icon={'trash'}
+                                    intent="danger"
+                                    onClick={() =>
+                                        initContext.confirmAction('ConfirRemoveItem', () => handleRemoveClick(index))
+                                    }
+                                />
+                            )}
                         </ControlGroup>
                     </div>
                 </StyledPairField>
