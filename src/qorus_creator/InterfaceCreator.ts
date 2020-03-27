@@ -199,7 +199,7 @@ export abstract class InterfaceCreator {
         if (iface) {
             return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
         }
-        if (!['class', 'mapper-code'].includes(iface_kind)) {
+        if (class_name && !['class', 'mapper-code'].includes(iface_kind)) {
             iface = this.code_info.yaml_info.yamlDataByClass(class_name);
             if (iface) {
                 return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
