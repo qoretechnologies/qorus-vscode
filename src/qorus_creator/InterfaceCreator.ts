@@ -24,11 +24,13 @@ export abstract class InterfaceCreator {
     protected file_base: string;
     protected yaml_file_base: string;
     protected orig_file_path: string;
+    protected orig_yaml_file_path: string;
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
+    protected has_code = false;
+    protected had_code = false;
 
     protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
-        this.orig_file_path = undefined;
         this.edit_info = undefined;
         this.suffix = suffix;
 
@@ -75,12 +77,16 @@ export abstract class InterfaceCreator {
         }
 
         if (orig_target_dir && orig_target_file) {
-            this.orig_file_path = path.join(orig_target_dir, orig_target_file);
-            this.edit_info = this.code_info.editInfo(this.orig_file_path);
+            const orig_path = path.join(orig_target_dir, orig_target_file);
+            if (this.had_code) {
+                this.orig_file_path = orig_path;
+                this.orig_yaml_file_path = this.code_info.yaml_info.yamlDataBySrcFile(orig_path)?.yaml_file;
+                this.edit_info = this.code_info.editInfo(orig_path);
+            } else {
+                this.orig_yaml_file_path = orig_path;
+            }
         }
     }
-
-    protected has_code = false;
 
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
@@ -174,7 +180,6 @@ export abstract class InterfaceCreator {
     }
 
     protected checkExistingInterface = (params: any): any => {
-        msg.debug({params});
         const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
         const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
 
@@ -680,38 +685,22 @@ export abstract class InterfaceCreator {
     }
 
     protected deleteOrigFilesIfDifferent() {
-        if (!this.orig_file_path) {
-            return;
+        let files_to_delete: string[] = [];
+        if (this.orig_file_path && this.orig_file_path !== this.file_path) {
+            files_to_delete.push(this.orig_file_path);
+        }
+        if (this.orig_yaml_file_path && this.orig_yaml_file_path !== this.yaml_file_path) {
+            files_to_delete.push(this.orig_yaml_file_path);
         }
 
-        let orig_code_file;
-        let orig_yaml_file;
-
-        if (this.has_code) {
-            if (this.orig_file_path === this.file_path) {
-                return;
-            }
-
-            orig_code_file = this.orig_file_path;
-            orig_yaml_file = (this.code_info.yaml_info.yamlDataBySrcFile(this.orig_file_path) || {}).yaml_file;
-        } else {
-            if (this.orig_file_path === this.yaml_file_path) {
-                return;
-            }
-
-            orig_yaml_file = this.orig_file_path;
-        }
-
-        [orig_code_file, orig_yaml_file].forEach(file => {
-            if (file) {
-                fs.unlink(file, err => {
-                    if (err) {
-                        msg.error(t`RemoveFileError ${file} ${err.toString()}`);
-                        return;
-                    }
-                    msg.info(t`OrigFileRemoved ${file}`);
-                });
-            }
+        files_to_delete.forEach(file => {
+            fs.unlink(file, err => {
+                if (err) {
+                    msg.error(t`RemoveFileError ${file} ${err.toString()}`);
+                    return;
+                }
+                msg.info(t`OrigFileRemoved ${file}`);
+            });
         });
     }
 

@@ -53,8 +53,7 @@ class ClassCreator extends InterfaceCreator {
         }
 
         this.has_code = !!template;
-
-        imports = imports || [];
+        this.had_code = iface_kind === 'workflow' ? !!orig_data?.['class-name'] : this.has_code;
 
         this.setPaths(data, orig_data, suffix, iface_kind);
 
@@ -68,6 +67,8 @@ class ClassCreator extends InterfaceCreator {
             });
             return;
         }
+
+        imports = imports || [];
 
         let triggers: string[] = [];
         let connections_within_class: string = '';
@@ -134,14 +135,12 @@ class ClassCreator extends InterfaceCreator {
                     break;
                 }
 
-                if (this.edit_info) {
+                if (this.had_code) {
                     code_lines = this.edit_info.text_lines;
                     code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                     contents = code_lines.join('\n');
                 } else {
-                    // this case happens when on create it was a codeless interfaces (this.has_code = false)
-                    // but on edit a class_name or base_class_name was added, so now there is a new code file
-                    // (this.edit_info is undefined since orig_file_path is undefined)
+                    // has code now, but didn't have before this edit
                     contents = this.fillTemplate(template, [...imports, ...more_imports], {
                         class_name: data['class-name'],
                         base_class_name: data['base-class-name'],

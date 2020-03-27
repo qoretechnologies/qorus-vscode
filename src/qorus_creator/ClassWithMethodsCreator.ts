@@ -50,7 +50,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 return;
         }
 
-        this.has_code = true;
+        this.has_code = this.had_code = true;
 
         this.imports = this.imports || [];
         const methods = data[methods_key];
