@@ -1,15 +1,5 @@
-import {
-    EditorView,
-    VSBrowser,
-    WebDriver,
-    Workbench,
-    WebView,
-    By,
-    DialogHandler,
-    QuickOpenBox,
-    InputBox,
-} from 'vscode-extension-tester';
 import { expect } from 'chai';
+import { By, EditorView, InputBox, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 import { Editor } from 'vscode-extension-tester/out/webdriver/components/editor/Editor';
 
 function sleep(ms: number) {
@@ -95,6 +85,8 @@ describe('Webview Simple Test', function() {
 
     it('Shows environment page', async () => {
         await sleep(3000);
+
+        console.log('asgasgasgasg');
 
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
         expect(environmentPanels).to.have.length(3);
