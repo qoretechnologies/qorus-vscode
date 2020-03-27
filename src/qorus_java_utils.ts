@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { copySync, removeSync } from 'fs-extra';
 import { homedir } from 'os';
 import { join } from 'path';
@@ -170,57 +170,83 @@ export function parseJavaInheritance(document: TextDocument, symbol) {
     }
 }
 
-const QorusJavaApiSrcVerFile = 'qorus-java-api-ver.txt';
-const QorusJavaApiSrcDirName = 'qorus-java-api';
-const QorusJavaApiSrcHomeDir = join('.qorus-vscode', QorusJavaApiSrcDirName);
+const QorusJavaApiVerFile = 'qorus-java-api-ver.txt';
+const QorusJavaApiDirName = 'qorus-java-api';
+const QorusJavaApiHomeDirRelPath = join('.qorus-vscode', QorusJavaApiDirName);
 
-//! return path to dir where Qorus Java API sources should be saved for user
-export function getQorusJavaApiSrcPath(): string {
-    return join(homedir(), QorusJavaApiSrcHomeDir);
+/** Return path to dir where Qorus Java API files should be saved for user. */
+export function getQorusJavaApiTargetPath(): string {
+    return join(homedir(), QorusJavaApiHomeDirRelPath);
 }
 
-//! return path to extension dir from where Qorus Java API sources are available
-export function getQorusJavaApiSrcExtPath(extensionPath: string): string {
-    return join(extensionPath, QorusJavaApiSrcDirName);
+/** Return path to extension dir from where Qorus Java API files are available. */
+export function getQorusJavaApiExtPath(extensionPath: string): string {
+    return join(extensionPath, QorusJavaApiDirName);
 }
 
-//! install Qorus Java API sources into a dot-folder in user's home directory
+/** Compare Qorus Java API versions. */
+function compareQorusJavaApiVersion(src_dir, target_dir): number {
+    const src_ver_file = join(src_dir, QorusJavaApiVerFile);
+    const target_ver_file = join(target_dir, QorusJavaApiVerFile);
+    if (!existsSync(target_ver_file)) {
+        return -1;
+    }
+    if (!existsSync(src_ver_file)) {
+        msg.log('Qorus Java API version file in extension dir does not exist.');
+        return 0;
+    }
+    try {
+        // compare installed version to the one available from extension
+        const cur_ver = readFileSync(target_ver_file, 'utf8');
+        const src_ver = readFileSync(src_ver_file, 'utf8');
+        return compareVersion(cur_ver, src_ver);
+    } catch (err) {
+        msg.log('Failed comparing versions of installed Qorus Java API and newest API in extension directory: ' + err);
+        return 0;
+    }
+}
+
+/** Remove installed Java API files. */
+function removeInstalledQorusJavaApi(target_dir): boolean {
+    try {
+        removeSync(target_dir);
+    } catch (err) {
+        msg.log('Failed removing old Qorus Java API files: ' + err);
+        return false;
+    }
+    return true;
+}
+
+/** Copy Qorus Java API files to target dir. */
+function copyQorusJavaApi(src_dir, target_dir): boolean {
+    try {
+        copySync(src_dir, target_dir, {preserveTimestamps: true});
+    } catch (err) {
+        msg.log('Failed copying Qorus Java API sources: ' + err);
+        return false;
+    }
+    return true;
+}
+
+/** Install Qorus Java API sources into a dot-folder in user's home directory. */
 export function installQorusJavaApiSources(extensionPath: string): boolean {
-    const src_dir = getQorusJavaApiSrcPath();
-    if (!existsSync(src_dir)) {
-        try {
-            mkdirSync(src_dir, {recursive: true, mode: 0o755});
-        } catch (err) {
-            msg.log('Failed creating Qorus Java API source directory: ' + err);
-            return false;
-        }
+    const target_dir = getQorusJavaApiTargetPath();
+    const src_dir = getQorusJavaApiExtPath(extensionPath);
+
+    // if target dir doesn't exist, simply copy the API files
+    if (!existsSync(target_dir)) {
+        return copyQorusJavaApi(src_dir, target_dir);
     }
 
-    const ext_src_dir = getQorusJavaApiSrcExtPath(extensionPath);
-    const com_dir = join(src_dir, 'com');
-    if (!existsSync(com_dir)) {
-        try {
-            copySync(ext_src_dir, src_dir, {preserveTimestamps: true});
-        } catch (err) {
-            msg.log('Failed copying Qorus Java API sources: ' + err);
+    // compare newest version to installed one
+    if (compareQorusJavaApiVersion(src_dir, target_dir) === -1) {
+        // remove old installed API files
+        if (!removeInstalledQorusJavaApi(target_dir)) {
             return false;
         }
-    } else {
-        try {
-            // compare installed version to the one available from extension
-            let cur_ver = readFileSync(join(src_dir, QorusJavaApiSrcVerFile), 'utf8');
-            let ext_ver = readFileSync(join(ext_src_dir, QorusJavaApiSrcVerFile));
-            const result = compareVersion(cur_ver, ext_ver);
 
-            // update to the newest version
-            if (result === -1) {
-                removeSync(src_dir);
-                copySync(ext_src_dir, src_dir, {preserveTimestamps: true});
-            }
-        } catch (err) {
-            msg.log('Failed copying Qorus Java API sources: ' + err);
-            return false;
-        }
+        // update to the newest version
+        return copyQorusJavaApi(src_dir, target_dir);
     }
     return true;
 }

@@ -3,7 +3,7 @@ import { basename, join } from 'path';
 import { js2xml, xml2js } from 'xml-js';
 
 import * as msg from './qorus_message';
-import { getQorusJavaApiSrcPath } from './qorus_java_utils';
+import { getQorusJavaApiTargetPath } from './qorus_java_utils';
 
 const java_classpath_filename = '.classpath';
 const java_project_filename = '.project';
@@ -93,10 +93,10 @@ export class QorusProjectJavaConfig {
 
     /** Update info in the Qorus jars map (like jar paths etc.). */
     private updateQorusJarsInfo() {
-        const api_src_path = getQorusJavaApiSrcPath();
+        const api_target_path = getQorusJavaApiTargetPath();
         for (const jar in qorus_jars) {
             if (qorus_jars.hasOwnProperty(jar)) {
-                qorus_jars[jar].jar_path = join(api_src_path, jar);
+                qorus_jars[jar].jar_path = join(api_target_path, jar);
             }
         }
     }
@@ -158,8 +158,8 @@ export class QorusProjectJavaConfig {
     }
 
     private getJavadocPath(javadoc: string): string {
-        const api_src_path = getQorusJavaApiSrcPath();
-        return join(api_src_path, 'javadoc', javadoc);
+        const api_target_path = getQorusJavaApiTargetPath();
+        return join(api_target_path, 'javadoc', javadoc);
     }
 
     private getJavadocLocationString(javadoc: string): string {
