@@ -1,13 +1,15 @@
 import { workspace, window, Position } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { qorus_webview } from '../QorusWebview';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
+import { types_with_version, default_version } from '../qorus_constants';
 import * as jsyaml from 'js-yaml';
-import { quotesIfNum, removeDuplicates } from '../qorus_utils';
+import { quotesIfNum, removeDuplicates, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
@@ -83,6 +85,16 @@ export abstract class InterfaceCreator {
 
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
+        const {ok, message} = this.checkExistingInterface(params);
+        if (!ok) {
+            qorus_webview.postMessage({
+                action: `creator-${params.edit_type}-interface-complete`,
+                request_id: params.request_id,
+                ok,
+                message
+            });
+            return;
+        }
 
         // temporary solution: editing an interface with class connections leads to creating it anew
         // (until editing is implemented)
@@ -170,6 +182,33 @@ export abstract class InterfaceCreator {
                 workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
             }
         });
+    }
+
+    private checkExistingInterface = (params: any): any => {
+        const { iface_kind, edit_type, data: {name, version}, orig_data, } = params;
+
+        const with_version = types_with_version.includes(iface_kind);
+        const search_name = with_version ? `${name}:${version || default_version}` : name;
+
+        switch (edit_type) {
+            case 'create':
+                break;
+            case 'edit':
+                const {name: orig_name, version: orig_version} = orig_data || {};
+                const orig_name_version = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
+                if (search_name === orig_name_version) {
+                    return {ok: true};
+                }
+                break;
+            default:
+                return {ok: true};
+        }
+
+        const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, search_name);
+        if (iface) {
+            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)}, ${search_name}`};
+        }
+        return {ok: true};
     }
 
     protected renameClassAndBaseClass(lines: string[], orig_data: any, header_data): string[] {

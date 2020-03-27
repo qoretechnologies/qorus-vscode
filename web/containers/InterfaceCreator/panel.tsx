@@ -1,47 +1,49 @@
-import React, { FunctionComponent, useState, FormEvent, useEffect, useRef, useCallback } from 'react';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
-import { Messages } from '../../constants/messages';
+import React, { FormEvent, FunctionComponent, useEffect, useRef, useState } from 'react';
+
 import {
-    size,
-    map,
+    camelCase,
+    cloneDeep,
     filter,
     find,
-    includes,
-    reduce,
-    camelCase,
-    upperFirst,
-    omit,
-    cloneDeep,
     forEach,
+    includes,
+    map,
+    omit,
+    reduce,
+    size,
     uniqBy,
+    upperFirst
 } from 'lodash';
-import SidePanel from '../../components/SidePanel';
-import FieldSelector from '../../components/FieldSelector';
-import Content from '../../components/Content';
+import isArray from 'lodash/isArray';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
-import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
-import Field from '../../components/Field';
-import FieldLabel from '../../components/FieldLabel';
+import shortid from 'shortid';
 import styled from 'styled-components';
+
+import { Button, ButtonGroup, Classes, Dialog, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import Content from '../../components/Content';
+import Field from '../../components/Field';
+import { allowedTypes } from '../../components/Field/arrayAuto';
 import FieldActions from '../../components/FieldActions';
-import { InputGroup, Intent, ButtonGroup, Button, Classes, Tooltip, Dialog } from '@blueprintjs/core';
-import { validateField, getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
+import FieldLabel from '../../components/FieldLabel';
+import FieldSelector from '../../components/FieldSelector';
+import Loader from '../../components/Loader';
+import SidePanel from '../../components/SidePanel';
+import { Messages } from '../../constants/messages';
+import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import withStepsConsumer from '../../hocomponents/withStepsConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
+import ClassConnectionsManager from '../ClassConnectionsManager';
 import ConfigItemManager from '../ConfigItemManager';
 import ManageConfigButton from '../ConfigItemManager/manageButton';
-import { allowedTypes } from '../../components/Field/arrayAuto';
-import shortid from 'shortid';
-import isArray from 'lodash/isArray';
-import ClassConnectionsManager from '../ClassConnectionsManager';
-import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
-import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
-import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import Loader from '../../components/Loader';
-import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import { processSteps } from './workflowsView';
 
 export interface IInterfaceCreatorPanel {
@@ -88,6 +90,7 @@ export interface IInterfaceCreatorPanel {
         iface_kind: string;
         name: string;
     };
+    onSubmitSuccess: () => any;
 }
 
 export interface IField {
@@ -613,7 +616,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         });
     };
 
-    const handleSubmitClick: () => void = () => {
+    const handleSubmitClick: () => void = async () => {
         // Set the value flag for all selected fields
         setSelectedFields(
             type,
@@ -635,6 +638,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmit) {
             onSubmit(selectedFields);
         }
+
+        let result;
 
         if (!onSubmit || forceSubmit) {
             let newData: { [key: string]: any };
@@ -711,14 +716,19 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     }),
                     {}
                 );
-                postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-                    iface_kind,
-                    data: { ...newData, 'class-connections': classConnectionsData },
-                    orig_data: data,
-                    workflow,
-                    open_file_on_success: openFileOnSubmit !== false,
-                    iface_id: interfaceId,
-                });
+                result = await initialData.callBackend(
+                    isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+                    undefined,
+                    {
+                        iface_kind,
+                        data: { ...newData, 'class-connections': classConnectionsData },
+                        orig_data: data,
+                        workflow,
+                        open_file_on_success: openFileOnSubmit !== false,
+                        iface_id: interfaceId,
+                    },
+                    t(`Saving ${type}...`)
+                );
             } else {
                 let true_type: string;
                 //* If this is config item get the true type of the default_value field
@@ -727,27 +737,41 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     true_type = getTypeFromValue(maybeParseYaml(newData.default_value));
                 }
 
-                postMessage(isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE, {
-                    iface_kind,
-                    data: { ...newData, 'class-connections': classConnectionsData, default_value_true_type: true_type },
-                    orig_data:
-                        type === 'service-methods'
-                            ? initialData.service
-                            : type === 'mapper-methods'
-                            ? initialData['mapper-code']
-                            : data,
-                    open_file_on_success: openFileOnSubmit !== false,
-                    iface_id: interfaceId,
-                });
+                result = await initialData.callBackend(
+                    isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+                    undefined,
+                    {
+                        iface_kind,
+                        data: {
+                            ...newData,
+                            'class-connections': classConnectionsData,
+                            default_value_true_type: true_type,
+                        },
+                        orig_data:
+                            type === 'service-methods'
+                                ? initialData.service
+                                : type === 'mapper-methods'
+                                ? initialData['mapper-code']
+                                : data,
+                        open_file_on_success: openFileOnSubmit !== false,
+                        iface_id: interfaceId,
+                    },
+                    t(`Saving ${type}...`)
+                );
             }
-            // If this is config item, reset only the fields
-            // local fields will be unmounted
-            if (type === 'config-item') {
-                resetFields(type);
-            } else {
-                // Reset the interface data
-                resetAllInterfaceData(type);
-                resetClassConnections && resetClassConnections();
+            if (result.ok) {
+                if (onSubmitSuccess) {
+                    onSubmitSuccess();
+                }
+                // If this is config item, reset only the fields
+                // local fields will be unmounted
+                if (type === 'config-item') {
+                    resetFields(type);
+                } else {
+                    // Reset the interface data
+                    resetAllInterfaceData(type);
+                    resetClassConnections && resetClassConnections();
+                }
             }
         }
     };

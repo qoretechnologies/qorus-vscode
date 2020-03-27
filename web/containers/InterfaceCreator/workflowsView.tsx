@@ -1,26 +1,32 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import InterfaceCreatorPanel, { ContentWrapper, ActionsWrapper, IField } from './panel';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+
+import { isArray, omit, reduce, size } from 'lodash';
 import compose from 'recompose/compose';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
-import SidePanel from '../../components/SidePanel';
 import styled from 'styled-components';
-import { ButtonGroup, Button, Tooltip, Intent, Dialog } from '@blueprintjs/core';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import { omit, size } from 'lodash';
-import { StepsContext } from '../../context/steps';
+
+import {
+    Button,
+    ButtonGroup,
+    Dialog,
+    Intent,
+    Tooltip
+} from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
 import Content from '../../components/Content';
+import SidePanel from '../../components/SidePanel';
 import StepList from '../../components/StepList';
-import StepsCreator from './stepsCreator';
-import { isArray, reduce } from 'lodash';
 import { Messages } from '../../constants/messages';
-import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import ManageButton from '../ConfigItemManager/manageButton';
-import ConfigItemManager from '../ConfigItemManager';
-import useMount from 'react-use/lib/useMount';
-import withStepsConsumer from '../../hocomponents/withStepsConsumer';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessageHandler';
+import withStepsConsumer from '../../hocomponents/withStepsConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
+import ConfigItemManager from '../ConfigItemManager';
+import ManageButton from '../ConfigItemManager/manageButton';
+import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper, IField } from './panel';
+import StepsCreator from './stepsCreator';
 
 export const CreatorWrapper = styled.div`
     display: flex;
@@ -175,7 +181,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                         disabled={steps.length === 0}
                                         icon={'tick'}
                                         intent={Intent.SUCCESS}
-                                        onClick={() => {
+                                        onClick={async () => {
                                             // Build the finished object
                                             const newData = reduce(
                                                 selectedFields.workflow,
@@ -186,17 +192,21 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 {}
                                             );
                                             newData.steps = processSteps(steps, stepsData);
-
-                                            postMessage(
+                                            const result = await initialData.callBackend(
                                                 !!workflow ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+                                                undefined,
                                                 {
                                                     iface_kind: 'workflow',
                                                     orig_data: workflow,
                                                     data: newData,
                                                     iface_id: workflow?.iface_id || interfaceId.workflow,
-                                                }
+                                                },
+                                                t('Saving workflow...')
                                             );
-                                            resetAllInterfaceData('workflow');
+
+                                            if (result.ok) {
+                                                resetAllInterfaceData('workflow');
+                                            }
                                         }}
                                     />
                                 </ButtonGroup>

@@ -4,7 +4,7 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { mapperCodeTemplates } from './mapper_constants';
 import { classConnectionsCode } from './class_connections';
-import { hasConfigItems, toValidIdentifier } from '../qorus_utils';
+import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -14,7 +14,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private method_template: string;
     private imports: string[];
 
-    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
+    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id}) {
         this.lang = data.lang || 'qore';
 
         let suffix: string;
@@ -112,6 +112,15 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods), open_file_on_success);
+
+        if (['create', 'edit'].includes(edit_type)) {
+            qorus_webview.postMessage({
+                action: `creator-${edit_type}-interface-complete`,
+                request_id,
+                ok: true,
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)}, ${data.name}`
+            });
+        }
 
         if (message) {
             msg.info(message);

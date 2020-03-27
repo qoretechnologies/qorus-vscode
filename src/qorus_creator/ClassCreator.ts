@@ -7,13 +7,13 @@ import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { classConnectionsCode } from './class_connections';
-import { hasConfigItems, toValidIdentifier } from '../qorus_utils';
+import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success}) {
+    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id}) {
         this.lang = data.lang || 'qore';
 
         let template: string;
@@ -172,6 +172,15 @@ class ClassCreator extends InterfaceCreator {
         this.has_code
             ? this.writeFiles(contents, headers, open_file_on_success)
             : this.writeYamlFile(headers);
+
+        if (['create', 'edit'].includes(edit_type)) {
+            qorus_webview.postMessage({
+                action: `creator-${edit_type}-interface-complete`,
+                request_id,
+                ok: true,
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)}, ${data.name}`
+            });
+        }
 
         if (message) {
             msg.info(message);
