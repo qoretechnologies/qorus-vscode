@@ -188,9 +188,15 @@ const App: FunctionComponent<IApp> = ({
                     <div className={Classes.DIALOG_FOOTER}>
                         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
                             <ButtonGroup>
-                                <Button text={t('Cancel')} onClick={() => setConfirmDialog({})} id="remove-cancel" />
+                                <Button
+                                    text={t('Cancel')}
+                                    onClick={() => setConfirmDialog({})}
+                                    id="remove-cancel"
+                                    name="remove-cancel"
+                                />
                                 <Button
                                     id="remove-confirm"
+                                    name="remove-confirm"
                                     text={t('Remove')}
                                     intent="danger"
                                     onClick={() => {

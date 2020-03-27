@@ -19,9 +19,11 @@ describe('Webview Simple Test', function() {
         workbench = new Workbench();
         editor = new EditorView();
 
+        await sleep(5000);
+
         await workbench.executeCommand('Extest: Open Folder');
 
-        await sleep(10500);
+        await sleep(2000);
 
         const input: InputBox = await new InputBox();
 
@@ -36,11 +38,11 @@ describe('Webview Simple Test', function() {
         let isWebviewOpen = false;
 
         while (!isWebviewOpen) {
-            isWebviewOpen = (await editor.getOpenEditorTitles()).includes('Qorus Manager');
+            isWebviewOpen = (await editor.getOpenEditorTitles()).includes('Qorus Webview');
         }
 
-        editorView = await new EditorView().openEditor('Qorus Manager');
-        webview = await new WebView(new EditorView(), 'Qorus Manager');
+        editorView = await new EditorView().openEditor('Qorus Webview');
+        webview = await new WebView(new EditorView(), 'Qorus Webview');
 
         await webview.wait();
         await webview.switchToFrame();
@@ -83,10 +85,14 @@ describe('Webview Simple Test', function() {
         await clickElement(`interface-creator-submit-${iface}`);
     };
 
+    const confirmDeletion = async () => {
+        await sleep(500);
+        await clickElement('remove-confirm');
+        await sleep(1000);
+    };
+
     it('Shows environment page', async () => {
         await sleep(3000);
-
-        console.log('asgasgasgasg');
 
         const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
         expect(environmentPanels).to.have.length(3);
@@ -113,6 +119,7 @@ describe('Webview Simple Test', function() {
         const environmentDeleteButtons = await webview.findWebElements(By.name('delete-environment'));
         expect(environmentDeleteButtons).to.have.length(4);
         await environmentDeleteButtons[3].click();
+        await confirmDeletion();
         environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
         expect(environmentPanels).to.have.length(3);
     });
@@ -164,6 +171,7 @@ describe('Webview Simple Test', function() {
 
     it('Deletes an instance', async () => {
         await (await webview.findWebElements(By.name('instance-delete')))[4].click();
+        await confirmDeletion();
 
         const instances = await webview.findWebElements(By.name('instance-item'));
         const links = await webview.findWebElements(By.name('instance-link'));
@@ -191,6 +199,7 @@ describe('Webview Simple Test', function() {
 
     it('Deletes url', async () => {
         await (await webview.findWebElement(By.name('other-url-delete'))).click();
+        await confirmDeletion();
 
         const items = await webview.findWebElements(By.name('other-url-item'));
 
@@ -209,13 +218,14 @@ describe('Webview Simple Test', function() {
 
         await sleep(500);
 
-        await (await webview.findWebElements(By.className('bp3-tree-node-content')))[10].click();
+        await (await webview.findWebElements(By.className('bp3-tree-node-content')))[11].click();
 
         await sleep(500);
 
         expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(18);
 
         await (await webview.findWebElements(By.name('source-dir-remove')))[0].click();
+        await confirmDeletion();
 
         expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(17);
 
@@ -281,6 +291,11 @@ describe('Webview Simple Test', function() {
         ).to.equal(null);
 
         await submitInterface('workflow-steps');
-        await sleep(4000);
+        await sleep(2000);
+        await webview.switchBack();
+
+        const titles = await editor.getOpenEditorTitles();
+
+        expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
     });
 });
