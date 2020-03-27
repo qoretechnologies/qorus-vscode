@@ -206,7 +206,7 @@ export abstract class InterfaceCreator {
 
         const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, search_name);
         if (iface) {
-            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)}, ${search_name}`};
+            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${search_name}`};
         }
         return {ok: true};
     }
