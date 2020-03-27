@@ -204,6 +204,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     stepsData,
     definitionsOnly,
     context,
+    onSubmitSuccess,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
