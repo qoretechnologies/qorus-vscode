@@ -360,8 +360,7 @@ methodCode.qore = (connection_code_name, connectors) => {
 };
 
 methodCode.java = (connection_code_name, connectors) => {
-    let code = `${indent1}@SuppressWarnings("unchecked")\n` +
-        `${indent1}public Object ${connection_code_name}(Object ${CONN_DATA}) ${THROWS} {\n`;
+    let code = `${indent1}public Object ${connection_code_name}(Object ${CONN_DATA}) ${THROWS} {\n`;
 
     if (connectors.some(connector => connector.mapper)) {
         code += `${indent2}Mapper ${CONN_MAPPER};\n`;
@@ -377,6 +376,10 @@ methodCode.java = (connection_code_name, connectors) => {
         if (connector.mapper) {
             code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}");\n` +
             `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData((Map<String, Object>)${CONN_DATA});\n`;
+        }
+
+        if (connector.type === 'event') {
+            return;
         }
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
