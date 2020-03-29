@@ -308,7 +308,7 @@ extraClassCode.java = (conn_class_name, classes, event_based_connections) => {
             `${indent1}// override ${CONN_BASE_CLASS}'s update()\n` +
             `${indent1}public void update(String id, Map<String, Object> ${CONN_DATA}) ${THROWS} {\n`;
         event_based_connections.forEach(event_based => {code +=
-            `${indent2}if (id == "${event_based.prefixed_class}::${event_based.method}") {\n` +
+            `${indent2}if (id.equals("${event_based.prefixed_class}::${event_based.method}")) {\n` +
             `${indent3}${event_based.connection_code_name}(${CONN_DATA});\n` +
             `${indent2}}\n`;
         });
@@ -371,15 +371,16 @@ methodCode.java = (connection_code_name, connectors) => {
 
     let n = 0;
     connectors.forEach(connector => {
+        ++n;
         const prefixed_class = `${connector.prefix || ''}${connector.class}`;
 
         if (connector.mapper) {
             code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}");\n` +
-            `${indent2}${CONN_DATA} = Optional.of(${CONN_MAPPER}.mapData((Map<String, Object>)${CONN_DATA}));\n`;
+            `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData((Map<String, Object>)${CONN_DATA});\n`;
         }
 
         code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
-        if (++n !== connectors.length) {
+        if (n !== connectors.length) {
             code += `${CONN_DATA} = `;
         } else {
             code += 'return ';
