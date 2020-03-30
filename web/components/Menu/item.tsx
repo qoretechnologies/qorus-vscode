@@ -1,14 +1,18 @@
 // @flow
 import React from 'react';
+
+import classnames from 'classnames';
+import map from 'lodash/map';
 import compose from 'recompose/compose';
 import lifecycle from 'recompose/lifecycle';
-import { Icon, Tooltip, Position, Button, ButtonGroup } from '@blueprintjs/core';
-import map from 'lodash/map';
-import withState from 'recompose/withState';
-import withHandlers from 'recompose/withHandlers';
 import mapProps from 'recompose/mapProps';
+import withHandlers from 'recompose/withHandlers';
+import withState from 'recompose/withState';
+
+import { Icon, Position, Tooltip } from '@blueprintjs/core';
+
 import { isActiveMulti } from '../../helpers/menu';
-import classnames from 'classnames';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 
@@ -51,9 +55,16 @@ let SidebarItem: Function = ({
     handleMouseLeave,
     initialData,
     t,
-}: SidebarItemProps) =>
-    !itemData.submenu ? (
-        <SidebarItemTooltip isCollapsed={isCollapsed} tooltip={t(itemData.name)}>
+    ...rest
+}: SidebarItemProps) => {
+    const hasDraft = itemData.tab === 'CreateInterface' && rest.unfinishedWork[itemData?.subtab];
+    const intent = hasDraft ? 'warning' : 'none';
+
+    return !itemData.submenu ? (
+        <SidebarItemTooltip
+            isCollapsed={isCollapsed}
+            tooltip={!hasDraft ? t(itemData.name) : `${t(itemData.name)} (${t('Draft')})`}
+        >
             <div
                 className={classnames('sidebarItem', {
                     sidebarSubItem: subItem,
@@ -65,7 +76,8 @@ let SidebarItem: Function = ({
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
-                <Icon icon={itemData.icon} /> {!isCollapsed && t(itemData.name)}
+                <Icon intent={intent} icon={itemData.icon} />{' '}
+                {!isCollapsed ? (!hasDraft ? t(itemData.name) : `${t(itemData.name)} (${t('Draft')})`) : null}
             </div>
         </SidebarItemTooltip>
     ) : (
@@ -78,15 +90,17 @@ let SidebarItem: Function = ({
                 })}
                 onClick={onExpandClick}
             >
-                <Icon icon={itemData.icon} /> {!isCollapsed && t(itemData.name)}
+                <Icon intent={intent} icon={itemData.icon} /> {!isCollapsed && t(itemData.name)}
                 {onExpandClick && <Icon icon={isExpanded ? 'caret-up' : 'caret-down'} className="submenuExpand" />}
             </div>
         </SidebarItemTooltip>
     );
+};
 
 SidebarItem = compose(
     withInitialDataConsumer(),
     withTextContext(),
+    withFieldsConsumer(),
     withState('isHovered', 'changeHovered', false),
     mapProps(
         ({ itemData, initialData, ...rest }: SidebarItemProps): SidebarItemProps => ({

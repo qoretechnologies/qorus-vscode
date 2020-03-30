@@ -1,39 +1,33 @@
-import React, { Component, FunctionComponent, useState } from 'react';
-import { connect } from 'react-redux';
-import {
-    Alignment,
-    Button,
-    HTMLTable,
-    Navbar,
-    NavbarDivider,
-    NavbarGroup,
-    ButtonGroup,
-    Dialog,
-    Classes,
-} from '@blueprintjs/core';
-import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
-import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
-import InterfaceCreator from './containers/InterfaceCreator';
+import React, { FunctionComponent, useState } from 'react';
+
 import { hot } from 'react-hot-loader/root';
-import styled from 'styled-components';
-import withMessageHandler, { TMessageListener, TPostMessage } from './hocomponents/withMessageHandler';
+import { connect } from 'react-redux';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
-import { Messages } from './constants/messages';
-import { TextContext } from './context/text';
 import compose from 'recompose/compose';
-import withFields from './hocomponents/withFields';
-import withMethods from './hocomponents/withMethods';
-import withInitialData from './hocomponents/withInitialData';
-import withSteps from './hocomponents/withSteps';
+import styled from 'styled-components';
+
+import { AnchorButton, Button, ButtonGroup, Callout, Classes, Dialog, Navbar, NavbarGroup } from '@blueprintjs/core';
+
+import Loader from './components/Loader';
 import Menu from './components/Menu';
-import { MENU } from './constants/menu';
-import { LoginContainer } from './login/Login';
-import ProjectConfig, { ProjectConfigContainer } from './project_config/ProjectConfig';
-import withMapper from './hocomponents/withMapper';
 import Pull from './components/Pull';
+import { AppToaster } from './components/Toast';
+import { MENU } from './constants/menu';
+import { Messages } from './constants/messages';
+import InterfaceCreator from './containers/InterfaceCreator';
+import { TextContext } from './context/text';
+import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
+import withFields from './hocomponents/withFields';
 import withFunctions from './hocomponents/withFunctions';
 import withGlobalOptions from './hocomponents/withGlobalOptions';
-import Loader from './components/Loader';
+import withInitialData from './hocomponents/withInitialData';
+import withMapper from './hocomponents/withMapper';
+import withMessageHandler, { TMessageListener, TPostMessage } from './hocomponents/withMessageHandler';
+import withMethods from './hocomponents/withMethods';
+import withSteps from './hocomponents/withSteps';
+import { LoginContainer } from './login/Login';
+import ProjectConfig from './project_config/ProjectConfig';
+import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
 
 const StyledApp = styled.div`
     display: flex;
@@ -163,12 +157,24 @@ const App: FunctionComponent<IApp> = ({
                     <StyledInfo>
                         {t('ActiveQorusInstance')}: <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
                     </StyledInfo>
-                    <Pull right>
-                        <ButtonGroup minimal>
-                            <Button icon="refresh" onClick={() => window.location.reload} />
-                        </ButtonGroup>
-                    </Pull>
                 </NavbarGroup>
+                <Pull right>
+                    <NavbarGroup>
+                        <ButtonGroup minimal>
+                            <AnchorButton
+                                icon="refresh"
+                                href="command:workbench.action.webview.reloadWebviewAction"
+                                onClick={() =>
+                                    AppToaster.show({
+                                        message: t('ReloadingWebview'),
+                                        intent: 'warning',
+                                        icon: 'refresh',
+                                    })
+                                }
+                            />
+                        </ButtonGroup>
+                    </NavbarGroup>
+                </Pull>
             </Navbar>
             <TextContext.Provider value={t}>
                 <StyledApp>
@@ -183,16 +189,24 @@ const App: FunctionComponent<IApp> = ({
                 </StyledApp>
             </TextContext.Provider>
             {confirmDialog.isOpen && (
-                <Dialog isOpen icon="warning-sign" title={t('ConfirmDialogTitle')} onClose={() => setConfirmDialog({})}>
-                    <div className={Classes.DIALOG_BODY}>{t(confirmDialog.text)}</div>
+                <Dialog
+                    isOpen
+                    icon="warning-sign"
+                    title={t('ConfirmDialogTitle')}
+                    onClose={() => setConfirmDialog({})}
+                    style={{ backgroundColor: '#fff' }}
+                >
+                    <div className={Classes.DIALOG_BODY}>
+                        <Callout intent={confirmDialog.btnStyle || 'danger'}>{t(confirmDialog.text)}</Callout>
+                    </div>
                     <div className={Classes.DIALOG_FOOTER}>
                         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
                             <ButtonGroup>
                                 <Button text={t('Cancel')} onClick={() => setConfirmDialog({})} id="remove-cancel" />
                                 <Button
                                     id="remove-confirm"
-                                    text={t('Remove')}
-                                    intent="danger"
+                                    text={t(confirmDialog.btnText || 'Remove')}
+                                    intent={confirmDialog.btnStyle || 'danger'}
                                     onClick={() => {
                                         confirmDialog.onSubmit();
                                         setConfirmDialog({});
@@ -225,8 +239,8 @@ export default hot(
     compose(
         withMessageHandler(),
         connect(mapStateToProps, mapDispatchToProps),
-        withInitialData(),
         withFields(),
+        withInitialData(),
         withMethods(),
         withFunctions(),
         withSteps(),
