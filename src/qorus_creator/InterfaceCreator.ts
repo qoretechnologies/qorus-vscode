@@ -588,9 +588,9 @@ export abstract class InterfaceCreator {
                     case 'text-resource':
                     case 'bin-resource':
                     case 'template':
-                        for (let item of value) {
-                            result += `${list_indent}${item}\n`;
-                        }
+                        value.forEach(({name}) => {
+                            result += `${list_indent}${workspace.asRelativePath(name, false)}\n`;
+                        });
                         break;
                     case 'steps':
                         const lines = JSON.stringify(value, null, 4).split('\n');

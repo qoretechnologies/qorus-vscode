@@ -2114,3 +2114,6 @@ msgstr "Draft"
 
 msgid "UnfinishedWork"
 msgstr "You have unsaved work, are you sure you want to leave?"
+
+msgid "ConfigItemUpdatedSuccessfully ${ name }"
+msgstr "Data of config item ${ name } has been stored successfully"
