@@ -44,6 +44,17 @@ const qorus_jars = {
     }
 };
 
+/** Path for default container classpath entry. */
+const container_entry_path = 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8';
+
+/** Default container classpath entry. */
+const container_classpath_entry = {
+    '_attributes': {
+        'kind': 'con',
+        'path': container_entry_path
+    }
+};
+
 /** Default Java .classpath file contents */
 const default_java_classpath = {
     '_declaration': {
@@ -157,6 +168,19 @@ export class QorusProjectJavaConfig {
         return true;
     }
 
+    /** Return whether container entry is present in the classpathentry. */
+    private containerEntryPresent(classpathentry): boolean {
+        for (const entry of classpathentry) {
+            if (entry._attributes &&
+                entry._attributes.kind === 'con' &&
+                entry._attributes.path === container_entry_path)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private getJavadocPath(javadoc: string): string {
         const api_target_path = getQorusJavaApiTargetPath();
         return join(api_target_path, 'javadoc', javadoc);
@@ -204,6 +228,11 @@ export class QorusProjectJavaConfig {
         }
     }
 
+    /** Add container entry to the classpathentry. */
+    private addContainerClasspathEntry(classpathentry) {
+        classpathentry.push(container_classpath_entry);
+    }
+
     /** Validate whether the loaded classpath has basic necessities. */
     private validateClasspath(): boolean {
         if (this.classpath === null || typeof this.classpath !== 'object') {
@@ -235,7 +264,8 @@ export class QorusProjectJavaConfig {
         // check that all jars are present in the classpath
         if (Array.isArray(this.classpath.classpath.classpathentry)) {
             const jar_present_map = this.findPresentJars(this.classpath.classpath.classpathentry);
-            return this.allJarsPresent(jar_present_map);
+            return this.allJarsPresent(jar_present_map) &&
+                this.containerEntryPresent(this.classpath.classpath.classpathentry);
         }
         return false;
     }
@@ -296,6 +326,11 @@ export class QorusProjectJavaConfig {
             this.classpath.classpath.classpathentry = [
                 this.classpath.classpath.classpathentry,
             ];
+        }
+
+        // add container classpath entry if missing
+        if (!this.containerEntryPresent(this.classpath.classpath.classpathentry)) {
+            this.addContainerClasspathEntry(this.classpath.classpath.classpathentry);
         }
 
         // fill the missing jar entries
