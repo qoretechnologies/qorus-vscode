@@ -516,6 +516,7 @@ export class QorusProjectCodeInfo {
         }
 
         ['functions', 'constants', 'mappers', 'value_maps', 'author',
+            'resource', 'text-resource', 'bin-resource', 'template',
             'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
