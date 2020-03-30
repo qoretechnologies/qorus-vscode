@@ -2105,3 +2105,6 @@ msgstr "${ iface } with name ${ name } already exists"
 
 msgid "IfaceSavedSuccessfully ${ iface } ${ name }"
 msgstr "${ iface } ${ name } has been saved successfully"
+
+msgid "ConfigItemUpdatedSuccessfully ${ name }"
+msgstr "Data of config item ${ name } has been stored successfully"
