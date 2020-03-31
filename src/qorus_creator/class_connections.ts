@@ -144,7 +144,6 @@ getImports.java = (data, exists_qore_connector) => {
     let imports = [
         'import org.qore.jni.QoreObject;',
         'import java.util.Map;',
-        'import java.util.Optional;',
         'import java.util.HashMap;',
         'import java.lang.reflect.Method;'
     ];
@@ -453,7 +452,7 @@ triggerCode.java = trigger => {
             params_str = CONN_DATA;
         }
         if (trigger.is_nonstandard_service) { // for non-standard service triggers
-            params_str = `Optional.of(${CONN_DATA})`;
+            params_str = CONN_DATA;
         }
     }
 
