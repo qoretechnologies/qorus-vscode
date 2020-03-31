@@ -2106,6 +2106,9 @@ msgstr "${ iface } with name ${ name } already exists"
 msgid "ClassAlreadyExists ${ name }"
 msgstr "Class ${ name } already exists"
 
+msgid "FileAlreadyExists ${ file }"
+msgstr "File ${ file } already exists"
+
 msgid "IfaceSavedSuccessfully ${ iface } ${ name }"
 msgstr "${ iface } ${ name } has been saved successfully"
 
