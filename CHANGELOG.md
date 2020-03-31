@@ -9,7 +9,6 @@
 -   check of existence of an interface with same name or class name
 -   success confirmation message from backend to frontend
 -   fixed saving of text-/bin-/resource fields
--   fixed: wildcard elements in data provider paths in mappers are not editable
 
 ## 1.1.0
 
