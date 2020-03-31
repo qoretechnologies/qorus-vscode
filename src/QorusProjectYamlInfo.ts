@@ -26,6 +26,9 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
+    private class_2_yaml: any = {};
+    yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
+
     private yaml_2_src: any = {};
 
     private authors: any = {};
@@ -79,6 +82,7 @@ export class QorusProjectYamlInfo {
 
         this.yaml_2_src = {};
         this.src_2_yaml = {};
+        this.class_2_yaml = {};
         this.authors = {};
 
         for (const type of types) {
@@ -181,6 +185,11 @@ export class QorusProjectYamlInfo {
         this.name_2_yaml[yaml_data.type][name] = file;
 
         const class_name = ['class', 'mapper-code'].includes(yaml_data.type) ? yaml_data.name : yaml_data['class-name'];
+
+        if (class_name) {
+            this.class_2_yaml[class_name] = file;
+        }
+
         const base_class_name = yaml_data['base-class-name'];
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {

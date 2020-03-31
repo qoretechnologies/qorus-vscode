@@ -165,7 +165,7 @@ export class InterfaceInfo {
         this.getConfigItems({iface_id, iface_kind});
     }
 
-    updateConfigItem = ({iface_id, iface_kind, data: item}) => {
+    updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type}) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
 
         const default_value_true_type = item.type === 'any' && item.default_value_true_type
@@ -213,6 +213,13 @@ export class InterfaceInfo {
         if (item.config_group) {
             this.last_conf_group = item.config_group;
         }
+
+        qorus_webview.postMessage({
+            action: `creator-${edit_type}-interface-complete`,
+            request_id,
+            ok: true,
+            message: t`ConfigItemUpdatedSuccessfully ${item.name}`
+        });
 
         const {'base-class-name': base_class_name, classes, requires, steps} = iface;
         this.getConfigItems({iface_id, iface_kind, 'base-class-name': base_class_name, classes, requires, steps});

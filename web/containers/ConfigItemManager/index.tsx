@@ -1,18 +1,19 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import { Button, Dialog } from '@blueprintjs/core';
-import withTextContext from '../../hocomponents/withTextContext';
-import compose from 'recompose/compose';
-import { TTranslator } from '../../App';
-import InterfaceCreatorPanel from '../InterfaceCreator/panel';
-import styled from 'styled-components';
-import ConfigItemsTable from './table';
-import GlobalTable from './globalTable';
-import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomponents/withMessageHandler';
-import { Messages } from '../../constants/messages';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+
 import useEffectOnce from 'react-use/lib/useEffectOnce';
-import { FieldName } from '../../components/FieldSelector';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
+import compose from 'recompose/compose';
+import styled from 'styled-components';
+
+import { Button, Dialog } from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import { Messages } from '../../constants/messages';
+import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+import InterfaceCreatorPanel from '../InterfaceCreator/panel';
+import GlobalTable from './globalTable';
+import ConfigItemsTable from './table';
 
 export interface IConfigItemManager {
     t: TTranslator;
@@ -198,7 +199,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             data={configItemData}
                             disabledFields={configItemData && configItemData.parent && ['name']}
                             isEditing={!!configItemData}
-                            onSubmit={() => {
+                            onSubmitSuccess={() => {
                                 setConfigItemData(null);
                                 setShowConfigItemPanel(false);
                                 resetFields('config-item');

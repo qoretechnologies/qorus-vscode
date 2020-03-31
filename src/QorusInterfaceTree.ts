@@ -62,7 +62,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
                     return basename(a.rel_path).localeCompare(basename(b.rel_path));
                 });
                 for (const dir of fileTree) {
-                    children.push(new QorusTreeDirectoryNode(dir.rel_path, dir, this.extensionPath));
+                    children.push(new QorusTreeDirectoryNode(dir.rel_path, true, dir, this.extensionPath));
                 }
             }
         } else { // interface view
@@ -318,8 +318,8 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
     protected fileTree;
     protected extensionPath: string;
 
-    constructor(dir: string, fileTree, extensionPath, collapsibleState?: TreeItemCollapsibleState) {
-        super(basename(dir), collapsibleState || TreeItemCollapsibleState.Expanded);
+    constructor(dir: string, isRoot: boolean, fileTree, extensionPath, collapsibleState?: TreeItemCollapsibleState) {
+        super(isRoot ? dir : basename(dir), collapsibleState || TreeItemCollapsibleState.Expanded);
         this.absPath = fileTree.abs_path;
         this.directory = dir;
         this.fileTree = fileTree;
@@ -347,6 +347,9 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
         for (const f of files) {
             if (f.name.endsWith('.yaml')) {
                 let data = await QorusInterfaceTree.getFileData(join(f.abs_path, f.name));
+                if (!data) { // some 'non-Qorus' yaml file
+                    continue;
+                }
                 switch (data.type) {
                     case 'class':
                         children.push(new QorusTreeClassNode(data.name, data));
@@ -400,7 +403,7 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
         }
         const dirs = this.fileTree.dirs.sort( (a, b) => basename(a.rel_path).localeCompare(basename(b.rel_path)) );
         for (const dir of dirs) {
-            children.push(new QorusTreeDirectoryNode(dir.rel_path, dir, this.extensionPath));
+            children.push(new QorusTreeDirectoryNode(dir.rel_path, false, dir, this.extensionPath));
         }
 
         return children;
