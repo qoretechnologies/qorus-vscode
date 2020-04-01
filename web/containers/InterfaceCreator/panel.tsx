@@ -1085,11 +1085,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                     text={t('Reset')}
                                     icon={'history'}
                                     onClick={() => {
-                                        resetLocalFields(activeId);
-                                        // Reset also config items
-                                        postMessage(Messages.RESET_CONFIG_ITEMS, {
-                                            iface_id: interfaceId,
-                                        });
+                                        initialData.confirmAction(
+                                            'ResetFieldsConfirm',
+                                            () => {
+                                                resetLocalFields(activeId);
+                                                // Reset also config items
+                                                postMessage(Messages.RESET_CONFIG_ITEMS, {
+                                                    iface_id: interfaceId,
+                                                });
+                                            },
+                                            'Reset',
+                                            'warning'
+                                        );
                                     }}
                                 />
                             </Tooltip>
