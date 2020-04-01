@@ -214,13 +214,13 @@ export abstract class InterfaceCreator {
         if (file_path && file_path !== orig_file_path) {
             const iface = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
             if (iface) {
-                return {ok: false, message: t`SrcFileAlreadyExists ${file_path}`};
+                return {ok: false, message: t`FileAlreadyExists ${file_path}`};
             }
         }
         if (yaml_file_path !== orig_yaml_file_path) {
             const iface = this.code_info.yaml_info.yamlDataByFilePath(yaml_file_path);
             if (iface) {
-                return {ok: false, message: t`YamlFileAlreadyExists ${yaml_file_path}`};
+                return {ok: false, message: t`FileAlreadyExists ${yaml_file_path}`};
             }
         }
 
