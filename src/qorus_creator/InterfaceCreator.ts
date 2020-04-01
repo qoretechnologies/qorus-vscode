@@ -184,24 +184,17 @@ export abstract class InterfaceCreator {
 
     protected checkExistingInterface = (params: any): any => {
         const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
+
+        if (!['create', 'edit', 'recreate'].includes(edit_type)) {
+            return {ok: true};
+        }
+
         const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
 
         const with_version = types_with_version.includes(iface_kind);
 
         const iface_name = with_version ? `${name}:${version || default_version}` : name;
         const orig_iface_name = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
-
-        switch (edit_type) {
-            case 'create':
-                break;
-            case 'edit':
-                if (iface_name === orig_iface_name && class_name === orig_class_name) {
-                    return {ok: true};
-                }
-                break;
-            default:
-                return {ok: true};
-        }
 
         if (iface_name !== orig_iface_name) {
             const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
@@ -215,6 +208,22 @@ export abstract class InterfaceCreator {
                 return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
             }
         }
+
+        const { file_path, orig_file_path, yaml_file_path, orig_yaml_file_path } = this;
+
+        if (file_path && file_path !== orig_file_path) {
+            const iface = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
+            if (iface) {
+                return {ok: false, message: t`FileAlreadyExists ${file_path}`};
+            }
+        }
+        if (yaml_file_path !== orig_yaml_file_path) {
+            const iface = this.code_info.yaml_info.yamlDataByFilePath(yaml_file_path);
+            if (iface) {
+                return {ok: false, message: t`FileAlreadyExists ${yaml_file_path}`};
+            }
+        }
+
         return {ok: true};
     }
 
