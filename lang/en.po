@@ -2109,5 +2109,17 @@ msgstr "Class ${ name } already exists"
 msgid "IfaceSavedSuccessfully ${ iface } ${ name }"
 msgstr "${ iface } ${ name } has been saved successfully"
 
+msgid "ReloadingWebview"
+msgstr "Reloading webview ..."
+
+msgid "Draft"
+msgstr "Draft"
+
+msgid "UnfinishedWork"
+msgstr "You have unsaved work, are you sure you want to leave? Leaving will result in your work being saved as a draft."
+
+msgid "ResetFieldsConfirm"
+msgstr "You have unsaved work, are you sure you want to reset?"
+
 msgid "ConfigItemUpdatedSuccessfully ${ name }"
 msgstr "Data of config item ${ name } has been stored successfully"

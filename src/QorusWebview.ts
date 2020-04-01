@@ -1,15 +1,16 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { t, gettext } from 'ttag';
 import * as map from 'lodash/map';
-import * as msg from './qorus_message';
-import { instance_tree } from './QorusInstanceTree';
-import { projects, QorusProject, config_filename } from './QorusProject';
-import { qorus_request } from './QorusRequest';
-import { releaser } from './QorusRelease';
-import { deleter } from './QorusDelete';
+import * as path from 'path';
+import { gettext, t } from 'ttag';
+import * as vscode from 'vscode';
+
 import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import * as msg from './qorus_message';
+import { deleter } from './QorusDelete';
+import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
+import { config_filename, projects, QorusProject } from './QorusProject';
+import { releaser } from './QorusRelease';
+import { qorus_request } from './QorusRequest';
 
 const web_path = path.join(__dirname, '..', 'dist');
 
@@ -37,7 +38,7 @@ class QorusWebview {
                 ...other_data,
             },
         });
-    }
+    };
 
     open(initial_data: any = {}) {
         this.initial_data = initial_data;
@@ -70,6 +71,7 @@ class QorusWebview {
                     {
                         enableScripts: true,
                         retainContextWhenHidden: true,
+                        enableCommandUris: true,
                     }
                 );
                 this.panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
@@ -115,11 +117,11 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'return-all-text',
                                 data: qorus_locale.translations
-                                    ?   map(qorus_locale.translations, parsed_data => ({
-                                            id: parsed_data.msgid,
-                                            text: gettext(parsed_data.msgid),
-                                        }))
-                                    :   {},
+                                    ? map(qorus_locale.translations, parsed_data => ({
+                                          id: parsed_data.msgid,
+                                          text: gettext(parsed_data.msgid),
+                                      }))
+                                    : {},
                             });
                             break;
                         case 'get-active-tab':
@@ -193,7 +195,7 @@ class QorusWebview {
                                 action: 'creator-return-fields',
                                 iface_kind: message.iface_kind,
                                 fields: creator.getSortedFields({
-                                    ... message,
+                                    ...message,
                                     interface_info,
                                     default_target_dir: initial_data.uri && initial_data.uri.fsPath,
                                 }),
@@ -276,14 +278,15 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'return-triggers',
                                 data: {
-                                    ... message.data,
-                                    triggers: project.code_info.triggers(message.data).map(name => ({name}))
-                                }
+                                    ...message.data,
+                                    triggers: project.code_info.triggers(message.data).map(name => ({ name })),
+                                },
                             });
                             break;
                         case 'open-file':
-                            vscode.workspace.openTextDocument(message.file_path)
-                                  .then(doc => vscode.window.showTextDocument(doc));
+                            vscode.workspace
+                                .openTextDocument(message.file_path)
+                                .then(doc => vscode.window.showTextDocument(doc));
                             break;
                         case 'delete-interface':
                             project.code_info.deleteInterfaceFromWebview(message);
