@@ -1,8 +1,10 @@
 import React, { FunctionComponent, useState } from 'react';
+
+import { every, reduce } from 'lodash';
+import { isArray } from 'util';
+
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
-import { isArray } from 'util';
-import { every, reduce } from 'lodash';
 
 const getInterfaceCollectionType: (type: string) => [] | {} = type => {
     switch (type) {
@@ -81,6 +83,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             other: '',
             mapper: '',
         });
+        const [unfinishedWork, setUnfinishedWork] = useState<{ [key: string]: boolean }>({});
 
         const resetFields: (type: string) => void = type => {
             setLocalFields(current => {
@@ -92,6 +95,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 });
 
                 _setInterfaceId(current => {
+                    const newResult = { ...current };
+                    // Set the interface id to null
+                    newResult[type] = null;
+                    return newResult;
+                });
+
+                setUnfinishedWork(current => {
                     const newResult = { ...current };
                     // Set the interface id to null
                     newResult[type] = null;
@@ -112,6 +122,17 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 ...current,
                 [interfaceType]: id,
             }));
+        };
+
+        const setAsDraft: (type: string) => void = type => {
+            if (!unfinishedWork[type]) {
+                setUnfinishedWork(current => {
+                    const newResult = { ...current };
+                    // Set the interface id to null
+                    newResult[type] = true;
+                    return newResult;
+                });
+            }
         };
 
         const setFields = (type, value, activeId) => {
@@ -222,6 +243,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     resetFields,
                     interfaceId,
                     setInterfaceId,
+                    unfinishedWork,
+                    setAsDraft,
                 }}
             >
                 <Component {...props} />

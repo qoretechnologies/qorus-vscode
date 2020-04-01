@@ -1,23 +1,10 @@
 import React, { useState } from 'react';
 
-import {
-    cloneDeep,
-    get,
-    map,
-    set,
-    size,
-    unset
-} from 'lodash';
+import { cloneDeep, get, map, set, size, unset } from 'lodash';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 
-import {
-    Button,
-    ButtonGroup,
-    Callout,
-    Intent,
-    Tooltip
-} from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
 import FileField from '../../components/Field/fileString';
 import String from '../../components/Field/string';
@@ -266,7 +253,20 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
                 <div style={{ float: 'right', width: '100%' }}>
                     <ButtonGroup fill>
                         <Tooltip content={t('ResetTooltip')}>
-                            <Button text={t('Reset')} icon={'history'} onClick={() => reset(true)} />
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                onClick={() => {
+                                    initialData.confirmAction(
+                                        'ResetFieldsConfirm',
+                                        () => {
+                                            reset(true);
+                                        },
+                                        'Reset',
+                                        'warning'
+                                    );
+                                }}
+                            />
                         </Tooltip>
                         <Button
                             text={t('Submit')}

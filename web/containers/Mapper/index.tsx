@@ -8,13 +8,7 @@ import { useDrop } from 'react-dnd';
 import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
 
-import {
-    Button,
-    ButtonGroup,
-    Icon,
-    Intent,
-    Tooltip
-} from '@blueprintjs/core';
+import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import { Messages } from '../../constants/messages';
@@ -1212,7 +1206,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                 text={t('Reset')}
                                 icon={'history'}
                                 disabled={inputsLoading || outputsLoading}
-                                onClick={reset}
+                                onClick={() => {
+                                    initialData.confirmAction('ResetFieldsConfirm', reset, 'Reset', 'warning');
+                                }}
                             />
                         </Tooltip>
                         <Tooltip content={t('BackTooltip')}>
