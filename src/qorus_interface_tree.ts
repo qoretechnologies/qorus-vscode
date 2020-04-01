@@ -89,21 +89,22 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step',
-     'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind => {
+        'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
+    {
         const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             const code_info = projects.currentProjectCodeInfo();
-            const data2 = code_info.fixData(data.data);
-            commands.executeCommand('qorus.editInterface', data2, iface_kind);
+            const fixed_data = code_info.fixData(data.data);
+            commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
         });
         context.subscriptions.push(disposable);
     });
     disposable = commands.registerCommand('qorus.views.editWorkflowSteps', (data: any) =>
     {
         const code_info = projects.currentProjectCodeInfo();
-        const data2 = code_info.fixData(data.data);
-        data2.show_steps = true;
-        commands.executeCommand('qorus.editInterface', data2, 'workflow');
+        const fixed_data = code_info.fixData(data.data);
+        fixed_data.show_steps = true;
+        commands.executeCommand('qorus.editInterface', fixed_data, 'workflow');
     });
     context.subscriptions.push(disposable);
 
