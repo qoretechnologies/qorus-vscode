@@ -85,6 +85,9 @@ export abstract class InterfaceCreator {
             } else {
                 this.orig_yaml_file_path = orig_path;
             }
+        } else {
+            this.orig_file_path = undefined;
+            this.orig_yaml_file_path = undefined;
         }
     }
 
@@ -200,12 +203,14 @@ export abstract class InterfaceCreator {
                 return {ok: true};
         }
 
-        let iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
-        if (iface) {
-            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
+        if (iface_name !== orig_iface_name) {
+            const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
+            if (iface) {
+                return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
+            }
         }
-        if (class_name && !['class', 'mapper-code'].includes(iface_kind)) {
-            iface = this.code_info.yaml_info.yamlDataByClass(class_name);
+        if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
+            const iface = this.code_info.yaml_info.yamlDataByClass(class_name);
             if (iface) {
                 return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
             }

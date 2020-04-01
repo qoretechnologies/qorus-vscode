@@ -1181,13 +1181,16 @@ export class QorusProjectCodeInfo {
 
     private updateFileTree(source_directories: string[]) {
         this.setPending('file_tree', true);
-        const dirItem = (abs_path: string, only_dirs: boolean) => ({
-            abs_path,
-            rel_path: this.project.relativeDirPath(abs_path),
-            basename: path.basename(abs_path),
-            dirs: [],
-            ... only_dirs ? {} : { files: [] }
-        });
+        const dirItem = (abs_path: string, only_dirs: boolean, is_root_item: boolean = false) => {
+            const rel_path = this.project.relativeDirPath(abs_path);
+            return {
+                abs_path,
+                rel_path,
+                basename: is_root_item ? rel_path : path.basename(abs_path),
+                dirs: [],
+                ... only_dirs ? {} : { files: [] }
+            };
+        };
 
         const subDirRecursion = (tree_item: any, only_dirs: boolean) => {
             const dir_entries: string[] = fs.readdirSync(tree_item.abs_path).sort();
@@ -1215,11 +1218,11 @@ export class QorusProjectCodeInfo {
         let dir_tree: any[] = [];
 
         for (let dir of source_directories.sort()) {
-            let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
+            let file_tree_root = dirItem(path.join(this.project.folder, dir), false, true);
             file_tree.push(file_tree_root);
             subDirRecursion(file_tree_root, false);
 
-            let dir_tree_root = dirItem(path.join(this.project.folder, dir), true);
+            let dir_tree_root = dirItem(path.join(this.project.folder, dir), true, true);
             dir_tree.push(dir_tree_root);
             subDirRecursion(dir_tree_root, true);
         }
