@@ -23,6 +23,7 @@ import { field } from './qorus_creator/common_constants';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
 import { getJavaDocumentSymbolsWithWait } from './vscode_java';
+import { interface_tree } from './QorusInterfaceTree';
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
 
@@ -49,7 +50,7 @@ export class QorusProjectCodeInfo {
     private module_files_watcher: vscode.FileSystemWatcher;
     private config_file_watcher: vscode.FileSystemWatcher;
 
-    private notif_trees = {};
+    private notif_trees = [interface_tree];
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -313,20 +314,8 @@ export class QorusProjectCodeInfo {
         return this.edit_info[file];
     }
 
-    registerTreeForNotifications(name, tree) {
-        if (!this.notif_trees[name]) {
-            this.notif_trees[name] = tree;
-        }
-    }
-
-    unregisterTreeForNotifications(name) {
-        delete this.notif_trees[name];
-    }
-
     private notifyTrees() {
-        for (const key in this.notif_trees) {
-            this.notif_trees[key].treeNotify(this);
-        }
+        this.notif_trees.forEach(tree => tree.notify(this));
     }
 
     fileTree() {
@@ -917,7 +906,6 @@ export class QorusProjectCodeInfo {
                     this.updateYamlInfo(file_data.source_directories);
                     this.yaml_info.baseClassesFromInheritancePairs();
                     this.yaml_info.javaBaseClassesFromInheritancePairs();
-                    this.notifyTrees();
                 }, 0);
             }
             if (info_list.includes('modules')) {
@@ -1132,6 +1120,7 @@ export class QorusProjectCodeInfo {
                 this.yaml_info.addSingleYamlInfo(file);
             }
         }
+        this.notifyTrees();
         this.setPending('yaml', false);
     }
 

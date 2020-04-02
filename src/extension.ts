@@ -150,12 +150,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     interface_tree.setExtensionPath(context.extensionPath);
 
-    projects.registerTreeForNotifications('interface-tree', interface_tree);
-
     registerInterfaceTreeCommands(context);
     disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', interface_tree);
     context.subscriptions.push(disposable);
-    interface_tree.refresh();
 
     disposable = vscode.languages.registerCodeLensProvider(
         [{ language: 'qore', scheme: 'file' }],
@@ -202,10 +199,6 @@ export async function activate(context: vscode.ExtensionContext) {
         null,
         context.subscriptions
     );
-}
-
-export function deactivate() {
-    projects.unregisterTreeForNotifications('interface-tree');
 }
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {

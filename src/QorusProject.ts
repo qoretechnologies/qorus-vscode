@@ -420,18 +420,6 @@ class QorusProjects {
 
         return undefined;
     }
-
-    registerTreeForNotifications = (name: string, tree: any) => {
-        Object.keys(this.projects).forEach(project_folder => {
-            this.projects[project_folder].code_info.registerTreeForNotifications(name, tree);
-        });
-    }
-
-    unregisterTreeForNotifications = (name: string) => {
-        Object.keys(this.projects).forEach(project_folder => {
-            this.projects[project_folder].code_info.unregisterTreeForNotifications(name);
-        });
-    }
 }
 
 import { Handler } from 'swagger-object-validator';

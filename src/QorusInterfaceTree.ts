@@ -21,7 +21,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
     readonly onDidChangeTreeData: Event<QorusInterfaceTreeNode | undefined>
         = this.onTreeDataChanged.event;
 
-    treeNotify(code_info) {
+    notify(code_info) {
         this.code_info = code_info;
         this.refresh();
     }
