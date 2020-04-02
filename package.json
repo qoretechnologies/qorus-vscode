@@ -204,6 +204,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editWorkflowSteps",
+                "title": "Edit Workflow Steps",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.createClass",
                 "title": "Create New Class",
                 "category": "Qorus",
@@ -1058,14 +1063,19 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceScheme == file && !explorerResourceIsFolder",
-                    "command": "qorus.deployFile",
+                    "when": "resourceExtname == .qwf",
+                    "command": "qorus.explorer.editWorkflowSteps",
                     "group": "2_workspace@2"
                 },
                 {
                     "when": "resourceScheme == file && !explorerResourceIsFolder",
-                    "command": "qorus.testFile",
+                    "command": "qorus.deployFile",
                     "group": "2_workspace@3"
+                },
+                {
+                    "when": "resourceScheme == file && !explorerResourceIsFolder",
+                    "command": "qorus.testFile",
+                    "group": "2_workspace@4"
                 }
             ],
             "view/item/context": [

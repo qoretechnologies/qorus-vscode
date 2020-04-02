@@ -88,7 +88,7 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
     });
 
     // edit commands
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step',
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps',
         'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
     {
         const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
@@ -96,20 +96,15 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
             const code_info = projects.projectCodeInfo(data.data?.yaml_file);
             const fixed_data = code_info?.fixData(data.data);
             if (fixed_data) {
+                if (iface_kind === 'workflow-steps') {
+                    fixed_data.show_steps = true;
+                    iface_kind = 'workflow';
+                }
                 commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
             }
         });
         context.subscriptions.push(disposable);
     });
-    disposable = commands.registerCommand('qorus.views.editWorkflowSteps', (data: any) => {
-        const code_info = projects.projectCodeInfo(data.data?.yaml_file);
-        const fixed_data = code_info?.fixData(data.data);
-        fixed_data.show_steps = true;
-        if (fixed_data) {
-            commands.executeCommand('qorus.editInterface', fixed_data, 'workflow');
-        }
-    });
-    context.subscriptions.push(disposable);
 
     // open interface command, used when clicking on interface in the tree
     disposable = commands.registerCommand('qorus.views.openInterface', (data: any) =>
