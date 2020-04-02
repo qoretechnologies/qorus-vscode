@@ -189,8 +189,18 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editMapperCodeMethods",
+                "title": "Edit Mapper Code Methods",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editService",
                 "title": "Edit Service",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editServiceMethods",
+                "title": "Edit Service Methods",
                 "category": "Qorus"
             },
             {
@@ -1033,6 +1043,11 @@
                     "group": "2_workspace@1"
                 },
                 {
+                    "when": "resourceExtname == .qsd",
+                    "command": "qorus.explorer.editServiceMethods",
+                    "group": "2_workspace@1"
+                },
+                {
                     "when": "resourceExtname == .qclass",
                     "command": "qorus.explorer.editClass",
                     "group": "2_workspace@1"
@@ -1051,6 +1066,11 @@
                     "when": "resourceExtname == .qmc",
                     "command": "qorus.explorer.editMapperCode",
                     "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qmc",
+                    "command": "qorus.explorer.editMapperCodeMethods",
+                    "group": "2_workspace@2"
                 },
                 {
                     "when": "resourceExtname == .qstep",

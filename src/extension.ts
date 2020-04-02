@@ -107,18 +107,33 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(disposable);
     });
 
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow', 'workflow-steps'].forEach(iface_kind => {
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow',
+        'workflow-steps', 'service-methods', 'mapper-code-methods'].forEach(iface_kind =>
+    {
         const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
             const code_info = projects.projectCodeInfo(resource.fsPath);
             const data = code_info?.yaml_info.yamlDataBySrcFile(resource.fsPath);
             const fixed_data = code_info?.fixData(data);
             if (fixed_data) {
-                if (iface_kind === 'workflow-steps') {
-                    fixed_data.show_steps = true;
-                    iface_kind = 'workflow';
+                let true_iface_kind;
+                switch (iface_kind) {
+                    case 'workflow-steps':
+                        fixed_data.show_steps = true;
+                        true_iface_kind = 'workflow';
+                        break;
+                    case 'service-methods':
+                        fixed_data.active_method = 1;
+                        true_iface_kind = 'service';
+                        break;
+                    case 'mapper-code-methods':
+                        fixed_data.active_method = 1;
+                        true_iface_kind = 'mapper-code';
+                        break;
+                    default:
+                        true_iface_kind = iface_kind;
                 }
-                vscode.commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+                vscode.commands.executeCommand('qorus.editInterface', fixed_data, true_iface_kind);
             }
         });
         context.subscriptions.push(disposable);
