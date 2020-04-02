@@ -101,12 +101,13 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
         });
         context.subscriptions.push(disposable);
     });
-    disposable = commands.registerCommand('qorus.views.editWorkflowSteps', (data: any) =>
-    {
-        const code_info = projects.currentProjectCodeInfo();
-        const fixed_data = code_info.fixData(data.data);
+    disposable = commands.registerCommand('qorus.views.editWorkflowSteps', (data: any) => {
+        const code_info = projects.projectCodeInfo(data.data?.yaml_file);
+        const fixed_data = code_info?.fixData(data.data);
         fixed_data.show_steps = true;
-        commands.executeCommand('qorus.editInterface', fixed_data, 'workflow');
+        if (fixed_data) {
+            commands.executeCommand('qorus.editInterface', fixed_data, 'workflow');
+        }
     });
     context.subscriptions.push(disposable);
 
