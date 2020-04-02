@@ -4,13 +4,7 @@ import { isArray, omit, reduce, size } from 'lodash';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 
-import {
-    Button,
-    ButtonGroup,
-    Dialog,
-    Intent,
-    Tooltip
-} from '@blueprintjs/core';
+import { Button, ButtonGroup, Dialog, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
@@ -93,6 +87,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             });
         }
     }, [showSteps]);
+
     return (
         <CreatorWrapper>
             {!showSteps && (

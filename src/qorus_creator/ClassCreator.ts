@@ -13,7 +13,8 @@ import * as msg from '../qorus_message';
 
 
 class ClassCreator extends InterfaceCreator {
-    editImpl({data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id}) {
+    editImpl = params => {
+        const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
         this.lang = data.lang || 'qore';
 
         let template: string;
@@ -52,17 +53,22 @@ class ClassCreator extends InterfaceCreator {
         }
 
         this.has_code = !!template;
-
-        imports = imports || [];
+        this.had_code = iface_kind === 'workflow' ? !!orig_data?.['class-name'] : this.has_code;
 
         this.setPaths(data, orig_data, suffix, iface_kind);
 
-        if (iface_kind === 'step' && data['base-class-name']) {
-            data = {
-                ...data,
-                ...stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
-            };
+        const {ok, message} = this.checkExistingInterface(params);
+        if (!ok) {
+            qorus_webview.postMessage({
+                action: `creator-${params.edit_type}-interface-complete`,
+                request_id: params.request_id,
+                ok,
+                message
+            });
+            return;
         }
+
+        imports = imports || [];
 
         let triggers: string[] = [];
         let connections_within_class: string = '';
@@ -76,13 +82,13 @@ class ClassCreator extends InterfaceCreator {
 
         let methods = '';
         let contents: string;
-        let message: string;
+        let info: string;
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
             case 'recreate':
                 if (!this.has_code) {
-                    message = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
+                    info = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;
                 }
 
@@ -122,21 +128,19 @@ class ClassCreator extends InterfaceCreator {
                     connections_extra_class
                 });
 
-                message = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
+                info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
                 if (!this.has_code) {
                     break;
                 }
 
-                if (this.edit_info) {
+                if (this.had_code) {
                     code_lines = this.edit_info.text_lines;
                     code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                     contents = code_lines.join('\n');
                 } else {
-                    // this case happens when on create it was a codeless interfaces (this.has_code = false)
-                    // but on edit a class_name or base_class_name was added, so now there is a new code file
-                    // (this.edit_info is undefined since orig_file_path is undefined)
+                    // has code now, but didn't have before this edit
                     contents = this.fillTemplate(template, [...imports, ...more_imports], {
                         class_name: data['class-name'],
                         base_class_name: data['base-class-name'],
@@ -153,7 +157,10 @@ class ClassCreator extends InterfaceCreator {
 
         let headers = this.createHeaders({
             type: iface_kind,
-            ...data,
+            ... data,
+            ... iface_kind === 'step' && data['base-class-name']
+                ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
+                : {},
             code: this.has_code ? this.file_name : undefined
         });
 
@@ -182,8 +189,8 @@ class ClassCreator extends InterfaceCreator {
             });
         }
 
-        if (message) {
-            msg.info(message);
+        if (info) {
+            msg.info(info);
         }
 
         delete data.yaml_file;

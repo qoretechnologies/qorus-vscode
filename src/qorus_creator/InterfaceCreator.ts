@@ -1,7 +1,6 @@
 import { workspace, window, Position } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { qorus_webview } from '../QorusWebview';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { field } from './common_constants';
@@ -25,11 +24,13 @@ export abstract class InterfaceCreator {
     protected file_base: string;
     protected yaml_file_base: string;
     protected orig_file_path: string;
+    protected orig_yaml_file_path: string;
     protected code_info: QorusProjectCodeInfo;
     protected edit_info: any;
+    protected has_code = false;
+    protected had_code = false;
 
     protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
-        this.orig_file_path = undefined;
         this.edit_info = undefined;
         this.suffix = suffix;
 
@@ -76,25 +77,22 @@ export abstract class InterfaceCreator {
         }
 
         if (orig_target_dir && orig_target_file) {
-            this.orig_file_path = path.join(orig_target_dir, orig_target_file);
-            this.edit_info = this.code_info.editInfo(this.orig_file_path);
+            const orig_path = path.join(orig_target_dir, orig_target_file);
+            if (this.had_code) {
+                this.orig_file_path = orig_path;
+                this.orig_yaml_file_path = this.code_info.yaml_info.yamlDataBySrcFile(orig_path)?.yaml_file;
+                this.edit_info = this.code_info.editInfo(orig_path);
+            } else {
+                this.orig_yaml_file_path = orig_path;
+            }
+        } else {
+            this.orig_file_path = undefined;
+            this.orig_yaml_file_path = undefined;
         }
     }
 
-    protected has_code = false;
-
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
-        const {ok, message} = this.checkExistingInterface(params);
-        if (!ok) {
-            qorus_webview.postMessage({
-                action: `creator-${params.edit_type}-interface-complete`,
-                request_id: params.request_id,
-                ok,
-                message
-            });
-            return;
-        }
 
         // temporary solution: editing an interface with class connections leads to creating it anew
         // (until editing is implemented)
@@ -184,19 +182,20 @@ export abstract class InterfaceCreator {
         });
     }
 
-    private checkExistingInterface = (params: any): any => {
-        const { iface_kind, edit_type, data: {name, version}, orig_data, } = params;
+    protected checkExistingInterface = (params: any): any => {
+        const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
+        const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
 
         const with_version = types_with_version.includes(iface_kind);
-        const search_name = with_version ? `${name}:${version || default_version}` : name;
+
+        const iface_name = with_version ? `${name}:${version || default_version}` : name;
+        const orig_iface_name = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
 
         switch (edit_type) {
             case 'create':
                 break;
             case 'edit':
-                const {name: orig_name, version: orig_version} = orig_data || {};
-                const orig_name_version = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
-                if (search_name === orig_name_version) {
+                if (iface_name === orig_iface_name && class_name === orig_class_name) {
                     return {ok: true};
                 }
                 break;
@@ -204,9 +203,17 @@ export abstract class InterfaceCreator {
                 return {ok: true};
         }
 
-        const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, search_name);
-        if (iface) {
-            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${search_name}`};
+        if (iface_name !== orig_iface_name) {
+            const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
+            if (iface) {
+                return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
+            }
+        }
+        if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
+            const iface = this.code_info.yaml_info.yamlDataByClass(class_name);
+            if (iface) {
+                return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
+            }
         }
         return {ok: true};
     }
@@ -586,9 +593,9 @@ export abstract class InterfaceCreator {
                     case 'text-resource':
                     case 'bin-resource':
                     case 'template':
-                        for (let item of value) {
-                            result += `${list_indent}${item}\n`;
-                        }
+                        value.forEach(({name}) => {
+                            result += `${list_indent}${workspace.asRelativePath(name, false)}\n`;
+                        });
                         break;
                     case 'steps':
                         const lines = JSON.stringify(value, null, 4).split('\n');
@@ -683,38 +690,22 @@ export abstract class InterfaceCreator {
     }
 
     protected deleteOrigFilesIfDifferent() {
-        if (!this.orig_file_path) {
-            return;
+        let files_to_delete: string[] = [];
+        if (this.orig_file_path && this.orig_file_path !== this.file_path) {
+            files_to_delete.push(this.orig_file_path);
+        }
+        if (this.orig_yaml_file_path && this.orig_yaml_file_path !== this.yaml_file_path) {
+            files_to_delete.push(this.orig_yaml_file_path);
         }
 
-        let orig_code_file;
-        let orig_yaml_file;
-
-        if (this.has_code) {
-            if (this.orig_file_path === this.file_path) {
-                return;
-            }
-
-            orig_code_file = this.orig_file_path;
-            orig_yaml_file = (this.code_info.yaml_info.yamlDataBySrcFile(this.orig_file_path) || {}).yaml_file;
-        } else {
-            if (this.orig_file_path === this.yaml_file_path) {
-                return;
-            }
-
-            orig_yaml_file = this.orig_file_path;
-        }
-
-        [orig_code_file, orig_yaml_file].forEach(file => {
-            if (file) {
-                fs.unlink(file, err => {
-                    if (err) {
-                        msg.error(t`RemoveFileError ${file} ${err.toString()}`);
-                        return;
-                    }
-                    msg.info(t`OrigFileRemoved ${file}`);
-                });
-            }
+        files_to_delete.forEach(file => {
+            fs.unlink(file, err => {
+                if (err) {
+                    msg.error(t`RemoveFileError ${file} ${err.toString()}`);
+                    return;
+                }
+                msg.info(t`OrigFileRemoved ${file}`);
+            });
         });
     }
 
