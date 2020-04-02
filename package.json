@@ -625,7 +625,7 @@
             },
             {
                 "command": "qorus.views.editClass",
-                "title": "Edit Class Metadata",
+                "title": "Edit Class",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -634,7 +634,7 @@
             },
             {
                 "command": "qorus.views.editGroup",
-                "title": "Edit Group Metadata",
+                "title": "Edit Group",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -643,7 +643,7 @@
             },
             {
                 "command": "qorus.views.editEvent",
-                "title": "Edit Event Metadata",
+                "title": "Edit Event",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -652,7 +652,7 @@
             },
             {
                 "command": "qorus.views.editType",
-                "title": "Edit Type Metadata",
+                "title": "Edit Type",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -661,7 +661,7 @@
             },
             {
                 "command": "qorus.views.editQueue",
-                "title": "Edit Queue Metadata",
+                "title": "Edit Queue",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -670,7 +670,7 @@
             },
             {
                 "command": "qorus.views.editJob",
-                "title": "Edit Job Metadata",
+                "title": "Edit Job",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -679,7 +679,7 @@
             },
             {
                 "command": "qorus.views.editMapper",
-                "title": "Edit Mapper Metadata",
+                "title": "Edit Mapper",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -688,7 +688,7 @@
             },
             {
                 "command": "qorus.views.editMapperCode",
-                "title": "Edit Mapper Code Metadata",
+                "title": "Edit Mapper Code",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -697,7 +697,7 @@
             },
             {
                 "command": "qorus.views.editService",
-                "title": "Edit Service Metadata",
+                "title": "Edit Service",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -706,7 +706,7 @@
             },
             {
                 "command": "qorus.views.editStep",
-                "title": "Edit Step Metadata",
+                "title": "Edit Step",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -715,7 +715,7 @@
             },
             {
                 "command": "qorus.views.editWorkflow",
-                "title": "Edit Workflow Metadata",
+                "title": "Edit Workflow",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
