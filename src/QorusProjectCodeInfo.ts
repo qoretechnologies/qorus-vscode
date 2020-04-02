@@ -68,6 +68,10 @@ export class QorusProjectCodeInfo {
         return this.yaml_files_info;
     }
 
+    getProject(): QorusProject {
+        return this.project;
+    }
+
     addText(document: vscode.TextDocument) {
         const file = document.uri.fsPath;
 
@@ -321,7 +325,7 @@ export class QorusProjectCodeInfo {
 
     private notifyTrees() {
         for (const key in this.notif_trees) {
-            this.notif_trees[key].treeNotify();
+            this.notif_trees[key].treeNotify(this);
         }
     }
 
@@ -329,21 +333,13 @@ export class QorusProjectCodeInfo {
         return this.file_tree;
     }
 
-    interfaceDataByFile(file_path): Promise<any> {
-        return this.waitForPending(['yaml']).then(() => {
-            return this.yaml_info.yamlDataByFilePath(file_path);
-        });
-    }
-
-    interfaceDataByType(iface_kind): Promise<any[]> {
-        return this.waitForPending(['yaml']).then(() => {
-            const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
-            const interfaces = Object.keys(yaml_data).map(name => ({
-                name,
-                data: yaml_data[name]
-            }));
-            return sortBy(interfaces, ['name']);
-        });
+    interfaceDataByType = iface_kind => {
+        const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
+        const interfaces = Object.keys(yaml_data).map(name => ({
+            name,
+            data: yaml_data[name]
+        }));
+        return sortBy(interfaces, ['name']);
     }
 
     getListOfInterfaces = iface_kind => {

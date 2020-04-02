@@ -93,9 +93,11 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
     {
         const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
-            const code_info = projects.currentProjectCodeInfo();
-            const fixed_data = code_info.fixData(data.data);
-            commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+            const code_info = projects.projectCodeInfo(data.data?.yaml_file);
+            const fixed_data = code_info?.fixData(data.data);
+            if (fixed_data) {
+                commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+            }
         });
         context.subscriptions.push(disposable);
     });

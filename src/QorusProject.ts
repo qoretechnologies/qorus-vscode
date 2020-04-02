@@ -376,15 +376,18 @@ class QorusProjects {
         if (!project_folder) {
             return undefined;
         }
-        if (!(project_folder in this.projects)) {
+        if (!this.projects[project_folder]) {
             this.projects[project_folder] = new QorusProject(project_folder);
         }
         return this.projects[project_folder];
     }
 
+    projectCodeInfo(file_path): QorusProjectCodeInfo | undefined {
+        return this.getProject(vscode.Uri.file(file_path))?.code_info;
+    }
+
     currentProjectCodeInfo(): QorusProjectCodeInfo | undefined {
-        const current_project = this.getProject();
-        return current_project && current_project.code_info;
+        return this.getProject()?.code_info;
     }
 
     currentInterfaceInfo(): InterfaceInfo | undefined {
@@ -397,24 +400,37 @@ class QorusProjects {
             return this.current_project_folder;
         }
 
-        if (!vscode.workspace) {
-            return undefined;
+        const workspace_folders = vscode.workspace?.workspaceFolders || [];
+
+        switch (workspace_folders.length) {
+            case 0:
+                return undefined;
+            case 1:
+                return workspace_folders[0].uri.fsPath;
+            default:
+                if (!uri) {
+                    const editor = vscode.window.activeTextEditor;
+                    uri = editor?.document.uri;
+                }
+                if (uri) {
+                    const workspace_folder = vscode.workspace.getWorkspaceFolder(uri);
+                    return workspace_folder?.uri.fsPath;
+                }
         }
 
-        if (!uri) {
-            const editor = vscode.window.activeTextEditor;
-            uri = editor ? editor.document.uri : undefined;
-        }
+        return undefined;
+    }
 
-        if (!uri) {
-            if (vscode.workspace.workspaceFolders.length == 1) {
-                return vscode.workspace.workspaceFolders[0].uri.fsPath;
-            }
-            return undefined;
-        }
+    registerTreeForNotifications = (name: string, tree: any) => {
+        Object.keys(this.projects).forEach(project_folder => {
+            this.projects[project_folder].code_info.registerTreeForNotifications(name, tree);
+        });
+    }
 
-        const workspace_folder: vscode.WorkspaceFolder | undefined = vscode.workspace.getWorkspaceFolder(uri);
-        return workspace_folder ? workspace_folder.uri.fsPath : undefined;
+    unregisterTreeForNotifications = (name: string) => {
+        Object.keys(this.projects).forEach(project_folder => {
+            this.projects[project_folder].code_info.unregisterTreeForNotifications(name);
+        });
     }
 }
 

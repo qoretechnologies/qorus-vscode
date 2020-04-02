@@ -44,7 +44,7 @@ export abstract class InterfaceCreator {
                 msg.error(t`TargetDirUnknown`);
                 return;
             }
-            this.target_dir = projects.getProject()?.dirForTypePath(data.path);
+            this.target_dir = this.code_info.getProject()?.dirForTypePath(data.path);
             if (!this.target_dir) {
                 return;
             }

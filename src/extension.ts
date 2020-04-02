@@ -1,5 +1,6 @@
 import * as child_process from 'child_process';
 import { t } from 'ttag';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 import * as msg from './qorus_message';
@@ -149,8 +150,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     interface_tree.setExtensionPath(context.extensionPath);
 
-    const code_info = projects.currentProjectCodeInfo();
-    code_info && code_info.registerTreeForNotifications('interface-tree', interface_tree);
+    projects.registerTreeForNotifications('interface-tree', interface_tree);
 
     registerInterfaceTreeCommands(context);
     disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', interface_tree);
@@ -185,7 +185,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     vscode.window.onDidChangeActiveTextEditor(
         editor => {
-            if (editor && editor.document && editor.document.uri.scheme === 'file') {
+            if (editor?.document?.uri.scheme === 'file') {
                 updateQorusTree(editor.document.uri, false);
             }
         },
@@ -195,7 +195,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     vscode.workspace.onDidSaveTextDocument(
         document => {
-            if (document.fileName.indexOf(config_filename) > -1) {
+            if (path.basename(document.fileName) === config_filename) {
                 updateQorusTree(document.uri);
             }
         },
@@ -205,8 +205,7 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-    const code_info = projects.currentProjectCodeInfo();
-    code_info && code_info.unregisterTreeForNotifications('interface-tree');
+    projects.unregisterTreeForNotifications('interface-tree');
 }
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {
