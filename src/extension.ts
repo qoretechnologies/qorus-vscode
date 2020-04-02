@@ -109,14 +109,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow'].forEach(iface_kind => {
         const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
-        disposable = vscode.commands.registerCommand(command, (resource_data: any) => {
-            msg.debug({explorerEdit: resource_data});
-            const code_info = projects.currentProjectCodeInfo();
-            const data = code_info.yaml_info.yamlDataBySrcFile(resource_data.fsPath);
-            msg.debug({data});
-            const fixed_data = code_info.fixData(data);
-            msg.debug({fixed_data});
-            vscode.commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+        disposable = vscode.commands.registerCommand(command, (resource: any) => {
+            const code_info = projects.projectCodeInfo(resource.fsPath);
+            const data = code_info?.yaml_info.yamlDataBySrcFile(resource.fsPath);
+            const fixed_data = code_info?.fixData(data);
+            if (fixed_data) {
+                vscode.commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+            }
         });
         context.subscriptions.push(disposable);
     });
