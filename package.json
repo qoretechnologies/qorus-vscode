@@ -128,11 +128,6 @@
                 "category": "Qorus"
             },
             {
-                "command": "qorus.deployDir",
-                "title": "Deploy Directory",
-                "category": "Qorus"
-            },
-            {
                 "command": "qorus.openUrlInExternalBrowser",
                 "title": "Open URL in an External Tool",
                 "category": "Qorus"
@@ -140,11 +135,6 @@
             {
                 "command": "qorus.testCurrentFile",
                 "title": "Execute Current Test File",
-                "category": "Qorus"
-            },
-            {
-                "command": "qorus.explorer.testFile",
-                "title": "Execute Test File",
                 "category": "Qorus"
             },
             {
@@ -256,6 +246,16 @@
             {
                 "command": "qorus.explorer.deployInterface",
                 "title": "Deploy Interface",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployDir",
+                "title": "Deploy Directory",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.testFile",
+                "title": "Execute Test File",
                 "category": "Qorus"
             },
             {
@@ -1069,7 +1069,7 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.deployDir",
+                    "command": "qorus.explorer.deployDir",
                     "group": "2_workspace@9"
                 },
                 {

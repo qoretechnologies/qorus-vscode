@@ -4,6 +4,7 @@ import { t } from 'ttag';
 import { dash2Pascal } from './qorus_utils';
 import { projects } from './QorusProject';
 import { deployer } from './QorusDeploy';
+import { tester } from './QorusTest';
 import * as msg from './qorus_message';
 
 export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) => {
@@ -76,4 +77,20 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
         });
         context.subscriptions.push(disposable);
     });
+
+    disposable = vscode.commands.registerCommand('qorus.explorer.deployDir', (uri: vscode.Uri) => {
+        vscode.window.showWarningMessage(
+            t`ConfirmDeployDirectory ${uri.fsPath}`, t`Yes`, t`No`
+        ).then(
+            selection => {
+                if (selection === t`Yes`) {
+                    deployer.deployDir(uri);
+                }
+            }
+        );
+    });
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.explorer.testFile', (uri: vscode.Uri) => tester.testFile(uri));
+    context.subscriptions.push(disposable);
 };

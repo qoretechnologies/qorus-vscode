@@ -37,13 +37,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                                                () => deployer.deployCurrentFile());
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.deployDir', (uri: vscode.Uri) => deployer.deployDir(uri));
-    context.subscriptions.push(disposable);
-
     disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () => tester.testCurrentFile());
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.testFile', (uri: vscode.Uri) => tester.testFile(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) => tester.testDir(uri));
