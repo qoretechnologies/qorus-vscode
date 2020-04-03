@@ -218,7 +218,7 @@ export abstract class InterfaceCreator {
             }
         }
         if (yaml_file_path !== orig_yaml_file_path) {
-            const iface = this.code_info.yaml_info.yamlDataByFilePath(yaml_file_path);
+            const iface = this.code_info.yaml_info.yamlDataByYamlFile(yaml_file_path);
             if (iface) {
                 return {ok: false, message: t`FileAlreadyExists ${yaml_file_path}`};
             }

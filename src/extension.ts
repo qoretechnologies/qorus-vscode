@@ -22,7 +22,8 @@ import { instance_tree } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
 import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
-import { registerInterfaceTreeCommands } from './qorus_interface_tree';
+import { registerQorusExplorerCommands } from './qorus_explorer_commands';
+import { registerQorusViewsCommands } from './qorus_views_commands';
 
 qorus_locale.setLocale();
 
@@ -34,9 +35,6 @@ export async function activate(context: vscode.ExtensionContext) {
     let disposable;
     disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
                                                                () => deployer.deployCurrentFile());
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.deployFile', (uri: vscode.Uri) => deployer.deployFile(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.deployDir', (uri: vscode.Uri) => deployer.deployDir(uri));
@@ -107,38 +105,6 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(disposable);
     });
 
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow',
-        'workflow-steps', 'service-methods', 'mapper-code-methods'].forEach(iface_kind =>
-    {
-        const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
-        disposable = vscode.commands.registerCommand(command, (resource: any) => {
-            const code_info = projects.projectCodeInfo(resource.fsPath);
-            const data = code_info?.yaml_info.yamlDataBySrcFile(resource.fsPath);
-            const fixed_data = code_info?.fixData(data);
-            if (fixed_data) {
-                let true_iface_kind;
-                switch (iface_kind) {
-                    case 'workflow-steps':
-                        fixed_data.show_steps = true;
-                        true_iface_kind = 'workflow';
-                        break;
-                    case 'service-methods':
-                        fixed_data.active_method = 1;
-                        true_iface_kind = 'service';
-                        break;
-                    case 'mapper-code-methods':
-                        fixed_data.active_method = 1;
-                        true_iface_kind = 'mapper-code';
-                        break;
-                    default:
-                        true_iface_kind = iface_kind;
-                }
-                vscode.commands.executeCommand('qorus.editInterface', fixed_data, true_iface_kind);
-            }
-        });
-        context.subscriptions.push(disposable);
-    });
-
     disposable = vscode.commands.registerCommand('qorus.editInterface',
                                                  (data: any, iface_kind: string) =>
     {
@@ -163,12 +129,14 @@ export async function activate(context: vscode.ExtensionContext) {
             creator.deleteMethod(data, iface_kind));
     context.subscriptions.push(disposable);
 
+    registerQorusExplorerCommands(context);
+    registerQorusViewsCommands(context);
+
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', instance_tree);
     context.subscriptions.push(disposable);
 
     interface_tree.setExtensionPath(context.extensionPath);
 
-    registerInterfaceTreeCommands(context);
     disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', interface_tree);
     context.subscriptions.push(disposable);
 

@@ -2126,3 +2126,6 @@ msgstr "You have unsaved work, are you sure you want to reset?"
 
 msgid "ConfigItemUpdatedSuccessfully ${ name }"
 msgstr "Data of config item ${ name } has been stored successfully"
+
+msgid "NotAQorusInterfaceFile ${ file }"
+msgstr "${ file } is not a Qorus interface file"

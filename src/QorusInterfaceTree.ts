@@ -338,7 +338,7 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
         const files = this.fileTree.files.sort( (a, b) => a.name.localeCompare(b.name) );
         for (const f of files) {
             if (f.name.endsWith('.yaml')) {
-                const data = this.code_info.yaml_info.yamlDataByFilePath(join(f.abs_path, f.name)) || {};
+                const data = this.code_info.yaml_info.yamlDataByYamlFile(join(f.abs_path, f.name)) || {};
                 switch (data.type) {
                     case 'class':
                         children.push(new QorusTreeClassNode(this.code_info, data.name, data));

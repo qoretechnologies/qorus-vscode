@@ -9,7 +9,7 @@ import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { deployer } from './QorusDeploy';
 
-export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
+export const registerQorusViewsCommands = (context: ExtensionContext) => {
     let disposable;
 
     // view switching commands
@@ -54,7 +54,7 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
                         return;
                     }
 
-                    if (!data.data || !data.data.yaml_file) {
+                    if (!data.data?.yaml_file) {
                         msg.error(t`MissingDeploymentData`);
                     }
 
