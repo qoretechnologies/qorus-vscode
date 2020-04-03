@@ -28,7 +28,6 @@ const THROWS = 'throws Throwable';
 const indent1 = ' '.repeat(4);
 const indent2 = indent1.repeat(2);
 const indent3 = indent1.repeat(3);
-const indent4 = indent1.repeat(4);
 
 const isArray = trigger => trigger.signature.indexOf(' array(') > -1;
 const isValidation = trigger => trigger.signature.indexOf(' validation(') > -1;
@@ -89,7 +88,7 @@ export class ClassConnections {
                     ? `public void ${trigger}() ${THROWS}`
                     : `${trigger}()`
                 : this.lang === 'java'
-                    ? `public Object ${trigger}(Map<String, Object> ${CONN_DATA}) ${THROWS}`
+                    ? `public Object ${trigger}(Object ${CONN_DATA}) ${THROWS}`
                     : `auto ${trigger}(auto ${CONN_DATA})`;
 
             return {
@@ -163,7 +162,7 @@ export class ClassConnections {
         let imports = [
             'import org.qore.jni.QoreObject;',
             'import java.util.Map;',
-            'import java.util.HashMap;',
+            'import org.qore.jni.Hash;',
             'import java.lang.reflect.Method;'
         ];
 
@@ -268,14 +267,14 @@ export class ClassConnections {
                                       .some(prefixed_class => this.classes[prefixed_class].class_lang === 'qore');
 
         code += `${indent1}// map of prefixed class names to class instances\n` +
-            `${indent1}private final HashMap<String, Object> ${CONN_CLASS_MAP.java};\n\n` +
+            `${indent1}private final Hash ${CONN_CLASS_MAP.java};\n\n` +
             `${indent1}${this.connClassName}() ${THROWS} {\n`;
 
         if (some_qore_class) {
             code += `${indent2}UserApi.startCapturingObjects();\n`;
         }
 
-        code += `${indent2}${CONN_CLASS_MAP.java} = new HashMap<String, Object>() {\n${indent3}{\n`;
+        code += `${indent2}${CONN_CLASS_MAP.java} = new Hash();\n`;
 
         for (const prefixed_class in this.classes) {
             const class_data = this.classes[prefixed_class];
@@ -283,14 +282,13 @@ export class ClassConnections {
 
             if (class_data.class_lang === 'qore') {
                 const prefix_arg = class_data.prefix ? `, "${class_data.prefix}"` : '';
-                code += `${indent4}put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
+                code += `${indent2}${CONN_CLASS_MAP.java}.put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
             } else {
                 const prefix_arg = class_data.prefix ? `"${class_data.prefix}"` : '';
-                code += `${indent4}put("${prefixed_class}", new ${class_data.connector_class}(${prefix_arg}));\n`;
+                code += `${indent2}${CONN_CLASS_MAP.java}.put("${prefixed_class}", new ${class_data.connector_class}(${prefix_arg}));\n`;
             }
         }
 
-        code += `${indent3}}\n${indent2}};\n`;
         if (some_qore_class) {
             code += `${indent2}UserApi.stopCapturingObjects();\n`;
         }
@@ -347,7 +345,7 @@ export class ClassConnections {
 
             if (connector.mapper) {
                 code += `\n${indent2}${CONN_MAPPER} = UserApi::getMapper("${connector.mapper.split(':')[0]}");\n` +
-                `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData(${CONN_DATA});\n`;
+                `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAuto(${CONN_DATA});\n`;
             }
 
             if (connector.type === 'event') {
@@ -384,7 +382,7 @@ export class ClassConnections {
 
             if (connector.mapper) {
                 code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}");\n` +
-                `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapData((Map<String, Object>)${CONN_DATA});\n`;
+                `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAuto(${CONN_DATA});\n`;
             }
 
             if (connector.type === 'event') {
@@ -446,10 +444,8 @@ export class ClassConnections {
         let params_str = 'null';
         if (trigger.connections.length) {
             if (trigger.arg_names?.length) { // for steps
-                code += `${indent2}Map<String, Object> ${CONN_DATA} = new HashMap<String, Object>() {\n` +
-                `${indent3}{\n` +
-                trigger.arg_names.map(arg_name => `${indent4}put("${arg_name}", ${arg_name});\n`).join('\n') +
-                `${indent3}}\n${indent2}};\n`;
+                code += `${indent2}Hash ${CONN_DATA} = new Hash();\n` +
+                trigger.arg_names.map(arg_name => `${indent2}${CONN_DATA}.put("${arg_name}", ${arg_name});\n`).join('\n');
 
                 params_str = CONN_DATA;
             }
