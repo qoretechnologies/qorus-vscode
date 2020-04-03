@@ -143,11 +143,6 @@
                 "category": "Qorus"
             },
             {
-                "command": "qorus.createOther",
-                "title": "Create Other Entity",
-                "category": "Qorus"
-            },
-            {
                 "command": "qorus.webview",
                 "title": "Webview",
                 "category": "Qorus",
@@ -356,6 +351,11 @@
                     "dark": "images/icons/dark/create-new.svg",
                     "light": "images/icons/light/create-new.svg"
                 }
+            },
+            {
+                "command": "qorus.createOther",
+                "title": "Create Other Entity",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.views.deleteClass",
@@ -1064,18 +1064,23 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createType",
                     "group": "2_workspace@8"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.explorer.deployDir",
+                    "command": "qorus.createOther",
                     "group": "2_workspace@9"
                 },
                 {
                     "when": "explorerResourceIsFolder",
+                    "command": "qorus.explorer.deployDir",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
                     "command": "qorus.testDir",
-                    "group": "2_workspace@10"
+                    "group": "2_workspace@21"
                 },
                 {
                     "when": "resourceExtname == .qsd",
