@@ -20,7 +20,9 @@ export class QorusProjectYamlInfo {
         : this.yaml_data[this.src_2_yaml[file]];
 
     private name_2_yaml: any = {};
+    private class_2_yaml: any = {};
     yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
+    yamlDataByClass = (type, class_name) => this.yaml_data[this.class_2_yaml[type][class_name]];
     yamlDataByType = type => {
         let ret_val = {};
         for (const name in this.name_2_yaml[type] || {}) {
@@ -28,9 +30,6 @@ export class QorusProjectYamlInfo {
         }
         return ret_val;
     }
-
-    private class_2_yaml: any = {};
-    yamlDataByClass = class_name => this.yaml_data[this.class_2_yaml[class_name]];
 
     private yaml_2_src: any = {};
 
@@ -85,12 +84,12 @@ export class QorusProjectYamlInfo {
 
         this.yaml_2_src = {};
         this.src_2_yaml = {};
-        this.class_2_yaml = {};
         this.authors = {};
 
-        for (const type of types) {
+        types.forEach(type => {
             this.name_2_yaml[type] = {};
-        }
+            this.class_2_yaml[type] = {};
+        });
 
         this.inheritance_pairs = {};
         this.java_inheritance_pairs = {};
@@ -190,7 +189,7 @@ export class QorusProjectYamlInfo {
         const class_name = ['class', 'mapper-code'].includes(yaml_data.type) ? yaml_data.name : yaml_data['class-name'];
 
         if (class_name) {
-            this.class_2_yaml[class_name] = file;
+            this.class_2_yaml[yaml_data.type][class_name] = file;
         }
 
         const base_class_name = yaml_data['base-class-name'];

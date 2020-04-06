@@ -203,9 +203,9 @@ export abstract class InterfaceCreator {
             }
         }
         if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
-            const iface = this.code_info.yaml_info.yamlDataByClass(class_name);
+            const iface = this.code_info.yaml_info.yamlDataByClass(iface_kind, class_name);
             if (iface) {
-                return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
+                return {ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}`};
             }
         }
 
