@@ -8,7 +8,7 @@ import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import { types_with_version, default_version } from '../qorus_constants';
 import * as jsyaml from 'js-yaml';
-import { quotesIfNum, removeDuplicates, capitalize } from '../qorus_utils';
+import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier } from '../qorus_utils';
 import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
@@ -182,6 +182,25 @@ export abstract class InterfaceCreator {
         });
     }
 
+    protected checkData = (params: any): any => {
+        const items_to_check = ['checkExistingInterface', 'checkClassName'];
+        for (const item_to_check of items_to_check) {
+            const {ok, message} = this[item_to_check](params);
+            if (!ok) {
+                return {ok, message};
+            }
+        }
+        return {ok: true};
+    }
+
+    protected checkClassName = (params: any): any => {
+        const { data: { 'class-name': class_name } } = params;
+        if (!class_name || isValidIdentifier(class_name)) {
+            return {ok: true};
+        }
+        return {ok: false, message: t`InvalidClassName ${class_name}`};
+    }
+
     protected checkExistingInterface = (params: any): any => {
         const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
 
@@ -203,9 +222,9 @@ export abstract class InterfaceCreator {
             }
         }
         if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
-            const iface = this.code_info.yaml_info.yamlDataByClass(class_name);
+            const iface = this.code_info.yaml_info.yamlDataByClass(iface_kind, class_name);
             if (iface) {
-                return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
+                return {ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}`};
             }
         }
 

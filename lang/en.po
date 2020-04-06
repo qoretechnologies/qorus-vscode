@@ -2103,8 +2103,8 @@ msgstr "Allowed values property is not supported for the selected type"
 msgid "IfaceAlreadyExists ${ iface } ${ name }"
 msgstr "${ iface } with name ${ name } already exists"
 
-msgid "ClassAlreadyExists ${ name }"
-msgstr "Class ${ name } already exists"
+msgid "ClassAlreadyExists ${ iface } ${ name }"
+msgstr "${ iface } with class ${ name } already exists"
 
 msgid "FileAlreadyExists ${ file }"
 msgstr "File ${ file } already exists"
@@ -2129,3 +2129,6 @@ msgstr "Data of config item ${ name } has been stored successfully"
 
 msgid "NotAQorusInterfaceFile ${ file }"
 msgstr "${ file } is not a Qorus interface file"
+
+msgid "InvalidClassName ${ name }"
+msgstr "Invalid class name: ${ name }"
