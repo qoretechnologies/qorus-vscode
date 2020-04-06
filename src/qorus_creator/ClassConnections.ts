@@ -182,28 +182,28 @@ export class ClassConnections {
     protected constructorCodeQore = () =>
         `${indent1}private {\n` +
         `${indent2}${GENERATED.qore.begin}\n` +
-        `${indent2}${this.connClassName} ${CONN_MEMBER.qore};\n` +
+        `${indent2}${this.connClassName()} ${CONN_MEMBER.qore};\n` +
         `${indent2}${GENERATED.qore.end}\n` +
         `${indent1}}\n\n` +
         `${indent1}constructor() {\n` +
         `${indent2}${GENERATED.qore.begin}\n` +
-        `${indent2}${CONN_MEMBER.qore} = new ${this.connClassName}();\n` +
+        `${indent2}${CONN_MEMBER.qore} = new ${this.connClassName()}();\n` +
         `${indent2}${GENERATED.qore.end}\n` +
         `${indent1}}\n`;
 
     protected constructorCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
-        `${indent1}${this.connClassName} ${CONN_MEMBER.java};\n` +
+        `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
         `${indent1}${GENERATED.java.end}\n` +
         `${indent1}\n\n` +
         `${indent1}${this.class_name}() ${THROWS} {\n` +
         `${indent2}${GENERATED.java.begin}\n` +
-        `${indent2}${CONN_MEMBER.java} = new ${this.connClassName}();\n` +
+        `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
         `${indent2}${GENERATED.java.end}\n` +
         `${indent1}}\n`;
 
     protected extraClassCodeQore = (event_based_connections) => {
-        let code = `class ${this.connClassName}`;
+        let code = `class ${this.connClassName()}`;
         if (event_based_connections.length) {
             code += ` inherits ${CONN_BASE_CLASS} {`;
             code += ` # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
@@ -235,7 +235,7 @@ export class ClassConnections {
 
         code += `${indent1}}\n\n` +
             `${indent1}auto ${CONN_CALL_METHOD}(string prefixed_class, string method) {\n` +
-            `${indent2}UserApi::logDebug("${this.connClassName}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class);\n` +
+            `${indent2}UserApi::logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class);\n` +
             `${indent2}return call_object_method_args(${CONN_CLASS_MAP.qore}{prefixed_class}, method, argv);\n` +
             `${indent1}}\n`;
 
@@ -255,7 +255,7 @@ export class ClassConnections {
     }
 
     protected extraClassCodeJava = (event_based_connections) => {
-        let code = `class ${this.connClassName}`;
+        let code = `class ${this.connClassName()}`;
         if (event_based_connections.length) {
             code += ` implements ${CONN_BASE_CLASS} {` +
                 ` // has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
@@ -268,7 +268,7 @@ export class ClassConnections {
 
         code += `${indent1}// map of prefixed class names to class instances\n` +
             `${indent1}private final Hash ${CONN_CLASS_MAP.java};\n\n` +
-            `${indent1}${this.connClassName}() ${THROWS} {\n`;
+            `${indent1}${this.connClassName()}() ${THROWS} {\n`;
 
         if (some_qore_class) {
             code += `${indent2}UserApi.startCapturingObjects();\n`;
@@ -304,7 +304,7 @@ export class ClassConnections {
         code += `${indent1}}\n\n` +
             `${indent1}Object callClassWithPrefixMethod(final String prefixedClass, final String methodName,\n` +
             `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Object ${CONN_DATA}) ${THROWS} {\n` +
-            `${indent2}UserApi.logInfo("${this.connClassName}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
+            `${indent2}UserApi.logInfo("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
             `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +
             `${indent2}if (object instanceof QoreObject) {\n` +
             `${indent3}QoreObject qoreObject = (QoreObject)object;\n` +
