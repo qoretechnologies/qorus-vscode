@@ -331,8 +331,8 @@ msgstr "Set as active Qorus instance"
 msgid "GettingInfo ${ url }"
 msgstr "Getting info from ${ url } ..."
 
-msgid "GettingInfoTimedOut ${ url }"
-msgstr "Getting info from ${ url } timed out"
+msgid "RequestTimedOut ${ url }"
+msgstr "Request timed out: ${ url }"
 
 msgid "ConnectionRefused ${ url }"
 msgstr "Connection to ${ url } refused"
@@ -2132,3 +2132,12 @@ msgstr "${ file } is not a Qorus interface file"
 
 msgid "InvalidClassName ${ name }"
 msgstr "Invalid class name: ${ name }"
+
+msgid "ActiveQorusLost"
+msgstr "Connection to active Qorus instance has been lost"
+
+msgid "PingNotOK ${ url }"
+msgstr "Ping did not return 'OK': ${ url }"
+
+msgid "ActiveQorusPingError"
+msgstr "Active Qorus instance ping error"
