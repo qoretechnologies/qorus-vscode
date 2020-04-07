@@ -91,12 +91,12 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps',
         'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
     {
-        const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
-        disposable = commands.registerCommand(command, (data: any) => {
+        const command_part = dash2Pascal(iface_kind);
+        disposable = commands.registerCommand(`qorus.views.edit${command_part}`, (data: any) => {
             const code_info = projects.projectCodeInfo(data.data?.yaml_file);
             const fixed_data = code_info?.fixData(data.data);
             if (fixed_data) {
-                if (iface_kind === 'workflow-steps') {
+                if (command_part === 'WorkflowSteps') {
                     fixed_data.show_steps = true;
                     iface_kind = 'workflow';
                 }
