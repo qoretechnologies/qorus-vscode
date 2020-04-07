@@ -202,10 +202,14 @@ export abstract class InterfaceCreator {
     }
 
     protected checkExistingInterface = (params: any): any => {
-        const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
+        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data, } = params;
 
         if (!['create', 'edit', 'recreate'].includes(edit_type)) {
             return {ok: true};
+        }
+
+        if (iface_kind === 'other') {
+            iface_kind = (type || '').toLowerCase();
         }
 
         const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
