@@ -111,6 +111,7 @@ export class QorusLogin extends QorusAuth {
     }
 
     private doLogout(url?: string, forget_all: boolean = true, no_message = false) {
+        clearInterval(this.active_instance_ping_interval_id);
         url = url || this.active_url;
         const was_logged_in = this.isLoggedIn(url);
         forget_all ? this.forgetAllInfo(url) : this.deleteToken(url);
@@ -215,6 +216,7 @@ export class QorusLogin extends QorusAuth {
     }
 
     unsetActiveInstance(tree_item?: vscode.TreeItem) {
+        clearInterval(this.active_instance_ping_interval_id);
         if (tree_item) {
             const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
             if (!this.isActive(url)) {
@@ -254,7 +256,6 @@ export class QorusLogin extends QorusAuth {
 
     protected startConnectionCheck = () => {
         const stop = () => {
-            clearInterval(this.active_instance_ping_interval_id);
             this.doLogout(undefined, true, true);
             msg.error(t`ActiveQorusLost`);
         };
