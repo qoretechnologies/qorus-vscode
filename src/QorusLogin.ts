@@ -134,17 +134,18 @@ export class QorusLogin extends QorusAuth {
             msg.error(t`Error401 ${url}`);
             this.doLogout(undefined, true, true);
             instance_tree.focus();
-        } else if (error_data.message && error_data.message.indexOf('EHOSTUNREACH') > -1) {
+        } else if (error_data.message?.indexOf('EHOSTUNREACH') > -1) {
             msg.error(t`HostUnreachable ${url}`);
             this.doLogout();
-        } else if (error_data.message && error_data.message.indexOf('ETIMEDOUT') > -1) {
+        } else if (error_data.message?.indexOf('ETIMEDOUT') > -1) {
             msg.error(t`RequestTimedOut ${url}`);
-        } else if (error_data.message && error_data.message.indexOf('ECONNREFUSED') > -1) {
+        } else if (error_data.message?.indexOf('ESOCKETTIMEDOUT') > -1) {
+            msg.error(t`RequestTimedOut ${url}`);
+        } else if (error_data.message?.indexOf('ECONNREFUSED') > -1) {
             msg.error(t`ConnectionRefused ${url}`);
             this.doLogout();
         } else if (
-            error_data.message &&
-            error_data.message.indexOf('authenticate') > -1 &&
+            error_data.message?.indexOf('authenticate') > -1 &&
             error_data.statusCode == 400
         ) {
             msg.error(t`AuthFailed`);
