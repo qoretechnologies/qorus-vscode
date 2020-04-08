@@ -51,7 +51,7 @@ export abstract class InterfaceCreator {
         }
 
         if (iface_kind === 'type' && !target_file) {
-            target_file = path.basename(data.path)
+            target_file = path.basename(data.path);
         }
 
         if (this.lang === 'qore') {
@@ -626,7 +626,7 @@ export abstract class InterfaceCreator {
                     case 'bin-resource':
                     case 'template':
                         value.forEach(({name}) => {
-                            result += `${list_indent}${workspace.asRelativePath(name, false)}\n`;
+                            result += `${list_indent}${path.relative(headers.target_dir, name)}\n`;
                         });
                         break;
                     case 'steps':

@@ -501,11 +501,19 @@ export class QorusProjectCodeInfo {
         }
 
         ['functions', 'constants', 'mappers', 'value_maps', 'author',
-            'resource', 'text-resource', 'bin-resource', 'template',
             'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
+            }
+        });
+
+        ['resource', 'text-resource', 'bin-resource', 'template'].forEach(tag => {
+            if (data[tag]) {
+                data[tag] = data[tag].map(rel_path => {
+                    const abs_path = path.resolve(data.target_dir, rel_path);
+                    return {name: abs_path};
+                });
             }
         });
 
