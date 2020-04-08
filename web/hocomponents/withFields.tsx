@@ -83,7 +83,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             other: '',
             mapper: '',
         });
-        const [unfinishedWork, setUnfinishedWork] = useState<{ [key: string]: boolean }>({});
 
         const resetFields: (type: string) => void = type => {
             setLocalFields(current => {
@@ -101,7 +100,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     return newResult;
                 });
 
-                setUnfinishedWork(current => {
+                props.setUnfinishedWork(current => {
                     const newResult = { ...current };
                     // Set the interface id to null
                     newResult[type] = null;
@@ -125,8 +124,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setAsDraft: (type: string) => void = type => {
-            if (!unfinishedWork[type]) {
-                setUnfinishedWork(current => {
+            if (!props.unfinishedWork[type]) {
+                props.setUnfinishedWork(current => {
                     const newResult = { ...current };
                     // Set the interface id to null
                     newResult[type] = true;
@@ -243,7 +242,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     resetFields,
                     interfaceId,
                     setInterfaceId,
-                    unfinishedWork,
+                    unfinishedWork: props.unfinishedWork,
                     setAsDraft,
                 }}
             >

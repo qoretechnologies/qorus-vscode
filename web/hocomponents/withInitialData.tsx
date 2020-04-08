@@ -22,6 +22,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             btnText?: string;
             btnStyle?: string;
         }>({});
+        const [unfinishedWork, setUnfinishedWork] = useState<{ [key: string]: boolean }>({});
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
@@ -74,7 +75,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     subtab: subtab || null,
                 }));
 
-            if (initialData.tab === 'CreateInterface' && props.unfinishedWork[initialData.subtab]) {
+            if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab]) {
                 // Check if there is data for the given subtab
                 confirmAction('UnfinishedWork', setTabs, 'Leave', 'warning');
             } else {
@@ -227,6 +228,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setConfirmDialog,
                     confirmAction,
                     callBackend,
+                    unfinishedWork,
+                    setUnfinishedWork,
                 }}
             >
                 <InitialContext.Consumer>
