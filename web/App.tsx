@@ -239,8 +239,8 @@ export default hot(
     compose(
         withMessageHandler(),
         connect(mapStateToProps, mapDispatchToProps),
-        withFields(),
         withInitialData(),
+        withFields(),
         withMethods(),
         withFunctions(),
         withSteps(),
