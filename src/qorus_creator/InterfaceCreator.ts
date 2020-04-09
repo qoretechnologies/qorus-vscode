@@ -1,13 +1,14 @@
-import { workspace, window, Position } from 'vscode';
+import { Position } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as jsyaml from 'js-yaml';
+
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import { types_with_version, default_version } from '../qorus_constants';
-import * as jsyaml from 'js-yaml';
 import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier } from '../qorus_utils';
 import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
@@ -143,15 +144,17 @@ export abstract class InterfaceCreator {
         const generated_file_info = "# This is a generated file, don't edit!\n";
         file_path = file_path || this.yaml_file_path;
 
-        fs.writeFile(file_path, generated_file_info + headers, err => {
-            if (err) {
-                msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
-                return;
-            }
-        });
+        try {
+            fs.writeFileSync(file_path, generated_file_info + headers);
+        } catch (err) {
+            msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
+            return false;
+        }
+
+        return true;
     }
 
-    protected writeFiles(contents: string, headers: string, open_file_on_success: boolean = true) {
+    protected writeFiles(contents: string, headers: string) {
         contents = contents.replace(/(\t| )+\n/g, '\n');
         while (contents.match(/\n\n\n/)) {
             contents = contents.replace(/\n\n\n/g, '\n\n');
@@ -161,18 +164,18 @@ export abstract class InterfaceCreator {
             contents += '\n';
         }
 
-        fs.writeFile(this.file_path, contents, err => {
-            if (err) {
-                msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
-                return;
-            }
+        if (!this.writeYamlFile(headers)) {
+            return false;
+        }
 
-            this.writeYamlFile(headers);
+        try {
+            fs.writeFileSync(this.file_path, contents);
+        } catch (err) {
+            msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
+            return false;
+        }
 
-            if (open_file_on_success) {
-                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
-            }
-        });
+        return true;
     }
 
     protected checkData = (params: any): any => {
