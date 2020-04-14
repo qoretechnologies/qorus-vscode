@@ -83,7 +83,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = this.edit_info.text_lines;
-                code_lines = this.addMethods(code_lines, method_renaming_map.added);
+                code_lines = this.addMethods([...code_lines], method_renaming_map.added);
                 code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
