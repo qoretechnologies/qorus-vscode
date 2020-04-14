@@ -231,11 +231,19 @@ export class QorusProjectCodeInfo {
         return true;
     }
 
-    private addClassDeclCodeInfo = (file: string, decl: any) => {
-        if (!QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
+    private static maybeAddClassConnectionMemberDeclaration = (decl, class_connections_class) => {
+        if (decl.nodetype !== 1 || decl.kind !== 7) {
             return;
         }
 
+        for (const member of decl.members || []) {
+            if (member.declaration?.typeName?.name === class_connections_class) {
+                msg.debug({ccDecl: member.declaration});
+            }
+        }
+    }
+
+    private addClassDeclCodeInfo = (file: string, decl: any) => {
         const method_name = decl.name.name;
         const decl_range = loc2range(decl.loc);
         const name_range = loc2range(decl.name.loc);
@@ -315,7 +323,11 @@ export class QorusProjectCodeInfo {
                 }
 
                 for (const decl of symbol.declarations || []) {
-                    this.addClassDeclCodeInfo(file, decl);
+                    msg.debug({decl});
+                    QorusProjectCodeInfo.maybeAddClassConnectionMemberDeclaration(decl, class_connections_class);
+                    if (QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
+                        this.addClassDeclCodeInfo(file, decl);
+                    }
                 }
             });
             return Promise.resolve();

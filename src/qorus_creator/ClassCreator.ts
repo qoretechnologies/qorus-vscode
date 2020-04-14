@@ -89,7 +89,6 @@ class ClassCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
-            case 'recreate':
                 if (!this.has_code) {
                     info = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;
@@ -181,7 +180,7 @@ class ClassCreator extends InterfaceCreator {
 
         if (this.has_code) {
             if (this.writeFiles(contents, headers)) {
-                classConnectionsCodeChanges(this.file_path, data, orig_data);
+                classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data);
                 if (open_file_on_success) {
                     workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
                 }
