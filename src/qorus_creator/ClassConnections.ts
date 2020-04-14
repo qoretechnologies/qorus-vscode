@@ -8,7 +8,7 @@ const CONN_CLASS = 'ClassConnections';
 const CONN_BASE_CLASS = 'Observer';
 const CONN_MEMBER = { qore: 'class_connections', java: 'classConnections' };
 const CONN_CLASS_MAP = { qore: 'class_map', java: 'classMap' };
-const CONN_CALL_METHOD = 'callClassWithPrefixMethod';
+export const CONN_CALL_METHOD = 'callClassWithPrefixMethod';
 const CONN_MAPPER = 'mapper';
 const CONN_DATA = 'params';
 
@@ -47,7 +47,6 @@ export class ClassConnections {
     private classes: any = {};
 
     constructor(data, code_info, lang) {
-        msg.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
         const {
             'class-connections': connections,
             iface_kind,
@@ -302,7 +301,7 @@ export class ClassConnections {
         }
 
         code += `${indent1}}\n\n` +
-            `${indent1}Object callClassWithPrefixMethod(final String prefixedClass, final String methodName,\n` +
+            `${indent1}Object ${CONN_CALL_METHOD}(final String prefixedClass, final String methodName,\n` +
             `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Object ${CONN_DATA}) ${THROWS} {\n` +
             `${indent2}UserApi.logInfo("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
             `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +

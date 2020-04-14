@@ -24,6 +24,7 @@ import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
 import { getJavaDocumentSymbolsWithWait } from './vscode_java';
 import { interface_tree } from './QorusInterfaceTree';
+import { CONN_CALL_METHOD } from './qorus_creator/ClassConnections';
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
 
@@ -109,19 +110,22 @@ export class QorusProjectCodeInfo {
         this.edit_info[file].method_name_ranges[method_name] = name_range;
     }
 
+    static isSymbolClass = (symbol: any): boolean =>
+        symbol.nodetype === 1 &&
+        symbol.kind === 1
+
     static isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
         class_name &&
         symbol.nodetype === 1 &&
         symbol.kind === 1 &&
-        symbol.name &&
-        class_name === symbol.name.name
+        class_name === symbol.name?.name
 
     isJavaSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
         class_name &&
         symbol.kind === 5 &&
         class_name === symbol.name
 
-    addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
+    private addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
         const class_name_range: vscode.Range = loc2range(symbol.name.loc, 'class ');
 
@@ -249,22 +253,62 @@ export class QorusProjectCodeInfo {
         return true;
     }
 
-    addFileCodeInfo(file: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
+    addFileCodeInfo(file: string, data: any, force: boolean = true): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
         if (!iface_kind || (this.edit_info[file] && !force)) {
             return Promise.resolve();
         }
 
+        const {
+            'class-name': class_name,
+            'base-class-name': base_class_name,
+            'class-connections': class_connections
+        } = data;
+
+        const findClassConnectionClass = symbols => {
+            if (!class_connections) {
+                return undefined;
+            }
+
+            let has_the_method = false;
+
+            const class_connection_names = Object.keys(class_connections);
+            for (const symbol of symbols) {
+                if (QorusProjectCodeInfo.isSymbolExpectedClass(symbol, class_name) ||
+                    !QorusProjectCodeInfo.isSymbolClass(symbol))
+                {
+                    continue;
+                }
+
+                const decls = symbol.declarations;
+                for (const decl of decls) {
+                    if (!QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
+                        continue;
+                    }
+                    const method_name = decl.name?.name;
+                    has_the_method = has_the_method || method_name === CONN_CALL_METHOD;
+                    if (has_the_method && class_connection_names.includes(method_name)) {
+                        return symbol.name?.name;
+                    }
+                }
+            }
+
+            return undefined;
+        };
+
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+            const class_connections_class = findClassConnectionClass(symbols);
+            msg.debug({class_connections_class});
+
             symbols.forEach(symbol => {
                 if (!QorusProjectCodeInfo.isSymbolExpectedClass(symbol, class_name)) {
                     return;
                 }
 
-                this.addClassCodeInfo(file, symbol, base_class_name);
+                this.addClassCodeInfo(file, symbol, base_class_name, class_connections_class);
 
                 if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;
