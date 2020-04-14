@@ -75,6 +75,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
+            case 'recreate':
                 contents = this.code(data, iface_kind, methods);
                 info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
