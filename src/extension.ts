@@ -1,5 +1,6 @@
 import * as child_process from 'child_process';
 import { t } from 'ttag';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 import * as msg from './qorus_message';
@@ -21,7 +22,8 @@ import { instance_tree } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
 import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
-import { registerInterfaceTreeCommands } from './qorus_interface_tree';
+import { registerQorusExplorerCommands } from './qorus_explorer_commands';
+import { registerQorusViewsCommands } from './qorus_views_commands';
 
 qorus_locale.setLocale();
 
@@ -35,16 +37,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                                                () => deployer.deployCurrentFile());
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.deployFile', (uri: vscode.Uri) => deployer.deployFile(uri));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.deployDir', (uri: vscode.Uri) => deployer.deployDir(uri));
-    context.subscriptions.push(disposable);
-
     disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () => tester.testCurrentFile());
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.testFile', (uri: vscode.Uri) => tester.testFile(uri));
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) => tester.testDir(uri));
@@ -130,18 +123,16 @@ export async function activate(context: vscode.ExtensionContext) {
             creator.deleteMethod(data, iface_kind));
     context.subscriptions.push(disposable);
 
+    registerQorusExplorerCommands(context);
+    registerQorusViewsCommands(context);
+
     disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', instance_tree);
     context.subscriptions.push(disposable);
 
     interface_tree.setExtensionPath(context.extensionPath);
 
-    const code_info = projects.currentProjectCodeInfo();
-    code_info && code_info.registerTreeForNotifications('interface-tree', interface_tree);
-
-    registerInterfaceTreeCommands(context);
     disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', interface_tree);
     context.subscriptions.push(disposable);
-    interface_tree.refresh();
 
     disposable = vscode.languages.registerCodeLensProvider(
         [{ language: 'qore', scheme: 'file' }],
@@ -171,7 +162,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     vscode.window.onDidChangeActiveTextEditor(
         editor => {
-            if (editor && editor.document && editor.document.uri.scheme === 'file') {
+            if (editor?.document?.uri.scheme === 'file') {
                 updateQorusTree(editor.document.uri, false);
             }
         },
@@ -181,18 +172,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
     vscode.workspace.onDidSaveTextDocument(
         document => {
-            if (document.fileName.indexOf(config_filename) > -1) {
+            if (path.basename(document.fileName) === config_filename) {
                 updateQorusTree(document.uri);
             }
         },
         null,
         context.subscriptions
     );
-}
-
-export function deactivate() {
-    const code_info = projects.currentProjectCodeInfo();
-    code_info && code_info.unregisterTreeForNotifications('interface-tree');
 }
 
 function updateQorusTree(uri?: vscode.Uri, forceTreeReset: boolean = true) {

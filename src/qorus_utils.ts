@@ -99,10 +99,23 @@ export const dash2Pascal = str =>
     str.split('-').map(part => (part[0] || '').toUpperCase() + part.substr(1)).join('');
 
 export const toValidIdentifier = (str, capitalize = false) => {
-    str = str.trim().replace(/\W+/g, '-');
-    str = capitalize ? dash2Pascal(str) : dash2Camel(str);
-    return str.replace(/(^[0-9])/, '_' + '$1');
-}
+    if (isValidIdentifier(str)) {
+        return str;
+    }
+
+    let parts = str.trim().split(/\W+/);
+    if (capitalize) {
+        parts = parts.map(part => (part[0] || '').toUpperCase() + part.substr(1));
+    } else {
+        const first = parts.splice(0, 1);
+        parts = parts.map(part => (part[0] || '').toUpperCase() + part.substr(1));
+        parts = [first, ...parts];
+    }
+
+    return parts.join('').replace(/(^[0-9])/, '_' + '$1');
+};
+
+export const isValidIdentifier = str => !str.match(/^[0-9]|\W/);
 
 export const makeFileUri = (filePath: string) => 'file://' + filePath;
 
@@ -130,4 +143,4 @@ export const compareVersion = (v1, v2) => {
         }
     }
     return v1.length === v2.length ? 0: (v1.length < v2.length ? -1 : 1);
-}
+};

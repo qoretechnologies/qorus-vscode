@@ -1,16 +1,18 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import { StepsContext } from '../context/steps';
-import mapProps from 'recompose/mapProps';
-import compose from 'recompose/compose';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+
 import { isArray, reduce } from 'lodash';
-import { transformSteps } from '../helpers/steps';
-import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
-import useMount from 'react-use/lib/useMount';
 import size from 'lodash/size';
-import withMessageHandler from './withMessageHandler';
-import withFieldsConsumer from './withFieldsConsumer';
+import useMount from 'react-use/lib/useMount';
+import compose from 'recompose/compose';
+import mapProps from 'recompose/mapProps';
+
 import { Messages } from '../constants/messages';
 import { processSteps } from '../containers/InterfaceCreator/workflowsView';
+import { StepsContext } from '../context/steps';
+import { transformSteps } from '../helpers/steps';
+import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
+import withFieldsConsumer from './withFieldsConsumer';
+import withMessageHandler from './withMessageHandler';
 
 const stepsParser = new WorkflowStepDependencyParser();
 
@@ -104,32 +106,40 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const removeStep: (stepId: number, steps: any[]) => any[] = (stepId, steps) => {
             const newSteps: (number | number[])[] = [];
-            // Build the new steps
-            steps.forEach((step: number | number[]): void => {
-                if (isArray(step)) {
-                    // Push the recurse
-                    newSteps.push(removeStep(stepId, step));
-                }
-                // Else push the step back
-                else if (step !== stepId) {
-                    newSteps.push(step);
-                }
-            });
+            if (isArray(steps)) {
+                // Build the new steps
+                steps.forEach((step: number | number[]): void => {
+                    if (isArray(step)) {
+                        // Push the recurse
+                        newSteps.push(removeStep(stepId, step));
+                    }
+                    // Else push the step back
+                    else if (step !== stepId) {
+                        newSteps.push(step);
+                    }
+                });
+            } else {
+                return filterEmptySteps(steps);
+            }
             // Save the steps
             return filterEmptySteps(newSteps);
         };
 
         const filterEmptySteps = steps => {
             const newSteps = [];
-            steps.forEach(step => {
-                if (isArray(step)) {
-                    if (size(step)) {
-                        newSteps.push(filterEmptySteps(step));
+            if (isArray(steps)) {
+                steps.forEach(step => {
+                    if (isArray(step)) {
+                        if (size(step)) {
+                            newSteps.push(filterEmptySteps(size(step) === 1 ? step[0] : step));
+                        }
+                    } else if (step) {
+                        newSteps.push(step);
                     }
-                } else if (step) {
-                    newSteps.push(step);
-                }
-            });
+                });
+            } else {
+                return steps;
+            }
             return newSteps;
         };
 

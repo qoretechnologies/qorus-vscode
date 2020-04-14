@@ -8,7 +8,7 @@ import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import { types_with_version, default_version } from '../qorus_constants';
 import * as jsyaml from 'js-yaml';
-import { quotesIfNum, removeDuplicates, capitalize } from '../qorus_utils';
+import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier } from '../qorus_utils';
 import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
@@ -44,14 +44,14 @@ export abstract class InterfaceCreator {
                 msg.error(t`TargetDirUnknown`);
                 return;
             }
-            this.target_dir = projects.getProject()?.dirForTypePath(data.path);
+            this.target_dir = this.code_info.getProject()?.dirForTypePath(data.path);
             if (!this.target_dir) {
                 return;
             }
         }
 
         if (iface_kind === 'type' && !target_file) {
-            target_file = path.basename(data.path)
+            target_file = path.basename(data.path);
         }
 
         if (this.lang === 'qore') {
@@ -85,6 +85,9 @@ export abstract class InterfaceCreator {
             } else {
                 this.orig_yaml_file_path = orig_path;
             }
+        } else {
+            this.orig_file_path = undefined;
+            this.orig_yaml_file_path = undefined;
         }
     }
 
@@ -179,8 +182,36 @@ export abstract class InterfaceCreator {
         });
     }
 
+    protected checkData = (params: any): any => {
+        const items_to_check = ['checkExistingInterface', 'checkClassName'];
+        for (const item_to_check of items_to_check) {
+            const {ok, message} = this[item_to_check](params);
+            if (!ok) {
+                return {ok, message};
+            }
+        }
+        return {ok: true};
+    }
+
+    protected checkClassName = (params: any): any => {
+        const { data: { 'class-name': class_name } } = params;
+        if (!class_name || isValidIdentifier(class_name)) {
+            return {ok: true};
+        }
+        return {ok: false, message: t`InvalidClassName ${class_name}`};
+    }
+
     protected checkExistingInterface = (params: any): any => {
-        const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
+        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data, } = params;
+
+        if (!['create', 'edit', 'recreate'].includes(edit_type)) {
+            return {ok: true};
+        }
+
+        if (iface_kind === 'other') {
+            iface_kind = (type || '').toLowerCase();
+        }
+
         const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
 
         const with_version = types_with_version.includes(iface_kind);
@@ -188,28 +219,34 @@ export abstract class InterfaceCreator {
         const iface_name = with_version ? `${name}:${version || default_version}` : name;
         const orig_iface_name = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
 
-        switch (edit_type) {
-            case 'create':
-                break;
-            case 'edit':
-                if (iface_name === orig_iface_name && class_name === orig_class_name) {
-                    return {ok: true};
-                }
-                break;
-            default:
-                return {ok: true};
-        }
-
-        let iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
-        if (iface) {
-            return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
-        }
-        if (class_name && !['class', 'mapper-code'].includes(iface_kind)) {
-            iface = this.code_info.yaml_info.yamlDataByClass(class_name);
+        if (iface_name !== orig_iface_name) {
+            const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
             if (iface) {
-                return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
+                return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
             }
         }
+        if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
+            const iface = this.code_info.yaml_info.yamlDataByClass(iface_kind, class_name);
+            if (iface) {
+                return {ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}`};
+            }
+        }
+
+        const { file_path, orig_file_path, yaml_file_path, orig_yaml_file_path } = this;
+
+        if (file_path && file_path !== orig_file_path) {
+            const iface = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
+            if (iface) {
+                return {ok: false, message: t`FileAlreadyExists ${file_path}`};
+            }
+        }
+        if (yaml_file_path !== orig_yaml_file_path) {
+            const iface = this.code_info.yaml_info.yamlDataByYamlFile(yaml_file_path);
+            if (iface) {
+                return {ok: false, message: t`FileAlreadyExists ${yaml_file_path}`};
+            }
+        }
+
         return {ok: true};
     }
 
@@ -589,7 +626,7 @@ export abstract class InterfaceCreator {
                     case 'bin-resource':
                     case 'template':
                         value.forEach(({name}) => {
-                            result += `${list_indent}${workspace.asRelativePath(name, false)}\n`;
+                            result += `${list_indent}${path.relative(headers.target_dir, name)}\n`;
                         });
                         break;
                     case 'steps':

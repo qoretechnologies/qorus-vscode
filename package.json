@@ -128,16 +128,6 @@
                 "category": "Qorus"
             },
             {
-                "command": "qorus.deployFile",
-                "title": "Deploy File",
-                "category": "Qorus"
-            },
-            {
-                "command": "qorus.deployDir",
-                "title": "Deploy Directory",
-                "category": "Qorus"
-            },
-            {
                 "command": "qorus.openUrlInExternalBrowser",
                 "title": "Open URL in an External Tool",
                 "category": "Qorus"
@@ -148,18 +138,8 @@
                 "category": "Qorus"
             },
             {
-                "command": "qorus.testFile",
-                "title": "Execute Test File",
-                "category": "Qorus"
-            },
-            {
                 "command": "qorus.testDir",
                 "title": "Execute Test Files from Directory",
-                "category": "Qorus"
-            },
-            {
-                "command": "qorus.createOther",
-                "title": "Create Other Entity",
                 "category": "Qorus"
             },
             {
@@ -167,6 +147,111 @@
                 "title": "Webview",
                 "category": "Qorus",
                 "icon": "images/qorus_logo_28.png"
+            },
+            {
+                "command": "qorus.explorer.editClass",
+                "title": "Edit Class",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editJob",
+                "title": "Edit Job",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editMapper",
+                "title": "Edit Mapper",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editMapperCode",
+                "title": "Edit Mapper Code",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editMapperCodeMethods",
+                "title": "Edit Mapper Code Methods",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editService",
+                "title": "Edit Service",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editServiceMethods",
+                "title": "Edit Service Methods",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editStep",
+                "title": "Edit Step",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editWorkflow",
+                "title": "Edit Workflow",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editWorkflowSteps",
+                "title": "Edit Workflow Steps",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editInterface",
+                "title": "Edit Interface",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployClass",
+                "title": "Deploy Class",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployJob",
+                "title": "Deploy Job",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployMapper",
+                "title": "Deploy Mapper",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployMapperCode",
+                "title": "Deploy Mapper Code",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployService",
+                "title": "Deploy Service",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployStep",
+                "title": "Deploy Step",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployWorkflow",
+                "title": "Deploy Workflow",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployInterface",
+                "title": "Deploy Interface",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployDir",
+                "title": "Deploy Directory",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.testFile",
+                "title": "Execute Test File",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.createClass",
@@ -266,6 +351,11 @@
                     "dark": "images/icons/dark/create-new.svg",
                     "light": "images/icons/light/create-new.svg"
                 }
+            },
+            {
+                "command": "qorus.createOther",
+                "title": "Create Other Entity",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.views.deleteClass",
@@ -575,7 +665,7 @@
             },
             {
                 "command": "qorus.views.editClass",
-                "title": "Edit Class Metadata",
+                "title": "Edit Class",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -584,7 +674,7 @@
             },
             {
                 "command": "qorus.views.editGroup",
-                "title": "Edit Group Metadata",
+                "title": "Edit Group",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -593,7 +683,7 @@
             },
             {
                 "command": "qorus.views.editEvent",
-                "title": "Edit Event Metadata",
+                "title": "Edit Event",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -602,7 +692,7 @@
             },
             {
                 "command": "qorus.views.editType",
-                "title": "Edit Type Metadata",
+                "title": "Edit Type",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -611,7 +701,7 @@
             },
             {
                 "command": "qorus.views.editQueue",
-                "title": "Edit Queue Metadata",
+                "title": "Edit Queue",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -620,7 +710,7 @@
             },
             {
                 "command": "qorus.views.editJob",
-                "title": "Edit Job Metadata",
+                "title": "Edit Job",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -629,7 +719,7 @@
             },
             {
                 "command": "qorus.views.editMapper",
-                "title": "Edit Mapper Metadata",
+                "title": "Edit Mapper",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -638,7 +728,7 @@
             },
             {
                 "command": "qorus.views.editMapperCode",
-                "title": "Edit Mapper Code Metadata",
+                "title": "Edit Mapper Code",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -647,7 +737,7 @@
             },
             {
                 "command": "qorus.views.editService",
-                "title": "Edit Service Metadata",
+                "title": "Edit Service",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -656,7 +746,7 @@
             },
             {
                 "command": "qorus.views.editStep",
-                "title": "Edit Step Metadata",
+                "title": "Edit Step",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -665,7 +755,7 @@
             },
             {
                 "command": "qorus.views.editWorkflow",
-                "title": "Edit Workflow Metadata",
+                "title": "Edit Workflow",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -974,28 +1064,123 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createType",
                     "group": "2_workspace@8"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.deployDir",
-                    "group": "2_workspace@9"
-                },
-                {
-                    "when": "resourceScheme == file && !explorerResourceIsFolder",
-                    "command": "qorus.deployFile",
+                    "command": "qorus.createOther",
                     "group": "2_workspace@9"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.testDir",
-                    "group": "2_workspace@10"
+                    "command": "qorus.explorer.deployDir",
+                    "group": "2_workspace@11"
                 },
                 {
-                    "when": "resourceScheme == file && !explorerResourceIsFolder",
-                    "command": "qorus.testFile",
-                    "group": "2_workspace@10"
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.testDir",
+                    "group": "2_workspace@21"
+                },
+                {
+                    "when": "resourceExtname == .qsd",
+                    "command": "qorus.explorer.editService",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qsd",
+                    "command": "qorus.explorer.editServiceMethods",
+                    "group": "2_workspace@2"
+                },
+                {
+                    "when": "resourceExtname == .qsd",
+                    "command": "qorus.explorer.deployService",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname == .qclass",
+                    "command": "qorus.explorer.editClass",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qclass",
+                    "command": "qorus.explorer.deployClass",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname == .qjob",
+                    "command": "qorus.explorer.editJob",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qjob",
+                    "command": "qorus.explorer.deployJob",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname == .qmapper",
+                    "command": "qorus.explorer.editMapper",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qmapper",
+                    "command": "qorus.explorer.deployMapper",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname == .qmc",
+                    "command": "qorus.explorer.editMapperCode",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qmc",
+                    "command": "qorus.explorer.editMapperCodeMethods",
+                    "group": "2_workspace@2"
+                },
+                {
+                    "when": "resourceExtname == .qmc",
+                    "command": "qorus.explorer.deployMapperCode",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname == .qstep",
+                    "command": "qorus.explorer.editStep",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qstep",
+                    "command": "qorus.explorer.deployStep",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname == .qwf",
+                    "command": "qorus.explorer.editWorkflow",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname == .qwf",
+                    "command": "qorus.explorer.editWorkflowSteps",
+                    "group": "2_workspace@2"
+                },
+                {
+                    "when": "resourceExtname == .qwf",
+                    "command": "qorus.explorer.deployWorkflow",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname =~ /^\\.(yaml|java)$/",
+                    "command": "qorus.explorer.editInterface",
+                    "group": "2_workspace@1"
+                },
+                {
+                    "when": "resourceExtname =~ /^\\.(yaml|java)$/",
+                    "command": "qorus.explorer.deployInterface",
+                    "group": "2_workspace@11"
+                },
+                {
+                    "when": "resourceExtname == .qtest || resourceFilename =~ /Test\\.java$/",
+                    "command": "qorus.explorer.testFile",
+                    "group": "2_workspace@21"
                 }
             ],
             "view/item/context": [

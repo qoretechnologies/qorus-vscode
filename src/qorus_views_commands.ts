@@ -9,7 +9,7 @@ import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { deployer } from './QorusDeploy';
 
-export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
+export const registerQorusViewsCommands = (context: ExtensionContext) => {
     let disposable;
 
     // view switching commands
@@ -54,7 +54,7 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
                         return;
                     }
 
-                    if (!data.data || !data.data.yaml_file) {
+                    if (!data.data?.yaml_file) {
                         msg.error(t`MissingDeploymentData`);
                     }
 
@@ -88,24 +88,23 @@ export const registerInterfaceTreeCommands = (context: ExtensionContext) => {
     });
 
     // edit commands
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step',
-     'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind => {
-        const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
-        disposable = commands.registerCommand(command, (data: any) => {
-            const code_info = projects.currentProjectCodeInfo();
-            const data2 = code_info.fixData(data.data);
-            commands.executeCommand('qorus.editInterface', data2, iface_kind);
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps',
+        'workflow', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
+    {
+        const command_part = dash2Pascal(iface_kind);
+        disposable = commands.registerCommand(`qorus.views.edit${command_part}`, (data: any) => {
+            const code_info = projects.projectCodeInfo(data.data?.yaml_file);
+            const fixed_data = code_info?.fixData(data.data);
+            if (fixed_data) {
+                if (command_part === 'WorkflowSteps') {
+                    fixed_data.show_steps = true;
+                    iface_kind = 'workflow';
+                }
+                commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+            }
         });
         context.subscriptions.push(disposable);
     });
-    disposable = commands.registerCommand('qorus.views.editWorkflowSteps', (data: any) =>
-    {
-        const code_info = projects.currentProjectCodeInfo();
-        const data2 = code_info.fixData(data.data);
-        data2.show_steps = true;
-        commands.executeCommand('qorus.editInterface', data2, 'workflow');
-    });
-    context.subscriptions.push(disposable);
 
     // open interface command, used when clicking on interface in the tree
     disposable = commands.registerCommand('qorus.views.openInterface', (data: any) =>

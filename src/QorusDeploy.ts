@@ -89,17 +89,16 @@ class QorusDeploy {
             'value-map', 'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
         ];
 
-        for (const ifaceKind of ifaceKinds) {
-            code_info.interfaceDataByType(ifaceKind).then(
-                interfaces => {
-                    for (const iface of interfaces) {
-                        if (iface.data.yaml_file) {
-                            this.deployFile(vscode.Uri.file(iface.data.yaml_file));
-                        }
+        code_info.waitForPending(['yaml']).then(() => {
+            for (const ifaceKind of ifaceKinds) {
+                const interfaces = code_info.interfaceDataByType(ifaceKind);
+                for (const iface of interfaces) {
+                    if (iface.data.yaml_file) {
+                        this.deployFile(vscode.Uri.file(iface.data.yaml_file));
                     }
                 }
-            );
-        }
+            }
+        });
     }
 
     // returns true if the process got to the stage of checking the result

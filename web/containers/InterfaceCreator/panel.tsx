@@ -205,6 +205,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     definitionsOnly,
     context,
     onSubmitSuccess,
+    setAsDraft,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -504,6 +505,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         canBeNull?: boolean,
         explicit?: boolean
     ) => void = (fieldName, value, forcedType, canBeNull, explicit) => {
+        //* The first change of any field saves the current interface as in draft
+        //* we ignore the `lang` field because it has a default value and fires a change
+        //* on mount
+        if (value && fieldName !== 'lang') {
+            setAsDraft(type);
+        }
         setSelectedFields(
             type,
             (currentFields: IField[]): IField[] => {
@@ -1078,11 +1085,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                     text={t('Reset')}
                                     icon={'history'}
                                     onClick={() => {
-                                        resetLocalFields(activeId);
-                                        // Reset also config items
-                                        postMessage(Messages.RESET_CONFIG_ITEMS, {
-                                            iface_id: interfaceId,
-                                        });
+                                        initialData.confirmAction(
+                                            'ResetFieldsConfirm',
+                                            () => {
+                                                resetLocalFields(activeId);
+                                                // Reset also config items
+                                                postMessage(Messages.RESET_CONFIG_ITEMS, {
+                                                    iface_id: interfaceId,
+                                                });
+                                            },
+                                            'Reset',
+                                            'warning'
+                                        );
                                     }}
                                 />
                             </Tooltip>

@@ -24,8 +24,8 @@ export const qoreTextDocument = (file: string): QoreTextDocument => {
 };
 
 export const loc2range = (loc: any, offset_string: string = ''): Range => new Range(
-    loc.start_line - 1,
-    loc.start_column - 1 + offset_string.length,
+    (loc.start_line || 1) - 1,
+    (loc.start_column + offset_string.length || 1) - 1,
     loc.end_line - 1,
     loc.end_column - 1,
 );

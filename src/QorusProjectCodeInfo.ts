@@ -23,6 +23,7 @@ import { field } from './qorus_creator/common_constants';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
 import { getJavaDocumentSymbolsWithWait } from './vscode_java';
+import { interface_tree } from './QorusInterfaceTree';
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
 
@@ -49,7 +50,7 @@ export class QorusProjectCodeInfo {
     private module_files_watcher: vscode.FileSystemWatcher;
     private config_file_watcher: vscode.FileSystemWatcher;
 
-    private notif_trees = {};
+    private notif_trees = [interface_tree];
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -66,6 +67,10 @@ export class QorusProjectCodeInfo {
 
     get yaml_info(): any {
         return this.yaml_files_info;
+    }
+
+    getProject(): QorusProject {
+        return this.project;
     }
 
     addText(document: vscode.TextDocument) {
@@ -309,41 +314,21 @@ export class QorusProjectCodeInfo {
         return this.edit_info[file];
     }
 
-    registerTreeForNotifications(name, tree) {
-        if (!this.notif_trees[name]) {
-            this.notif_trees[name] = tree;
-        }
-    }
-
-    unregisterTreeForNotifications(name) {
-        delete this.notif_trees[name];
-    }
-
     private notifyTrees() {
-        for (const key in this.notif_trees) {
-            this.notif_trees[key].treeNotify();
-        }
+        this.notif_trees.forEach(tree => tree.notify(this));
     }
 
     fileTree() {
         return this.file_tree;
     }
 
-    interfaceDataByFile(file_path): Promise<any> {
-        return this.waitForPending(['yaml']).then(() => {
-            return this.yaml_info.yamlDataByFilePath(file_path);
-        });
-    }
-
-    interfaceDataByType(iface_kind): Promise<any[]> {
-        return this.waitForPending(['yaml']).then(() => {
-            const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
-            const interfaces = Object.keys(yaml_data).map(name => ({
-                name,
-                data: yaml_data[name]
-            }));
-            return sortBy(interfaces, ['name']);
-        });
+    interfaceDataByType = iface_kind => {
+        const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
+        const interfaces = Object.keys(yaml_data).map(name => ({
+            name,
+            data: yaml_data[name]
+        }));
+        return sortBy(interfaces, ['name']);
     }
 
     getListOfInterfaces = iface_kind => {
@@ -516,11 +501,19 @@ export class QorusProjectCodeInfo {
         }
 
         ['functions', 'constants', 'mappers', 'value_maps', 'author',
-            'resource', 'text-resource', 'bin-resource', 'template',
             'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
+            }
+        });
+
+        ['resource', 'text-resource', 'bin-resource', 'template'].forEach(tag => {
+            if (data[tag]) {
+                data[tag] = data[tag].map(rel_path => {
+                    const abs_path = path.resolve(data.target_dir, rel_path);
+                    return {name: abs_path};
+                });
             }
         });
 
@@ -921,7 +914,6 @@ export class QorusProjectCodeInfo {
                     this.updateYamlInfo(file_data.source_directories);
                     this.yaml_info.baseClassesFromInheritancePairs();
                     this.yaml_info.javaBaseClassesFromInheritancePairs();
-                    this.notifyTrees();
                 }, 0);
             }
             if (info_list.includes('modules')) {
@@ -1136,6 +1128,7 @@ export class QorusProjectCodeInfo {
                 this.yaml_info.addSingleYamlInfo(file);
             }
         }
+        this.notifyTrees();
         this.setPending('yaml', false);
     }
 
@@ -1181,13 +1174,16 @@ export class QorusProjectCodeInfo {
 
     private updateFileTree(source_directories: string[]) {
         this.setPending('file_tree', true);
-        const dirItem = (abs_path: string, only_dirs: boolean) => ({
-            abs_path,
-            rel_path: this.project.relativeDirPath(abs_path),
-            basename: path.basename(abs_path),
-            dirs: [],
-            ... only_dirs ? {} : { files: [] }
-        });
+        const dirItem = (abs_path: string, only_dirs: boolean, is_root_item: boolean = false) => {
+            const rel_path = this.project.relativeDirPath(abs_path);
+            return {
+                abs_path,
+                rel_path,
+                basename: is_root_item ? rel_path : path.basename(abs_path),
+                dirs: [],
+                ... only_dirs ? {} : { files: [] }
+            };
+        };
 
         const subDirRecursion = (tree_item: any, only_dirs: boolean) => {
             const dir_entries: string[] = fs.readdirSync(tree_item.abs_path).sort();
@@ -1215,11 +1211,11 @@ export class QorusProjectCodeInfo {
         let dir_tree: any[] = [];
 
         for (let dir of source_directories.sort()) {
-            let file_tree_root = dirItem(path.join(this.project.folder, dir), false);
+            let file_tree_root = dirItem(path.join(this.project.folder, dir), false, true);
             file_tree.push(file_tree_root);
             subDirRecursion(file_tree_root, false);
 
-            let dir_tree_root = dirItem(path.join(this.project.folder, dir), true);
+            let dir_tree_root = dirItem(path.join(this.project.folder, dir), true, true);
             dir_tree.push(dir_tree_root);
             subDirRecursion(dir_tree_root, true);
         }

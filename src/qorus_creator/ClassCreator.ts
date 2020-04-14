@@ -6,7 +6,7 @@ import { jobTemplates } from './job_constants';
 import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
-import { classConnectionsCode } from './class_connections';
+import { ClassConnections } from './ClassConnections';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -57,7 +57,7 @@ class ClassCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix, iface_kind);
 
-        const {ok, message} = this.checkExistingInterface(params);
+        const {ok, message} = this.checkData(params);
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${params.edit_type}-interface-complete`,
@@ -77,7 +77,7 @@ class ClassCreator extends InterfaceCreator {
         if (data['class-connections']) {
             ClassCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
-                            = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
+                  = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());
         }
 
         let methods = '';
