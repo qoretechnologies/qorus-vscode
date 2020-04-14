@@ -20,10 +20,11 @@ import mapProps from 'recompose/mapProps';
 import shortid from 'shortid';
 import styled from 'styled-components';
 
-import { Button, ButtonGroup, Classes, Dialog, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
+import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import FieldActions from '../../components/FieldActions';
@@ -1112,7 +1113,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 </ActionsWrapper>
             </Content>
             {showClassConnectionsManager && hasClassConnections && (
-                <Dialog
+                <CustomDialog
                     isOpen
                     title={t('ClassConnectionsManager')}
                     onClose={() => setShowClassConnectionsManager(false)}
@@ -1135,10 +1136,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             setShowClassConnectionsManager(false);
                         }}
                     />
-                </Dialog>
+                </CustomDialog>
             )}
             {showConfigItemsManager && hasConfigManager ? (
-                <Dialog
+                <CustomDialog
                     isOpen
                     title={t('ConfigItemsManager')}
                     onClose={() => setShowConfigItemsManager(false)}
@@ -1156,7 +1157,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         resetFields={resetFields}
                         steps={processSteps(steps, stepsData)}
                     />
-                </Dialog>
+                </CustomDialog>
             ) : null}
         </>
     );

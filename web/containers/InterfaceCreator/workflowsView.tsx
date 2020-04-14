@@ -4,10 +4,11 @@ import { isArray, omit, reduce, size } from 'lodash';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 
-import { Button, ButtonGroup, Dialog, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
+import CustomDialog from '../../components/CustomDialog';
 import SidePanel from '../../components/SidePanel';
 import StepList from '../../components/StepList';
 import { Messages } from '../../constants/messages';
@@ -208,7 +209,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                         </ActionsWrapper>
                     </Content>
                     {showConfigItemsManager ? (
-                        <Dialog
+                        <CustomDialog
                             isOpen
                             title={t('ConfigItemsManager')}
                             onClose={() => setShowConfigItemsManager(false)}
@@ -220,7 +221,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                 resetFields={resetFields}
                                 steps={processSteps(steps, stepsData)}
                             />
-                        </Dialog>
+                        </CustomDialog>
                     ) : null}
                 </>
             )}
