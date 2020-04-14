@@ -15,6 +15,7 @@ import styled from 'styled-components';
 
 import { AnchorButton, ButtonGroup, Callout } from '@blueprintjs/core';
 
+import AppContainer from './App';
 import { vscode } from './common/vscode';
 import reducer from './reducers';
 
@@ -36,20 +37,30 @@ window.onerror = (msg, url, line, col) => {
         <StyledErrorWrapper>
             <Callout title="Encountered error" icon="error" intent="danger">
                 <br />
-                <p>The application encoutered an error</p>
-                <pre>
-                    <strong>Error: </strong>
-                    {msg}
-                </pre>
-                <pre>
-                    <strong>File: </strong>
-                    {url}
-                </pre>
-                <pre>
-                    <strong>Line: </strong>
-                    {line}, <strong>Col: </strong>
-                    {col}
-                </pre>
+                {process.env.NODE_ENV === 'production' && (
+                    <p>
+                        Ooops the application has encoutered an error it was not able to recover from. Please click the
+                        button below to reload the webview.
+                    </p>
+                )}
+                {process.env.NODE_ENV !== 'production' && (
+                    <>
+                        <p>The application encoutered an error</p>
+                        <pre>
+                            <strong>Error: </strong>
+                            {msg}
+                        </pre>
+                        <pre>
+                            <strong>File: </strong>
+                            {url}
+                        </pre>
+                        <pre>
+                            <strong>Line: </strong>
+                            {line}, <strong>Col: </strong>
+                            {col}
+                        </pre>
+                    </>
+                )}
                 <br />
                 <ButtonGroup>
                     <AnchorButton
@@ -68,7 +79,7 @@ window.onerror = (msg, url, line, col) => {
 render(
     <DndProvider backend={HTML5Backend}>
         <Provider store={store}>
-            <AppConnnnnntainer />
+            <AppContainer />
         </Provider>
     </DndProvider>,
     document.querySelector('#root')
