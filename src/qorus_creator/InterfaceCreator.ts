@@ -95,6 +95,13 @@ export abstract class InterfaceCreator {
     edit(params: any) {
         this.code_info = projects.currentProjectCodeInfo();
 
+        // temporary solution: editing an interface with class connections leads to creating it anew
+        // (until editing is implemented)
+        if (params.edit_type === 'edit' && params.data['class-connections']) {
+            params.edit_type = 'recreate';
+            this.editImpl(params);
+        }
+
         if (params.orig_data) {
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
@@ -200,7 +207,7 @@ export abstract class InterfaceCreator {
     protected checkExistingInterface = (params: any): any => {
         let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data, } = params;
 
-        if (!['create', 'edit'].includes(edit_type)) {
+        if (!['create', 'edit', 'recreate'].includes(edit_type)) {
             return {ok: true};
         }
 

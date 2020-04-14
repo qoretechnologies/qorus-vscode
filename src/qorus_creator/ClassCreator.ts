@@ -89,6 +89,7 @@ class ClassCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
+            case 'recreate':
                 if (!this.has_code) {
                     info = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;

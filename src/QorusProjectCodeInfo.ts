@@ -121,7 +121,7 @@ export class QorusProjectCodeInfo {
         symbol.kind === 5 &&
         class_name === symbol.name
 
-    addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
+    private addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
         const class_name_range: vscode.Range = loc2range(symbol.name.loc, 'class ');
 
