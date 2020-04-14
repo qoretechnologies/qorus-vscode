@@ -1,6 +1,5 @@
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
-import * as msg from '../qorus_message';
 
 // =================================================================
 
