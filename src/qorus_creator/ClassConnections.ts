@@ -47,7 +47,6 @@ export class ClassConnections {
     private classes: any = {};
 
     constructor(data, code_info, lang) {
-        msg.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
         const {
             'class-connections': connections,
             iface_kind,
