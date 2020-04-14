@@ -109,7 +109,7 @@ export class QorusProjectCodeInfo {
         this.edit_info[file].method_name_ranges[method_name] = name_range;
     }
 
-    isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
+    static isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
         class_name &&
         symbol.nodetype === 1 &&
         symbol.kind === 1 &&
@@ -215,7 +215,7 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    addClassDeclCodeInfo = (file: string, decl: any): boolean => {
+    static isDeclPublicMethod = (decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
             return false;
         }
@@ -224,13 +224,19 @@ export class QorusProjectCodeInfo {
             return false;
         }
 
+        return true;
+    }
+
+    private addClassDeclCodeInfo = (file: string, decl: any) => {
+        if (!QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
+            return;
+        }
+
         const method_name = decl.name.name;
         const decl_range = loc2range(decl.loc);
         const name_range = loc2range(decl.name.loc);
 
         this.addMethodInfo(file, method_name, decl_range, name_range);
-
-        return true;
     }
 
     addJavaClassDeclCodeInfo = (file: string, decl: any): boolean => {
@@ -254,13 +260,13 @@ export class QorusProjectCodeInfo {
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
             symbols.forEach(symbol => {
-                if (!this.isSymbolExpectedClass(symbol, class_name)) {
+                if (!QorusProjectCodeInfo.isSymbolExpectedClass(symbol, class_name)) {
                     return;
                 }
 
                 this.addClassCodeInfo(file, symbol, base_class_name);
 
-                if (iface_kind !== 'service') {
+                if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;
                 }
 

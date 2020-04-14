@@ -1,4 +1,6 @@
+import { workspace, window } from 'vscode';
 import * as jsyaml from 'js-yaml';
+
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template, simple_method_template } from './common_constants';
@@ -7,6 +9,7 @@ import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { ClassConnections } from './ClassConnections';
+import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -86,7 +89,6 @@ class ClassCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
-            case 'recreate':
                 if (!this.has_code) {
                     info = t`FileCreatedInDir ${this.yaml_file_name} ${this.target_dir}`;
                     break;
@@ -176,9 +178,16 @@ class ClassCreator extends InterfaceCreator {
                              .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 
-        this.has_code
-            ? this.writeFiles(contents, headers, open_file_on_success)
-            : this.writeYamlFile(headers);
+        if (this.has_code) {
+            if (this.writeFiles(contents, headers)) {
+                classConnectionsCodeChanges(this.file_path, data, orig_data);
+                if (open_file_on_success) {
+                    workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+                }
+            }
+        } else {
+            this.writeYamlFile(headers);
+        }
 
         if (['create', 'edit'].includes(edit_type)) {
             qorus_webview.postMessage({

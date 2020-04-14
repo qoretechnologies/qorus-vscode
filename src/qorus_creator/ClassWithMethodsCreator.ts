@@ -1,9 +1,11 @@
-import { window, Position } from 'vscode';
+import { workspace, window, Position } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
+
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { mapperCodeTemplates } from './mapper_constants';
 import { ClassConnections } from './ClassConnections';
+import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -73,7 +75,6 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
-            case 'recreate':
                 contents = this.code(data, iface_kind, methods);
                 info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
@@ -123,7 +124,12 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             headers += ClassWithMethodsCreator.createConfigItemHeaders(iface_data['config-items']);
         }
 
-        this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods), open_file_on_success);
+        if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
+            classConnectionsCodeChanges(this.file_path, data, orig_data);
+        }
+        if (open_file_on_success) {
+            workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+        }
 
         if (['create', 'edit'].includes(edit_type)) {
             qorus_webview.postMessage({
