@@ -1,29 +1,28 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { IClassConnection, StyledDialogBody } from './index';
-import size from 'lodash/size';
-import find from 'lodash/find';
+import React, { useContext, useEffect, useState } from 'react';
+
 import omit from 'lodash/omit';
-import { ButtonGroup, Button, Dialog, Callout, Tooltip, Icon, ControlGroup } from '@blueprintjs/core';
-import { TTranslator } from '../../App';
-import { FieldWrapper, FieldInputWrapper, ContentWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
-import FieldLabel from '../../components/FieldLabel';
-import { validateField } from '../../helpers/validations';
-import SelectField from '../../components/Field/select';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
-import { Messages } from '../../constants/messages';
-import SidePanel from '../../components/SidePanel';
-import Content from '../../components/Content';
-import styled from 'styled-components';
-import { StyledMapperField } from '../Mapper';
-import MapperView from '../InterfaceCreator/mapperView';
-import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import size from 'lodash/size';
 import compose from 'recompose/compose';
-import withGlobalOptions from '../../hocomponents/withGlobalOptions';
-import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
-import useMount from 'react-use/lib/useMount';
-import BooleanField from '../../components/Field/boolean';
-import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import styled from 'styled-components';
+
+import { Button, ButtonGroup, Callout, ControlGroup, Icon, Tooltip } from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import Content from '../../components/Content';
+import CustomDialog from '../../components/CustomDialog';
+import SelectField from '../../components/Field/select';
+import FieldLabel from '../../components/FieldLabel';
+import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
+import { validateField } from '../../helpers/validations';
+import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import MapperView from '../InterfaceCreator/mapperView';
+import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../InterfaceCreator/panel';
+import { StyledMapperField } from '../Mapper';
+import { IClassConnection, StyledDialogBody } from './index';
 
 export interface IClassConnectionsDiagramProps {
     connection: IClassConnection[];
@@ -286,255 +285,261 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
 
     return (
         <div>
-            <Dialog
-                isOpen={mapperDialog.isOpen}
-                title={t('AddNewMapper')}
-                onClose={() => {
-                    resetAllInterfaceData('mapper');
-                    setMapperDialog({});
-                }}
-                style={{ height: '95vh', width: '95vw', backgroundColor: '#fff' }}
-            >
-                <StyledDialogBody style={{ flexFlow: 'column' }}>
-                    <MapperView
-                        inConnections
-                        interfaceContext={interfaceContext}
-                        isEditing={mapperDialog.isEditing}
-                        defaultMapper={mapperDialog.isEditing && mapperDialog.mapper}
-                    />
-                </StyledDialogBody>
-            </Dialog>
-            <Dialog
-                isOpen={manageDialog.isOpen}
-                title={t('AddNewConnector')}
-                onClose={() => {
-                    setManageDialog({});
-                }}
-                style={{ height: '320px', width: '60vw', backgroundColor: '#fff' }}
-            >
-                <StyledDialogBody>
-                    <Content style={{ padding: 0 }}>
-                        <ContentWrapper>
-                            {manageDialog.isMapper ? (
-                                <FieldWrapper>
-                                    <FieldLabel label={t('Mapper')} isValid />
-                                    <FieldInputWrapper>
-                                        <ControlGroup fill>
-                                            <SelectField
-                                                get_message={{
-                                                    action: 'get-mappers',
-                                                    message_data: {
-                                                        'input-condition': manageDialog.outputProvider,
-                                                        'output-condition': manageDialog.inputProvider,
-                                                    },
-                                                }}
-                                                return_message={{
-                                                    action: 'return-mappers',
-                                                    return_value: 'mappers',
-                                                }}
-                                                warningMessageOnEmpty={t('NoMappersMatchConnectors')}
-                                                value={manageDialog.mapper}
-                                                onChange={(_name, value) => {
-                                                    setManageDialog(
-                                                        (current: IManageDialog): IManageDialog => ({
-                                                            ...current,
-                                                            mapper: value,
-                                                        })
-                                                    );
-                                                }}
-                                                name="class"
-                                                fill
-                                            />
-                                            {manageDialog.mapper && (
-                                                <>
-                                                    <Button
-                                                        icon="edit"
-                                                        intent="none"
-                                                        onClick={() => {
-                                                            postMessage(Messages.GET_INTERFACE_DATA, {
-                                                                iface_kind: 'mapper',
-                                                                name: manageDialog.mapper,
-                                                            });
-                                                        }}
-                                                    />
-                                                    <Button
-                                                        icon="trash"
-                                                        intent="danger"
-                                                        onClick={() => {
-                                                            initContext.confirmAction('ConfirmRemoveMapper', () =>
-                                                                setManageDialog(current => ({
-                                                                    ...current,
-                                                                    mapper: null,
-                                                                }))
-                                                            );
-                                                        }}
-                                                    />
-                                                </>
-                                            )}
-                                            {!manageDialog.mapper && (
-                                                <Button
-                                                    icon="add"
-                                                    intent="success"
-                                                    onClick={() => {
-                                                        resetAllInterfaceData('mapper');
-                                                        setMapper({
-                                                            isFromConnectors: true,
-                                                            hasInitialInput: !!manageDialog.outputProvider,
-                                                            hasInitialOutput: !!manageDialog.inputProvider,
-                                                            'context-selector': interfaceContext,
-                                                            mapper_options: {
-                                                                'mapper-input': manageDialog.outputProvider,
-                                                                'mapper-output': manageDialog.inputProvider,
-                                                            },
-                                                        });
-                                                        handleMapperSubmitSet((mapperName, mapperVersion) => {
-                                                            resetAllInterfaceData('mapper');
-                                                            setManageDialog(
-                                                                (current: IManageDialog): IManageDialog => ({
-                                                                    ...current,
-                                                                    mapper: `${mapperName}:${mapperVersion}`,
-                                                                })
-                                                            );
-                                                            setMapperDialog({});
-                                                        });
-                                                        setMapperDialog({ isOpen: true });
-                                                    }}
-                                                />
-                                            )}
-                                        </ControlGroup>
-                                    </FieldInputWrapper>
-                                </FieldWrapper>
-                            ) : (
-                                <>
+            {mapperDialog.isOpen && (
+                <CustomDialog
+                    isOpen
+                    title={t('AddNewMapper')}
+                    onClose={() => {
+                        resetAllInterfaceData('mapper');
+                        setMapperDialog({});
+                    }}
+                    style={{ height: '95vh', width: '95vw', backgroundColor: '#fff' }}
+                >
+                    <StyledDialogBody style={{ flexFlow: 'column' }}>
+                        <MapperView
+                            inConnections
+                            interfaceContext={interfaceContext}
+                            isEditing={mapperDialog.isEditing}
+                            defaultMapper={mapperDialog.isEditing && mapperDialog.mapper}
+                        />
+                    </StyledDialogBody>
+                </CustomDialog>
+            )}
+            {manageDialog.isOpen && (
+                <CustomDialog
+                    isOpen
+                    title={t('AddNewConnector')}
+                    onClose={() => {
+                        setManageDialog({});
+                    }}
+                    style={{ height: '320px', width: '60vw', backgroundColor: '#fff' }}
+                >
+                    <StyledDialogBody>
+                        <Content style={{ padding: 0 }}>
+                            <ContentWrapper>
+                                {manageDialog.isMapper ? (
                                     <FieldWrapper>
-                                        <FieldLabel
-                                            label={t('Class')}
-                                            isValid={validateField('string', manageDialog.class)}
-                                        />
+                                        <FieldLabel label={t('Mapper')} isValid />
                                         <FieldInputWrapper>
-                                            <SelectField
-                                                autoSelect
-                                                defaultItems={classes.map(clss => ({
-                                                    name: clss.prefix ? `${clss.prefix}:${clss.name}` : clss.name,
-                                                }))}
-                                                value={manageDialog.class}
-                                                onChange={(_name, value) => {
-                                                    setManageDialog(
-                                                        (current: IManageDialog): IManageDialog => ({
-                                                            ...current,
-                                                            class: value,
-                                                            connector: null,
-                                                        })
-                                                    );
-                                                }}
-                                                name="class"
-                                                fill
-                                            />
-                                        </FieldInputWrapper>
-                                    </FieldWrapper>
-                                    <Connector
-                                        manageDialog={manageDialog}
-                                        t={t}
-                                        addMessageListener={addMessageListener}
-                                        postMessage={postMessage}
-                                        setManageDialog={setManageDialog}
-                                    />
-                                    {canHaveTrigger && (
-                                        <FieldWrapper>
-                                            <FieldLabel label={t('Trigger')} isValid={true} info={t('Optional')} />
-                                            <FieldInputWrapper>
-                                                <ControlGroup fill>
-                                                    {ifaceType === 'service' && methodsCount === 0 && (
-                                                        <Callout intent="warning">
-                                                            {t('TriggerNoMethodsAvailable')}
-                                                        </Callout>
-                                                    )}
-                                                    {(ifaceType !== 'service' || methodsCount !== 0) && (
-                                                        <SelectField
-                                                            get_message={
-                                                                ifaceType !== 'service' && {
-                                                                    action: 'get-triggers',
-                                                                    message_data: {
-                                                                        iface_kind: ifaceType,
-                                                                        'base-class-name': baseClassName,
-                                                                    },
-                                                                }
-                                                            }
-                                                            return_message={
-                                                                ifaceType !== 'service' && {
-                                                                    action: 'return-triggers',
-                                                                    return_value: 'data.triggers',
-                                                                }
-                                                            }
-                                                            defaultItems={ifaceType === 'service' && methods}
-                                                            value={manageDialog.trigger}
-                                                            onChange={(_name, value) => {
-                                                                setManageDialog(
-                                                                    (current: IManageDialog): IManageDialog => ({
-                                                                        ...current,
-                                                                        trigger: value,
-                                                                    })
-                                                                );
+                                            <ControlGroup fill>
+                                                <SelectField
+                                                    get_message={{
+                                                        action: 'get-mappers',
+                                                        message_data: {
+                                                            'input-condition': manageDialog.outputProvider,
+                                                            'output-condition': manageDialog.inputProvider,
+                                                        },
+                                                    }}
+                                                    return_message={{
+                                                        action: 'return-mappers',
+                                                        return_value: 'mappers',
+                                                    }}
+                                                    warningMessageOnEmpty={t('NoMappersMatchConnectors')}
+                                                    value={manageDialog.mapper}
+                                                    onChange={(_name, value) => {
+                                                        setManageDialog(
+                                                            (current: IManageDialog): IManageDialog => ({
+                                                                ...current,
+                                                                mapper: value,
+                                                            })
+                                                        );
+                                                    }}
+                                                    name="class"
+                                                    fill
+                                                />
+                                                {manageDialog.mapper && (
+                                                    <>
+                                                        <Button
+                                                            icon="edit"
+                                                            intent="none"
+                                                            onClick={() => {
+                                                                postMessage(Messages.GET_INTERFACE_DATA, {
+                                                                    iface_kind: 'mapper',
+                                                                    name: manageDialog.mapper,
+                                                                });
                                                             }}
-                                                            name="trigger"
-                                                            fill
                                                         />
-                                                    )}
-                                                    {manageDialog.trigger && (
                                                         <Button
                                                             icon="trash"
                                                             intent="danger"
                                                             onClick={() => {
-                                                                initContext.confirmAction('ConfirmRemoveTrigger', () =>
+                                                                initContext.confirmAction('ConfirmRemoveMapper', () =>
                                                                     setManageDialog(current => ({
                                                                         ...current,
-                                                                        trigger: null,
+                                                                        mapper: null,
                                                                     }))
                                                                 );
                                                             }}
                                                         />
-                                                    )}
-                                                </ControlGroup>
+                                                    </>
+                                                )}
+                                                {!manageDialog.mapper && (
+                                                    <Button
+                                                        icon="add"
+                                                        intent="success"
+                                                        onClick={() => {
+                                                            resetAllInterfaceData('mapper');
+                                                            setMapper({
+                                                                isFromConnectors: true,
+                                                                hasInitialInput: !!manageDialog.outputProvider,
+                                                                hasInitialOutput: !!manageDialog.inputProvider,
+                                                                'context-selector': interfaceContext,
+                                                                mapper_options: {
+                                                                    'mapper-input': manageDialog.outputProvider,
+                                                                    'mapper-output': manageDialog.inputProvider,
+                                                                },
+                                                            });
+                                                            handleMapperSubmitSet((mapperName, mapperVersion) => {
+                                                                resetAllInterfaceData('mapper');
+                                                                setManageDialog(
+                                                                    (current: IManageDialog): IManageDialog => ({
+                                                                        ...current,
+                                                                        mapper: `${mapperName}:${mapperVersion}`,
+                                                                    })
+                                                                );
+                                                                setMapperDialog({});
+                                                            });
+                                                            setMapperDialog({ isOpen: true });
+                                                        }}
+                                                    />
+                                                )}
+                                            </ControlGroup>
+                                        </FieldInputWrapper>
+                                    </FieldWrapper>
+                                ) : (
+                                    <>
+                                        <FieldWrapper>
+                                            <FieldLabel
+                                                label={t('Class')}
+                                                isValid={validateField('string', manageDialog.class)}
+                                            />
+                                            <FieldInputWrapper>
+                                                <SelectField
+                                                    autoSelect
+                                                    defaultItems={classes.map(clss => ({
+                                                        name: clss.prefix ? `${clss.prefix}:${clss.name}` : clss.name,
+                                                    }))}
+                                                    value={manageDialog.class}
+                                                    onChange={(_name, value) => {
+                                                        setManageDialog(
+                                                            (current: IManageDialog): IManageDialog => ({
+                                                                ...current,
+                                                                class: value,
+                                                                connector: null,
+                                                            })
+                                                        );
+                                                    }}
+                                                    name="class"
+                                                    fill
+                                                />
                                             </FieldInputWrapper>
                                         </FieldWrapper>
-                                    )}
-                                </>
-                            )}
-                        </ContentWrapper>
-                        <ActionsWrapper>
-                            <ButtonGroup fill>
-                                <Tooltip content={t('CancelTooltip')}>
+                                        <Connector
+                                            manageDialog={manageDialog}
+                                            t={t}
+                                            addMessageListener={addMessageListener}
+                                            postMessage={postMessage}
+                                            setManageDialog={setManageDialog}
+                                        />
+                                        {canHaveTrigger && (
+                                            <FieldWrapper>
+                                                <FieldLabel label={t('Trigger')} isValid={true} info={t('Optional')} />
+                                                <FieldInputWrapper>
+                                                    <ControlGroup fill>
+                                                        {ifaceType === 'service' && methodsCount === 0 && (
+                                                            <Callout intent="warning">
+                                                                {t('TriggerNoMethodsAvailable')}
+                                                            </Callout>
+                                                        )}
+                                                        {(ifaceType !== 'service' || methodsCount !== 0) && (
+                                                            <SelectField
+                                                                get_message={
+                                                                    ifaceType !== 'service' && {
+                                                                        action: 'get-triggers',
+                                                                        message_data: {
+                                                                            iface_kind: ifaceType,
+                                                                            'base-class-name': baseClassName,
+                                                                        },
+                                                                    }
+                                                                }
+                                                                return_message={
+                                                                    ifaceType !== 'service' && {
+                                                                        action: 'return-triggers',
+                                                                        return_value: 'data.triggers',
+                                                                    }
+                                                                }
+                                                                defaultItems={ifaceType === 'service' && methods}
+                                                                value={manageDialog.trigger}
+                                                                onChange={(_name, value) => {
+                                                                    setManageDialog(
+                                                                        (current: IManageDialog): IManageDialog => ({
+                                                                            ...current,
+                                                                            trigger: value,
+                                                                        })
+                                                                    );
+                                                                }}
+                                                                name="trigger"
+                                                                fill
+                                                            />
+                                                        )}
+                                                        {manageDialog.trigger && (
+                                                            <Button
+                                                                icon="trash"
+                                                                intent="danger"
+                                                                onClick={() => {
+                                                                    initContext.confirmAction(
+                                                                        'ConfirmRemoveTrigger',
+                                                                        () =>
+                                                                            setManageDialog(current => ({
+                                                                                ...current,
+                                                                                trigger: null,
+                                                                            }))
+                                                                    );
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </ControlGroup>
+                                                </FieldInputWrapper>
+                                            </FieldWrapper>
+                                        )}
+                                    </>
+                                )}
+                            </ContentWrapper>
+                            <ActionsWrapper>
+                                <ButtonGroup fill>
+                                    <Tooltip content={t('CancelTooltip')}>
+                                        <Button
+                                            text={t('Cancel')}
+                                            icon={'cross'}
+                                            onClick={() => {
+                                                setManageDialog({});
+                                            }}
+                                        />
+                                    </Tooltip>
                                     <Button
-                                        text={t('Cancel')}
-                                        icon={'cross'}
+                                        text={t('Submit')}
+                                        disabled={!isConnectorValid()}
+                                        icon={'tick'}
+                                        intent="success"
                                         onClick={() => {
+                                            onAddConnector(
+                                                connectionName,
+                                                omit(manageDialog, ['isFirst', 'isOpen', 'isMapper', 'connectorData']),
+                                                manageDialog.isEditing && !manageDialog.isMapper
+                                            );
                                             setManageDialog({});
+                                            // Check if user added last connector (has no output method)
+                                            if (manageDialog.isLast) {
+                                                setHasLast(true);
+                                            }
                                         }}
                                     />
-                                </Tooltip>
-                                <Button
-                                    text={t('Submit')}
-                                    disabled={!isConnectorValid()}
-                                    icon={'tick'}
-                                    intent="success"
-                                    onClick={() => {
-                                        onAddConnector(
-                                            connectionName,
-                                            omit(manageDialog, ['isFirst', 'isOpen', 'isMapper', 'connectorData']),
-                                            manageDialog.isEditing && !manageDialog.isMapper
-                                        );
-                                        setManageDialog({});
-                                        // Check if user added last connector (has no output method)
-                                        if (manageDialog.isLast) {
-                                            setHasLast(true);
-                                        }
-                                    }}
-                                />
-                            </ButtonGroup>
-                        </ActionsWrapper>
-                    </Content>
-                </StyledDialogBody>
-            </Dialog>
+                                </ButtonGroup>
+                            </ActionsWrapper>
+                        </Content>
+                    </StyledDialogBody>
+                </CustomDialog>
+            )}
             {size(connection) === 0 && (
                 <ButtonGroup>
                     <Button

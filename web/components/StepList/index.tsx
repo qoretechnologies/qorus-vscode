@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import styled, { css } from 'styled-components';
-import { isArray, flattenDeep, size, some } from 'lodash';
-import {
-    Icon,
-    Popover,
-    ButtonGroup,
-    Button,
-    Position,
-    Classes,
-    Tooltip,
-    Dialog,
-    ControlGroup,
-} from '@blueprintjs/core';
-import SelectField from '../Field/select';
-import withTextContext from '../../hocomponents/withTextContext';
-import InterfaceCreatorPanel, {
-    FieldWrapper,
-    FieldInputWrapper,
-    ActionsWrapper,
-} from '../../containers/InterfaceCreator/panel';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import compose from 'recompose/compose';
-import { FieldType, FieldName } from '../FieldSelector';
-import withMessageHandler from '../../hocomponents/withMessageHandler';
-import { Messages } from '../../constants/messages';
-import { AddStepButton } from '../AddStepButton';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import React, { useEffect, useState } from 'react';
+
+import { flattenDeep, isArray, size, some } from 'lodash';
 import { onlyUpdateForKeys } from 'recompose';
+import compose from 'recompose/compose';
+import styled, { css } from 'styled-components';
+
+import { Button, ButtonGroup, Classes, ControlGroup, Tooltip } from '@blueprintjs/core';
+
+import { Messages } from '../../constants/messages';
 import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
-import { CreatorWrapper } from '../../containers/InterfaceCreator/mapperView';
 import ClassConnectionsStateProvider from '../../containers/ClassConnectionsStateProvider';
+import { CreatorWrapper } from '../../containers/InterfaceCreator/mapperView';
+import InterfaceCreatorPanel, { ActionsWrapper, FieldInputWrapper } from '../../containers/InterfaceCreator/panel';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMessageHandler from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+import { AddStepButton } from '../AddStepButton';
+import CustomDialog from '../CustomDialog';
+import SelectField from '../Field/select';
+import { FieldName, FieldType } from '../FieldSelector';
 
 const StyledStepWrapper = styled.div`
     .bp3-popover-wrapper {
@@ -265,14 +255,16 @@ const StepList = compose(
                         <AddStepButton bottom big stepsData={stepsData} setPopover={setPopover} icon="add" />
                     </>
                 )}
-                <Dialog isOpen={popover.isOpen}>
-                    <NewStepPopover
-                        {...popover}
-                        onCancel={() => setPopover({ isOpen: false })}
-                        onStepInsert={handleStepInsert}
-                        onSubmit={() => setPopover({ isOpen: false })}
-                    />
-                </Dialog>
+                {popover.isOpen && (
+                    <CustomDialog isOpen onClose={() => setPopover({ isOpen: false })}>
+                        <NewStepPopover
+                            {...popover}
+                            onCancel={() => setPopover({ isOpen: false })}
+                            onStepInsert={handleStepInsert}
+                            onSubmit={() => setPopover({ isOpen: false })}
+                        />
+                    </CustomDialog>
+                )}
             </StyledStepWrapper>
         );
     }
@@ -426,36 +418,38 @@ const NewStepPopover = compose(
 
     return (
         <>
-            <Dialog
-                isOpen={stepDialog}
-                title={t('AddNewStep')}
-                onClose={() => setStepDialog(false)}
-                style={{ width: '95vw', height: '95vh', backgroundColor: '#fff ' }}
-            >
-                <StyledDialogBody style={{ flexFlow: 'column' }}>
-                    <CreatorWrapper>
-                        <ClassConnectionsStateProvider type="step">
-                            {classConnectionsProps => (
-                                <InterfaceCreatorPanel
-                                    type={'step'}
-                                    hasClassConnections
-                                    hasConfigManager
-                                    onSubmit={fields => {
-                                        const nameField = fields.find(field => field.name === 'name');
-                                        const versionField = fields.find(field => field.name === 'version');
-                                        const typeField = fields.find(field => field.name === 'base-class-name');
-                                        handleInsert(nameField.value, typeField.value, versionField.value);
-                                        setStepDialog(false);
-                                    }}
-                                    openFileOnSubmit={false}
-                                    forceSubmit
-                                    {...classConnectionsProps}
-                                />
-                            )}
-                        </ClassConnectionsStateProvider>
-                    </CreatorWrapper>
-                </StyledDialogBody>
-            </Dialog>
+            {stepDialog && (
+                <CustomDialog
+                    isOpen
+                    title={t('AddNewStep')}
+                    onClose={() => setStepDialog(false)}
+                    style={{ width: '95vw', height: '95vh', backgroundColor: '#fff ' }}
+                >
+                    <StyledDialogBody style={{ flexFlow: 'column' }}>
+                        <CreatorWrapper>
+                            <ClassConnectionsStateProvider type="step">
+                                {classConnectionsProps => (
+                                    <InterfaceCreatorPanel
+                                        type={'step'}
+                                        hasClassConnections
+                                        hasConfigManager
+                                        onSubmit={fields => {
+                                            const nameField = fields.find(field => field.name === 'name');
+                                            const versionField = fields.find(field => field.name === 'version');
+                                            const typeField = fields.find(field => field.name === 'base-class-name');
+                                            handleInsert(nameField.value, typeField.value, versionField.value);
+                                            setStepDialog(false);
+                                        }}
+                                        openFileOnSubmit={false}
+                                        forceSubmit
+                                        {...classConnectionsProps}
+                                    />
+                                )}
+                            </ClassConnectionsStateProvider>
+                        </CreatorWrapper>
+                    </StyledDialogBody>
+                </CustomDialog>
+            )}
             <StyledPopover>
                 <FieldName>
                     {t('AddNewStep')} {before ? t('Before') : t('After')} {step ? stepsData[step].name : 'all steps'}

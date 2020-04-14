@@ -4,9 +4,10 @@ import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 
-import { Button, Dialog } from '@blueprintjs/core';
+import { Button } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
+import CustomDialog from '../../components/CustomDialog';
 import { Messages } from '../../constants/messages';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
@@ -180,7 +181,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                 </div>
             </StyledConfigManagerWrapper>
             {showConfigItemPanel && (
-                <Dialog
+                <CustomDialog
                     isOpen
                     title={t('ConfigItemEditor')}
                     style={{ width: '80vw', height: '80vh', backgroundColor: '#fff' }}
@@ -207,7 +208,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             forceSubmit
                         />
                     </StyledConfigWrapper>
-                </Dialog>
+                </CustomDialog>
             )}
         </>
     );

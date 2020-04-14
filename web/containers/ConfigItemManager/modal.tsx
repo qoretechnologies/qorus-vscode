@@ -1,41 +1,34 @@
 // @flow
 import React, { Component } from 'react';
 
-import ContentByType from '../../components/ContentByType';
+import jsyaml from 'js-yaml';
+import map from 'lodash/map';
+import ReactMarkdown from 'react-markdown';
+
 import {
-    Icon,
-    TextArea,
-    Popover,
     Button,
     ButtonGroup,
-    Intent,
-    Position,
-    Tooltip,
-    ControlGroup,
-    InputGroup,
-    Dialog,
     Callout,
     Classes,
-    Tabs,
+    ControlGroup,
+    InputGroup,
+    Intent,
+    Popover,
+    Position,
     Tab,
+    Tabs,
+    Tooltip
 } from '@blueprintjs/core';
-import DatePicker from '../../components/Datepicker';
-import Dropdown, { Item, Control as DControl } from '../../components/Dropdown';
-import Tree from '../../components/Tree';
-import jsyaml from 'js-yaml';
-import moment from 'moment';
-import { DATE_FORMATS } from '../../constants/dates';
-import Pull from '../../components/Pull';
-import map from 'lodash/map';
-import pickBy from 'lodash/pickBy';
-import isNull from 'lodash/isNull';
-import { getLineCount } from '../../components/Tree';
-import Box from '../../components/ResponsiveBox';
-import withTextContext from '../../hocomponents/withTextContext';
-import ReactMarkdown from 'react-markdown';
+
+import CustomDialog from '../../components/CustomDialog';
+import Dropdown, { Control as DControl, Item } from '../../components/Dropdown';
 import AutoField from '../../components/Field/auto';
-import { StyledDialogBody } from '../ClassConnectionsManager';
+import Pull from '../../components/Pull';
+import Box from '../../components/ResponsiveBox';
+import Tree from '../../components/Tree';
 import { validateField } from '../../helpers/validations';
+import withTextContext from '../../hocomponents/withTextContext';
+import { StyledDialogBody } from '../ClassConnectionsManager';
 import { Value } from './table';
 
 @withTextContext()
@@ -156,7 +149,7 @@ export default class ConfigItemsModal extends Component {
         const { error, yamlData, value, item } = this.state;
 
         return (
-            <Dialog
+            <CustomDialog
                 isOpen
                 title={!item ? t('AssignNewConfig') : `${t('Editing')} ${item.name}`}
                 onClose={onClose}
@@ -409,7 +402,7 @@ export default class ConfigItemsModal extends Component {
                         </div>
                     ) : null}
                 </StyledDialogBody>
-            </Dialog>
+            </CustomDialog>
         );
     }
 }
