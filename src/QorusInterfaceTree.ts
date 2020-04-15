@@ -27,7 +27,9 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
     }
 
     refresh() {
-        this.onTreeDataChanged.fire();
+        if (this.code_info) {
+            this.onTreeDataChanged.fire();
+        }
     }
 
     getTreeItem(node: QorusInterfaceTreeNode): QorusInterfaceTreeNode {
@@ -70,7 +72,11 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
         return children;
     }
 
-    getChildren(node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
+    async getChildren(node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
+        if (!this.code_info) {
+            return [];
+        }
+
         if (!node) { // root node
             return this.getRootChildren();
         }
