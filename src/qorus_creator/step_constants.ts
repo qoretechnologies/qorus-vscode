@@ -23,7 +23,7 @@ export const stepFields = ({default_target_dir, is_editing}) => [
     field.constants,
     field.classes,
     field.functions,
-    field.mapper,
+    field.mappers,
     field.vmaps,
     {
         name: 'base-class-name',
