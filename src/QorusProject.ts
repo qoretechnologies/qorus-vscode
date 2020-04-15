@@ -53,7 +53,7 @@ export class QorusProject {
 
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
         if (!this.configFileExists()) {
-            return;
+            this.createConfigFileIfNotExists();
         }
 
         try {
@@ -101,7 +101,7 @@ export class QorusProject {
         }
     }
 
-    createConfigFileIfNotExists() {
+    private createConfigFileIfNotExists() {
         if (!this.configFileExists()) {
             fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
             msg.info(t`ProjectConfigHasBeenInitialized`);
@@ -114,7 +114,7 @@ export class QorusProject {
         if (!this.configFileExists()) {
             return;
         }
-        if (!this.java_config.loadClasspath()) {
+        if (this.java_config && !this.java_config.loadClasspath()) {
             this.java_config.fixClasspath();
             this.java_config.writeClasspathFile();
         }
@@ -124,7 +124,7 @@ export class QorusProject {
         if (!this.configFileExists()) {
             return;
         }
-        if (!this.java_config.loadProject()) {
+        if (this.java_config && !this.java_config.loadProject()) {
             this.java_config.fixProject();
             this.java_config.writeProjectFile();
         }
