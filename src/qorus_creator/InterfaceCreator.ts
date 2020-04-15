@@ -27,12 +27,12 @@ export abstract class InterfaceCreator {
     protected orig_file_path: string;
     protected orig_yaml_file_path: string;
     protected code_info: QorusProjectCodeInfo;
-    protected edit_info: any;
+    protected file_edit_info: any;
     protected has_code = false;
     protected had_code = false;
 
     protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
-        this.edit_info = undefined;
+        this.file_edit_info = undefined;
         this.suffix = suffix;
 
         let { target_dir, target_file } = data;
@@ -82,7 +82,7 @@ export abstract class InterfaceCreator {
             if (this.had_code) {
                 this.orig_file_path = orig_path;
                 this.orig_yaml_file_path = this.code_info.yaml_info.yamlDataBySrcFile(orig_path)?.yaml_file;
-                this.edit_info = this.code_info.editInfo(orig_path);
+                this.file_edit_info = this.code_info.edit_info.getInfo(orig_path);
             } else {
                 this.orig_yaml_file_path = orig_path;
             }
@@ -99,8 +99,9 @@ export abstract class InterfaceCreator {
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
             if (params.data.lang === 'java') {
-                this.code_info.addJavaFileCodeInfo(
+                this.code_info.edit_info.addJavaFileInfo(
                     orig_file,
+                    params.orig_data.type,
                     params.orig_data['class-name'],
                     params.orig_data['base-class-name']
                 ).then(() => {
@@ -108,7 +109,7 @@ export abstract class InterfaceCreator {
                     this.editImpl(params);
                 });
             } else {
-                this.code_info.addFileCodeInfo(orig_file, params.orig_data).then(() => {
+                this.code_info.edit_info.addFileInfo(orig_file, params.orig_data).then(() => {
                     this.code_info.setPending('edit_info', false);
                     this.editImpl(params);
                 });
@@ -265,7 +266,7 @@ export abstract class InterfaceCreator {
             last_class_line,
             base_class_names,
             main_base_class_ord,
-        } = this.edit_info;
+        } = this.file_edit_info;
 
         const num_inherited = base_class_names.length;
         const has_other_base_class = num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);

@@ -4,6 +4,7 @@ import { CodeLens, CodeLensProvider, Range, TextDocument } from 'vscode';
 
 import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QoreTextDocument, loc2range } from './QoreTextDocument';
 import * as msg from './qorus_message';
 import { dash2Pascal, makeFileUri, suffixToIfaceKind, expectsYamlFile, isTest } from './qorus_utils';
@@ -168,7 +169,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
             data = this.code_info.fixData(data);
 
             symbols.forEach(symbol => {
-                if (!QorusProjectCodeInfo.isSymbolExpectedClass(symbol, data['class-name'])) {
+                if (!QorusProjectEditInfo.isSymbolExpectedClass(symbol, data['class-name'])) {
                     return;
                 }
 
@@ -179,7 +180,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
                 }
 
                 for (const decl of symbol.declarations || []) {
-                    if (!QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
+                    if (!QorusProjectEditInfo.isDeclPublicMethod(decl)) {
                         continue;
                     }
 

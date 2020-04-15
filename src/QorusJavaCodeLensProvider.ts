@@ -1,6 +1,7 @@
 import { CodeLens, TextDocument } from 'vscode';
-import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
+import { TextDocument as LsTextDocument } from 'vscode-languageserver-types';
 
+import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusCodeLensProviderBase } from './QorusCodeLensProvider';
 import { makeFileUri } from './qorus_utils';
 import { parseJavaInheritance } from './qorus_java_utils';
@@ -15,13 +16,13 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
             let lenses: CodeLens[] = [];
 
             symbols.forEach(symbol => {
-                if (!this.code_info.isJavaSymbolExpectedClass(symbol, data['class-name'])) {
+                if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, data['class-name'])) {
                     return;
                 }
 
-                const lsdoc = lsTextDocument.create(makeFileUri(file_path), 'java', 1, document.getText());
+                const lsdoc = LsTextDocument.create(makeFileUri(file_path), 'java', 1, document.getText());
                 parseJavaInheritance(lsdoc, symbol);
-                this.code_info.addJavaClassCodeInfo(file_path, symbol, data['base-class-name'], false);
+                this.code_info.edit_info.addJavaClassInfo(file_path, symbol, data['base-class-name'], false);
                 this.addClassLenses(iface_kind, lenses, symbol, data);
 
                 if (!['service', 'mapper-code'].includes(iface_kind)) {
@@ -29,7 +30,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 }
 
                 for (const child of symbol.children || []) {
-                    if (!this.code_info.addJavaClassDeclCodeInfo(file_path, child)) {
+                    if (!this.code_info.edit_info.addJavaClassDeclInfo(file_path, child)) {
                         continue;
                     }
                     this.addMethodLenses(

@@ -82,7 +82,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 const orig_method_names: string[] = (orig_data[methods_key] || []).map(method => method.name);
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
-                code_lines = this.edit_info.text_lines;
+                code_lines = this.file_edit_info.text_lines;
                 code_lines = this.addMethods([...code_lines], method_renaming_map.added);
                 code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
@@ -94,7 +94,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                     break;
                 }
                 const method_name = methods[data.method_index].name;
-                code_lines = this.removeMethods(this.edit_info.text_lines, [method_name]);
+                code_lines = this.removeMethods(this.file_edit_info.text_lines, [method_name]);
                 contents = code_lines.join('\n');
                 if (iface_kind === 'service') {
                     info = t`ServiceMethodHasBeenDeleted ${method_name}`;
@@ -125,7 +125,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
-            classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data);
+            classConnectionsCodeChanges(this.file_path, this.code_info.edit_info, data, orig_data);
         }
         if (open_file_on_success) {
             workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
@@ -195,7 +195,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private renameMethods(lines: string[], renaming: any): string[] {
         let lines_with_renaming = {};
         for (const name of Object.keys(renaming)) {
-            const range = this.edit_info.method_name_ranges[name];
+            const range = this.file_edit_info.method_name_ranges[name];
             if (!lines_with_renaming[range.start.line]) {
                 lines_with_renaming[range.start.line] = {};
             }
@@ -231,7 +231,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             return rows;
         };
 
-        let rangesToRemove = removed.map(name => this.edit_info.method_decl_ranges[name]);
+        let rangesToRemove = removed.map(name => this.file_edit_info.method_decl_ranges[name]);
         while (rangesToRemove.length) {
             lines = removeRange(lines, rangesToRemove.pop());
         }
@@ -239,7 +239,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     }
 
     private addMethods(lines: string[], added: string[]): string[] {
-        const end: Position = this.edit_info.class_def_range.end;
+        const end: Position = this.file_edit_info.class_def_range.end;
 
         const lines_before = lines.splice(0, end.line);
         const line = lines.splice(0, 1)[0];

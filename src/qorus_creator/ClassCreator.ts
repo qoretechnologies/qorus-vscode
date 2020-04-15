@@ -138,7 +138,7 @@ class ClassCreator extends InterfaceCreator {
                 }
 
                 if (this.had_code) {
-                    code_lines = this.edit_info.text_lines;
+                    code_lines = this.file_edit_info.text_lines;
                     code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                     contents = code_lines.join('\n');
                 } else {
@@ -180,7 +180,7 @@ class ClassCreator extends InterfaceCreator {
 
         if (this.has_code) {
             if (this.writeFiles(contents, headers)) {
-                classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data);
+                classConnectionsCodeChanges(this.file_path, this.code_info.edit_info, data, orig_data);
                 if (open_file_on_success) {
                     workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
                 }
