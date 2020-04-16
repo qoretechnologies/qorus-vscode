@@ -313,7 +313,6 @@ export class QorusProjectEditInfo {
                     }
                 }
             });
-            msg.debug({edit_info: this.edit_info});
             return Promise.resolve();
         });
     }
