@@ -174,58 +174,6 @@ export class QorusProjectEditInfo {
         return true;
     }
 
-    private maybeAddClassConnectionMemberDeclaration = (file, decl) => {
-        if (decl.nodetype !== 1 || decl.kind !== 7) { // declaration && member group
-            return;
-        }
-
-        for (const member of decl.members || []) {
-            if (member.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
-                this.edit_info[file].class_connections_member_name = member.declaration.name?.name
-                this.edit_info[file].class_connections_member_declaration_loc = member.loc;
-                return;
-            }
-        }
-    }
-
-    private maybeAddClassConnectionMemberInitialization = (file, decl) => {
-        if (decl.nodetype !== 1 || decl.kind !== 4 || decl.name?.name !== 'constructor') { // declaration && function
-            return;
-        }
-
-        for (const statement of decl.body?.statements || []) {
-            const right = statement.expression?.right;
-            if (right?.op !== 'New') {
-                continue;
-            }
-            if (right.expression?.target?.name?.name === this.edit_info[file].class_connections_class_name ) {
-                this.edit_info[file].class_connections_member_initialization_loc = statement.loc;
-                const left = statement.expression.left;
-                const member_name = this.edit_info[file].class_connections_member_name;
-                if (member_name && member_name !== left.name?.name) {
-                    msg.log(`Class connections member name mismatch: ${member_name} != ${left.name.name}`);
-                }
-                return;
-            }
-        }
-    }
-
-    private maybeAddTriggerStatements = (file, decl) => {
-        if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) { // declaration && function
-            return;
-        }
-
-        for (const statement of decl.body.statements) {
-            const var_name = statement.retval?.target?.variable?.name?.name;
-            if (var_name && var_name === this.edit_info[file].class_connections_member_name) {
-                this.edit_info[file].trigger_statement_locs = [
-                    ... this.edit_info[file].trigger_statement_locs || [],
-                    statement.loc
-                ];
-            }
-        }
-    }
-
     private addClassDeclInfo = (file: string, decl: any) => {
         const method_name = decl.name.name;
         const decl_range = loc2range(decl.loc);
@@ -256,9 +204,9 @@ export class QorusProjectEditInfo {
             'class-connections': class_connections
         } = data;
 
-        const findClassConnectionClass = symbols => {
+        const maybeAddClassConnectionClass = symbols => {
             if (!class_connections) {
-                return undefined;
+                return;
             }
 
             let has_the_method = false;
@@ -279,20 +227,70 @@ export class QorusProjectEditInfo {
                     const method_name = decl.name?.name;
                     has_the_method = has_the_method || method_name === CONN_CALL_METHOD;
                     if (has_the_method && class_connection_names.includes(method_name)) {
-                        return symbol.name?.name;
+                        this.edit_info[file].class_connections_class_loc = symbol.loc;
+                        this.edit_info[file].class_connections_class_name = symbol.name?.name;
                     }
                 }
             }
+        };
 
-            return undefined;
+        const maybeAddClassConnectionMemberDeclaration = (decl) => {
+            if (decl.nodetype !== 1 || decl.kind !== 7) { // declaration && member group
+                return;
+            }
+
+            for (const member of decl.members || []) {
+                if (member.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
+                    this.edit_info[file].class_connections_member_name = member.declaration.name?.name
+                    this.edit_info[file].class_connections_member_declaration_loc = member.loc;
+                    return;
+                }
+            }
+        };
+
+        const maybeAddClassConnectionMemberInitialization = (decl) => {
+            if (decl.nodetype !== 1 || decl.kind !== 4 || decl.name?.name !== 'constructor') { // declaration && function
+                return;
+            }
+
+            for (const statement of decl.body?.statements || []) {
+                const right = statement.expression?.right;
+                if (right?.op !== 'New') {
+                    continue;
+                }
+                if (right.expression?.target?.name?.name === this.edit_info[file].class_connections_class_name ) {
+                    this.edit_info[file].class_connections_member_initialization_loc = statement.loc;
+                    const left = statement.expression.left;
+                    const member_name = this.edit_info[file].class_connections_member_name;
+                    if (member_name && member_name !== left.name?.name) {
+                        msg.log(`Class connections member name mismatch: ${member_name} != ${left.name.name}`);
+                    }
+                    return;
+                }
+            }
+        };
+
+        const maybeAddTriggerStatements = (decl) => {
+            if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) { // declaration && function
+                return;
+            }
+
+            for (const statement of decl.body.statements) {
+                const var_name = statement.retval?.target?.variable?.name?.name;
+                if (var_name && var_name === this.edit_info[file].class_connections_member_name) {
+                    this.edit_info[file].trigger_statement_locs = [
+                        ... this.edit_info[file].trigger_statement_locs || [],
+                        statement.loc
+                    ];
+                }
+            }
         };
 
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-            this.edit_info[file].class_connections_class_name = findClassConnectionClass(symbols);
-
+            maybeAddClassConnectionClass(symbols)
             symbols.forEach(symbol => {
                 if (!QorusProjectEditInfo.isSymbolExpectedClass(symbol, class_name)) {
                     return;
@@ -306,9 +304,9 @@ export class QorusProjectEditInfo {
 
                 for (const decl of symbol.declarations || []) {
                     if (this.edit_info[file].class_connections_class_name) {
-                        this.maybeAddClassConnectionMemberDeclaration(file, decl);
-                        this.maybeAddClassConnectionMemberInitialization(file, decl);
-                        this.maybeAddTriggerStatements(file, decl);
+                        maybeAddClassConnectionMemberDeclaration(decl);
+                        maybeAddClassConnectionMemberInitialization(decl);
+                        maybeAddTriggerStatements(decl);
                     }
                     if (QorusProjectEditInfo.isDeclPublicMethod(decl)) {
                         this.addClassDeclInfo(file, decl);
