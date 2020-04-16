@@ -75,7 +75,7 @@ export class QorusProjectEditInfo {
         const num_inherited = (symbol.inherits || []).length;
         const base_class_names = (symbol.inherits || []).map(inherited => inherited.name.name);
 
-        const addClassInfo = (main_base_class_ord: number = -1) => {
+        const addClass = (main_base_class_ord: number = -1) => {
             if (!this.edit_info[file]) {
                 this.edit_info[file] = {};
             }
@@ -100,21 +100,21 @@ export class QorusProjectEditInfo {
                     inherited.name && inherited.name.name === base_class_name);
 
                 if (index > -1) {
-                    addClassInfo(index);
+                    addClass(index);
                 } else {
                     if (message_on_mismatch) {
                         msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
                     }
-                    addClassInfo();
+                    addClass();
                 }
             } else {
-                addClassInfo();
+                addClass();
             }
         } else {
             if (base_class_name) {
                 msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
             }
-            addClassInfo();
+            addClass();
         }
     }
 
@@ -122,7 +122,7 @@ export class QorusProjectEditInfo {
         const class_def_range: vscode.Range = symbol.range;
         const class_name_range: vscode.Range = symbol.selectionRange;
 
-        const addClassInfo = (main_base_class_ord: number = -1) => {
+        const addClass = (main_base_class_ord: number = -1) => {
             if (!this.edit_info[file]) {
                 this.edit_info[file] = {};
             }
@@ -144,21 +144,21 @@ export class QorusProjectEditInfo {
         if (symbol.extends) {
             if (base_class_name) {
                 if (symbol.extends.name === base_class_name) {
-                    addClassInfo(0);
+                    addClass(0);
                 } else {
                     if (message_on_mismatch) {
                         msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
                     }
-                    addClassInfo();
+                    addClass();
                 }
             } else {
-                addClassInfo();
+                addClass();
             }
         } else {
             if (base_class_name) {
                 msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
             }
-            addClassInfo();
+            addClass();
         }
     }
 
@@ -174,14 +174,37 @@ export class QorusProjectEditInfo {
         return true;
     }
 
-    private maybeAddClassConnectionMemberDeclaration = (decl, class_connections_class) => {
-        if (decl.nodetype !== 1 || decl.kind !== 7) {
+    private maybeAddClassConnectionMemberDeclaration = (file, decl) => {
+        if (decl.nodetype !== 1 || decl.kind !== 7) { // declaration && member group
             return;
         }
 
         for (const member of decl.members || []) {
-            if (member.declaration?.typeName?.name === class_connections_class) {
-                msg.debug({ccDecl: member.declaration});
+            if (member.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
+                this.edit_info[file].class_connections_member_name = member.declaration.name?.name
+                this.edit_info[file].class_connections_member_declaration_loc = member.loc;
+                return;
+            }
+        }
+    }
+
+    private maybeAddClassConnectionMemberInitialization = (file, decl) => {
+        if (decl.nodetype !== 1 || decl.kind !== 4 || decl.name?.name !== 'constructor') { // declaration && function
+            return;
+        }
+
+        for (const statement of decl.body?.statements || []) {
+            const right = statement.expression?.right;
+            if (right?.op !== 'New') {
+                continue;
+            }
+            if (right.expression?.target?.name?.name === this.edit_info[file].class_connections_class_name ) {
+                this.edit_info[file].class_connections_member_initialization_loc = statement.loc;
+                const left = statement.expression.left;
+                const member_name = this.edit_info[file].class_connections_member_name;
+                if (member_name && member_name !== left.name?.name) {
+                    msg.log(`Class connections member name mismatch: ${member_name} != ${left.name.name}`);
+                }
             }
         }
     }
@@ -251,28 +274,30 @@ export class QorusProjectEditInfo {
         this.addTextLines(file, doc.text);
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-            const class_connections_class = findClassConnectionClass(symbols);
-            msg.debug({class_connections_class});
+            this.edit_info[file].class_connections_class_name = findClassConnectionClass(symbols);
 
             symbols.forEach(symbol => {
                 if (!QorusProjectEditInfo.isSymbolExpectedClass(symbol, class_name)) {
                     return;
                 }
 
-                this.addClassInfo(file, symbol, base_class_name, class_connections_class);
+                this.addClassInfo(file, symbol, base_class_name);
 
                 if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;
                 }
 
                 for (const decl of symbol.declarations || []) {
-                    msg.debug({decl});
-                    this.maybeAddClassConnectionMemberDeclaration(decl, class_connections_class);
+                    if (this.edit_info[file].class_connections_class_name) {
+                        this.maybeAddClassConnectionMemberDeclaration(file, decl);
+                        this.maybeAddClassConnectionMemberInitialization(file, decl);
+                    }
                     if (QorusProjectEditInfo.isDeclPublicMethod(decl)) {
                         this.addClassDeclInfo(file, decl);
                     }
                 }
             });
+            msg.debug({edit_info: this.edit_info});
             return Promise.resolve();
         });
     }
