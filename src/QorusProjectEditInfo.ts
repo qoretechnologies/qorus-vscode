@@ -205,6 +205,23 @@ export class QorusProjectEditInfo {
                 if (member_name && member_name !== left.name?.name) {
                     msg.log(`Class connections member name mismatch: ${member_name} != ${left.name.name}`);
                 }
+                return;
+            }
+        }
+    }
+
+    private maybeAddTriggerStatements = (file, decl) => {
+        if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) { // declaration && function
+            return;
+        }
+
+        for (const statement of decl.body.statements) {
+            const var_name = statement.retval?.target?.variable?.name?.name;
+            if (var_name && var_name === this.edit_info[file].class_connections_member_name) {
+                this.edit_info[file].trigger_statement_locs = [
+                    ... this.edit_info[file].trigger_statement_locs || [],
+                    statement.loc
+                ];
             }
         }
     }
@@ -227,9 +244,9 @@ export class QorusProjectEditInfo {
         return true;
     }
 
-    addFileInfo(file: string, data: any, force: boolean = true): Promise<void> {
+    addFileInfo(file: string, data: any): Promise<void> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
-        if (!iface_kind || (this.edit_info[file] && !force)) {
+        if (!iface_kind || this.edit_info[file]) {
             return Promise.resolve();
         }
 
@@ -291,6 +308,7 @@ export class QorusProjectEditInfo {
                     if (this.edit_info[file].class_connections_class_name) {
                         this.maybeAddClassConnectionMemberDeclaration(file, decl);
                         this.maybeAddClassConnectionMemberInitialization(file, decl);
+                        this.maybeAddTriggerStatements(file, decl);
                     }
                     if (QorusProjectEditInfo.isDeclPublicMethod(decl)) {
                         this.addClassDeclInfo(file, decl);
