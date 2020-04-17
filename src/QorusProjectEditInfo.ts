@@ -192,11 +192,13 @@ export class QorusProjectEditInfo {
         return true;
     }
 
-    addFileInfo(file: string, data: any): Promise<void> {
+    setFileInfo(file: string, data: any): Promise<any> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
-        if (!iface_kind || this.edit_info[file]) {
+        if (!iface_kind) {
             return Promise.resolve();
         }
+
+        this.edit_info[file] = undefined;
 
         const {
             'class-name': class_name,
@@ -278,10 +280,18 @@ export class QorusProjectEditInfo {
             for (const statement of decl.body.statements) {
                 const var_name = statement.retval?.target?.variable?.name?.name;
                 if (var_name && var_name === this.edit_info[file].class_connections_member_name) {
-                    this.edit_info[file].trigger_statement_locs = [
-                        ... this.edit_info[file].trigger_statement_locs || [],
-                        statement.loc
+                    this.edit_info[file].trigger_locs = [
+                        ... this.edit_info[file].trigger_locs || [],
+                        decl.loc
                     ];
+                    this.edit_info[file].trigger_names = [
+                        ... this.edit_info[file].trigger_names || [],
+                        decl.name?.name
+                    ];
+//                    this.edit_info[file].trigger_statement_locs = [
+//                        ... this.edit_info[file].trigger_statement_locs || [],
+//                        statement.loc
+//                    ];
                 }
             }
         };
@@ -313,7 +323,7 @@ export class QorusProjectEditInfo {
                     }
                 }
             });
-            return Promise.resolve();
+            return Promise.resolve(this.edit_info[file]);
         });
     }
 

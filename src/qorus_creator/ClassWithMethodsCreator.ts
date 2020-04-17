@@ -1,4 +1,4 @@
-import { workspace, window, Position } from 'vscode';
+import { workspace, window } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
 
 import { InterfaceCreator } from './InterfaceCreator';
@@ -83,7 +83,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = this.file_edit_info.text_lines;
-                code_lines = this.addMethods([...code_lines], method_renaming_map.added);
+                code_lines = this.addMethods(code_lines, method_renaming_map.added);
                 code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
@@ -239,29 +239,13 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     }
 
     private addMethods(lines: string[], added: string[]): string[] {
-        const end: Position = this.file_edit_info.class_def_range.end;
-
-        const lines_before = lines.splice(0, end.line);
-        const line = lines.splice(0, 1)[0];
-        const line_before = line.substr(0, end.character - 1);
-        const line_after = line.substr(end.character - 1);
-        const lines_after = lines;
-
-        let new_code = line_before;
-        for (let name of added) {
-            new_code += '\n' + this.fillTemplate(this.method_template, undefined, { name }, false);
-        }
-        const new_code_lines = new_code.split(/\r?\n/);
-        if (new_code_lines[new_code_lines.length - 1] === '') {
-            new_code_lines.pop();
-        }
-
-        return [
-            ...lines_before,
-            ...new_code_lines,
-            line_after,
-            ...lines_after
-        ];
+        return InterfaceCreator.addClassMethods(
+            [ ...lines ],
+            added,
+            this.file_edit_info.class_def_range,
+            this.method_template,
+            this.lang
+        );
     }
 
     deleteMethod(data: any, iface_kind) {
@@ -316,14 +300,20 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(this.fillTemplate(this.method_template, undefined, { name: method.name }, false));
+            method_strings.push(InterfaceCreator.fillTemplate(
+                this.method_template,
+                this.lang,
+                undefined,
+                { name: method.name },
+                false
+            ));
         }
         let methods = method_strings.join('\n');
         if (both_connections_and_methods) {
             methods += '\n';
         }
 
-        return this.fillTemplate(this.class_template, [...this.imports, ...imports], {
+        return InterfaceCreator.fillTemplate(this.class_template, this.lang, [...this.imports, ...imports], {
             class_name: data['class-name'],
             base_class_name: data['base-class-name'],
             methods,

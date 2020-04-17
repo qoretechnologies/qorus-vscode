@@ -95,7 +95,13 @@ class ClassCreator extends InterfaceCreator {
                 }
 
                 if (iface_kind === 'job' && !triggers.includes('run')) {
-                    methods = this.fillTemplate(simple_method_template[this.lang], undefined, { name: 'run' }, false);
+                    methods = InterfaceCreator.fillTemplate(
+                        simple_method_template[this.lang],
+                        this.lang,
+                        undefined,
+                        { name: 'run' },
+                        false
+                    );
                 }
 
                 else if (iface_kind === 'step') {
@@ -122,7 +128,7 @@ class ClassCreator extends InterfaceCreator {
                     methods += '\n';
                 }
 
-                contents = this.fillTemplate(template, [...imports, ...more_imports], {
+                contents = InterfaceCreator.fillTemplate(template, this.lang, [...imports, ...more_imports], {
                     class_name: data['class-name'],
                     base_class_name: data['base-class-name'],
                     methods,
@@ -143,7 +149,7 @@ class ClassCreator extends InterfaceCreator {
                     contents = code_lines.join('\n');
                 } else {
                     // has code now, but didn't have before this edit
-                    contents = this.fillTemplate(template, [...imports, ...more_imports], {
+                    contents = InterfaceCreator.fillTemplate(template, this.lang, [...imports, ...more_imports], {
                         class_name: data['class-name'],
                         base_class_name: data['base-class-name'],
                         methods,

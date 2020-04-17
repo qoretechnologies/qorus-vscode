@@ -15,12 +15,12 @@ export const lang_inherits = {
     qore: 'inherits',
 };
 
-export const default_parse_options = '\
+export const default_parse_options = { qore: '\
 %new-style\n\
 %strict-args\n\
 %require-types\n\
 %enable-all-warnings\n\n\
-';
+' };
 
 const classTemplate = (with_base_class) => {
     let class_template: any = {};

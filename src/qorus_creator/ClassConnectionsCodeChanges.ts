@@ -1,12 +1,19 @@
 import * as fs from 'fs';
 import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
+import { InterfaceCreator } from './InterfaceCreator';
+import { serviceTemplates } from './service_constants';
 import * as msg from '../qorus_message';
 
-export const classConnectionsCodeChanges = (file, edit_info: QorusProjectEditInfo, data, orig_data) => {
-    edit_info.addFileInfo(file, orig_data);
+
+export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectEditInfo, data, orig_data) => {
+    msg.debug({data, orig_data});
+    let edit_data = await edit_info.setFileInfo(file, orig_data);
 
     if (orig_data['class-connections'] && !Object.keys(data['class-connections'] || {}).length) {
-        removeClassConnectionsCode(file, edit_info.getInfo(file));
+        removeClassConnectionsCode(file, edit_data);
+        const { trigger_names } = edit_data;
+        edit_data = await edit_info.setFileInfo(file, orig_data);
+        addTriggers(file, trigger_names, edit_data, orig_data.lang || 'qore');
     }
 };
 
@@ -17,14 +24,16 @@ const removeClassConnectionsCode = (file, edit_data) => {
         class_connections_class_loc,
         class_connections_member_declaration_loc,
         class_connections_member_initialization_loc,
-        trigger_statement_locs
+        trigger_locs,
+//        trigger_statement_locs
     } = edit_data;
 
     const locs = [
         class_connections_class_loc,
         class_connections_member_declaration_loc,
         class_connections_member_initialization_loc,
-        ... trigger_statement_locs
+        ... trigger_locs,
+//        ... trigger_statement_locs
     ];
 
     let lines = [...text_lines];
@@ -87,3 +96,18 @@ const sortLocs = locs => locs.sort((a, b) => {
     }
     return 0;
 });
+
+const addTriggers = (file, trigger_names, edit_data, lang) => {
+    const { text_lines, class_def_range } = edit_data;
+
+    const lines = InterfaceCreator.addClassMethods(
+        [ ... text_lines ],
+        trigger_names,
+        class_def_range,
+        serviceTemplates(lang).method_template,
+        lang
+    );
+
+    msg.debug({lines2: lines});
+    fs.writeFileSync(file, lines.join('\n') + '\n');
+};

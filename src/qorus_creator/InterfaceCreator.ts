@@ -109,7 +109,7 @@ export abstract class InterfaceCreator {
                     this.editImpl(params);
                 });
             } else {
-                this.code_info.edit_info.addFileInfo(orig_file, params.orig_data).then(() => {
+                this.code_info.edit_info.setFileInfo(orig_file, params.orig_data).then(() => {
                     this.code_info.setPending('edit_info', false);
                     this.editImpl(params);
                 });
@@ -744,10 +744,36 @@ export abstract class InterfaceCreator {
         });
     }
 
-    protected fillTemplate = (template: string, imports: string[] = [],
-                              vars: any, add_default_parse_options: boolean = true): string =>
+    static addClassMethods(lines: string[], methods: string[], class_def_range, template, lang): string[] {
+        const end: Position = class_def_range.end;
+
+        const lines_before = lines.splice(0, end.line);
+        const line = lines.splice(0, 1)[0];
+        const line_before = line.substr(0, end.character - 1);
+        const line_after = line.substr(end.character - 1);
+        const lines_after = lines;
+
+        let new_code = line_before;
+        for (let name of methods) {
+            new_code += '\n' + InterfaceCreator.fillTemplate(template, lang, undefined, { name }, false);
+        }
+        const new_code_lines = new_code.split(/\r?\n/);
+        if (new_code_lines[new_code_lines.length - 1] === '') {
+            new_code_lines.pop();
+        }
+
+        return [
+            ...lines_before,
+            ...new_code_lines,
+            line_after,
+            ...lines_after
+        ];
+    }
+
+    static fillTemplate = (template: string, lang: string = 'qore', imports: string[] = [],
+                           vars: any, add_default_parse_options: boolean = true): string =>
     {
-        let result = add_default_parse_options && this.lang === 'qore' ? default_parse_options : '';
+        let result = add_default_parse_options ? default_parse_options[lang] || '' : '';
         result += removeDuplicates(imports).join('\n');
         if (imports.length) {
             result += '\n\n';
