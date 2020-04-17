@@ -85,20 +85,21 @@ export class InterfaceCreatorDispatcher {
     }
 
     static configItemTypeChanged({type, iface_id, iface_kind}) {
-        const postMessage = action =>
+        const postMessage = (action, fields) => fields.forEach(field =>
             qorus_webview.postMessage({
                 action: `creator-${action}-field`,
-                field: 'can_be_undefined',
+                field,
                 iface_id,
                 iface_kind
-            });
+            })
+        );
 
         if (type === 'any') {
-            postMessage('remove');
-            postMessage('disable');
+            postMessage('remove', ['can_be_undefined', 'allowed_values']);
+            postMessage('disable', ['can_be_undefined', 'allowed_values']);
         } else {
-            postMessage('enable');
-            postMessage('add');
+            postMessage('enable', ['can_be_undefined', 'allowed_values']);
+            postMessage('add', ['can_be_undefined']);
         }
     }
 

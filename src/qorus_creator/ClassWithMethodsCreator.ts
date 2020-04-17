@@ -5,7 +5,6 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { mapperCodeTemplates } from './mapper_constants';
 import { ClassConnections } from './ClassConnections';
-import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -126,10 +125,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
-            classConnectionsCodeChanges(this.file_path, data, orig_data);
-        }
-        if (open_file_on_success) {
-            workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+            if (open_file_on_success) {
+                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+            }
         }
 
         if (['create', 'edit'].includes(edit_type)) {
