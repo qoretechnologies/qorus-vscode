@@ -3,7 +3,6 @@ import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { GENERATED_TEXT } from './ClassConnections';
-import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectEditInfo, data, orig_data) => {
