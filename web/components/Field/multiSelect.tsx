@@ -86,7 +86,6 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     };
 
     const handleTagRemoveClick: (tag: string) => void = tag => {
-        console.log(tag);
         deselectItem(tag);
     };
 
@@ -99,14 +98,14 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     };
 
     const handleSaveTagEdit: () => void = () => {
-        const newItems = items.reduce((modifiedItems: any[], item: any) => {
+        const newItems = value.reduce((modifiedValue: any[], item: any) => {
             const newItem = { ...item };
             // Check if the item matches the default value of the edite item
             if (item.name === editorManager.defaultValue) {
                 newItem.name = editorManager.value;
             }
 
-            return [...modifiedItems, newItem];
+            return [...modifiedValue, newItem];
         }, []);
 
         setEditorManager({});
@@ -135,15 +134,15 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
         <>
             {editorManager.isOpen && (
                 <CustomDialog title={t('EditItem')} onClose={() => setEditorManager({})} isOpen>
-                    <StyledDialogBody>
+                    <StyledDialogBody style={{ flexFlow: 'column' }}>
+                        <String
+                            fill
+                            name="edit"
+                            value={editorManager.value}
+                            onChange={(_name, v) => setEditorManager({ ...editorManager, value: v })}
+                        />
+                        <br />
                         <ControlGroup fill>
-                            <String
-                                fill
-                                name="edit"
-                                value={editorManager.value}
-                                onChange={(_name, value) => setEditorManager({ ...editorManager, value })}
-                            />
-
                             <Button
                                 text={t('Save')}
                                 onClick={handleSaveTagEdit}
