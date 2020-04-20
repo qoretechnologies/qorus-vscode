@@ -50,7 +50,7 @@ export class ClassConnections {
     private triggers: any = {};
     private classes: any = {};
 
-    constructor(data, code_info, lang) {
+    constructor(data, code_info, lang = 'qore') {
         const {
             'class-connections': connections,
             iface_kind,

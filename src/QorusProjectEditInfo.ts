@@ -192,7 +192,7 @@ export class QorusProjectEditInfo {
         return true;
     }
 
-    setFileInfo(file: string, data: any): Promise<any> {
+    setFileInfo(file: string, data: any, add_class_connections_info: boolean = true): Promise<any> {
         const iface_kind = suffixToIfaceKind(path.extname(file));
         if (!iface_kind) {
             return Promise.resolve();
@@ -236,13 +236,9 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddClassConnectionMemberDeclaration = (decl) => {
+        const maybeAddClassConnectionMemberDeclaration = decl => {
             if (decl.nodetype !== 1 || decl.kind !== 7) { // declaration && member group
                 return;
-            }
-
-            if (decl.modifiers.indexOf('private') > -1) {
-                this.edit_info[file].private_member_block_loc = decl.loc;
             }
 
             for (const member of decl.members || []) {
@@ -251,6 +247,16 @@ export class QorusProjectEditInfo {
                     this.edit_info[file].class_connections_member_declaration_loc = member.loc;
                     return;
                 }
+            }
+        };
+
+        const maybeAddPrivateMemberBlock = decl => {
+            if (decl.nodetype !== 1 || decl.kind !== 7) { // declaration && member group
+                return;
+            }
+
+            if (decl.modifiers.indexOf('private') > -1) {
+                this.edit_info[file].private_member_block_loc = decl.loc;
             }
         };
 /*
@@ -304,7 +310,9 @@ export class QorusProjectEditInfo {
         this.addTextLines(file, doc.text);
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-            maybeAddClassConnectionClass(symbols)
+            if (add_class_connections_info) {
+                maybeAddClassConnectionClass(symbols);
+            }
             symbols.forEach(symbol => {
                 if (!QorusProjectEditInfo.isSymbolExpectedClass(symbol, class_name)) {
                     return;
@@ -317,11 +325,14 @@ export class QorusProjectEditInfo {
                 }
 
                 for (const decl of symbol.declarations || []) {
-                    if (this.edit_info[file].class_connections_class_name) {
+                    if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
 //                        maybeAddClassConnectionMemberInitialization(decl);
                         maybeAddTriggerStatements(decl);
+                    } else {
+                        maybeAddPrivateMemberBlock(decl);
                     }
+
                     if (QorusProjectEditInfo.isDeclPublicMethod(decl)) {
                         this.addClassDeclInfo(file, decl);
                     }

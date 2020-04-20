@@ -1,11 +1,15 @@
 import * as fs from 'fs';
+import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
+import { ClassConnections } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { GENERATED_TEXT } from './ClassConnections';
+import * as msg from '../qorus_message';
 
 
-export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectEditInfo, data, orig_data) => {
+export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, data, orig_data) => {
+    const edit_info: QorusProjectEditInfo = code_info.edit_info;
     let edit_data;
     let lines;
 
@@ -24,11 +28,25 @@ export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectE
 
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
-        edit_data = await edit_info.setFileInfo(file, orig_data);
+        const class_connections = new ClassConnections({...data, iface_kind: data.type}, code_info, data.lang);
+        edit_data = await edit_info.setFileInfo(file, data, false);
+        let { lines, line_shift } = insertMemberDeclaration(edit_data);
     }
 };
 
-const removeClassConnectionsCode = (edit_data) => {
+const insertMemberDeclaration = edit_data => {
+    const { text_lines, private_member_block_loc } = edit_data;
+    let lines = [ ...text_lines ];
+    let line_shift = 0;
+
+    // if the closing '}' of the private declaration block is not on a separate line move it to the next line
+    let end_line = lines[private_member_block_loc.end_line - 1];
+    if (!end_line.match(/^\s*\}\s*$/)) {
+        msg.debug({end_line});
+    }
+};
+
+const removeClassConnectionsCode = edit_data => {
     const {
         text_lines,
         class_connections_class_loc,
