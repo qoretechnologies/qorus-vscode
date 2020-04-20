@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
+import { GENERATED_TEXT } from './ClassConnections';
 import * as msg from '../qorus_message';
 
 
@@ -13,7 +14,9 @@ export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectE
         removeClassConnectionsCode(file, edit_data);
         const { trigger_names } = edit_data;
         edit_data = await edit_info.setFileInfo(file, orig_data);
-        addTriggers(file, trigger_names, edit_data, orig_data.lang || 'qore');
+        let lines = addTriggers(trigger_names, edit_data, orig_data.lang || 'qore');
+        lines = cleanup(lines);
+        fs.writeFileSync(file, lines.join('\n') + '\n');
     }
 };
 
@@ -97,7 +100,7 @@ const sortLocs = locs => locs.sort((a, b) => {
     return 0;
 });
 
-const addTriggers = (file, trigger_names, edit_data, lang) => {
+const addTriggers = (trigger_names, edit_data, lang) => {
     const { text_lines, class_def_range } = edit_data;
 
     const lines = InterfaceCreator.addClassMethods(
@@ -108,6 +111,56 @@ const addTriggers = (file, trigger_names, edit_data, lang) => {
         lang
     );
 
-    msg.debug({lines2: lines});
-    fs.writeFileSync(file, lines.join('\n') + '\n');
+    return lines;
+};
+
+const cleanup = dirty_lines => {
+    const isGeneratedBegin = line => line.indexOf(GENERATED_TEXT.begin) > -1;
+    const isGeneratedEnd = line => line.indexOf(GENERATED_TEXT.end) > -1;
+
+    // 1. trim ending whitespaces of each line
+    // 2. remove sections of generated code (between BEGIN and END) with only empty lines inside
+    // 3 .remove GENERATED END lines with no matching GENERATED BEGIN line
+    // 4. reduce double empty lines (replace tripple newlines with double newlines)
+    // 5. remove empty lines at the end
+    let generated_lines = [];
+    let is_generated_empty;
+    let is_inside_generated = false;
+    let is_previous_empty = false;
+
+    let lines = [];
+    let line;
+    while ((line = dirty_lines.shift()) !== undefined) {
+        line = line.trimEnd(); // 1.
+        if (isGeneratedBegin(line)) {
+            generated_lines.push(line);
+            is_generated_empty = true;
+            is_inside_generated = true;
+        } else if (isGeneratedEnd(line)) {
+            if (!is_inside_generated) {
+                continue; // 3.
+            }
+            generated_lines.push(line);
+            if (!is_generated_empty) {
+                lines = [...lines, ...generated_lines];
+            }
+            generated_lines = [];
+            is_inside_generated = false;
+        } else if (is_inside_generated) {
+            is_generated_empty = is_generated_empty && line === '';
+        } else {
+            const is_empty = line === '';
+            if (!is_empty || !is_previous_empty) {
+                lines.push(line);
+            }
+            is_previous_empty = is_empty;
+        }
+    }
+
+    // 5.
+    while (lines[lines.length-1] === '') {
+        lines.pop();
+    }
+
+    return lines;
 };

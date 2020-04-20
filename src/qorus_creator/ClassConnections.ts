@@ -11,14 +11,19 @@ export const CONN_CALL_METHOD = 'callClassWithPrefixMethod';
 const CONN_MAPPER = 'mapper';
 const CONN_DATA = 'params';
 
+export const GENERATED_TEXT = {
+    begin: 'GENERATED SECTION! DON\'T EDIT!',
+    end: 'GENERATED SECTION END'
+};
+
 const GENERATED = {
     qore: {
-        begin: '####### GENERATED SECTION! DON\'T EDIT! ########',
-        end: '############ GENERATED SECTION END ############'
+        begin: '####### ${GENERATED_TEXT.begin} ########',
+        end: '############ ${GENERATED_TEXT.end} ############'
     },
     java: {
-        begin: '// ==== GENERATED SECTION! DON\'T EDIT! ==== //',
-        end: '// ======== GENERATED SECTION END ========= //'
+        begin: '// ==== ${GENERATED_TEXT.begin} ==== //',
+        end: '// ======== ${GENERATED_TEXT.end} ========= //'
     }
 };
 
