@@ -18,12 +18,12 @@ export const GENERATED_TEXT = {
 
 const GENERATED = {
     qore: {
-        begin: '####### ${GENERATED_TEXT.begin} ########',
-        end: '############ ${GENERATED_TEXT.end} ############'
+        begin: `####### ${GENERATED_TEXT.begin} ########`,
+        end: `############ ${GENERATED_TEXT.end} ############`
     },
     java: {
-        begin: '// ==== ${GENERATED_TEXT.begin} ==== //',
-        end: '// ======== ${GENERATED_TEXT.end} ========= //'
+        begin: `// ==== ${GENERATED_TEXT.begin} ==== //`,
+        end: `// ======== ${GENERATED_TEXT.end} ========= //`
     }
 };
 
@@ -185,25 +185,14 @@ export class ClassConnections {
     protected constructorCodeQore = () =>
         `${indent1}private {\n` +
         `${indent2}${GENERATED.qore.begin}\n` +
-        `${indent2}${this.connClassName()} ${CONN_MEMBER.qore};\n` +
-        `${indent2}${GENERATED.qore.end}\n` +
-        `${indent1}}\n\n` +
-        `${indent1}constructor() {\n` +
-        `${indent2}${GENERATED.qore.begin}\n` +
-        `${indent2}${CONN_MEMBER.qore} = new ${this.connClassName()}();\n` +
+        `${indent2}${this.connClassName()} ${CONN_MEMBER.qore}();\n` +
         `${indent2}${GENERATED.qore.end}\n` +
         `${indent1}}\n`;
 
     protected constructorCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
-        `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
-        `${indent1}${GENERATED.java.end}\n` +
-        `${indent1}\n\n` +
-        `${indent1}${this.class_name}() ${THROWS} {\n` +
-        `${indent2}${GENERATED.java.begin}\n` +
-        `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
-        `${indent2}${GENERATED.java.end}\n` +
-        `${indent1}}\n`;
+        `${indent1}${this.connClassName()} ${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
+        `${indent1}${GENERATED.java.end}\n\n`;
 
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;
