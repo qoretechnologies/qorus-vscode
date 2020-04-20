@@ -9,7 +9,6 @@ import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { ClassConnections } from './ClassConnections';
-import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
