@@ -2141,3 +2141,6 @@ msgstr "Ping did not return 'OK': ${ url }"
 
 msgid "ActiveQorusPingError"
 msgstr "Active Qorus instance ping error"
+
+msgid "EditItem"
+msgstr "Edit item"

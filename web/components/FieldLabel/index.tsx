@@ -1,5 +1,7 @@
 import React, { FunctionComponent } from 'react';
+
 import styled from 'styled-components';
+
 import { Icon, Intent } from '@blueprintjs/core';
 
 const StyledFieldLabel = styled.div`
@@ -40,7 +42,7 @@ export interface IFieldLabel {
 
 const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) => (
     <StyledFieldLabel>
-        <FieldLabelName>{label}</FieldLabelName>
+        {label && <FieldLabelName>{label}</FieldLabelName>}
         {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
         <FieldLabelValid>
             <Icon
