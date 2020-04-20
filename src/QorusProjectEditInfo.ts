@@ -241,6 +241,10 @@ export class QorusProjectEditInfo {
                 return;
             }
 
+            if (decl.modifiers.indexOf('private') > -1) {
+                this.edit_info[file].private_member_block_loc = decl.loc;
+            }
+
             for (const member of decl.members || []) {
                 if (member.target?.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
                     this.edit_info[file].class_connections_member_name = member.target.declaration.name?.name

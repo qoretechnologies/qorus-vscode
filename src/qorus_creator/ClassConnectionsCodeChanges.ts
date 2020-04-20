@@ -6,19 +6,29 @@ import { GENERATED_TEXT } from './ClassConnections';
 
 
 export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectEditInfo, data, orig_data) => {
-    let edit_data = await edit_info.setFileInfo(file, orig_data);
+    let edit_data;
+    let lines;
 
-    if (orig_data['class-connections'] && !Object.keys(data['class-connections'] || {}).length) {
-        removeClassConnectionsCode(file, edit_data);
+    // remove original class connections code
+    if (Object.keys(orig_data['class-connections'] || {}).length) {
+        edit_data = await edit_info.setFileInfo(file, orig_data);
+        lines = removeClassConnectionsCode(edit_data);
+        fs.writeFileSync(file, lines.join('\n') + '\n');
+
         const { trigger_names } = edit_data;
         edit_data = await edit_info.setFileInfo(file, orig_data);
-        let lines = addTriggers(trigger_names, edit_data, orig_data.lang || 'qore');
+        lines = addTriggers(trigger_names, edit_data, orig_data.lang || 'qore');
         lines = cleanup(lines);
         fs.writeFileSync(file, lines.join('\n') + '\n');
     }
+
+    // add new class connections code
+    if (Object.keys(data['class-connections'] || {}).length) {
+        edit_data = await edit_info.setFileInfo(file, orig_data);
+    }
 };
 
-const removeClassConnectionsCode = (file, edit_data) => {
+const removeClassConnectionsCode = (edit_data) => {
     const {
         text_lines,
         class_connections_class_loc,
@@ -34,9 +44,7 @@ const removeClassConnectionsCode = (file, edit_data) => {
     });
     locs = [ ...locs, ... trigger_locs || [] ];
 
-    let lines = [...text_lines];
-    lines = removeRanges(lines, locs);
-    fs.writeFileSync(file, lines.join('\n') + '\n');
+    return removeRanges([...text_lines], locs);
 };
 
 const removeRanges = (lines, locs) => {
