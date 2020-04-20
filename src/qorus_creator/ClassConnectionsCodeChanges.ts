@@ -7,7 +7,6 @@ import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectEditInfo, data, orig_data) => {
-    msg.debug({data, orig_data});
     let edit_data = await edit_info.setFileInfo(file, orig_data);
 
     if (orig_data['class-connections'] && !Object.keys(data['class-connections'] || {}).length) {
@@ -21,27 +20,23 @@ export const classConnectionsCodeChanges = async (file, edit_info: QorusProjectE
 };
 
 const removeClassConnectionsCode = (file, edit_data) => {
-    msg.debug({file, edit_data});
     const {
         text_lines,
         class_connections_class_loc,
         class_connections_member_declaration_loc,
-        class_connections_member_initialization_loc,
         trigger_locs,
-//        trigger_statement_locs
     } = edit_data;
 
-    const locs = [
-        class_connections_class_loc,
-        class_connections_member_declaration_loc,
-        class_connections_member_initialization_loc,
-        ... trigger_locs,
-//        ... trigger_statement_locs
-    ];
+    let locs = [];
+    [class_connections_class_loc, class_connections_member_declaration_loc].forEach(loc => {
+        if (loc) {
+            locs.push(loc);
+        }
+    });
+    locs = [ ...locs, ... trigger_locs || [] ];
 
     let lines = [...text_lines];
     lines = removeRanges(lines, locs);
-    msg.debug({lines});
     fs.writeFileSync(file, lines.join('\n') + '\n');
 };
 

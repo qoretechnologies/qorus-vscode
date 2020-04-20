@@ -242,14 +242,14 @@ export class QorusProjectEditInfo {
             }
 
             for (const member of decl.members || []) {
-                if (member.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
-                    this.edit_info[file].class_connections_member_name = member.declaration.name?.name
+                if (member.target?.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
+                    this.edit_info[file].class_connections_member_name = member.target.declaration.name?.name
                     this.edit_info[file].class_connections_member_declaration_loc = member.loc;
                     return;
                 }
             }
         };
-
+/*
         const maybeAddClassConnectionMemberInitialization = (decl) => {
             if (decl.nodetype !== 1 || decl.kind !== 4 || decl.name?.name !== 'constructor') { // declaration && function
                 return;
@@ -271,7 +271,7 @@ export class QorusProjectEditInfo {
                 }
             }
         };
-
+*/
         const maybeAddTriggerStatements = (decl) => {
             if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) { // declaration && function
                 return;
@@ -315,7 +315,7 @@ export class QorusProjectEditInfo {
                 for (const decl of symbol.declarations || []) {
                     if (this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
-                        maybeAddClassConnectionMemberInitialization(decl);
+//                        maybeAddClassConnectionMemberInitialization(decl);
                         maybeAddTriggerStatements(decl);
                     }
                     if (QorusProjectEditInfo.isDeclPublicMethod(decl)) {
