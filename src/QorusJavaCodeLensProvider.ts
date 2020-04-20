@@ -33,7 +33,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                         continue;
                     }
                     this.addMethodLenses(
-                        iface_kind, lenses, child.range, data,
+                        iface_kind, lenses, child.selectionRange, data,
                         child.name.replace(/\(.*\)/, ''), symbol.name
                     );
                 }
