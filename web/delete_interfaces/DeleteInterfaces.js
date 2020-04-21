@@ -22,8 +22,9 @@ import withTextContext from '../hocomponents/withTextContext';
 
 const columns = {
     workflows: ['name', 'version', 'workflowid', 'description'],
-    services: ['name', 'version', 'serviceid'],
+    services: ['name', 'version', 'serviceid', 'description'],
     jobs: ['name', 'version', 'jobid', 'description'],
+    steps: ['name', 'version', 'stepid', 'description'],
     classes: ['name', 'version', 'classid', 'description', 'language'],
     constants: ['name', 'version', 'constantid', 'description'],
     mappers: ['name', 'version', 'mapperid', 'desc', 'type'],
@@ -199,6 +200,7 @@ class DeleteInterfaces extends Component {
                     <Tab id="workflows" title={t('Workflows')} panel={Interfaces} />
                     <Tab id="services" title={t('Services')} panel={Interfaces} />
                     <Tab id="jobs" title={t('Jobs')} panel={Interfaces} />
+                    <Tab id="steps" title={t('Steps')} panel={Interfaces} />
                     <Tab id="classes" title={t('Classes')} panel={Interfaces} />
                     <Tab id="constants" title={t('Constants')} panel={Interfaces} />
                     <Tab id="mappers" title={t('Mappers')} panel={Interfaces} />
