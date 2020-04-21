@@ -1,37 +1,41 @@
 import * as fs from 'fs';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
-import { ClassConnections } from './ClassConnections';
+import { ClassConnections, GENERATED_TEXT } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
-import { GENERATED_TEXT } from './ClassConnections';
 import * as msg from '../qorus_message';
 
 
-export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, data, orig_data) => {
+export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, data, orig_data, iface_kind) => {
     const edit_info: QorusProjectEditInfo = code_info.edit_info;
     let edit_data;
     let lines;
 
     // remove original class connections code
     if (Object.keys(orig_data['class-connections'] || {}).length) {
-        edit_data = await edit_info.setFileInfo(file, orig_data);
+        const mixed_data = {
+            'class-name': data['class-name'],
+            'base-class-name': data['base-class-name'],
+            'class-connections': orig_data['class-connections']
+        };
+        edit_data = await edit_info.setFileInfo(file, mixed_data);
         lines = removeClassConnectionsCode(edit_data);
         fs.writeFileSync(file, lines.join('\n') + '\n');
 
-        const { trigger_names } = edit_data;
-        edit_data = await edit_info.setFileInfo(file, orig_data);
-        lines = addTriggers(trigger_names, edit_data, orig_data.lang || 'qore');
+        const { trigger_names: method_names } = edit_data;
+        edit_data = await edit_info.setFileInfo(file, mixed_data);
+        lines = addMethods(method_names, edit_data, orig_data.lang || 'qore');
         lines = cleanup(lines);
         fs.writeFileSync(file, lines.join('\n') + '\n');
     }
 
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
-        msg.debug({data});
-        const class_connections = new ClassConnections({...data, iface_kind: data.type}, code_info, data.lang);
+        const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, data.lang);
         edit_data = await edit_info.setFileInfo(file, data, false);
         let { lines, line_shift } = insertMemberDeclaration(class_connections, edit_data);
+        lines = insertTriggerCode(class_connections, edit_data, lines, line_shift);
 
         lines = cleanup(lines);
         fs.writeFileSync(file, lines.join('\n') + '\n');
@@ -43,9 +47,9 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
     let lines = [ ...text_lines ];
     let line_shift = 0;
 
-    // if the closing '}' of the private declaration block is not on a separate line move it to the next line
     const end_line_no = private_member_block_loc.end_line - 1;
     const end_line = lines[end_line_no];
+    // if the closing '}' of the private declaration block is not on a separate line move it to the next line
     if (!end_line.match(/^\s*\}\s*$/)) {
         const end_column = private_member_block_loc.end_column - 2;
         const end_line_1 = end_line.substr(0, end_column);
@@ -54,12 +58,27 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
         line_shift++;
     }
 
-    const member_decl_code = class_connections.memberDeclCode().split(/\r?\n/);
-    member_decl_code.pop();
-    lines.splice(end_line_no + line_shift, 0, ...member_decl_code);
-    line_shift += member_decl_code.length;
+    const member_decl_code_lines = class_connections.memberDeclCode().split(/\r?\n/);
+    member_decl_code_lines.pop();
+    lines.splice(end_line_no + line_shift, 0, ...member_decl_code_lines);
+    line_shift += member_decl_code_lines.length;
 
     return { lines, line_shift };
+};
+
+const insertTriggerCode = (class_connections, edit_data, lines, line_shift) => {
+    const { trigger_code } = class_connections.code();
+    if (!trigger_code) {
+        return lines;
+    }
+
+    const { last_class_line } = edit_data;
+    const trigger_code_lines = trigger_code.split(/\r?\n/);
+    trigger_code_lines.pop();
+    lines.splice(last_class_line + line_shift, 0, ...trigger_code_lines);
+    line_shift += trigger_code_lines.length;
+
+    return lines;
 };
 
 const removeClassConnectionsCode = edit_data => {
@@ -136,12 +155,12 @@ const sortLocs = locs => locs.sort((a, b) => {
     return 0;
 });
 
-const addTriggers = (trigger_names, edit_data, lang) => {
+const addMethods = (method_names, edit_data, lang) => {
     const { text_lines, class_def_range } = edit_data;
 
     const lines = InterfaceCreator.addClassMethods(
         [ ... text_lines ],
-        trigger_names,
+        method_names,
         class_def_range,
         serviceTemplates(lang).method_template,
         lang

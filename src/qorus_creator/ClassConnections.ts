@@ -135,14 +135,17 @@ export class ClassConnections {
         }
 
         let connections_within_class = this[`memberDeclBlockCode${capitalize(this.lang)}`]();
+        let trigger_code = '';
 
         if (Object.keys(this.triggers).length) {
-            connections_within_class += `\n${indent1}${GENERATED[this.lang].begin}\n` +
+            trigger_code = `\n${indent1}${GENERATED[this.lang].begin}\n` +
             Object.keys(this.triggers)
                   .map(trigger => (this[`triggerCode${capitalize(this.lang)}`])(this.triggers[trigger]))
                   .join('\n') +
             `${indent1}${GENERATED[this.lang].end}\n`;
         }
+
+        connections_within_class += trigger_code;
 
         const connections_extra_class = `\n\n${GENERATED[this.lang].begin}\n` +
             this[`extraClassCode${capitalize(this.lang)}`](event_based_connections) + '\n' +
@@ -151,6 +154,7 @@ export class ClassConnections {
 
         return {
             triggers: Object.keys(this.triggers),
+            trigger_code,
             connections_within_class,
             connections_extra_class,
             imports: this[`getImports${capitalize(this.lang)}`](exists_qore_connector)
