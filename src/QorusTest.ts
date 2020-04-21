@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import * as urlJoin from 'url-join';
+
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import { QorusLogin } from './QorusLogin';
 import * as msg from './qorus_message';
@@ -69,7 +71,7 @@ class QorusTest extends QorusLogin {
             return Promise.resolve(false);
         }
 
-        const url: string = active_instance.url + '/api/latest/development/test';
+        const url: string = urlJoin(active_instance.url, 'api/latest/development/test');
 
         msg.log(t`FilesToTest`);
         let data: object[] = [];

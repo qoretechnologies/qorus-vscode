@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
+import * as urlJoin from 'url-join';
 import * as request from 'request-promise';
+
 import { QorusLogin } from './QorusLogin';
 import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
@@ -28,7 +30,7 @@ export class QorusRequest extends QorusLogin {
                     msg.error(t`ResponseIdUndefined`);
                     return false;
                 }
-                this.checkRequestResult(options.uri, response.id, texts, onFinished);
+                this.checkRequestResult(options.uri, response.id.toString(), texts, onFinished);
                 return true;
             },
             (error: any) => {
@@ -55,7 +57,7 @@ export class QorusRequest extends QorusLogin {
 
                     const options = {
                         method: 'DELETE',
-                        uri: `${url}/${request_id}`,
+                        uri: urlJoin(url, request_id),
                         strictSSL: false,
                         headers: {
                             'qorus-token': token,
@@ -75,7 +77,7 @@ export class QorusRequest extends QorusLogin {
 
                 const options = {
                     method: 'GET',
-                    uri: `${url}/${request_id}`,
+                    uri: urlJoin(url, request_id),
                     strictSSL: false,
                     headers: {
                         'qorus-token': token,
@@ -138,7 +140,7 @@ export class QorusRequest extends QorusLogin {
             return;
         }
 
-        const uri = `${active_instance.url}/api/latest/${url}`;
+        const uri = urlJoin(active_instance.url, 'api/latest', url);
         if (log_request_messages) {
             msg.log(t`SendingRequest ${id} ${uri}`);
         }
