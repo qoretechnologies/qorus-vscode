@@ -28,22 +28,38 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
+        msg.debug({data});
         const class_connections = new ClassConnections({...data, iface_kind: data.type}, code_info, data.lang);
         edit_data = await edit_info.setFileInfo(file, data, false);
-        let { lines, line_shift } = insertMemberDeclaration(edit_data);
+        let { lines, line_shift } = insertMemberDeclaration(class_connections, edit_data);
+
+        lines = cleanup(lines);
+        fs.writeFileSync(file, lines.join('\n') + '\n');
     }
 };
 
-const insertMemberDeclaration = edit_data => {
+const insertMemberDeclaration = (class_connections, edit_data) => {
     const { text_lines, private_member_block_loc } = edit_data;
     let lines = [ ...text_lines ];
     let line_shift = 0;
 
     // if the closing '}' of the private declaration block is not on a separate line move it to the next line
-    let end_line = lines[private_member_block_loc.end_line - 1];
+    const end_line_no = private_member_block_loc.end_line - 1;
+    const end_line = lines[end_line_no];
     if (!end_line.match(/^\s*\}\s*$/)) {
-        msg.debug({end_line});
+        const end_column = private_member_block_loc.end_column - 2;
+        const end_line_1 = end_line.substr(0, end_column);
+        const end_line_2 = ' '.repeat(end_column) + end_line.substr(end_column);
+        lines.splice(end_line_no, 1, end_line_1, end_line_2);
+        line_shift++;
     }
+
+    const member_decl_code = class_connections.memberDeclCode().split(/\r?\n/);
+    member_decl_code.pop();
+    lines.splice(end_line_no + line_shift, 0, ...member_decl_code);
+    line_shift += member_decl_code.length;
+
+    return { lines, line_shift };
 };
 
 const removeClassConnectionsCode = edit_data => {
@@ -167,6 +183,7 @@ const cleanup = dirty_lines => {
             generated_lines = [];
             is_inside_generated = false;
         } else if (is_inside_generated) {
+            generated_lines.push(line);
             is_generated_empty = is_generated_empty && line === '';
         } else {
             const is_empty = line === '';

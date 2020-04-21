@@ -134,7 +134,7 @@ export class ClassConnections {
             method_codes.push(this[`methodCode${capitalize(this.lang)}`](connection_code_name, connectors));
         }
 
-        let connections_within_class = this[`constructorCode${capitalize(this.lang)}`]();
+        let connections_within_class = this[`memberDeclBlockCode${capitalize(this.lang)}`]();
 
         if (Object.keys(this.triggers).length) {
             connections_within_class += `\n${indent1}${GENERATED[this.lang].begin}\n` +
@@ -182,17 +182,24 @@ export class ClassConnections {
         return imports;
     }
 
-    protected constructorCodeQore = () =>
-        `${indent1}private {\n` +
+    memberDeclCode = () => this[`memberDeclCode${capitalize(this.lang)}`]();
+
+    protected memberDeclCodeQore = () =>
         `${indent2}${GENERATED.qore.begin}\n` +
         `${indent2}${this.connClassName()} ${CONN_MEMBER.qore}();\n` +
-        `${indent2}${GENERATED.qore.end}\n` +
+        `${indent2}${GENERATED.qore.end}\n`;
+
+    protected memberDeclBlockCodeQore = () =>
+        `${indent1}private {\n` +
+        this.memberDeclCodeQore() +
         `${indent1}}\n`;
 
-    protected constructorCodeJava = () =>
+    protected meberDeclCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
         `${indent1}${this.connClassName()} ${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
         `${indent1}${GENERATED.java.end}\n\n`;
+
+    protected meberDeclBlockCodeJava = () => this.meberDeclCodeJava();
 
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;
