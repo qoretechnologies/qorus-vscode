@@ -260,6 +260,9 @@ export class QorusProjectEditInfo {
 
             if (decl.modifiers.indexOf('private') > -1) {
                 this.edit_info[file].private_member_block_loc = decl.loc;
+                if (!decl.members?.length) {
+                    this.edit_info[file].empty_private_member_block = true;
+                }
             }
         };
 /*

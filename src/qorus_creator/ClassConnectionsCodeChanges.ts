@@ -4,6 +4,7 @@ import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
 import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
+//import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, data, orig_data, iface_kind) => {
@@ -29,6 +30,13 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
         writeFile(lines);
 
         ({ trigger_names: method_names } = edit_data);
+
+        edit_data = await edit_info.setFileInfo(file, data, false);
+        if (edit_data.empty_private_member_block) {
+            lines = deleteEmptyPrivateMemberBlock(edit_data);
+            lines = cleanup(lines);
+            writeFile(lines);
+        }
     }
 
     // add new class connections code
@@ -238,6 +246,26 @@ const removeMethods = (method_names, edit_data) => {
 
     return lines;
 };
+
+const deleteEmptyPrivateMemberBlock = edit_data => {
+    const { text_lines, private_member_block_loc: block } = edit_data;
+    let lines = [];
+
+    for (let i = 0; i < block.start_line - 1; i++) {
+        lines.push(text_lines[i]);
+    }
+
+    lines.push(text_lines[block.start_line - 1].substr(0, block.start_column - 1));
+    lines.push(text_lines[block.end_line - 1].substr(block.end_column - 1));
+    if (text_lines[block.end_line].match(/\S/)) {
+        lines.push(text_lines[block.end_line]);
+    }
+    for (let i = block.end_line + 1; i < text_lines.length; i++) {
+        lines.push(text_lines[i]);
+    }
+
+    return lines;
+}
 
 const cleanup = dirty_lines => {
     const isGeneratedBegin = line => line.indexOf(GENERATED_TEXT.begin) > -1;
