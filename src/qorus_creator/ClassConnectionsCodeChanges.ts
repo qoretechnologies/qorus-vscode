@@ -11,34 +11,49 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     const edit_info: QorusProjectEditInfo = code_info.edit_info;
     let edit_data;
     let lines;
+    let method_names;
+    let trigger_names;
+
+    const mixed_data = {
+        'class-name': data['class-name'],
+        'base-class-name': data['base-class-name'],
+        'class-connections': orig_data['class-connections']
+    };
+
+    const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
     // remove original class connections code
     if (Object.keys(orig_data['class-connections'] || {}).length) {
-        const mixed_data = {
-            'class-name': data['class-name'],
-            'base-class-name': data['base-class-name'],
-            'class-connections': orig_data['class-connections']
-        };
         edit_data = await edit_info.setFileInfo(file, mixed_data);
         lines = removeClassConnectionsCode(edit_data);
-        fs.writeFileSync(file, lines.join('\n') + '\n');
-
-        const { trigger_names: method_names } = edit_data;
-        edit_data = await edit_info.setFileInfo(file, mixed_data);
-        lines = addMethods(method_names, edit_data, orig_data.lang || 'qore');
         lines = cleanup(lines);
-        fs.writeFileSync(file, lines.join('\n') + '\n');
+        writeFile(lines);
+
+        ({ trigger_names: method_names } = edit_data);
     }
 
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
         const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, data.lang);
+
         edit_data = await edit_info.setFileInfo(file, data, false);
         let { lines, line_shift } = insertMemberDeclaration(class_connections, edit_data);
-        lines = insertTriggerCode(class_connections, edit_data, lines, line_shift);
+        ({ lines, trigger_names } = insertTriggerCode(class_connections, edit_data, lines, line_shift));
 
         lines = cleanup(lines);
-        fs.writeFileSync(file, lines.join('\n') + '\n');
+        writeFile(lines);
+    }
+
+    let methods_to_add = [];
+    method_names.forEach(method_name => {
+        if (!trigger_names.contains(method_name)) {
+            methods_to_add.push(method_name);
+        }
+    });
+    if (methods_to_add.length) {
+        edit_data = await edit_info.setFileInfo(file, mixed_data);
+        lines = addMethods(methods_to_add, edit_data, orig_data.lang || 'qore');
+        writeFile(lines);
     }
 };
 
@@ -67,7 +82,7 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
 };
 
 const insertTriggerCode = (class_connections, edit_data, lines, line_shift) => {
-    const { trigger_code } = class_connections.code();
+    const { triggers: trigger_names, trigger_code } = class_connections.code();
     if (!trigger_code) {
         return lines;
     }
@@ -78,7 +93,7 @@ const insertTriggerCode = (class_connections, edit_data, lines, line_shift) => {
     lines.splice(last_class_line + line_shift, 0, ...trigger_code_lines);
     line_shift += trigger_code_lines.length;
 
-    return lines;
+    return { lines, trigger_names };
 };
 
 const removeClassConnectionsCode = edit_data => {
@@ -166,6 +181,7 @@ const addMethods = (method_names, edit_data, lang) => {
         lang
     );
 
+    lines.unshift('');
     return lines;
 };
 
