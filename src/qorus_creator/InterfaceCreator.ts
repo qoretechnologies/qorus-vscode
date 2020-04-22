@@ -770,6 +770,29 @@ export abstract class InterfaceCreator {
         ];
     }
 
+    static removeClassMethods(lines: string[], methods: string[], method_decl_ranges): string[] {
+        const removeRange = (lines, range) => {
+            let rows = [];
+            for (let i = 0; i < range.start.line; i++) {
+                rows.push(lines[i]);
+            }
+            rows.push(lines[range.start.line].substr(0, range.start.character));
+            for (let i = range.end.line + 1; i < lines.length; i++) {
+                rows.push(lines[i]);
+            }
+            return rows;
+        };
+
+        const rangesToRemove = methods.map(name => method_decl_ranges[name]);
+        rangesToRemove.forEach(range => {
+            if (range) {
+                lines = removeRange(lines, range);
+            }
+        });
+
+        return lines;
+    }
+
     static fillTemplate = (template: string, lang: string = 'qore', imports: string[] = [],
                            vars: any, add_default_parse_options: boolean = true): string =>
     {

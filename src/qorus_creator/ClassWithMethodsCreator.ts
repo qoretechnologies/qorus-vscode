@@ -219,23 +219,11 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     }
 
     private removeMethods(lines: string[], removed: string[]): string[] {
-        const removeRange = (lines, range) => {
-            let rows = [];
-            for (let i = 0; i < range.start.line; i++) {
-                rows.push(lines[i]);
-            }
-            rows.push(lines[range.start.line].substr(0, range.start.character));
-            for (let i = range.end.line + 1; i < lines.length; i++) {
-                rows.push(lines[i]);
-            }
-            return rows;
-        };
-
-        let rangesToRemove = removed.map(name => this.file_edit_info.method_decl_ranges[name]);
-        while (rangesToRemove.length) {
-            lines = removeRange(lines, rangesToRemove.pop());
-        }
-        return lines;
+        return InterfaceCreator.removeClassMethods(
+            [ ...lines ],
+            removed,
+            this.file_edit_info.method_decl_ranges
+        );
     }
 
     private addMethods(lines: string[], added: string[]): string[] {

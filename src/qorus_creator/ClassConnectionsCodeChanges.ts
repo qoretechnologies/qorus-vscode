@@ -37,7 +37,13 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
         let { triggers: trigger_names, trigger_code, connections_extra_class } = class_connections.code();
 
         edit_data = await edit_info.setFileInfo(file, data, false);
-        let { lines, line_shift } = insertMemberDeclaration(class_connections, edit_data);
+        lines = removeMethods(trigger_names, edit_data);
+        lines = cleanup(lines);
+        writeFile(lines);
+
+        edit_data = await edit_info.setFileInfo(file, data, false);
+        let line_shift;
+        ({ lines, line_shift } = insertMemberDeclaration(class_connections, edit_data));
         ({ lines, trigger_names } = insertTriggerCode(trigger_names, trigger_code, edit_data, lines, line_shift));
         let extra_class_code_lines = connections_extra_class.split(/\r?\n/);
         extra_class_code_lines.pop();
@@ -79,10 +85,10 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
             const end_line_2 = ' '.repeat(end_column) + end_line.substr(end_column);
             lines.splice(private_member_block_end_line, 1, end_line_1, end_line_2);
             line_shift++;
-
-            lines.splice(private_member_block_end_line + line_shift, 0, ...member_decl_code_lines);
-            line_shift += member_decl_code_lines.length;
         }
+
+        lines.splice(private_member_block_end_line + line_shift, 0, ...member_decl_code_lines);
+        line_shift += member_decl_code_lines.length;
     } else {
         let target_line; // line after which to insert the private member block
         // make sure that there is nothing after the opening '{' of the main class
@@ -218,6 +224,18 @@ const addMethods = (method_names, edit_data, lang) => {
     );
 
     lines.unshift('');
+    return lines;
+};
+
+const removeMethods = (method_names, edit_data) => {
+    const { text_lines, method_decl_ranges } = edit_data;
+
+    const lines = InterfaceCreator.removeClassMethods(
+        [ ... text_lines ],
+        method_names,
+        method_decl_ranges
+    );
+
     return lines;
 };
 
