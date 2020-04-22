@@ -4,7 +4,6 @@ import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
 import { ClassConnections, GENERATED_TEXT } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
-import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, data, orig_data, iface_kind) => {
@@ -35,10 +34,14 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
         const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, data.lang);
+        let { triggers: trigger_names, trigger_code, connections_extra_class } = class_connections.code();
 
         edit_data = await edit_info.setFileInfo(file, data, false);
         let { lines, line_shift } = insertMemberDeclaration(class_connections, edit_data);
-        ({ lines, trigger_names } = insertTriggerCode(class_connections, edit_data, lines, line_shift));
+        ({ lines, trigger_names } = insertTriggerCode(trigger_names, trigger_code, edit_data, lines, line_shift));
+        let extra_class_code_lines = connections_extra_class.split(/\r?\n/);
+        extra_class_code_lines.pop();
+        lines = [ ...lines, ...extra_class_code_lines ];
 
         lines = cleanup(lines);
         writeFile(lines);
@@ -81,8 +84,7 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
     return { lines, line_shift };
 };
 
-const insertTriggerCode = (class_connections, edit_data, lines, line_shift) => {
-    const { triggers: trigger_names, trigger_code } = class_connections.code();
+const insertTriggerCode = (trigger_names, trigger_code, edit_data, lines, line_shift) => {
     if (!trigger_code) {
         return lines;
     }
