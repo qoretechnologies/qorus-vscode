@@ -29,9 +29,10 @@ const GENERATED = {
 
 const THROWS = 'throws Throwable';
 
-const indent1 = ' '.repeat(4);
-const indent2 = indent1.repeat(2);
-const indent3 = indent1.repeat(3);
+export const indent = ' '.repeat(4);
+const indent1 = indent;
+const indent2 = indent.repeat(2);
+const indent3 = indent.repeat(3);
 
 const isArray = trigger => trigger.signature.indexOf(' array(') > -1;
 const isValidation = trigger => trigger.signature.indexOf(' validation(') > -1;

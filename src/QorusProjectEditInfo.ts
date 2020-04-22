@@ -88,6 +88,9 @@ export class QorusProjectEditInfo {
                 first_base_class_line: num_inherited > 0
                     ? loc2range(symbol.inherits[0].name.loc).start.line
                     : undefined,
+                last_base_class_loc: num_inherited > 0
+                    ? symbol.inherits[symbol.inherits.length-1].loc
+                    : undefined,
                 last_class_line: loc2range(symbol.loc).end.line,
                 base_class_names,
                 main_base_class_ord

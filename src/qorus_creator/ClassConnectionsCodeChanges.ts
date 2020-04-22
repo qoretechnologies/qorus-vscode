@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
-import { ClassConnections, GENERATED_TEXT } from './ClassConnections';
+import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 
@@ -48,38 +48,72 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     }
 
     let methods_to_add = [];
-    method_names.forEach(method_name => {
-        if (!trigger_names.contains(method_name)) {
+    method_names?.forEach(method_name => {
+        if (!trigger_names?.contains(method_name)) {
             methods_to_add.push(method_name);
         }
     });
     if (methods_to_add.length) {
         edit_data = await edit_info.setFileInfo(file, mixed_data);
         lines = addMethods(methods_to_add, edit_data, orig_data.lang || 'qore');
+        lines = cleanup(lines);
         writeFile(lines);
     }
 };
 
 const insertMemberDeclaration = (class_connections, edit_data) => {
-    const { text_lines, private_member_block_loc } = edit_data;
+    const { text_lines, private_member_block_loc, last_class_line, last_base_class_loc } = edit_data;
     let lines = [ ...text_lines ];
     let line_shift = 0;
 
-    const end_line_no = private_member_block_loc.end_line - 1;
-    const end_line = lines[end_line_no];
-    // if the closing '}' of the private declaration block is not on a separate line move it to the next line
-    if (!end_line.match(/^\s*\}\s*$/)) {
-        const end_column = private_member_block_loc.end_column - 2;
-        const end_line_1 = end_line.substr(0, end_column);
-        const end_line_2 = ' '.repeat(end_column) + end_line.substr(end_column);
-        lines.splice(end_line_no, 1, end_line_1, end_line_2);
-        line_shift++;
-    }
-
     const member_decl_code_lines = class_connections.memberDeclCode().split(/\r?\n/);
     member_decl_code_lines.pop();
-    lines.splice(end_line_no + line_shift, 0, ...member_decl_code_lines);
-    line_shift += member_decl_code_lines.length;
+
+    if (private_member_block_loc) {
+        const private_member_block_end_line = private_member_block_loc.end_line - 1;
+        const end_line = lines[private_member_block_end_line];
+        // if the closing '}' of the private declaration block is not on a separate line move it to the next line
+        if (!end_line.match(/^\s*\}\s*$/)) {
+            const end_column = private_member_block_loc.end_column - 2;
+            const end_line_1 = end_line.substr(0, end_column);
+            const end_line_2 = ' '.repeat(end_column) + end_line.substr(end_column);
+            lines.splice(private_member_block_end_line, 1, end_line_1, end_line_2);
+            line_shift++;
+
+            lines.splice(private_member_block_end_line + line_shift, 0, ...member_decl_code_lines);
+            line_shift += member_decl_code_lines.length;
+        }
+    } else {
+        let target_line; // line after which to insert the private member block
+        // make sure that there is nothing after the opening '{' of the main class
+        const class_decl_line_rest = lines[last_base_class_loc.end_line - 1].substr(last_base_class_loc.end_column - 1);
+        // find the line with the '{'
+        if (class_decl_line_rest.match(/^\s*\{\s*$/)) {
+            target_line = last_base_class_loc.end_line;
+        } else {
+            for (let i = last_base_class_loc.end_line - 1; i < last_class_line; i++) {
+                if (lines[i].match(/^\s*\{/)) {
+                    if (lines[i].match(/^\s*\{\s*$/)) {
+                        target_line = i;
+                    } else {
+                        const pos = lines[i].indexOf('{');
+                        const extra_line = ' '.repeat(pos + 1) + lines[i].substr(pos + 1);
+                        lines[i] = lines[i].substr(0, pos + 1);
+                        lines.splice(i, 0, extra_line);
+                        target_line = i + 1;
+                        line_shift++;
+                    }
+                    break;
+                }
+            }
+        }
+
+        lines.splice(target_line, 0, `${indent}private {`, `${indent}}` , '');
+        line_shift += 3;
+
+        lines.splice(target_line + 1, 0, ...member_decl_code_lines);
+        line_shift += member_decl_code_lines.length;
+    }
 
     return { lines, line_shift };
 };
