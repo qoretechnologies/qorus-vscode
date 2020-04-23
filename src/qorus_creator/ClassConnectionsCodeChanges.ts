@@ -76,21 +76,21 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 };
 
 const insertMemberDeclaration = (class_connections, edit_data) => {
-    const { text_lines, private_member_block_loc, last_class_line, last_base_class_loc } = edit_data;
+    const { text_lines, private_member_block_range, last_class_line, last_base_class_range } = edit_data;
     let lines = [ ...text_lines ];
     let line_shift = 0;
 
     const member_decl_code_lines = class_connections.memberDeclCode().split(/\r?\n/);
     member_decl_code_lines.pop();
 
-    if (private_member_block_loc) {
-        const private_member_block_end_line = private_member_block_loc.end_line - 1;
+    if (private_member_block_range) {
+        const private_member_block_end_line = private_member_block_range.end.line;
         const end_line = lines[private_member_block_end_line];
         // if the closing '}' of the private declaration block is not on a separate line move it to the next line
         if (!end_line.match(/^\s*\}\s*$/)) {
-            const end_column = private_member_block_loc.end_column - 2;
-            const end_line_1 = end_line.substr(0, end_column);
-            const end_line_2 = ' '.repeat(end_column) + end_line.substr(end_column);
+            const end_character = private_member_block_range.end.character - 1;
+            const end_line_1 = end_line.substr(0, end_character);
+            const end_line_2 = ' '.repeat(end_character) + end_line.substr(end_character);
             lines.splice(private_member_block_end_line, 1, end_line_1, end_line_2);
             line_shift++;
         }
@@ -100,12 +100,12 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
     } else {
         let target_line; // line after which to insert the private member block
         // make sure that there is nothing after the opening '{' of the main class
-        const class_decl_line_rest = lines[last_base_class_loc.end_line - 1].substr(last_base_class_loc.end_column - 1);
+        const class_decl_line_rest = lines[last_base_class_range.end.line].substr(last_base_class_range.end.character);
         // find the line with the '{'
         if (class_decl_line_rest.match(/^\s*\{\s*$/)) {
-            target_line = last_base_class_loc.end_line;
+            target_line = last_base_class_range.end.line + 1;
         } else {
-            for (let i = last_base_class_loc.end_line - 1; i < last_class_line; i++) {
+            for (let i = last_base_class_range.end.line; i < last_class_line; i++) {
                 if (lines[i].match(/^\s*\{/)) {
                     if (lines[i].match(/^\s*\{\s*$/)) {
                         target_line = i;
@@ -149,72 +149,72 @@ const insertTriggerCode = (trigger_names, trigger_code, edit_data, lines, line_s
 const removeClassConnectionsCode = edit_data => {
     const {
         text_lines,
-        class_connections_class_loc,
-        class_connections_member_declaration_loc,
-        trigger_locs,
+        class_connections_class_range,
+        class_connections_member_declaration_range,
+        class_connections_trigger_ranges,
     } = edit_data;
 
-    let locs = [];
-    [class_connections_class_loc, class_connections_member_declaration_loc].forEach(loc => {
-        if (loc) {
-            locs.push(loc);
+    let ranges = [];
+    [class_connections_class_range, class_connections_member_declaration_range].forEach(range => {
+        if (range) {
+            ranges.push(range);
         }
     });
-    locs = [ ...locs, ... trigger_locs || [] ];
+    ranges = [ ...ranges, ... class_connections_trigger_ranges || [] ];
 
-    return removeRanges([...text_lines], locs);
+    return removeRanges([...text_lines], ranges);
 };
 
-const removeRanges = (lines, locs) => {
-    const sorted_locs = sortLocs(locs).reverse();
-    sorted_locs.forEach(loc => {
-        lines = removeRange(lines, loc);
+const removeRanges = (lines, ranges) => {
+    const sorted_ranges = sortRanges(ranges).reverse();
+    sorted_ranges.forEach(range => {
+        lines = removeRange(lines, range);
     });
 
     return lines;
 };
 
-const removeRange = (orig_lines, loc) => {
+const removeRange = (orig_lines, range) => {
     let lines = [];
 
-    for (let i = 0; i < loc.start_line - 1; i++) {
+    for (let i = 0; i < range.start.line; i++) {
         lines.push(orig_lines[i]);
     }
-    if (loc.start_line === loc.end_line) {
-        let line = orig_lines[loc.start_line - 1];
-        line = line.substr(0, loc.start_column - 1) + line.substr(loc.end_column);
+    if (range.start.line === range.end.line) {
+        let line = orig_lines[range.start.line];
+        line = line.substr(0, range.start.character) + line.substr(range.end.character + 1);
         if (line.match(/\S/)) {
             lines.push(line);
         }
     } else {
-        let line_a = orig_lines[loc.start_line - 1];
-        let line_b = orig_lines[loc.end_line - 1];
-        line_a = line_a.substr(0, loc.start_column - 1);
-        line_b = line_b.substr(loc.end_column);
+        let line_a = orig_lines[range.start.line];
+        let line_b = orig_lines[range.end.line];
+        line_a = line_a.substr(0, range.start.character);
+        line_b = line_b.substr(range.end.character + 1);
         [line_a, line_b].forEach(line => {
             if (line.match(/\S/)) {
                 lines.push(line);
             }
         });
     }
-    for (let i = loc.end_line; i < orig_lines.length; i++) {
+    for (let i = range.end.line + 1; i < orig_lines.length; i++) {
         lines.push(orig_lines[i]);
     }
 
     return lines;
 };
 
-const sortLocs = locs => locs.sort((a, b) => {
-    if (a.start_line < b.start_line) {
+const sortRanges = ranges => ranges.sort((a, b) => {
+    if (a.start.line < b.start.line) {
         return -1;
     }
-    if (a.start_line > b.start_line) {
+    if (a.start.line > b.start.line) {
         return 1;
     }
-    if (a.start_column < b.start_column) {
+    if (a.start.character < b.start.character) {
         return -1;
     }
-    if (a.start_column > b.start_column) {
+    if (a.start.character > b.start.character) {
         return 1;
     }
     return 0;
@@ -248,19 +248,19 @@ const removeMethods = (method_names, edit_data) => {
 };
 
 const deleteEmptyPrivateMemberBlock = edit_data => {
-    const { text_lines, private_member_block_loc: block } = edit_data;
+    const { text_lines, private_member_block_range: block } = edit_data;
     let lines = [];
 
-    for (let i = 0; i < block.start_line - 1; i++) {
+    for (let i = 0; i < block.start.line; i++) {
         lines.push(text_lines[i]);
     }
 
-    lines.push(text_lines[block.start_line - 1].substr(0, block.start_column - 1));
-    lines.push(text_lines[block.end_line - 1].substr(block.end_column - 1));
-    if (text_lines[block.end_line].match(/\S/)) {
-        lines.push(text_lines[block.end_line]);
+    lines.push(text_lines[block.start.line].substr(0, block.start.character));
+    lines.push(text_lines[block.end.line].substr(block.end.character));
+    if (text_lines[block.end.line + 1].match(/\S/)) {
+        lines.push(text_lines[block.end.line + 1]);
     }
-    for (let i = block.end_line + 1; i < text_lines.length; i++) {
+    for (let i = block.end.line + 2; i < text_lines.length; i++) {
         lines.push(text_lines[i]);
     }
 

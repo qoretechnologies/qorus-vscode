@@ -88,8 +88,8 @@ export class QorusProjectEditInfo {
                 first_base_class_line: num_inherited > 0
                     ? loc2range(symbol.inherits[0].name.loc).start.line
                     : undefined,
-                last_base_class_loc: num_inherited > 0
-                    ? symbol.inherits[symbol.inherits.length-1].loc
+                last_base_class_range: num_inherited > 0
+                    ? loc2range(symbol.inherits[symbol.inherits.length-1].loc)
                     : undefined,
                 last_class_line: loc2range(symbol.loc).end.line,
                 base_class_names,
@@ -232,7 +232,7 @@ export class QorusProjectEditInfo {
                     const method_name = decl.name?.name;
                     has_the_method = has_the_method || method_name === CONN_CALL_METHOD;
                     if (has_the_method && class_connection_names.includes(method_name)) {
-                        this.edit_info[file].class_connections_class_loc = symbol.loc;
+                        this.edit_info[file].class_connections_class_range = loc2range(symbol.loc);
                         this.edit_info[file].class_connections_class_name = symbol.name?.name;
                     }
                 }
@@ -247,7 +247,7 @@ export class QorusProjectEditInfo {
             for (const member of decl.members || []) {
                 if (member.target?.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
                     this.edit_info[file].class_connections_member_name = member.target.declaration.name?.name
-                    this.edit_info[file].class_connections_member_declaration_loc = member.loc;
+                    this.edit_info[file].class_connections_member_declaration_range = loc2range(member.loc);
                     return;
                 }
             }
@@ -259,7 +259,7 @@ export class QorusProjectEditInfo {
             }
 
             if (decl.modifiers.indexOf('private') > -1) {
-                this.edit_info[file].private_member_block_loc = decl.loc;
+                this.edit_info[file].private_member_block_range = loc2range(decl.loc);
                 if (!decl.members?.length) {
                     this.edit_info[file].empty_private_member_block = true;
                 }
@@ -296,9 +296,9 @@ export class QorusProjectEditInfo {
             for (const statement of decl.body.statements) {
                 const var_name = statement.retval?.target?.variable?.name?.name;
                 if (var_name && var_name === this.edit_info[file].class_connections_member_name) {
-                    this.edit_info[file].trigger_locs = [
-                        ... this.edit_info[file].trigger_locs || [],
-                        decl.loc
+                    this.edit_info[file].class_connections_trigger_ranges = [
+                        ... this.edit_info[file].class_connections_trigger_ranges || [],
+                        loc2range(decl.loc)
                     ];
                     this.edit_info[file].trigger_names = [
                         ... this.edit_info[file].trigger_names || [],
