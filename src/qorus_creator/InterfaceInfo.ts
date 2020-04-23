@@ -189,11 +189,20 @@ export class InterfaceInfo {
 
         let iface = this.iface_by_id[iface_id];
         const name_to_search = item.orig_name || item.name;
-        const index = iface['config-items']
-                          .findIndex(item2 => item2.name === name_to_search);
+        const index = iface['config-items'].findIndex(item2 => item2.name === name_to_search);
+
         if (index > -1) {
             if (name_to_search !== item.name) {
                 iface['config-items'][index].name = item.name;
+            }
+
+            const orig_type = iface['config-items'][index].type || defaultValue('type');
+            const orig_value_true_type = orig_type === 'any' && iface['config-items'][index].value_true_type
+                ? iface['config-items'][index].value_true_type
+                : orig_type;
+
+            if (![orig_value_true_type, 'any'].includes(item.type)) {
+                delete iface['config-items'][index]['local-value'];
             }
 
             const field_names = configItemFields(this).map(field => field.name);
@@ -201,7 +210,7 @@ export class InterfaceInfo {
                 delete iface['config-items'][index][field_name];
             });
 
-            this.iface_by_id[iface_id]['config-items'][index] = {
+            iface['config-items'][index] = {
                 ... iface['config-items'][index],
                 ... item
             };
