@@ -1,8 +1,9 @@
-import React, { FunctionComponent, useState, useEffect, useRef } from 'react';
-import { MethodsContext } from '../context/methods';
-import mapProps from 'recompose/mapProps';
-import useMount from 'react-use/lib/useMount';
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+
 import { size } from 'lodash';
+import mapProps from 'recompose/mapProps';
+
+import { MethodsContext } from '../context/methods';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -66,7 +67,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         initialMethods:
             service && service.methods
                 ? service.methods.map((method, i) => ({ name: method.name, id: i + 1 }))
-                : [{ id: 1 }],
+                : [{ id: 1, name: 'init' }],
         initialCount: service && service.methods ? size(service.methods) : 1,
         // Set the last method ID to the methods
         // count + 1 if methods exist
@@ -79,7 +80,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         // Map the ids to the current method data
         // to know which method belongs to which id
         // in the method selector
-        methodsData: service && service.methods && service.methods.map((method, i) => ({ ...method, id: i + 1 })),
+        methodsData:
+            service && service.methods
+                ? service.methods.map((method, i) => ({ ...method, id: i + 1 }))
+                : [{ id: 1, name: 'init' }],
         service,
         ...rest,
     }))(EnhancedComponent);

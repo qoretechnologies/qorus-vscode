@@ -69,7 +69,7 @@ export interface IInterfaceCreatorPanel {
     selectedQuery?: string;
     setSelectedQuery: (type: string, value?: string) => void;
     activeId?: number;
-    onNameChange?: (activeId: number, newName: string) => any;
+    onNameChange?: (activeId: number, newName: string, originalName?: string) => any;
     isFormValid: (type: string) => boolean;
     stepOneTitle?: string;
     stepTwoTitle?: string;
@@ -504,8 +504,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         value: any,
         forcedType?: string,
         canBeNull?: boolean,
-        explicit?: boolean
-    ) => void = (fieldName, value, forcedType, canBeNull, explicit) => {
+        explicit?: boolean,
+        metadata?: any
+    ) => void = (fieldName, value, forcedType, canBeNull, explicit, metadata) => {
         //* The first change of any field saves the current interface as in draft
         //* we ignore the `lang` field because it has a default value and fires a change
         //* on mount
@@ -578,7 +579,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         // method
                         if (fieldName === 'name' && onNameChange) {
                             // Change the method name in the side panel
-                            onNameChange(activeId, value);
+                            onNameChange(activeId, value, metadata?.originalName);
                         }
                         // Check if this field has an on_change message
                         if (currentField.on_change) {

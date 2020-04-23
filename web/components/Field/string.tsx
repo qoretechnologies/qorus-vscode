@@ -1,14 +1,16 @@
-import React, { FunctionComponent, ChangeEvent } from 'react';
-import { InputGroup, ButtonGroup, Button, Classes } from '@blueprintjs/core';
-import withTextContext from '../../hocomponents/withTextContext';
+import React, { ChangeEvent, FunctionComponent } from 'react';
+
+import useMount from 'react-use/lib/useMount';
+import compose from 'recompose/compose';
+import { isNull } from 'util';
+
+import { Button, ButtonGroup, Classes, InputGroup } from '@blueprintjs/core';
+
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import { camelCase, upperFirst } from 'lodash';
-import compose from 'recompose/compose';
-import useMount from 'react-use/lib/useMount';
-import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomponents/withMessageHandler';
 import { getValueOrDefaultValue } from '../../helpers/validations';
-import { isNull } from 'util';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
 
 export interface IStringField {
     t?: TTranslator;
