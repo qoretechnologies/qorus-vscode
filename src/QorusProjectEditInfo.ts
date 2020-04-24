@@ -416,6 +416,21 @@ export class QorusProjectEditInfo {
             }
         };
 
+        const maybeAddClassConnectionMemberDeclaration = decl => {
+            msg.debug({decl});
+            if (decl.kind !== 8) {
+                return;
+            }
+
+            for (const member of decl.members || []) {
+                if (member.target?.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
+                    this.edit_info[file].class_connections_member_name = member.target.declaration.name?.name
+                    this.edit_info[file].class_connections_member_declaration_range = loc2range(member.loc);
+                    return;
+                }
+            }
+        };
+
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
@@ -427,11 +442,13 @@ export class QorusProjectEditInfo {
             if (add_class_connections_info) {
                 maybeAddClassConnectionClass(symbols);
             }
+            msg.debug({x: this.edit_info[file]});
 
             const lsdoc = LsTextDocument.create(
                 makeFileUri(file), 'java', 1, fs.readFileSync(file).toString()
             );
             symbols.forEach(symbol => {
+                    msg.debug({symbol});
                 if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, class_name)) {
                     return;
                 }
@@ -443,8 +460,16 @@ export class QorusProjectEditInfo {
                     return;
                 }
 
-                for (const child of symbol.children || []) {
-                    this.addJavaClassDeclInfo(file, child);
+                for (const decl of symbol.children || []) {
+                    if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
+                        maybeAddClassConnectionMemberDeclaration(decl);
+//                        maybeAddClassConnectionMemberInitialization(decl);
+//                        maybeAddTriggerStatements(decl);
+                    }
+//                    else {
+//                        maybeAddPrivateMemberBlock(decl);
+//                    }
+                    this.addJavaClassDeclInfo(file, decl);
                 }
             });
             return Promise.resolve(this.edit_info[file]);
