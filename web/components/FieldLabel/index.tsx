@@ -1,13 +1,17 @@
 import React, { FunctionComponent } from 'react';
 
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Icon, Intent } from '@blueprintjs/core';
 
-const StyledFieldLabel = styled.div`
+const StyledFieldLabel = styled.div<{ fluid?: boolean }>`
     padding: 0px 10px 0 0;
     flex: 0 1 auto;
-    min-width: 150px;
+    ${({ fluid }) =>
+        !fluid &&
+        css`
+            min-width: 150px;
+        `}
     max-width: 150px;
     display: flex;
     flex-flow: row;
@@ -35,13 +39,13 @@ const FieldLabelInfo = styled.p`
 `;
 
 export interface IFieldLabel {
-    label: string;
+    label?: string;
     isValid: boolean;
     info?: string;
 }
 
 const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) => (
-    <StyledFieldLabel>
+    <StyledFieldLabel fluid={!label}>
         {label && <FieldLabelName>{label}</FieldLabelName>}
         {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
         <FieldLabelValid>
