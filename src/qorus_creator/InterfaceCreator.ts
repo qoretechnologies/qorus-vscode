@@ -399,6 +399,9 @@ export abstract class InterfaceCreator {
                         } else {
                             type = item.value_true_type || type;
                         }
+                    } else {
+                        delete item.default_value_true_type;
+                        delete item.value_true_type;
                     }
 
                     const non_star_type = type?.substring(type.indexOf("*") + 1);

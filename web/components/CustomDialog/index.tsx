@@ -15,7 +15,6 @@ const CustomDialog: React.FC<ICustomDialogProps> = ({ children, ...rest }) => {
     const dialogContext = useContext(DialogsContext);
 
     useEffectOnce(() => {
-        console.log('adding dialog');
         const id = shortid.generate();
 
         dialogContext.addDialog(id, rest.onClose);
