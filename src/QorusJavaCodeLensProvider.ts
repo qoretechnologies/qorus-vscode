@@ -14,6 +14,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 return this.previous_lenses;
             }
             let lenses: CodeLens[] = [];
+            data = this.code_info.fixData(data);
 
             symbols.forEach(symbol => {
                 if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, data['class-name'])) {
