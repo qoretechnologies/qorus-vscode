@@ -23,14 +23,14 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
     // remove original class connections code
     if (Object.keys(orig_data['class-connections'] || {}).length) {
-        edit_data = await edit_info.setFileInfo(file, mixed_data);
+        edit_data = await edit_info.setFileInfo(file, mixed_data, true);
         lines = removeClassConnectionsCode(edit_data);
         lines = cleanup(lines);
         writeFile(lines);
 
         ({ trigger_names: method_names } = edit_data);
 
-        edit_data = await edit_info.setFileInfo(file, data, false);
+        edit_data = await edit_info.setFileInfo(file, data);
         if (edit_data.empty_private_member_block) {
             lines = deleteEmptyPrivateMemberBlock(edit_data);
             lines = cleanup(lines);
@@ -43,12 +43,12 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
         const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, data.lang);
         let { triggers: trigger_names, trigger_code, connections_extra_class } = class_connections.code();
 
-        edit_data = await edit_info.setFileInfo(file, data, false);
+        edit_data = await edit_info.setFileInfo(file, data);
         lines = removeMethods(trigger_names, edit_data);
         lines = cleanup(lines);
         writeFile(lines);
 
-        edit_data = await edit_info.setFileInfo(file, data, false);
+        edit_data = await edit_info.setFileInfo(file, data);
         let line_shift;
         ({ lines, line_shift } = insertMemberDeclaration(class_connections, edit_data));
         ({ lines, trigger_names } = insertTriggerCode(trigger_names, trigger_code, edit_data, lines, line_shift));

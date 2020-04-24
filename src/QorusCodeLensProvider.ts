@@ -169,7 +169,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
             data = this.code_info.fixData(data);
 
             symbols.forEach(symbol => {
-                if (!QorusProjectEditInfo.isSymbolExpectedClass(symbol, data['class-name'])) {
+                if (!QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, data['class-name'])) {
                     return;
                 }
 
@@ -180,7 +180,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
                 }
 
                 for (const decl of symbol.declarations || []) {
-                    if (!QorusProjectEditInfo.isDeclPublicMethod(decl)) {
+                    if (!QorusProjectEditInfo.isQoreDeclPublicMethod(decl)) {
                         continue;
                     }
 

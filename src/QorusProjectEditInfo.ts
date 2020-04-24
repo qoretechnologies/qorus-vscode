@@ -52,11 +52,14 @@ export class QorusProjectEditInfo {
         this.edit_info[file].method_name_ranges[method_name] = name_range;
     }
 
-    static isSymbolClass = (symbol: any): boolean =>
+    static isQoreSymbolClass = (symbol: any): boolean =>
         symbol.nodetype === 1 &&
         symbol.kind === 1
 
-    static isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
+    static isJavaSymbolClass = (symbol: any): boolean =>
+        symbol.kind === 5
+
+    static isQoreSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
         class_name &&
         symbol.nodetype === 1 &&
         symbol.kind === 1 &&
@@ -66,6 +69,26 @@ export class QorusProjectEditInfo {
         class_name &&
         symbol.kind === 5 &&
         class_name === symbol.name
+
+    static isQoreDeclPublicMethod = (decl: any): boolean => {
+        if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
+            return false;
+        }
+
+        if (decl.modifiers.indexOf('private') > -1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    static isJavaDeclPublicMethod = (decl: any): boolean => {
+        if (decl.kind !== 6) { // method
+            return false;
+        }
+
+        return true;
+    }
 
     private addClassInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
@@ -120,7 +143,7 @@ export class QorusProjectEditInfo {
         }
     }
 
-    addJavaClassInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
+    private addJavaClassInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
         const class_def_range: vscode.Range = symbol.range;
         const class_name_range: vscode.Range = symbol.selectionRange;
 
@@ -164,19 +187,10 @@ export class QorusProjectEditInfo {
         }
     }
 
-    static isDeclPublicMethod = (decl: any): boolean => {
-        if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
-            return false;
+    private addQoreClassDeclInfo = (file: string, decl: any) => {
+        if (!QorusProjectEditInfo.isQoreDeclPublicMethod(decl)) {
+            return;
         }
-
-        if (decl.modifiers.indexOf('private') > -1) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private addClassDeclInfo = (file: string, decl: any) => {
         const method_name = decl.name.name;
         const decl_range = loc2range(decl.loc);
         const name_range = loc2range(decl.name.loc);
@@ -184,24 +198,22 @@ export class QorusProjectEditInfo {
         this.addMethodInfo(file, method_name, decl_range, name_range);
     }
 
-    addJavaClassDeclInfo = (file: string, decl: any): boolean => {
-        if (decl.kind !== 6) { // must be method
-            return false;
+    private addJavaClassDeclInfo = (file: string, decl: any) => {
+        if (!QorusProjectEditInfo.isJavaDeclPublicMethod(decl)) {
+            return;
         }
 
         this.addMethodInfo(file, decl.name.replace('()', ''), decl.range, decl.selectionRange);
-
-        return true;
     }
 
-    setFileInfo(file: string, data: any, add_class_connections_info: boolean = true): Promise<any> {
+    setFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
         switch (data.lang) {
             case 'java': return this.setJavaFileInfo(file, data, add_class_connections_info);
             default:     return this.setQoreFileInfo(file, data, add_class_connections_info);
         }
     }
 
-    private setQoreFileInfo(file: string, data: any, add_class_connections_info: boolean = true): Promise<any> {
+    private setQoreFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
         this.edit_info[file] = undefined;
 
         const {
@@ -224,15 +236,15 @@ export class QorusProjectEditInfo {
 
             const class_connection_names = Object.keys(class_connections);
             for (const symbol of symbols) {
-                if (QorusProjectEditInfo.isSymbolExpectedClass(symbol, class_name) ||
-                    !QorusProjectEditInfo.isSymbolClass(symbol))
+                if (QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, class_name) ||
+                    !QorusProjectEditInfo.isQoreSymbolClass(symbol))
                 {
                     continue;
                 }
 
                 const decls = symbol.declarations;
                 for (const decl of decls) {
-                    if (!QorusProjectEditInfo.isDeclPublicMethod(decl)) {
+                    if (!QorusProjectEditInfo.isQoreDeclPublicMethod(decl)) {
                         continue;
                     }
                     const method_name = decl.name?.name;
@@ -326,7 +338,7 @@ export class QorusProjectEditInfo {
                 maybeAddClassConnectionClass(symbols);
             }
             symbols.forEach(symbol => {
-                if (!QorusProjectEditInfo.isSymbolExpectedClass(symbol, class_name)) {
+                if (!QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, class_name)) {
                     return;
                 }
 
@@ -345,16 +357,14 @@ export class QorusProjectEditInfo {
                         maybeAddPrivateMemberBlock(decl);
                     }
 
-                    if (QorusProjectEditInfo.isDeclPublicMethod(decl)) {
-                        this.addClassDeclInfo(file, decl);
-                    }
+                    this.addQoreClassDeclInfo(file, decl);
                 }
             });
             return Promise.resolve(this.edit_info[file]);
         });
     }
 
-    private setJavaFileInfo(file: string, data: any, add_class_connections_info: boolean = true): Promise<any> {
+    private setJavaFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
         this.edit_info[file] = undefined;
 
         const {
@@ -372,7 +382,7 @@ export class QorusProjectEditInfo {
         this.addTextLines(file, doc.text);
 
         return getJavaDocumentSymbolsWithWait(makeFileUri(file)).then(async symbols => {
-            if (!symbols || !symbols.length) {
+            if (!symbols?.length) {
                 return;
             }
 

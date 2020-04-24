@@ -22,7 +22,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
 
                 const lsdoc = LsTextDocument.create(makeFileUri(file_path), 'java', 1, document.getText());
                 parseJavaInheritance(lsdoc, symbol);
-                this.code_info.edit_info.addJavaClassInfo(file_path, symbol, data['base-class-name'], false);
+
                 this.addClassLenses(iface_kind, lenses, symbol, data);
 
                 if (!['service', 'mapper-code'].includes(iface_kind)) {
@@ -30,9 +30,10 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 }
 
                 for (const child of symbol.children || []) {
-                    if (!this.code_info.edit_info.addJavaClassDeclInfo(file_path, child)) {
+                    if (!QorusProjectEditInfo.isJavaDeclPublicMethod(child)) {
                         continue;
                     }
+
                     this.addMethodLenses(
                         iface_kind, lenses, child.selectionRange, data,
                         child.name.replace(/\(.*\)/, ''), symbol.name
