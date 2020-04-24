@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import every from 'lodash/every';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import compose from 'recompose/compose';
@@ -37,6 +38,25 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
         initialData[type]?.['class-connections']
     );
     const [methodsCount, setMethodsCount] = useState<number>(null);
+
+    const isConnectionValid = (name: string) => {
+        if (classConnectionsData[name].length > 1) {
+            return true;
+        }
+        // Check if there is only one connector
+        // and has a trigger
+        if (classConnectionsData[name].length === 1) {
+            return !!classConnectionsData[name][0].trigger;
+        }
+
+        return false;
+    };
+
+    const areAllConnectionsValid = () => {
+        return (
+            size(classConnectionsData) === 0 || every(classConnectionsData, (_conn, name) => isConnectionValid(name))
+        );
+    };
 
     useEffect(() => {
         // If this is service
@@ -117,6 +137,7 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
         resetClassConnections,
         isClassConnectionsManagerEnabled,
         renameTrigger,
+        areClassConnectionsValid: areAllConnectionsValid,
     });
 };
 

@@ -200,6 +200,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     showClassConnectionsManager,
     setShowClassConnectionsManager,
     resetClassConnections,
+    areClassConnectionsValid,
     removeCodeFromRelations,
     steps,
     stepsData,
@@ -963,6 +964,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return `${iName.value}:${iVersion.value}`;
     };
 
+    const canSubmit: () => boolean = () => {
+        if (hasClassConnections) {
+            return isFormValid(type) && areClassConnectionsValid();
+        }
+
+        return isFormValid(type);
+    };
+
     return (
         <>
             <SidePanel title={t(stepOneTitle)}>
@@ -1058,7 +1067,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             <ButtonGroup fill>
                                 {hasClassConnections && (
                                     <Button
-                                        icon="code-block"
+                                        icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
+                                        intent={areClassConnectionsValid() ? 'none' : 'warning'}
                                         disabled={!isClassConnectionsManagerEnabled()}
                                         onClick={() => setShowClassConnectionsManager(true)}
                                     >
@@ -1104,7 +1114,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             </Tooltip>
                             <Button
                                 text={t(submitLabel)}
-                                disabled={!isFormValid(type)}
+                                disabled={!canSubmit()}
                                 icon={'tick'}
                                 intent={Intent.SUCCESS}
                                 onClick={handleSubmitClick}
