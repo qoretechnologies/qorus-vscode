@@ -15,8 +15,7 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     let trigger_names;
 
     const mixed_data = {
-        'class-name': data['class-name'],
-        'base-class-name': data['base-class-name'],
+        ...data,
         'class-connections': orig_data['class-connections']
     };
 

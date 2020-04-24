@@ -98,22 +98,10 @@ export abstract class InterfaceCreator {
         if (params.orig_data) {
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
-            if (params.data.lang === 'java') {
-                this.code_info.edit_info.addJavaFileInfo(
-                    orig_file,
-                    params.orig_data.type,
-                    params.orig_data['class-name'],
-                    params.orig_data['base-class-name']
-                ).then(() => {
-                    this.code_info.setPending('edit_info', false);
-                    this.editImpl(params);
-                });
-            } else {
-                this.code_info.edit_info.setFileInfo(orig_file, params.orig_data).then(() => {
-                    this.code_info.setPending('edit_info', false);
-                    this.editImpl(params);
-                });
-            }
+            this.code_info.edit_info.setFileInfo(orig_file, params.orig_data).then(() => {
+                this.code_info.setPending('edit_info', false);
+                this.editImpl(params);
+            });
         } else {
             if (params.edit_type !== 'create') {
                 msg.error(t`MissingEditData`);

@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as path from 'path';
 import { t } from 'ttag';
 import { TextDocument as LsTextDocument } from 'vscode-languageserver-types';
 
@@ -8,7 +7,7 @@ import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocumen
 import { qore_vscode } from './qore_vscode';
 import { parseJavaInheritance } from './qorus_java_utils';
 import { getJavaDocumentSymbolsWithWait } from './vscode_java';
-import { suffixToIfaceKind, makeFileUri } from './qorus_utils';
+import { makeFileUri } from './qorus_utils';
 import * as msg from './qorus_message';
 import { CONN_CALL_METHOD } from './qorus_creator/ClassConnections';
 
@@ -196,18 +195,25 @@ export class QorusProjectEditInfo {
     }
 
     setFileInfo(file: string, data: any, add_class_connections_info: boolean = true): Promise<any> {
-        const iface_kind = suffixToIfaceKind(path.extname(file));
-        if (!iface_kind) {
-            return Promise.resolve();
+        switch (data.lang) {
+            case 'java': return this.setJavaFileInfo(file, data, add_class_connections_info);
+            default:     return this.setQoreFileInfo(file, data, add_class_connections_info);
         }
+    }
 
+    private setQoreFileInfo(file: string, data: any, add_class_connections_info: boolean = true): Promise<any> {
         this.edit_info[file] = undefined;
 
         const {
+            type: iface_kind,
             'class-name': class_name,
             'base-class-name': base_class_name,
             'class-connections': class_connections
         } = data;
+
+        if (!iface_kind) {
+            return Promise.resolve();
+        }
 
         const maybeAddClassConnectionClass = symbols => {
             if (!class_connections) {
@@ -348,27 +354,30 @@ export class QorusProjectEditInfo {
         });
     }
 
-    addJavaFileInfo(
-        file_path: string,
-        iface_kind: string,
-        class_name?: string,
-        base_class_name?: string,
-        force: boolean = true): Promise<void>
-    {
-        if (this.edit_info[file_path] && !force) {
+    private setJavaFileInfo(file: string, data: any, add_class_connections_info: boolean = true): Promise<any> {
+        this.edit_info[file] = undefined;
+
+        const {
+            type: iface_kind,
+            'class-name': class_name,
+            'base-class-name': base_class_name,
+            'class-connections': class_connections
+        } = data;
+
+        if (!iface_kind) {
             return Promise.resolve();
         }
 
-        const doc: QoreTextDocument = qoreTextDocument(file_path);
-        this.addTextLines(file_path, doc.text);
+        const doc: QoreTextDocument = qoreTextDocument(file);
+        this.addTextLines(file, doc.text);
 
-        return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
+        return getJavaDocumentSymbolsWithWait(makeFileUri(file)).then(async symbols => {
             if (!symbols || !symbols.length) {
                 return;
             }
 
             const lsdoc = LsTextDocument.create(
-                makeFileUri(file_path), 'java', 1, fs.readFileSync(file_path).toString()
+                makeFileUri(file), 'java', 1, fs.readFileSync(file).toString()
             );
             symbols.forEach(symbol => {
                 if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, class_name)) {
@@ -376,14 +385,14 @@ export class QorusProjectEditInfo {
                 }
 
                 parseJavaInheritance(lsdoc, symbol);
-                this.addJavaClassInfo(file_path, symbol, base_class_name);
+                this.addJavaClassInfo(file, symbol, base_class_name);
 
-                if (iface_kind !== 'service') {
+                if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;
                 }
 
                 for (const child of symbol.children || []) {
-                    this.addJavaClassInfo(file_path, child);
+                    this.addJavaClassDeclInfo(file, child);
                 }
             });
             return Promise.resolve();
