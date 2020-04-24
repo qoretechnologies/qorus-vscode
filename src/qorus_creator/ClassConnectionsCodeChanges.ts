@@ -16,6 +16,7 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
     const mixed_data = {
         ...data,
+        iface_kind,
         'class-connections': orig_data['class-connections']
     };
 

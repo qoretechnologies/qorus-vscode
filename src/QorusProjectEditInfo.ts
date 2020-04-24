@@ -217,7 +217,7 @@ export class QorusProjectEditInfo {
         this.edit_info[file] = undefined;
 
         const {
-            type: iface_kind,
+            iface_kind = data.type,
             'class-name': class_name,
             'base-class-name': base_class_name,
             'class-connections': class_connections
@@ -368,7 +368,7 @@ export class QorusProjectEditInfo {
         this.edit_info[file] = undefined;
 
         const {
-            type: iface_kind,
+            iface_kind = data.type,
             'class-name': class_name,
             'base-class-name': base_class_name,
             'class-connections': class_connections
@@ -378,12 +378,54 @@ export class QorusProjectEditInfo {
             return Promise.resolve();
         }
 
+        const maybeAddClassConnectionClass = symbols => {
+            if (!class_connections) {
+                return;
+            }
+
+            let has_the_method = false;
+
+            const class_connection_names = Object.keys(class_connections);
+            for (const symbol of symbols) {
+                if (QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, class_name) ||
+                    !QorusProjectEditInfo.isJavaSymbolClass(symbol))
+                {
+                    continue;
+                }
+
+                const decls = symbol.children;
+                for (const decl of decls) {
+                    if (!QorusProjectEditInfo.isJavaDeclPublicMethod(decl)) {
+                        continue;
+                    }
+
+                    let method_name = decl.name;
+                    const paren_pos = method_name.indexOf('(');
+                    if (paren_pos > -1) {
+                        method_name = method_name.substr(0, paren_pos).trim();
+                    }
+
+                    has_the_method = has_the_method || method_name === CONN_CALL_METHOD;
+
+                    if (has_the_method && class_connection_names.includes(method_name)) {
+                        this.edit_info[file].class_connections_class_range = symbol.range;
+                        this.edit_info[file].class_connections_class_name = symbol.name;
+                        break;
+                    }
+                }
+            }
+        };
+
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
         return getJavaDocumentSymbolsWithWait(makeFileUri(file)).then(async symbols => {
             if (!symbols?.length) {
                 return;
+            }
+
+            if (add_class_connections_info) {
+                maybeAddClassConnectionClass(symbols);
             }
 
             const lsdoc = LsTextDocument.create(
@@ -405,7 +447,7 @@ export class QorusProjectEditInfo {
                     this.addJavaClassDeclInfo(file, child);
                 }
             });
-            return Promise.resolve();
+            return Promise.resolve(this.edit_info[file]);
         });
     }
 }
