@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as urlJoin from 'url-join';
 import * as fs from 'fs';
 import * as glob from 'glob';
+
 import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
@@ -116,10 +118,10 @@ class QorusDeploy {
                 return Promise.resolve(false);
             }
             else {
-                url += '/deployment';
+                url = urlJoin(url, 'deployment');
             }
         } else {
-            url += '/api/latest/development/' + (is_release ? 'release' : 'deploy');
+            url = urlJoin(url, 'api/latest/development', is_release ? 'release' : 'deploy');
         }
 
         msg.log(t`FilesToDeploy`);

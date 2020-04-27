@@ -9,7 +9,6 @@ import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { ClassConnections } from './ClassConnections';
-import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -181,7 +180,6 @@ class ClassCreator extends InterfaceCreator {
 
         if (this.has_code) {
             if (this.writeFiles(contents, headers)) {
-                classConnectionsCodeChanges(this.file_path, data, orig_data);
                 if (open_file_on_success) {
                     workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
                 }

@@ -1,30 +1,33 @@
 import React, { FunctionComponent } from 'react';
-import withTextContext from '../../hocomponents/withTextContext';
-import StringField from './string';
-import LongStringField from './longString';
-import DateField from './date';
+
+import isArray from 'lodash/isArray';
+import useMount from 'react-use/lib/useMount';
+
 import { TTranslator } from '../../App';
+import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import withMessageHandler from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+import ArrayAutoField from './arrayAuto';
+import AutoField from './auto';
 import BooleanField from './boolean';
 import ClassArrayField from './classArray';
-import SelectField from './select';
-import MultiSelect from './multiSelect';
-import RadioField from './radioField';
-import MultiPairField from './multiPair';
+import ClassConnectors from './classConnectors';
+import ContextField from './context';
+import Cron from './cron';
+import DateField from './date';
 import MultiFileField from './fileArray';
 import FileField from './fileString';
-import { IFieldChange, IField } from '../../containers/InterfaceCreator/panel';
-import Cron from './cron';
-import AutoField from './auto';
-import ArrayAutoField from './arrayAuto';
-import useMount from 'react-use/lib/useMount';
-import withMessageHandler from '../../hocomponents/withMessageHandler';
-import NumberField from './number';
-import MarkdownPreview from './markdownPreview';
-import isArray from 'lodash/isArray';
+import LongStringField from './longString';
 import MapperOptionsField from './mapperOptions';
-import ClassConnectors from './classConnectors';
+import MarkdownPreview from './markdownPreview';
+import MethodNameField from './methodName';
+import MultiPairField from './multiPair';
+import MultiSelect from './multiSelect';
+import NumberField from './number';
+import RadioField from './radioField';
+import SelectField from './select';
+import StringField from './string';
 import TypeSelector from './typeSelector';
-import ContextField from './context';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -57,6 +60,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
             <>
                 {(!type || type === 'string') && <StringField {...rest} type={type} />}
                 {type === 'long-string' && <LongStringField {...rest} type={type} />}
+                {type === 'method-name' && <MethodNameField {...rest} type={type} />}
                 {type === 'boolean' && <BooleanField {...rest} type={type} />}
                 {type === 'array-of-pairs' && <MultiPairField {...rest} type={type} />}
                 {type === 'select-string' && <SelectField {...rest} type={type} />}

@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as request from 'request-promise';
+import * as urlJoin from 'url-join';
+
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
 import { t } from 'ttag';
@@ -34,7 +36,7 @@ class QorusDelete {
                                 || {reload: false, 'verbosity-level': 1};
         const options = {
             method: 'POST',
-            uri: `${active_instance.url}/api/latest/development/delete`,
+            uri: urlJoin(active_instance.url, 'api/latest/development/delete'),
             strictSSL: false,
             body: {
                 [iface_post_kind]: interfaces,
@@ -125,7 +127,7 @@ class QorusDelete {
 
         request({
             method: 'GET',
-            uri: `${active_instance.url}/api/latest/${iface_kind}`,
+            uri: urlJoin(active_instance.url, `api/latest/${iface_kind}`),
             strictSSL: false,
             headers: {
                 'qorus-token': token

@@ -1,11 +1,14 @@
 import * as vscode from 'vscode';
+import * as urlJoin from 'url-join';
 import * as request from 'request-promise';
+
 import { QorusAuth, AuthNeeded } from './QorusAuth';
 import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
 import { QorusProject, projects } from './QorusProject';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
+
 
 export class QorusLogin extends QorusAuth {
     private current_login_params: any = {
@@ -47,7 +50,7 @@ export class QorusLogin extends QorusAuth {
 
         const options = {
             method: 'POST',
-            uri: `${qorus_instance.url}/api/latest/public/login?user=${username}&pass=${password}`,
+            uri: urlJoin(qorus_instance.url, 'api/latest/public/login', `?user=${username}&pass=${password}`),
             strictSSL: false,
         };
 
@@ -96,7 +99,7 @@ export class QorusLogin extends QorusAuth {
 
         request({
             method: 'POST',
-            uri: `${url}/api/latest/logout`,
+            uri: urlJoin(url, 'api/latest/logout'),
             strictSSL: false,
             headers: {
                 'qorus-token': token,
@@ -173,7 +176,7 @@ export class QorusLogin extends QorusAuth {
 
                 const options = {
                     method: 'GET',
-                    uri: `${url}/api/latest/public/info`,
+                    uri: urlJoin(url, 'api/latest/public/info'),
                     strictSSL: false,
                     timeout: 10000,
                 };
@@ -269,7 +272,7 @@ export class QorusLogin extends QorusAuth {
 
             const options = {
                 method: 'GET',
-                uri: `${active_instance.url}/api/latest/system?action=ping`,
+                uri: urlJoin(active_instance.url, 'api/latest/system?action=ping'),
                 strictSSL: false,
                 headers: {
                     'qorus-token': token,

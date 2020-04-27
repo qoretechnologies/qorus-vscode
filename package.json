@@ -11,6 +11,9 @@
     "engines": {
         "vscode": "^1.25.0"
     },
+    "extensionDependencies": [
+        "qoretechnologies.qore-vscode"
+    ],
     "license": "SEE LICENSE IN LICENSE.txt",
     "homepage": "https://github.com/qoretechnologies/qorus-vscode",
     "repository": {
@@ -1597,6 +1600,7 @@
         "style-loader": "^0.23.1",
         "tslint": "^5.19.0",
         "typescript": "^3.7.0-beta",
+        "url-join": "^4.0.1",
         "url-loader": "^1.1.2",
         "vsce": "^1.66.0",
         "vscode": "^1.1.36",

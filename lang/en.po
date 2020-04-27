@@ -2141,3 +2141,12 @@ msgstr "Ping did not return 'OK': ${ url }"
 
 msgid "ActiveQorusPingError"
 msgstr "Active Qorus instance ping error"
+
+msgid "EditItem"
+msgstr "Edit item"
+
+msgid "EditMethodName"
+msgstr "Edit method name"
+
+msgid "EditMethodNameTriggerWarning"
+msgstr "Editing method name will also change the associated trigger name, if applicable!"
