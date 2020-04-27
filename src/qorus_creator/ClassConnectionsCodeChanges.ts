@@ -7,16 +7,20 @@ import { serviceTemplates } from './service_constants';
 //import * as msg from '../qorus_message';
 
 
-export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, data, orig_data, iface_kind) => {
+export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, new_data, orig_data, iface_kind) => {
     const edit_info: QorusProjectEditInfo = code_info.edit_info;
     let edit_data;
     let lines;
     let method_names;
     let trigger_names;
 
+    const data = {
+        ...new_data,
+        iface_kind
+    };
+
     const mixed_data = {
         ...data,
-        iface_kind,
         'class-connections': orig_data['class-connections']
     };
 
@@ -42,7 +46,8 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
         const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, data.lang);
-        let { triggers: trigger_names, trigger_code, connections_extra_class } = class_connections.code();
+        let { triggers, trigger_code, connections_extra_class } = class_connections.code();
+        trigger_names = triggers;
 
         edit_data = await edit_info.setFileInfo(file, data);
         lines = removeMethods(trigger_names, edit_data);
@@ -69,7 +74,7 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     });
     if (methods_to_add.length) {
         edit_data = await edit_info.setFileInfo(file, mixed_data);
-        lines = addMethods(methods_to_add, edit_data, orig_data.lang || 'qore');
+        lines = addMethods(methods_to_add, edit_data, data.lang || 'qore');
         lines = cleanup(lines);
         writeFile(lines);
     }
