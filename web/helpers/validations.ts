@@ -1,14 +1,17 @@
-import { IField } from '../containers/InterfaceCreator/panel';
-const cron = require('cron-validator');
-import isNumber from 'lodash/isNumber';
+import jsyaml from 'js-yaml';
 import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
-import uniqWith from 'lodash/uniqWith';
-import size from 'lodash/size';
-import jsyaml from 'js-yaml';
+import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
-import { isString, isDate, isBoolean, isUndefined, isNull } from 'util';
+import size from 'lodash/size';
+import uniqWith from 'lodash/uniqWith';
+import { isBoolean, isNull, isString, isUndefined } from 'util';
+
 import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
+
+import { IField } from '../containers/InterfaceCreator/panel';
+
+const cron = require('cron-validator');
 
 export const validateField: (type: string, value: any, field?: IField, canBeNull?: boolean) => boolean = (
     type,
@@ -36,6 +39,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'select-string':
         case 'file-string':
         case 'long-string':
+        case 'method-name':
             // Strings cannot be empty
             return value !== undefined && value !== null && value !== '';
         case 'mapper-options': {

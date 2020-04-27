@@ -110,7 +110,10 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
 ];
 
 export const service_methods = [
-    field.name,
+    {
+        ...field.name,
+        type: 'method-name',
+    },
     field.desc,
     field.author,
     {
