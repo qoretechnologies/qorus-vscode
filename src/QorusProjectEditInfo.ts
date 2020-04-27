@@ -203,7 +203,7 @@ export class QorusProjectEditInfo {
             return;
         }
 
-        this.addMethodInfo(file, decl.name.replace('()', ''), decl.range, decl.selectionRange);
+        this.addMethodInfo(file, decl.name.replace(/\(.*\)/, '').trim(), decl.range, decl.selectionRange);
     }
 
     setFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
@@ -318,8 +318,8 @@ export class QorusProjectEditInfo {
                         ... this.edit_info[file].class_connections_trigger_ranges || [],
                         loc2range(decl.loc)
                     ];
-                    this.edit_info[file].trigger_names = [
-                        ... this.edit_info[file].trigger_names || [],
+                    this.edit_info[file].class_connections_trigger_names = [
+                        ... this.edit_info[file].class_connections_trigger_names || [],
                         decl.name?.name
                     ];
 //                    this.edit_info[file].trigger_statement_locs = [
@@ -473,8 +473,8 @@ export class QorusProjectEditInfo {
                     ... this.edit_info[file].class_connections_trigger_ranges || [],
                     decl.range
                 ];
-                this.edit_info[file].trigger_names = [
-                    ... this.edit_info[file].trigger_names || [],
+                this.edit_info[file].class_connections_trigger_names = [
+                    ... this.edit_info[file].class_connections_trigger_names || [],
                     method_name
                 ];
             }

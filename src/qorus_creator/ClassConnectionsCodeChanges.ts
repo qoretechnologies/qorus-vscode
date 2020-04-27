@@ -33,7 +33,7 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
         lines = cleanup(lines);
         writeFile(lines);
 
-        ({ trigger_names: method_names } = edit_data);
+        ({ class_connections_trigger_names: method_names } = edit_data);
 
         edit_data = await edit_info.setFileInfo(file, data);
         if (edit_data.empty_private_member_block) {
