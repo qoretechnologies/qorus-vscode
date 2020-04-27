@@ -264,7 +264,7 @@ export class QorusProjectEditInfo {
 
             for (const member of decl.members || []) {
                 if (member.target?.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
-                    this.edit_info[file].class_connections_member_name = member.target.declaration.name?.name
+                    this.edit_info[file].class_connections_member_name = member.target.declaration.name?.name;
                     this.edit_info[file].class_connections_member_declaration_range = loc2range(member.loc);
                     return;
                 }
@@ -378,6 +378,9 @@ export class QorusProjectEditInfo {
             return Promise.resolve();
         }
 
+        const doc: QoreTextDocument = qoreTextDocument(file);
+        this.addTextLines(file, doc.text);
+
         const maybeAddClassConnectionClass = symbols => {
             if (!class_connections) {
                 return;
@@ -417,22 +420,35 @@ export class QorusProjectEditInfo {
         };
 
         const maybeAddClassConnectionMemberDeclaration = decl => {
-            msg.debug({decl});
             if (decl.kind !== 8) {
                 return;
             }
 
-            for (const member of decl.members || []) {
-                if (member.target?.declaration?.typeName?.name === this.edit_info[file].class_connections_class_name) {
-                    this.edit_info[file].class_connections_member_name = member.target.declaration.name?.name
-                    this.edit_info[file].class_connections_member_declaration_range = loc2range(member.loc);
-                    return;
+            // search for class_connections_class_name between
+            // decl.selectionRange.end.character and decl.range.end.character
+            let code_to_search = this.edit_info[file].text_lines[decl.selectionRange.end.line]
+                                     .substr(decl.selectionRange.end.character);
+            if (decl.selectionRange.end.line !== decl.range.end.line) {
+                for (let i = decl.selectionRange.end.line + 1; i < decl.range.end.line; i++) {
+                    code_to_search += ' ' + this.edit_info[file].text_lines[i];
                 }
+                code_to_search += ' ' + this.edit_info[file].text_lines[decl.range.end.line]
+                                            .substr(0, decl.range.end.character);
+            }
+
+            const possibly_class_name = code_to_search
+                .replace('=', '')
+                .replace('new', '')
+                .replace('(', '')
+                .replace(')', '')
+                .replace(';', '')
+                .trim();
+
+            if (possibly_class_name === this.edit_info[file].class_connections_class_name) {
+                this.edit_info[file].class_connections_member_name = decl.name;
+                this.edit_info[file].class_connections_member_declaration_range = decl.range;
             }
         };
-
-        const doc: QoreTextDocument = qoreTextDocument(file);
-        this.addTextLines(file, doc.text);
 
         return getJavaDocumentSymbolsWithWait(makeFileUri(file)).then(async symbols => {
             if (!symbols?.length) {
@@ -442,13 +458,11 @@ export class QorusProjectEditInfo {
             if (add_class_connections_info) {
                 maybeAddClassConnectionClass(symbols);
             }
-            msg.debug({x: this.edit_info[file]});
 
             const lsdoc = LsTextDocument.create(
                 makeFileUri(file), 'java', 1, fs.readFileSync(file).toString()
             );
             symbols.forEach(symbol => {
-                    msg.debug({symbol});
                 if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, class_name)) {
                     return;
                 }
