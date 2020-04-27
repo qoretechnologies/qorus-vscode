@@ -374,6 +374,15 @@ export class QorusProjectEditInfo {
             'class-connections': class_connections
         } = data;
 
+        let expected_trigger_names = [];
+        Object.keys(class_connections || {}).forEach(connection => {
+            class_connections[connection].forEach(connector => {
+                if (connector.trigger) {
+                    expected_trigger_names.push(connector.trigger);
+                }
+            });
+        });
+
         if (!iface_kind) {
             return Promise.resolve();
         }
@@ -450,6 +459,27 @@ export class QorusProjectEditInfo {
             }
         };
 
+        const maybeAddTriggerStatements = (decl) => {
+            if (!QorusProjectEditInfo.isJavaDeclPublicMethod(decl)) {
+                return;
+            }
+
+            const method_name = this.edit_info[file]
+                                    .text_lines[decl.selectionRange.start.line]
+                                    .substring(decl.selectionRange.start.character, decl.selectionRange.end.character);
+
+            if (expected_trigger_names.includes(method_name)) {
+                this.edit_info[file].class_connections_trigger_ranges = [
+                    ... this.edit_info[file].class_connections_trigger_ranges || [],
+                    decl.range
+                ];
+                this.edit_info[file].trigger_names = [
+                    ... this.edit_info[file].trigger_names || [],
+                    method_name
+                ];
+            }
+        };
+
         return getJavaDocumentSymbolsWithWait(makeFileUri(file)).then(async symbols => {
             if (!symbols?.length) {
                 return;
@@ -478,7 +508,7 @@ export class QorusProjectEditInfo {
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
 //                        maybeAddClassConnectionMemberInitialization(decl);
-//                        maybeAddTriggerStatements(decl);
+                        maybeAddTriggerStatements(decl);
                     }
 //                    else {
 //                        maybeAddPrivateMemberBlock(decl);
@@ -486,6 +516,7 @@ export class QorusProjectEditInfo {
                     this.addJavaClassDeclInfo(file, decl);
                 }
             });
+            msg.debug({x: this.edit_info[file]});
             return Promise.resolve(this.edit_info[file]);
         });
     }
