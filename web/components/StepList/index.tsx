@@ -366,7 +366,7 @@ const Step = ({
                                                         version: stepVersion,
                                                         type: stepType,
                                                     });
-                                                    initialData.changeTab('CreateInterface', 'workflow');
+                                                    initialData.changeTab('CreateInterface', 'workflow', true);
                                                 });
                                                 resetFields('step');
                                                 postMessage(Messages.GET_INTERFACE_DATA, {
