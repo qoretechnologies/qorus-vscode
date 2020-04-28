@@ -35,6 +35,7 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
         ({ class_connections_trigger_names: method_names } = edit_data);
 
+        await new Promise(resolve => setTimeout(resolve, 500));
         edit_data = await edit_info.setFileInfo(file, data);
         if (edit_data.empty_private_member_block) {
             lines = deleteEmptyPrivateMemberBlock(edit_data);

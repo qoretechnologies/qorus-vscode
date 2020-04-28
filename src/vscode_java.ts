@@ -4,11 +4,11 @@ import {
     SymbolInformation,
 } from 'vscode-languageserver-types';
 
-export type DocumentSymbolsResponse = DocumentSymbol[] | SymbolInformation[] | null;
+export type DocumentSymbolsResponse = SymbolInformation[] | DocumentSymbol[];
 
 export const vscode_java = extensions.getExtension('redhat.java');
 
-export async function getJavaDocumentSymbols(textDocumentUri: string): Promise<DocumentSymbolsResponse> {
+export const getJavaDocumentSymbols = (textDocumentUri: string): Promise<DocumentSymbolsResponse> => {
     if (!vscode_java || !vscode_java.isActive) {
         return null;
     }
@@ -17,7 +17,7 @@ export async function getJavaDocumentSymbols(textDocumentUri: string): Promise<D
             uri: textDocumentUri
         }
     });
-}
+};
 
 export async function getJavaDocumentSymbolsWithWait(textDocumentUri: string): Promise<DocumentSymbolsResponse> {
     if (!vscode_java) {
