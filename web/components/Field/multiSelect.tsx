@@ -10,12 +10,12 @@ import { MultiSelect } from '@blueprintjs/select';
 
 import { TTranslator } from '../../App';
 import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
-import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
-import { IField } from './';
+import FieldEnhancer from '../FieldEnhancer';
 import String from './string';
 
 export interface IMultiSelectField {
@@ -45,6 +45,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     default_items,
     removeCodeFromRelations,
     canEdit,
+    reference,
 }) => {
     const [items, setItems] = useState<any[]>(default_items || []);
     const [editorManager, setEditorManager] = useState<any>({});
@@ -97,12 +98,16 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
         });
     };
 
-    const handleSaveTagEdit: () => void = () => {
+    const handleSaveTagEdit: (defaultValue?: string, name?: string) => void = (
+        defaultValue = editorManager.defaultValue,
+        val = editorManager.value
+    ) => {
+        console.log(defaultValue, val);
         const newItems = value.reduce((modifiedValue: any[], item: any) => {
             const newItem = { ...item };
             // Check if the item matches the default value of the edite item
-            if (item.name === editorManager.defaultValue) {
-                newItem.name = editorManager.value;
+            if (item.name === defaultValue) {
+                newItem.name = val;
             }
 
             return [...modifiedValue, newItem];
@@ -130,82 +135,92 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     // Clear button
     const ClearButton = size(value) ? <Button icon={'cross'} minimal onClick={handleClearClick} /> : undefined;
 
+    canEdit = !!reference || canEdit;
+
     return (
-        <>
-            {editorManager.isOpen && (
-                <CustomDialog title={t('EditItem')} onClose={() => setEditorManager({})} isOpen>
-                    <StyledDialogBody style={{ flexFlow: 'column' }}>
-                        <String
-                            fill
-                            name="edit"
-                            value={editorManager.value}
-                            onChange={(_name, v) => setEditorManager({ ...editorManager, value: v })}
-                        />
-                        <br />
-                        <ControlGroup fill>
-                            <Button
-                                text={t('Save')}
-                                onClick={handleSaveTagEdit}
-                                disabled={editorManager.value === ''}
-                                intent="success"
+        <FieldEnhancer>
+            {onEditClick => (
+                <>
+                    {editorManager.isOpen && (
+                        <CustomDialog title={t('EditItem')} onClose={() => setEditorManager({})} isOpen>
+                            <StyledDialogBody style={{ flexFlow: 'column' }}>
+                                <String
+                                    fill
+                                    name="edit"
+                                    value={editorManager.value}
+                                    onChange={(_name, v) => setEditorManager({ ...editorManager, value: v })}
+                                />
+                                <br />
+                                <ControlGroup fill>
+                                    <Button
+                                        text={t('Save')}
+                                        onClick={handleSaveTagEdit}
+                                        disabled={editorManager.value === ''}
+                                        intent="success"
+                                    />
+                                </ControlGroup>
+                            </StyledDialogBody>
+                        </CustomDialog>
+                    )}
+                    <MultiSelect
+                        key={activeId}
+                        items={items}
+                        createNewItemFromQuery={(query: string) =>
+                            query
+                                ? {
+                                      name: query,
+                                  }
+                                : undefined
+                        }
+                        createNewItemRenderer={(query, _active, handleClick) => (
+                            <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
+                        )}
+                        itemRenderer={(item, { handleClick }) => (
+                            <MenuItem
+                                icon={includes(value, item) ? 'tick' : 'blank'}
+                                text={item.name}
+                                onClick={handleClick}
+                                title={item.desc}
                             />
-                        </ControlGroup>
-                    </StyledDialogBody>
-                </CustomDialog>
-            )}
-            <MultiSelect
-                key={activeId}
-                items={items}
-                createNewItemFromQuery={(query: string) =>
-                    query
-                        ? {
-                              name: query,
-                          }
-                        : undefined
-                }
-                createNewItemRenderer={(query, _active, handleClick) => (
-                    <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
-                )}
-                itemRenderer={(item, { handleClick }) => (
-                    <MenuItem
-                        icon={includes(value, item) ? 'tick' : 'blank'}
-                        text={item.name}
-                        onClick={handleClick}
-                        title={item.desc}
-                    />
-                )}
-                popoverProps={{ targetClassName: 'select-popover', popoverClassName: 'custom-popover' }}
-                tagRenderer={item => (
-                    <Tag
-                        minimal
-                        style={{ cursor: 'pointer', backgroundColor: 'transparent' }}
-                        onClick={event => {
-                            if (canEdit) {
-                                event.stopPropagation();
-                                handleTagClick(item.name);
-                            }
+                        )}
+                        popoverProps={{ targetClassName: 'select-popover', popoverClassName: 'custom-popover' }}
+                        tagRenderer={item => (
+                            <Tag
+                                minimal
+                                style={{ cursor: 'pointer', backgroundColor: 'transparent' }}
+                                onClick={event => {
+                                    if (canEdit) {
+                                        event.stopPropagation();
+                                        if (onEditClick && reference) {
+                                            onEditClick(item.name, reference, handleSaveTagEdit);
+                                        } else {
+                                            handleTagClick(item.name);
+                                        }
+                                    }
+                                }}
+                                rightIcon={canEdit && <Icon iconSize={12} icon="edit" style={{ opacity: '0.6' }} />}
+                            >
+                                {item.name}
+                            </Tag>
+                        )}
+                        tagInputProps={{
+                            onRemove: handleTagRemoveClick,
+                            fill: true,
+                            rightElement: ClearButton,
+                            leftIcon: 'list',
+                            tagProps: {
+                                minimal: true,
+                            },
                         }}
-                        rightIcon={canEdit && <Icon iconSize={12} icon="edit" style={{ opacity: '0.6' }} />}
-                    >
-                        {item.name}
-                    </Tag>
-                )}
-                tagInputProps={{
-                    onRemove: handleTagRemoveClick,
-                    fill: true,
-                    rightElement: ClearButton,
-                    leftIcon: 'list',
-                    tagProps: {
-                        minimal: true,
-                    },
-                }}
-                selectedItems={value || []}
-                onItemSelect={(item: any) => handleSelectClick(item)}
-                resetOnQuery
-                resetOnSelect
-                activeItem={null}
-            />
-        </>
+                        selectedItems={value || []}
+                        onItemSelect={(item: any) => handleSelectClick(item)}
+                        resetOnQuery
+                        resetOnSelect
+                        activeItem={null}
+                    />
+                </>
+            )}
+        </FieldEnhancer>
     );
 };
 

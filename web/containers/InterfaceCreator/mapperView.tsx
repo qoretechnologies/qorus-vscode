@@ -1,19 +1,21 @@
 import React, { FunctionComponent } from 'react';
-import InterfaceCreatorPanel, { ContentWrapper, ActionsWrapper, IField } from './panel';
+
+import { omit } from 'lodash';
+import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
 import styled from 'styled-components';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import { omit } from 'lodash';
-import { MapperContext } from '../../context/mapper';
-import MapperCreator from '../Mapper';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+
 import { Callout } from '@blueprintjs/core';
-import useMount from 'react-use/lib/useMount';
-import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+
+import { TTranslator } from '../../App';
 import { AppToaster } from '../../components/Toast';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMapperConsumer from '../../hocomponents/withMapperConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
+import MapperCreator from '../Mapper';
+import InterfaceCreatorPanel, { IField } from './panel';
 
 export const CreatorWrapper = styled.div`
     display: flex;
@@ -45,6 +47,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     isEditing,
     ifaceType,
     interfaceContext,
+    onSubmitSuccess,
 }) => {
     if (!qorus_instance) {
         return (
@@ -100,6 +103,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                     methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
                     context={selectedFields.mapper.find((field: IField) => field.name === 'context-selector')?.value}
                     isEditing={isEditing || !!mapper}
+                    onSubmitSuccess={onSubmitSuccess}
                 />
             )}
         </>

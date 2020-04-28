@@ -1,33 +1,38 @@
 import React, { FunctionComponent } from 'react';
-import InterfaceCreatorPanel from './panel';
-import Box from '../../components/Box';
+
 import compose from 'recompose/compose';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
-import ServicesView from './servicesView';
+
+import Box from '../../components/Box';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import WorkflowsView, { CreatorWrapper } from './workflowsView';
-import Tab from './tab';
-import MapperCreator from '../Mapper';
-import MapperView from './mapperView';
-import LibraryView from './libraryView';
+import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
+import LibraryView from './libraryView';
+import MapperView from './mapperView';
+import InterfaceCreatorPanel from './panel';
+import ServicesView from './servicesView';
+import Tab from './tab';
 import TypeView from './typeView';
+import WorkflowsView, { CreatorWrapper } from './workflowsView';
 
 export interface ICreateInterface {
-    targetDir: string;
-    t: TTranslator;
     initialData: any;
+    onSubmit: any;
 }
 
-const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) => {
+export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData, onSubmit }) => {
     return (
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
-                    {initialData.subtab === 'service' && <ServicesView service={initialData.service} />}
-                    {initialData.subtab === 'mapper-code' && <LibraryView library={initialData.library} />}
-                    {initialData.subtab === 'workflow' && <WorkflowsView workflow={initialData.workflow} />}
+                    {initialData.subtab === 'service' && (
+                        <ServicesView service={initialData.service} onSubmitSuccess={onSubmit} />
+                    )}
+                    {initialData.subtab === 'mapper-code' && (
+                        <LibraryView library={initialData.library} onSubmitSuccess={onSubmit} />
+                    )}
+                    {initialData.subtab === 'workflow' && (
+                        <WorkflowsView workflow={initialData.workflow} onSubmitSuccess={onSubmit} />
+                    )}
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
                             <ClassConnectionsStateProvider type="job">
@@ -35,6 +40,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                                     <InterfaceCreatorPanel
                                         hasClassConnections
                                         hasConfigManager
+                                        onSubmitSuccess={onSubmit}
                                         type={'job'}
                                         data={initialData.job}
                                         isEditing={!!initialData.job}
@@ -51,6 +57,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                                 data={initialData.class}
                                 isEditing={!!initialData.class}
                                 hasConfigManager
+                                onSubmitSuccess={onSubmit}
                                 definitionsOnly
                             />
                         </CreatorWrapper>
@@ -64,6 +71,7 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                                         data={initialData.step}
                                         hasClassConnections
                                         hasConfigManager
+                                        onSubmitSuccess={onSubmit}
                                         isEditing={!!initialData.step}
                                         onSubmit={
                                             initialData.stepCallback
@@ -91,19 +99,18 @@ const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData }) =
                             </ClassConnectionsStateProvider>
                         </CreatorWrapper>
                     )}
-                    {initialData.subtab === 'mapper' && <MapperView />}
+                    {initialData.subtab === 'mapper' && <MapperView onSubmitSuccess={onSubmit} />}
                     {initialData.subtab === 'other' && (
                         <CreatorWrapper>
                             <InterfaceCreatorPanel
+                                onSubmitSuccess={onSubmit}
                                 type={'other'}
                                 data={initialData.other}
                                 isEditing={!!initialData.other}
                             />
                         </CreatorWrapper>
                     )}
-                    {initialData.subtab === 'type' && (
-                        <TypeView />
-                    )}
+                    {initialData.subtab === 'type' && <TypeView onSubmitSuccess={onSubmit} />}
                 </Tab>
             </div>
         </Box>

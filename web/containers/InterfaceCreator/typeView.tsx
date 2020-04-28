@@ -22,7 +22,7 @@ import MapperInput from '../Mapper/input';
 import MapperFieldModal from '../Mapper/modal';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from './panel';
 
-const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
+const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
@@ -168,6 +168,19 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
         );
 
         if (result.ok) {
+            if (onSubmitSuccess) {
+                onSubmitSuccess({
+                    target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
+                    target_file: !targetFile || targetFile === '' ? undefined : targetFile,
+                    path: val,
+                    typeinfo: {
+                        base_type: 'hash<auto>',
+                        name: 'hash<auto>',
+                        can_manage_fields: true,
+                        fields,
+                    },
+                });
+            }
             reset();
         }
     };

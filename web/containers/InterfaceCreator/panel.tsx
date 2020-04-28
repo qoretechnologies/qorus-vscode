@@ -52,6 +52,7 @@ export interface IInterfaceCreatorPanel {
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
     onSubmit: (fields: any) => void;
+    onFinalSubmit: (data: any) => any;
     t: TTranslator;
     methodsList: { id: number; name: string }[];
     forceSubmit?: boolean;
@@ -91,7 +92,7 @@ export interface IInterfaceCreatorPanel {
         iface_kind: string;
         name: string;
     };
-    onSubmitSuccess: () => any;
+    onSubmitSuccess: (data?: any) => any;
 }
 
 export interface IField {
@@ -119,6 +120,10 @@ export interface IField {
     requires_fields?: string[];
     resetClassConnections?: () => void;
     read_only?: boolean;
+    reference?: {
+        iface_kind: string;
+        type?: string;
+    };
 }
 
 export declare interface IFieldChange {
@@ -772,7 +777,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             if (result.ok) {
                 if (onSubmitSuccess) {
-                    onSubmitSuccess();
+                    onSubmitSuccess(newData);
                 }
                 // If this is config item, reset only the fields
                 // local fields will be unmounted

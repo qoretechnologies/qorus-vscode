@@ -330,6 +330,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     contextInputs,
     hasInitialInput,
     hasInitialOutput,
+    onSubmitSuccess,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -616,6 +617,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     };
 
     const handleSubmitClick = async () => {
+        console.log('saving');
         // Build the mapper object
         const mapper = reduce(
             selectedFields.mapper,
@@ -649,7 +651,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 'custom-fields': getCustomFields('outputs'),
             },
         };
-        const result = initialData.callBackend(
+        const result = await initialData.callBackend(
             !isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE,
             undefined,
             {
@@ -661,11 +663,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             },
             t('Saving mapper...')
         );
-
+        console.log(result);
         if (result.ok) {
             // If on submit
             if (mapperSubmit) {
                 mapperSubmit(mapper.name, mapper.version);
+            }
+            console.log(onSubmitSuccess);
+            // If on submit success exists
+            if (onSubmitSuccess) {
+                onSubmitSuccess(mapper);
             }
             // Reset the interface data
             resetAllInterfaceData('mapper');
