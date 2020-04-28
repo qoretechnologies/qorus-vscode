@@ -153,6 +153,9 @@ export class QorusProjectEditInfo {
                 first_base_class_line: symbol.extends
                     ? symbol.extends.range.start.line
                     : undefined,
+                last_base_class_range: symbol.extends
+                    ? symbol.extends.range
+                    : undefined,
                 last_class_line: symbol.range.end.line,
                 base_class_names: base_class_name ? [base_class_name] : [],
                 main_base_class_ord

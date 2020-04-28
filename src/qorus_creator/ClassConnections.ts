@@ -199,12 +199,12 @@ export class ClassConnections {
         this.memberDeclCodeQore() +
         `${indent1}}\n`;
 
-    protected meberDeclCodeJava = () =>
+    protected memberDeclCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
         `${indent1}${this.connClassName()} ${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
         `${indent1}${GENERATED.java.end}\n\n`;
 
-    protected meberDeclBlockCodeJava = () => this.meberDeclCodeJava();
+    protected memberDeclBlockCodeJava = () => this.memberDeclCodeJava();
 
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;

@@ -4,7 +4,7 @@ import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
 import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
-//import * as msg from '../qorus_message';
+import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, new_data, orig_data, iface_kind) => {
@@ -24,6 +24,8 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
         'class-connections': orig_data['class-connections']
     };
 
+    const lang = data.lang || 'qore';
+
     const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
     // remove original class connections code
@@ -37,6 +39,7 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
         await new Promise(resolve => setTimeout(resolve, 500));
         edit_data = await edit_info.setFileInfo(file, data);
+        msg.debug({edit_data_1: edit_data});
         if (edit_data.empty_private_member_block) {
             lines = deleteEmptyPrivateMemberBlock(edit_data);
             lines = cleanup(lines);
@@ -46,7 +49,7 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
-        const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, data.lang);
+        const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, lang);
         let { triggers, trigger_code, connections_extra_class } = class_connections.code();
         trigger_names = triggers;
 
@@ -57,8 +60,8 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
         edit_data = await edit_info.setFileInfo(file, data);
         let line_shift;
-        ({ lines, line_shift } = insertMemberDeclaration(class_connections, edit_data));
-        ({ lines, trigger_names } = insertTriggerCode(trigger_names, trigger_code, edit_data, lines, line_shift));
+        ({ lines, line_shift } = insertMemberDeclaration(class_connections, edit_data, lang));
+        lines = insertTriggerCode(trigger_code, edit_data, lines, line_shift, lang);
         let extra_class_code_lines = connections_extra_class.split(/\r?\n/);
         extra_class_code_lines.pop();
         lines = [ ...lines, ...extra_class_code_lines ];
@@ -75,13 +78,13 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     });
     if (methods_to_add.length) {
         edit_data = await edit_info.setFileInfo(file, mixed_data);
-        lines = addMethods(methods_to_add, edit_data, data.lang || 'qore');
+        lines = addMethods(methods_to_add, edit_data, lang);
         lines = cleanup(lines);
         writeFile(lines);
     }
 };
 
-const insertMemberDeclaration = (class_connections, edit_data) => {
+const insertMemberDeclaration = (class_connections, edit_data, lang) => {
     const { text_lines, private_member_block_range, last_class_line, last_base_class_range } = edit_data;
     let lines = [ ...text_lines ];
     let line_shift = 0;
@@ -128,8 +131,12 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
             }
         }
 
-        lines.splice(target_line, 0, `${indent}private {`, `${indent}}` , '');
-        line_shift += 3;
+        if (lang === 'qore') {
+            lines.splice(target_line, 0, `${indent}private {`, `${indent}}` , '');
+            line_shift += 3;
+        } else {
+            target_line--;
+        }
 
         lines.splice(target_line + 1, 0, ...member_decl_code_lines);
         line_shift += member_decl_code_lines.length;
@@ -138,9 +145,9 @@ const insertMemberDeclaration = (class_connections, edit_data) => {
     return { lines, line_shift };
 };
 
-const insertTriggerCode = (trigger_names, trigger_code, edit_data, lines, line_shift) => {
-    if (!trigger_code) {
-        return lines;
+const insertTriggerCode = (trigger_code, edit_data, lines, line_shift, lang) => {
+    if (!trigger_code || lang === 'java') {
+        return lines ;
     }
 
     const { last_class_line } = edit_data;
@@ -149,7 +156,7 @@ const insertTriggerCode = (trigger_names, trigger_code, edit_data, lines, line_s
     lines.splice(last_class_line + line_shift, 0, ...trigger_code_lines);
     line_shift += trigger_code_lines.length;
 
-    return { lines, trigger_names };
+    return lines;
 };
 
 const removeClassConnectionsCode = edit_data => {
@@ -228,6 +235,7 @@ const sortRanges = ranges => ranges.sort((a, b) => {
 
 const addMethods = (method_names, edit_data, lang) => {
     const { text_lines, class_def_range } = edit_data;
+    msg.debug({ text_lines, class_def_range });
 
     const lines = InterfaceCreator.addClassMethods(
         [ ... text_lines ],
@@ -237,7 +245,6 @@ const addMethods = (method_names, edit_data, lang) => {
         lang
     );
 
-    lines.unshift('');
     return lines;
 };
 
