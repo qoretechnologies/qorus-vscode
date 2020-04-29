@@ -2150,3 +2150,6 @@ msgstr "Edit method name"
 
 msgid "EditMethodNameTriggerWarning"
 msgstr "Editing method name will also change the associated trigger name, if applicable!"
+
+msgid "YamlDataNotFound ${ iface_kind } ${ name }"
+msgstr "Data for ${ iface_kind } ${ name } not found"

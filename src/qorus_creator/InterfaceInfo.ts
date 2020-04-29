@@ -397,6 +397,9 @@ export class InterfaceInfo {
         let items = [];
         flattenDeep(steps).forEach(name => {
             const step_data = this.yaml_info.yamlDataByName('step', name);
+            if (!step_data) {
+                msg.error(t`YamlDataNotFound ${'step'} ${name}`);
+            }
             const iface_id = this.addIfaceById(step_data, 'step');
             if (step_data['base-class-name']) {
                 this.addClassConfigItems(iface_id, step_data['base-class-name']);
