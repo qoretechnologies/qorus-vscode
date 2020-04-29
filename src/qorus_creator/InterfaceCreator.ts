@@ -100,6 +100,7 @@ export abstract class InterfaceCreator {
         if (params.edit_type === 'edit' && params.data['class-connections']) {
             params.edit_type = 'recreate';
             this.editImpl(params);
+            return;
         }
 
         if (params.orig_data) {
