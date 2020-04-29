@@ -67,7 +67,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
-        const changeTab: (tab: string, subtab?: string) => void = (tab, subtab) => {
+        const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (tab, subtab, force) => {
             const setTabs = () =>
                 setInitialData(current => ({
                     ...current,
@@ -75,7 +75,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     subtab: subtab || null,
                 }));
 
-            if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab]) {
+            if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab] && !force) {
                 // Check if there is data for the given subtab
                 confirmAction('UnfinishedWork', setTabs, 'Leave', 'warning');
             } else {
