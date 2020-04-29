@@ -73,20 +73,13 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                         hasConfigManager
                                         onSubmitSuccess={onSubmit}
                                         isEditing={!!initialData.step}
-                                        onSubmit={
+                                        onSubmitSuccess={
                                             initialData.stepCallback
-                                                ? fields => {
-                                                      const nameField = fields.find(field => field.name === 'name');
-                                                      const versionField = fields.find(
-                                                          field => field.name === 'version'
-                                                      );
-                                                      const typeField = fields.find(
-                                                          field => field.name === 'base-class-name'
-                                                      );
+                                                ? data => {
                                                       initialData.stepCallback(
-                                                          nameField.value,
-                                                          versionField.value,
-                                                          typeField.value
+                                                          data.name,
+                                                          data.version,
+                                                          data['base-call-name']
                                                       );
                                                   }
                                                 : null
