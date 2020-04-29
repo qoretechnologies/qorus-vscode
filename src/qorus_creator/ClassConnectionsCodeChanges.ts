@@ -3,16 +3,24 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
 import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
+import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { serviceTemplates } from './service_constants';
-import * as msg from '../qorus_message';
 
 
-export const classConnectionsCodeChanges = async (file, code_info: QorusProjectCodeInfo, new_data, orig_data, iface_kind) => {
+export const classConnectionsCodeChanges = async (
+    file,
+    code_info: QorusProjectCodeInfo,
+    new_data,
+    orig_data,
+    iface_kind,
+    imports) =>
+{
     const edit_info: QorusProjectEditInfo = code_info.edit_info;
     let edit_data;
     let lines;
     let method_names;
     let trigger_names;
+    let more_imports = [];
 
     const data = {
         ...new_data,
@@ -39,7 +47,6 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
         await new Promise(resolve => setTimeout(resolve, 500));
         edit_data = await edit_info.setFileInfo(file, data);
-        msg.debug({edit_data_1: edit_data});
         if (edit_data.empty_private_member_block) {
             lines = deleteEmptyPrivateMemberBlock(edit_data);
             lines = cleanup(lines);
@@ -50,18 +57,21 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
     // add new class connections code
     if (Object.keys(data['class-connections'] || {}).length) {
         const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, lang);
-        let { triggers, trigger_code, connections_extra_class } = class_connections.code();
+        let { imports: cc_imports, triggers, trigger_code, connections_extra_class } = class_connections.code();
+        more_imports = cc_imports;
         trigger_names = triggers;
 
+        await new Promise(resolve => setTimeout(resolve, 500));
         edit_data = await edit_info.setFileInfo(file, data);
         lines = removeMethods(trigger_names, edit_data);
         lines = cleanup(lines);
         writeFile(lines);
 
+        await new Promise(resolve => setTimeout(resolve, 500));
         edit_data = await edit_info.setFileInfo(file, data);
         let line_shift;
         ({ lines, line_shift } = insertMemberDeclaration(class_connections, edit_data, lang));
-        lines = insertTriggerCode(trigger_code, edit_data, lines, line_shift, lang);
+        lines = insertTriggerCode(trigger_code, edit_data, lines, line_shift);
         let extra_class_code_lines = connections_extra_class.split(/\r?\n/);
         extra_class_code_lines.pop();
         lines = [ ...lines, ...extra_class_code_lines ];
@@ -72,16 +82,20 @@ export const classConnectionsCodeChanges = async (file, code_info: QorusProjectC
 
     let methods_to_add = [];
     method_names?.forEach(method_name => {
-        if (!trigger_names?.contains(method_name)) {
+        if (!trigger_names?.includes(method_name)) {
             methods_to_add.push(method_name);
         }
     });
     if (methods_to_add.length) {
+        await new Promise(resolve => setTimeout(resolve, 500));
         edit_data = await edit_info.setFileInfo(file, mixed_data);
         lines = addMethods(methods_to_add, edit_data, lang);
         lines = cleanup(lines);
         writeFile(lines);
     }
+
+    lines = fixImports(file, [ ...imports, ...more_imports ]);
+    writeFile(lines);
 };
 
 const insertMemberDeclaration = (class_connections, edit_data, lang) => {
@@ -145,8 +159,8 @@ const insertMemberDeclaration = (class_connections, edit_data, lang) => {
     return { lines, line_shift };
 };
 
-const insertTriggerCode = (trigger_code, edit_data, lines, line_shift, lang) => {
-    if (!trigger_code || lang === 'java') {
+const insertTriggerCode = (trigger_code, edit_data, lines, line_shift) => {
+    if (!trigger_code) {
         return lines ;
     }
 
@@ -235,7 +249,6 @@ const sortRanges = ranges => ranges.sort((a, b) => {
 
 const addMethods = (method_names, edit_data, lang) => {
     const { text_lines, class_def_range } = edit_data;
-    msg.debug({ text_lines, class_def_range });
 
     const lines = InterfaceCreator.addClassMethods(
         [ ... text_lines ],
@@ -329,5 +342,25 @@ const cleanup = dirty_lines => {
         lines.pop();
     }
 
+    return lines;
+};
+
+const fixImports = (file, imports) => {
+    const doc: QoreTextDocument = qoreTextDocument(file);
+    let lines = doc.text.split(/\r?\n/);
+
+    while (lines[lines.length-1] === '') {
+        lines.pop();
+    }
+    while (lines[0] === '') {
+        lines.shift();
+    }
+    while (lines[0].startsWith('import ')) {
+        lines.shift();
+    }
+
+    imports.reverse().forEach(imp => {
+        lines.unshift(imp);
+    });
     return lines;
 };

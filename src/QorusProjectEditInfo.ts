@@ -21,6 +21,9 @@ export class QorusProjectEditInfo {
         }
 
         let lines = contents.split(/\r?\n/);
+        while (lines[0] === '') {
+            lines.shift();
+        }
         while (lines[lines.length-1] === '') {
             lines.pop();
         }

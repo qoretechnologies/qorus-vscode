@@ -296,7 +296,6 @@ export class ClassConnections {
         if (some_qore_class) {
             code += `${indent2}UserApi.stopCapturingObjects();\n`;
         }
-        code += `${indent1}\n`;
 
         if (event_based_connections.length) {
             code += `${indent2}// register observers\n`;
