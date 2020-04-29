@@ -399,6 +399,7 @@ export class InterfaceInfo {
             const step_data = this.yaml_info.yamlDataByName('step', name);
             if (!step_data) {
                 msg.error(t`YamlDataNotFound ${'step'} ${name}`);
+                return;
             }
             const iface_id = this.addIfaceById(step_data, 'step');
             if (step_data['base-class-name']) {
