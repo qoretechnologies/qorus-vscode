@@ -80,6 +80,7 @@ export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.targetFile,
     {
         name: 'class-class-name',
+        style: 'PascalCase',
     },
     field.version,
     {

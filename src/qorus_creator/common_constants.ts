@@ -64,6 +64,7 @@ export const classFields = ({ is_editing, default_target_dir }) => [
     field.version,
     {
         name: 'class-class-name',
+        style: 'PascalCase',
     },
     field.lang(is_editing),
     {
