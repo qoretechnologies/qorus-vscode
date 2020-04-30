@@ -91,6 +91,7 @@ export interface IInterfaceCreatorPanel {
     context?: {
         iface_kind: string;
         name: string;
+        type?: string;
     };
     onSubmitSuccess: (data?: any) => any;
 }

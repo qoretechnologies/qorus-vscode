@@ -17,9 +17,10 @@ import WorkflowsView, { CreatorWrapper } from './workflowsView';
 export interface ICreateInterface {
     initialData: any;
     onSubmit: any;
+    context: any;
 }
 
-export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData, onSubmit }) => {
+export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData, onSubmit, context }) => {
     return (
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
@@ -96,6 +97,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     {initialData.subtab === 'other' && (
                         <CreatorWrapper>
                             <InterfaceCreatorPanel
+                                context={context}
                                 onSubmitSuccess={onSubmit}
                                 type={'other'}
                                 data={initialData.other}

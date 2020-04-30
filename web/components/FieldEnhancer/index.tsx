@@ -36,6 +36,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
             isOpen: true,
             changeType: 'CreateInterface',
             interfaceKind: reference.iface_kind,
+            context: { type: reference.type },
             onSubmit,
             onClose: () => {
                 // Reset the current fields of the same kind
@@ -73,6 +74,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
         postMessage(Messages.GET_INTERFACE_DATA, {
             ...reference,
             iface_kind,
+            custom_data: reference.type ? { type: reference.type } : null,
             name: iface_name,
         });
     };
@@ -85,12 +87,13 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
                         editManager.onClose();
                         setEditManager({});
                     }}
-                    title={editManager.changeType}
+                    title={t(editManager.changeType)}
                     isOpen
                     style={{ width: '95vw', height: '95vh' }}
                 >
                     <CreateInterface
                         initialData={{ ...initialData, subtab: editManager.interfaceKind }}
+                        context={editManager.context}
                         onSubmit={data => {
                             const name: string = data.name || data['class-class-name'];
                             const version: string = editManager.interfaceKind === 'mapper' ? data.version : '';
