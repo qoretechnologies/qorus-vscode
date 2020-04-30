@@ -974,7 +974,7 @@ msgid "field-desc-class-name"
 msgstr "Class name"
 
 msgid "field-label-class-class-name"
-msgstr "Name"
+msgstr "Class name"
 
 msgid "field-desc-class-class-name"
 msgstr "Both interface name and class code name"
