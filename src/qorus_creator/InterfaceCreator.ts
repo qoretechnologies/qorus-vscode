@@ -85,6 +85,7 @@ export abstract class InterfaceCreator {
                 this.edit_info = this.code_info.editInfo(orig_path);
             } else {
                 this.orig_yaml_file_path = orig_path;
+                this.orig_file_path = undefined;
             }
         } else {
             this.orig_file_path = undefined;
