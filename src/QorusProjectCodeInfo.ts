@@ -355,16 +355,18 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
+            const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
+
             let raw_data;
             if (class_name) {
                 raw_data = this.yaml_info.yamlDataByName('class', class_name);
             } else {
                 const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-                raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
+                raw_data = this.yaml_info.yamlDataByName(true_iface_kind, name_key);
             }
             const data = this.fixData(raw_data);
 
-            const iface_id = this.iface_info.addIfaceById(data, iface_kind);
+            const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
 
             qorus_webview.postMessage({
                 action: 'return-interface-data',
