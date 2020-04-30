@@ -24,7 +24,7 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
     field.lang(is_editing),
     field.constants,
     field.functions,
-    field.mapper,
+    field.mappers,
     field.vmaps,
     field.modules,
     field.remote,

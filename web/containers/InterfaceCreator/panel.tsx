@@ -12,7 +12,7 @@ import {
     reduce,
     size,
     uniqBy,
-    upperFirst
+    upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import compose from 'recompose/compose';
@@ -52,6 +52,7 @@ export interface IInterfaceCreatorPanel {
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
     onSubmit: (fields: any) => void;
+    onFinalSubmit: (data: any) => any;
     t: TTranslator;
     methodsList: { id: number; name: string }[];
     forceSubmit?: boolean;
@@ -90,8 +91,9 @@ export interface IInterfaceCreatorPanel {
     context?: {
         iface_kind: string;
         name: string;
+        type?: string;
     };
-    onSubmitSuccess: () => any;
+    onSubmitSuccess: (data?: any) => any;
 }
 
 export interface IField {
@@ -119,6 +121,10 @@ export interface IField {
     requires_fields?: string[];
     resetClassConnections?: () => void;
     read_only?: boolean;
+    reference?: {
+        iface_kind: string;
+        type?: string;
+    };
 }
 
 export declare interface IFieldChange {
@@ -537,7 +543,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             });
                         }
                         // Check if this field needs style changes
-                        if (currentField.style && !currentField.hasValueSet) {
+                        if (
+                            currentField.style &&
+                            // Quick hack for classes and mapper codes
+                            (currentField.name === 'class-class-name' || !currentField.hasValueSet)
+                        ) {
                             // Modify the value based on the style
                             switch (currentField.style) {
                                 case 'PascalCase':
@@ -764,7 +774,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 : type === 'mapper-methods'
                                 ? initialData['mapper-code']
                                 : data,
-                        open_file_on_success: openFileOnSubmit !== false,
+                        open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
                         iface_id: interfaceId,
                     },
                     t(`Saving ${type}...`)
@@ -772,7 +782,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             }
             if (result.ok) {
                 if (onSubmitSuccess) {
-                    onSubmitSuccess();
+                    onSubmitSuccess(newData);
                 }
                 // If this is config item, reset only the fields
                 // local fields will be unmounted

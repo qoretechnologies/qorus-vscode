@@ -1,16 +1,14 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import mapProps from 'recompose/mapProps';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+
+import { forEach, get, reduce, set, size, unset } from 'lodash';
 import compose from 'recompose/compose';
-import { get, set, unset, forEach, reduce, size } from 'lodash';
-import { MapperContext } from '../context/mapper';
-import string from '../components/Field/string';
-import useMount from 'react-use/lib/useMount';
-import { providers } from '../containers/Mapper/provider';
-import withTextContext from './withTextContext';
-import { Callout } from '@blueprintjs/core';
-import { IMapperRelation } from '../containers/Mapper';
-import withMessageHandler from './withMessageHandler';
+import mapProps from 'recompose/mapProps';
+
 import { Messages } from '../constants/messages';
+import { providers } from '../containers/Mapper/provider';
+import { MapperContext } from '../context/mapper';
+import withMessageHandler from './withMessageHandler';
+import withTextContext from './withTextContext';
 
 export const addTrailingSlash = (path: string) => {
     // Get the last character
@@ -302,7 +300,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         data?.custom_data?.event === 'context' &&
                         data[data.custom_data.iface_kind]['staticdata-type']
                     ) {
-                        console.log(data);
                         // Save the static data
                         const staticData = data[data.custom_data.iface_kind]['staticdata-type'];
                         // Get the url from the context provider
@@ -354,9 +351,16 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }
         }, [qorus_instance, mapper]);
 
-        if (!error && qorus_instance && (!mapperKeys || (props.isEditingMapper && (!inputs || !outputs)))) {
-            return <p> Loading ... </p>;
-        }
+        useEffect(() => {
+            if (props.mapper) {
+                setMapper(props.mapper);
+            }
+        }, [props.mapper]);
+
+        /*if (!error && qorus_instance && (!mapperKeys || (props.isEditingMapper && (!inputs || !outputs)))) {
+            console.log(error, qorus_instance, mapperKeys, inputs, outputs);
+            return <Component {...props} />;
+        }*/
 
         const addField = (fieldsType, path, data) => {
             // Save the field setters to be easily accessible
@@ -514,12 +518,15 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     };
 
     return compose(
-        mapProps(({ mapper, ...rest }) => ({
-            initialShow: !!mapper,
-            mapper,
-            isEditingMapper: !!mapper?.name,
-            ...rest,
-        })),
+        mapProps(
+            ({ mapper, ...rest }) =>
+                console.log(mapper) || {
+                    initialShow: !!mapper,
+                    mapper,
+                    isEditingMapper: !!mapper?.name,
+                    ...rest,
+                }
+        ),
         withTextContext(),
         withMessageHandler()
     )(EnhancedComponent);
