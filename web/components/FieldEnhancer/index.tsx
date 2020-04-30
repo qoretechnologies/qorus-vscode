@@ -6,6 +6,7 @@ import { FieldContext } from '../../context/fields';
 import { InitialContext } from '../../context/init';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import CustomDialog from '../CustomDialog';
+import { TextContext } from '../../context/text';
 
 export interface IFieldEnhancerProps {
     children: (onEditClick: any, onCreateClick: any) => any;
@@ -19,9 +20,11 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
         isOpen?: boolean;
         onSubmit?: () => any;
         originalName: string;
+        changeType: string;
     }>({});
     const initialData = useContext(InitialContext);
     const fields = useContext(FieldContext);
+    const t = useContext(TextContext);
 
     const handleCreateClick = (reference: any, onSubmit?: () => any) => {
         // First reset the current fields of the same kind
@@ -31,6 +34,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
         // Open the dialog
         setEditManager({
             isOpen: true,
+            changeType: 'CreateInterface',
             interfaceKind: reference.iface_kind,
             onSubmit,
             onClose: () => {
@@ -53,6 +57,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
                 isOpen: true,
                 interfaceKind: reference.iface_kind,
                 originalName: iface_name,
+                changeType: 'EditInterface',
                 onSubmit,
                 onClose: () => {
                     // Reset the current fields of the same kind
@@ -80,7 +85,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
                         editManager.onClose();
                         setEditManager({});
                     }}
-                    title={'Edit interface'}
+                    title={editManager.changeType}
                     isOpen
                     style={{ width: '95vw', height: '95vh' }}
                 >

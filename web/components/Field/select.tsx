@@ -157,9 +157,14 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                     </Select>
                     {reference && (
                         <>
-                            <Tooltip content={t('EditThisItem')}>
-                                <Button icon="edit" onClick={() => onEditClick(value, reference, handleEditSubmit)} />
-                            </Tooltip>
+                            {value && (
+                                <Tooltip content={t('EditThisItem')}>
+                                    <Button
+                                        icon="edit"
+                                        onClick={() => onEditClick(value, reference, handleEditSubmit)}
+                                    />
+                                </Tooltip>
+                            )}
                             <Tooltip content={t('CreateAndAddNewItem')}>
                                 <Button
                                     icon="add"

@@ -12,7 +12,7 @@ import {
     reduce,
     size,
     uniqBy,
-    upperFirst
+    upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import compose from 'recompose/compose';
@@ -542,7 +542,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             });
                         }
                         // Check if this field needs style changes
-                        if (currentField.style && !currentField.hasValueSet) {
+                        if (
+                            currentField.style &&
+                            // Quick hack for classes and mapper codes
+                            (currentField.name === 'class-class-name' || !currentField.hasValueSet)
+                        ) {
                             // Modify the value based on the style
                             switch (currentField.style) {
                                 case 'PascalCase':
@@ -769,7 +773,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 : type === 'mapper-methods'
                                 ? initialData['mapper-code']
                                 : data,
-                        open_file_on_success: openFileOnSubmit !== false,
+                        open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
                         iface_id: interfaceId,
                     },
                     t(`Saving ${type}...`)
