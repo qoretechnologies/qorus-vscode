@@ -7,6 +7,7 @@ import { InitialContext } from '../../context/init';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import CustomDialog from '../CustomDialog';
 import { TextContext } from '../../context/text';
+import capitalize from 'lodash/capitalize';
 
 export interface IFieldEnhancerProps {
     children: (onEditClick: any, onCreateClick: any) => any;
@@ -36,7 +37,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
             isOpen: true,
             changeType: 'CreateInterface',
             interfaceKind: reference.iface_kind,
-            context: { type: reference.type },
+            context: { type: capitalize(reference.type) },
             onSubmit,
             onClose: () => {
                 // Reset the current fields of the same kind
