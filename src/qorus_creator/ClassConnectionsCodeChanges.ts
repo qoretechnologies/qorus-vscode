@@ -34,19 +34,25 @@ export const classConnectionsCodeChanges = async (
 
     const lang = data.lang || 'qore';
 
+    const setFileInfo = async (params, add_class_connections_info = false, sleep = 500): Promise<any> => {
+        if (lang === 'java' && sleep) {
+            await new Promise(resolve => setTimeout(resolve, sleep));
+        }
+        return edit_info.setFileInfo(file, params, add_class_connections_info);
+    };
+
     const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
     // remove original class connections code
     if (Object.keys(orig_data['class-connections'] || {}).length) {
-        edit_data = await edit_info.setFileInfo(file, mixed_data, true);
+        edit_data = await setFileInfo(mixed_data, true, 0);
         lines = removeClassConnectionsCode(edit_data);
         lines = cleanup(lines);
         writeFile(lines);
 
         ({ class_connections_trigger_names: method_names } = edit_data);
 
-        await new Promise(resolve => setTimeout(resolve, 500));
-        edit_data = await edit_info.setFileInfo(file, data);
+        edit_data = await setFileInfo(data);
         if (edit_data.empty_private_member_block) {
             lines = deleteEmptyPrivateMemberBlock(edit_data);
             lines = cleanup(lines);
@@ -61,14 +67,12 @@ export const classConnectionsCodeChanges = async (
         more_imports = cc_imports;
         trigger_names = triggers;
 
-        await new Promise(resolve => setTimeout(resolve, 500));
-        edit_data = await edit_info.setFileInfo(file, data);
+        edit_data = await setFileInfo(data);
         lines = removeMethods(trigger_names, edit_data);
         lines = cleanup(lines);
         writeFile(lines);
 
-        await new Promise(resolve => setTimeout(resolve, 500));
-        edit_data = await edit_info.setFileInfo(file, data);
+        edit_data = await setFileInfo(data);
         let line_shift;
         ({ lines, line_shift } = insertMemberDeclaration(class_connections, edit_data, lang));
         lines = insertTriggerCode(trigger_code, edit_data, lines, line_shift);
@@ -87,15 +91,16 @@ export const classConnectionsCodeChanges = async (
         }
     });
     if (methods_to_add.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        edit_data = await edit_info.setFileInfo(file, mixed_data);
+        edit_data = await setFileInfo(mixed_data);
         lines = addMethods(methods_to_add, edit_data, lang);
         lines = cleanup(lines);
         writeFile(lines);
     }
 
-    lines = fixImports(file, [ ...imports, ...more_imports ]);
-    writeFile(lines);
+    if (lang === 'java') {
+        lines = fixImports(file, [ ...imports, ...more_imports ]);
+        writeFile(lines);
+    }
 };
 
 const insertMemberDeclaration = (class_connections, edit_data, lang) => {
