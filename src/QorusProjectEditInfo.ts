@@ -210,11 +210,7 @@ export class QorusProjectEditInfo {
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
-        const maybeAddClassConnectionClass = symbols => {
-            if (!class_connections) {
-                return;
-            }
-
+        const addClassConnectionClass = symbols => {
             let has_the_method = false;
 
             const class_connection_names = Object.keys(class_connections);
@@ -266,29 +262,7 @@ export class QorusProjectEditInfo {
                 }
             }
         };
-/*
-        const maybeAddClassConnectionMemberInitialization = (decl) => {
-            if (decl.nodetype !== 1 || decl.kind !== 4 || decl.name?.name !== 'constructor') { // declaration && function
-                return;
-            }
 
-            for (const statement of decl.body?.statements || []) {
-                const right = statement.expression?.right;
-                if (right?.op !== 'New') {
-                    continue;
-                }
-                if (right.expression?.target?.name?.name === this.edit_info[file].class_connections_class_name ) {
-                    this.edit_info[file].class_connections_member_initialization_loc = statement.loc;
-                    const left = statement.expression.left;
-                    const member_name = this.edit_info[file].class_connections_member_name;
-                    if (member_name && member_name !== left.name?.name) {
-                        msg.log(`Class connections member name mismatch: ${member_name} != ${left.name.name}`);
-                    }
-                    return;
-                }
-            }
-        };
-*/
         const maybeAddTriggerStatements = (decl) => {
             if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) { // declaration && function
                 return;
@@ -305,10 +279,6 @@ export class QorusProjectEditInfo {
                         ... this.edit_info[file].class_connections_trigger_names || [],
                         decl.name?.name
                     ];
-//                    this.edit_info[file].trigger_statement_locs = [
-//                        ... this.edit_info[file].trigger_statement_locs || [],
-//                        statement.loc
-//                    ];
                 }
             }
         };
@@ -325,8 +295,8 @@ export class QorusProjectEditInfo {
         };
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-            if (add_class_connections_info) {
-                maybeAddClassConnectionClass(symbols);
+            if (add_class_connections_info && class_connections) {
+                addClassConnectionClass(symbols);
             }
             symbols.forEach(symbol => {
                 if (!QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, class_name)) {
@@ -342,7 +312,6 @@ export class QorusProjectEditInfo {
                 for (const decl of symbol.declarations || []) {
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
-//                        maybeAddClassConnectionMemberInitialization(decl);
                         maybeAddTriggerStatements(decl);
                     } else {
                         maybeAddPrivateMemberBlock(decl);
@@ -381,11 +350,7 @@ export class QorusProjectEditInfo {
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
-        const maybeAddClassConnectionClass = symbols => {
-            if (!class_connections) {
-                return;
-            }
-
+        const addClassConnectionClass = symbols => {
             let has_the_method = false;
 
             const class_connection_names = Object.keys(class_connections);
@@ -484,8 +449,8 @@ export class QorusProjectEditInfo {
                 return;
             }
 
-            if (add_class_connections_info) {
-                maybeAddClassConnectionClass(symbols);
+            if (add_class_connections_info && class_connections) {
+                addClassConnectionClass(symbols);
             }
 
             const lsdoc = LsTextDocument.create(
