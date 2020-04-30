@@ -14,7 +14,7 @@ import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
          all_root_classes } from './qorus_constants';
-import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind } from './qorus_utils';
+import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind, capitalize } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
@@ -642,6 +642,10 @@ export class QorusProjectCodeInfo {
             if (step_type) {
                 data['step-type'] = step_type;
             }
+        }
+
+        if (['group', 'event', 'queue'].includes(data.type)) {
+            data.type = capitalize(data.type);
         }
 
         if (!data.target_file && data.yaml_file) {
