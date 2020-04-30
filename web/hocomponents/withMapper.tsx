@@ -293,8 +293,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             })();
         };
 
-        console.log(mapper);
-
         useEffect(() => {
             if (qorus_instance) {
                 props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
@@ -329,7 +327,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 })();
                 // Check if user is editing a mapper
                 if (mapper) {
-                    console.log('SHOULD GET INPUT AND OUTPUT DATA');
                     // Process input fields
                     if (mapper.mapper_options['mapper-input']) {
                         getInputsData();

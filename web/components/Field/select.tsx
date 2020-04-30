@@ -9,6 +9,7 @@ import { TTranslator } from '../../App';
 import withTextContext from '../../hocomponents/withTextContext';
 import { compose } from 'recompose';
 import StringField from './string';
+import FieldEnhancer from '../FieldEnhancer';
 
 export interface ISelectField {
     addMessageListener: TMessageListener;
@@ -43,6 +44,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     requestFieldData,
     warningMessageOnEmpty,
     autoSelect,
+    reference,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -66,6 +68,11 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             setItems(defaultItems);
         }
     }, [defaultItems]);
+
+    const handleEditSubmit: (_defaultName: string, val: string) => void = (_defaultName, val) => {
+        handleSelectClick({ name: val });
+        handleClick();
+    };
 
     const handleSelectClick: (item: any) => void = item => {
         if (item === value) {
@@ -114,36 +121,57 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             : filteredItems.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
 
     return (
-        <Select
-            items={filteredItems}
-            itemRenderer={(item, data) => (
-                <MenuItem
-                    title={item.desc}
-                    icon={value && item.name === value ? 'tick' : 'blank'}
-                    text={item.name}
-                    onClick={data.handleClick}
-                />
+        <FieldEnhancer>
+            {(onEditClick, onCreateClick) => (
+                <ControlGroup fill>
+                    <Select
+                        items={filteredItems}
+                        itemRenderer={(item, data) => (
+                            <MenuItem
+                                title={item.desc}
+                                icon={value && item.name === value ? 'tick' : 'blank'}
+                                text={item.name}
+                                onClick={data.handleClick}
+                            />
+                        )}
+                        inputProps={{
+                            placeholder: t('Filter'),
+                        }}
+                        popoverProps={{
+                            popoverClassName: 'custom-popover',
+                            targetClassName: fill ? 'select-popover' : '',
+                            position: 'left',
+                        }}
+                        className={Classes.FILL}
+                        onItemSelect={(item: any) => handleSelectClick(item)}
+                        query={query}
+                        onQueryChange={(newQuery: string) => setQuery(newQuery)}
+                        disabled={disabled}
+                    >
+                        <Button
+                            fill
+                            text={value ? value : placeholder || t('PleaseSelect')}
+                            rightIcon={'caret-down'}
+                            onClick={handleClick}
+                        />
+                    </Select>
+                    {reference && (
+                        <>
+                            <Tooltip content={t('EditThisItem')}>
+                                <Button icon="edit" onClick={() => onEditClick(value, reference, handleEditSubmit)} />
+                            </Tooltip>
+                            <Tooltip content={t('CreateAndAddNewItem')}>
+                                <Button
+                                    icon="add"
+                                    intent="success"
+                                    onClick={() => onCreateClick(reference, handleEditSubmit)}
+                                />
+                            </Tooltip>
+                        </>
+                    )}
+                </ControlGroup>
             )}
-            inputProps={{
-                placeholder: t('Filter'),
-            }}
-            popoverProps={{
-                popoverClassName: 'custom-popover',
-                targetClassName: fill ? 'select-popover' : '',
-                position: 'left',
-            }}
-            className={fill ? 'select-field' : ''}
-            onItemSelect={(item: any) => handleSelectClick(item)}
-            query={query}
-            onQueryChange={(newQuery: string) => setQuery(newQuery)}
-            disabled={disabled}
-        >
-            <Button
-                text={value ? value : placeholder || t('PleaseSelect')}
-                rightIcon={'caret-down'}
-                onClick={handleClick}
-            />
-        </Select>
+        </FieldEnhancer>
     );
 };
 

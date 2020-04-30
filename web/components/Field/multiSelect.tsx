@@ -5,7 +5,7 @@ import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 
-import { Button, ControlGroup, Icon, MenuItem, Tag } from '@blueprintjs/core';
+import { Button, ControlGroup, Icon, MenuItem, Tag, Tooltip, Classes } from '@blueprintjs/core';
 import { MultiSelect } from '@blueprintjs/select';
 
 import { TTranslator } from '../../App';
@@ -98,11 +98,23 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
         });
     };
 
+    const handleSaveTagCreate: (_defaultValue: string, val: string) => void = (_defaultValue, val) => {
+        // Add new item to the list
+        const newItems = [
+            ...value,
+            {
+                name: val,
+            },
+        ];
+        postMessage(get_message.action, { object_type: get_message.object_type });
+        setEditorManager({});
+        setSelectedItems(newItems);
+    };
+
     const handleSaveTagEdit: (defaultValue?: string, name?: string) => void = (
         defaultValue = editorManager.defaultValue,
         val = editorManager.value
     ) => {
-        console.log(defaultValue, val);
         const newItems = value.reduce((modifiedValue: any[], item: any) => {
             const newItem = { ...item };
             // Check if the item matches the default value of the edite item
@@ -112,7 +124,9 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
             return [...modifiedValue, newItem];
         }, []);
-
+        if (!simple) {
+            postMessage(get_message.action, { object_type: get_message.object_type });
+        }
         setEditorManager({});
         setSelectedItems(newItems);
     };
@@ -121,8 +135,8 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
         setSelectedItems([]);
     };
 
-    const deselectItem: (tagName: string) => void = tagName => {
-        tagName = tagName.props.children;
+    const deselectItem: (tagName: string | any) => void = tagName => {
+        tagName = typeof tagName === 'string' ? tagName : tagName.props.children;
         // If this is the mapper code field
         // remove the selected mapper code from relations
         if (name === 'codes') {
@@ -139,7 +153,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
 
     return (
         <FieldEnhancer>
-            {onEditClick => (
+            {(onEditClick, onCreateClick) => (
                 <>
                     {editorManager.isOpen && (
                         <CustomDialog title={t('EditItem')} onClose={() => setEditorManager({})} isOpen>
@@ -154,7 +168,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                                 <ControlGroup fill>
                                     <Button
                                         text={t('Save')}
-                                        onClick={handleSaveTagEdit}
+                                        onClick={() => handleSaveTagEdit()}
                                         disabled={editorManager.value === ''}
                                         intent="success"
                                     />
@@ -162,62 +176,74 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                             </StyledDialogBody>
                         </CustomDialog>
                     )}
-                    <MultiSelect
-                        key={activeId}
-                        items={items}
-                        createNewItemFromQuery={(query: string) =>
-                            query
-                                ? {
-                                      name: query,
-                                  }
-                                : undefined
-                        }
-                        createNewItemRenderer={(query, _active, handleClick) => (
-                            <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
-                        )}
-                        itemRenderer={(item, { handleClick }) => (
-                            <MenuItem
-                                icon={includes(value, item) ? 'tick' : 'blank'}
-                                text={item.name}
-                                onClick={handleClick}
-                                title={item.desc}
-                            />
-                        )}
-                        popoverProps={{ targetClassName: 'select-popover', popoverClassName: 'custom-popover' }}
-                        tagRenderer={item => (
-                            <Tag
-                                minimal
-                                style={{ cursor: 'pointer', backgroundColor: 'transparent' }}
-                                onClick={event => {
-                                    if (canEdit) {
-                                        event.stopPropagation();
-                                        if (onEditClick && reference) {
-                                            onEditClick(item.name, reference, handleSaveTagEdit);
-                                        } else {
-                                            handleTagClick(item.name);
+                    <ControlGroup fill>
+                        <MultiSelect
+                            key={activeId}
+                            items={items}
+                            createNewItemFromQuery={(query: string) =>
+                                query
+                                    ? {
+                                          name: query,
+                                      }
+                                    : undefined
+                            }
+                            createNewItemRenderer={(query, _active, handleClick) => (
+                                <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
+                            )}
+                            itemRenderer={(item, { handleClick }) => (
+                                <MenuItem
+                                    icon={includes(value, item) ? 'tick' : 'blank'}
+                                    text={item.name}
+                                    onClick={handleClick}
+                                    title={item.desc}
+                                />
+                            )}
+                            popoverProps={{ targetClassName: 'select-popover', popoverClassName: 'custom-popover' }}
+                            tagRenderer={item => (
+                                <Tag
+                                    minimal
+                                    style={{ cursor: 'pointer', backgroundColor: 'transparent' }}
+                                    onClick={event => {
+                                        if (canEdit) {
+                                            event.stopPropagation();
+                                            if (onEditClick && reference) {
+                                                onEditClick(item.name, reference, handleSaveTagEdit);
+                                            } else {
+                                                handleTagClick(item.name);
+                                            }
                                         }
-                                    }
-                                }}
-                                rightIcon={canEdit && <Icon iconSize={12} icon="edit" style={{ opacity: '0.6' }} />}
-                            >
-                                {item.name}
-                            </Tag>
+                                    }}
+                                    rightIcon={canEdit && <Icon iconSize={12} icon="edit" style={{ opacity: '0.6' }} />}
+                                >
+                                    {item.name}
+                                </Tag>
+                            )}
+                            tagInputProps={{
+                                onRemove: handleTagRemoveClick,
+                                fill: true,
+                                rightElement: ClearButton,
+                                leftIcon: 'list',
+                                tagProps: {
+                                    minimal: true,
+                                },
+                            }}
+                            selectedItems={value || []}
+                            onItemSelect={(item: any) => handleSelectClick(item)}
+                            resetOnQuery
+                            resetOnSelect
+                            activeItem={null}
+                        />
+                        {reference && (
+                            <Tooltip content={t('CreateAndAddNewItem')} className={Classes.FIXED}>
+                                <Button
+                                    className={Classes.FIXED}
+                                    icon="add"
+                                    intent="success"
+                                    onClick={() => onCreateClick(reference, handleSaveTagCreate)}
+                                />
+                            </Tooltip>
                         )}
-                        tagInputProps={{
-                            onRemove: handleTagRemoveClick,
-                            fill: true,
-                            rightElement: ClearButton,
-                            leftIcon: 'list',
-                            tagProps: {
-                                minimal: true,
-                            },
-                        }}
-                        selectedItems={value || []}
-                        onItemSelect={(item: any) => handleSelectClick(item)}
-                        resetOnQuery
-                        resetOnSelect
-                        activeItem={null}
-                    />
+                    </ControlGroup>
                 </>
             )}
         </FieldEnhancer>
