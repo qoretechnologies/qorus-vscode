@@ -319,7 +319,7 @@ const cleanup = dirty_lines => {
     // 1. trim ending whitespaces of each line
     // 2. remove sections of generated code (between BEGIN and END) with only empty lines inside
     // 3 .remove GENERATED END lines with no matching GENERATED BEGIN line
-    // 4. reduce double empty lines (replace tripple newlines with double newlines)
+    // 4. reduce double empty lines
     // 5. remove empty lines at the end
     let generated_lines = [];
     let is_generated_empty;
@@ -344,6 +344,7 @@ const cleanup = dirty_lines => {
             }
             generated_lines = [];
             is_inside_generated = false;
+            is_previous_empty = false;
         } else if (is_inside_generated) {
             generated_lines.push(line);
             is_generated_empty = is_generated_empty && line === '';
