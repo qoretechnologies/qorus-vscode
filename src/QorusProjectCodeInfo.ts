@@ -23,6 +23,7 @@ import { field } from './qorus_creator/common_constants';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
 import { getJavaDocumentSymbolsWithWait } from './vscode_java';
+import { interface_tree } from './QorusInterfaceTree';
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
 
@@ -49,7 +50,7 @@ export class QorusProjectCodeInfo {
     private module_files_watcher: vscode.FileSystemWatcher;
     private config_file_watcher: vscode.FileSystemWatcher;
 
-    private notif_trees = {};
+    private notif_trees = [interface_tree];
 
     constructor(project: QorusProject) {
         this.project = project;
@@ -66,6 +67,10 @@ export class QorusProjectCodeInfo {
 
     get yaml_info(): any {
         return this.yaml_files_info;
+    }
+
+    getProject(): QorusProject {
+        return this.project;
     }
 
     addText(document: vscode.TextDocument) {
@@ -104,7 +109,7 @@ export class QorusProjectCodeInfo {
         this.edit_info[file].method_name_ranges[method_name] = name_range;
     }
 
-    isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
+    static isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
         class_name &&
         symbol.nodetype === 1 &&
         symbol.kind === 1 &&
@@ -116,7 +121,7 @@ export class QorusProjectCodeInfo {
         symbol.kind === 5 &&
         class_name === symbol.name
 
-    addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
+    private addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
         const class_name_range: vscode.Range = loc2range(symbol.name.loc, 'class ');
 
@@ -210,7 +215,7 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    addClassDeclCodeInfo = (file: string, decl: any): boolean => {
+    static isDeclPublicMethod = (decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
             return false;
         }
@@ -219,13 +224,19 @@ export class QorusProjectCodeInfo {
             return false;
         }
 
+        return true;
+    }
+
+    private addClassDeclCodeInfo = (file: string, decl: any) => {
+        if (!QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
+            return;
+        }
+
         const method_name = decl.name.name;
         const decl_range = loc2range(decl.loc);
         const name_range = loc2range(decl.name.loc);
 
         this.addMethodInfo(file, method_name, decl_range, name_range);
-
-        return true;
     }
 
     addJavaClassDeclCodeInfo = (file: string, decl: any): boolean => {
@@ -249,13 +260,13 @@ export class QorusProjectCodeInfo {
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
             symbols.forEach(symbol => {
-                if (!this.isSymbolExpectedClass(symbol, class_name)) {
+                if (!QorusProjectCodeInfo.isSymbolExpectedClass(symbol, class_name)) {
                     return;
                 }
 
                 this.addClassCodeInfo(file, symbol, base_class_name);
 
-                if (iface_kind !== 'service') {
+                if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;
                 }
 
@@ -309,41 +320,21 @@ export class QorusProjectCodeInfo {
         return this.edit_info[file];
     }
 
-    registerTreeForNotifications(name, tree) {
-        if (!this.notif_trees[name]) {
-            this.notif_trees[name] = tree;
-        }
-    }
-
-    unregisterTreeForNotifications(name) {
-        delete this.notif_trees[name];
-    }
-
     private notifyTrees() {
-        for (const key in this.notif_trees) {
-            this.notif_trees[key].treeNotify();
-        }
+        this.notif_trees.forEach(tree => tree.notify(this));
     }
 
     fileTree() {
         return this.file_tree;
     }
 
-    interfaceDataByFile(file_path): Promise<any> {
-        return this.waitForPending(['yaml']).then(() => {
-            return this.yaml_info.yamlDataByFilePath(file_path);
-        });
-    }
-
-    interfaceDataByType(iface_kind): Promise<any[]> {
-        return this.waitForPending(['yaml']).then(() => {
-            const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
-            const interfaces = Object.keys(yaml_data).map(name => ({
-                name,
-                data: yaml_data[name]
-            }));
-            return sortBy(interfaces, ['name']);
-        });
+    interfaceDataByType = iface_kind => {
+        const yaml_data = this.yaml_info.yamlDataByType(iface_kind);
+        const interfaces = Object.keys(yaml_data).map(name => ({
+            name,
+            data: yaml_data[name]
+        }));
+        return sortBy(interfaces, ['name']);
     }
 
     getListOfInterfaces = iface_kind => {
@@ -516,11 +507,19 @@ export class QorusProjectCodeInfo {
         }
 
         ['functions', 'constants', 'mappers', 'value_maps', 'author',
-            'resource', 'text-resource', 'bin-resource', 'template',
             'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
+            }
+        });
+
+        ['resource', 'text-resource', 'bin-resource', 'template'].forEach(tag => {
+            if (data[tag]) {
+                data[tag] = data[tag].map(rel_path => {
+                    const abs_path = path.resolve(data.target_dir, rel_path);
+                    return {name: abs_path};
+                });
             }
         });
 
@@ -921,7 +920,6 @@ export class QorusProjectCodeInfo {
                     this.updateYamlInfo(file_data.source_directories);
                     this.yaml_info.baseClassesFromInheritancePairs();
                     this.yaml_info.javaBaseClassesFromInheritancePairs();
-                    this.notifyTrees();
                 }, 0);
             }
             if (info_list.includes('modules')) {
@@ -1136,6 +1134,7 @@ export class QorusProjectCodeInfo {
                 this.yaml_info.addSingleYamlInfo(file);
             }
         }
+        this.notifyTrees();
         this.setPending('yaml', false);
     }
 

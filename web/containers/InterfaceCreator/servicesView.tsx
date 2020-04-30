@@ -1,18 +1,19 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import InterfaceCreatorPanel, { SearchWrapper, ContentWrapper, ActionsWrapper, IField } from './panel';
+import React, { FunctionComponent } from 'react';
+
+import { omit } from 'lodash';
 import compose from 'recompose/compose';
-import withTextContext from '../../hocomponents/withTextContext';
+import styled from 'styled-components';
+
+import { Button, ButtonGroup } from '@blueprintjs/core';
+
 import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
-import styled from 'styled-components';
-import { ButtonGroup, Button, Callout } from '@blueprintjs/core';
 import { MethodsContext } from '../../context/methods';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import { omit } from 'lodash';
-import withInitialData from '../../hocomponents/withInitialData';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { IClassConnections } from '../ClassConnectionsManager';
+import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
+import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
 
 export const MethodSelector = styled.div`
     width: 100%;
@@ -256,7 +257,16 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     methodsData &&
                                                     methodsData.find(method => method.id === activeMethod)
                                                 }
-                                                onNameChange={(methodId: number, name: string) => {
+                                                onNameChange={(
+                                                    methodId: number,
+                                                    name: string,
+                                                    originalName?: string
+                                                ) => {
+                                                    if (originalName) {
+                                                        // Rename the trigger
+                                                        classConnectionsProps.renameTrigger(originalName, name);
+                                                    }
+
                                                     setMethods((currentMethods: { id: number; name: string }[]) =>
                                                         currentMethods.reduce(
                                                             (cur, method: { id: number; name: string }) => {

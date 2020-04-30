@@ -1,4 +1,6 @@
+import { workspace, window } from 'vscode';
 import * as jsyaml from 'js-yaml';
+
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { class_template, subclass_template, simple_method_template } from './common_constants';
@@ -6,7 +8,7 @@ import { jobTemplates } from './job_constants';
 import { workflowTemplates } from './workflow_constants';
 import { stepTemplates } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
-import { classConnectionsCode } from './class_connections';
+import { ClassConnections } from './ClassConnections';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -57,7 +59,7 @@ class ClassCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix, iface_kind);
 
-        const {ok, message} = this.checkExistingInterface(params);
+        const {ok, message} = this.checkData(params);
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${params.edit_type}-interface-complete`,
@@ -77,7 +79,7 @@ class ClassCreator extends InterfaceCreator {
         if (data['class-connections']) {
             ClassCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
-                            = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
+                  = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());
         }
 
         let methods = '';
@@ -176,13 +178,19 @@ class ClassCreator extends InterfaceCreator {
                              .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 
-        this.has_code
-            ? this.writeFiles(contents, headers, open_file_on_success)
-            : this.writeYamlFile(headers);
+        if (this.has_code) {
+            if (this.writeFiles(contents, headers)) {
+                if (open_file_on_success) {
+                    workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+                }
+            }
+        } else {
+            this.writeYamlFile(headers);
+        }
 
-        if (['create', 'edit'].includes(edit_type)) {
+        if (['create', 'edit', 'recreate'].includes(edit_type)) {
             qorus_webview.postMessage({
-                action: `creator-${edit_type}-interface-complete`,
+                action: `creator-${edit_type === 'recreate' ? 'edit' : edit_type}-interface-complete`,
                 request_id,
                 ok: true,
                 message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`

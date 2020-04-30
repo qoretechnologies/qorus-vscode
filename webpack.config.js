@@ -98,7 +98,7 @@ if (process.env.NODE_ENV === 'development') {
         entry: {
             webview: [
                 'webpack-hot-middleware/client?noInfo=false&reload=true&path=http://localhost:9876/__webpack_hmr',
-                `${root}/web/index.js`,
+                `${root}/web/index.tsx`,
             ],
         },
         module: {
@@ -126,7 +126,7 @@ if (process.env.NODE_ENV === 'development') {
 } else {
     webpackConfig = merge(webpackConfig, {
         entry: {
-            webview: [`${root}/web/index.js`],
+            webview: [`${root}/web/index.tsx`],
         },
         mode: 'production',
         devtool: false,

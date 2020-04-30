@@ -1,31 +1,34 @@
-import React, { useState, useContext } from 'react';
-import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
-import withTextContext from '../../hocomponents/withTextContext';
-import SidePanel from '../../components/SidePanel';
-import { ContentWrapper, ActionsWrapper, IField } from '../InterfaceCreator/panel';
-import { MethodSelector, Selected, RemoveButton } from '../InterfaceCreator/servicesView';
-import { ButtonGroup, Button, Dialog, ControlGroup, Classes, NonIdealState } from '@blueprintjs/core';
-import map from 'lodash/map';
-import reduce from 'lodash/reduce';
+import React, { useContext, useState } from 'react';
+
+import every from 'lodash/every';
 import forEach from 'lodash/forEach';
-import size from 'lodash/size';
+import map from 'lodash/map';
 import omit from 'lodash/omit';
+import reduce from 'lodash/reduce';
+import size from 'lodash/size';
+import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
-import { PanelWrapper } from '../InterfaceCreator/servicesView';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import String from '../../components/Field/string';
 import styled from 'styled-components';
-import { validateField } from '../../helpers/validations';
-import ClassConnectionsDiagram from './diagram';
+
+import { Button, ButtonGroup, Classes, ControlGroup, NonIdealState } from '@blueprintjs/core';
+
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
-import every from 'lodash/every';
-import useMount from 'react-use/lib/useMount';
-import { Messages } from '../../constants/messages';
-import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import CustomDialog from '../../components/CustomDialog';
+import String from '../../components/Field/string';
 import Loader from '../../components/Loader';
+import SidePanel from '../../components/SidePanel';
+import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
+import { validateField } from '../../helpers/validations';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
+import { ActionsWrapper, ContentWrapper, IField } from '../InterfaceCreator/panel';
+import { MethodSelector, PanelWrapper } from '../InterfaceCreator/servicesView';
+import ClassConnectionsDiagram from './diagram';
 
 export const StyledDialogBody = styled.div`
     padding: 20px 20px 0 20px;
@@ -229,52 +232,58 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
 
     return (
         <>
-            <Dialog title={t('AddConnection')} isOpen={manageDialog.isOpen} onClose={() => setManageDialog({})}>
-                <StyledDialogBody>
-                    <ControlGroup fill>
-                        <String
-                            name="connection"
-                            placeholder={t('Name')}
-                            value={manageDialog.newName}
-                            onChange={(fieldName, value) =>
-                                setManageDialog(current => ({ ...current, newName: value }))
-                            }
-                        />
-                        <Button
-                            intent="success"
-                            text={t('Submit')}
-                            icon="small-tick"
-                            disabled={
-                                !validateField('string', manageDialog.newName) || !!connections[manageDialog.newName]
-                            }
-                            onClick={() => {
-                                setConnections(
-                                    (current: IClassConnections): IClassConnections => {
-                                        const result = reduce(
-                                            current,
-                                            (newConnections, connection, connName) => {
-                                                // If the connection matches the old name
-                                                if (connName === manageDialog.name) {
-                                                    // Replace the connection
-                                                    return { ...newConnections, [manageDialog.newName]: connection };
-                                                }
-                                                // Return unchanged
-                                                return { ...newConnections, [connName]: connection };
-                                            },
-                                            {}
-                                        );
+            {manageDialog.isOpen && (
+                <CustomDialog title={t('AddConnection')} isOpen onClose={() => setManageDialog({})}>
+                    <StyledDialogBody>
+                        <ControlGroup fill>
+                            <String
+                                name="connection"
+                                placeholder={t('Name')}
+                                value={manageDialog.newName}
+                                onChange={(fieldName, value) =>
+                                    setManageDialog(current => ({ ...current, newName: value }))
+                                }
+                            />
+                            <Button
+                                intent="success"
+                                text={t('Submit')}
+                                icon="small-tick"
+                                disabled={
+                                    !validateField('string', manageDialog.newName) ||
+                                    !!connections[manageDialog.newName]
+                                }
+                                onClick={() => {
+                                    setConnections(
+                                        (current: IClassConnections): IClassConnections => {
+                                            const result = reduce(
+                                                current,
+                                                (newConnections, connection, connName) => {
+                                                    // If the connection matches the old name
+                                                    if (connName === manageDialog.name) {
+                                                        // Replace the connection
+                                                        return {
+                                                            ...newConnections,
+                                                            [manageDialog.newName]: connection,
+                                                        };
+                                                    }
+                                                    // Return unchanged
+                                                    return { ...newConnections, [connName]: connection };
+                                                },
+                                                {}
+                                            );
 
-                                        return result;
-                                    }
-                                );
+                                            return result;
+                                        }
+                                    );
 
-                                setManageDialog({});
-                                setSelectedConnection(manageDialog.newName);
-                            }}
-                        />
-                    </ControlGroup>
-                </StyledDialogBody>
-            </Dialog>
+                                    setManageDialog({});
+                                    setSelectedConnection(manageDialog.newName);
+                                }}
+                            />
+                        </ControlGroup>
+                    </StyledDialogBody>
+                </CustomDialog>
+            )}
             <PanelWrapper style={{ padding: '20px 20px 0 20px', margin: 0 }}>
                 <SidePanel title={t('AddClassConnectionsTitle')}>
                     <ContentWrapper>

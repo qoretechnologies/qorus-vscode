@@ -99,9 +99,10 @@ export const dash2Pascal = str =>
     str.split('-').map(part => (part[0] || '').toUpperCase() + part.substr(1)).join('');
 
 export const toValidIdentifier = (str, capitalize = false) => {
-    if (!str.match(/^[0-9]|\W/)) {
+    if (isValidIdentifier(str)) {
         return str;
     }
+
     let parts = str.trim().split(/\W+/);
     if (capitalize) {
         parts = parts.map(part => (part[0] || '').toUpperCase() + part.substr(1));
@@ -110,8 +111,11 @@ export const toValidIdentifier = (str, capitalize = false) => {
         parts = parts.map(part => (part[0] || '').toUpperCase() + part.substr(1));
         parts = [first, ...parts];
     }
+
     return parts.join('').replace(/(^[0-9])/, '_' + '$1');
 };
+
+export const isValidIdentifier = str => !str.match(/^[0-9]|\W/);
 
 export const makeFileUri = (filePath: string) => 'file://' + filePath;
 

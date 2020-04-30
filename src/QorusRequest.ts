@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import * as urlJoin from 'url-join';
 import * as request from 'request-promise';
-import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
-import { AuthNeeded } from './QorusAuth';
+
 import { QorusLogin } from './QorusLogin';
 import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
@@ -30,7 +30,7 @@ export class QorusRequest extends QorusLogin {
                     msg.error(t`ResponseIdUndefined`);
                     return false;
                 }
-                this.checkRequestResult(options.uri, response.id, texts, onFinished);
+                this.checkRequestResult(options.uri, response.id.toString(), texts, onFinished);
                 return true;
             },
             (error: any) => {
@@ -57,7 +57,7 @@ export class QorusRequest extends QorusLogin {
 
                     const options = {
                         method: 'DELETE',
-                        uri: `${url}/${request_id}`,
+                        uri: urlJoin(url, request_id),
                         strictSSL: false,
                         headers: {
                             'qorus-token': token,
@@ -77,7 +77,7 @@ export class QorusRequest extends QorusLogin {
 
                 const options = {
                     method: 'GET',
-                    uri: `${url}/${request_id}`,
+                    uri: urlJoin(url, request_id),
                     strictSSL: false,
                     headers: {
                         'qorus-token': token,
@@ -130,74 +130,6 @@ export class QorusRequest extends QorusLogin {
         );
     }
 
-    setActiveInstance(tree_item: string | vscode.TreeItem) {
-        if (typeof tree_item !== 'string') {
-            this.setActiveInstance((<QorusTreeInstanceNode>tree_item).getUrl());
-            return;
-        }
-
-        const url = tree_item;
-
-        if (this.isAuthorized(url)) {
-            this.setActive(url);
-            instance_tree.refresh();
-            return;
-        }
-        QorusLogin.checkNoAuth(url).then(
-            (no_auth: boolean) => {
-                if (no_auth) {
-                    this.addNoAuth(url);
-                    instance_tree.refresh();
-                    msg.info(t`AuthNotNeeded ${url}`);
-                } else {
-                    msg.info(t`AuthNeeded ${url}`);
-                    this.login(url);
-                }
-            },
-            (error: any) => {
-                this.requestError(error, t`GettingInfoError`);
-            }
-        );
-    }
-
-    unsetActiveInstance(tree_item?: vscode.TreeItem) {
-        if (tree_item) {
-            const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
-            if (!this.isActive(url)) {
-                msg.log(t`AttemptToSetInactiveNotActiveInstance ${url}`);
-            }
-        }
-        this.unsetActive();
-        instance_tree.refresh();
-    }
-
-    activeQorusInstance = () => instance_tree.getQorusInstance(this.active_url);
-
-    activeQorusInstanceAndToken(): any {
-        if (!this.active_url) {
-            msg.error(t`NoActiveQorusInstance`);
-            instance_tree.focus();
-            return { ok: false };
-        }
-
-        const active_instance = instance_tree.getQorusInstance(this.active_url);
-        if (!active_instance) {
-            msg.error(t`UnableGetActiveQorusInstanceData`);
-            return { ok: false };
-        }
-
-        let token: string | undefined = undefined;
-        if (this.authNeeded() != AuthNeeded.No) {
-            token = this.getToken();
-            if (!token) {
-                msg.error(t`UnauthorizedOperationAtUrl ${this.active_url}`);
-                return { ok: false };
-            }
-        }
-
-        return { ok: true, active_instance, token };
-    }
-
     doRequest = (url: string , method: string, onSuccess: Function, onError?: Function, id?: string) => {
         const { ok, active_instance, token } = this.activeQorusInstanceAndToken();
         if (!ok) {
@@ -208,7 +140,7 @@ export class QorusRequest extends QorusLogin {
             return;
         }
 
-        const uri = `${active_instance.url}/api/latest/${url}`;
+        const uri = urlJoin(active_instance.url, 'api/latest', url);
         if (log_request_messages) {
             msg.log(t`SendingRequest ${id} ${uri}`);
         }

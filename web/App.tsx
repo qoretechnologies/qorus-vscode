@@ -1,13 +1,16 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 
+import last from 'lodash/last';
+import size from 'lodash/size';
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 
-import { AnchorButton, Button, ButtonGroup, Callout, Classes, Dialog, Navbar, NavbarGroup } from '@blueprintjs/core';
+import { AnchorButton, Button, ButtonGroup, Callout, Classes, Navbar, NavbarGroup } from '@blueprintjs/core';
 
+import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
 import Pull from './components/Pull';
@@ -15,6 +18,7 @@ import { AppToaster } from './components/Toast';
 import { MENU } from './constants/menu';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
+import { DialogsContext } from './context/dialogs';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import withFields from './hocomponents/withFields';
@@ -93,6 +97,52 @@ const App: FunctionComponent<IApp> = ({
     setConfirmDialog,
 }) => {
     const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
+    const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
+
+    const addDialog: (id: string, onClose: any) => void = (id, onClose) => {
+        // Only add dialogs that can be closed
+        if (onClose) {
+            setOpenedDialogs(current => [
+                ...current,
+                {
+                    id,
+                    onClose,
+                },
+            ]);
+        }
+    };
+
+    const removeDialog: (id: string) => void = id => {
+        setOpenedDialogs(current => {
+            const newDialogs = [...current];
+
+            return newDialogs.filter(dialog => dialog.id !== id);
+        });
+    };
+
+    useEffect(() => {
+        // Check if there are any opened dialogs
+        if (size(openedDialogs)) {
+            // Add the event on `ESC` key that will close the last opened dialog
+            document.addEventListener('keyup', handleEscapeKeyEvent);
+        } else {
+            document.removeEventListener('keyup', handleEscapeKeyEvent);
+        }
+
+        return () => {
+            document.removeEventListener('keyup', handleEscapeKeyEvent);
+        };
+    }, [openedDialogs]);
+
+    const handleEscapeKeyEvent = (event: KeyboardEvent) => {
+        // If the escape was pressed
+        if (event.key === 'Escape') {
+            // Get the last opened dialog
+            const dialogData = last(openedDialogs);
+            // Run the close function
+            dialogData.onClose();
+        }
+    };
 
     useEffectOnce(() => {
         // New text was received
@@ -145,84 +195,84 @@ const App: FunctionComponent<IApp> = ({
 
     return (
         <>
-            <Navbar fixedToTop={true} className="dark">
-                <NavbarGroup>
-                    <img
-                        style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }}
-                        src={`vscode-resource:${path}/images/qorus_logo_256.png`}
-                    />
-                    <StyledInfo>
-                        {t('Project')}: <span>{project_folder}</span>
-                    </StyledInfo>
-                    <StyledInfo>
-                        {t('ActiveQorusInstance')}: <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
-                    </StyledInfo>
-                </NavbarGroup>
-                <Pull right>
+            <DialogsContext.Provider value={{ addDialog, removeDialog }}>
+                <Navbar fixedToTop={true} className="dark">
                     <NavbarGroup>
-                        <ButtonGroup minimal>
-                            <AnchorButton
-                                icon="refresh"
-                                href="command:workbench.action.webview.reloadWebviewAction"
-                                onClick={() =>
-                                    AppToaster.show({
-                                        message: t('ReloadingWebview'),
-                                        intent: 'warning',
-                                        icon: 'refresh',
-                                    })
-                                }
-                            />
-                        </ButtonGroup>
+                        <img
+                            style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }}
+                            src={`vscode-resource:${path}/images/qorus_logo_256.png`}
+                        />
+                        <StyledInfo>
+                            {t('Project')}: <span>{project_folder}</span>
+                        </StyledInfo>
+                        <StyledInfo>
+                            {t('ActiveQorusInstance')}: <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
+                        </StyledInfo>
                     </NavbarGroup>
-                </Pull>
-            </Navbar>
-            <TextContext.Provider value={t}>
-                <StyledApp>
-                    {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
-                    <>
-                        {tab == 'Login' && <LoginContainer />}
-                        {tab == 'ProjectConfig' && <ProjectConfig />}
-                        {tab == 'ReleasePackage' && <ReleasePackage />}
-                        {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
-                        {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
-                    </>
-                </StyledApp>
-            </TextContext.Provider>
-            {confirmDialog.isOpen && (
-                <Dialog
-                    isOpen
-                    icon="warning-sign"
-                    title={t('ConfirmDialogTitle')}
-                    onClose={() => setConfirmDialog({})}
-                    style={{ backgroundColor: '#fff' }}
-                >
-                    <div className={Classes.DIALOG_BODY}>
-                        <Callout intent={confirmDialog.btnStyle || 'danger'}>{t(confirmDialog.text)}</Callout>
-                    </div>
-                    <div className={Classes.DIALOG_FOOTER}>
-                        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                            <ButtonGroup>
-                                <Button
-                                    text={t('Cancel')}
-                                    onClick={() => setConfirmDialog({})}
-                                    id="remove-cancel"
-                                    name="remove-cancel"
-                                />
-                                <Button
-                                    id="remove-confirm"
-                                    name="remove-confirm"
-                                    text={t(confirmDialog.btnText || 'Remove')}
-                                    intent={confirmDialog.btnStyle || 'danger'}
-                                    onClick={() => {
-                                        confirmDialog.onSubmit();
-                                        setConfirmDialog({});
-                                    }}
+                    <Pull right>
+                        <NavbarGroup>
+                            <ButtonGroup minimal>
+                                <AnchorButton
+                                    icon="refresh"
+                                    href="command:workbench.action.webview.reloadWebviewAction"
+                                    onClick={() =>
+                                        AppToaster.show({
+                                            message: t('ReloadingWebview'),
+                                            intent: 'warning',
+                                            icon: 'refresh',
+                                        })
+                                    }
                                 />
                             </ButtonGroup>
+                        </NavbarGroup>
+                    </Pull>
+                </Navbar>
+                <TextContext.Provider value={t}>
+                    <StyledApp>
+                        {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
+                        <>
+                            {tab == 'Login' && <LoginContainer />}
+                            {tab == 'ProjectConfig' && <ProjectConfig />}
+                            {tab == 'ReleasePackage' && <ReleasePackage />}
+                            {tab == 'DeleteInterfaces' && <DeleteInterfaces />}
+                            {!tab || (tab == 'CreateInterface' && <InterfaceCreator />)}
+                        </>
+                    </StyledApp>
+                </TextContext.Provider>
+                {confirmDialog.isOpen && (
+                    <CustomDialog
+                        isOpen
+                        icon="warning-sign"
+                        title={t('ConfirmDialogTitle')}
+                        onClose={() => setConfirmDialog({})}
+                        style={{ backgroundColor: '#fff' }}
+                    >
+                        <div className={Classes.DIALOG_BODY}>
+                            <Callout intent={confirmDialog.btnStyle || 'danger'}>{t(confirmDialog.text)}</Callout>
                         </div>
-                    </div>
-                </Dialog>
-            )}
+                        <div className={Classes.DIALOG_FOOTER}>
+                            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                                <ButtonGroup>
+                                    <Button
+                                        text={t('Cancel')}
+                                        onClick={() => setConfirmDialog({})}
+                                        id="remove-cancel"
+                                    />
+                                    <Button
+                                        id="remove-confirm"
+                                        text={t(confirmDialog.btnText || 'Remove')}
+                                        intent={confirmDialog.btnStyle || 'danger'}
+                                        onClick={() => {
+                                            confirmDialog.onSubmit();
+                                            setConfirmDialog({});
+                                        }}
+                                    />
+                                </ButtonGroup>
+                            </div>
+                        </div>
+                    </CustomDialog>
+                )}
+            </DialogsContext.Provider>
         </>
     );
 };
@@ -245,8 +295,8 @@ export default hot(
     compose(
         withMessageHandler(),
         connect(mapStateToProps, mapDispatchToProps),
-        withFields(),
         withInitialData(),
+        withFields(),
         withMethods(),
         withFunctions(),
         withSteps(),

@@ -1,18 +1,21 @@
-import React, { FunctionComponent, useState, useContext } from 'react';
-import withTextContext from '../hocomponents/withTextContext';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../hocomponents/withMessageHandler';
-import compose from 'recompose/compose';
-import { Dialog, Icon, Button } from '@blueprintjs/core';
-import useMount from 'react-use/lib/useMount';
-import { Messages } from '../constants/messages';
-import TreeField from '../components/Field/tree';
-import styled from 'styled-components';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
+import React, { FunctionComponent, useContext, useState } from 'react';
+
 import size from 'lodash/size';
-import { StyledNoData } from './environment';
+import useEffectOnce from 'react-use/lib/useEffectOnce';
+import compose from 'recompose/compose';
+import styled from 'styled-components';
+
+import { Button, Icon } from '@blueprintjs/core';
+
 import { TTranslator } from '../App';
+import CustomDialog from '../components/CustomDialog';
+import TreeField from '../components/Field/tree';
 import Loader from '../components/Loader';
+import { Messages } from '../constants/messages';
 import { InitialContext } from '../context/init';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../hocomponents/withMessageHandler';
+import withTextContext from '../hocomponents/withTextContext';
+import { StyledNoData } from './environment';
 
 const StyledDirWrapper = styled.div`
     min-width: 300px;
@@ -71,7 +74,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
     });
 
     return (
-        <Dialog
+        <CustomDialog
             isOpen
             icon="folder-close"
             onClose={onClose}
@@ -132,7 +135,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                     </StyledDirWrapper>
                 </>
             )}
-        </Dialog>
+        </CustomDialog>
     );
 };
 

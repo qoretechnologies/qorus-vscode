@@ -20,10 +20,11 @@ import mapProps from 'recompose/mapProps';
 import shortid from 'shortid';
 import styled from 'styled-components';
 
-import { Button, ButtonGroup, Classes, Dialog, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
+import CustomDialog from '../../components/CustomDialog';
 import Field from '../../components/Field';
 import { allowedTypes } from '../../components/Field/arrayAuto';
 import FieldActions from '../../components/FieldActions';
@@ -68,7 +69,7 @@ export interface IInterfaceCreatorPanel {
     selectedQuery?: string;
     setSelectedQuery: (type: string, value?: string) => void;
     activeId?: number;
-    onNameChange?: (activeId: number, newName: string) => any;
+    onNameChange?: (activeId: number, newName: string, originalName?: string) => any;
     isFormValid: (type: string) => boolean;
     stepOneTitle?: string;
     stepTwoTitle?: string;
@@ -199,6 +200,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     showClassConnectionsManager,
     setShowClassConnectionsManager,
     resetClassConnections,
+    areClassConnectionsValid,
     removeCodeFromRelations,
     steps,
     stepsData,
@@ -503,8 +505,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         value: any,
         forcedType?: string,
         canBeNull?: boolean,
-        explicit?: boolean
-    ) => void = (fieldName, value, forcedType, canBeNull, explicit) => {
+        explicit?: boolean,
+        metadata?: any
+    ) => void = (fieldName, value, forcedType, canBeNull, explicit, metadata) => {
         //* The first change of any field saves the current interface as in draft
         //* we ignore the `lang` field because it has a default value and fires a change
         //* on mount
@@ -577,7 +580,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         // method
                         if (fieldName === 'name' && onNameChange) {
                             // Change the method name in the side panel
-                            onNameChange(activeId, value);
+                            onNameChange(activeId, value, metadata?.originalName);
                         }
                         // Check if this field has an on_change message
                         if (currentField.on_change) {
@@ -961,6 +964,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return `${iName.value}:${iVersion.value}`;
     };
 
+    const canSubmit: () => boolean = () => {
+        if (hasClassConnections) {
+            return isFormValid(type) && areClassConnectionsValid();
+        }
+
+        return isFormValid(type);
+    };
+
     return (
         <>
             <SidePanel title={t(stepOneTitle)}>
@@ -1056,7 +1067,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             <ButtonGroup fill>
                                 {hasClassConnections && (
                                     <Button
-                                        icon="code-block"
+                                        icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
+                                        intent={areClassConnectionsValid() ? 'none' : 'warning'}
                                         disabled={!isClassConnectionsManagerEnabled()}
                                         onClick={() => setShowClassConnectionsManager(true)}
                                     >
@@ -1102,7 +1114,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             </Tooltip>
                             <Button
                                 text={t(submitLabel)}
-                                disabled={!isFormValid(type)}
+                                disabled={!canSubmit()}
                                 icon={'tick'}
                                 name={`interface-creator-submit-${type}`}
                                 intent={Intent.SUCCESS}
@@ -1113,7 +1125,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 </ActionsWrapper>
             </Content>
             {showClassConnectionsManager && hasClassConnections && (
-                <Dialog
+                <CustomDialog
                     isOpen
                     title={t('ClassConnectionsManager')}
                     onClose={() => setShowClassConnectionsManager(false)}
@@ -1136,10 +1148,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             setShowClassConnectionsManager(false);
                         }}
                     />
-                </Dialog>
+                </CustomDialog>
             )}
             {showConfigItemsManager && hasConfigManager ? (
-                <Dialog
+                <CustomDialog
                     isOpen
                     title={t('ConfigItemsManager')}
                     onClose={() => setShowConfigItemsManager(false)}
@@ -1157,7 +1169,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         resetFields={resetFields}
                         steps={processSteps(steps, stepsData)}
                     />
-                </Dialog>
+                </CustomDialog>
             ) : null}
         </>
     );
