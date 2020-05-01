@@ -33,6 +33,8 @@ export const classConnectionsCodeChanges = async (
     };
 
     const lang = data.lang || 'qore';
+    const had_class_connections = Object.keys(orig_data['class-connections'] || {}).length > 0;
+    const has_class_connections = Object.keys(data['class-connections'] || {}).length > 0;
 
     let num_tries = 0;
     const setFileInfo = async (params, add_class_connections_info = false, sleep = 500) => {
@@ -63,7 +65,7 @@ export const classConnectionsCodeChanges = async (
     const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
     // remove original class connections code
-    if (Object.keys(orig_data['class-connections'] || {}).length) {
+    if (had_class_connections) {
         edit_data = await setFileInfo(mixed_data, true, 0);
         if (iface_kind === 'step') {
             trigger_names = code_info.triggers({iface_kind, 'base-class-name': orig_data['base-class-name']});
@@ -72,7 +74,11 @@ export const classConnectionsCodeChanges = async (
         lines = cleanup(lines);
         writeFile(lines);
 
-        ({ class_connections_trigger_names: method_names } = edit_data);
+        if (iface_kind === 'step') {
+            method_names = trigger_names;
+        } else {
+            ({ class_connections_trigger_names: method_names } = edit_data);
+        }
 
         edit_data = await setFileInfo(data);
         if (edit_data.empty_private_member_block) {
@@ -83,7 +89,7 @@ export const classConnectionsCodeChanges = async (
     }
 
     // add new class connections code
-    if (Object.keys(data['class-connections'] || {}).length) {
+    if (has_class_connections) {
         const class_connections = new ClassConnections({ ...data, iface_kind }, code_info, lang);
         let { imports: cc_imports, triggers, trigger_code, connections_extra_class } = class_connections.code();
         more_imports = cc_imports;
@@ -107,12 +113,16 @@ export const classConnectionsCodeChanges = async (
     }
 
     let methods_to_add = [];
-    method_names?.forEach(method_name => {
-        if (!trigger_names?.includes(method_name)) {
-            methods_to_add.push(method_name);
-        }
-    });
-    if (methods_to_add.length) {
+    if (iface_kind === 'step' && !has_class_connections) {
+        methods_to_add = method_names;
+    } else {
+        (method_names || []).forEach(method_name => {
+            if (!trigger_names?.includes(method_name)) {
+                methods_to_add.push(method_name);
+            }
+        });
+    }
+    if (methods_to_add?.length) {
         edit_data = await setFileInfo(mixed_data);
         lines = addMethods(methods_to_add, edit_data, lang);
         lines = cleanup(lines);
