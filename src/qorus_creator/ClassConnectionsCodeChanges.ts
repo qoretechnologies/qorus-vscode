@@ -34,6 +34,7 @@ export const classConnectionsCodeChanges = async (
 
     const lang = data.lang || 'qore';
 
+    let num_tries = 0;
     const setFileInfo = async (params, add_class_connections_info = false, sleep = 500) => {
         // if a file is parsed by the java parser and immediately afterwards the file changes and is parsed again
         // the parser returns the previous result as if he file has not changed
@@ -42,16 +43,20 @@ export const classConnectionsCodeChanges = async (
             await new Promise(resolve => setTimeout(resolve, sleep));
         }
 
-        let result = await edit_info.setFileInfo(file, params, add_class_connections_info);
+        const edit_data = await edit_info.setFileInfo(file, params, add_class_connections_info);
 
         // sometimes the java parser returns a nonsense, for example the class range start position is correct
         // but the end position is at line 0
         // in that case take some sleep and then try again
-        if (lang === 'java' && result?.class_def_range?.end.line < result.class_def_range.start.line) {
+        if (lang === 'java' && num_tries++ < 100 &&
+            (!edit_data?.class_def_range ||
+              edit_data.class_def_range.end.line < edit_data.class_def_range.start.line))
+        {
             await new Promise(resolve => setTimeout(resolve, 300));
             return setFileInfo(params, add_class_connections_info, sleep);
         } else {
-            return result;
+            num_tries = 0;
+            return edit_data;
         }
     };
 
