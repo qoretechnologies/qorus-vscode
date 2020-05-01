@@ -774,7 +774,7 @@ export abstract class InterfaceCreator {
             return rows;
         };
 
-        const rangesToRemove = methods.map(name => method_decl_ranges[name]);
+        const rangesToRemove = methods.map(name => method_decl_ranges?.[name]);
         rangesToRemove.forEach(range => {
             if (range) {
                 lines = removeRange(lines, range);

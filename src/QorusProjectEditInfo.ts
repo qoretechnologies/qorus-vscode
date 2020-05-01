@@ -263,13 +263,15 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddTriggerStatements = (decl) => {
+        const maybeAddTriggerStatements = decl => {
             if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) { // declaration && function
                 return;
             }
 
             for (const statement of decl.body.statements) {
-                const var_name = statement.retval?.target?.variable?.name?.name;
+                const var_name = statement.retval?.target?.variable?.name?.name ||
+                                 statement.expression?.target?.variable?.name?.name;
+
                 if (var_name && var_name === this.edit_info[file].class_connections_member_name) {
                     this.edit_info[file].class_connections_trigger_ranges = [
                         ... this.edit_info[file].class_connections_trigger_ranges || [],
@@ -304,10 +306,6 @@ export class QorusProjectEditInfo {
                 }
 
                 this.addClassInfo(file, symbol, base_class_name);
-
-                if (!['service', 'mapper-code'].includes(iface_kind)) {
-                    return;
-                }
 
                 for (const decl of symbol.declarations || []) {
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
@@ -464,19 +462,11 @@ export class QorusProjectEditInfo {
                 parseJavaInheritance(lsdoc, symbol);
                 this.addJavaClassInfo(file, symbol, base_class_name);
 
-                if (!['service', 'mapper-code'].includes(iface_kind)) {
-                    return;
-                }
-
                 for (const decl of symbol.children || []) {
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
-//                        maybeAddClassConnectionMemberInitialization(decl);
                         maybeAddTriggerStatements(decl);
                     }
-//                    else {
-//                        maybeAddPrivateMemberBlock(decl);
-//                    }
                     maybeAddClassMethodInfo(file, decl);
                 }
             });
