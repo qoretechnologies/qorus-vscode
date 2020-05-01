@@ -34,8 +34,8 @@ class ClassCreator extends InterfaceCreator {
             case 'workflow':
                 if (data['class-name']) {
                     ({template, imports} = workflowTemplates(this.lang));
-                    suffix = '.qwf';
                 }
+                suffix = '.qwf';
                 break;
             case 'class':
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
