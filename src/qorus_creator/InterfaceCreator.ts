@@ -784,6 +784,28 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
+    static mandatoryStepMethodsCode = (code_info, base_class_name, lang, skip: string[] = []) => {
+        const mandatory_step_methods = code_info.mandatoryStepMethods(base_class_name, lang);
+
+        let method_strings = [];
+        const indent = '    ';
+
+        Object.keys(mandatory_step_methods).forEach(method_name => {
+            if (skip.includes(method_name)) {
+                return;
+            }
+            const method_data = mandatory_step_methods[method_name];
+            let method_string = `${indent}${method_data.signature} {\n`;
+            if (method_data.body) {
+                method_string += `${indent}${indent}${method_data.body}\n`;
+            }
+            method_string += `${indent}}\n`;
+            method_strings.push(method_string);
+        });
+
+        return method_strings.join('\n');
+    }
+
     static fillTemplate = (template: string, lang: string = 'qore', imports: string[] = [],
                            vars: any, add_default_parse_options: boolean = true): string =>
     {

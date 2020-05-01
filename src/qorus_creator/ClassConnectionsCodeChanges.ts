@@ -5,6 +5,7 @@ import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { serviceTemplates } from './service_constants';
+import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (
@@ -29,7 +30,7 @@ export const classConnectionsCodeChanges = async (
 
     const mixed_data = {
         ...data,
-        'class-connections': orig_data['class-connections']
+        'class-connections': orig_data?.['class-connections']
     };
 
     const lang = data.lang || 'qore';
@@ -112,21 +113,23 @@ export const classConnectionsCodeChanges = async (
         writeFile(lines);
     }
 
-    let methods_to_add = [];
     if (iface_kind === 'step' && !has_class_connections) {
-        methods_to_add = method_names;
+        const mandatory_step_methods = InterfaceCreator.mandatoryStepMethodsCode(
+                code_info, data['base-class-name'], lang);
+        msg.debug({mandatory_step_methods});
     } else {
+        let methods_to_add = [];
         (method_names || []).forEach(method_name => {
             if (!trigger_names?.includes(method_name)) {
                 methods_to_add.push(method_name);
             }
         });
-    }
-    if (methods_to_add?.length) {
-        edit_data = await setFileInfo(mixed_data);
-        lines = addMethods(methods_to_add, edit_data, lang);
-        lines = cleanup(lines);
-        writeFile(lines);
+        if (methods_to_add?.length) {
+            edit_data = await setFileInfo(mixed_data);
+            lines = addMethods(methods_to_add, edit_data, lang);
+            lines = cleanup(lines);
+            writeFile(lines);
+        }
     }
 
     if (lang === 'java') {

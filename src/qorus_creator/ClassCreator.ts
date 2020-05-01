@@ -122,6 +122,13 @@ class ClassCreator extends InterfaceCreator {
                         method_strings.push(method_string);
                     });
                     methods = method_strings.join('\n');
+
+                    methods = ClassCreator.mandatoryStepMethodsCode(
+                        this.code_info,
+                        data['base-class-name'],
+                        this.lang,
+                        triggers
+                    );
                 }
 
                 if (methods && data['class-connections']) {
