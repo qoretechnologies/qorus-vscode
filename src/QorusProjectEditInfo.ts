@@ -272,7 +272,9 @@ export class QorusProjectEditInfo {
                 const var_name = statement.retval?.target?.variable?.name?.name ||
                                  statement.expression?.target?.variable?.name?.name;
 
-                if (var_name && var_name === this.edit_info[file].class_connections_member_name) {
+                if (var_name && var_name === this.edit_info[file].class_connections_member_name &&
+                    !(this.edit_info[file].class_connections_trigger_names || []).includes(decl.name?.name) )
+                {
                     this.edit_info[file].class_connections_trigger_ranges = [
                         ... this.edit_info[file].class_connections_trigger_ranges || [],
                         loc2range(decl.loc)

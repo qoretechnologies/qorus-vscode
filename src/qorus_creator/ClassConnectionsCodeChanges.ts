@@ -235,8 +235,8 @@ const removeRange = (orig_lines, range) => {
     } else {
         let line_a = orig_lines[range.start.line];
         let line_b = orig_lines[range.end.line];
-        line_a = line_a.substr(0, range.start.character);
-        line_b = line_b.substr(range.end.character + 1);
+        line_a = line_a.substr(0, range.start.character) || '';
+        line_b = line_b.substr(range.end.character + 1) || '';
         [line_a, line_b].forEach(line => {
             if (line.match(/\S/)) {
                 lines.push(line);
