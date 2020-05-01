@@ -65,7 +65,10 @@ export const classConnectionsCodeChanges = async (
     // remove original class connections code
     if (Object.keys(orig_data['class-connections'] || {}).length) {
         edit_data = await setFileInfo(mixed_data, true, 0);
-        lines = removeClassConnectionsCode(edit_data);
+        if (iface_kind === 'step') {
+            trigger_names = code_info.triggers({iface_kind, 'base-class-name': orig_data['base-class-name']});
+        }
+        lines = removeClassConnectionsCode(edit_data, iface_kind, trigger_names);
         lines = cleanup(lines);
         writeFile(lines);
 
@@ -197,12 +200,13 @@ const insertTriggerCode = (trigger_code, edit_data, lines, line_shift) => {
     return lines;
 };
 
-const removeClassConnectionsCode = edit_data => {
+const removeClassConnectionsCode = (edit_data, iface_kind, trigger_names) => {
     const {
         text_lines,
         class_connections_class_range,
         class_connections_member_declaration_range,
         class_connections_trigger_ranges,
+        method_decl_ranges = {},
     } = edit_data;
 
     let ranges = [];
@@ -211,7 +215,16 @@ const removeClassConnectionsCode = edit_data => {
             ranges.push(range);
         }
     });
-    ranges = [ ...ranges, ... class_connections_trigger_ranges || [] ];
+
+    if (iface_kind === 'step' && trigger_names) {
+        Object.keys(method_decl_ranges).forEach(method_name => {
+            if (trigger_names.includes(method_name)) {
+                ranges.push(method_decl_ranges[method_name]);
+            }
+        });
+    } else {
+        ranges = [ ...ranges, ... class_connections_trigger_ranges || [] ];
+    }
 
     return removeRanges([...text_lines], ranges);
 };
