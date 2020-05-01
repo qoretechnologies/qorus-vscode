@@ -5,7 +5,6 @@ import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { serviceTemplates } from './service_constants';
-import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (
@@ -114,9 +113,35 @@ export const classConnectionsCodeChanges = async (
     }
 
     if (iface_kind === 'step' && !has_class_connections) {
+        edit_data = await setFileInfo(data);
+        let { text_lines: lines, class_def_range } = edit_data;
         const mandatory_step_methods = InterfaceCreator.mandatoryStepMethodsCode(
-                code_info, data['base-class-name'], lang);
-        msg.debug({mandatory_step_methods});
+            code_info,
+            data['base-class-name'],
+            lang
+        );
+
+        const end = class_def_range.end;
+        const lines_before = lines.splice(0, end.line);
+        const line = lines.splice(0, 1)[0];
+        const line_before = line.substr(0, end.character - 1);
+        const line_after = line.substr(end.character - 1);
+        const lines_after = lines;
+
+        let new_code = line_before + mandatory_step_methods;
+        const new_code_lines = new_code.split(/\r?\n/);
+        if (new_code_lines[new_code_lines.length - 1] === '') {
+            new_code_lines.pop();
+        }
+
+        lines = [
+            ...lines_before,
+            ...new_code_lines,
+            line_after,
+            ...lines_after
+        ];
+
+        writeFile(lines);
     } else {
         let methods_to_add = [];
         (method_names || []).forEach(method_name => {
