@@ -554,7 +554,7 @@ export class QorusProjectCodeInfo {
                         }
                     }
                 }
-                ['submapper_options'].forEach(key => {
+                ['submapper_options', 'default'].forEach(key => {
                     if (field[key]) {
                         field[key] = jsyaml.safeDump(field[key], {indent: 4});
                     }

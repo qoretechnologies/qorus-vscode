@@ -377,7 +377,7 @@ export abstract class InterfaceCreator {
         const parseSpecialFieldsKeys = () => {
             Object.keys(value).forEach(key => {
                 Object.keys(value[key]).forEach(subkey => {
-                    if (['submapper_options'].includes(subkey)) {
+                    if (['submapper_options', 'default'].includes(subkey)) {
                         value[key][subkey] = jsyaml.safeLoad(value[key][subkey]);
                     }
                 });
