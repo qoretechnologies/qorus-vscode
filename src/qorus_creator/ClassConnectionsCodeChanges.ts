@@ -158,7 +158,7 @@ export const classConnectionsCodeChanges = async (
     }
 
     if (lang === 'java') {
-        lines = fixImports(file, [ ...imports, ...more_imports ]);
+        lines = fixJavaImports(file, [ ...imports, ...more_imports ]);
         writeFile(lines);
     }
 };
@@ -421,22 +421,32 @@ const cleanup = dirty_lines => {
     return lines;
 };
 
-const fixImports = (file, imports) => {
+const fixJavaImports = (file, imports) => {
     const doc: QoreTextDocument = qoreTextDocument(file);
     let lines = doc.text.split(/\r?\n/);
 
     while (lines[lines.length-1] === '') {
         lines.pop();
     }
-    while (lines[0] === '') {
-        lines.shift();
-    }
-    while (lines[0].startsWith('import ')) {
+
+    let package_line;
+    if (lines[0].startsWith('package ')) {
+        package_line = lines[0];
         lines.shift();
     }
 
+    while (lines[0] === '' || lines[0].startsWith('import ')) {
+        lines.shift();
+    }
+
+    lines.unshift('');
     imports.reverse().forEach(imp => {
         lines.unshift(imp);
     });
+    if (package_line) {
+        lines.unshift('');
+        lines.unshift(package_line);
+    }
+
     return lines;
 };
