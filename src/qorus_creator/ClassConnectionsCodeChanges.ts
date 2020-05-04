@@ -161,6 +161,12 @@ export const classConnectionsCodeChanges = async (
         lines = fixJavaImports(file, [ ...imports, ...more_imports ]);
         writeFile(lines);
     }
+
+    edit_data = await setFileInfo(data);
+    lines = possiblyRemoveFirstEmptyLine(edit_data);
+    if (lines) {
+        writeFile(lines);
+    }
 };
 
 const insertMemberDeclaration = (class_connections, edit_data, lang) => {
@@ -449,4 +455,37 @@ const fixJavaImports = (file, imports) => {
     }
 
     return lines;
+};
+
+const possiblyRemoveFirstEmptyLine = edit_data => {
+    const { text_lines: lines, last_class_line, last_base_class_range } = edit_data;
+
+    const class_decl_line_rest = lines[last_base_class_range.end.line].substr(last_base_class_range.end.character);
+    let first_line;
+
+    // find the line with the '{'
+    if (class_decl_line_rest.match(/^\s*\{\s*$/)) {
+        first_line = last_base_class_range.end.line + 1;
+    } else {
+        for (let i = last_base_class_range.end.line; i < last_class_line; i++) {
+            if (lines[i].match(/^\s*\{/)) {
+                if (lines[i].match(/^\s*\{\s*$/)) {
+                    first_line = i + 1;
+                } else {
+                    const pos = lines[i].indexOf('{');
+                    const extra_line = ' '.repeat(pos + 1) + lines[i].substr(pos + 1);
+                    lines[i] = lines[i].substr(0, pos + 1);
+                    lines.splice(i, 0, extra_line);
+                    first_line = i + 2;
+                }
+                break;
+            }
+        }
+    }
+
+    if (first_line && lines[first_line] == '') {
+        lines.splice(first_line, 1);
+        return lines;
+    }
+    return undefined;
 };
