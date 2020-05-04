@@ -518,15 +518,12 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     };
 
     return compose(
-        mapProps(
-            ({ mapper, ...rest }) =>
-                console.log(mapper) || {
-                    initialShow: !!mapper,
-                    mapper,
-                    isEditingMapper: !!mapper?.name,
-                    ...rest,
-                }
-        ),
+        mapProps(({ mapper, ...rest }) => ({
+            initialShow: !!mapper,
+            mapper,
+            isEditingMapper: !!mapper?.name,
+            ...rest,
+        })),
         withTextContext(),
         withMessageHandler()
     )(EnhancedComponent);
