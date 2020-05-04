@@ -373,6 +373,24 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
+    private parseSpecialKeys = (tag, value) => {
+        const parseSpecialFieldsKeys = () => {
+            Object.keys(value).forEach(key => {
+                Object.keys(value[key]).forEach(subkey => {
+                    if (['submapper_options'].includes(subkey)) {
+                        value[key][subkey] = jsyaml.safeLoad(value[key][subkey]);
+                    }
+                });
+            });
+            return value;
+        };
+
+        switch (tag) {
+            case 'fields': return parseSpecialFieldsKeys();
+            default: return value;
+        }
+    }
+
     private static indentYamlDump = (value, indent_level, is_on_new_line) => {
         let lines = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
         if (/^\s*$/.test(lines.slice(-1)[0])) {
@@ -673,7 +691,7 @@ export abstract class InterfaceCreator {
                     case 'staticdata-type':
                     case 'context':
                         result += `${tag === 'mapper_options' ? 'options' : tag}:\n` +
-                            InterfaceCreator.indentYamlDump(value, 1, true);
+                            InterfaceCreator.indentYamlDump(this.parseSpecialKeys(tag, value), 1, true);
                         break;
                     case 'desc':
                     case 'description':

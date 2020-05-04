@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as jsyaml from 'js-yaml';
 import * as isArray from 'lodash/isArray';
 import * as isObject from 'lodash/isObject';
 import * as sortBy from 'lodash/sortBy';
@@ -553,6 +554,11 @@ export class QorusProjectCodeInfo {
                         }
                     }
                 }
+                ['submapper_options'].forEach(key => {
+                    if (field[key]) {
+                        field[key] = jsyaml.safeDump(field[key], {indent: 4});
+                    }
+                });
             });
         }
 
