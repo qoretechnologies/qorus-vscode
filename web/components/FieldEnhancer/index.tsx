@@ -97,7 +97,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
                         context={editManager.context}
                         onSubmit={data => {
                             const name: string = data.name || data['class-class-name'];
-                            const version: string = editManager.interfaceKind === 'mapper' ? data.version : '';
+                            const version: string = editManager.interfaceKind === 'mapper' ? `:${data.version}` : '';
 
                             editManager.onSubmit(editManager.originalName, `${name}${version}`);
                             setEditManager({});
