@@ -612,12 +612,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
         // User is mapping ordinary field
         else {
-            saveRelationData(outputPath, usesContext ? { context: `$static:{${inputPath}}` } : { name: inputPath });
+            saveRelationData(
+                outputPath,
+                usesContext ? { context: `$static:{${inputPath}}` } : { name: inputPath },
+                true
+            );
         }
     };
 
     const handleSubmitClick = async () => {
-        console.log('saving');
         // Build the mapper object
         const mapper = reduce(
             selectedFields.mapper,
@@ -663,13 +666,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             },
             t('Saving mapper...')
         );
-        console.log(result);
+
         if (result.ok) {
             // If on submit
             if (mapperSubmit) {
                 mapperSubmit(mapper.name, mapper.version);
             }
-            console.log(onSubmitSuccess);
             // If on submit success exists
             if (onSubmitSuccess) {
                 onSubmitSuccess(mapper);
@@ -1176,7 +1178,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   <MapperOutput
                                       key={output.path}
                                       name={output.name}
-                                      hasRelation={!isAvailableForDrop(output.path) || size(relations[output.path])}
+                                      hasRelation={!isAvailableForDrop(output.path)}
+                                      highlight={!!size(relations[output.path])}
                                       {...output}
                                       field={output}
                                       onDrop={handleDrop}
