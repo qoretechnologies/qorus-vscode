@@ -47,7 +47,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             let isValid = true;
 
             // Check if this field has to be a valid identifier
-            if (field.has_to_be_valid_identifier) {
+            if (field?.has_to_be_valid_identifier) {
                 isValid = !value.match(/^[0-9]|\W/);
             }
 
