@@ -44,6 +44,11 @@ export default () => (Component: any): any => {
                     props.resetMethods();
                     break;
                 case 'mapper-methods':
+                    // Reset everything if not soft reset
+                    if (!soft) {
+                        props.resetInterfaceData('mapper-code');
+                        props.resetFields('mapper-code');
+                    }
                     // Reset methods
                     props.resetMapperMethods();
                     break;
