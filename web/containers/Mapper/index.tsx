@@ -759,7 +759,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                         <span> Input </span>
                                         {hideInputSelector ? (
                                             <>
-                                                {isEditing || (isFromConnectors && hasInitialInput) ? (
+                                                {isFromConnectors && hasInitialInput ? (
                                                     <Tooltip content={getUrlFromProvider('input')}>
                                                         <Icon
                                                             style={{ lineHeight: '10px' }}
@@ -774,7 +774,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                             icon="edit"
                                                             small
                                                             minimal
-                                                            onClick={() => setHideInputSelector(false)}
+                                                            onClick={() => {
+                                                                setHideInputSelector(false);
+                                                                if (isEditing) {
+                                                                    clearInputs();
+                                                                }
+                                                            }}
                                                         />
                                                     </Tooltip>
                                                 )}
@@ -1168,7 +1173,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             {t('Output')}{' '}
                             {hideOutputSelector && (
                                 <>
-                                    {isEditing || (isFromConnectors && hasInitialOutput) ? (
+                                    {isFromConnectors && hasInitialOutput ? (
                                         <Tooltip content={outputRecord}>
                                             <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
                                         </Tooltip>
@@ -1178,7 +1183,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 icon="edit"
                                                 small
                                                 minimal
-                                                onClick={() => setHideOutputSelector(false)}
+                                                onClick={() => {
+                                                    setHideOutputSelector(false);
+                                                    if (isEditing) {
+                                                        clearOutputs();
+                                                    }
+                                                }}
                                             />
                                         </Tooltip>
                                     )}
