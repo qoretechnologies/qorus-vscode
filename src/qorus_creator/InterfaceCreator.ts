@@ -517,6 +517,8 @@ export abstract class InterfaceCreator {
         });
 
         if (headers.fields) {
+            const types = headers.output_field_option_types || [];
+
             Object.keys(headers.fields).forEach(field_name => {
                 let field = headers.fields[field_name];
                 if (field.code) {
@@ -527,6 +529,13 @@ export abstract class InterfaceCreator {
                         field.code = `${class_name}${lang === 'qore' ? '::': '.'}${method}`;
                     }
                 }
+
+                Object.keys(field).forEach(key => {
+                    const type_info = types.find(type => type.outputField === field_name && type.field === key);
+                    if (['list', 'hash'].some(type => type_info?.type.startsWith(type))) {
+                        field[key] = jsyaml.safeLoad(field[key]);
+                    }
+                });
             });
         }
 
