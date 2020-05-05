@@ -5,6 +5,7 @@ import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { serviceTemplates } from './service_constants';
+import { sortRanges } from '../qorus_utils';
 
 
 export const classConnectionsCodeChanges = async (
@@ -332,22 +333,6 @@ const removeRange = (orig_lines, range) => {
 
     return lines;
 };
-
-const sortRanges = ranges => ranges.sort((a, b) => {
-    if (a.start.line < b.start.line) {
-        return -1;
-    }
-    if (a.start.line > b.start.line) {
-        return 1;
-    }
-    if (a.start.character < b.start.character) {
-        return -1;
-    }
-    if (a.start.character > b.start.character) {
-        return 1;
-    }
-    return 0;
-});
 
 const addMethods = (method_names, edit_data, lang) => {
     const { text_lines, class_def_range } = edit_data;
