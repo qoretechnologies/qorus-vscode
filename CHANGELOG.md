@@ -6,6 +6,9 @@
 
 -   edit commands added to file explorer context menu
 -   added the 'Create new type' command to explorer context menu
+-   A warning dialog has been added when a view is about to be changed and there is unsaved work
+-   It is now possible to create and edit new objects directly from their respective fields
+-   Mapper inputs and outputs can now be cleared and entered again when editing a mapper
 
 #### Bug fixes
 
@@ -29,6 +32,17 @@
 -   disable type of 'other' interfaces on editing
 -   fixed missing .qwf in yaml files
 -   fixed saving/reading mapper fields options
+-   Adding new steps to the Workflow diagram should no longer result in "Loading step:0"
+-   Config item value and default value is now properly set to `null` when type is changed to a different type
+-   `Any` type now correctly supports `null` as a value and default value
+-   Modal dialogs have been reworked and now only the last opened is closed when `Esc` key is pressed
+-   Fixed Job and Service name generation
+-   Selecting a step again after it was removed from the workflow diagram now works properly
+-   When removing a second-to-last step in group of parallel steps, the last step is now moved upwards in the hierarchy and is rendered inline
+-   More space efficient redesign of the connection name dialog
+-   Fixed a bug where it was sometime impossible to map 2 compatible fields in mappers
+-   Some fields now disallow certain characters to be entered
+-   Mapper codes are properly reset after successfuly submiting
 
 ## 1.1.1
 
