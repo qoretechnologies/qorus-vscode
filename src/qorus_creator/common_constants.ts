@@ -64,7 +64,7 @@ export const classFields = ({ is_editing, default_target_dir }) => [
     field.version,
     {
         name: 'class-class-name',
-        style: 'PascalCase',
+        has_to_be_valid_identifier: true,
     },
     field.lang(is_editing),
     {
@@ -157,6 +157,7 @@ export const field = {
     class_name: {
         name: 'class-name',
         prefill: 'name',
+        has_to_be_valid_identifier: true,
         style: 'PascalCase',
     },
     lang: is_editing => ({

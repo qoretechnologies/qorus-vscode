@@ -113,6 +113,7 @@ export const service_methods = [
     {
         ...field.name,
         type: 'method-name',
+        has_to_be_valid_identifier: true,
     },
     field.desc,
     field.author,

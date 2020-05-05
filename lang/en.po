@@ -2168,3 +2168,6 @@ msgstr "Editing method name will also change the associated trigger name, if app
 
 msgid "YamlDataNotFound ${ iface_kind } ${ name }"
 msgstr "Data for ${ iface_kind } ${ name } not found"
+
+msgid "AllowedCharsOnly"
+msgstr "Only characters a-z, 0-9 and _ are allowed for this field"

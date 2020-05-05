@@ -83,7 +83,7 @@ export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.targetFile,
     {
         name: 'class-class-name',
-        style: 'PascalCase',
+        has_to_be_valid_identifier: true,
     },
     field.version,
     {
@@ -97,4 +97,10 @@ export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.author,
 ];
 
-export const mapper_method_fields = [field.name, field.desc];
+export const mapper_method_fields = [
+    {
+        ...field.name,
+        has_to_be_valid_identifier: true,
+    },
+    field.desc
+];

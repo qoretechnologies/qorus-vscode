@@ -39,9 +39,21 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'select-string':
         case 'file-string':
         case 'long-string':
-        case 'method-name':
+        case 'method-name': {
+            if (value === undefined || value === null || value === '') {
+                return false;
+            }
+
+            let isValid = true;
+
+            // Check if this field has to be a valid identifier
+            if (field.has_to_be_valid_identifier) {
+                isValid = !value.match(/^[0-9]|\W/);
+            }
+
             // Strings cannot be empty
-            return value !== undefined && value !== null && value !== '';
+            return isValid;
+        }
         case 'mapper-options': {
             if (isObject(value)) {
                 return false;
