@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
-import * as isArray from 'lodash/isArray';
-import * as isObject from 'lodash/isObject';
+import * as lodashIsArray from 'lodash/isArray';
+import * as lodashIsObject from 'lodash/isObject';
 import * as sortBy from 'lodash/sortBy';
 import * as flattenDeep from 'lodash/flattenDeep';
 import * as path from 'path';
@@ -15,7 +15,7 @@ import { parseJavaInheritance } from './qorus_java_utils';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
          all_root_classes } from './qorus_constants';
-import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind, capitalize } from './qorus_utils';
+import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
@@ -554,9 +554,11 @@ export class QorusProjectCodeInfo {
                         }
                     }
                 }
-                ['submapper_options', 'default'].forEach(key => {
-                    if (field[key]) {
-                        field[key] = jsyaml.safeDump(field[key], {indent: 4});
+
+                Object.keys(field).forEach(key => {
+                    const value = field[key];
+                    if (Array.isArray(value) || isObject(value)) {
+                        field[key] = jsyaml.safeDump(value, {indent: 4});
                     }
                 });
             });
@@ -759,9 +761,9 @@ export class QorusProjectCodeInfo {
     getObjects(object_type: string, lang?: string) {
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
-            if (isArray(objects)) {
+            if (lodashIsArray(objects)) {
                 // Check if this collection is made of objects or strings
-                if (objects.every((obj: any) => isObject(obj))) {
+                if (objects.every((obj: any) => lodashIsObject(obj))) {
                     // Collection of objects, sort sort them by name
                     return sortBy(objects, ['name']);
                 } else {

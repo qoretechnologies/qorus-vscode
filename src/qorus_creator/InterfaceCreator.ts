@@ -373,24 +373,6 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
-    private parseSpecialKeys = (tag, value) => {
-        const parseSpecialFieldsKeys = () => {
-            Object.keys(value).forEach(key => {
-                Object.keys(value[key]).forEach(subkey => {
-                    if (['submapper_options', 'default'].includes(subkey)) {
-                        value[key][subkey] = jsyaml.safeLoad(value[key][subkey]);
-                    }
-                });
-            });
-            return value;
-        };
-
-        switch (tag) {
-            case 'fields': return parseSpecialFieldsKeys();
-            default: return value;
-        }
-    }
-
     private static indentYamlDump = (value, indent_level, is_on_new_line) => {
         let lines = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
         if (/^\s*$/.test(lines.slice(-1)[0])) {
@@ -535,6 +517,8 @@ export abstract class InterfaceCreator {
         });
 
         if (headers.fields) {
+            const types = headers.output_field_option_types || [];
+
             Object.keys(headers.fields).forEach(field_name => {
                 let field = headers.fields[field_name];
                 if (field.code) {
@@ -545,6 +529,13 @@ export abstract class InterfaceCreator {
                         field.code = `${class_name}${lang === 'qore' ? '::': '.'}${method}`;
                     }
                 }
+
+                Object.keys(field).forEach(key => {
+                    const type_info = types.find(type => type.outputField === field_name && type.field === key);
+                    if (['list', 'hash'].some(type => type_info?.type.startsWith(type))) {
+                        field[key] = jsyaml.safeLoad(field[key]);
+                    }
+                });
             });
         }
 
@@ -691,7 +682,7 @@ export abstract class InterfaceCreator {
                     case 'staticdata-type':
                     case 'context':
                         result += `${tag === 'mapper_options' ? 'options' : tag}:\n` +
-                            InterfaceCreator.indentYamlDump(this.parseSpecialKeys(tag, value), 1, true);
+                            InterfaceCreator.indentYamlDump(value, 1, true);
                         break;
                     case 'desc':
                     case 'description':
