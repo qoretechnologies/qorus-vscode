@@ -39,6 +39,13 @@ export interface IMapperFieldModalProps {
 
 const types = {};
 
+export const getKeyType = (key: string, mapperKeys: any, output: any): string => {
+    return (mapperKeys[key].value_type === 'any' || mapperKeys[key].value_type === 'auto') &&
+        mapperKeys[key].requires_field_type
+        ? output.type.base_type
+        : mapperKeys[key].value_type;
+};
+
 const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     onClose,
     relationData,
@@ -83,7 +90,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     const getIsFieldValid: (key: string, value: any) => boolean = (key, value) => {
         let valid = true;
         // Get the key type
-        let fieldType = getKeyType(key);
+        let fieldType = getKeyType(key, mapperKeys, output);
         // Check if this type is in the types list
         if (types[key]) {
             // Set the type
@@ -222,13 +229,6 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         return isDisabled;
     };
 
-    const getKeyType = (key: string): string => {
-        return (mapperKeys[key].value_type === 'any' || mapperKeys[key].value_type === 'auto') &&
-            mapperKeys[key].requires_field_type
-            ? output.type.base_type
-            : mapperKeys[key].value_type;
-    };
-
     const getOptions: () => { name: string; desc: string }[] = () => {
         return reduce(
             output.type.supported_options,
@@ -279,7 +279,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                             <FieldSelector
                                 name={fieldName}
                                 translateName={false}
-                                type={getKeyType(fieldName)}
+                                type={getKeyType(fieldName, mapperKeys, output)}
                                 disabled={isKeyDisabled(fieldName)}
                                 onClick={handleAddClick}
                             />
@@ -293,13 +293,13 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                 <FieldWrapper>
                                     <FieldLabel label={key} isValid={getIsFieldValid(key, value)} />
                                     <FieldInputWrapper>
-                                        {getKeyType(key) === 'mapper-code' ? (
+                                        {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
                                             <MapperCodeField
                                                 onChange={handleChange}
                                                 defaultCode={value && value.split('.')[0]}
                                                 defaultMethod={value && value.split('.')[1]}
                                             />
-                                        ) : getKeyType(key) === 'option_hash' ? (
+                                        ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
                                             <OptionHashField
                                                 name={key}
                                                 value={value || undefined}
@@ -319,7 +319,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                                 name={key}
                                                 value={value}
                                                 type="auto"
-                                                defaultType={getKeyType(key)}
+                                                defaultType={getKeyType(key, mapperKeys, output)}
                                                 onChange={handleChange}
                                             />
                                         )}

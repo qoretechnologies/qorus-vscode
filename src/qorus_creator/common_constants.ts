@@ -64,6 +64,7 @@ export const classFields = ({ is_editing, default_target_dir }) => [
     field.version,
     {
         name: 'class-class-name',
+        style: 'PascalCase',
     },
     field.lang(is_editing),
     {
@@ -94,6 +95,9 @@ export const classFields = ({ is_editing, default_target_dir }) => [
             action: 'creator-return-objects',
             object_type: 'class',
             return_value: 'objects',
+        },
+        reference: {
+            iface_kind: 'class',
         },
         on_change: 'get-config-items',
         notify_on_remove: true,
@@ -199,7 +203,7 @@ export const field = {
             return_value: 'objects',
         },
     },
-    mapper: {
+    mappers: {
         name: 'mappers',
         mandatory: false,
         type: 'select-array',
@@ -211,6 +215,9 @@ export const field = {
             action: 'creator-return-objects',
             object_type: 'mapper',
             return_value: 'objects',
+        },
+        reference: {
+            iface_kind: 'mapper',
         },
     },
     vmaps: {
@@ -260,6 +267,10 @@ export const field = {
             object_type: 'group',
             return_value: 'objects',
         },
+        reference: {
+            iface_kind: 'other',
+            type: 'group',
+        },
     },
     tags: {
         name: 'tags',
@@ -288,6 +299,9 @@ export const field = {
             action: 'creator-return-objects',
             object_type: 'class',
             return_value: 'objects',
+        },
+        reference: {
+            iface_kind: 'class',
         },
         on_change: 'get-config-items',
         notify_on_remove: true,

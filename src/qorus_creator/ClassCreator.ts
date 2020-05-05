@@ -35,8 +35,8 @@ class ClassCreator extends InterfaceCreator {
             case 'workflow':
                 if (data['class-name']) {
                     ({template, imports} = workflowTemplates(this.lang));
-                    suffix = '.qwf';
                 }
+                suffix = '.qwf';
                 break;
             case 'class':
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
@@ -77,7 +77,7 @@ class ClassCreator extends InterfaceCreator {
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
         let more_imports: string[] = [];
-        if (data['class-connections']) {
+        if (Object.keys(data['class-connections'] || {}).length) {
             ClassCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
                   = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());
@@ -202,9 +202,9 @@ class ClassCreator extends InterfaceCreator {
             this.writeYamlFile(headers);
         }
 
-        if (['create', 'edit'].includes(edit_type)) {
+        if (['create', 'edit', 'recreate'].includes(edit_type)) {
             qorus_webview.postMessage({
-                action: `creator-${edit_type}-interface-complete`,
+                action: `creator-${edit_type === 'recreate' ? 'edit' : edit_type}-interface-complete`,
                 request_id,
                 ok: true,
                 message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`

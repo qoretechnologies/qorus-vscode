@@ -76,6 +76,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     parsedSteps,
     stepsData,
     resetAllInterfaceData,
+    onSubmitSuccess,
 }) => {
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
 
@@ -200,6 +201,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                             );
 
                                             if (result.ok) {
+                                                if (onSubmitSuccess) {
+                                                    onSubmitSuccess(newData);
+                                                }
                                                 resetAllInterfaceData('workflow');
                                             }
                                         }}

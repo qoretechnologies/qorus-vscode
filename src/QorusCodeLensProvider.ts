@@ -126,16 +126,12 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
             return;
         }
 
-        const method_index = (data.methods || []).findIndex(method => method.name === method_name);
+        const methods_key = iface_kind === 'mapper-code' ? 'mapper-methods' : 'methods';
+        const method_index = (data[methods_key] || []).findIndex(method => method.name === method_name);
 
         if (method_index === -1) {
             msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
             return;
-        }
-
-        if (iface_kind === 'mapper-code') {
-            data['mapper-methods'] = data.methods;
-            delete data.methods;
         }
 
         lenses.push(new CodeLens(range, {

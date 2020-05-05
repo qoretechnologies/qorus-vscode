@@ -30,7 +30,7 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
     },
     field.constants,
     field.functions,
-    field.mapper,
+    field.mappers,
     field.vmaps,
     field.modules,
     field.remote,

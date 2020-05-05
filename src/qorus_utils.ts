@@ -125,6 +125,8 @@ export const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
 export const capitalize = str => str[0].toUpperCase() + str.substr(1);
 
+export const isObject = x => x && typeof x === 'object' && !Array.isArray(x);
+
 export const compareVersion = (v1, v2) => {
     if (typeof v1 !== 'string' || typeof v2 !== 'string') {
         return undefined;

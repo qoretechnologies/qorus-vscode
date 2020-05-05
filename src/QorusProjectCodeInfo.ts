@@ -1,6 +1,7 @@
 import * as fs from 'fs';
-import * as isArray from 'lodash/isArray';
-import * as isObject from 'lodash/isObject';
+import * as jsyaml from 'js-yaml';
+import * as lodashIsArray from 'lodash/isArray';
+import * as lodashIsObject from 'lodash/isObject';
 import * as sortBy from 'lodash/sortBy';
 import * as flattenDeep from 'lodash/flattenDeep';
 import * as path from 'path';
@@ -12,7 +13,7 @@ import { QorusProjectEditInfo} from './QorusProjectEditInfo';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
          all_root_classes } from './qorus_constants';
-import { filesInDir, hasSuffix } from './qorus_utils';
+import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
@@ -109,16 +110,18 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
+            const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
+
             let raw_data;
             if (class_name) {
                 raw_data = this.yaml_info.yamlDataByName('class', class_name);
             } else {
                 const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-                raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
+                raw_data = this.yaml_info.yamlDataByName(true_iface_kind, name_key);
             }
             const data = this.fixData(raw_data);
 
-            const iface_id = this.iface_info.addIfaceById(data, iface_kind);
+            const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
 
             qorus_webview.postMessage({
                 action: 'return-interface-data',
@@ -305,6 +308,13 @@ export class QorusProjectCodeInfo {
                         }
                     }
                 }
+
+                Object.keys(field).forEach(key => {
+                    const value = field[key];
+                    if (Array.isArray(value) || isObject(value)) {
+                        field[key] = jsyaml.safeDump(value, {indent: 4});
+                    }
+                });
             });
         }
 
@@ -394,6 +404,10 @@ export class QorusProjectCodeInfo {
             if (step_type) {
                 data['step-type'] = step_type;
             }
+        }
+
+        if (['group', 'event', 'queue'].includes(data.type)) {
+            data.type = capitalize(data.type);
         }
 
         if (!data.target_file && data.yaml_file) {
@@ -501,9 +515,9 @@ export class QorusProjectCodeInfo {
     getObjects(object_type: string, lang?: string) {
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
-            if (isArray(objects)) {
+            if (lodashIsArray(objects)) {
                 // Check if this collection is made of objects or strings
-                if (objects.every((obj: any) => isObject(obj))) {
+                if (objects.every((obj: any) => lodashIsObject(obj))) {
                     // Collection of objects, sort sort them by name
                     return sortBy(objects, ['name']);
                 } else {

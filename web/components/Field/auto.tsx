@@ -69,7 +69,11 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 }
                 // Set the new type
                 setType(typeValue);
-                handleChange(name, value === undefined ? undefined : value);
+                if (!currentType) {
+                    handleChange(name, value === undefined ? undefined : value);
+                } else if (typeValue !== 'any') {
+                    handleChange(name, undefined);
+                }
             }
         }
         // If can be undefined was toggled off, but the value right now is null

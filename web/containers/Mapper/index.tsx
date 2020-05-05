@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
+import forEach from 'lodash/forEach';
 import size from 'lodash/size';
 import { useDrop } from 'react-dnd';
 import compose from 'recompose/compose';
@@ -21,7 +22,7 @@ import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessage
 import withTextContext from '../../hocomponents/withTextContext';
 import { ActionsWrapper, IField } from '../InterfaceCreator/panel';
 import MapperInput from './input';
-import MappingModal from './mappingModal';
+import MappingModal, { getKeyType } from './mappingModal';
 import MapperFieldModal from './modal';
 import MapperOutput from './output';
 import Provider from './provider';
@@ -330,6 +331,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     contextInputs,
     hasInitialInput,
     hasInitialOutput,
+    onSubmitSuccess,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -611,7 +613,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
         // User is mapping ordinary field
         else {
-            saveRelationData(outputPath, usesContext ? { context: `$static:{${inputPath}}` } : { name: inputPath });
+            saveRelationData(
+                outputPath,
+                usesContext ? { context: `$static:{${inputPath}}` } : { name: inputPath },
+                true
+            );
         }
     };
 
@@ -649,7 +655,21 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 'custom-fields': getCustomFields('outputs'),
             },
         };
-        const result = initialData.callBackend(
+        // Create the mapper field options type list
+        const relationTypeList = [];
+        forEach(mapper.fields, (relationData, outputFieldName) => {
+            const outputField = flattenedOutputs.find(o => o.path === outputFieldName);
+            // Go through the data in the output field relation
+            forEach(relationData, (_, relationName) => {
+                relationTypeList.push({
+                    outputField: outputFieldName,
+                    field: relationName,
+                    type: getKeyType(relationName, mapperKeys, outputField),
+                });
+            });
+        });
+        mapper.output_field_option_types = relationTypeList;
+        const result = await initialData.callBackend(
             !isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE,
             undefined,
             {
@@ -666,6 +686,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             // If on submit
             if (mapperSubmit) {
                 mapperSubmit(mapper.name, mapper.version);
+            }
+            // If on submit success exists
+            if (onSubmitSuccess) {
+                onSubmitSuccess(mapper);
             }
             // Reset the interface data
             resetAllInterfaceData('mapper');
@@ -735,7 +759,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                         <span> Input </span>
                                         {hideInputSelector ? (
                                             <>
-                                                {isEditing || (isFromConnectors && hasInitialInput) ? (
+                                                {isFromConnectors && hasInitialInput ? (
                                                     <Tooltip content={getUrlFromProvider('input')}>
                                                         <Icon
                                                             style={{ lineHeight: '10px' }}
@@ -750,7 +774,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                             icon="edit"
                                                             small
                                                             minimal
-                                                            onClick={() => setHideInputSelector(false)}
+                                                            onClick={() => {
+                                                                setHideInputSelector(false);
+                                                                if (isEditing) {
+                                                                    clearInputs();
+                                                                }
+                                                            }}
                                                         />
                                                     </Tooltip>
                                                 )}
@@ -1144,7 +1173,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             {t('Output')}{' '}
                             {hideOutputSelector && (
                                 <>
-                                    {isEditing || (isFromConnectors && hasInitialOutput) ? (
+                                    {isFromConnectors && hasInitialOutput ? (
                                         <Tooltip content={outputRecord}>
                                             <Icon icon="info-sign" iconSize={16} color="#a9a9a9" />
                                         </Tooltip>
@@ -1154,7 +1183,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 icon="edit"
                                                 small
                                                 minimal
-                                                onClick={() => setHideOutputSelector(false)}
+                                                onClick={() => {
+                                                    setHideOutputSelector(false);
+                                                    if (isEditing) {
+                                                        clearOutputs();
+                                                    }
+                                                }}
                                             />
                                         </Tooltip>
                                     )}
@@ -1169,7 +1203,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   <MapperOutput
                                       key={output.path}
                                       name={output.name}
-                                      hasRelation={!isAvailableForDrop(output.path) || size(relations[output.path])}
+                                      hasRelation={!isAvailableForDrop(output.path)}
+                                      highlight={!!size(relations[output.path])}
                                       {...output}
                                       field={output}
                                       onDrop={handleDrop}

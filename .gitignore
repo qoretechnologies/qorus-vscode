@@ -4,3 +4,4 @@ node_modules
 test-resources
 *.swp
 *.vsix
+api.http

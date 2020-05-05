@@ -60,7 +60,7 @@ export const providers = {
         name: 'type',
         url: 'dataprovider/types',
         suffix: '',
-        recordSuffix: '/type',
+        recordSuffix: '?action=type',
         type: 'type',
     },
     connection: {

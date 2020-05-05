@@ -64,6 +64,9 @@ export const mapperFields = ({ default_target_dir, context }) => [
             object_type: 'mapper-code',
             return_value: 'objects',
         },
+        reference: {
+            iface_kind: 'mapper-code',
+        },
     },
     field.classes,
     {
@@ -80,6 +83,7 @@ export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.targetFile,
     {
         name: 'class-class-name',
+        style: 'PascalCase',
     },
     field.version,
     {
