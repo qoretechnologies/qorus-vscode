@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
+import forEach from 'lodash/forEach';
 import size from 'lodash/size';
 import { useDrop } from 'react-dnd';
 import compose from 'recompose/compose';
@@ -21,7 +22,7 @@ import withMessageHandler, { TPostMessage } from '../../hocomponents/withMessage
 import withTextContext from '../../hocomponents/withTextContext';
 import { ActionsWrapper, IField } from '../InterfaceCreator/panel';
 import MapperInput from './input';
-import MappingModal from './mappingModal';
+import MappingModal, { getKeyType } from './mappingModal';
 import MapperFieldModal from './modal';
 import MapperOutput from './output';
 import Provider from './provider';
@@ -654,7 +655,20 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 'custom-fields': getCustomFields('outputs'),
             },
         };
-
+        // Create the mapper field options type list
+        const relationTypeList = [];
+        forEach(mapper.fields, (relationData, outputFieldName) => {
+            const outputField = flattenedOutputs.find(o => o.path === outputFieldName);
+            // Go through the data in the output field relation
+            forEach(relationData, (_, relationName) => {
+                relationTypeList.push({
+                    outputField: outputFieldName,
+                    field: relationName,
+                    type: getKeyType(relationName, mapperKeys, outputField),
+                });
+            });
+        });
+        mapper.output_field_option_types = relationTypeList;
         const result = await initialData.callBackend(
             !isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE,
             undefined,
