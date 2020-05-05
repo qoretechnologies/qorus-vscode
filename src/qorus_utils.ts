@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { Uri } from 'vscode';
+import { Uri, Range } from 'vscode';
 
 export const isDeployable = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep', 'qm',
@@ -144,3 +144,19 @@ export const compareVersion = (v1, v2) => {
     }
     return v1.length === v2.length ? 0: (v1.length < v2.length ? -1 : 1);
 };
+
+export const sortRanges = (ranges: Range[]): Range[] => ranges.sort((a, b) => {
+    if (a.start.line < b.start.line) {
+        return -1;
+    }
+    if (a.start.line > b.start.line) {
+        return 1;
+    }
+    if (a.start.character < b.start.character) {
+        return -1;
+    }
+    if (a.start.character > b.start.character) {
+        return 1;
+    }
+    return 0;
+});

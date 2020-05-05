@@ -9,7 +9,7 @@ import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import { types_with_version, default_version } from '../qorus_constants';
-import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier } from '../qorus_utils';
+import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier, sortRanges } from '../qorus_utils';
 import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
@@ -774,8 +774,13 @@ export abstract class InterfaceCreator {
             return rows;
         };
 
-        const rangesToRemove = methods.map(name => method_decl_ranges?.[name]);
-        rangesToRemove.forEach(range => {
+        const rangesToRemove = [];
+        methods.forEach(name => {
+            if (method_decl_ranges?.[name]) {
+                rangesToRemove.push(method_decl_ranges[name]);
+            }
+        });
+        sortRanges(rangesToRemove).reverse().forEach(range => {
             if (range) {
                 lines = removeRange(lines, range);
             }
