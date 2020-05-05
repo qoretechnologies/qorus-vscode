@@ -202,9 +202,9 @@ class ClassCreator extends InterfaceCreator {
             this.writeYamlFile(headers);
         }
 
-        if (['create', 'edit', 'recreate'].includes(edit_type)) {
+        if (['create', 'edit'].includes(edit_type)) {
             qorus_webview.postMessage({
-                action: `creator-${edit_type === 'recreate' ? 'edit' : edit_type}-interface-complete`,
+                action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: true,
                 message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`
