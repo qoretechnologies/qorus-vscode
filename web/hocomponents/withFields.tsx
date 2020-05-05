@@ -153,7 +153,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 const newResult = { ...current };
                 // If active ID is set, we need to create/update
                 // a specific item
-                if (activeId) {
+                if (activeId || activeId === 0) {
                     newResult[type][activeId] = typeof value === 'function' ? value(current[type][activeId]) : value;
                 } else {
                     newResult[type] = typeof value === 'function' ? value(current[type]) : value;
