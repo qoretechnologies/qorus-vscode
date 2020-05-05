@@ -214,8 +214,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return null;
         }
 
-        console.log(initialData);
-
         return (
             <InitialContext.Provider
                 value={{

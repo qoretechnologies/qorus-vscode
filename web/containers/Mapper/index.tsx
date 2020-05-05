@@ -612,7 +612,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
         // User is mapping ordinary field
         else {
-            saveRelationData(outputPath, usesContext ? { context: `$static:{${inputPath}}` } : { name: inputPath });
+            saveRelationData(
+                outputPath,
+                usesContext ? { context: `$static:{${inputPath}}` } : { name: inputPath },
+                true
+            );
         }
     };
 
@@ -663,6 +667,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             },
             t('Saving mapper...')
         );
+
         if (result.ok) {
             // If on submit
             if (mapperSubmit) {
@@ -1174,7 +1179,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                   <MapperOutput
                                       key={output.path}
                                       name={output.name}
-                                      hasRelation={!isAvailableForDrop(output.path) || size(relations[output.path])}
+                                      hasRelation={!isAvailableForDrop(output.path)}
+                                      highlight={!!size(relations[output.path])}
                                       {...output}
                                       field={output}
                                       onDrop={handleDrop}

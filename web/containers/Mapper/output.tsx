@@ -21,6 +21,7 @@ export interface IMapperOutputProps {
     isCustom: boolean;
     path: string;
     hasRelation: boolean;
+    highlight?: boolean;
     t: TTranslator;
 }
 
@@ -39,6 +40,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
     isCustom,
     path,
     hasRelation,
+    highlight,
     t,
 }) => {
     const [{ canDrop, isDragging }, dropRef] = useDrop({
@@ -71,7 +73,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
                 transform: `translateX(${isDragging ? (canDrop ? '-50px' : '0') : '0'})`,
                 opacity: isDragging ? (canDrop ? 1 : 0.3) : 1,
                 borderColor: canDrop ? '#137cbd' : '#d7d7d7',
-                backgroundColor: hasRelation ? '#7fba2785' : '#fff',
+                backgroundColor: hasRelation || highlight ? '#7fba2785' : '#fff',
             }}
             isChild={isChild}
             level={level}
