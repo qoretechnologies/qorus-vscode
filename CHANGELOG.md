@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.2.0
+
+#### New features
+
+-   edit commands added to file explorer context menu
+-   added the 'Create new type' command to explorer context menu
+
+#### Bug fixes
+
+-   check whether file with chosen name already exists
+-   fixed: switching from category view to folder view lasts very long time
+-   fixed editing steps from tree view
+-   fixed showing irrelevant context menu items
+-   added confirmation to the 'Deploy directory' command
+-   fixed generation of class connections code
+-   check validity of class name
+-   fixed opening workflow steps
+-   active Qorus connection check
+-   fixed saving resources as path relative to the yaml file
+-   generate config file if project has been set
+-   added dependency on qore-vscode
+-   remove Allowed values if type == any
+-   fixed position of java code lenses
+-   fixed: qorus requests fail if the URL contains a trailing
+-   delete config item value when type changes
+-   don't report a base class name mismatch when it's not true
+-   disable type of 'other' interfaces on editing
+-   fixed missing .qwf in yaml files
+-   fixed saving/reading mapper fields options
+
 ## 1.1.1
 
 #### Bug fixes
