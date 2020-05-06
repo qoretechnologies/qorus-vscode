@@ -298,7 +298,6 @@ export class QorusProjectCodeInfo {
         const doc: QoreTextDocument = qoreTextDocument(file_path);
         this.addTextLines(file_path, doc.text);
 
-        vscode.workspace.openTextDocument(file_path);
         return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
             if (!symbols || !symbols.length) {
                 return Promise.reject(t`NoEditInfo ${file_path}`);
