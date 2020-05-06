@@ -2171,3 +2171,6 @@ msgstr "Data for ${ iface_kind } ${ name } not found"
 
 msgid "AllowedCharsOnly"
 msgstr "Only characters a-z, 0-9 and _ are allowed for this field"
+
+msgid "NoEditInfo ${ file }"
+msgstr "Unable to get edit info for file ${ file }"
