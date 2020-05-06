@@ -191,7 +191,7 @@ export default class Tree extends Component {
         const { mode, showTypes, allExpanded, items } = this.state;
 
         if (!data || !Object.keys(data).length) {
-            return compact ? <span>-</span> : <p> No Data </p>;
+            return compact ? <ContentByType content={data} /> : <p> No Data </p>;
         }
 
         const textData: string = this.renderText(data);
