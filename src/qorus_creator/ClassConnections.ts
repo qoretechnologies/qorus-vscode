@@ -297,7 +297,7 @@ export class ClassConnections {
         code += `${indent1}}\n\n` +
             `${indent1}Object callClassWithPrefixMethod(final String prefixedClass, final String methodName,\n` +
             `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Object ${CONN_DATA}) ${THROWS} {\n` +
-            `${indent2}UserApi.logInfo("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
+            `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
             `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +
             `${indent2}if (object instanceof QoreObject) {\n` +
             `${indent3}QoreObject qoreObject = (QoreObject)object;\n` +
@@ -366,7 +366,7 @@ export class ClassConnections {
             code += `${indent2}Mapper ${CONN_MAPPER};\n`;
         }
 
-        code += `${indent2}UserApi.logInfo("${connection_code_name} called with data: %y", ${CONN_DATA});\n`;
+        code += `${indent2}UserApi.logDebug("${connection_code_name} called with data: %y", ${CONN_DATA});\n`;
 
         let n = 0;
         connectors.forEach(connector => {
@@ -382,7 +382,7 @@ export class ClassConnections {
                 return;
             }
 
-            code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
+            code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
             if (n !== connectors.length) {
                 code += `${CONN_DATA} = `;
             } else {
