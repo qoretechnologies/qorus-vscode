@@ -186,8 +186,14 @@ export class ClassConnections {
 
     protected constructorCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
-        `${indent1}${this.connClassName()} ${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
-        `${indent1}${GENERATED.java.end}\n\n`;
+        `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
+        `${indent1}${GENERATED.java.end}\n` +
+        `${indent1}\n\n` +
+        `${indent1}${this.class_name}() ${THROWS} {\n` +
+        `${indent2}${GENERATED.java.begin}\n` +
+        `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
+        `${indent2}${GENERATED.java.end}\n` +
+        `${indent1}}\n`;
 
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;

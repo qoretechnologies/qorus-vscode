@@ -270,6 +270,10 @@ export abstract class InterfaceCreator {
             main_base_class_ord,
         } = this.edit_info;
 
+        if (!class_name_range) {
+            return lines;
+        }
+
         const num_inherited = base_class_names.length;
         const has_other_base_class = num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);
 

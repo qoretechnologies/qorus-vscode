@@ -90,7 +90,16 @@ export class QorusProjectCodeInfo {
         if (!this.edit_info[file]) {
             this.edit_info[file] = {};
         }
-        this.edit_info[file].text_lines = contents.split(/\r?\n/);
+
+        let lines = contents.split(/\r?\n/);
+        while (lines[0] === '') {
+            lines.shift();
+        }
+        while (lines[lines.length-1] === '') {
+            lines.pop();
+        }
+
+        this.edit_info[file].text_lines = lines;
     }
 
     private addMethodInfo(
@@ -291,7 +300,8 @@ export class QorusProjectCodeInfo {
 
         return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
             if (!symbols || !symbols.length) {
-                return;
+                msg.error(t`NoEditInfo ${file_path}`);
+                return Promise.resolve();
             }
 
             const lsdoc = lsTextDocument.create(
