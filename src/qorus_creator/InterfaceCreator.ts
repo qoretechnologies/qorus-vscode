@@ -559,8 +559,9 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag of ordered_tags) {
-            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
-                 'active_method', 'yaml_file', 'config-item-values', 'class-class-name'].includes(tag))
+            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name',
+                 'method_index', 'output_field_option_types', 'active_method', 'yaml_file',
+                 'config-item-values', 'class-class-name'].includes(tag))
             {
                 continue;
             }
