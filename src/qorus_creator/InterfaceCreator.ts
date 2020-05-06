@@ -5,6 +5,7 @@ import * as jsyaml from 'js-yaml';
 
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { qorus_webview } from '../QorusWebview';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
@@ -112,10 +113,22 @@ export abstract class InterfaceCreator {
                 orig_file,
                 params.orig_data['class-name'],
                 params.orig_data['base-class-name']
-            ).then(() => {
-                this.code_info.setPending('edit_info', false);
-                this.editImpl(params);
-            });
+            ).then(
+                () => {
+                    this.code_info.setPending('edit_info', false);
+                    this.editImpl(params);
+                },
+                error => {
+                    msg.error(error);
+                    this.code_info.setPending('edit_info', false);
+                    qorus_webview.postMessage({
+                        action: `creator-edit-interface-complete`,
+                        request_id: params.request_id,
+                        ok: false,
+                        message: error
+                    });
+                }
+            );
         } else {
             if (params.edit_type === 'edit') {
                 msg.error(t`MissingEditData`);
