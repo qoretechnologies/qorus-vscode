@@ -15,6 +15,10 @@ find_active_monitor() {
     return 0
 }
 
+video_recording() {
+    ps aux | grep "ffmpeg.*$1\.mp4" | grep -v grep  > /dev/null 2>&1
+}
+
 # cleanup vscode settings
 rm -rf ${HOME}/.vscode
 
@@ -44,16 +48,30 @@ ui-test/node_modules/.bin/extest setup-tests
 
 # set resolution
 if find_active_monitor; then
-    xrandr --output ${x_output} --mode 1920x1200
+    xrandr --output ${x_output} --mode 1680x1050
 else
     echo "Cannot find active monitor -> cannot set screen resolution" >&2
     exit 1
 fi
-sed -i 's/width:1024,height:768/width:1920,height:1080/' test-resources/VSCode-linux-x64/resources/app/out/vs/code/electron-main/main.js
+sed -i 's/width:1024,height:768/width:1680,height:1000/' test-resources/VSCode-linux-x64/resources/app/out/vs/code/electron-main/main.js
 
 # install qore extension
 #test-resources/VSCode-linux-x64/bin/code --user-data-dir test-resources/settings --install-extension qoretechnologies.qore-vscode
 test-resources/VSCode-linux-x64/bin/code --install-extension qoretechnologies.qore-vscode
 
+# record video
+vid_name=test-`head -c 192 /dev/urandom | tr -dc A-Za-z0-9 | head -c 24`
+tmux new-session -d -s "${vid_name}" "ffmpeg -f x11grab -video_size 1680x1050 -i :0 -codec:v libx264 -r 15 /tmp/${vid_name}.mp4"
+
 # run tests
+set +e
 ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js
+rc="$?"
+
+# send command to turn off video recording cleanly
+tmux send-keys -t "${vid_name}" q
+
+# wait until video recording finishes
+while video_recording; do
+    sleep 1
+done
