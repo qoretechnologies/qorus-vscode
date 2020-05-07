@@ -452,6 +452,7 @@ export class ClassConnections {
             if (++n === trigger.connections.length && hasReturn(trigger)) {
                 code += 'return ';
             }
+            // issue #548: we have to cast array return values to Object[]
             if (isArray(trigger)) {
                 code += '(Object[])';
             }
