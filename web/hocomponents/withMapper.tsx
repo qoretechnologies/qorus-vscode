@@ -328,11 +328,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Check if user is editing a mapper
                 if (mapper) {
                     // Process input fields
-                    if (mapper.mapper_options['mapper-input']) {
+                    if (mapper.mapper_options?.['mapper-input']) {
                         getInputsData();
                     }
                     // Process output fields
-                    if (mapper.mapper_options['mapper-output']) {
+                    if (mapper.mapper_options?.['mapper-output']) {
                         getOutputsData(mapperKeys);
                     }
                     // If this mapper has context
