@@ -75,3 +75,5 @@ tmux send-keys -t "${vid_name}" q
 while video_recording; do
     sleep 1
 done
+
+exit $rc
