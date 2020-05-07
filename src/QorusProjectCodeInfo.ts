@@ -1095,7 +1095,7 @@ export class QorusProjectCodeInfo {
                         primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
                         validation: {signature: 'String validation(String async_key, Object array_arg)', arg_names: ['async_key', 'array_arg']},
                         end: {signature: 'void end(Object queue_data, Object array_arg)', arg_names: ['queue_data', 'array_arg']},
-                        array: {signature: 'void Object[] array()'}
+                        array: {signature: 'Object[] array()'}
                     });
                 default:
                     return {};

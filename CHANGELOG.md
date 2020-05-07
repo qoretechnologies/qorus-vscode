@@ -43,6 +43,7 @@
 -   Fixed a bug where it was sometime impossible to map 2 compatible fields in mappers
 -   Some fields now disallow certain characters to be entered
 -   Mapper codes are properly reset after successfuly submiting
+-   Fixed code generation for Java array step triggers and for Java async array step signatures
 
 ## 1.1.1
 
