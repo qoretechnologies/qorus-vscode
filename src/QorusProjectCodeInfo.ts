@@ -518,7 +518,7 @@ export class QorusProjectCodeInfo {
             delete data.autostart;
         }
 
-        ['functions', 'constants', 'mappers', 'value_maps', 'author',
+        ['functions', 'constants', 'mappers', 'value_maps', 'vmaps', 'author',
             'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
