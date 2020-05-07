@@ -1,9 +1,10 @@
 import React, { FunctionComponent, useContext } from 'react';
 import StringField from './string';
-import { ControlGroup, Button } from '@blueprintjs/core';
-import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import { ControlGroup, Button, Classes } from '@blueprintjs/core';
+import { IFieldChange, IField } from '../../containers/InterfaceCreator/panel';
 import SelectField from './select';
 import { InitialContext } from '../../context/init';
+import FieldEnhancer from '../FieldEnhancer';
 
 export interface IPairField {
     keyName: string;
@@ -20,7 +21,7 @@ export interface IPairField {
     hideTextField?: boolean;
 }
 
-const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
+const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = ({
     keyName,
     valueName,
     keyValue,
@@ -34,70 +35,78 @@ const SelectPairField: FunctionComponent<IPairField & IFieldChange> = ({
     defaultSelectItems,
     canBeRemoved,
     hideTextField,
+    reference,
 }) => {
     const initContext = useContext(InitialContext);
     return (
-        <div>
-            <ControlGroup fill>
-                <Button text={`${index}.`} />
-                {selectFirst ? (
-                    <>
-                        <SelectField
-                            name={valueName}
-                            value={valueValue}
-                            get_message={get_message}
-                            return_message={return_message}
-                            defaultItems={defaultSelectItems}
-                            onChange={(fieldName: string, value: string) => {
-                                onChange(fieldName, value);
-                            }}
-                            fill
-                        />
-                        {hideTextField && (
-                            <StringField
-                                name={keyName}
-                                value={keyValue}
-                                onChange={(fieldName: string, value: string): void => {
-                                    onChange(fieldName, value);
-                                }}
-                                fill
+        <FieldEnhancer>
+            {(onEditClick, onCreateClick) => (
+                <div>
+                    <ControlGroup fill>
+                        <Button text={`${index}.`} className={Classes.FIXED} />
+                        {selectFirst ? (
+                            <>
+                                <SelectField
+                                    name={valueName}
+                                    value={valueValue}
+                                    get_message={get_message}
+                                    return_message={return_message}
+                                    defaultItems={defaultSelectItems}
+                                    reference={reference}
+                                    onChange={(fieldName: string, value: string) => {
+                                        onChange(fieldName, value);
+                                    }}
+                                    fill
+                                />
+                                {hideTextField && (
+                                    <StringField
+                                        name={keyName}
+                                        value={keyValue}
+                                        onChange={(fieldName: string, value: string): void => {
+                                            onChange(fieldName, value);
+                                        }}
+                                        fill
+                                    />
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                {!hideTextField && (
+                                    <StringField
+                                        name={keyName}
+                                        value={keyValue}
+                                        onChange={(fieldName: string, value: string): void => {
+                                            onChange(fieldName, value);
+                                        }}
+                                        fill
+                                    />
+                                )}
+                                <SelectField
+                                    name={valueName}
+                                    value={valueValue}
+                                    get_message={get_message}
+                                    return_message={return_message}
+                                    defaultItems={defaultSelectItems}
+                                    reference={reference}
+                                    onChange={(fieldName: string, value: string) => {
+                                        onChange(fieldName, value);
+                                    }}
+                                    fill
+                                />
+                            </>
+                        )}
+                        {canBeRemoved && (
+                            <Button
+                                className={Classes.FIXED}
+                                icon={'trash'}
+                                intent="danger"
+                                onClick={() => initContext.confirmAction('ConfirmRemoveItem', onRemoveClick)}
                             />
                         )}
-                    </>
-                ) : (
-                    <>
-                        {!hideTextField && (
-                            <StringField
-                                name={keyName}
-                                value={keyValue}
-                                onChange={(fieldName: string, value: string): void => {
-                                    onChange(fieldName, value);
-                                }}
-                                fill
-                            />
-                        )}
-                        <SelectField
-                            name={valueName}
-                            value={valueValue}
-                            get_message={get_message}
-                            return_message={return_message}
-                            defaultItems={defaultSelectItems}
-                            onChange={(fieldName: string, value: string) => {
-                                onChange(fieldName, value);
-                            }}
-                            fill
-                        />
-                    </>
-                )}
-                {canBeRemoved && (
-                    <Button
-                        icon={'trash'}
-                        intent="danger"
-                        onClick={() => initContext.confirmAction('ConfirmRemoveItem', onRemoveClick)}
-                    />
-                )}
-            </ControlGroup>
-        </div>
+                    </ControlGroup>
+                </div>
+            )}
+        </FieldEnhancer>
     );
 };
 

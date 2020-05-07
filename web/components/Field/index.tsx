@@ -28,6 +28,8 @@ import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
 import TypeSelector from './typeSelector';
+import { validateField } from '../../helpers/validations';
+import { Callout } from '@blueprintjs/core';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -58,6 +60,9 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
 
         return (
             <>
+                {rest.has_to_be_valid_identifier && rest.value && !rest.isValid ? (
+                    <Callout intent="danger">{rest.t('AllowedCharsOnly')}</Callout>
+                ) : null}
                 {(!type || type === 'string') && <StringField {...rest} type={type} />}
                 {type === 'long-string' && <LongStringField {...rest} type={type} />}
                 {type === 'method-name' && <MethodNameField {...rest} type={type} />}

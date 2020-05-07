@@ -6,3 +6,4 @@ test-resources
 *.vsix
 ui-test/node_modules
 ui-test/test_project
+api.http

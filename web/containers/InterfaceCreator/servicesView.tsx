@@ -139,7 +139,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     isSubItemValid,
     removeSubItemFromFields,
     service,
-    selectedFields,
+    onSubmitSuccess,
     interfaceId,
     initialData,
 }) => {
@@ -253,6 +253,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 {...classConnectionsProps}
                                                 hasClassConnections
                                                 methodsList={methods}
+                                                onSubmitSuccess={onSubmitSuccess}
                                                 data={
                                                     methodsData &&
                                                     methodsData.find(method => method.id === activeMethod)

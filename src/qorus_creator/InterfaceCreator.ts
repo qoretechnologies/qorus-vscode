@@ -85,6 +85,7 @@ export abstract class InterfaceCreator {
                 this.edit_info = this.code_info.editInfo(orig_path);
             } else {
                 this.orig_yaml_file_path = orig_path;
+                this.orig_file_path = undefined;
             }
         } else {
             this.orig_file_path = undefined;
@@ -268,6 +269,10 @@ export abstract class InterfaceCreator {
             base_class_names,
             main_base_class_ord,
         } = this.edit_info;
+
+        if (!class_name_range) {
+            return lines;
+        }
 
         const num_inherited = base_class_names.length;
         const has_other_base_class = num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);
@@ -516,6 +521,8 @@ export abstract class InterfaceCreator {
         });
 
         if (headers.fields) {
+            const types = headers.output_field_option_types || [];
+
             Object.keys(headers.fields).forEach(field_name => {
                 let field = headers.fields[field_name];
                 if (field.code) {
@@ -526,6 +533,13 @@ export abstract class InterfaceCreator {
                         field.code = `${class_name}${lang === 'qore' ? '::': '.'}${method}`;
                     }
                 }
+
+                Object.keys(field).forEach(key => {
+                    const type_info = types.find(type => type.outputField === field_name && type.field === key);
+                    if (['list', 'hash'].some(type => type_info?.type.startsWith(type))) {
+                        field[key] = jsyaml.safeLoad(field[key]);
+                    }
+                });
             });
         }
 
@@ -549,8 +563,9 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag of ordered_tags) {
-            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
-                 'active_method', 'yaml_file', 'config-item-values', 'class-class-name'].includes(tag))
+            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name',
+                 'method_index', 'output_field_option_types', 'active_method', 'yaml_file',
+                 'config-item-values', 'class-class-name'].includes(tag))
             {
                 continue;
             }

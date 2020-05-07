@@ -234,16 +234,17 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         <>
             {manageDialog.isOpen && (
                 <CustomDialog title={t('AddConnection')} isOpen onClose={() => setManageDialog({})}>
-                    <StyledDialogBody>
+                    <StyledDialogBody style={{ flexFlow: 'column' }}>
+                        <String
+                            name="connection"
+                            placeholder={t('Name')}
+                            value={manageDialog.newName}
+                            onChange={(_fieldName, value) =>
+                                setManageDialog(current => ({ ...current, newName: value }))
+                            }
+                        />
+                        <br />
                         <ControlGroup fill>
-                            <String
-                                name="connection"
-                                placeholder={t('Name')}
-                                value={manageDialog.newName}
-                                onChange={(fieldName, value) =>
-                                    setManageDialog(current => ({ ...current, newName: value }))
-                                }
-                            />
                             <Button
                                 intent="success"
                                 text={t('Submit')}

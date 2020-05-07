@@ -34,8 +34,8 @@ class ClassCreator extends InterfaceCreator {
             case 'workflow':
                 if (data['class-name']) {
                     ({template, imports} = workflowTemplates(this.lang));
-                    suffix = '.qwf';
                 }
+                suffix = '.qwf';
                 break;
             case 'class':
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
@@ -76,7 +76,7 @@ class ClassCreator extends InterfaceCreator {
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
         let more_imports: string[] = [];
-        if (data['class-connections']) {
+        if (Object.keys(data['class-connections'] || {}).length) {
             ClassCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
                   = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());

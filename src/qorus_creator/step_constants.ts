@@ -23,7 +23,7 @@ export const stepFields = ({default_target_dir, is_editing}) => [
     field.constants,
     field.classes,
     field.functions,
-    field.mapper,
+    field.mappers,
     field.vmaps,
     {
         name: 'base-class-name',
@@ -53,6 +53,10 @@ export const stepFields = ({default_target_dir, is_editing}) => [
             object_type: 'event',
             return_value: 'objects',
         },
+        reference: {
+            iface_kind: 'other',
+            type: 'event',
+        },
     },
     {
         name: 'queue',
@@ -66,6 +70,10 @@ export const stepFields = ({default_target_dir, is_editing}) => [
             action: 'creator-return-objects',
             object_type: 'queue',
             return_value: 'objects',
+        },
+        reference: {
+            iface_kind: 'other',
+            type: 'queue',
         },
     },
 ];

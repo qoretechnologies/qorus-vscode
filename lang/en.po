@@ -974,7 +974,7 @@ msgid "field-desc-class-name"
 msgstr "Class name"
 
 msgid "field-label-class-class-name"
-msgstr "Name"
+msgstr "Class name"
 
 msgid "field-desc-class-class-name"
 msgstr "Both interface name and class code name"
@@ -2145,6 +2145,21 @@ msgstr "Active Qorus instance ping error"
 msgid "EditItem"
 msgstr "Edit item"
 
+msgid "EditThisItem"
+msgstr "Edit this item"
+
+msgid "EditInterface"
+msgstr "Edit interface"
+
+msgid "CreateInterface"
+msgstr "Create interface"
+
+msgid "CreateAndAddNewItem"
+msgstr "Create and select new item"
+
+msgid "AddAnother"
+msgstr "Add another item"
+
 msgid "EditMethodName"
 msgstr "Edit method name"
 
@@ -2153,3 +2168,9 @@ msgstr "Editing method name will also change the associated trigger name, if app
 
 msgid "YamlDataNotFound ${ iface_kind } ${ name }"
 msgstr "Data for ${ iface_kind } ${ name } not found"
+
+msgid "AllowedCharsOnly"
+msgstr "Only characters a-z, 0-9 and _ are allowed for this field"
+
+msgid "NoEditInfo ${ file }"
+msgstr "Unable to get edit info for file ${ file }"

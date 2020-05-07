@@ -17,7 +17,12 @@ export class QorusJavaHoverProvider extends QorusHoverProviderBase {
         } else {
             symbols = await getJavaDocumentSymbols(makeFileUri(document.uri.fsPath));
         }
-    
+
+        // sanity check
+        if (!symbols || (Array.isArray(symbols) && symbols.length == 0)) {
+            return undefined;
+        }
+
         const filePath = getFilePathFromUri(document.uri);
         const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(filePath);
         if (!yaml_info) {

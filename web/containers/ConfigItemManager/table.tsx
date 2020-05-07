@@ -270,7 +270,7 @@ let ItemsTable: Function = ({
                                             <Value item={item} />
                                         </Td>
                                         <Td className="narrow">
-                                            <ContentByType content={item.strictly_local} />
+                                            <ContentByType content={item.strictly_local} baseType="boolean" />
                                         </Td>
                                         <Td className="medium">{item.level}</Td>
                                         {!title && <Td className="medium">{item.config_group}</Td>}
