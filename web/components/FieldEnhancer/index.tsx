@@ -13,9 +13,10 @@ export interface IFieldEnhancerProps {
     children: (onEditClick: any, onCreateClick: any) => any;
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
+    context?: any;
 }
 
-const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageListener, postMessage }) => {
+const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageListener, postMessage, context }) => {
     const [editManager, setEditManager] = useState<{
         interfaceKind?: string;
         isOpen?: boolean;
@@ -37,7 +38,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
             isOpen: true,
             changeType: 'CreateInterface',
             interfaceKind: reference.iface_kind,
-            context: { type: capitalize(reference.type) },
+            context: context || { type: capitalize(reference.type) },
             onSubmit,
             onClose: () => {
                 // Reset the current fields of the same kind
@@ -60,6 +61,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
                 interfaceKind: reference.iface_kind,
                 originalName: iface_name,
                 changeType: 'EditInterface',
+                context,
                 onSubmit,
                 onClose: () => {
                     // Reset the current fields of the same kind

@@ -974,6 +974,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         return `${iName.value}:${iVersion.value}`;
     };
 
+    const getContext = () => {
+        return (
+            supportsContext() &&
+            getInterfaceName() && {
+                iface_kind: type === 'step' ? 'workflow' : type,
+                name: getInterfaceName(),
+            }
+        );
+    };
+
     const canSubmit: () => boolean = () => {
         if (hasClassConnections) {
             return isFormValid(type) && areClassConnectionsValid();
@@ -1059,6 +1069,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                                 )
                                             }
                                             disabled={isFieldDisabled(field)}
+                                            context={getContext()}
                                         />
                                     </FieldInputWrapper>
                                     <FieldActions
@@ -1143,13 +1154,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <ClassConnectionsManager
                         ifaceType={type === 'service-methods' ? 'service' : type}
                         baseClassName={requestFieldData('base-class-name', 'value')}
-                        interfaceContext={
-                            supportsContext() &&
-                            getInterfaceName() && {
-                                iface_kind: type === 'step' ? 'workflow' : type,
-                                name: getInterfaceName(),
-                            }
-                        }
+                        interfaceContext={getContext()}
                         initialConnections={classConnectionsData}
                         onSubmit={classConnections => {
                             modifyMappers(classConnections);
