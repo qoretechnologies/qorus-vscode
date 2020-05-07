@@ -284,12 +284,10 @@ export class ClassConnections {
 
         if (some_qore_class) {
             code += `${indent2}UserApi.stopCapturingObjects();\n`;
-        } else {
-            code += `${indent1}\n`;
         }
 
         if (event_based_connections.length) {
-            code += `${indent2}// register observers\n`;
+            code += `\n${indent2}// register observers\n`;
             event_based_connections.forEach(event_based => {code +=
                 `${indent2}${CONN_CALL_METHOD}("${event_based.prefixed_class}", "registerObserver", this);\n`;
             });
