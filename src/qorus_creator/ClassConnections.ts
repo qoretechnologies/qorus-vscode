@@ -284,8 +284,9 @@ export class ClassConnections {
 
         if (some_qore_class) {
             code += `${indent2}UserApi.stopCapturingObjects();\n`;
+        } else {
+            code += `${indent1}\n`;
         }
-        code += `${indent1}\n`;
 
         if (event_based_connections.length) {
             code += `${indent2}// register observers\n`;
@@ -452,6 +453,9 @@ export class ClassConnections {
             code += indent2;
             if (++n === trigger.connections.length && hasReturn(trigger)) {
                 code += 'return ';
+            }
+            if (isArray(trigger)) {
+                code += '(Object[])';
             }
             code += `${CONN_MEMBER.java}.${connection}(${params_str});\n`;
         });
