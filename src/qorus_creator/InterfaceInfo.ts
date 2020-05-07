@@ -141,7 +141,11 @@ export class InterfaceInfo {
                 }
 
                 item[templated_key] = is_templated_string;
-                item.value_true_type = value_true_type;
+                //! Only add the key to yaml if the value is defined
+                //! otherwise oload fails!
+                if (value_true_type) {
+                    item.value_true_type = value_true_type;
+                }
             }
         } else {
             let item = this.iface_by_id[iface_id]['config-items'].find(ci_value => ci_value.name === name);
@@ -157,7 +161,11 @@ export class InterfaceInfo {
                 } else {
                     item[level + '-value'] = parseIfComplex(item);
                     item[templated_key] = is_templated_string;
-                    item.value_true_type = value_true_type;
+                    //! Only add the key to yaml if the value is defined
+                    //! otherwise oload fails!
+                    if (value_true_type) {
+                        item.value_true_type = value_true_type;
+                    }
                 }
             }
         }
