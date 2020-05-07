@@ -58,6 +58,10 @@ describe('Webview Simple Test', function() {
         }
     };
 
+    const clickElementById = async (name: string) => {
+        await (await webview.findWebElement(By.id(name))).click();
+    };
+
     const fillTextField = async (name: string, value: string | number, position?: number) => {
         if (position) {
             await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
@@ -87,7 +91,7 @@ describe('Webview Simple Test', function() {
 
     const confirmDeletion = async () => {
         await sleep(500);
-        await clickElement('remove-confirm');
+        await clickElementById('remove-confirm');
         await sleep(1000);
     };
 
@@ -211,23 +215,19 @@ describe('Webview Simple Test', function() {
 
         await sleep(500);
 
-        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(17);
-
         await (await webview.findWebElement(By.name('folder-expander-source-dirs'))).click();
         await (await webview.findWebElements(By.className('bp3-tree-node-caret')))[0].click();
 
         await sleep(500);
 
-        await (await webview.findWebElements(By.className('bp3-tree-node-content')))[11].click();
+        await (await webview.findWebElements(By.className('bp3-tree-node-content')))[13].click();
 
         await sleep(500);
-
-        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(18);
 
         await (await webview.findWebElements(By.name('source-dir-remove')))[0].click();
         await confirmDeletion();
 
-        expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(17);
+        //expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(19);
 
         await (await webview.findWebElement(By.className('bp3-overlay'))).click();
         await (await webview.findWebElement(By.className('bp3-dialog-close-button'))).click();

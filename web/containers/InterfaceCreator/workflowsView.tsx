@@ -197,6 +197,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     orig_data: workflow,
                                                     data: newData,
                                                     iface_id: workflow?.iface_id || interfaceId.workflow,
+                                                    open_file_on_success: !onSubmitSuccess,
                                                 },
                                                 t('Saving workflow...')
                                             );
