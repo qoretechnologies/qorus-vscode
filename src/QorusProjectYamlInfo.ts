@@ -22,6 +22,45 @@ export class QorusProjectYamlInfo {
     private name_2_yaml: any = {};
     private class_2_yaml: any = {};
     yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
+    yamlDataByNameSync = async (type, name): Promise<any> => {
+        // First check if the data already exist
+        if (this.yaml_data[this.name_2_yaml[type][name]]) {
+            // Resolve the promise immediately
+            return new Promise((resolve) => resolve(this.yaml_data[this.name_2_yaml[type][name]]));
+        }
+        // This promise will check if the data exist
+        // every 50ms for a maximum of 5 seconds
+        return new Promise((resolve, reject) => {
+            let currentIteration: number = 1;
+            const maxIterations: number = 50;
+            const intervalTime: number = 100;
+            let interval: NodeJS.Timeout;
+
+            interval = setInterval((): void => {
+                // Check if the data exist 
+                if (this.yaml_data[this.name_2_yaml[type][name]]) {
+                    // Cancel the interval
+                    clearInterval(interval);
+                    interval = null;
+                    // Resolve the promise with the needed data
+                    resolve(this.yaml_data[this.name_2_yaml[type][name]]);
+                }
+                // If the iterations reached maximum, cancel the interval and reject the promise
+                else if (currentIteration === maxIterations) {
+                    // Cancel the interval
+                    clearInterval(interval);
+                    interval = null;
+                    // Create notification
+                    msg.error(t`YamlDataNotFound ${type} ${name}`);
+                    // Reject the promise
+                    reject(t`YamlDataNotFound ${type} ${name}`)
+                } else {
+                    // Increase the iteration count
+                    currentIteration++;
+                }
+            }, intervalTime);
+        });
+    };
     yamlDataByClass = (type, class_name) => this.yaml_data[this.class_2_yaml[type][class_name]];
     yamlDataByType = type => {
         let ret_val = {};
