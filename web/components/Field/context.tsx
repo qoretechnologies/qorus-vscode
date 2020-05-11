@@ -28,23 +28,27 @@ const ContextField: FunctionComponent<IContextField & IFieldChange & IField> = (
     const [ifaces, setIfaces] = useState(null);
 
     useMount(() => {
-        addMessageListener(Messages.RETURN_OBJECTS_WITH_STATIC_DATA, data => {
-            // Save the interfaces returned from the backend
-            setIfaces(data.objects);
-        });
+        if (!read_only && !disabled) {
+            addMessageListener(Messages.RETURN_OBJECTS_WITH_STATIC_DATA, (data) => {
+                // Save the interfaces returned from the backend
+                setIfaces(data.objects);
+            });
+        }
         // Save the default value
         if (default_value || (value && size(value))) {
             const val = default_value || value;
             onChange(name, val);
             // Ask for the context interface
-            postMessage(Messages.GET_INTERFACE_DATA, {
-                iface_kind: val.iface_kind,
-                name: val.name,
-                custom_data: {
-                    event: 'context',
+            if (!read_only && !disabled) {
+                postMessage(Messages.GET_INTERFACE_DATA, {
                     iface_kind: val.iface_kind,
-                },
-            });
+                    name: val.name,
+                    custom_data: {
+                        event: 'context',
+                        iface_kind: val.iface_kind,
+                    },
+                });
+            }
         }
     });
 
