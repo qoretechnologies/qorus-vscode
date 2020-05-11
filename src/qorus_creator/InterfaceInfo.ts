@@ -404,7 +404,11 @@ export class InterfaceInfo {
     private workflowStepsConfigItems = steps => {
         let items = [];
         flattenDeep(steps).forEach(name => {
-            const step_data = this.yaml_info.yamlDataByName('step', name);
+            console.log('before await', new Date());
+            (async () => {
+            const step_data: any = await this.yaml_info.yamlDataByNameSync('step', name);
+            
+            console.log('after await', new Date());
             if (!step_data) {
                 msg.error(t`YamlDataNotFound ${'step'} ${name}`);
                 return;
@@ -421,6 +425,7 @@ export class InterfaceInfo {
                     items.push(item);
                 }
             });
+        })();
         });
         return deepCopy(items);
     }

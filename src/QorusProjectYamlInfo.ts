@@ -22,6 +22,21 @@ export class QorusProjectYamlInfo {
     private name_2_yaml: any = {};
     private class_2_yaml: any = {};
     yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
+    yamlDataByNameSync = async (type, name): Promise<any> => {
+        // Check if the data exist
+        if (this.yaml_data[this.name_2_yaml[type][name]]) {
+            return new Promise((resolve) => resolve(this.yaml_data[this.name_2_yaml[type][name]]));
+        }
+        // Create a promise that will resolve after 2 seconds
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                if (this.yaml_data[this.name_2_yaml[type][name]]) {
+                    resolve(this.yaml_data[this.name_2_yaml[type][name]]);
+                }
+                resolve(null);
+            }, 2000);
+        });
+    };
     yamlDataByClass = (type, class_name) => this.yaml_data[this.class_2_yaml[type][class_name]];
     yamlDataByType = type => {
         let ret_val = {};
