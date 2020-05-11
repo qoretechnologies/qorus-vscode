@@ -365,6 +365,7 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
+            // Immediately invoked function
             (async () => {
                 const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
 
