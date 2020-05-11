@@ -26,13 +26,25 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
                     {initialData.subtab === 'service' && (
-                        <ServicesView service={initialData.service} onSubmitSuccess={onSubmit} />
+                        <ServicesView
+                            service={initialData.service}
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                        />
                     )}
                     {initialData.subtab === 'mapper-code' && (
-                        <LibraryView library={initialData.library} onSubmitSuccess={onSubmit} />
+                        <LibraryView
+                            library={initialData.library}
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                        />
                     )}
                     {initialData.subtab === 'workflow' && (
-                        <WorkflowsView workflow={initialData.workflow} onSubmitSuccess={onSubmit} />
+                        <WorkflowsView
+                            workflow={initialData.workflow}
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                        />
                     )}
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
@@ -41,6 +53,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                     <InterfaceCreatorPanel
                                         hasClassConnections
                                         hasConfigManager
+                                        context={context}
                                         onSubmitSuccess={onSubmit}
                                         type={'job'}
                                         data={initialData.job}
@@ -55,6 +68,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                         <CreatorWrapper>
                             <InterfaceCreatorPanel
                                 type={'class'}
+                                context={context}
                                 data={initialData.class}
                                 isEditing={!!initialData.class}
                                 hasConfigManager
@@ -72,6 +86,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                         data={initialData.step}
                                         hasClassConnections
                                         hasConfigManager
+                                        context={context}
                                         onSubmitSuccess={onSubmit}
                                         isEditing={!!initialData.step}
                                         onSubmitSuccess={
@@ -93,7 +108,9 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                             </ClassConnectionsStateProvider>
                         </CreatorWrapper>
                     )}
-                    {initialData.subtab === 'mapper' && <MapperView onSubmitSuccess={onSubmit} />}
+                    {initialData.subtab === 'mapper' && (
+                        <MapperView onSubmitSuccess={onSubmit} interfaceContext={context} />
+                    )}
                     {initialData.subtab === 'other' && (
                         <CreatorWrapper>
                             <InterfaceCreatorPanel
