@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+- re-release of 1.2.0 without garbage files as part of the package
+
 ## 1.2.0
 
 #### New features
