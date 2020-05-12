@@ -389,29 +389,25 @@ export class QorusProjectEditInfo {
                 return;
             }
 
-            // search for class_connections_class_name between
-            // decl.selectionRange.end.character and decl.range.end.character
-            let code_to_search = this.edit_info[file].text_lines[decl.selectionRange.end.line]
-                                     .substr(decl.selectionRange.end.character);
-            if (decl.selectionRange.end.line !== decl.range.end.line) {
-                for (let i = decl.selectionRange.end.line + 1; i < decl.range.end.line; i++) {
-                    code_to_search += ' ' + this.edit_info[file].text_lines[i];
-                }
-                code_to_search += ' ' + this.edit_info[file].text_lines[decl.range.end.line]
-                                            .substr(0, decl.range.end.character);
+            // does the declaration contain the class connection class name?
+            // if yes then treat it as the class connection member declaration
+
+            let code_to_search = this.edit_info[file].text_lines[decl.range.start.line]
+                                     .substr(decl.range.start.character);
+            for (let i = decl.range.start.line + 1; i < decl.selectionRange.start.line; i++) {
+                code_to_search += ' ' + this.edit_info[file].text_lines[i];
             }
+            code_to_search += ' ' + this.edit_info[file].text_lines[decl.selectionRange.end.line]
+                                        .substr(0, decl.selectionRange.end.character);
 
-            const possibly_class_name = code_to_search
-                .replace('=', '')
-                .replace('new', '')
-                .replace('(', '')
-                .replace(')', '')
-                .replace(';', '')
-                .trim();
-
-            if (possibly_class_name === this.edit_info[file].class_connections_class_name) {
-                this.edit_info[file].class_connections_member_name = decl.name;
-                this.edit_info[file].class_connections_member_declaration_range = decl.range;
+            let code_parts = code_to_search.split(' ');
+            while (code_parts.length) {
+                let code_part = code_parts.shift();
+                if (code_part === this.edit_info[file].class_connections_class_name) {
+                    this.edit_info[file].class_connections_member_name = decl.name;
+                    this.edit_info[file].class_connections_member_declaration_range = decl.range;
+                    break;
+                }
             }
         };
 
