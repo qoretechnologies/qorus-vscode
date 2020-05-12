@@ -17,7 +17,7 @@ import {
     Position,
     Tab,
     Tabs,
-    Tooltip
+    Tooltip,
 } from '@blueprintjs/core';
 
 import CustomDialog from '../../components/CustomDialog';
@@ -30,6 +30,27 @@ import { validateField } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
 import { StyledDialogBody } from '../ClassConnectionsManager';
 import { Value } from './table';
+
+const templatesList = [
+    'local',
+    'timestamp',
+    'rest',
+    'qore-expr',
+    'static',
+    'dynamic',
+    'sensitive',
+    'sensitive-alias',
+    'temp',
+    'step',
+    'keys',
+    'transient',
+    'config',
+    'info',
+    'parse-value',
+    'pstate',
+    'state',
+    'qore-expr-value',
+];
 
 @withTextContext()
 export default class ConfigItemsModal extends Component {
@@ -291,62 +312,14 @@ export default class ConfigItemsModal extends Component {
                                                 <ControlGroup className="pt-fill">
                                                     <Dropdown className="pt-fixed">
                                                         <DControl icon="dollar">{this.state.templateType}</DControl>
-                                                        <Item
-                                                            title="config"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'config' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="local"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'local' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="dynamic"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'dynamic' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="keys"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'keys' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="sensitive"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'sensitive' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="sensitive-alias"
-                                                            onClick={() => {
-                                                                this.setState({
-                                                                    templateType: 'sensitive-alias',
-                                                                });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="static"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'static' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="step"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'step' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="parse-value"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'parse-value' });
-                                                            }}
-                                                        />
+                                                        {templatesList.map(template => (
+                                                            <Item
+                                                                title={template}
+                                                                onClick={() => {
+                                                                    this.setState({ templateType: template });
+                                                                }}
+                                                            />
+                                                        ))}
                                                     </Dropdown>
                                                     <Button text=":" className={Classes.FIXED} />
                                                     <InputGroup

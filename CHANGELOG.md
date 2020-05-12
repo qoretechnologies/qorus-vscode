@@ -43,6 +43,12 @@
 -   Fixed a bug where it was sometime impossible to map 2 compatible fields in mappers
 -   Some fields now disallow certain characters to be entered
 -   Mapper codes are properly reset after successfuly submiting
+-   Fixed code generation for Java array step triggers and for Java async array step signatures
+-   Fixed a bug where sometimes an empty `value_true_type` key would be saved in the yaml file
+-   Fixed a race condition bug that would cause the newly added step for a workflow diagram to show `Loading step:0` instead of the step's name and version 
+-   Value maps are now properly displayed in the UI after being saved
+-   Empty lists and hashes are now properly displayed in the UI as `{}` and `[]` respectively
+-   Static data context is now properly passed to mappers even from new Workflows
 
 ## 1.1.1
 

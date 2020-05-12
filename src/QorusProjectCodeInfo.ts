@@ -110,33 +110,36 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
-            const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
+            // Immediately invoked function
+            (async () => {
+                const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
 
-            let raw_data;
-            if (class_name) {
-                raw_data = this.yaml_info.yamlDataByName('class', class_name);
-            } else {
-                const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-                raw_data = this.yaml_info.yamlDataByName(true_iface_kind, name_key);
-            }
-            const data = this.fixData(raw_data);
+                let raw_data;
+                if (class_name) {
+                    raw_data = this.yaml_info.yamlDataByName('class', class_name);
+                } else {
+                    const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
+                    raw_data = await this.yaml_info.yamlDataByNameSync(true_iface_kind, name_key);
+                }
+                const data = this.fixData(raw_data);
 
-            const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
+                const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
 
-            qorus_webview.postMessage({
-                action: 'return-interface-data',
-                data: {
-                    iface_kind,
-                    custom_data,
-                    [iface_kind]: { ...data, iface_id },
-                    ... include_tabs
-                        ? {
-                              tab: 'CreateInterface',
-                              subtab: iface_kind,
-                          }
-                        : {},
-                },
-            });
+                qorus_webview.postMessage({
+                    action: 'return-interface-data',
+                    data: {
+                        iface_kind,
+                        custom_data,
+                        [iface_kind]: { ...data, iface_id },
+                        ... include_tabs
+                            ? {
+                                tab: 'CreateInterface',
+                                subtab: iface_kind,
+                            }
+                            : {},
+                    },
+                });
+            })()
         });
     }
 
@@ -263,7 +266,7 @@ export class QorusProjectCodeInfo {
             delete data.autostart;
         }
 
-        ['functions', 'constants', 'mappers', 'value_maps', 'author',
+        ['functions', 'constants', 'mappers', 'value_maps', 'vmaps', 'author',
             'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
@@ -840,7 +843,7 @@ export class QorusProjectCodeInfo {
                         primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
                         validation: {signature: 'String validation(String async_key, Object array_arg)', arg_names: ['async_key', 'array_arg']},
                         end: {signature: 'void end(Object queue_data, Object array_arg)', arg_names: ['queue_data', 'array_arg']},
-                        array: {signature: 'void Object[] array()'}
+                        array: {signature: 'Object[] array()'}
                     });
                 default:
                     return {};

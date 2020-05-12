@@ -201,8 +201,14 @@ export class ClassConnections {
 
     protected memberDeclCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
-        `${indent1}${this.connClassName()} ${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
-        `${indent1}${GENERATED.java.end}\n\n`;
+        `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
+        `${indent1}${GENERATED.java.end}\n` +
+        `${indent1}\n\n` +
+        `${indent1}${this.class_name}() ${THROWS} {\n` +
+        `${indent2}${GENERATED.java.begin}\n` +
+        `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
+        `${indent2}${GENERATED.java.end}\n` +
+        `${indent1}}\n`;
 
     protected memberDeclBlockCodeJava = () => this.memberDeclCodeJava();
 
@@ -298,7 +304,7 @@ export class ClassConnections {
         }
 
         if (event_based_connections.length) {
-            code += `${indent2}// register observers\n`;
+            code += `\n${indent2}// register observers\n`;
             event_based_connections.forEach(event_based => {code +=
                 `${indent2}${CONN_CALL_METHOD}("${event_based.prefixed_class}", "registerObserver", this);\n`;
             });
@@ -307,7 +313,7 @@ export class ClassConnections {
         code += `${indent1}}\n\n` +
             `${indent1}Object ${CONN_CALL_METHOD}(final String prefixedClass, final String methodName,\n` +
             `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Object ${CONN_DATA}) ${THROWS} {\n` +
-            `${indent2}UserApi.logInfo("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
+            `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
             `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +
             `${indent2}if (object instanceof QoreObject) {\n` +
             `${indent3}QoreObject qoreObject = (QoreObject)object;\n` +
@@ -376,7 +382,7 @@ export class ClassConnections {
             code += `${indent2}Mapper ${CONN_MAPPER};\n`;
         }
 
-        code += `${indent2}UserApi.logInfo("${connection_code_name} called with data: %y", ${CONN_DATA});\n`;
+        code += `${indent2}UserApi.logDebug("${connection_code_name} called with data: %y", ${CONN_DATA});\n`;
 
         let n = 0;
         connectors.forEach(connector => {
@@ -392,7 +398,7 @@ export class ClassConnections {
                 return;
             }
 
-            code += `\n${indent2}UserApi.logInfo("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
+            code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", ${CONN_DATA});\n${indent2}`;
             if (n !== connectors.length) {
                 code += `${CONN_DATA} = `;
             } else {
@@ -462,6 +468,10 @@ export class ClassConnections {
             code += indent2;
             if (++n === trigger.connections.length && hasReturn(trigger)) {
                 code += 'return ';
+            }
+            // issue #548: we have to cast array return values to Object[]
+            if (isArray(trigger)) {
+                code += '(Object[])';
             }
             code += `${CONN_MEMBER.java}.${connection}(${params_str});\n`;
         });

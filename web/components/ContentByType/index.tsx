@@ -14,9 +14,17 @@ const emptyTypeToString = {
     array: '[ ]',
 };
 
-const ContentByType: Function = ({ content, inTable, noControls }) => {
-    const type: string = getType(content);
+const ContentByType: Function = ({ content, inTable, noControls, baseType }) => {
+    const type: string = baseType || getType(content);
     const className: string = `content-by-type ${type}`;
+
+    if (type === 'null') {
+        return (
+            <div className={className} style={{ opacity: 0.7, color: '#a9a9a9', fontStyle: 'italic' }}>
+                null
+            </div>
+        );
+    }
 
     if (type === 'boolean') {
         return (
@@ -24,6 +32,10 @@ const ContentByType: Function = ({ content, inTable, noControls }) => {
                 <Icon icon={content ? 'small-tick' : 'cross'} />
             </div>
         );
+    }
+
+    if (type === 'object' || type === 'array') {
+        return <div className={className}>{emptyTypeToString[type]}</div>;
     }
 
     if (type === 'string' || new Date(content).toString() !== 'Invalid Date') {
@@ -43,10 +55,6 @@ const ContentByType: Function = ({ content, inTable, noControls }) => {
 
     if (type === 'number') {
         return <div className={className}>{content}</div>;
-    }
-
-    if (type === 'object' || type === 'array') {
-        return <div className={className}>{emptyTypeToString[type]}</div>;
     }
 
     return <div className={className}>-</div>;

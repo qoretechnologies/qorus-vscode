@@ -5,6 +5,7 @@ import * as jsyaml from 'js-yaml';
 
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { qorus_webview } from '../QorusWebview';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
@@ -99,10 +100,22 @@ export abstract class InterfaceCreator {
         if (params.orig_data) {
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
-            this.code_info.edit_info.setFileInfo(orig_file, params.orig_data).then(() => {
-                this.code_info.setPending('edit_info', false);
-                this.editImpl(params);
-            });
+            this.code_info.edit_info.setFileInfo(orig_file, params.orig_data).then(
+                () => {
+                    this.code_info.setPending('edit_info', false);
+                    this.editImpl(params);
+                },
+                error => {
+                    msg.error(error);
+                    this.code_info.setPending('edit_info', false);
+                    qorus_webview.postMessage({
+                        action: `creator-edit-interface-complete`,
+                        request_id: params.request_id,
+                        ok: false,
+                        message: error
+                    });
+                }
+            );
         } else {
             if (params.edit_type !== 'create') {
                 msg.error(t`MissingEditData`);
@@ -256,6 +269,10 @@ export abstract class InterfaceCreator {
             base_class_names,
             main_base_class_ord,
         } = this.file_edit_info;
+
+        if (!class_name_range) {
+            return lines;
+        }
 
         const num_inherited = base_class_names.length;
         const has_other_base_class = num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);
@@ -546,8 +563,9 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag of ordered_tags) {
-            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
-                 'active_method', 'yaml_file', 'config-item-values', 'class-class-name'].includes(tag))
+            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name',
+                 'method_index', 'output_field_option_types', 'active_method', 'yaml_file',
+                 'config-item-values', 'class-class-name'].includes(tag))
             {
                 continue;
             }

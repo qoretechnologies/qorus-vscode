@@ -10,3 +10,4 @@ vsc-extension-quickstart.md
 tslint.json
 webpack.config.js
 .babelrc
+test-resources
