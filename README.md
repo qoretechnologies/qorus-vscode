@@ -4,15 +4,23 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
-## Qorus Developer Tools 1.1.1 (bugfix release)
+## Version 1.2.0 overview - What's new:
+* A warning dialog has been added when a view is about to be changed and there is unsaved work
+* It is now possible to create and edit new objects **directly** from their respective fields
+* Mapper inputs and outputs can now be cleared and entered again when editing an existing mapper
+* Fixed a race condition bug that would cause the newly added step for a workflow diagram to show Loading step:0 instead of the step's name and version
+* When removing a second-to-last step in group of parallel steps, the last step is now moved upwards in the hierarchy and is rendered inline
+
+... and a lot more, please see changelog for all features and bug fixes.
+
+## Version 1.1.1 overview - What was fixed:
 * Java class connections code generation
 * displaying of folder in folder pickers
 * check of existence of an interface with same name or class name
 * success confirmation message from backend to frontend
 * fixed: saving of text-/bin-/resource fields
 
-## What's new in Qorus Developer Tools 1.1.0
-
+## Version 1.1.0 overview - What's new:
 * Interface type **Type** support
 * Workflow property **Static data type**
 * Mapper property **Context**

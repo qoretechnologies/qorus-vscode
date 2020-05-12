@@ -48,8 +48,6 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
             ...yaml_info
         };
 
-        this.code_info.addText(document);
-
         return this.provideLanguageSpecificImpl(document, file_path, iface_kind, data);
     }
 
@@ -127,16 +125,12 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
             return;
         }
 
-        const method_index = (data.methods || []).findIndex(method => method.name === method_name);
+        const methods_key = iface_kind === 'mapper-code' ? 'mapper-methods' : 'methods';
+        const method_index = (data[methods_key] || []).findIndex(method => method.name === method_name);
 
         if (method_index === -1) {
             msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
             return;
-        }
-
-        if (iface_kind === 'mapper-code') {
-            data['mapper-methods'] = data.methods;
-            delete data.methods;
         }
 
         lenses.push(new CodeLens(range, {
@@ -170,11 +164,10 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
             data = this.code_info.fixData(data);
 
             symbols.forEach(symbol => {
-                if (!this.code_info.isSymbolExpectedClass(symbol, data['class-name'])) {
+                if (!QorusProjectCodeInfo.isSymbolExpectedClass(symbol, data['class-name'])) {
                     return;
                 }
 
-                this.code_info.addClassCodeInfo(file_path, symbol, data['base-class-name'], false);
                 this.addClassLenses(iface_kind, lenses, symbol, data);
 
                 if (!['service', 'mapper-code'].includes(iface_kind)) {
@@ -182,7 +175,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
                 }
 
                 for (const decl of symbol.declarations || []) {
-                    if (!this.code_info.addClassDeclCodeInfo(file_path, decl)) {
+                    if (!QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
                         continue;
                     }
 

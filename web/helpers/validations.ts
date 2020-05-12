@@ -1,14 +1,17 @@
-import { IField } from '../containers/InterfaceCreator/panel';
-const cron = require('cron-validator');
-import isNumber from 'lodash/isNumber';
+import jsyaml from 'js-yaml';
 import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
-import uniqWith from 'lodash/uniqWith';
-import size from 'lodash/size';
-import jsyaml from 'js-yaml';
+import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
-import { isString, isDate, isBoolean, isUndefined, isNull } from 'util';
+import size from 'lodash/size';
+import uniqWith from 'lodash/uniqWith';
+import { isBoolean, isNull, isString, isUndefined } from 'util';
+
 import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
+
+import { IField } from '../containers/InterfaceCreator/panel';
+
+const cron = require('cron-validator');
 
 export const validateField: (type: string, value: any, field?: IField, canBeNull?: boolean) => boolean = (
     type,
@@ -36,8 +39,21 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'select-string':
         case 'file-string':
         case 'long-string':
+        case 'method-name': {
+            if (value === undefined || value === null || value === '') {
+                return false;
+            }
+
+            let isValid = true;
+
+            // Check if this field has to be a valid identifier
+            if (field?.has_to_be_valid_identifier) {
+                isValid = !value.match(/^[0-9]|\W/);
+            }
+
             // Strings cannot be empty
-            return value !== undefined && value !== null && value !== '';
+            return isValid;
+        }
         case 'mapper-options': {
             if (isObject(value)) {
                 return false;

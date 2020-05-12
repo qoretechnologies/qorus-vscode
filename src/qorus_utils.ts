@@ -99,9 +99,10 @@ export const dash2Pascal = str =>
     str.split('-').map(part => (part[0] || '').toUpperCase() + part.substr(1)).join('');
 
 export const toValidIdentifier = (str, capitalize = false) => {
-    if (!str.match(/^[0-9]|\W/)) {
+    if (isValidIdentifier(str)) {
         return str;
     }
+
     let parts = str.trim().split(/\W+/);
     if (capitalize) {
         parts = parts.map(part => (part[0] || '').toUpperCase() + part.substr(1));
@@ -110,8 +111,11 @@ export const toValidIdentifier = (str, capitalize = false) => {
         parts = parts.map(part => (part[0] || '').toUpperCase() + part.substr(1));
         parts = [first, ...parts];
     }
+
     return parts.join('').replace(/(^[0-9])/, '_' + '$1');
 };
+
+export const isValidIdentifier = str => !str.match(/^[0-9]|\W/);
 
 export const makeFileUri = (filePath: string) => 'file://' + filePath;
 
@@ -120,6 +124,8 @@ export const getFilePathFromUri = (uri: string | Uri) => typeof uri === 'string'
 export const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
 export const capitalize = str => str[0].toUpperCase() + str.substr(1);
+
+export const isObject = x => x && typeof x === 'object' && !Array.isArray(x);
 
 export const compareVersion = (v1, v2) => {
     if (typeof v1 !== 'string' || typeof v2 !== 'string') {

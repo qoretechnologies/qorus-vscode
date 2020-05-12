@@ -24,7 +24,7 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
     field.lang(is_editing),
     field.constants,
     field.functions,
-    field.mapper,
+    field.mappers,
     field.vmaps,
     field.modules,
     field.remote,
@@ -110,7 +110,11 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
 ];
 
 export const service_methods = [
-    field.name,
+    {
+        ...field.name,
+        type: 'method-name',
+        has_to_be_valid_identifier: true,
+    },
     field.desc,
     field.author,
     {

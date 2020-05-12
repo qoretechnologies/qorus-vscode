@@ -1,14 +1,16 @@
-import { workspace, window, Position } from 'vscode';
+import { Position } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as jsyaml from 'js-yaml';
+
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
+import { qorus_webview } from '../QorusWebview';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
 import { types_with_version, default_version } from '../qorus_constants';
-import * as jsyaml from 'js-yaml';
-import { quotesIfNum, removeDuplicates, capitalize } from '../qorus_utils';
+import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier } from '../qorus_utils';
 import { t } from 'ttag';
 import * as globals from '../global_config_item_values';
 import * as msg from '../qorus_message';
@@ -44,14 +46,14 @@ export abstract class InterfaceCreator {
                 msg.error(t`TargetDirUnknown`);
                 return;
             }
-            this.target_dir = projects.getProject()?.dirForTypePath(data.path);
+            this.target_dir = this.code_info.getProject()?.dirForTypePath(data.path);
             if (!this.target_dir) {
                 return;
             }
         }
 
         if (iface_kind === 'type' && !target_file) {
-            target_file = path.basename(data.path)
+            target_file = path.basename(data.path);
         }
 
         if (this.lang === 'qore') {
@@ -84,6 +86,7 @@ export abstract class InterfaceCreator {
                 this.edit_info = this.code_info.editInfo(orig_path);
             } else {
                 this.orig_yaml_file_path = orig_path;
+                this.orig_file_path = undefined;
             }
         } else {
             this.orig_file_path = undefined;
@@ -99,6 +102,7 @@ export abstract class InterfaceCreator {
         if (params.edit_type === 'edit' && params.data['class-connections']) {
             params.edit_type = 'recreate';
             this.editImpl(params);
+            return;
         }
 
         if (params.orig_data) {
@@ -109,10 +113,22 @@ export abstract class InterfaceCreator {
                 orig_file,
                 params.orig_data['class-name'],
                 params.orig_data['base-class-name']
-            ).then(() => {
-                this.code_info.setPending('edit_info', false);
-                this.editImpl(params);
-            });
+            ).then(
+                () => {
+                    this.code_info.setPending('edit_info', false);
+                    this.editImpl(params);
+                },
+                error => {
+                    msg.error(error);
+                    this.code_info.setPending('edit_info', false);
+                    qorus_webview.postMessage({
+                        action: `creator-edit-interface-complete`,
+                        request_id: params.request_id,
+                        ok: false,
+                        message: error
+                    });
+                }
+            );
         } else {
             if (params.edit_type === 'edit') {
                 msg.error(t`MissingEditData`);
@@ -150,15 +166,17 @@ export abstract class InterfaceCreator {
         const generated_file_info = "# This is a generated file, don't edit!\n";
         file_path = file_path || this.yaml_file_path;
 
-        fs.writeFile(file_path, generated_file_info + headers, err => {
-            if (err) {
-                msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
-                return;
-            }
-        });
+        try {
+            fs.writeFileSync(file_path, generated_file_info + headers);
+        } catch (err) {
+            msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
+            return false;
+        }
+
+        return true;
     }
 
-    protected writeFiles(contents: string, headers: string, open_file_on_success: boolean = true) {
+    protected writeFiles(contents: string, headers: string) {
         contents = contents.replace(/(\t| )+\n/g, '\n');
         while (contents.match(/\n\n\n/)) {
             contents = contents.replace(/\n\n\n/g, '\n\n');
@@ -168,40 +186,56 @@ export abstract class InterfaceCreator {
             contents += '\n';
         }
 
-        fs.writeFile(this.file_path, contents, err => {
-            if (err) {
-                msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
-                return;
-            }
+        if (!this.writeYamlFile(headers)) {
+            return false;
+        }
 
-            this.writeYamlFile(headers);
+        try {
+            fs.writeFileSync(this.file_path, contents);
+        } catch (err) {
+            msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
+            return false;
+        }
 
-            if (open_file_on_success) {
-                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+        return true;
+    }
+
+    protected checkData = (params: any): any => {
+        const items_to_check = ['checkExistingInterface', 'checkClassName'];
+        for (const item_to_check of items_to_check) {
+            const {ok, message} = this[item_to_check](params);
+            if (!ok) {
+                return {ok, message};
             }
-        });
+        }
+        return {ok: true};
+    }
+
+    protected checkClassName = (params: any): any => {
+        const { data: { 'class-name': class_name } } = params;
+        if (!class_name || isValidIdentifier(class_name)) {
+            return {ok: true};
+        }
+        return {ok: false, message: t`InvalidClassName ${class_name}`};
     }
 
     protected checkExistingInterface = (params: any): any => {
-        const { iface_kind, edit_type, data: {name, version, 'class-name': class_name }, orig_data, } = params;
+        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data, } = params;
+
+        if (!['create', 'edit', 'recreate'].includes(edit_type)) {
+            return {ok: true};
+        }
+
+        if (iface_kind === 'other') {
+            iface_kind = (type || '').toLowerCase();
+        }
+
         const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
 
         const with_version = types_with_version.includes(iface_kind);
 
         const iface_name = with_version ? `${name}:${version || default_version}` : name;
         const orig_iface_name = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
-
-        switch (edit_type) {
-            case 'create':
-                break;
-            case 'edit':
-                if (iface_name === orig_iface_name && class_name === orig_class_name) {
-                    return {ok: true};
-                }
-                break;
-            default:
-                return {ok: true};
-        }
 
         if (iface_name !== orig_iface_name) {
             const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
@@ -210,11 +244,27 @@ export abstract class InterfaceCreator {
             }
         }
         if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
-            const iface = this.code_info.yaml_info.yamlDataByClass(class_name);
+            const iface = this.code_info.yaml_info.yamlDataByClass(iface_kind, class_name);
             if (iface) {
-                return {ok: false, message: t`ClassAlreadyExists ${class_name}`};
+                return {ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}`};
             }
         }
+
+        const { file_path, orig_file_path, yaml_file_path, orig_yaml_file_path } = this;
+
+        if (file_path && file_path !== orig_file_path) {
+            const iface = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
+            if (iface) {
+                return {ok: false, message: t`FileAlreadyExists ${file_path}`};
+            }
+        }
+        if (yaml_file_path !== orig_yaml_file_path) {
+            const iface = this.code_info.yaml_info.yamlDataByYamlFile(yaml_file_path);
+            if (iface) {
+                return {ok: false, message: t`FileAlreadyExists ${yaml_file_path}`};
+            }
+        }
+
         return {ok: true};
     }
 
@@ -232,6 +282,10 @@ export abstract class InterfaceCreator {
             base_class_names,
             main_base_class_ord,
         } = this.edit_info;
+
+        if (!class_name_range) {
+            return lines;
+        }
 
         const num_inherited = base_class_names.length;
         const has_other_base_class = num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);
@@ -376,6 +430,9 @@ export abstract class InterfaceCreator {
                         } else {
                             type = item.value_true_type || type;
                         }
+                    } else {
+                        delete item.default_value_true_type;
+                        delete item.value_true_type;
                     }
 
                     const non_star_type = type?.substring(type.indexOf("*") + 1);
@@ -477,6 +534,8 @@ export abstract class InterfaceCreator {
         });
 
         if (headers.fields) {
+            const types = headers.output_field_option_types || [];
+
             Object.keys(headers.fields).forEach(field_name => {
                 let field = headers.fields[field_name];
                 if (field.code) {
@@ -487,6 +546,13 @@ export abstract class InterfaceCreator {
                         field.code = `${class_name}${lang === 'qore' ? '::': '.'}${method}`;
                     }
                 }
+
+                Object.keys(field).forEach(key => {
+                    const type_info = types.find(type => type.outputField === field_name && type.field === key);
+                    if (['list', 'hash'].some(type => type_info?.type.startsWith(type))) {
+                        field[key] = jsyaml.safeLoad(field[key]);
+                    }
+                });
             });
         }
 
@@ -510,8 +576,9 @@ export abstract class InterfaceCreator {
         });
 
         for (const tag of ordered_tags) {
-            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name', 'method_index',
-                 'active_method', 'yaml_file', 'config-item-values', 'class-class-name'].includes(tag))
+            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name',
+                 'method_index', 'output_field_option_types', 'active_method', 'yaml_file',
+                 'config-item-values', 'class-class-name'].includes(tag))
             {
                 continue;
             }
@@ -594,7 +661,7 @@ export abstract class InterfaceCreator {
                     case 'bin-resource':
                     case 'template':
                         value.forEach(({name}) => {
-                            result += `${list_indent}${workspace.asRelativePath(name, false)}\n`;
+                            result += `${list_indent}${path.relative(headers.target_dir, name)}\n`;
                         });
                         break;
                     case 'steps':

@@ -1,8 +1,10 @@
 import React, { FunctionComponent, useState } from 'react';
+
+import { every, reduce } from 'lodash';
+import { isArray } from 'util';
+
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
-import { isArray } from 'util';
-import { every, reduce } from 'lodash';
 
 const getInterfaceCollectionType: (type: string) => [] | {} = type => {
     switch (type) {
@@ -98,6 +100,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     return newResult;
                 });
 
+                props.setUnfinishedWork(current => {
+                    const newResult = { ...current };
+                    // Set the interface id to null
+                    newResult[type] = null;
+                    return newResult;
+                });
+
                 const newResult = { ...current };
                 // Reset the fields
                 newResult[type] = getInterfaceCollectionType(type);
@@ -112,6 +121,17 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 ...current,
                 [interfaceType]: id,
             }));
+        };
+
+        const setAsDraft: (type: string) => void = type => {
+            if (!props.unfinishedWork[type]) {
+                props.setUnfinishedWork(current => {
+                    const newResult = { ...current };
+                    // Set the interface id to null
+                    newResult[type] = true;
+                    return newResult;
+                });
+            }
         };
 
         const setFields = (type, value, activeId) => {
@@ -133,7 +153,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 const newResult = { ...current };
                 // If active ID is set, we need to create/update
                 // a specific item
-                if (activeId) {
+                if (activeId || activeId === 0) {
                     newResult[type][activeId] = typeof value === 'function' ? value(current[type][activeId]) : value;
                 } else {
                     newResult[type] = typeof value === 'function' ? value(current[type]) : value;
@@ -222,6 +242,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     resetFields,
                     interfaceId,
                     setInterfaceId,
+                    unfinishedWork: props.unfinishedWork,
+                    setAsDraft,
                 }}
             >
                 <Component {...props} />

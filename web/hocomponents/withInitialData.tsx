@@ -7,6 +7,7 @@ import shortid from 'shortid';
 import { AppToaster } from '../components/Toast';
 import { Messages } from '../constants/messages';
 import { InitialContext } from '../context/init';
+import withFieldsConsumer from './withFieldsConsumer';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -14,7 +15,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [initialData, setInitialData] = useState<any>({
             tab: 'ProjectConfig',
         });
-        const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; onSubmit: () => any; text: string }>({});
+        const [confirmDialog, setConfirmDialog] = useState<{
+            isOpen: boolean;
+            onSubmit: () => any;
+            text: string;
+            btnText?: string;
+            btnStyle?: string;
+        }>({});
+        const [unfinishedWork, setUnfinishedWork] = useState<{ [key: string]: boolean }>({});
 
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
@@ -44,20 +52,35 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             props.postMessage(Messages.GET_INITIAL_DATA);
         });
 
-        const confirmAction: (text: string, action: () => any) => void = (text, action) => {
+        const confirmAction: (text: string, action: () => any, btnText?: string, btnIntent?: string) => void = (
+            text,
+            action,
+            btnText,
+            btnIntent
+        ) => {
             setConfirmDialog({
                 isOpen: true,
                 text,
                 onSubmit: action,
+                btnStyle: btnIntent,
+                btnText,
             });
         };
 
-        const changeTab: (tab: string, subtab?: string) => void = (tab, subtab) => {
-            setInitialData(current => ({
-                ...current,
-                tab,
-                subtab: subtab || null,
-            }));
+        const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (tab, subtab, force) => {
+            const setTabs = () =>
+                setInitialData(current => ({
+                    ...current,
+                    tab,
+                    subtab: subtab || null,
+                }));
+
+            if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab] && !force) {
+                // Check if there is data for the given subtab
+                confirmAction('UnfinishedWork', setTabs, 'Leave', 'warning');
+            } else {
+                setTabs();
+            }
         };
 
         const setStepSubmitCallback: (callback: () => any) => void = (callback): void => {
@@ -205,6 +228,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setConfirmDialog,
                     confirmAction,
                     callBackend,
+                    unfinishedWork,
+                    setUnfinishedWork,
                 }}
             >
                 <InitialContext.Consumer>
@@ -214,5 +239,5 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         );
     };
 
-    return EnhancedComponent;
+    return withFieldsConsumer()(EnhancedComponent);
 };

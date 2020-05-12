@@ -1,42 +1,56 @@
 // @flow
 import React, { Component } from 'react';
 
-import ContentByType from '../../components/ContentByType';
+import jsyaml from 'js-yaml';
+import map from 'lodash/map';
+import ReactMarkdown from 'react-markdown';
+
 import {
-    Icon,
-    TextArea,
-    Popover,
     Button,
     ButtonGroup,
-    Intent,
-    Position,
-    Tooltip,
-    ControlGroup,
-    InputGroup,
-    Dialog,
     Callout,
     Classes,
-    Tabs,
+    ControlGroup,
+    InputGroup,
+    Intent,
+    Popover,
+    Position,
     Tab,
+    Tabs,
+    Tooltip,
 } from '@blueprintjs/core';
-import DatePicker from '../../components/Datepicker';
-import Dropdown, { Item, Control as DControl } from '../../components/Dropdown';
-import Tree from '../../components/Tree';
-import jsyaml from 'js-yaml';
-import moment from 'moment';
-import { DATE_FORMATS } from '../../constants/dates';
-import Pull from '../../components/Pull';
-import map from 'lodash/map';
-import pickBy from 'lodash/pickBy';
-import isNull from 'lodash/isNull';
-import { getLineCount } from '../../components/Tree';
-import Box from '../../components/ResponsiveBox';
-import withTextContext from '../../hocomponents/withTextContext';
-import ReactMarkdown from 'react-markdown';
+
+import CustomDialog from '../../components/CustomDialog';
+import Dropdown, { Control as DControl, Item } from '../../components/Dropdown';
 import AutoField from '../../components/Field/auto';
-import { StyledDialogBody } from '../ClassConnectionsManager';
+import Pull from '../../components/Pull';
+import Box from '../../components/ResponsiveBox';
+import Tree from '../../components/Tree';
 import { validateField } from '../../helpers/validations';
+import withTextContext from '../../hocomponents/withTextContext';
+import { StyledDialogBody } from '../ClassConnectionsManager';
 import { Value } from './table';
+
+const templatesList = [
+    'local',
+    'timestamp',
+    'rest',
+    'qore-expr',
+    'static',
+    'dynamic',
+    'sensitive',
+    'sensitive-alias',
+    'temp',
+    'step',
+    'keys',
+    'transient',
+    'config',
+    'info',
+    'parse-value',
+    'pstate',
+    'state',
+    'qore-expr-value',
+];
 
 @withTextContext()
 export default class ConfigItemsModal extends Component {
@@ -156,7 +170,7 @@ export default class ConfigItemsModal extends Component {
         const { error, yamlData, value, item } = this.state;
 
         return (
-            <Dialog
+            <CustomDialog
                 isOpen
                 title={!item ? t('AssignNewConfig') : `${t('Editing')} ${item.name}`}
                 onClose={onClose}
@@ -298,62 +312,14 @@ export default class ConfigItemsModal extends Component {
                                                 <ControlGroup className="pt-fill">
                                                     <Dropdown className="pt-fixed">
                                                         <DControl icon="dollar">{this.state.templateType}</DControl>
-                                                        <Item
-                                                            title="config"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'config' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="local"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'local' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="dynamic"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'dynamic' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="keys"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'keys' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="sensitive"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'sensitive' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="sensitive-alias"
-                                                            onClick={() => {
-                                                                this.setState({
-                                                                    templateType: 'sensitive-alias',
-                                                                });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="static"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'static' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="step"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'step' });
-                                                            }}
-                                                        />
-                                                        <Item
-                                                            title="parse-value"
-                                                            onClick={() => {
-                                                                this.setState({ templateType: 'parse-value' });
-                                                            }}
-                                                        />
+                                                        {templatesList.map(template => (
+                                                            <Item
+                                                                title={template}
+                                                                onClick={() => {
+                                                                    this.setState({ templateType: template });
+                                                                }}
+                                                            />
+                                                        ))}
                                                     </Dropdown>
                                                     <Button text=":" className={Classes.FIXED} />
                                                     <InputGroup
@@ -409,7 +375,7 @@ export default class ConfigItemsModal extends Component {
                         </div>
                     ) : null}
                 </StyledDialogBody>
-            </Dialog>
+            </CustomDialog>
         );
     }
 }

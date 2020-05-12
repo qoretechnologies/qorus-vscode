@@ -1,20 +1,22 @@
-import React, { FC, useState, useCallback } from 'react';
-import { Button, Dialog, ButtonGroup, Callout } from '@blueprintjs/core';
-import { TTranslator } from '../../App';
-import Box from '../../components/ResponsiveBox';
+import React, { FC, useState } from 'react';
+
 import set from 'lodash/set';
-import size from 'lodash/size';
-import String from '../../components/Field/string';
-import TextareaField from '../../components/Field/textarea';
-import { ContentWrapper, FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../InterfaceCreator/panel';
-import FieldLabel from '../../components/FieldLabel';
-import { validateField } from '../../helpers/validations';
-import SelectField from '../../components/Field/select';
-import Pull from '../../components/Pull';
 import useMount from 'react-use/lib/useMount';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+
+import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import CustomDialog from '../../components/CustomDialog';
 import BooleanField from '../../components/Field/boolean';
 import MarkdownPreview from '../../components/Field/markdownPreview';
+import SelectField from '../../components/Field/select';
+import String from '../../components/Field/string';
+import TextareaField from '../../components/Field/textarea';
+import FieldLabel from '../../components/FieldLabel';
+import Box from '../../components/ResponsiveBox';
+import { validateField } from '../../helpers/validations';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../InterfaceCreator/panel';
 
 export interface IMapperFieldModalProps {
     type: 'inputs' | 'outputs';
@@ -142,7 +144,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     };
 
     return (
-        <Dialog isOpen title={t('AddNewField')} onClose={onClose} style={{ paddingBottom: 0 }}>
+        <CustomDialog isOpen title={t('AddNewField')} onClose={onClose} style={{ paddingBottom: 0 }}>
             <Box top fill scrollY>
                 <ContentWrapper>
                     {error && <Callout intent="danger">{error}</Callout>}
@@ -220,7 +222,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                     </ButtonGroup>
                 </ActionsWrapper>
             </Box>
-        </Dialog>
+        </CustomDialog>
     );
 };
 

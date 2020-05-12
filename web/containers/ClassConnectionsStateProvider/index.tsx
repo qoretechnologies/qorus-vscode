@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { IClassConnections } from '../ClassConnectionsManager';
-import { IField } from '../InterfaceCreator/panel';
+import { useEffect, useState } from 'react';
+
+import every from 'lodash/every';
+import reduce from 'lodash/reduce';
+import size from 'lodash/size';
+import compose from 'recompose/compose';
+
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import compose from 'recompose/compose';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
-import size from 'lodash/size';
-import reduce from 'lodash/reduce';
+import { IClassConnection, IClassConnections } from '../ClassConnectionsManager';
+import { IField } from '../InterfaceCreator/panel';
 
 const removeMethodTriggers = (methods, connectionData) =>
     connectionData.reduce((newData, connector) => {
@@ -35,6 +38,25 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
         initialData[type]?.['class-connections']
     );
     const [methodsCount, setMethodsCount] = useState<number>(null);
+
+    const isConnectionValid = (name: string) => {
+        if (classConnectionsData[name].length > 1) {
+            return true;
+        }
+        // Check if there is only one connector
+        // and has a trigger
+        if (classConnectionsData[name].length === 1) {
+            return !!classConnectionsData[name][0].trigger;
+        }
+
+        return false;
+    };
+
+    const areAllConnectionsValid = () => {
+        return (
+            size(classConnectionsData) === 0 || every(classConnectionsData, (_conn, name) => isConnectionValid(name))
+        );
+    };
 
     useEffect(() => {
         // If this is service
@@ -65,6 +87,32 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
         }
     }, [methods, methodsCount, classConnectionsData, type]);
 
+    const renameTrigger = (originalName: string, newName: string): void => {
+        const modifiedConnectionsData = reduce(
+            classConnectionsData,
+            (newConnections: IClassConnections, connectionData: IClassConnection[], connName) => {
+                // Go through this connections' connectors
+                const modifiedConnection: IClassConnection[] = connectionData.reduce(
+                    (newConnectionData: IClassConnection[], connector: IClassConnection) => {
+                        // Check if the connector has trigger and that trigger matches the
+                        // modified method name
+                        if (connector.trigger && connector.trigger === originalName) {
+                            return [...newConnectionData, { ...connector, trigger: newName }];
+                        }
+                        // Return unchanged connector
+                        return [...newConnectionData, connector];
+                    },
+                    []
+                );
+
+                return { ...newConnections, [connName]: modifiedConnection };
+            },
+            {}
+        );
+
+        setClassConnectionsData(modifiedConnectionsData);
+    };
+
     const resetClassConnections = () => {
         setClassConnectionsData(null);
     };
@@ -88,6 +136,8 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
         setClassConnectionsData,
         resetClassConnections,
         isClassConnectionsManagerEnabled,
+        renameTrigger,
+        areClassConnectionsValid: areAllConnectionsValid,
     });
 };
 

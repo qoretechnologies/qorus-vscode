@@ -26,6 +26,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
     t,
     resetClassConnections,
     showClassesWarning,
+    reference,
 }) => {
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
         // Check if the current value is empty
@@ -76,6 +77,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
                         keyValue={pair.prefix}
                         valueValue={pair.name}
                         get_message={get_message}
+                        reference={reference}
                         return_message={return_message}
                         onChange={(fieldName: string, value: any) => {
                             changePairData(index, fieldName, value);
@@ -85,7 +87,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
                 </StyledPairField>
             ))}
             <ButtonGroup fill>
-                <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
+                <Button text={t('AddAnother')} icon={'add'} onClick={handleAddClick} />
             </ButtonGroup>
         </>
     );

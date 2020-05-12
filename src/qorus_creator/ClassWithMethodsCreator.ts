@@ -1,9 +1,10 @@
-import { window, Position } from 'vscode';
+import { workspace, window, Position } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
+
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceTemplates } from './service_constants';
 import { mapperCodeTemplates } from './mapper_constants';
-import { classConnectionsCode } from './class_connections';
+import { ClassConnections } from './ClassConnections';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -57,7 +58,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix);
 
-        const {ok, message} = this.checkExistingInterface(params);
+        const {ok, message} = this.checkData(params);
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${params.edit_type}-interface-complete`,
@@ -82,7 +83,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = this.edit_info.text_lines;
-                code_lines = this.addMethods(code_lines, method_renaming_map.added);
+                code_lines = this.addMethods([...code_lines], method_renaming_map.added);
                 code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
@@ -123,7 +124,11 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             headers += ClassWithMethodsCreator.createConfigItemHeaders(iface_data['config-items']);
         }
 
-        this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods), open_file_on_success);
+        if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
+            if (open_file_on_success) {
+                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+            }
+        }
 
         if (['create', 'edit'].includes(edit_type)) {
             qorus_webview.postMessage({
@@ -300,10 +305,10 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
         let both_connections_and_methods = false;
-        if (data['class-connections']) {
+        if (Object.keys(data['class-connections'] || {}).length) {
             ClassWithMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports = []}
-                 = classConnectionsCode({...data, iface_kind}, this.code_info, this.lang));
+                 = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
             both_connections_and_methods = !!method_objects.length;
         }

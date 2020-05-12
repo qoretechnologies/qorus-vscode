@@ -1,16 +1,14 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import mapProps from 'recompose/mapProps';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+
+import { forEach, get, reduce, set, size, unset } from 'lodash';
 import compose from 'recompose/compose';
-import { get, set, unset, forEach, reduce, size } from 'lodash';
-import { MapperContext } from '../context/mapper';
-import string from '../components/Field/string';
-import useMount from 'react-use/lib/useMount';
-import { providers } from '../containers/Mapper/provider';
-import withTextContext from './withTextContext';
-import { Callout } from '@blueprintjs/core';
-import { IMapperRelation } from '../containers/Mapper';
-import withMessageHandler from './withMessageHandler';
+import mapProps from 'recompose/mapProps';
+
 import { Messages } from '../constants/messages';
+import { providers } from '../containers/Mapper/provider';
+import { MapperContext } from '../context/mapper';
+import withMessageHandler from './withMessageHandler';
+import withTextContext from './withTextContext';
 
 export const addTrailingSlash = (path: string) => {
     // Get the last character
@@ -70,7 +68,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
         const [mapperSubmit, setMapperSubmit] = useState<any>(null);
 
-        const handleMapperSubmitSet = callback => {
+        const handleMapperSubmitSet = (callback) => {
             setMapperSubmit(() => callback);
         };
 
@@ -116,7 +114,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }${subtype ? subtype : ''}`;
         };
 
-        const getProviderUrl: (fieldType: 'input' | 'output') => string = fieldType => {
+        const getProviderUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
             // Get the mapper options data
             const { type, name, path = '', subtype, can_manage_fields } = mapper.mapper_options[`mapper-${fieldType}`];
             // Save the provider options
@@ -145,7 +143,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }${subtype ? subtype : ''}`;
         };
 
-        const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = fieldType => {
+        const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
             // Get the mapper options data
             const { type, name, path = '', subtype } = mapper.mapper_options[`mapper-${fieldType}`];
             // Get the rules for the given provider
@@ -159,11 +157,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const insertCustomFields = (fields, customFields = {}) => {
             const newFields = { ...fields };
             // Loop throught the custom fields
-            forEach(customFields, field => {
+            forEach(customFields, (field) => {
                 // Build the path
                 const fields: string[] = field.path.split('.');
                 let newPath: string;
-                fields.forEach(fieldName => {
+                fields.forEach((fieldName) => {
                     if (!newPath) {
                         newPath = fieldName;
                     } else {
@@ -193,7 +191,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                             }
                             // This key does not exist
                             // Raise the alerts
-                            setWrongKeysCount(cur => cur + 1);
+                            setWrongKeysCount((cur) => cur + 1);
                             return newKeys;
                         },
                         {}
@@ -234,8 +232,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 const inputs = await props.fetchData(inputUrl);
                 // If one of the connections is down
                 if (inputs.error) {
-                    console.log('errors', inputs.error);
-
                     setError(inputs.error && 'InputConnError');
                     return;
                 }
@@ -264,8 +260,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 const outputs = await props.fetchData(outputUrl);
                 // If one of the connections is down
                 if (outputs.error) {
-                    console.log('errors', outputs.error);
-
                     setError(outputs.error && 'OutputConnError');
                     return;
                 }
@@ -295,6 +289,24 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             })();
         };
 
+        const getFieldsFromStaticData = (staticData) => {
+            // Get the url from the context provider
+            const url = getUrlFromProvider(null, staticData);
+
+            // Send the URL to backend
+            props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
+                if (data) {
+                    // Save the inputs if the data exist
+                    setContextInputs(data.fields || data);
+                }
+            });
+            // Ask backend for the fields for this particular type
+            props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
+                ...staticData,
+                url,
+            });
+        };
+
         useEffect(() => {
             if (qorus_instance) {
                 props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
@@ -302,23 +314,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         data?.custom_data?.event === 'context' &&
                         data[data.custom_data.iface_kind]['staticdata-type']
                     ) {
-                        console.log(data);
                         // Save the static data
                         const staticData = data[data.custom_data.iface_kind]['staticdata-type'];
-                        // Get the url from the context provider
-                        const url = getUrlFromProvider(null, staticData);
-                        // Send the URL to backend
-                        props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
-                            if (data) {
-                                // Save the inputs if the data exist
-                                setContextInputs(data.fields || data);
-                            }
-                        });
-                        // Ask backend for the fields for this particular type
-                        props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
-                            ...staticData,
-                            url,
-                        });
+                        // Get all the needed data from static data
+                        getFieldsFromStaticData(staticData);
                     }
                 });
                 let mapperKeys;
@@ -331,38 +330,51 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Check if user is editing a mapper
                 if (mapper) {
                     // Process input fields
-                    if (mapper.mapper_options['mapper-input']) {
+                    if (mapper.mapper_options?.['mapper-input']) {
                         getInputsData();
                     }
                     // Process output fields
-                    if (mapper.mapper_options['mapper-output']) {
+                    if (mapper.mapper_options?.['mapper-output']) {
                         getOutputsData(mapperKeys);
                     }
                     // If this mapper has context
                     if (mapper['context-selector']) {
-                        // Ask for the context interface
-                        props.postMessage(Messages.GET_INTERFACE_DATA, {
-                            iface_kind: mapper['context-selector'].iface_kind,
-                            name: mapper['context-selector'].name,
-                            custom_data: {
-                                event: 'context',
+                        // If the context also has the static data
+                        // do not ask the backend for the interface info
+                        if (mapper['context-selector'].static_data) {
+                            getFieldsFromStaticData(mapper['context-selector'].static_data);
+                        } else {
+                            // Ask backend for the context interface
+                            props.postMessage(Messages.GET_INTERFACE_DATA, {
                                 iface_kind: mapper['context-selector'].iface_kind,
-                            },
-                        });
+                                name: mapper['context-selector'].name,
+                                custom_data: {
+                                    event: 'context',
+                                    iface_kind: mapper['context-selector'].iface_kind,
+                                },
+                            });
+                        }
                     }
                 }
             }
         }, [qorus_instance, mapper]);
 
-        if (!error && qorus_instance && (!mapperKeys || (props.isEditingMapper && (!inputs || !outputs)))) {
-            return <p> Loading ... </p>;
-        }
+        useEffect(() => {
+            if (props.mapper) {
+                setMapper(props.mapper);
+            }
+        }, [props.mapper]);
+
+        /*if (!error && qorus_instance && (!mapperKeys || (props.isEditingMapper && (!inputs || !outputs)))) {
+            console.log(error, qorus_instance, mapperKeys, inputs, outputs);
+            return <Component {...props} />;
+        }*/
 
         const addField = (fieldsType, path, data) => {
             // Save the field setters to be easily accessible
             const fieldSetters: any = { inputs: setInputs, outputs: setOutputs };
             // Set the new fields
-            fieldSetters[fieldsType](current => {
+            fieldSetters[fieldsType]((current) => {
                 // Clone the current fields
                 const result: any = { ...current };
                 // If we are adding field to the top
@@ -374,7 +386,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Build the path
                 const fields: string[] = path.split('.');
                 let newPath: string;
-                fields.forEach(fieldName => {
+                fields.forEach((fieldName) => {
                     if (!newPath) {
                         newPath = fieldName;
                     } else {
@@ -394,13 +406,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Save the field setters to be easily accessible
             const fieldSetters: any = { inputs: setInputs, outputs: setOutputs };
             // Set the new fields
-            fieldSetters[fieldsType](current => {
+            fieldSetters[fieldsType]((current) => {
                 // Clone the current fields
                 const result: any = { ...current };
                 // Build the path
                 const fields: string[] = path.split('.');
                 let newPath: string;
-                fields.forEach(fieldName => {
+                fields.forEach((fieldName) => {
                     if (!newPath) {
                         newPath = fieldName;
                     } else {
@@ -419,7 +431,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const removeCodeFromRelations = (removedMapperCode?: string[]) => {
-            setRelations(current => {
+            setRelations((current) => {
                 const newRelations = reduce(
                     current,
                     (newRels, relationData, relationName) => {

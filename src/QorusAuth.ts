@@ -43,12 +43,12 @@ export class QorusAuth {
         delete this.auth_needed[url];
     }
 
-    setActive(url: string) {
+    protected setActive(url: string) {
         this.active_url = url;
         qorus_webview.setActiveQorusInstance(url, this.tokens[url]);
     }
 
-    unsetActive() {
+    protected unsetActive() {
         this.active_url = undefined;
         qorus_webview.setActiveQorusInstance(undefined);
     }

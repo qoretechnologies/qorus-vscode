@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as urlJoin from 'url-join';
 import * as fs from 'fs';
 import * as glob from 'glob';
+
 import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
@@ -89,17 +91,16 @@ class QorusDeploy {
             'value-map', 'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
         ];
 
-        for (const ifaceKind of ifaceKinds) {
-            code_info.interfaceDataByType(ifaceKind).then(
-                interfaces => {
-                    for (const iface of interfaces) {
-                        if (iface.data.yaml_file) {
-                            this.deployFile(vscode.Uri.file(iface.data.yaml_file));
-                        }
+        code_info.waitForPending(['yaml']).then(() => {
+            for (const ifaceKind of ifaceKinds) {
+                const interfaces = code_info.interfaceDataByType(ifaceKind);
+                for (const iface of interfaces) {
+                    if (iface.data.yaml_file) {
+                        this.deployFile(vscode.Uri.file(iface.data.yaml_file));
                     }
                 }
-            );
-        }
+            }
+        });
     }
 
     // returns true if the process got to the stage of checking the result
@@ -117,10 +118,10 @@ class QorusDeploy {
                 return Promise.resolve(false);
             }
             else {
-                url += '/deployment';
+                url = urlJoin(url, 'deployment');
             }
         } else {
-            url += '/api/latest/development/' + (is_release ? 'release' : 'deploy');
+            url = urlJoin(url, 'api/latest/development', is_release ? 'release' : 'deploy');
         }
 
         msg.log(t`FilesToDeploy`);

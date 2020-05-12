@@ -1,25 +1,29 @@
 import React, { FC, useState } from 'react';
-import { Button, Dialog, ButtonGroup, Classes } from '@blueprintjs/core';
-import { TTranslator } from '../../App';
-import Box from '../../components/ResponsiveBox';
-import size from 'lodash/size';
+
+import every from 'lodash/every';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
-import every from 'lodash/every';
-import { ContentWrapper, FieldWrapper, FieldInputWrapper, ActionsWrapper, IField } from '../InterfaceCreator/panel';
-import FieldLabel from '../../components/FieldLabel';
-import { validateField } from '../../helpers/validations';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import Content from '../../components/Content';
-import SidePanel from '../../components/SidePanel';
-import FieldSelector from '../../components/FieldSelector';
-import Field from '../../components/Field';
-import FieldActions from '../../components/FieldActions';
-import OptionHashField from '../../components/Field/optionHash';
-import MapperCodeField from '../../components/Field/mapperCode';
-import SelectField from '../../components/Field/select';
+import size from 'lodash/size';
 import compose from 'recompose/compose';
+
+import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import Content from '../../components/Content';
+import CustomDialog from '../../components/CustomDialog';
+import Field from '../../components/Field';
+import MapperCodeField from '../../components/Field/mapperCode';
+import OptionHashField from '../../components/Field/optionHash';
+import SelectField from '../../components/Field/select';
+import FieldActions from '../../components/FieldActions';
+import FieldLabel from '../../components/FieldLabel';
+import FieldSelector from '../../components/FieldSelector';
+import Box from '../../components/ResponsiveBox';
+import SidePanel from '../../components/SidePanel';
+import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper, IField } from '../InterfaceCreator/panel';
 
 export interface IMapperFieldModalProps {
     onClose: () => any;
@@ -34,6 +38,13 @@ export interface IMapperFieldModalProps {
 }
 
 const types = {};
+
+export const getKeyType = (key: string, mapperKeys: any, output: any): string => {
+    return (mapperKeys[key].value_type === 'any' || mapperKeys[key].value_type === 'auto') &&
+        mapperKeys[key].requires_field_type
+        ? output.type.base_type
+        : mapperKeys[key].value_type;
+};
 
 const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     onClose,
@@ -79,7 +90,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     const getIsFieldValid: (key: string, value: any) => boolean = (key, value) => {
         let valid = true;
         // Get the key type
-        let fieldType = getKeyType(key);
+        let fieldType = getKeyType(key, mapperKeys, output);
         // Check if this type is in the types list
         if (types[key]) {
             // Set the type
@@ -218,13 +229,6 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         return isDisabled;
     };
 
-    const getKeyType = (key: string): string => {
-        return (mapperKeys[key].value_type === 'any' || mapperKeys[key].value_type === 'auto') &&
-            mapperKeys[key].requires_field_type
-            ? output.type.base_type
-            : mapperKeys[key].value_type;
-    };
-
     const getOptions: () => { name: string; desc: string }[] = () => {
         return reduce(
             output.type.supported_options,
@@ -262,7 +266,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             }));
 
     return (
-        <Dialog
+        <CustomDialog
             isOpen
             title={`${t('ManageOutputMapping')} for field "${output.name}"`}
             onClose={onClose}
@@ -275,7 +279,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                             <FieldSelector
                                 name={fieldName}
                                 translateName={false}
-                                type={getKeyType(fieldName)}
+                                type={getKeyType(fieldName, mapperKeys, output)}
                                 disabled={isKeyDisabled(fieldName)}
                                 onClick={handleAddClick}
                             />
@@ -289,13 +293,13 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                 <FieldWrapper>
                                     <FieldLabel label={key} isValid={getIsFieldValid(key, value)} />
                                     <FieldInputWrapper>
-                                        {getKeyType(key) === 'mapper-code' ? (
+                                        {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
                                             <MapperCodeField
                                                 onChange={handleChange}
                                                 defaultCode={value && value.split('.')[0]}
                                                 defaultMethod={value && value.split('.')[1]}
                                             />
-                                        ) : getKeyType(key) === 'option_hash' ? (
+                                        ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
                                             <OptionHashField
                                                 name={key}
                                                 value={value || undefined}
@@ -315,7 +319,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                                 name={key}
                                                 value={value}
                                                 type="auto"
-                                                defaultType={getKeyType(key)}
+                                                defaultType={getKeyType(key, mapperKeys, output)}
                                                 onChange={handleChange}
                                             />
                                         )}
@@ -342,7 +346,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                     </ActionsWrapper>
                 </Content>
             </Box>
-        </Dialog>
+        </CustomDialog>
     );
 };
 

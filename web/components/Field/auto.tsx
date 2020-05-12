@@ -1,17 +1,20 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
+
 import useMount from 'react-use/lib/useMount';
-import { IField } from '.';
+import { isNull } from 'util';
+
+import { Button, Callout, ControlGroup } from '@blueprintjs/core';
+
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
-import StringField from './string';
+import { getTypeFromValue, getValueOrDefaultValue, maybeParseYaml } from '../../helpers/validations';
+import { IField } from './';
 import BooleanField from './boolean';
 import DateField from './date';
-import TextareaField from './textarea';
-import SelectField from './select';
-import { Callout, ControlGroup, Button } from '@blueprintjs/core';
 import NumberField from './number';
 import OptionHashField from './optionHash';
-import { getTypeFromValue, maybeParseYaml, getValueOrDefaultValue } from '../../helpers/validations';
-import { isBoolean, isNull, isUndefined } from 'util';
+import SelectField from './select';
+import StringField from './string';
+import TextareaField from './textarea';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -25,11 +28,12 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     ...rest
 }) => {
     const [currentType, setType] = useState<string>(null);
-    const [currentInternalType, setInternalType] = useState<string>('string');
+    const [currentInternalType, setInternalType] = useState<string>('any');
     const [isSetToNull, setIsSetToNull] = useState<boolean>(false);
 
     useMount(() => {
-        const defType = defaultType && defaultType.replace(/"/g, '').trim();
+        let defType = defaultType && defaultType.replace(/"/g, '').trim();
+        defType = defType || 'any';
         // If value already exists, but the type is auto or any
         // set the type based on the value
         if (value && (defType === 'auto' || defType === 'any')) {
@@ -40,12 +44,12 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
 
         setType(defType);
         // If the value is null and can be null, set the null flag
-        if (isNull(getValueOrDefaultValue(value, default_value, canBeNull())) && canBeNull()) {
+        if (isNull(getValueOrDefaultValue(value, default_value, canBeNull(defType))) && canBeNull(defType)) {
             setIsSetToNull(true);
         }
 
         // Set the default value
-        handleChange(name, getValueOrDefaultValue(value, default_value, canBeNull()));
+        handleChange(name, getValueOrDefaultValue(value, default_value, canBeNull(defType)));
     });
 
     useEffect(() => {
@@ -59,13 +63,17 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 // If this is auto / any field
                 // set the internal type
                 if (typeValue === 'auto' || typeValue === 'any') {
-                    setInternalType(value ? getTypeFromValue(maybeParseYaml(value)) : 'string');
+                    setInternalType(value ? getTypeFromValue(maybeParseYaml(value)) : 'any');
                 } else {
                     setInternalType(typeValue);
                 }
                 // Set the new type
                 setType(typeValue);
-                handleChange(name, value === undefined ? undefined : value);
+                if (!currentType) {
+                    handleChange(name, value === undefined ? undefined : value);
+                } else if (typeValue !== 'any') {
+                    handleChange(name, undefined);
+                }
             }
         }
         // If can be undefined was toggled off, but the value right now is null
@@ -76,7 +84,11 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
         }
     });
 
-    const canBeNull = () => {
+    const canBeNull = (type = currentType) => {
+        if (type === 'any' || type === 'Any') {
+            return true;
+        }
+
         if (requestFieldData) {
             return requestFieldData('can_be_undefined', 'value');
         }
@@ -92,19 +104,21 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     };
 
     const handleNullToggle = () => {
+        setType('any');
+        setInternalType('any');
         setIsSetToNull(current => !current);
         // Handle change
         handleChange(name, null);
     };
 
     const renderField = (currentType: string) => {
-        if (!currentType) {
-            return null;
-        }
         // If this field is set to null
         if (isSetToNull) {
             // Render a readonly field with null
             return <StringField name={name} value={null} onChange={handleChange} read_only canBeNull />;
+        }
+        if (!currentType) {
+            return null;
         }
         // Check if there is a `<` in the type
         const pos: number = currentType.indexOf('<');
@@ -161,6 +175,8 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                         type={currentType}
                     />
                 );
+            case 'any':
+                return null;
             default:
                 return <Callout>{t('AutoFieldSelectType')}</Callout>;
         }
@@ -187,7 +203,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                             { name: 'hash' },
                             { name: 'int' },
                         ]}
-                        value={currentInternalType || 'string'}
+                        value={currentInternalType}
                         onChange={(_name, value) => {
                             handleChange(name, null);
                             setInternalType(value);
@@ -195,7 +211,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                     />
                 )}
 
-                {renderField(currentInternalType || 'string')}
+                {renderField(currentInternalType)}
                 {canBeNull() && (
                     <Button
                         intent={isSetToNull ? 'warning' : 'none'}

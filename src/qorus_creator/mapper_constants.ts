@@ -64,6 +64,9 @@ export const mapperFields = ({ default_target_dir, context }) => [
             object_type: 'mapper-code',
             return_value: 'objects',
         },
+        reference: {
+            iface_kind: 'mapper-code',
+        },
     },
     field.classes,
     {
@@ -80,6 +83,7 @@ export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.targetFile,
     {
         name: 'class-class-name',
+        has_to_be_valid_identifier: true,
     },
     field.version,
     {
@@ -93,4 +97,10 @@ export const mapperCodeFields = ({ default_target_dir, is_editing }) => [
     field.author,
 ];
 
-export const mapper_method_fields = [field.name, field.desc];
+export const mapper_method_fields = [
+    {
+        ...field.name,
+        has_to_be_valid_identifier: true,
+    },
+    field.desc
+];

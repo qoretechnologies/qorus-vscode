@@ -1,23 +1,10 @@
 import React, { useState } from 'react';
 
-import {
-    cloneDeep,
-    get,
-    map,
-    set,
-    size,
-    unset
-} from 'lodash';
+import { cloneDeep, get, map, set, size, unset } from 'lodash';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 
-import {
-    Button,
-    ButtonGroup,
-    Callout,
-    Intent,
-    Tooltip
-} from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
 import FileField from '../../components/Field/fileString';
 import String from '../../components/Field/string';
@@ -35,7 +22,7 @@ import MapperInput from '../Mapper/input';
 import MapperFieldModal from '../Mapper/modal';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from './panel';
 
-const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
+const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
@@ -181,6 +168,19 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
         );
 
         if (result.ok) {
+            if (onSubmitSuccess) {
+                onSubmitSuccess({
+                    target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
+                    target_file: !targetFile || targetFile === '' ? undefined : targetFile,
+                    path: val,
+                    typeinfo: {
+                        base_type: 'hash<auto>',
+                        name: 'hash<auto>',
+                        can_manage_fields: true,
+                        fields,
+                    },
+                });
+            }
             reset();
         }
     };
@@ -266,7 +266,20 @@ const TypeView = ({ initialData, t, postMessage, setTypeReset }) => {
                 <div style={{ float: 'right', width: '100%' }}>
                     <ButtonGroup fill>
                         <Tooltip content={t('ResetTooltip')}>
-                            <Button text={t('Reset')} icon={'history'} onClick={() => reset(true)} />
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                onClick={() => {
+                                    initialData.confirmAction(
+                                        'ResetFieldsConfirm',
+                                        () => {
+                                            reset(true);
+                                        },
+                                        'Reset',
+                                        'warning'
+                                    );
+                                }}
+                            />
                         </Tooltip>
                         <Button
                             text={t('Submit')}

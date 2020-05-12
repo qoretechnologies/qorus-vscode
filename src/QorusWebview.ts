@@ -70,6 +70,7 @@ class QorusWebview {
                     {
                         enableScripts: true,
                         retainContextWhenHidden: true,
+                        enableCommandUris: true,
                     }
                 );
                 this.panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);

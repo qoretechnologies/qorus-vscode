@@ -1,5 +1,55 @@
 # Changelog
 
+## 1.2.0
+
+#### New features
+
+-   edit commands added to file explorer context menu
+-   added the 'Create new type' command to explorer context menu
+-   A warning dialog has been added when a view is about to be changed and there is unsaved work
+-   It is now possible to create and edit new objects directly from their respective fields
+-   Mapper inputs and outputs can now be cleared and entered again when editing a mapper
+
+#### Bug fixes
+
+-   check whether file with chosen name already exists
+-   fixed: switching from category view to folder view lasts very long time
+-   fixed editing steps from tree view
+-   fixed showing irrelevant context menu items
+-   added confirmation to the 'Deploy directory' command
+-   fixed generation of class connections code
+-   check validity of class name
+-   fixed opening workflow steps
+-   active Qorus connection check
+-   fixed saving resources as path relative to the yaml file
+-   generate config file if project has been set
+-   added dependency on qore-vscode
+-   remove Allowed values if type == any
+-   fixed position of java code lenses
+-   fixed: qorus requests fail if the URL contains a trailing
+-   delete config item value when type changes
+-   don't report a base class name mismatch when it's not true
+-   disable type of 'other' interfaces on editing
+-   fixed missing .qwf in yaml files
+-   fixed saving/reading mapper fields options
+-   Adding new steps to the Workflow diagram should no longer result in "Loading step:0"
+-   Config item value and default value is now properly set to `null` when type is changed to a different type
+-   `Any` type now correctly supports `null` as a value and default value
+-   Modal dialogs have been reworked and now only the last opened is closed when `Esc` key is pressed
+-   Fixed Job and Service name generation
+-   Selecting a step again after it was removed from the workflow diagram now works properly
+-   When removing a second-to-last step in group of parallel steps, the last step is now moved upwards in the hierarchy and is rendered inline
+-   More space efficient redesign of the connection name dialog
+-   Fixed a bug where it was sometime impossible to map 2 compatible fields in mappers
+-   Some fields now disallow certain characters to be entered
+-   Mapper codes are properly reset after successfuly submiting
+-   Fixed code generation for Java array step triggers and for Java async array step signatures
+-   Fixed a bug where sometimes an empty `value_true_type` key would be saved in the yaml file
+-   Fixed a race condition bug that would cause the newly added step for a workflow diagram to show `Loading step:0` instead of the step's name and version 
+-   Value maps are now properly displayed in the UI after being saved
+-   Empty lists and hashes are now properly displayed in the UI as `{}` and `[]` respectively
+-   Static data context is now properly passed to mappers even from new Workflows
+
 ## 1.1.1
 
 #### Bug fixes

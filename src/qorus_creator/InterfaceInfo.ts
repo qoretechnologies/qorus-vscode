@@ -189,11 +189,20 @@ export class InterfaceInfo {
 
         let iface = this.iface_by_id[iface_id];
         const name_to_search = item.orig_name || item.name;
-        const index = iface['config-items']
-                          .findIndex(item2 => item2.name === name_to_search);
+        const index = iface['config-items'].findIndex(item2 => item2.name === name_to_search);
+
         if (index > -1) {
             if (name_to_search !== item.name) {
                 iface['config-items'][index].name = item.name;
+            }
+
+            const orig_type = iface['config-items'][index].type || defaultValue('type');
+            const orig_value_true_type = orig_type === 'any' && iface['config-items'][index].value_true_type
+                ? iface['config-items'][index].value_true_type
+                : orig_type;
+
+            if (![orig_value_true_type, 'any'].includes(item.type)) {
+                delete iface['config-items'][index]['local-value'];
             }
 
             const field_names = configItemFields(this).map(field => field.name);
@@ -201,7 +210,7 @@ export class InterfaceInfo {
                 delete iface['config-items'][index][field_name];
             });
 
-            this.iface_by_id[iface_id]['config-items'][index] = {
+            iface['config-items'][index] = {
                 ... iface['config-items'][index],
                 ... item
             };
@@ -387,19 +396,27 @@ export class InterfaceInfo {
     private workflowStepsConfigItems = steps => {
         let items = [];
         flattenDeep(steps).forEach(name => {
-            const step_data = this.yaml_info.yamlDataByName('step', name);
-            const iface_id = this.addIfaceById(step_data, 'step');
-            if (step_data['base-class-name']) {
-                this.addClassConfigItems(iface_id, step_data['base-class-name']);
-            }
-            (step_data.classes || []).forEach(class_data => {
-                class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
-            });
-            (step_data['config-items'] || []).forEach(item => {
-                if (items.findIndex(item2 => item2.name === item.name) === -1) {
-                    items.push(item);
+            // Create immediately invoked function so the parent function does not
+            // have to implement async / await
+            (async () => {
+                const step_data: any = await this.yaml_info.yamlDataByNameSync('step', name);
+                if (!step_data) {
+                    msg.error(t`YamlDataNotFound ${'step'} ${name}`);
+                    return;
                 }
-            });
+                const iface_id = this.addIfaceById(step_data, 'step');
+                if (step_data['base-class-name']) {
+                    this.addClassConfigItems(iface_id, step_data['base-class-name']);
+                }
+                (step_data.classes || []).forEach(class_data => {
+                    class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
+                });
+                (step_data['config-items'] || []).forEach(item => {
+                    if (items.findIndex(item2 => item2.name === item.name) === -1) {
+                        items.push(item);
+                    }
+                });
+            })();
         });
         return deepCopy(items);
     }

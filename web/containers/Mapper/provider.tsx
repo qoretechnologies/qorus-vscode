@@ -1,13 +1,17 @@
-import React, { FC, useCallback, useState, useEffect, useContext } from 'react';
-import { Button, ButtonGroup, Spinner, Dialog, Classes, Callout } from '@blueprintjs/core';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import SelectField from '../../components/Field/select';
+import React, { FC, useCallback, useContext, useState } from 'react';
+
 import map from 'lodash/map';
 import size from 'lodash/size';
 import styled, { css } from 'styled-components';
-import { TextContext } from '../../context/text';
+
+import { Button, ButtonGroup, Callout, Classes, Spinner } from '@blueprintjs/core';
+
+import CustomDialog from '../../components/CustomDialog';
+import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
+import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 
 export interface IProviderProps {
     type: 'inputs' | 'outputs';
@@ -56,7 +60,7 @@ export const providers = {
         name: 'type',
         url: 'dataprovider/types',
         suffix: '',
-        recordSuffix: '/type',
+        recordSuffix: '?action=type',
         type: 'type',
     },
     connection: {
@@ -330,7 +334,7 @@ const MapperProvider: FC<IProviderProps> = ({
     return (
         <>
             {wildcardDiagram?.isOpen && (
-                <Dialog title={t('Wildcard')} isOpen isCloseButtonShown={false}>
+                <CustomDialog title={t('Wildcard')} isOpen isCloseButtonShown={false}>
                     <div className={Classes.DIALOG_BODY}>
                         <Callout intent="primary">{t('WildcardReplace')}</Callout>
                         <br />
@@ -358,7 +362,7 @@ const MapperProvider: FC<IProviderProps> = ({
                             />
                         </div>
                     </div>
-                </Dialog>
+                </CustomDialog>
             )}
             <StyledWrapper compact={compact} hasTitle={!!title}>
                 {!compact && <StyledHeader>{title}</StyledHeader>}

@@ -23,7 +23,7 @@ class QorusRelease {
 
     makeRelease() {
         const project: QorusProject | undefined = projects.getProject();
-        if (!project || !project.configFileExists()) {
+        if (!project?.configFileExists()) {
             msg.error(t`QorusProjectNotSet`);
             return;
         }

@@ -1,15 +1,18 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import InterfaceCreatorPanel, { SearchWrapper, ContentWrapper, ActionsWrapper } from './panel';
+import React, { FunctionComponent } from 'react';
+
+import { omit } from 'lodash';
 import compose from 'recompose/compose';
-import withTextContext from '../../hocomponents/withTextContext';
+import styled from 'styled-components';
+
+import { Button, ButtonGroup } from '@blueprintjs/core';
+
 import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
-import styled from 'styled-components';
-import { ButtonGroup, Button, Callout } from '@blueprintjs/core';
-import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
-import { omit } from 'lodash';
 import { FunctionsContext } from '../../context/functions';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
+import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
 
 const MethodSelector = styled.div`
     width: 100%;
@@ -132,6 +135,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     removeSubItemFromFields,
     initialData: { 'mapper-code': library },
     interfaceId,
+    onSubmitSuccess,
 }) => {
     return (
         <FunctionsContext.Consumer>
@@ -224,6 +228,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                     isEditing={!!library}
                                     allMethodsData={functionsData}
                                     methodsList={functions}
+                                    onSubmitSuccess={onSubmitSuccess}
                                     data={functionsData && functionsData.find(fun => fun.id === activeFunction)}
                                     onNameChange={(functionId: number, name: string) => {
                                         setFunctions((currentFunctions: { id: number; name: string }[]) =>
