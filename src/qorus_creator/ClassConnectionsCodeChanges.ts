@@ -6,6 +6,7 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { serviceTemplates } from './service_constants';
 import { sortRanges } from '../qorus_utils';
+import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (
@@ -271,16 +272,17 @@ const removeClassConnectionsCode = (edit_data, iface_kind, trigger_names) => {
         text_lines,
         class_connections_class_range,
         class_connections_member_declaration_range,
+        class_connections_member_initialization_range,
         class_connections_trigger_ranges,
         method_decl_ranges = {},
     } = edit_data;
+    msg.debug({edit_data});
 
-    let ranges = [];
-    [class_connections_class_range, class_connections_member_declaration_range].forEach(range => {
-        if (range) {
-            ranges.push(range);
-        }
-    });
+    let ranges = [
+        class_connections_class_range,
+        class_connections_member_declaration_range,
+        class_connections_member_initialization_range
+    ].filter(range => range !== undefined);
 
     if (iface_kind === 'step' && trigger_names) {
         Object.keys(method_decl_ranges).forEach(method_name => {

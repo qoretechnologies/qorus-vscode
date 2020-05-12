@@ -411,6 +411,105 @@ export class QorusProjectEditInfo {
             }
         };
 
+        const maybeAddClassConnectionMemberInitialization = decl => {
+            if (decl.kind !== 9) {
+                return;
+            }
+
+            // does the declaration text contain the command
+            // "<classConnectionMember> = new <ClassConnectionClass>();" ?
+            // if yes take range of only this command (not the range of all the decl)
+
+            const class_name = this.edit_info[file].class_connections_class_name;
+            const member_name = this.edit_info[file].class_connections_member_name;
+
+            for (let i = decl.range.start.line; i <= decl.range.end.line; i++) {
+                const start_pos = this.edit_info[file].text_lines[i].indexOf(member_name);
+                if (start_pos === -1) {
+                    continue;
+                }
+
+                for (let ii = i; ii <= decl.range.end.line; ii++) {
+                    const class_name_start_pos = this.edit_info[file].text_lines[i].indexOf(class_name);
+                    if (class_name_start_pos === -1) {
+                        continue;
+                    }
+
+                    // posssibly the searched command string
+                    // "<classConnectionMember> = new <ClassConnectionClass>"
+                    // - but without the ending "();"
+                    let possibly_the_command_string;
+
+                    if (i === ii) {
+                         possibly_the_command_string = this.edit_info[file].text_lines[i]
+                             .substring(start_pos, class_name_start_pos + class_name.length);
+
+                    } else {
+                        possibly_the_command_string = this.edit_info[file].text_lines[i].substr(start_pos);
+                        for (let iii = i + 1; iii < ii; iii++) {
+                             possibly_the_command_string = this.edit_info[file].text_lines[iii];
+                        }
+                        possibly_the_command_string += this.edit_info[file].text_lines[ii]
+                            .substr(0, class_name_start_pos + class_name.length);
+                    }
+
+                    // remove the expected parts of the command and if nothing is left let's suppose
+                    // it really is the command (but still without the "();" part)
+
+                    const rest = possibly_the_command_string
+                        .replace(member_name, '')
+                        .replace(class_name, '')
+                        .replace('=', '')
+                        .replace('new', '');
+
+                    if (rest.match(/\S/)) {
+                        // no, something non-white is left so it's not the command
+                        continue;
+                    }
+
+                    // ok, so find the "();" to find the end of the range
+
+                    // first examine the part of the line after the class_name
+                    const line_rest = this.edit_info[file].text_lines[ii]
+                        .substr(class_name_start_pos + class_name.length);
+                    if (line_rest.match(/^\s*\(\s*\)\s*;/)) {
+                        const semicolon_relative_pos = line_rest.indexOf(';');
+                        this.edit_info[file].class_connections_member_initialization_range = {
+                            start: {
+                                line: i,
+                                character: start_pos
+                            },
+                            end: {
+                                line: ii,
+                                character: class_name_start_pos + class_name.length + semicolon_relative_pos
+                            }
+                        };
+                        return;
+                    } else {
+                        // examine the following lines
+                        for (let iii = ii + 1; iii <= decl.range.end.line; iii++) {
+                            if (!this.edit_info[file].text_lines[iii].match(/$\s*\(\s*\)\s*;/)) {
+                                continue;
+                            }
+
+                            const semicolon_pos = line_rest.indexOf(';');
+                            this.edit_info[file].class_connections_member_initialization_range = {
+                                start: {
+                                    line: i,
+                                    character: start_pos
+                                },
+                                end: {
+                                    line: iii,
+                                    character: semicolon_pos
+                                }
+                            };
+                            return;
+                        }
+                    }
+                }
+            }
+        };
+
         const maybeAddTriggerStatements = (decl) => {
             if (!QorusProjectEditInfo.isJavaDeclPublicMethod(decl)) {
                 return;
@@ -463,6 +562,7 @@ export class QorusProjectEditInfo {
                 for (const decl of symbol.children || []) {
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
+                        maybeAddClassConnectionMemberInitialization(decl);
                         maybeAddTriggerStatements(decl);
                     }
                     maybeAddClassMethodInfo(file, decl);
