@@ -29,21 +29,18 @@ export class QorusProjectYamlInfo {
         // This promise will check if the data exist
         // every 50ms for a maximum of 5 seconds
         return new Promise((resolve, reject) => {
-            let currentIteration: number = 1;
-            const maxIterations: number = 50;
-            const intervalTime: number = 100;
-            let interval: NodeJS.Timeout;
+            let currentIteration = 1;
+            const maxIterations = 50;
+            const intervalTime = 100;
+            let interval_id;
 
-            interval = setInterval((): void => {
+            interval_id = setInterval((): void => {
                 if (this.yaml_data[this.name_2_yaml[type][name]]) {
-                    clearInterval(interval);
-                    interval = null;
+                    clearInterval(interval_id);
                     resolve(this.yaml_data[this.name_2_yaml[type][name]]);
                 }
-                // If the iterations reached maximum, cancel the interval and reject the promise
                 else if (currentIteration === maxIterations) {
-                    clearInterval(interval);
-                    interval = null;
+                    clearInterval(interval_id);
                     msg.error(t`YamlDataNotFound ${type} ${name}`);
                     reject(t`YamlDataNotFound ${type} ${name}`)
                 } else {
