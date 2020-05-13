@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -1592,7 +1592,7 @@
         "mini-css-extract-plugin": "^0.5.0",
         "node-sass": "^4.12.0",
         "optimize-css-assets-webpack-plugin": "^5.0.1",
-        "prettier": "^1.19.1",
+        "prettier": "^2.0.5",
         "react": "^16.9.0",
         "react-dom": "^16.9.0",
         "react-hot-loader": "^4.8.4",

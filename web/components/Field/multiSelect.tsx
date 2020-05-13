@@ -46,6 +46,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     removeCodeFromRelations,
     canEdit,
     reference,
+    context,
 }) => {
     const [items, setItems] = useState<any[]>(default_items || []);
     const [editorManager, setEditorManager] = useState<any>({});
@@ -152,7 +153,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
     canEdit = !!reference || canEdit;
 
     return (
-        <FieldEnhancer>
+        <FieldEnhancer context={context}>
             {(onEditClick, onCreateClick) => (
                 <>
                     {editorManager.isOpen && (

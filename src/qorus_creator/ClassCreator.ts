@@ -63,7 +63,7 @@ class ClassCreator extends InterfaceCreator {
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${params.edit_type}-interface-complete`,
-                request_id: params.request_id,
+                request_id,
                 ok,
                 message
             });

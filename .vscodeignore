@@ -6,11 +6,16 @@ src/**
 test-resources/**
 ui-test/**
 web/**
+
 .babelrc
+.classpath
 .gitignore
-.gitlab-ci.yml
 .gitmodules
+.gitlab-ci.yml
+.prettierrc
+.project
 qorusproject.json
+server.js
 tsconfig.json
 tslint.json
 vsc-extension-quickstart.md
