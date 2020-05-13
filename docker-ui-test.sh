@@ -34,8 +34,8 @@ cd ${rootdir}/ui-test/node_modules/vscode-extension-tester/out
 # if the grep fails, the grep and sed commands must be edited
 #grep '" --install-extension' util/codeUtil.js
 #sed -i 's/--install-extension/--user-data-dir test-resources\/settings --install-extension/' util/codeUtil.js
-grep 'const args = \[' webdriver/browser.js
-sed -i 's/const args = \[/const args = \["--disable-gpu", /' webdriver/browser.js
+grep 'const args = \[' browser.js
+sed -i 's/const args = \[/const args = \["--disable-gpu", /' browser.js
 
 # setup test environment
 cd ${rootdir}

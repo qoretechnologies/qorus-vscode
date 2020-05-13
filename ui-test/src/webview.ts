@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { By, EditorView, InputBox, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { Editor } from 'vscode-extension-tester/out/webdriver/components/editor/Editor';
 
 function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -10,14 +9,14 @@ describe('Webview Simple Test', function() {
     this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
-    let editor: EditorView;
-    let editorView: Editor;
+    let editorView: EditorView;
+    let editor;
     let webview: WebView;
 
     before(async () => {
         driver = VSBrowser.instance.driver;
         workbench = new Workbench();
-        editor = new EditorView();
+        editorView = new EditorView();
 
         await sleep(5000);
 
@@ -38,10 +37,11 @@ describe('Webview Simple Test', function() {
         let isWebviewOpen = false;
 
         while (!isWebviewOpen) {
-            isWebviewOpen = (await editor.getOpenEditorTitles()).includes('Qorus Webview');
+            isWebviewOpen = (await editorView.getOpenEditorTitles()).includes('Qorus Webview');
         }
+        await sleep(1000);
 
-        editorView = await new EditorView().openEditor('Qorus Webview');
+        editor = await new EditorView().openEditor('Qorus Webview');
         webview = await new WebView(new EditorView(), 'Qorus Webview');
 
         await webview.wait();
@@ -294,7 +294,7 @@ describe('Webview Simple Test', function() {
         await sleep(2000);
         await webview.switchBack();
 
-        const titles = await editor.getOpenEditorTitles();
+        const titles = await editorView.getOpenEditorTitles();
 
         expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
     });
