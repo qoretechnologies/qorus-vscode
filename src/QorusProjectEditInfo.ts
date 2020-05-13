@@ -334,6 +334,8 @@ export class QorusProjectEditInfo {
             'class-connections': class_connections
         } = data;
 
+        msg.debug({class_name});
+
         let expected_trigger_names = [];
         Object.keys(class_connections || {}).forEach(connection => {
             class_connections[connection].forEach(connector => {
@@ -411,26 +413,30 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddClassConnectionMemberInitialization = decl => {
-            if (decl.kind !== 9) {
+        const maybeAddConstructorInfo = decl => {
+            msg.debug({name: decl.name.replace('()', '')});
+            if (decl.kind !== 9 && decl.name.replace('()', '') !== class_name) {
                 return;
             }
+
+            msg.debug({decl});
+            this.edit_info[file].constructor_range = decl.range;
 
             // does the declaration text contain the command
             // "<classConnectionMember> = new <ClassConnectionClass>();" ?
             // if yes take range of only this command (not the range of all the decl)
 
-            const class_name = this.edit_info[file].class_connections_class_name;
-            const member_name = this.edit_info[file].class_connections_member_name;
+            const class_connections_class_name = this.edit_info[file].class_connections_class_name;
+            const class_connections_member_name = this.edit_info[file].class_connections_member_name;
 
             for (let i = decl.range.start.line; i <= decl.range.end.line; i++) {
-                const start_pos = this.edit_info[file].text_lines[i].indexOf(member_name);
+                const start_pos = this.edit_info[file].text_lines[i].indexOf(class_connections_member_name);
                 if (start_pos === -1) {
                     continue;
                 }
 
                 for (let ii = i; ii <= decl.range.end.line; ii++) {
-                    const class_name_start_pos = this.edit_info[file].text_lines[i].indexOf(class_name);
+                    const class_name_start_pos = this.edit_info[file].text_lines[i].indexOf(class_connections_class_name);
                     if (class_name_start_pos === -1) {
                         continue;
                     }
@@ -442,7 +448,7 @@ export class QorusProjectEditInfo {
 
                     if (i === ii) {
                          possibly_the_command_string = this.edit_info[file].text_lines[i]
-                             .substring(start_pos, class_name_start_pos + class_name.length);
+                             .substring(start_pos, class_name_start_pos + class_connections_class_name.length);
 
                     } else {
                         possibly_the_command_string = this.edit_info[file].text_lines[i].substr(start_pos);
@@ -450,15 +456,15 @@ export class QorusProjectEditInfo {
                              possibly_the_command_string = this.edit_info[file].text_lines[iii];
                         }
                         possibly_the_command_string += this.edit_info[file].text_lines[ii]
-                            .substr(0, class_name_start_pos + class_name.length);
+                            .substr(0, class_name_start_pos + class_connections_class_name.length);
                     }
 
                     // remove the expected parts of the command and if nothing is left let's suppose
                     // it really is the command (but still without the "();" part)
 
                     const rest = possibly_the_command_string
-                        .replace(member_name, '')
-                        .replace(class_name, '')
+                        .replace(class_connections_member_name, '')
+                        .replace(class_connections_class_name, '')
                         .replace('=', '')
                         .replace('new', '');
 
@@ -469,9 +475,9 @@ export class QorusProjectEditInfo {
 
                     // ok, so find the "();" to find the end of the range
 
-                    // first examine the part of the line after the class_name
+                    // first examine the part of the line after the class_connections_class_name
                     const line_rest = this.edit_info[file].text_lines[ii]
-                        .substr(class_name_start_pos + class_name.length);
+                        .substr(class_name_start_pos + class_connections_class_name.length);
                     if (line_rest.match(/^\s*\(\s*\)\s*;/)) {
                         const semicolon_relative_pos = line_rest.indexOf(';');
                         this.edit_info[file].class_connections_member_initialization_range = {
@@ -481,7 +487,7 @@ export class QorusProjectEditInfo {
                             },
                             end: {
                                 line: ii,
-                                character: class_name_start_pos + class_name.length + semicolon_relative_pos
+                                character: class_name_start_pos + class_connections_class_name.length + semicolon_relative_pos
                             }
                         };
                         return;
@@ -562,7 +568,7 @@ export class QorusProjectEditInfo {
                 for (const decl of symbol.children || []) {
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
-                        maybeAddClassConnectionMemberInitialization(decl);
+                        maybeAddConstructorInfo(decl);
                         maybeAddTriggerStatements(decl);
                     }
                     maybeAddClassMethodInfo(file, decl);

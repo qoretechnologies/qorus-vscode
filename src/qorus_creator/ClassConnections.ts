@@ -135,7 +135,7 @@ export class ClassConnections {
             method_codes.push(this[`methodCode${capitalize(this.lang)}`](connection_code_name, connectors));
         }
 
-        let connections_within_class = this[`memberDeclBlockCode${capitalize(this.lang)}`]();
+        let connections_within_class = this[`memberDeclAndInitAllCode${capitalize(this.lang)}`]();
         let trigger_code = '';
 
         if (Object.keys(this.triggers).length) {
@@ -187,30 +187,32 @@ export class ClassConnections {
         return imports;
     }
 
-    memberDeclCode = () => this[`memberDeclCode${capitalize(this.lang)}`]();
+    protected memberDeclAndInitAllCodeQore = () =>
+        `${indent1}private {\n` +
+        this.memberDeclAndInitCodeQore() +
+        `${indent1}}\n`;
 
-    protected memberDeclCodeQore = () =>
+    memberDeclAndInitCodeQore = () =>
         `${indent2}${GENERATED.qore.begin}\n` +
         `${indent2}${this.connClassName()} ${CONN_MEMBER.qore}();\n` +
         `${indent2}${GENERATED.qore.end}\n`;
 
-    protected memberDeclBlockCodeQore = () =>
-        `${indent1}private {\n` +
-        this.memberDeclCodeQore() +
-        `${indent1}}\n`;
-
-    protected memberDeclCodeJava = () =>
-        `${indent1}${GENERATED.java.begin}\n` +
-        `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
-        `${indent1}${GENERATED.java.end}\n` +
+    memberDeclAndInitAllCodeJava = () =>
+        this.memberDeclCodeJava() +
         `${indent1}\n\n` +
         `${indent1}${this.class_name}() ${THROWS} {\n` +
-        `${indent2}${GENERATED.java.begin}\n` +
-        `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
-        `${indent2}${GENERATED.java.end}\n` +
+        this.memberInitCodeJava() +
         `${indent1}}\n`;
 
-    protected memberDeclBlockCodeJava = () => this.memberDeclCodeJava();
+    memberDeclCodeJava = () =>
+        `${indent1}${GENERATED.java.begin}\n` +
+        `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
+        `${indent1}${GENERATED.java.end}\n`;
+
+    memberInitCodeJava = () =>
+        `${indent2}${GENERATED.java.begin}\n` +
+        `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
+        `${indent2}${GENERATED.java.end}\n`;
 
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;

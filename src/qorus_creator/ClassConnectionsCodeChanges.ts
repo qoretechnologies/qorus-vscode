@@ -124,8 +124,13 @@ export const classConnectionsCodeChanges = async (
         writeFile(lines);
 
         edit_data = await setFileInfo(data);
+        msg.debug({edit_data});
+
         let line_shift;
-        ({ lines, line_shift } = insertMemberDeclaration(class_connections, edit_data, lang));
+        ({ lines, line_shift } = insertMemberDeclAndMaybeInit(class_connections, edit_data, lang));
+        if (lang === 'java' && edit_data.constructor_range) {
+            ({ lines, line_shift } = insertMemberInitJava(class_connections, edit_data, lines, line_shift));
+        }
         lines = insertTriggerCode(trigger_code, edit_data, lines, line_shift);
         let extra_class_code_lines = connections_extra_class.split(/\r?\n/);
         extra_class_code_lines.pop();
@@ -192,12 +197,50 @@ export const classConnectionsCodeChanges = async (
     }
 };
 
-const insertMemberDeclaration = (class_connections, edit_data, lang) => {
-    const { text_lines, private_member_block_range, last_class_line, last_base_class_range } = edit_data;
+const insertMemberInitJava = (class_connections, edit_data, lines, line_shift) => {
+    const { constructor_range } = edit_data;
+    msg.debug({ insertMemberInitJava: constructor_range });
+
+    const member_initialization_code_lines = class_connections.memberInitializationCode().split(/\r?\n/);
+    member_initialization_code_lines.pop();
+
+    const constructor_end_line = constructor_range.end.line + line_shift;
+    const end_line = lines[constructor_end_line];
+    // if the closing '}' of the constructor is not on a separate line move it to the next line
+    if (!end_line.match(/^\s*\}\s*$/)) {
+        const end_character = constructor_range.end.character - 1;
+        const end_line_1 = end_line.substr(0, end_character);
+        const end_line_2 = ' '.repeat(end_character) + end_line.substr(end_character);
+        lines.splice(constructor_end_line, 1, end_line_1, end_line_2);
+        line_shift++;
+    }
+
+    lines.splice(constructor_end_line + line_shift, 0, ...member_initialization_code_lines);
+    line_shift += member_initialization_code_lines.length;
+
+    return { lines, line_shift };
+};
+
+const insertMemberDeclAndMaybeInit = (class_connections, edit_data, lang) => {
+    const {
+        text_lines,
+        private_member_block_range,
+        last_class_line,
+        last_base_class_range,
+        constructor_range
+    } = edit_data;
     let lines = [ ...text_lines ];
     let line_shift = 0;
 
-    const member_decl_code_lines = class_connections.memberDeclCode().split(/\r?\n/);
+    msg.debug({ insertMemberDeclAndMaybeInit: constructor_range });
+
+    const member_decl_code = lang === 'qore'
+        ? class_connections.memberDeclAndInitCodeQore()
+        : constructor_range !== undefined
+            ? class_connections.memberDeclCodeJava()
+            : class_connections.memberDeclAndInitAllCodeJava();
+
+    let member_decl_code_lines = member_decl_code.split(/\r?\n/);
     member_decl_code_lines.pop();
 
     if (private_member_block_range) {
@@ -276,7 +319,6 @@ const removeClassConnectionsCode = (edit_data, iface_kind, trigger_names) => {
         class_connections_trigger_ranges,
         method_decl_ranges = {},
     } = edit_data;
-    msg.debug({edit_data});
 
     let ranges = [
         class_connections_class_range,
