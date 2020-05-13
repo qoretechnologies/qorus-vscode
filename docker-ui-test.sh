@@ -60,8 +60,8 @@ sed -i 's/width:1024,height:768/width:1680,height:1000/' test-resources/VSCode-l
 test-resources/VSCode-linux-x64/bin/code --install-extension qoretechnologies.qore-vscode
 
 # record video
-vid_name=test-`head -c 192 /dev/urandom | tr -dc A-Za-z0-9 | head -c 24`
-tmux new-session -d -s "${vid_name}" "ffmpeg -f x11grab -video_size 1680x1050 -i :0 -codec:v libx264 -r 15 /tmp/${vid_name}.mp4"
+session_name=test-`head -c 192 /dev/urandom | tr -dc A-Za-z0-9 | head -c 24`
+tmux new-session -d -s "${session_name}" "ffmpeg -f x11grab -video_size 1680x1050 -i :0 -codec:v libx264 -r 15 /tmp/qorus-vscode-uitest.mp4"
 
 # run tests
 set +e
@@ -69,11 +69,13 @@ ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js
 rc="$?"
 
 # send command to turn off video recording cleanly
-tmux send-keys -t "${vid_name}" q
+tmux send-keys -t "${session_name}" q
 
 # wait until video recording finishes
+set +x
+echo "Waiting for the video recording to finish..."
 while video_recording; do
-    sleep 1
+    sleep 5
 done
 
 exit $rc
