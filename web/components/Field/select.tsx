@@ -25,6 +25,7 @@ export interface ISelectField {
     messageData: any;
     warningMessageOnEmpty?: string;
     autoSelect?: boolean;
+    onClear: () => any;
 }
 
 const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
@@ -45,6 +46,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     warningMessageOnEmpty,
     autoSelect,
     reference,
+    onClear,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -74,7 +76,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         handleClick();
     };
 
-    const handleSelectClick: (item: any) => void = item => {
+    const handleSelectClick: (item: any) => void = (item) => {
         if (item === value) {
             return;
         }
@@ -98,7 +100,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
 
     // If we should run the items thru predicate
     if (predicate) {
-        filteredItems = filteredItems.filter(item => predicate(item.name));
+        filteredItems = filteredItems.filter((item) => predicate(item.name));
     }
 
     if (filteredItems.length === 0) {
@@ -123,7 +125,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     return (
         <FieldEnhancer>
             {(onEditClick, onCreateClick) => (
-                <ControlGroup fill>
+                <ControlGroup>
                     <Select
                         items={filteredItems}
                         itemRenderer={(item, data) => (
@@ -142,7 +144,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                             targetClassName: fill ? 'select-popover' : '',
                             position: 'left',
                         }}
-                        className={Classes.FILL}
+                        className={fill ? Classes.FILL : ''}
                         onItemSelect={(item: any) => handleSelectClick(item)}
                         query={query}
                         onQueryChange={(newQuery: string) => setQuery(newQuery)}
@@ -173,6 +175,11 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                                 />
                             </Tooltip>
                         </>
+                    )}
+                    {onClear && (
+                        <Tooltip content={t('ClearValue')}>
+                            <Button icon="cross" intent="danger" onClick={() => onClear()} />
+                        </Tooltip>
                     )}
                 </ControlGroup>
             )}

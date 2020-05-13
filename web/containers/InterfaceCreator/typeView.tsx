@@ -4,10 +4,11 @@ import { cloneDeep, get, map, set, size, unset } from 'lodash';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Intent, Tooltip, ControlGroup, Classes } from '@blueprintjs/core';
 
 import FileField from '../../components/Field/fileString';
 import String from '../../components/Field/string';
+import Select from '../../components/Field/select';
 import Suggest from '../../components/Field/suggest';
 import FieldLabel from '../../components/FieldLabel';
 import { Messages } from '../../constants/messages';
@@ -29,6 +30,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     const [fields, setFields] = useState(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {});
     const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
+    const [parent, setParent] = useState(initialData?.type?.parent || null);
 
     const reset = (soft?: boolean) => {
         if (soft) {
@@ -71,7 +73,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
     const addField = (path, data) => {
         // Set the new fields
-        setFields(current => {
+        setFields((current) => {
             // Clone the current fields
             const result: any = { ...current };
             // If we are adding field to the top
@@ -83,7 +85,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             // Build the path
             const fields: string[] = path.split('.');
             let newPath: string;
-            fields.forEach(fieldName => {
+            fields.forEach((fieldName) => {
                 if (!newPath) {
                     newPath = fieldName;
                 } else {
@@ -101,13 +103,13 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
     const editField = (path, data, remove?: boolean) => {
         // Set the new fields
-        setFields(current => {
+        setFields((current) => {
             // Clone the current fields
             const result: any = { ...current };
             // Build the path
             const fields: string[] = path.split('.');
             let newPath: string;
-            fields.forEach(fieldName => {
+            fields.forEach((fieldName) => {
                 if (!newPath) {
                     newPath = fieldName;
                 } else {
@@ -134,7 +136,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                 siblings: field ? field?.type?.fields : fields,
                 fieldData: edit ? field : null,
                 isParentCustom: field?.isCustom,
-                onSubmit: data => {
+                onSubmit: (data) => {
                     if (edit) {
                         editField(field.path, data);
                     } else {
@@ -218,6 +220,25 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                 <FieldLabel label={t('Path')} isValid={validateField('string', val)} />
                 <FieldInputWrapper>
                     <Suggest defaultItems={types} value={val} onChange={(_name, value) => setVal(value)} />
+                </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper>
+                <FieldLabel label={t('Parent')} info={t('Optional')} isValid />
+                <FieldInputWrapper>
+                    <Select
+                        get_message={{
+                            action: 'creator-get-objects',
+                            object_type: 'type',
+                        }}
+                        return_message={{
+                            action: 'creator-return-objects',
+                            object_type: 'type',
+                            return_value: 'objects',
+                        }}
+                        value={parent}
+                        onChange={(_name, value) => setParent(value)}
+                        onClear={() => setParent(null)}
+                    />
                 </FieldInputWrapper>
             </FieldWrapper>
             <div
