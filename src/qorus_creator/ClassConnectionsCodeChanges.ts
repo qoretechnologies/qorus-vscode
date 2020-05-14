@@ -6,7 +6,6 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { serviceTemplates } from './service_constants';
 import { sortRanges } from '../qorus_utils';
-import * as msg from '../qorus_message';
 
 
 export const classConnectionsCodeChanges = async (
@@ -124,7 +123,6 @@ export const classConnectionsCodeChanges = async (
         writeFile(lines);
 
         edit_data = await setFileInfo(data);
-        msg.debug({edit_data});
 
         let line_shift;
         ({ lines, line_shift } = insertMemberDeclAndMaybeInit(class_connections, edit_data, lang));
@@ -199,7 +197,6 @@ export const classConnectionsCodeChanges = async (
 
 const insertMemberInitJava = (class_connections, edit_data, lines, line_shift) => {
     const { constructor_range } = edit_data;
-    msg.debug({ insertMemberInitJava: constructor_range });
 
     const member_initialization_code_lines = class_connections.memberInitializationCode().split(/\r?\n/);
     member_initialization_code_lines.pop();
@@ -231,8 +228,6 @@ const insertMemberDeclAndMaybeInit = (class_connections, edit_data, lang) => {
     } = edit_data;
     let lines = [ ...text_lines ];
     let line_shift = 0;
-
-    msg.debug({ insertMemberDeclAndMaybeInit: constructor_range });
 
     const member_decl_code = lang === 'qore'
         ? class_connections.memberDeclAndInitCodeQore()
@@ -318,6 +313,8 @@ const removeClassConnectionsCode = (edit_data, iface_kind, trigger_names) => {
         class_connections_member_initialization_range,
         class_connections_trigger_ranges,
         method_decl_ranges = {},
+        constructor_range,
+        is_constructor_empty,
     } = edit_data;
 
     let ranges = [
@@ -325,6 +322,10 @@ const removeClassConnectionsCode = (edit_data, iface_kind, trigger_names) => {
         class_connections_member_declaration_range,
         class_connections_member_initialization_range
     ].filter(range => range !== undefined);
+
+    if (is_constructor_empty) {
+        ranges.push(constructor_range);
+    }
 
     if (iface_kind === 'step' && trigger_names) {
         Object.keys(method_decl_ranges).forEach(method_name => {

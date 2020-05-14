@@ -9,7 +9,7 @@ import { parseJavaInheritance } from './qorus_java_utils';
 import { getJavaDocumentSymbols } from './vscode_java';
 import { makeFileUri } from './qorus_utils';
 import * as msg from './qorus_message';
-import { CONN_CALL_METHOD } from './qorus_creator/ClassConnections';
+import { CONN_CALL_METHOD, GENERATED_TEXT } from './qorus_creator/ClassConnections';
 
 export class QorusProjectEditInfo {
     private edit_info: any = {};
@@ -334,8 +334,6 @@ export class QorusProjectEditInfo {
             'class-connections': class_connections
         } = data;
 
-        msg.debug({class_name});
-
         let expected_trigger_names = [];
         Object.keys(class_connections || {}).forEach(connection => {
             class_connections[connection].forEach(connector => {
@@ -414,13 +412,53 @@ export class QorusProjectEditInfo {
         };
 
         const maybeAddConstructorInfo = decl => {
-            msg.debug({name: decl.name.replace('()', '')});
             if (decl.kind !== 9 && decl.name.replace('()', '') !== class_name) {
                 return;
             }
 
-            msg.debug({decl});
             this.edit_info[file].constructor_range = decl.range;
+
+            // does the constructor contain something more then possibly
+            // the member initialization command?
+            let constructor_lines = [];
+            constructor_lines.push(this.edit_info[file].text_lines[decl.range.start.line]
+                .substr(decl.range.start.character));
+            for (let i = decl.range.start.line + 1; i < decl.range.end.line; i++) {
+                constructor_lines.push(this.edit_info[file].text_lines[i]);
+            }
+            constructor_lines.push(this.edit_info[file].text_lines[decl.range.end.line]
+                .substr(0, decl.range.end.character));
+
+            // remove lines between the comments GENERATED BEGIN/END (including those lines)
+            let remaining_constructor_lines = [];
+            let is_generated = false;
+            constructor_lines.forEach(line => {
+                if(line.indexOf(GENERATED_TEXT.begin) > -1) {
+                    is_generated = true;
+                    return;
+                }
+                if(line.indexOf(GENERATED_TEXT.end) > -1) {
+                    is_generated = false;
+                    return;
+                }
+                if (!is_generated) {
+                    remaining_constructor_lines.push(line);
+                }
+            });
+
+            // join the lines and remove the expected constructor signature parts
+            const remaining_constructor_code = remaining_constructor_lines.join(' ')
+                .replace(class_name, '')
+                .replace('(', '')
+                .replace(')', '')
+                .replace('throws', '')
+                .replace('Throwable', '')
+                .replace('{', '')
+                .replace('}', '');
+
+            if (!remaining_constructor_code.match(/\S/)) {
+                this.edit_info[file].is_constructor_empty = true;
+            }
 
             // does the declaration text contain the command
             // "<classConnectionMember> = new <ClassConnectionClass>();" ?
