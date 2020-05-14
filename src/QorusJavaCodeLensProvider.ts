@@ -9,6 +9,7 @@ import { getJavaDocumentSymbolsWithWait } from './vscode_java';
 
 export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
     protected async provideLanguageSpecificImpl(document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
+        await this.code_info.edit_info.setFileInfo(file_path, data);
         return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(symbols => {
             if (!symbols || !symbols.length) {
                 return this.previous_lenses;
@@ -31,7 +32,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 }
 
                 for (const child of symbol.children || []) {
-                    if (!QorusProjectEditInfo.isJavaDeclPublicMethod(child)) {
+                    if (!this.code_info.edit_info.isJavaDeclPublicMethod(child, file_path)) {
                         continue;
                     }
 

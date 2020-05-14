@@ -78,8 +78,14 @@ export class QorusProjectEditInfo {
         return true;
     }
 
-    static isJavaDeclPublicMethod = (decl: any): boolean => {
+    isJavaDeclPublicMethod = (decl: any, file: string): boolean => {
         if (decl.kind !== 6) { // method
+            return false;
+        }
+
+        if (this.edit_info[file]?.text_lines?.[decl.selectionRange.start.line]
+                .substr(0, decl.selectionRange.start.character).indexOf('private') > -1)
+        {
             return false;
         }
 
@@ -363,7 +369,7 @@ export class QorusProjectEditInfo {
 
                 const decls = symbol.children;
                 for (const decl of decls) {
-                    if (!QorusProjectEditInfo.isJavaDeclPublicMethod(decl)) {
+                    if (!this.isJavaDeclPublicMethod(decl, file)) {
                         continue;
                     }
 
@@ -554,8 +560,8 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddTriggerStatements = (decl) => {
-            if (!QorusProjectEditInfo.isJavaDeclPublicMethod(decl)) {
+        const maybeAddTriggerStatements = decl => {
+            if (!this.isJavaDeclPublicMethod(decl, file)) {
                 return;
             }
 
@@ -576,7 +582,7 @@ export class QorusProjectEditInfo {
         };
 
         const maybeAddClassMethodInfo = (file: string, decl: any) => {
-            if (!QorusProjectEditInfo.isJavaDeclPublicMethod(decl)) {
+            if (!this.isJavaDeclPublicMethod(decl, file)) {
                 return;
             }
 
