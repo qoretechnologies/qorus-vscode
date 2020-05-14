@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { cloneDeep, get, map, set, size, unset } from 'lodash';
 import useMount from 'react-use/lib/useMount';
@@ -12,7 +12,13 @@ import Select from '../../components/Field/select';
 import Suggest from '../../components/Field/suggest';
 import FieldLabel from '../../components/FieldLabel';
 import { Messages } from '../../constants/messages';
-import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
+import {
+    flattenFields,
+    getLastChildIndex,
+    areFieldsUnique,
+    getFieldSiblings,
+    IMapperField,
+} from '../../helpers/mapper';
 import { validateField } from '../../helpers/validations';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -23,14 +29,19 @@ import MapperInput from '../Mapper/input';
 import MapperFieldModal from '../Mapper/modal';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from './panel';
 
-const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
+const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess, addMessageListener, postMessage }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
-    const [fields, setFields] = useState(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {});
+    const [fields, setFields] = useState<{ [name: string]: IMapperField }>(
+        initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {}
+    );
     const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
     const [parent, setParent] = useState(initialData?.type?.parent || null);
+    const [parentFields, setParentFields] = useState({});
+    const [parentError, setParentError] = useState<string>(null);
+    const [errorCount, setErrorCount] = useState<number>(0);
 
     const reset = (soft?: boolean) => {
         if (soft) {
@@ -62,6 +73,32 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             setTypeReset(null);
         };
     });
+
+    useEffect(() => {
+        // Load the parent type fields whenever parent changes
+        if (parent) {
+            addMessageListener(Messages.RETURN_INTERFACE_DATA, (data) => {
+                const { fields: receivedFields } = data.data?.type?.typeinfo;
+
+                if (receivedFields) {
+                    setParentFields(receivedFields);
+                } else {
+                    setParentError(t('ParentFieldsNoFields'));
+                }
+            });
+            postMessage(Messages.GET_INTERFACE_DATA, {
+                iface_kind: 'type',
+                name: parent,
+            });
+        } else {
+            // Remove parent fields
+            removeParentFields();
+        }
+    }, [parent]);
+
+    const removeParentFields: () => void = () => {
+        setParentFields({});
+    };
 
     if (!initialData.qorus_instance) {
         return (
@@ -133,7 +170,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         } else {
             setAddDialog({
                 isOpen: true,
-                siblings: field ? field?.type?.fields : fields,
+                siblings: field ? field?.type?.fields : { ...fields, ...parentFields },
                 fieldData: edit ? field : null,
                 isParentCustom: field?.isCustom,
                 onSubmit: (data) => {
@@ -187,7 +224,15 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         }
     };
 
-    const flattenedFields = flattenFields(fields);
+    const flattenParentFields = (parentFields) => {
+        const flattened = flattenFields(parentFields);
+        // Add the parent flag
+        return flattened.map((field) => ({ ...field, isExtender: true }));
+    };
+
+    const flattenedFields: IMapperField[] = [...flattenFields(fields), ...flattenParentFields(parentFields)];
+
+    console.log(flattenedFields, size(flattenedFields));
 
     return (
         <>
@@ -257,15 +302,16 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             >
                 <StyledMapperWrapper style={{ justifyContent: 'center', paddingTop: '10px' }}>
                     <StyledFieldsWrapper style={{ flex: '0 1 auto' }}>
-                        {size(flattenedFields) !== 0
-                            ? map(flattenedFields, (input, index) => (
+                        {size(flattenedFields) !== 0 && (!parent || (parent && size(parentFields)))
+                            ? map(flattenedFields, (input: IMapperField, index) => (
                                   <MapperInput
-                                      key={input.path}
+                                      key={`${input.path}${input.isExtender ? '.INHERITED' : ''}`}
                                       name={input.name}
                                       types={input.type.types_returned}
                                       {...input}
                                       field={input}
                                       id={index + 1}
+                                      allFields={flattenedFields}
                                       lastChildIndex={getLastChildIndex(input, flattenedFields) - index}
                                       onClick={handleClick}
                                       hasAvailableOutput={true}

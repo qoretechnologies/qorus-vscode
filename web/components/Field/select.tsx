@@ -176,11 +176,11 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                             </Tooltip>
                         </>
                     )}
-                    {onClear && (
+                    {onClear && value ? (
                         <Tooltip content={t('ClearValue')}>
-                            <Button icon="cross" intent="danger" onClick={() => onClear()} />
+                            <Button icon="trash" intent="danger" onClick={() => onClear()} />
                         </Tooltip>
-                    )}
+                    ) : null}
                 </ControlGroup>
             )}
         </FieldEnhancer>
