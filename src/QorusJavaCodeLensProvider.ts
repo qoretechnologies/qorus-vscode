@@ -9,11 +9,12 @@ import { getJavaDocumentSymbolsWithWait } from './vscode_java';
 
 export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
     protected async provideLanguageSpecificImpl(document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
-        await this.code_info.edit_info.setFileInfo(file_path, data);
-        return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(symbols => {
+        return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
             if (!symbols || !symbols.length) {
                 return this.previous_lenses;
             }
+
+            await this.code_info.edit_info.setFileInfo(file_path, data);
             let lenses: CodeLens[] = [];
             data = this.code_info.fixData(data);
 
