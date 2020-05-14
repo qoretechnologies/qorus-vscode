@@ -606,9 +606,9 @@ export class QorusProjectEditInfo {
                 for (const decl of symbol.children || []) {
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
-                        maybeAddConstructorInfo(decl);
                         maybeAddTriggerStatements(decl);
                     }
+                    maybeAddConstructorInfo(decl);
                     maybeAddClassMethodInfo(file, decl);
                 }
             });

@@ -198,10 +198,10 @@ export const classConnectionsCodeChanges = async (
 const insertMemberInitJava = (class_connections, edit_data, lines, line_shift) => {
     const { constructor_range } = edit_data;
 
-    const member_initialization_code_lines = class_connections.memberInitializationCode().split(/\r?\n/);
+    const member_initialization_code_lines = class_connections.memberInitCodeJava().split(/\r?\n/);
     member_initialization_code_lines.pop();
 
-    const constructor_end_line = constructor_range.end.line + line_shift;
+    const constructor_end_line = constructor_range.end.line;
     const end_line = lines[constructor_end_line];
     // if the closing '}' of the constructor is not on a separate line move it to the next line
     if (!end_line.match(/^\s*\}\s*$/)) {
