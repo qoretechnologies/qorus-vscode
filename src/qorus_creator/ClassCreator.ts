@@ -203,11 +203,12 @@ class ClassCreator extends InterfaceCreator {
         }
 
         if (['create', 'edit'].includes(edit_type)) {
+            const name = iface_kind === 'type' ? this.file_base : data.name;
             qorus_webview.postMessage({
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: true,
-                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${name}`
             });
         }
 
