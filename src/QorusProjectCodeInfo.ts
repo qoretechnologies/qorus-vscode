@@ -433,7 +433,7 @@ export class QorusProjectCodeInfo {
         this.all_files_watcher.onDidDelete(() => this.update(['file_tree']));
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
-        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.yaml_info.addSingleYamlInfo(uri.fsPath));
+        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
         this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
@@ -886,6 +886,12 @@ export class QorusProjectCodeInfo {
                 removeField('event');
                 break;
         }
+    }
+
+    private updateSingleYamlInfo(file: string) {
+        this.setPending('yaml', true);
+        this.yaml_info.addSingleYamlInfo(file);
+        this.setPending('yaml', false);
     }
 
     private updateYamlInfo(source_directories: string[]) {
