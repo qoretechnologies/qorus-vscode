@@ -53,7 +53,7 @@ export class QorusProjectCodeInfo {
         this.project = project;
         this.yaml_files_info = new QorusProjectYamlInfo();
         this.document_symbols_edit_info = new QorusProjectEditInfo();
-        this.iface_info = new InterfaceInfo(this.yaml_files_info);
+        this.iface_info = new InterfaceInfo(this);
         this.initInfo();
         this.initFileWatchers();
         this.update(undefined, true);
@@ -167,15 +167,17 @@ export class QorusProjectCodeInfo {
     }
 
     getMapperCodeMethods = name => {
-        const mapper_code = this.yaml_info.yamlDataByName('mapper-code', name);
-        if (!mapper_code) {
-            msg.log(t`MapperCodeNotFound ${name}`);
-        }
-        const methods = (mapper_code && mapper_code.methods) || [];
-        qorus_webview.postMessage({
-            action: 'return-mapper-code-methods',
-            name,
-            methods
+        this.waitForPending(['yaml']).then(() => {
+            const mapper_code = this.yaml_info.yamlDataByName('mapper-code', name);
+            if (!mapper_code) {
+                msg.log(t`MapperCodeNotFound ${name}`);
+            }
+            const methods = (mapper_code && mapper_code.methods) || [];
+            qorus_webview.postMessage({
+                action: 'return-mapper-code-methods',
+                name,
+                methods
+            });
         });
     }
 
@@ -229,15 +231,6 @@ export class QorusProjectCodeInfo {
             });
         };
 
-        const type = this.yaml_info.yamlDataByName('type', path.join(name, path_in_data));
-        if (type) {
-            const {typeinfo} = type;
-            if (typeinfo) {
-                postMessage(typeinfo);
-                return;
-            }
-        }
-
         const onSuccess = response => {
             const data = JSON.parse(response);
             postMessage(data);
@@ -248,7 +241,18 @@ export class QorusProjectCodeInfo {
             postMessage();
         };
 
-        qorus_request.doRequest(url, 'GET', onSuccess, onError);
+        this.waitForPending(['yaml']).then(() => {
+            const type = this.yaml_info.yamlDataByName('type', path.join(name, path_in_data));
+            if (type) {
+                const {typeinfo} = type;
+                if (typeinfo) {
+                    postMessage(typeinfo);
+                    return;
+                }
+            }
+
+            qorus_request.doRequest(url, 'GET', onSuccess, onError);
+        });
     }
 
     fixData(orig_data: any): any {
