@@ -32,14 +32,14 @@ export abstract class InterfaceCreator {
     protected has_code = false;
     protected had_code = false;
 
-    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
+    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string, edit_type?: string): any {
         this.file_edit_info = undefined;
         this.suffix = suffix;
 
         let { target_dir, target_file } = data;
         const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
 
-        this.target_dir = iface_kind === 'type'
+        this.target_dir = (iface_kind === 'type' && edit_type === 'create')
             ? this.code_info.getProject()?.dirForTypePath(target_dir, data.path)
             : target_dir;
 

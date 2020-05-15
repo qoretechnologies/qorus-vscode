@@ -58,7 +58,7 @@ class ClassCreator extends InterfaceCreator {
         this.has_code = !!template;
         this.had_code = iface_kind === 'workflow' ? !!orig_data?.['class-name'] : this.has_code;
 
-        this.setPaths(data, orig_data, suffix, iface_kind);
+        this.setPaths(data, orig_data, suffix, iface_kind, edit_type);
 
         const {ok, message} = this.checkData(params);
         if (!ok) {
