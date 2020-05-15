@@ -39,18 +39,9 @@ export abstract class InterfaceCreator {
         let { target_dir, target_file } = data;
         const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
 
-        if (target_dir) {
-            this.target_dir = target_dir;
-        } else {
-            if (iface_kind !== 'type') {
-                msg.error(t`TargetDirUnknown`);
-                return;
-            }
-            this.target_dir = this.code_info.getProject()?.dirForTypePath(data.path);
-            if (!this.target_dir) {
-                return;
-            }
-        }
+        this.target_dir = iface_kind === 'type'
+            ? this.code_info.getProject()?.dirForTypePath(target_dir, data.path)
+            : target_dir;
 
         if (iface_kind === 'type' && !target_file) {
             target_file = path.basename(data.path);

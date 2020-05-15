@@ -190,7 +190,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     return (
         <>
             <FieldWrapper>
-                <FieldLabel label={t('TargetDir')} info={t('Optional')} isValid />
+                <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', val)} />
                 <FieldInputWrapper>
                     <FileField
                         onChange={(_name, value) => setTargetDir(value)}
