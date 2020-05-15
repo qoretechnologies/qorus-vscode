@@ -71,7 +71,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
     const addField = (path, data) => {
         // Set the new fields
-        setFields(current => {
+        setFields((current) => {
             // Clone the current fields
             const result: any = { ...current };
             // If we are adding field to the top
@@ -83,7 +83,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             // Build the path
             const fields: string[] = path.split('.');
             let newPath: string;
-            fields.forEach(fieldName => {
+            fields.forEach((fieldName) => {
                 if (!newPath) {
                     newPath = fieldName;
                 } else {
@@ -101,13 +101,13 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
     const editField = (path, data, remove?: boolean) => {
         // Set the new fields
-        setFields(current => {
+        setFields((current) => {
             // Clone the current fields
             const result: any = { ...current };
             // Build the path
             const fields: string[] = path.split('.');
             let newPath: string;
-            fields.forEach(fieldName => {
+            fields.forEach((fieldName) => {
                 if (!newPath) {
                     newPath = fieldName;
                 } else {
@@ -134,7 +134,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                 siblings: field ? field?.type?.fields : fields,
                 fieldData: edit ? field : null,
                 isParentCustom: field?.isCustom,
-                onSubmit: data => {
+                onSubmit: (data) => {
                     if (edit) {
                         editField(field.path, data);
                     } else {
@@ -190,7 +190,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     return (
         <>
             <FieldWrapper>
-                <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', val)} />
+                <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', targetDir)} />
                 <FieldInputWrapper>
                     <FileField
                         onChange={(_name, value) => setTargetDir(value)}
