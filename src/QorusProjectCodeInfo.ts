@@ -110,36 +110,33 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
-            // Immediately invoked function
-            (async () => {
-                const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
+            const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
 
-                let raw_data;
-                if (class_name) {
-                    raw_data = this.yaml_info.yamlDataByName('class', class_name);
-                } else {
-                    const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-                    raw_data = await this.yaml_info.yamlDataByNameSync(true_iface_kind, name_key);
-                }
-                const data = this.fixData(raw_data);
+            let raw_data;
+            if (class_name) {
+                raw_data = this.yaml_info.yamlDataByName('class', class_name);
+            } else {
+                const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
+                raw_data = this.yaml_info.yamlDataByName(true_iface_kind, name_key);
+            }
+            const data = this.fixData(raw_data);
 
-                const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
+            const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
 
-                qorus_webview.postMessage({
-                    action: 'return-interface-data',
-                    data: {
-                        iface_kind,
-                        custom_data,
-                        [iface_kind]: { ...data, iface_id },
-                        ... include_tabs
-                            ? {
-                                tab: 'CreateInterface',
-                                subtab: iface_kind,
-                            }
-                            : {},
-                    },
-                });
-            })()
+            qorus_webview.postMessage({
+                action: 'return-interface-data',
+                data: {
+                    iface_kind,
+                    custom_data,
+                    [iface_kind]: { ...data, iface_id },
+                    ... include_tabs
+                        ? {
+                            tab: 'CreateInterface',
+                            subtab: iface_kind,
+                        }
+                        : {},
+                },
+            });
         });
     }
 
@@ -436,7 +433,7 @@ export class QorusProjectCodeInfo {
         this.all_files_watcher.onDidDelete(() => this.update(['file_tree']));
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
-        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.yaml_info.addSingleYamlInfo(uri.fsPath));
+        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
         this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
@@ -889,6 +886,12 @@ export class QorusProjectCodeInfo {
                 removeField('event');
                 break;
         }
+    }
+
+    private addSingleYamlInfo(file: string) {
+        this.setPending('yaml', true);
+        this.yaml_info.addSingleYamlInfo(file);
+        this.setPending('yaml', false);
     }
 
     private updateYamlInfo(source_directories: string[]) {

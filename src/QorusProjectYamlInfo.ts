@@ -22,33 +22,6 @@ export class QorusProjectYamlInfo {
     private name_2_yaml: any = {};
     private class_2_yaml: any = {};
     yamlDataByName = (type, name) => this.yaml_data[this.name_2_yaml[type][name]];
-    yamlDataByNameSync = async (type, name): Promise<any> => {
-        if (this.yaml_data[this.name_2_yaml[type][name]]) {
-            return new Promise((resolve) => resolve(this.yaml_data[this.name_2_yaml[type][name]]));
-        }
-        // This promise will check if the data exist
-        // every 50ms for a maximum of 5 seconds
-        return new Promise((resolve, reject) => {
-            let currentIteration = 1;
-            const maxIterations = 50;
-            const intervalTime = 100;
-            let interval_id;
-
-            interval_id = setInterval((): void => {
-                if (this.yaml_data[this.name_2_yaml[type][name]]) {
-                    clearInterval(interval_id);
-                    resolve(this.yaml_data[this.name_2_yaml[type][name]]);
-                }
-                else if (currentIteration === maxIterations) {
-                    clearInterval(interval_id);
-                    msg.error(t`YamlDataNotFound ${type} ${name}`);
-                    reject(t`YamlDataNotFound ${type} ${name}`)
-                } else {
-                    currentIteration++;
-                }
-            }, intervalTime);
-        });
-    };
     yamlDataByClass = (type, class_name) => this.yaml_data[this.class_2_yaml[type][class_name]];
     yamlDataByType = type => {
         let ret_val = {};

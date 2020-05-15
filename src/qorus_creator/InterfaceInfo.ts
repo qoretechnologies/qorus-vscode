@@ -396,27 +396,23 @@ export class InterfaceInfo {
     private workflowStepsConfigItems = steps => {
         let items = [];
         flattenDeep(steps).forEach(name => {
-            // Create immediately invoked function so the parent function does not
-            // have to implement async / await
-            (async () => {
-                const step_data: any = await this.yaml_info.yamlDataByNameSync('step', name);
-                if (!step_data) {
-                    msg.error(t`YamlDataNotFound ${'step'} ${name}`);
-                    return;
+            const step_data: any = this.yaml_info.yamlDataByName('step', name);
+            if (!step_data) {
+                msg.error(t`YamlDataNotFound ${'step'} ${name}`);
+                return;
+            }
+            const iface_id = this.addIfaceById(step_data, 'step');
+            if (step_data['base-class-name']) {
+                this.addClassConfigItems(iface_id, step_data['base-class-name']);
+            }
+            (step_data.classes || []).forEach(class_data => {
+                class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
+            });
+            (step_data['config-items'] || []).forEach(item => {
+                if (items.findIndex(item2 => item2.name === item.name) === -1) {
+                    items.push(item);
                 }
-                const iface_id = this.addIfaceById(step_data, 'step');
-                if (step_data['base-class-name']) {
-                    this.addClassConfigItems(iface_id, step_data['base-class-name']);
-                }
-                (step_data.classes || []).forEach(class_data => {
-                    class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
-                });
-                (step_data['config-items'] || []).forEach(item => {
-                    if (items.findIndex(item2 => item2.name === item.name) === -1) {
-                        items.push(item);
-                    }
-                });
-            })();
+            });
         });
         return deepCopy(items);
     }
