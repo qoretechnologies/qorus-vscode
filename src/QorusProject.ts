@@ -130,15 +130,6 @@ export class QorusProject {
         }
     }
 
-    private addSourceDir(dir) {
-        this.validateConfigFileAndDo(file_data => {
-            if (file_data.source_directories.indexOf(dir) === -1) {
-                file_data.source_directories.push(dir);
-                this.writeConfig(file_data);
-            }
-        });
-    }
-
     addSourceDirWithFilePicker() {
         this.validateConfigFileAndDo(file_data => {
             vscode.window
@@ -193,17 +184,17 @@ export class QorusProject {
         this.writeConfig(file_data);
     }
 
-    dirForTypePath = type_path => {
+    dirForTypePath = (target_dir, type_path) => {
         if (['/', '\\'].includes(type_path[0])) {
             type_path = type_path.substr(1);
         }
+
         const relative_dir = path.dirname(type_path);
-        const dir = path.join(this.project_folder, relative_dir);
+        const dir = path.join(target_dir, relative_dir);
 
         if (!fs.existsSync(dir)) {
             try {
                 fs.mkdirSync(dir, {recursive: true, mode: 0o755});
-                this.addSourceDir(relative_dir);
             }
             catch (e) {
                 msg.error(t`FailedCreateDir ${dir}`);

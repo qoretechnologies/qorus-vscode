@@ -58,7 +58,7 @@ class ClassCreator extends InterfaceCreator {
         this.has_code = !!template;
         this.had_code = iface_kind === 'workflow' ? !!orig_data?.['class-name'] : this.has_code;
 
-        this.setPaths(data, orig_data, suffix, iface_kind);
+        this.setPaths(data, orig_data, suffix, iface_kind, edit_type);
 
         const {ok, message} = this.checkData(params);
         if (!ok) {
@@ -203,11 +203,12 @@ class ClassCreator extends InterfaceCreator {
         }
 
         if (['create', 'edit'].includes(edit_type)) {
+            const name = iface_kind === 'type' ? data.path : data.name;
             qorus_webview.postMessage({
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: true,
-                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${name}`
             });
         }
 

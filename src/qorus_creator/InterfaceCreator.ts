@@ -32,25 +32,16 @@ export abstract class InterfaceCreator {
     protected has_code = false;
     protected had_code = false;
 
-    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string): any {
+    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string, edit_type?: string): any {
         this.file_edit_info = undefined;
         this.suffix = suffix;
 
         let { target_dir, target_file } = data;
         const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
 
-        if (target_dir) {
-            this.target_dir = target_dir;
-        } else {
-            if (iface_kind !== 'type') {
-                msg.error(t`TargetDirUnknown`);
-                return;
-            }
-            this.target_dir = this.code_info.getProject()?.dirForTypePath(data.path);
-            if (!this.target_dir) {
-                return;
-            }
-        }
+        this.target_dir = (iface_kind === 'type' && edit_type === 'create')
+            ? this.code_info.getProject()?.dirForTypePath(target_dir, data.path)
+            : target_dir;
 
         if (iface_kind === 'type' && !target_file) {
             target_file = path.basename(data.path);
