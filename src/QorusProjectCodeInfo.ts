@@ -888,7 +888,7 @@ export class QorusProjectCodeInfo {
         }
     }
 
-    private updateSingleYamlInfo(file: string) {
+    private addSingleYamlInfo(file: string) {
         this.setPending('yaml', true);
         this.yaml_info.addSingleYamlInfo(file);
         this.setPending('yaml', false);
