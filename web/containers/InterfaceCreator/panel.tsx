@@ -1050,7 +1050,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         selectedFieldList,
                         (field: IField) =>
                             !field.internal && (
-                                <FieldWrapper key={field.name}>
+                                <FieldWrapper key={field.name} name="selected-field">
                                     <FieldLabel
                                         info={field.markdown && t('MarkdownSupported')}
                                         label={t(`field-label-${field.name}`)}
@@ -1142,6 +1142,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 text={t(submitLabel)}
                                 disabled={!canSubmit()}
                                 icon={'tick'}
+                                name={`interface-creator-submit-${type}`}
                                 intent={Intent.SUCCESS}
                                 onClick={handleSubmitClick}
                             />

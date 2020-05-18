@@ -16,6 +16,7 @@ export interface IAddProjectData {
     onCancel?: () => void;
     minimal?: boolean;
     big?: boolean;
+    id?: string;
 }
 
 const StyledAddWrapper = styled.div`
@@ -27,7 +28,7 @@ const StyledAddWrapper = styled.div`
 `;
 
 export default withTextContext()(
-    ({ withUrl, big, t, onCancel, name, url, onSubmit, fill, text, defaultAdding = false, minimal = true }) => {
+    ({ withUrl, big, t, onCancel, name, url, onSubmit, fill, text, defaultAdding = false, minimal = true, id }) => {
         const [isAdding, setIsAdding] = useState<boolean>(defaultAdding);
         const [newName, setName] = useState<string>(name);
         const [newUrl, setUrl] = useState<string>(url);
@@ -99,6 +100,7 @@ export default withTextContext()(
                             onChange={handleNameChange}
                             onKeyUp={handleEnterPress}
                             small={!big}
+                            name={id}
                             style={{
                                 width: !minimal ? '250px' : 'auto',
                             }}
@@ -110,15 +112,29 @@ export default withTextContext()(
                                 onChange={handleUrlChange}
                                 onKeyUp={handleEnterPress}
                                 small={!big}
+                                name={`${id}-url`}
                             />
                         )}
 
                         <Button icon="cross" onClick={handleCancelClick} small={!big} />
-                        <Button icon="small-tick" intent="success" onClick={handleCreateClick} small={!big} />
+                        <Button
+                            icon="small-tick"
+                            intent="success"
+                            onClick={handleCreateClick}
+                            small={!big}
+                            name={`${id}-submit`}
+                        />
                     </ButtonGroup>
                 ) : (
                     <ButtonGroup fill={fill} minimal={minimal}>
-                        <Button icon="plus" text={text} onClick={handleAddClick} small={!big} intent="success" />
+                        <Button
+                            icon="plus"
+                            text={text}
+                            onClick={handleAddClick}
+                            small={!big}
+                            intent="success"
+                            name={`${id}-add`}
+                        />
                     </ButtonGroup>
                 )}
             </StyledAddWrapper>

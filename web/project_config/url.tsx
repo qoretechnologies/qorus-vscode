@@ -1,6 +1,9 @@
 import React, { FunctionComponent, useContext } from 'react';
+
 import styled from 'styled-components';
+
 import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
+
 import { InitialContext } from '../context/init';
 
 export interface IQorusUrlProps {
@@ -36,11 +39,13 @@ const QorusUrl: FunctionComponent<IQorusUrlProps> = ({ name, url, safe_url, inst
     const initContext = useContext(InitialContext);
 
     return (
-        <StyledUrl>
+        <StyledUrl name="other-url-item">
             {id + 1}. {name}
             <span className={Classes.TEXT_MUTED}>
                 {' '}
-                <a href={url}>[{safe_url}]</a>
+                <a href={url} name="other-url-link">
+                    [{safe_url}]
+                </a>
             </span>
             <div className="button-wrapper pull-right">
                 <ButtonGroup minimal>
@@ -48,6 +53,7 @@ const QorusUrl: FunctionComponent<IQorusUrlProps> = ({ name, url, safe_url, inst
                         icon="trash"
                         intent="danger"
                         small
+                        name="other-url-delete"
                         onClick={() =>
                             initContext.confirmAction('ConfirmRemoveUrl', () => onDelete(envId, instanceId, name))
                         }

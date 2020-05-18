@@ -324,6 +324,7 @@ const Step = ({
     return (
         <>
             <StyledStepName
+                name="steplist-step"
                 onMouseEnter={() => groupId !== 1 && setHighlightedSteps({ groupId })}
                 onMouseLeave={() => setHighlightedSteps(null)}
                 isEven={level % 2 !== 1 || index === 0}
@@ -460,6 +461,7 @@ const NewStepPopover = compose(
                             <Button
                                 intent="success"
                                 icon="add"
+                                name="create-new-step"
                                 text={t('AddNewStep')}
                                 onClick={() => {
                                     resetFields('step');

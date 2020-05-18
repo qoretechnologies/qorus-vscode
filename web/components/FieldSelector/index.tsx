@@ -105,7 +105,11 @@ const FieldSelector: FunctionComponent<IFieldSelector> = ({
 }) => (
     <TextContext.Consumer>
         {t => (
-            <StyledFieldSelector disabled={disabled} onClick={() => !disabled && onClick(name)}>
+            <StyledFieldSelector
+                name={`field-selector-${name}`}
+                disabled={disabled}
+                onClick={() => !disabled && onClick(name)}
+            >
                 <Tooltip content={tooltip || type}>
                     <>
                         <FieldName>{translateName ? t(`field-label-${name}`) : name}</FieldName>

@@ -137,7 +137,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
 
     return (
         <>
-            <StyledTreeWrapper onClick={() => setRootExpanded(cur => !cur)}>
+            <StyledTreeWrapper onClick={() => setRootExpanded(cur => !cur)} name={`folder-expander-${name}`}>
                 <Icon icon={isRootExpanded ? 'folder-open' : 'folder-close'} /> {isRootExpanded ? 'Hide' : 'Show'}{' '}
                 folders{' '}
             </StyledTreeWrapper>

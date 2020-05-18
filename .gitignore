@@ -4,4 +4,6 @@ node_modules
 test-resources
 *.swp
 *.vsix
+ui-test/node_modules
+ui-test/test_project
 api.http
