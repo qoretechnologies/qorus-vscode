@@ -20,7 +20,7 @@ video_recording() {
 }
 
 recording_pid() {
-    ps aux | grep "ffmpeg.*$1\.mp4" | grep -v grep | xargs | cut -d' ' -f2
+    ps aux | grep "ffmpeg.*$1\.mp4" | grep -v grep | grep -v tmux | xargs | cut -d' ' -f2
 }
 
 signal_recording() {
