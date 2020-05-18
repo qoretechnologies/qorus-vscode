@@ -237,7 +237,21 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     }
 
     deleteMethod(data: any, iface_kind) {
-        const {methods, method_index} = data;
+        const {methods: service_methods, 'mapper-methods': mapper_code_methods, method_index} = data;
+
+        let methods;
+        switch (iface_kind) {
+            case 'service':
+                methods = service_methods;
+                break;
+            case 'mapper-code':
+                methods = mapper_code_methods;
+                break;
+            default:
+                msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
+                return;
+        }
+
         if ((methods || []).length < 2) {
             if (iface_kind === 'service') {
                 msg.error(t`CannotDeleteTheOnlyOneServiceMethod`);
@@ -266,7 +280,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 data,
                 iface_kind,
                 edit_type: 'delete-method',
-                orig_data: undefined,
+                orig_data: data,
                 open_file_on_success : false
             });
         });
