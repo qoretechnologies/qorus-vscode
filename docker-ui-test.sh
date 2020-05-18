@@ -19,6 +19,19 @@ video_recording() {
     ps aux | grep "ffmpeg.*$1\.mp4" | grep -v grep  > /dev/null 2>&1
 }
 
+recording_pid() {
+    ps aux | grep "ffmpeg.*$1\.mp4" | grep -v grep | grep -v tmux | xargs | cut -d' ' -f2
+}
+
+signal_recording() {
+    video_pid=`recording_pid`
+    if [ "$video_pid" != "" ]; then
+        echo "Found PID of video recording: $video_pid"
+        echo "Sending $1 signal to recording..."
+        kill -s $1 $video_pid
+    fi
+}
+
 # cleanup vscode settings
 rm -rf ${HOME}/.vscode
 
@@ -74,8 +87,21 @@ tmux send-keys -t "${session_name}" q
 # wait until video recording finishes
 set +x
 echo "Waiting for the video recording to finish..."
+i=0
 while video_recording; do
+    if [ "$i" == "60" ]; then
+        echo "5 minutes timeout for video recording to finish"
+        signal_recording INT
+    elif [ "$i" == "72" ]; then
+        echo "6 minutes timeout for video recording to finish"
+        signal_recording TERM
+    elif [ "$i" == "84" ]; then
+        echo "7 minutes timeout for video recording to finish"
+        signal_recording KILL
+    fi
+
     sleep 5
+    i=$((i+1))
 done
 
 exit $rc
