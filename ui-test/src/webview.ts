@@ -1,17 +1,30 @@
 import { expect } from 'chai';
-import { By, EditorView, InputBox, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
+import {
+    By,
+    EditorView,
+    InputBox,
+    VSBrowser,
+    WebDriver,
+    WebView,
+    Workbench,
+    NotificationType,
+    NotificationsCenter,
+} from 'vscode-extension-tester';
 
 function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('Webview Simple Test', function() {
+type TSelector = 'id' | 'name' | 'className';
+
+describe('Webview Simple Test', function () {
     this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
     let editorView: EditorView;
     let editor;
     let webview: WebView;
+    let notificationsCenter: NotificationsCenter;
 
     before(async () => {
         driver = VSBrowser.instance.driver;
@@ -22,7 +35,7 @@ describe('Webview Simple Test', function() {
 
         await workbench.executeCommand('Extest: Open Folder');
 
-        await sleep(2000);
+        await sleep(5000);
 
         const input: InputBox = await new InputBox();
 
@@ -43,6 +56,8 @@ describe('Webview Simple Test', function() {
 
         editor = await new EditorView().openEditor('Qorus Webview');
         webview = await new WebView(new EditorView(), 'Qorus Webview');
+        notificationsCenter = await workbench.openNotificationsCenter();
+        notificationsCenter.clearAllNotifications();
 
         await webview.wait();
         await webview.switchToFrame();
@@ -50,29 +65,46 @@ describe('Webview Simple Test', function() {
         await sleep(3000);
     });
 
-    const clickElement = async (name: string, position?: number, useClassName?: boolean) => {
-        if (position !== undefined) {
-            await (await webview.findWebElements(By[useClassName ? 'className' : 'name'](name)))[position - 1].click();
-        } else {
-            await (await webview.findWebElement(By.name(name))).click();
-        }
+    this.beforeEach(async () => {
+        await webview.switchBack();
+        // Clear all notifications before every run
+        await notificationsCenter.clearAllNotifications();
+
+        await webview.switchToFrame();
+    });
+
+    this.afterEach(async () => {
+        await webview.switchBack();
+        // Make sure there are no warning notifications after each test
+        const notifications = [
+            ...(await notificationsCenter.getNotifications(NotificationType.Warning)),
+            ...(await notificationsCenter.getNotifications(NotificationType.Error)),
+        ];
+
+        expect(notifications.length).to.eql(0);
+
+        await webview.switchToFrame();
+    });
+
+    const getElement = async (name: string, position: number = 1, selector: TSelector = 'name') => {
+        return (await webview.findWebElements(By[selector](name)))[position - 1];
     };
 
-    const clickElementById = async (name: string) => {
-        await (await webview.findWebElement(By.id(name))).click();
+    const clickElement = async (name: string, position: number = 1, selector: TSelector = 'name') => {
+        await (await getElement(name, position, selector)).click();
     };
 
-    const fillTextField = async (name: string, value: string | number, position?: number) => {
-        if (position) {
-            await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
-        } else {
-            await (await webview.findWebElement(By.name(name))).sendKeys(value);
-        }
+    const fillTextField = async (name: string, value: string | number, position: number = 1) => {
+        await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
+    };
+
+    const getElementText = async (name: string, position: number = 1, selector: TSelector = 'name') => {
+        return await (await getElement(name, position, selector)).getText();
     };
 
     const selectNthFolder = async (name: string, position: number) => {
         await clickElement(`folder-expander-${name}`);
-        await clickElement('bp3-tree-node-content', position, true);
+        await clickElement('bp3-tree-node-content', position, 'className');
     };
 
     const selectField = async (name: string) => {
@@ -91,7 +123,7 @@ describe('Webview Simple Test', function() {
 
     const confirmDeletion = async () => {
         await sleep(500);
-        await clickElementById('remove-confirm');
+        await clickElement('remove-confirm', 1, 'id');
         await sleep(1000);
     };
 
@@ -235,7 +267,7 @@ describe('Webview Simple Test', function() {
         await sleep(2000);
     });
 
-    it('Opens workflow create page', async () => {
+    it.only('Opens workflow create page', async () => {
         await clickElement('CreateInterface');
         await clickElement('Workflow');
 
@@ -244,7 +276,7 @@ describe('Webview Simple Test', function() {
         expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
     });
 
-    it('Can create workflow', async () => {
+    it.only('Can create workflow', async () => {
         // Submit disabled by default
         expect(
             await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
@@ -290,6 +322,10 @@ describe('Webview Simple Test', function() {
             )
         ).to.equal(null);
 
+        await sleep(5000);
+
+        expect(await getElementText('stepList-name', 1, 'name')).to.eql('Step test:1.0');
+
         await submitInterface('workflow-steps');
         await sleep(2000);
         await webview.switchBack();
@@ -297,5 +333,12 @@ describe('Webview Simple Test', function() {
         const titles = await editorView.getOpenEditorTitles();
 
         expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
+
+        const workflow = await editorView.openEditor('Workflow test-1.0.qwf');
+        const workflowText = await workflow.getText();
+
+        expect(workflowText).to.eql(
+            '%new-style\n%strict-args\n%require-types\n%enable-all-warnings\n\nclass TestWorkflow inherits QorusWorkflow {\n}\n'
+        );
     });
 });

@@ -7,3 +7,4 @@ test-resources
 ui-test/node_modules
 ui-test/test_project
 api.http
+tests.sh
