@@ -267,7 +267,7 @@ describe('Webview Simple Test', function () {
         await sleep(2000);
     });
 
-    it.only('Opens workflow create page', async () => {
+    it('Opens workflow create page', async () => {
         await clickElement('CreateInterface');
         await clickElement('Workflow');
 
@@ -276,7 +276,7 @@ describe('Webview Simple Test', function () {
         expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
     });
 
-    it.only('Can create workflow', async () => {
+    it('Can create workflow', async () => {
         // Submit disabled by default
         expect(
             await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
