@@ -86,12 +86,16 @@ describe('Webview Simple Test', function () {
         await webview.switchToFrame();
     });
 
-    const getElement = async (name: string, position: number = 1, selector: TSelector = 'name') => {
+    const getNthElement = async (name: string, position: number = 1, selector: TSelector = 'name') => {
         return (await webview.findWebElements(By[selector](name)))[position - 1];
     };
 
+    const getElements = async (name: string, selector: TSelector = 'name') => {
+        return await webview.findWebElements(By[selector](name));
+    };
+
     const clickElement = async (name: string, position: number = 1, selector: TSelector = 'name') => {
-        await (await getElement(name, position, selector)).click();
+        await (await getNthElement(name, position, selector)).click();
     };
 
     const fillTextField = async (name: string, value: string | number, position: number = 1) => {
@@ -99,7 +103,7 @@ describe('Webview Simple Test', function () {
     };
 
     const getElementText = async (name: string, position: number = 1, selector: TSelector = 'name') => {
-        return await (await getElement(name, position, selector)).getText();
+        return await (await getNthElement(name, position, selector)).getText();
     };
 
     const selectNthFolder = async (name: string, position: number) => {
@@ -125,6 +129,19 @@ describe('Webview Simple Test', function () {
         await sleep(500);
         await clickElement('remove-confirm', 1, 'id');
         await sleep(1000);
+    };
+
+    const getSelectedFieldsCount = async () => {
+        return await getElements('selected-field');
+    };
+
+    const getElementAttribute = async (
+        elementName: string,
+        attribute: string,
+        position: number = 1,
+        selector: TSelector = 'name'
+    ) => {
+        return await (await getNthElement(elementName, position, selector)).getAttribute(attribute);
     };
 
     it('Shows environment page', async () => {
@@ -273,14 +290,12 @@ describe('Webview Simple Test', function () {
 
         await sleep(3000);
 
-        expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(4);
+        expect(await getSelectedFieldsCount()).to.have.length(4);
     });
 
     it('Can create workflow', async () => {
         // Submit disabled by default
-        expect(
-            await (await webview.findWebElement(By.name('interface-creator-submit-workflow'))).getAttribute('disabled')
-        ).to.equal('true');
+        expect(await getElementAttribute('interface-creator-submit-workflow', 'disabled')).to.equal('true');
 
         await selectNthFolder('target_dir', 1);
         await fillTextField('field-name', 'Workflow test');
@@ -290,12 +305,12 @@ describe('Webview Simple Test', function () {
 
         await sleep(2000);
 
-        expect(await webview.findWebElements(By.name('selected-field'))).to.have.length(7);
+        expect(await getSelectedFieldsCount()).to.have.length(7);
 
         await fillTextField('field-class-name', 'TestWorkflow');
         await selectNthDropdownItem('base-class-name', 1);
 
-        const workflowNext = await webview.findWebElement(By.name('interface-creator-submit-workflow'));
+        const workflowNext = await getNthElement('interface-creator-submit-workflow');
 
         expect(await workflowNext.getAttribute('disabled')).to.equal(null);
 
@@ -315,12 +330,8 @@ describe('Webview Simple Test', function () {
         await fillTextField('field-version', '1.0');
         await submitInterface('step');
 
-        expect(await webview.findWebElements(By.name('steplist-step'))).to.have.length(1);
-        expect(
-            await (await webview.findWebElement(By.name('interface-creator-submit-workflow-steps'))).getAttribute(
-                'disabled'
-            )
-        ).to.equal(null);
+        expect(await getElements('steplist-step')).to.have.length(1);
+        expect(await getElementAttribute('interface-creator-submit-workflow-steps', 'disabled')).to.equal(null);
 
         await sleep(5000);
 
