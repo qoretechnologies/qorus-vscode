@@ -351,7 +351,7 @@ const Step = ({
                             icon="chevron-left"
                         />
                         <div className="stepWrapper">
-                            <h4 className="stepName">
+                            <h4 className="stepName" name="stepList-name">
                                 {stepData.name}:{stepData.version}
                             </h4>
                             <FieldType>{t(stepData.type)}</FieldType>
@@ -429,15 +429,15 @@ const NewStepPopover = compose(
                     <StyledDialogBody style={{ flexFlow: 'column' }}>
                         <CreatorWrapper>
                             <ClassConnectionsStateProvider type="step">
-                                {classConnectionsProps => (
+                                {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         type={'step'}
                                         hasClassConnections
                                         hasConfigManager
-                                        onSubmit={fields => {
-                                            const nameField = fields.find(field => field.name === 'name');
-                                            const versionField = fields.find(field => field.name === 'version');
-                                            const typeField = fields.find(field => field.name === 'base-class-name');
+                                        onSubmit={(fields) => {
+                                            const nameField = fields.find((field) => field.name === 'name');
+                                            const versionField = fields.find((field) => field.name === 'version');
+                                            const typeField = fields.find((field) => field.name === 'base-class-name');
                                             handleInsert(nameField.value, typeField.value, versionField.value);
                                             setStepDialog(false);
                                         }}
@@ -481,7 +481,7 @@ const NewStepPopover = compose(
                                     return_value: 'objects',
                                 }}
                                 predicate={(name: string) =>
-                                    !some(stepsData, item => `${item.name}:${item.version}` === name)
+                                    !some(stepsData, (item) => `${item.name}:${item.version}` === name)
                                 }
                                 value={name}
                                 onChange={(_name, value) => {
