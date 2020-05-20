@@ -22,7 +22,6 @@ describe('Webview Simple Test', function () {
     let driver: WebDriver;
     let workbench: Workbench;
     let editorView: EditorView;
-    let editor;
     let webview: WebView;
     let notificationsCenter: NotificationsCenter;
 
@@ -54,8 +53,7 @@ describe('Webview Simple Test', function () {
         }
         await sleep(1000);
 
-        editor = await new EditorView().openEditor('Qorus Webview');
-        webview = await new WebView(new EditorView(), 'Qorus Webview');
+        webview = await new WebView(editorView, 'Qorus Webview');
         notificationsCenter = await workbench.openNotificationsCenter();
         notificationsCenter.clearAllNotifications();
 
