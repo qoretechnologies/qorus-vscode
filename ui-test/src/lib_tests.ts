@@ -53,7 +53,7 @@ export const confirmDeletion = async (webview: WebView) => {
     await sleep(1000);
 };
 
-export const getSelectedFieldsCount = async (webview: WebView) => {
+export const getSelectedFields = async (webview: WebView) => {
     return await getElements(webview, 'selected-field');
 };
 

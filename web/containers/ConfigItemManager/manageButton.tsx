@@ -41,8 +41,9 @@ const ManageConfigButton: FunctionComponent<IManageConfigButton> = ({
     });
 
     return (
-        <Tooltip content={'ManageConfigItems'} disabled={disabled}>
+        <Tooltip content={t('ManageConfigItems')} disabled={disabled}>
             <Button
+                name={'interface-creator-manage-config-items'}
                 disabled={disabled}
                 text={`${t('ManageConfigItems')}(${configCount})`}
                 icon={'cog'}

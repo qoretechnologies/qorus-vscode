@@ -26,6 +26,9 @@ import {
     openCreateWorkflow,
     createWorkflow,
 } from './create_workflow_tests';
+import {
+    createClassWithConfigItems,
+} from './config_items';
 
 
 describe('Webview Simple Test', function() {
@@ -94,7 +97,7 @@ describe('Webview Simple Test', function() {
 
         await webview.switchToFrame();
     });
-
+/*
     // environment config tests
     it('Shows environment page', () => openEnvironmentPage(webview));
     it('Adds new environment', () => addEnvironment(webview));
@@ -110,4 +113,7 @@ describe('Webview Simple Test', function() {
     // create workflow tests
     it('Opens workflow create page', () => openCreateWorkflow(webview));
     it('Can create workflow', () => createWorkflow(webview, editorView));
+*/
+    // config items test 1
+    it('Create class', () => createClassWithConfigItems(webview));
 });

@@ -3,7 +3,7 @@ import { WebView, EditorView } from 'vscode-extension-tester';
 import {
     sleep,
     clickElement,
-    getSelectedFieldsCount,
+    getSelectedFields,
     getElementAttribute,
     fillTextField,
     selectNthDropdownItem,
@@ -22,7 +22,7 @@ export const openCreateWorkflow = async (webview: WebView) => {
 
     await sleep(3000);
 
-    expect(await getSelectedFieldsCount(webview)).to.have.length(4);
+    expect(await getSelectedFields(webview)).to.have.length(4);
 };
 
 export const createWorkflow = async (webview: WebView, editorView: EditorView) => {
@@ -37,7 +37,7 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView) =
 
     await sleep(2000);
 
-    expect(await getSelectedFieldsCount(webview)).to.have.length(7);
+    expect(await getSelectedFields(webview)).to.have.length(7);
 
     await fillTextField(webview, 'field-class-name', 'TestWorkflow');
     await selectNthDropdownItem(webview, 'base-class-name', 1);
