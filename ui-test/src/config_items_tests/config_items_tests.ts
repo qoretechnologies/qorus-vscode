@@ -7,8 +7,9 @@ import {
     getElementAttribute,
     fillTextField,
     selectNthFolder,
+    selectField,
     getNthElement,
-} from './lib_tests';
+} from '../common/utils';
 
 
 export const createClassWithConfigItems = async (webview: WebView) => {
@@ -40,10 +41,9 @@ export const createClassWithConfigItems = async (webview: WebView) => {
 
     // edit config item page
     await sleep(2000);
-    await (() => {
-        fillTextField(webview, 'field-name', 'test-config-item-1');
-        fillTextField(webview, 'field-description', 'test config item');
-        fillTextField(webview, 'field-config_group', 'test');
-    });
+    await fillTextField(webview, 'field-name', 'test-config-item-1');
+    await fillTextField(webview, 'field-description', 'test config item');
+    await fillTextField(webview, 'field-config_group', 'test');
+    await selectField(webview, 'default_value');
     await sleep(2000);
 };
