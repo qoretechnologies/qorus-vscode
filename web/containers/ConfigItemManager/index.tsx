@@ -143,6 +143,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             <StyledConfigManagerWrapper>
                 {type !== 'workflow' && (
                     <Button
+                        name={'add-config-item'}
                         text={t('AddConfigItem')}
                         intent="success"
                         icon="add"
