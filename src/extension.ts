@@ -77,6 +77,9 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.closeWebview', () => qorus_webview.dispose());
+    context.subscriptions.push(disposable);
+
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code',
         'class', 'other', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
     {

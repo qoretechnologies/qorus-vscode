@@ -152,6 +152,11 @@
                 "icon": "images/qorus_logo_28.png"
             },
             {
+                "command": "qorus.closeWebview",
+                "title": "Close Webview",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editClass",
                 "title": "Edit Class",
                 "category": "Qorus"
