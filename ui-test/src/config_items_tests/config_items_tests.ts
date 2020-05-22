@@ -44,6 +44,8 @@ export const createClassWithConfigItems = async (webview: WebView) => {
     await fillTextField(webview, 'field-name', 'test-config-item-1');
     await fillTextField(webview, 'field-description', 'test config item');
     await fillTextField(webview, 'field-config_group', 'test');
+    await clickElement(webview, 'field-type-radio-int');
     await selectField(webview, 'default_value');
-    await sleep(2000);
+//    await fillTextField(webview, 'field-default_value', 54);
+    await sleep(8000);
 };
