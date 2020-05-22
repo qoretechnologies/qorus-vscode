@@ -54,7 +54,7 @@ describe('Webview Simple Test', function() {
 
         await sleep(10000);
 
-        await workbench.executeCommand('Qorus: Webview');
+        await workbench.executeCommand('Qorus: Open Webview');
 
         let isWebviewOpen = false;
 

@@ -42,7 +42,7 @@ describe('Config Items Tests', function() {
 
         await sleep(10000);
 
-        await workbench.executeCommand('Qorus: Webview');
+        await workbench.executeCommand('Qorus: Open Webview');
 
         let isWebviewOpen = false;
 

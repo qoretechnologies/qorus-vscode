@@ -147,7 +147,7 @@
             },
             {
                 "command": "qorus.webview",
-                "title": "Webview",
+                "title": "Open Webview",
                 "category": "Qorus",
                 "icon": "images/qorus_logo_28.png"
             },
