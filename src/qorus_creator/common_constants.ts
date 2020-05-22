@@ -108,6 +108,12 @@ export const classFields = ({ is_editing, default_target_dir }) => [
         mandatory: false,
         type: 'class-connectors',
     },
+    {
+        name: 'processor',
+        mandatory: false,
+        type: 'processor',
+        notify_on_add: true,
+    },
 ];
 
 export const field = {

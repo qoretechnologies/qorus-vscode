@@ -12,7 +12,8 @@ import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
 import { QorusProjectEditInfo} from './QorusProjectEditInfo';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
-         all_root_classes } from './qorus_constants';
+         all_root_classes, 
+         root_processor} from './qorus_constants';
 import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -297,6 +298,10 @@ export class QorusProjectCodeInfo {
                 }
             }
         });
+
+        if (data.processor) {
+            data.options = jsyaml.safeDump(data.options, { indent: 4 });
+        }
 
         if (data.fields) {
             Object.keys(data.fields).forEach(field_name => {
@@ -609,7 +614,17 @@ export class QorusProjectCodeInfo {
 
                     postMessage('objects', [ ...user_classes, ...qorus_root_classes ]);
                 });
-
+                break;
+            case 'processor-base-class':
+                if (lang === 'java') {
+                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaProcessorClasses(), [root_processor]))
+                    );
+                } else {
+                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.processorClasses(), [root_processor]))
+                    );
+                }
                 break;
             case 'author':
                 this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));

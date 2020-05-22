@@ -10,6 +10,7 @@ import withTextContext from '../../hocomponents/withTextContext';
 import { compose } from 'recompose';
 import StringField from './string';
 import FieldEnhancer from '../FieldEnhancer';
+import { Messages } from '../../constants/messages';
 
 export interface ISelectField {
     addMessageListener: TMessageListener;
@@ -21,7 +22,7 @@ export interface ISelectField {
     fill?: boolean;
     disabled?: boolean;
     position?: any;
-    requestFieldData: (name: string, key: string) => IField;
+    requestFieldData: (name: string, key?: string) => any;
     messageData: any;
     warningMessageOnEmpty?: string;
     autoSelect?: boolean;
@@ -48,19 +49,51 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
+    const [listener, setListener] = useState(null);
+    const [hasProcessor, setHasProcessor] = useState<boolean>(false);
 
     useMount(() => {
-        if (return_message) {
-            addMessageListener(return_message.action, (data: any) => {
-                // Check if this is the correct
-                // object type
-                if (!return_message.object_type || data.object_type === return_message.object_type) {
-                    setItems(get(data, return_message.return_value));
-                }
-            });
-        }
-
         handleClick();
+    });
+
+    useEffect(() => {
+        if (hasProcessor) {
+            listener && listener();
+            setListener(() =>
+                addMessageListener(return_message.action, (data: any) => {
+                    const newItems = get(data, 'objects');
+
+                    if (data.object_type === 'processor-base-class') {
+                        setItems(get(data, 'objects'));
+                    }
+                    // Check if the current value is a correct processor class
+                    // Remove the value if not
+                    if (value && !newItems.find((item) => item.name === value)) {
+                        onChange(name, null);
+                    }
+                })
+            );
+        } else {
+            listener && listener();
+            setListener(() =>
+                addMessageListener(return_message.action, (data: any) => {
+                    // Check if this is the correct
+                    // object type
+                    if (!return_message.object_type || data.object_type === return_message.object_type) {
+                        setItems(get(data, return_message.return_value));
+                    }
+                })
+            );
+        }
+    }, [hasProcessor]);
+
+    // Check if the processor field exists on every change
+    useEffect(() => {
+        if (requestFieldData) {
+            setHasProcessor(requestFieldData('processor', 'selected'));
+        } else {
+            setHasProcessor(false);
+        }
     });
 
     useEffect(() => {
@@ -69,12 +102,16 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         }
     }, [defaultItems]);
 
+    useEffect(() => {
+        handleClick();
+    }, [listener]);
+
     const handleEditSubmit: (_defaultName: string, val: string) => void = (_defaultName, val) => {
         handleSelectClick({ name: val });
         handleClick();
     };
 
-    const handleSelectClick: (item: any) => void = item => {
+    const handleSelectClick: (item: any) => void = (item) => {
         if (item === value) {
             return;
         }
@@ -83,7 +120,13 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     };
 
     const handleClick: () => void = () => {
-        if (get_message) {
+        if (hasProcessor) {
+            // Get only the processor related classes
+            postMessage('creator-get-objects', {
+                object_type: 'processor-base-class',
+                lang: requestFieldData('lang', 'value') || 'qore',
+            });
+        } else if (get_message) {
             get_message.message_data = get_message.message_data || {};
             // Get the list of items from backend
             postMessage(get_message.action, {
@@ -98,10 +141,10 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
 
     // If we should run the items thru predicate
     if (predicate) {
-        filteredItems = filteredItems.filter(item => predicate(item.name));
+        filteredItems = filteredItems.filter((item) => predicate(item.name));
     }
 
-    if (filteredItems.length === 0) {
+    if (!filteredItems || filteredItems.length === 0) {
         return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
     }
 

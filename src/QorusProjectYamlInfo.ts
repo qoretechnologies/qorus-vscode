@@ -5,7 +5,7 @@ import { t } from 'ttag';
 
 import * as msg from './qorus_message';
 import { root_steps, root_job, root_service, root_workflow,
-         types, types_with_version, default_version } from './qorus_constants';
+         types, types_with_version, default_version, root_processor } from './qorus_constants';
 
 
 export class QorusProjectYamlInfo {
@@ -43,19 +43,23 @@ export class QorusProjectYamlInfo {
     private job_classes = {};
     private workflow_classes = {};
     private step_classes = {};
+    private processor_classes = {};
 
     private java_job_classes = {};
     private java_service_classes = {};
     private java_step_classes = {};
     private java_workflow_classes = {};
+    private java_processor_classes = {};
 
     serviceClasses = () => ({ ...this.service_classes });
     jobClasses = () => ({ ...this.job_classes });
     workflowClasses = () => ({ ...this.workflow_classes });
+    processorClasses = () => ({ ...this.processor_classes });
 
     javaServiceClasses = () => ({ ...this.java_service_classes });
     javaJobClasses = () => ({ ...this.java_job_classes });
     javaWorkflowClasses = () => ({ ...this.java_workflow_classes });
+    javaProcessorClasses = () => ({ ...this.java_processor_classes });
 
     stepClasses = step_type => ({ ...this.step_classes[step_type] });
     javaStepClasses = step_type => ({ ...this.java_step_classes[step_type] });
@@ -97,10 +101,12 @@ export class QorusProjectYamlInfo {
         this.job_classes = { [root_job]: true };
         this.service_classes = { [root_service]: true };
         this.workflow_classes = { [root_workflow]: true };
+        this.processor_classes = { [root_processor]: true };
 
         this.java_job_classes = { [root_job]: true };
         this.java_service_classes = { [root_service]: true };
         this.java_workflow_classes = { [root_workflow]: true };
+        this.java_processor_classes = { [root_processor]: true };
 
         for (const step_type of root_steps) {
             this.step_classes[step_type] = { [step_type]: true };
@@ -213,6 +219,7 @@ export class QorusProjectYamlInfo {
                     any_new = true;
                     break;
                 }
+
             }
         }
         return base_classes;
@@ -222,6 +229,7 @@ export class QorusProjectYamlInfo {
         this.baseClasses(this.service_classes, { ...this.inheritance_pairs });
         this.baseClasses(this.job_classes, { ...this.inheritance_pairs });
         this.baseClasses(this.workflow_classes, { ...this.inheritance_pairs });
+        this.baseClasses(this.processor_classes, { ...this.inheritance_pairs });
         for (const step_type of root_steps) {
             this.step_classes[step_type] =
                 this.baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
@@ -232,6 +240,7 @@ export class QorusProjectYamlInfo {
         this.baseClasses(this.java_service_classes, { ...this.java_inheritance_pairs });
         this.baseClasses(this.java_job_classes, { ...this.java_inheritance_pairs });
         this.baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
+        this.baseClasses(this.java_processor_classes, { ...this.java_inheritance_pairs });
         for (const step_type of root_steps) {
             this.java_step_classes[step_type] =
                 this.baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
