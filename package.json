@@ -1625,6 +1625,7 @@
         "cronstrue": "^1.81.0",
         "fs-extra": "^8.1.0",
         "gettext-parser": "^2.0.0",
+        "java-parser": "^0.8.0",
         "js-yaml": "^3.13.1",
         "moment": "^2.24.0",
         "react-autocomplete": "^1.8.1",
