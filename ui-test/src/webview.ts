@@ -117,7 +117,7 @@ describe('Webview Simple Test', function() {
     });
 
     it('Deletes an environment', async () => {
-        let environmentPanels = await webview.findWebElements(By.('sc-cmTdod'));
+        let environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
         expect(environmentPanels).to.have.length(4);
         const environmentDeleteButtons = await webview.findWebElements(By.name('delete-environment'));
         expect(environmentDeleteButtons).to.have.length(4);
