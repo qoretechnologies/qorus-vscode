@@ -9,6 +9,7 @@ import {
     selectNthFolder,
     selectField,
     getNthElement,
+    submitInterface,
 } from '../common/utils';
 
 
@@ -16,7 +17,7 @@ export const createClassWithConfigItems = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
     await clickElement(webview, 'Class');
 
-    await sleep(3000);
+    await sleep(1000);
 
     expect(await getSelectedFields(webview)).to.have.length(5);
 
@@ -28,7 +29,7 @@ export const createClassWithConfigItems = async (webview: WebView) => {
     await fillTextField(webview, 'field-desc', 'Test class with config items');
     await fillTextField(webview, 'field-version', '1.0');
 
-    await sleep(2000);
+    await sleep(1000);
     const manageConfig = await getNthElement(webview, 'interface-creator-manage-config-items');
     expect(await manageConfig.getAttribute('disabled')).to.equal(null);
     await manageConfig.click();
@@ -46,7 +47,9 @@ export const createClassWithConfigItems = async (webview: WebView) => {
     await fillTextField(webview, 'field-config_group', 'test');
     await clickElement(webview, 'field-type-radio-int');
     await selectField(webview, 'default_value');
-    await sleep(2000);
+    await sleep(1000);
     await fillTextField(webview, 'field-default_value', 54);
-    await sleep(8000);
+    await sleep(1000);
+    await submitInterface(webview, 'config-item');
+    await sleep(3000);
 };

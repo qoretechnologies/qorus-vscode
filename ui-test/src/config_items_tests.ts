@@ -32,7 +32,7 @@ describe('Config Items Tests', function() {
 
         await workbench.executeCommand('Extest: Open Folder');
 
-        await sleep(8000);
+        await sleep(3000);
 
         const input: InputBox = await new InputBox();
 
@@ -40,7 +40,7 @@ describe('Config Items Tests', function() {
         await input.setText(process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project');
         await input.confirm();
 
-        await sleep(10000);
+        await sleep(12000);
 
         await workbench.executeCommand('Qorus: Open Webview');
 
