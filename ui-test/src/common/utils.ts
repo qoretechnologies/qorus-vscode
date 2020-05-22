@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { By, WebView } from 'vscode-extension-tester';
 
 type TSelector = 'id' | 'name' | 'className';

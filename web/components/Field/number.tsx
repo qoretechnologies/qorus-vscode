@@ -58,6 +58,7 @@ const NumberField: FunctionComponent<INumberField & IField & IFieldChange> = ({
 
     return (
         <InputGroup
+            name={`field-${name}`}
             className={fill && Classes.FILL}
             value={value ?? default_value ?? ''}
             onChange={handleInputChange}
