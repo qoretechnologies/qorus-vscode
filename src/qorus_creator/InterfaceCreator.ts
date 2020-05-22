@@ -384,18 +384,6 @@ export abstract class InterfaceCreator {
         return result;
     }
 
-    private static collectionToYamlDump = (value, type: 'hash' | 'list'): string => {
-        let lines = jsyaml.safeDump(value, {indent: 4}).split(/\r?\n/);
-        if (/^\s*$/.test(lines.slice(-1)[0])) {
-            lines.pop();
-        }
-        if (type === 'list') {
-            return lines.map(str => `${indent}  ${str}`).join('\n') + '\n';
-        } else {
-            return lines.map(str => `${indent}${indent}${str}`).join('\n') + '\n';
-        }
-    }
-
     protected static createConfigItemHeaders = (items: any[]): string => {
         let result: string = 'config-items:\n';
 
@@ -427,7 +415,15 @@ export abstract class InterfaceCreator {
 
                     const non_star_type = type?.substring(type.indexOf("*") + 1);
                     if (['list', 'hash'].includes(non_star_type)) {
-                        result += InterfaceCreator.collectionToYamlDump(item[tag], non_star_type);
+                        let lines = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
+                        if (/^\s*$/.test(lines.slice(-1)[0])) {
+                            lines.pop();
+                        }
+                        if (non_star_type === 'list') {
+                            result += lines.map(str => `${indent}  ${str}`).join('\n') + '\n';
+                        } else {
+                            result += lines.map(str => `${indent}${indent}${str}`).join('\n') + '\n';
+                        }
                     } else {
                         result += `${indent}${indent}${JSON.stringify(item[tag])}\n`;
                     }
