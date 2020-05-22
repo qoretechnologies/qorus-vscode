@@ -389,15 +389,33 @@ export class QorusJavaParser {
         return ast.classes.length ? ast : undefined;
     }
 
-    /** Parse Java source code. */
+    /** Parse Java source code. Throws on syntax errors. */
     public static parse(text: string): object | undefined {
         const cst = parse(text);
         return QorusJavaParser._extractAST(cst);
     }
 
-    /** Parse Java file from a filepath. */
+    /** Parse Java source code. Does not throw exceptions. */
+    public static parseNoExcept(text: string): object | undefined {
+        try {
+            return QorusJavaParser.parse(text);
+        } catch (err) {
+            return undefined;
+        }
+    }
+
+    /** Parse Java file from a filepath. Throws on syntax errors. */
     public static parseFile(filePath: string, encoding: string = 'utf-8'): object | undefined {
         const contents = readFileSync(filePath, {encoding: encoding});
         return QorusJavaParser.parse(contents);
+    }
+
+    /** Parse Java file from a filepath. Does not throw exceptions. */
+    public static parseFileNoExcept(filePath: string, encoding: string = 'utf-8'): object | undefined {
+        try {
+            return QorusJavaParser.parseFile(filePath, encoding);
+        } catch (err) {
+            return undefined;
+        }
     }
 }
