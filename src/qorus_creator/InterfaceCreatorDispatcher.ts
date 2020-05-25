@@ -103,6 +103,23 @@ export class InterfaceCreatorDispatcher {
         }
     }
 
+    static langChanged({lang, iface_id, iface_kind}) {
+        if (lang === 'java') {
+            qorus_webview.postMessage({
+                action: 'creator-remove-field',
+                field: 'target_file',
+                iface_id,
+                iface_kind
+            });
+            qorus_webview.postMessage({
+                action: 'creator-disable-field',
+                field: 'target_file',
+                iface_id,
+                iface_kind
+            });
+        }
+    }
+
     static fieldAdded({field, iface_id, iface_kind}) {
         const addField = field =>
             qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });

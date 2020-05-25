@@ -256,6 +256,9 @@ class QorusWebview {
                         case 'config-item-type-changed':
                             creator.configItemTypeChanged(message);
                             break;
+                        case 'lang-changed':
+                            creator.langChanged(message);
+                            break;
                         case 'get-objects-with-static-data':
                             project.code_info.getObjectsWithStaticData(message);
                             break;

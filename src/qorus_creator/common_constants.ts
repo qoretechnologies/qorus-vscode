@@ -175,6 +175,7 @@ export const field = {
         ],
         default_value: 'qore',
         disabled: is_editing,
+        on_change: 'lang-changed',
     }),
     constants: {
         name: 'constants',
