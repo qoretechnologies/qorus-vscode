@@ -50,7 +50,12 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
     const [listener, setListener] = useState(null);
-    const [hasProcessor, setHasProcessor] = useState<boolean>(false);
+    const [hasProcessor, setHasProcessor] = useState<boolean>(
+        requestFieldData ? requestFieldData('processor', 'selected') : false
+    );
+    const [isProcessorSelected, setIsProcessorSelected] = useState<boolean>(
+        requestFieldData ? requestFieldData('processor', 'selected') : false
+    );
 
     useMount(() => {
         handleClick();
@@ -65,11 +70,14 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
 
                     if (data.object_type === 'processor-base-class') {
                         setItems(get(data, 'objects'));
-                    }
-                    // Check if the current value is a correct processor class
-                    // Remove the value if not
-                    if (value && !newItems.find((item) => item.name === value)) {
-                        onChange(name, null);
+
+                        // Check if the current value is a correct processor class
+                        // Remove the value if not
+                        if (value && !newItems.find((item) => item.name === value)) {
+                            onChange(name, null);
+                        } else {
+                            onChange(name, value);
+                        }
                     }
                 })
             );
@@ -89,14 +97,22 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         }
     }, [hasProcessor]);
 
+    useEffect(() => {
+        setIsProcessorSelected(requestFieldData ? requestFieldData('processor', 'selected') : false);
+    });
+
     // Check if the processor field exists on every change
     useEffect(() => {
-        if (requestFieldData) {
-            setHasProcessor(requestFieldData('processor', 'selected'));
+        if (isProcessorSelected) {
+            if (!hasProcessor) {
+                setHasProcessor(true);
+            }
         } else {
-            setHasProcessor(false);
+            if (hasProcessor) {
+                setHasProcessor(false);
+            }
         }
-    });
+    }, [isProcessorSelected]);
 
     useEffect(() => {
         if (defaultItems) {

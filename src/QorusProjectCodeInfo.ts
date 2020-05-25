@@ -299,8 +299,8 @@ export class QorusProjectCodeInfo {
             }
         });
 
-        if (data.processor) {
-            data.options = jsyaml.safeDump(data.options, { indent: 4 });
+        if (data.processor && data.processor.options) {
+            data.processor.options = jsyaml.safeDump(data.processor.options);
         }
 
         if (data.fields) {

@@ -145,6 +145,9 @@ export class InterfaceCreatorDispatcher {
                     removeField('class-name');
                     removeField('lang');
                 }
+                if (iface_kind === 'class') {
+                    removeField('processor');
+                }
                 interface_info.removeBaseClass(other_params);
                 interface_info.getConfigItems(other_params);
                 break;
