@@ -59,7 +59,7 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     return (
         <div>
             {items.map((v: { value: string; icon_filename: string }) => (
-                <StyledRadio onClick={() => !disabled && handleValueChange(v.value)}>
+                <StyledRadio name={`field-${name}-radio-${v.value}`} onClick={() => !disabled && handleValueChange(v.value)}>
                     <Icon
                         icon={value === v.value ? 'selection' : 'circle'}
                         intent={value === v.value ? Intent.PRIMARY : Intent.NONE}
