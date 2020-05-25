@@ -75,15 +75,17 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             );
         } else {
             listener && listener();
-            setListener(() =>
-                addMessageListener(return_message.action, (data: any) => {
-                    // Check if this is the correct
-                    // object type
-                    if (!return_message.object_type || data.object_type === return_message.object_type) {
-                        setItems(get(data, return_message.return_value));
-                    }
-                })
-            );
+            if (return_message) {
+                setListener(() =>
+                    addMessageListener(return_message.action, (data: any) => {
+                        // Check if this is the correct
+                        // object type
+                        if (!return_message.object_type || data.object_type === return_message.object_type) {
+                            setItems(get(data, return_message.return_value));
+                        }
+                    })
+                );
+            }
         }
     }, [hasProcessor]);
 

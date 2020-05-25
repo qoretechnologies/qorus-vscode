@@ -87,45 +87,53 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
         });
     }, [args, inputType, outputType, options]);
 
-    if (!initialData.qorus_instance) {
-        return <Callout intent="warning">{t('ActiveInstanceProvidersConnectors')}</Callout>;
-    }
-
-    if (!types) {
+    if (initialData.qorus_instance && !types) {
         return <Spinner size={20}>Loading...</Spinner>;
     }
 
     return (
         <div>
             <p>{t('Arguments')}</p>
-            <ClassArray
-                name="processor-args"
-                keyName="arg"
-                valueName="type"
-                defaultSelectItems={types.map((type) => ({
-                    name: type.name,
-                }))}
-                withTextField
-                value={args}
-                canRemoveLast
-                onChange={(_name, value) => setArgs(value)}
-            />
+            {!initialData?.qorus_instance ? (
+                <Callout intent="warning">{t('ActiveInstanceRequired')}</Callout>
+            ) : (
+                <ClassArray
+                    name="processor-args"
+                    keyName="arg"
+                    valueName="type"
+                    defaultSelectItems={types.map((type) => ({
+                        name: type.name,
+                    }))}
+                    withTextField
+                    value={args}
+                    canRemoveLast
+                    onChange={(_name, value) => setArgs(value)}
+                />
+            )}
             <p>{t('InputType')}</p>
-            <ConnectorField
-                inline
-                value={inputType}
-                isInitialEditing={!!initialData.class}
-                name={name}
-                onChange={(_name, value) => setInputType(value)}
-            />
+            {!initialData?.qorus_instance ? (
+                <Callout intent="warning">{t('ActiveInstanceRequired')}</Callout>
+            ) : (
+                <ConnectorField
+                    inline
+                    value={inputType}
+                    isInitialEditing={!!initialData.class}
+                    name={name}
+                    onChange={(_name, value) => setInputType(value)}
+                />
+            )}
             <p>{t('OutputType')}</p>
-            <ConnectorField
-                inline
-                value={inputType}
-                isInitialEditing={!!initialData.class}
-                name={name}
-                onChange={(_name, value) => setOutputType(value)}
-            />
+            {!initialData?.qorus_instance ? (
+                <Callout intent="warning">{t('ActiveInstanceRequired')}</Callout>
+            ) : (
+                <ConnectorField
+                    inline
+                    value={inputType}
+                    isInitialEditing={!!initialData.class}
+                    name={name}
+                    onChange={(_name, value) => setOutputType(value)}
+                />
+            )}
             <p>{t('Options')}</p>
             <AutoField
                 defaultType="hash"
