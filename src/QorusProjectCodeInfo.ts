@@ -690,8 +690,6 @@ export class QorusProjectCodeInfo {
             if (info_list.includes('yaml')) {
                 setTimeout(() => {
                     this.updateYamlInfo(file_data.source_directories);
-                    this.yaml_info.baseClassesFromInheritancePairs();
-                    this.yaml_info.javaBaseClassesFromInheritancePairs();
                 }, 0);
             }
             if (info_list.includes('modules')) {
@@ -895,6 +893,8 @@ export class QorusProjectCodeInfo {
     private addSingleYamlInfo(file: string) {
         this.setPending('yaml', true);
         this.yaml_info.addSingleYamlInfo(file);
+        this.yaml_info.baseClassesFromInheritancePairs();
+        this.yaml_info.javaBaseClassesFromInheritancePairs();
         this.setPending('yaml', false);
     }
 
@@ -913,6 +913,8 @@ export class QorusProjectCodeInfo {
             }
         }
         this.notifyTrees();
+        this.yaml_info.baseClassesFromInheritancePairs();
+        this.yaml_info.javaBaseClassesFromInheritancePairs();
         this.setPending('yaml', false);
     }
 
