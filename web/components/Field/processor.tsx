@@ -76,6 +76,14 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
                 setTypes(types.data);
             })();
         }
+        if (!value) {
+            onChange(name, {
+                args: undefined,
+                'processor-input-type': undefined,
+                'processor-output-type': undefined,
+                options: undefined,
+            });
+        }
     });
 
     useUpdateEffect(() => {
