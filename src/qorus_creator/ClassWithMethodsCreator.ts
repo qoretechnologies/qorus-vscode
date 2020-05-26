@@ -57,7 +57,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         this.imports = this.imports || [];
         const methods = data[methods_key];
 
-        this.setPaths(data, orig_data, suffix);
+        this.setPaths(data, orig_data, suffix, iface_kind);
 
         const {ok, message} = this.checkData(params);
         if (!ok) {

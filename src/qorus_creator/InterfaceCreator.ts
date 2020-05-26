@@ -33,7 +33,7 @@ export abstract class InterfaceCreator {
     protected has_code = false;
     protected had_code = false;
 
-    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string, edit_type?: string): any {
+    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind: string, edit_type?: string): any {
         this.file_edit_info = undefined;
         this.suffix = suffix || '';
 
@@ -54,11 +54,12 @@ export abstract class InterfaceCreator {
                 this.yaml_file_base = data.version !== undefined
                     ? `${data.name}-${data.version}`
                     : data.name;
-                this.target_subdir = this.yaml_file_base;
+                this.target_subdir = iface_kind ? `${this.yaml_file_base}-${iface_kind}` : this.yaml_file_base;
                 break;
             default:
                 if (target_file) {
                     this.file_base = target_file;
+                    // remove all possible suffixes
                     ['yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype',
                      'qsd', 'qmc', 'qevent', 'qgroup', 'qqueue'].forEach(suffix => {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
