@@ -34,8 +34,8 @@ export const classConnectionsCodeChanges = async (
     };
 
     const lang = data.lang || 'qore';
-    const had_class_connections = Object.keys(orig_data['class-connections'] || {}).length > 0;
-    const has_class_connections = Object.keys(data['class-connections'] || {}).length > 0;
+    const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
+    const has_class_connections = Object.keys(data?.['class-connections'] || {}).length > 0;
 
     let num_tries = 0;
     const setFileInfo = async (params, add_class_connections_info = false, sleep = 1000) => {

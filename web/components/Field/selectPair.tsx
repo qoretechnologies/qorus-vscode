@@ -9,8 +9,8 @@ import FieldEnhancer from '../FieldEnhancer';
 export interface IPairField {
     keyName: string;
     valueName: string;
-    keyValue: string;
-    valueValue: string;
+    keyValue?: string;
+    valueValue?: string;
     index: number | string;
     onRemoveClick: () => void;
     get_message?: { action: string; object_type: string; return_value?: string };

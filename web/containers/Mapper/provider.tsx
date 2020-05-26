@@ -29,6 +29,7 @@ export interface IProviderProps {
     title: string;
     setOptionProvider: any;
     hide: any;
+    style: any;
 }
 
 const StyledWrapper = styled.div<{ compact?: boolean; hasTitle: boolean }>`
@@ -126,12 +127,13 @@ const MapperProvider: FC<IProviderProps> = ({
     hide,
     compact,
     canSelectNull,
+    style,
 }) => {
     const [wildcardDiagram, setWildcardDiagram] = useState(null);
     const t = useContext(TextContext);
 
-    const handleProviderChange = provider => {
-        setProvider(current => {
+    const handleProviderChange = (provider) => {
+        setProvider((current) => {
             // Fetch the url of the provider
             (async () => {
                 // Clear the data
@@ -161,14 +163,14 @@ const MapperProvider: FC<IProviderProps> = ({
                 setIsLoading(false);
                 // Filter unwanted data if needed
                 if (filter) {
-                    data = data.filter(datum => datum[filter]);
+                    data = data.filter((datum) => datum[filter]);
                 }
                 // Save the children
                 let children = data.children || data;
                 // Add new child
                 setChildren([
                     {
-                        values: children.map(child => ({
+                        values: children.map((child) => ({
                             name: providers[provider].namekey ? child[providers[provider].namekey] : child,
                             desc: '',
                             url,
@@ -203,7 +205,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Reset loading
         setIsLoading(false);
         // Add new child
-        setChildren(current => {
+        setChildren((current) => {
             // Update this item
             const newItems: any[] = current
                 .map((item, index) => {
@@ -220,7 +222,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     // Return the item
                     return newItem;
                 })
-                .filter(item => item);
+                .filter((item) => item);
             // If this provider has children
             if (size(data.children)) {
                 // Return the updated items and add
@@ -228,7 +230,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 return [
                     ...newItems,
                     {
-                        values: data.children.map(child => ({
+                        values: data.children.map((child) => ({
                             name: child,
                             desc: '',
                             url: `${url}/${value}${suffix}`,
@@ -325,7 +327,7 @@ const MapperProvider: FC<IProviderProps> = ({
 
     const getDefaultItems = useCallback(
         () =>
-            map(providers, ({ name }) => ({ name, desc: '' })).filter(prov =>
+            map(providers, ({ name }) => ({ name, desc: '' })).filter((prov) =>
                 prov.name === 'null' ? canSelectNull : true
             ),
         []
@@ -340,7 +342,7 @@ const MapperProvider: FC<IProviderProps> = ({
                         <br />
                         <String
                             name="wildcard"
-                            onChange={(_name, value) => setWildcardDiagram(cur => ({ ...cur, value }))}
+                            onChange={(_name, value) => setWildcardDiagram((cur) => ({ ...cur, value }))}
                             value={wildcardDiagram.value}
                         />
                     </div>
@@ -364,7 +366,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     </div>
                 </CustomDialog>
             )}
-            <StyledWrapper compact={compact} hasTitle={!!title}>
+            <StyledWrapper compact={compact} hasTitle={!!title} style={style}>
                 {!compact && <StyledHeader>{title}</StyledHeader>}
                 {compact && title && <span>{title}: </span>}{' '}
                 <ButtonGroup>
@@ -385,7 +387,7 @@ const MapperProvider: FC<IProviderProps> = ({
                             defaultItems={child.values}
                             onChange={(_name, value) => {
                                 // Get the child data
-                                const { url, suffix } = child.values.find(val => val.name === value);
+                                const { url, suffix } = child.values.find((val) => val.name === value);
                                 // If the value is a wildcard present a dialog that the user has to fill
                                 if (value === '*') {
                                     setWildcardDiagram({

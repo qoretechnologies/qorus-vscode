@@ -10,6 +10,7 @@ import { isBoolean, isNull, isString, isUndefined } from 'util';
 import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 
 import { IField } from '../containers/InterfaceCreator/panel';
+import { transformArgs } from '../components/Field/processor';
 
 const cron = require('cron-validator');
 
@@ -189,6 +190,27 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
 
             return false;
         }
+        case 'processor': {
+            let valid = true;
+
+            // Validate the arguments
+            if (value?.args && !validateField('class-array', transformArgs(value.args, true))) {
+                valid = false;
+            }
+            // Validate the input and output types
+            if (value?.['processor-input-type'] && !validateField('type-selector', value?.['processor-input-type'])) {
+                valid = false;
+            }
+            if (value?.['processor-output-type'] && !validateField('type-selector', value?.['processor-output-type'])) {
+                valid = false;
+            }
+            // Validate the options
+            if (value?.options && !validateField('hash', value?.options)) {
+                valid = false;
+            }
+
+            return valid;
+        }
         case 'nothing':
             return false;
         default:
@@ -196,7 +218,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
     }
 };
 
-export const maybeParseYaml: (yaml: any) => any = yaml => {
+export const maybeParseYaml: (yaml: any) => any = (yaml) => {
     // If we are dealing with basic boolean
     if (yaml === true || yaml === false) {
         return yaml;

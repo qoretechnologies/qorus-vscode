@@ -125,6 +125,10 @@ export class InterfaceCreatorDispatcher {
                     addField('class-name');
                     addField('base-class-name');
                 }
+            case 'processor':
+                if (iface_kind === 'class') {
+                    addField('base-class-name');
+                }
                 break;
         }
     }
@@ -140,6 +144,9 @@ export class InterfaceCreatorDispatcher {
                 if (iface_kind === 'workflow') {
                     removeField('class-name');
                     removeField('lang');
+                }
+                if (iface_kind === 'class') {
+                    removeField('processor');
                 }
                 interface_info.removeBaseClass(other_params);
                 interface_info.getConfigItems(other_params);

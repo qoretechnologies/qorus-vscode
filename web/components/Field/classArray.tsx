@@ -17,7 +17,10 @@ export const StyledPairField = styled.div`
     margin-bottom: 10px;
 `;
 
-const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldChange> = ({
+const ClassArrayField: FunctionComponent<
+    { t: TTranslator; showClassesWarning: boolean; defaultSelectItems: any[]; withTextField?: boolean } & IField &
+        IFieldChange
+> = ({
     name,
     onChange,
     value = [{ id: 1, prefix: '', name: '' }],
@@ -26,7 +29,10 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
     t,
     resetClassConnections,
     showClassesWarning,
+    defaultSelectItems,
     reference,
+    withTextField,
+    canRemoveLast,
 }) => {
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
         // Check if the current value is empty
@@ -47,7 +53,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
         onChange(name, [...value, { id: size(value) + 1, prefix: '', name: '' }]);
     };
 
-    const handleRemoveClick: (id: number) => void = id => {
+    const handleRemoveClick: (id: number) => void = (id) => {
         // Get the pair data
         const pairData: IPair = value.find((_p: IPair, index: number) => id === index);
         // Check if this field had a class selected
@@ -69,7 +75,7 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
                 <StyledPairField key={index + 1}>
                     <SelectPairField
                         index={index + 1}
-                        canBeRemoved={size(value) !== 1}
+                        canBeRemoved={canRemoveLast || size(value) !== 1}
                         onRemoveClick={() => handleRemoveClick(index)}
                         key={index + 1}
                         keyName="prefix"
@@ -77,16 +83,17 @@ const ClassArrayField: FunctionComponent<{ t: TTranslator } & IField & IFieldCha
                         keyValue={pair.prefix}
                         valueValue={pair.name}
                         get_message={get_message}
+                        defaultSelectItems={defaultSelectItems}
                         reference={reference}
                         return_message={return_message}
                         onChange={(fieldName: string, value: any) => {
                             changePairData(index, fieldName, value);
                         }}
-                        hideTextField
+                        hideTextField={!withTextField}
                     />
                 </StyledPairField>
             ))}
-            <ButtonGroup fill>
+            <ButtonGroup fill style={{ marginBottom: '10px' }}>
                 <Button text={t('AddAnother')} icon={'add'} onClick={handleAddClick} />
             </ButtonGroup>
         </>
