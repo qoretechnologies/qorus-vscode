@@ -16,6 +16,7 @@ const StyledFieldLabel = styled.div<{ fluid?: boolean }>`
     display: flex;
     flex-flow: row;
     position: relative;
+    align-items: center;
 `;
 
 const FieldLabelName = styled.h4`
@@ -32,10 +33,9 @@ const FieldLabelValid = styled.div`
 const FieldLabelInfo = styled.p`
     margin: 0;
     padding: 0;
-    position: absolute;
-    top: 19px;
     font-size: 12px;
     color: #a9a9a9;
+    font-weight: normal;
 `;
 
 export interface IFieldLabel {
@@ -46,8 +46,12 @@ export interface IFieldLabel {
 
 const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) => (
     <StyledFieldLabel fluid={!label}>
-        {label && <FieldLabelName>{label}</FieldLabelName>}
-        {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
+        {label && (
+            <FieldLabelName>
+                {label}
+                {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
+            </FieldLabelName>
+        )}
         <FieldLabelValid>
             <Icon
                 icon={isValid === false ? 'cross' : 'blank'}
