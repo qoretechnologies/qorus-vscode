@@ -12,7 +12,8 @@ import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
 import { QorusProjectEditInfo} from './QorusProjectEditInfo';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
-         all_root_classes } from './qorus_constants';
+         all_root_classes, 
+         root_processor} from './qorus_constants';
 import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -297,6 +298,10 @@ export class QorusProjectCodeInfo {
                 }
             }
         });
+
+        if (data.processor && data.processor.options) {
+            data.processor.options = jsyaml.safeDump(data.processor.options);
+        }
 
         if (data.fields) {
             Object.keys(data.fields).forEach(field_name => {
@@ -609,7 +614,17 @@ export class QorusProjectCodeInfo {
 
                     postMessage('objects', [ ...user_classes, ...qorus_root_classes ]);
                 });
-
+                break;
+            case 'processor-base-class':
+                if (lang === 'java') {
+                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaProcessorClasses(), [root_processor]))
+                    );
+                } else {
+                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                        postMessage('objects', this.addDescToClasses(this.yaml_info.processorClasses(), [root_processor]))
+                    );
+                }
                 break;
             case 'author':
                 this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));
@@ -690,8 +705,6 @@ export class QorusProjectCodeInfo {
             if (info_list.includes('yaml')) {
                 setTimeout(() => {
                     this.updateYamlInfo(file_data.source_directories);
-                    this.yaml_info.baseClassesFromInheritancePairs();
-                    this.yaml_info.javaBaseClassesFromInheritancePairs();
                 }, 0);
             }
             if (info_list.includes('modules')) {
@@ -895,6 +908,8 @@ export class QorusProjectCodeInfo {
     private addSingleYamlInfo(file: string) {
         this.setPending('yaml', true);
         this.yaml_info.addSingleYamlInfo(file);
+        this.yaml_info.baseClassesFromInheritancePairs();
+        this.yaml_info.javaBaseClassesFromInheritancePairs();
         this.setPending('yaml', false);
     }
 
@@ -913,6 +928,8 @@ export class QorusProjectCodeInfo {
             }
         }
         this.notifyTrees();
+        this.yaml_info.baseClassesFromInheritancePairs();
+        this.yaml_info.javaBaseClassesFromInheritancePairs();
         this.setPending('yaml', false);
     }
 

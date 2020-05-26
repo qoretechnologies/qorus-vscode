@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Provider, { providers } from '../../../containers/Mapper/provider';
-import { Tag, Callout } from '@blueprintjs/core';
+import { Tag, Callout, Button } from '@blueprintjs/core';
 import styled from 'styled-components';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../../hocomponents/withTextContext';
 import compose from 'recompose/compose';
 import { TTranslator } from '../../../App';
+import size from 'lodash/size';
 
 export interface IConnectorFieldProps {
     title?: string;
@@ -14,6 +15,7 @@ export interface IConnectorFieldProps {
     value: any;
     isInitialEditing?: boolean;
     initialData: any;
+    inline?: boolean;
     t: TTranslator;
 }
 
@@ -33,6 +35,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     value,
     isInitialEditing,
     initialData,
+    inline,
     t,
 }) => {
     const [nodes, setChildren] = useState([]);
@@ -46,7 +49,14 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
         setOptionProvider(null);
     };
 
-    const getUrlFromProvider: (val: any) => string = val => {
+    const reset = () => {
+        setChildren([]);
+        setProvider(null);
+        setOptionProvider(null);
+        setIsLoading(false);
+    };
+
+    const getUrlFromProvider: (val: any) => string = (val) => {
         const { type, name, path } = val;
         // Get the rules for the given provider
         const { url, suffix, recordSuffix, requiresRecord } = providers[type];
@@ -74,18 +84,24 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     }
 
     return (
-        <Provider
-            nodes={nodes}
-            setChildren={setChildren}
-            provider={provider}
-            setProvider={setProvider}
-            setOptionProvider={setOptionProvider}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-            title={title}
-            clear={clear}
-            compact
-        />
+        <>
+            <Provider
+                nodes={nodes}
+                setChildren={setChildren}
+                provider={provider}
+                setProvider={setProvider}
+                setOptionProvider={setOptionProvider}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                title={title}
+                clear={clear}
+                compact
+                style={{
+                    display: inline ? 'inline-block' : 'block',
+                }}
+            />
+            {size(nodes) ? <Button intent="danger" icon="cross" onClick={reset} /> : null}
+        </>
     );
 };
 

@@ -696,6 +696,10 @@ export abstract class InterfaceCreator {
                         result += `${tag}: ` +
                             InterfaceCreator.indentYamlDump(value, 0, false);
                         break;
+                    case 'processor':
+                        value.options = value.options ? jsyaml.safeLoad(value.options) : null;
+                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(value, 1, true);
+                        break;
                     case 'class-connections':
                         if (!value || !Object.keys(value).length) {
                             break;

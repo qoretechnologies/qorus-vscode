@@ -15,6 +15,7 @@ import OptionHashField from './optionHash';
 import SelectField from './select';
 import StringField from './string';
 import TextareaField from './textarea';
+import withTextContext from '../../hocomponents/withTextContext';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -104,9 +105,9 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     };
 
     const handleNullToggle = () => {
-        setType('any');
-        setInternalType('any');
-        setIsSetToNull(current => !current);
+        setType(defaultType || 'any');
+        setInternalType(defaultType || 'any');
+        setIsSetToNull((current) => !current);
         // Handle change
         handleChange(name, null);
     };
@@ -226,4 +227,4 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     );
 };
 
-export default AutoField;
+export default withTextContext()(AutoField);
