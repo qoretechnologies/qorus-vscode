@@ -3,7 +3,7 @@ import { parse } from 'java-parser';
 
 // a function for test printing out parsed CST of a file (output from the java-parser module)
 /*import { writeFileSync } from 'fs';
-function printJsonCST(filepath: string, encoding: string = 'utf-8') {
+export function printJsonCST(filepath: string, encoding: string = 'utf-8') {
     let jfile = readFileSync(filepath, {encoding: encoding});
     let cst = parse(jfile);
     writeFileSync(filepath + ".cst", JSON.stringify(cst, (k, v) => {
@@ -78,6 +78,187 @@ export class QorusJavaParser {
         };
     }
 
+    private static _parsePrimitiveType(primitiveNode): object | undefined {
+        if (!primitiveNode) {
+            return undefined;
+        }
+
+        // handle boolean
+        if (primitiveNode.children?.Boolean?.[0]) {
+            return {
+                identifier: 'boolean',
+                loc: primitiveNode.location
+            };
+        }
+
+        // handle number types
+        const type = primitiveNode?.children?.numericType?.[0];
+        if (!type) {
+            return undefined;
+        }
+
+        // handle integer types
+        let numtype = type?.children?.integralType?.[0];
+        if (numtype) {
+            const children = numtype?.children;
+            const typename = children?.Byte?.[0]?.image
+                ?? children?.Short?.[0]?.image
+                ?? children?.Int?.[0]?.image
+                ?? children?.Long?.[0]?.image
+                ?? children?.Char?.[0]?.image;
+            return {
+                identifier: typename,
+                loc: numtype.location
+            };
+        }
+
+        // handle float types
+        numtype = type?.children?.floatingPointType?.[0];
+        if (numtype) {
+            const children = numtype?.children;
+            const typename = children?.Float?.[0]?.image
+                ?? children?.Double?.[0]?.image;
+            return {
+                identifier: typename,
+                loc: numtype.location
+            };
+        }
+
+        return undefined;
+    }
+
+    private static _stringifyTypeArguments(typeArgs: any[] | undefined): string {
+        if (!typeArgs) {
+            return '';
+        }
+        const targStrings: string[] = [];
+        for (const targ of typeArgs) {
+            let str = targ.identifier;
+            if (targ.typeArguments) {
+                str += QorusJavaParser._stringifyTypeArguments(targ.typeArguments || []);
+            }
+            targStrings.push(str);
+        }
+        return '<' + targStrings.join(',') + '>';
+    }
+
+    private static _parseTypeArguments(typeArgNode): any[] | undefined {
+        if (!typeArgNode) {
+            return undefined;
+        }
+        const typeArgs = [];
+        for (const typeArg of typeArgNode || []) {
+            const refType = QorusJavaParser._parseReferenceType(typeArg?.children?.referenceType?.[0]);
+            if (refType) {
+                typeArgs.push(refType);
+            }
+        }
+        return typeArgs.length > 0 ? typeArgs : undefined;
+    }
+
+    private static _parseReferenceType(referenceTypeNode): object | undefined {
+        if (!referenceTypeNode) {
+            return undefined;
+        }
+
+        let subtype = referenceTypeNode?.children?.classOrInterfaceType?.[0]?.children?.classType?.[0];
+        if (subtype) {
+            const name = subtype?.children?.Identifier?.[0]?.image;
+            return name ? {
+                loc: subtype.location,
+                identifier: name,
+                typeArguments: QorusJavaParser._parseTypeArguments(
+                    subtype?.children?.typeArguments?.[0]?.children?.typeArgumentList?.[0]?.children?.typeArgument
+                )
+            } : undefined;
+        }
+
+        subtype = referenceTypeNode?.children?.primitiveType?.[0];
+        if (subtype) {
+            return QorusJavaParser._parsePrimitiveType(subtype);
+        }
+
+        return undefined;
+    }
+
+    private static _parseUnannClassType(uctNode): string | undefined {
+        const baseName = uctNode?.children?.Identifier?.[0]?.image;
+        if (!baseName) {
+            return undefined;
+        }
+
+        const typeArgs = QorusJavaParser._parseTypeArguments(
+            uctNode.children?.typeArguments?.[0]?.children?.typeArgumentList?.[0]?.children?.typeArgument
+        );
+        return baseName + (typeArgs ? QorusJavaParser._stringifyTypeArguments(typeArgs) : '');
+    }
+
+    private static _parseUnnanType(typeNode): object | undefined {
+        // handle class/interface types
+        let type = typeNode?.children?.unannReferenceType?.[0]?.children?.unannClassOrInterfaceType?.[0];
+        if (type) {
+            return {
+                identifier: QorusJavaParser._parseUnannClassType(type?.children?.unannClassType?.[0]),
+                loc: type.location
+            };
+        }
+
+        // handle primitive types
+        return QorusJavaParser._parsePrimitiveType(typeNode?.children?.unannPrimitiveType?.[0]);
+    }
+
+    private static _parseVariableDeclaratorId(declaratorIdNode): object | undefined {
+        const id = declaratorIdNode?.children?.Identifier?.[0]?.image;
+        return id ? {
+            identifier: id,
+            loc: declaratorIdNode.location
+        } : undefined;
+    }
+
+    private static _parseMethodParameters(paramListNode): object | undefined {
+        const paramArray = paramListNode?.children?.formalParameter;
+        const params = [];
+        for (const paramNode of paramArray || []) {
+            let p = paramNode?.children?.variableParaRegularParameter?.[0];
+            if (p) {
+                params.push({
+                    loc: p.location,
+                    name: QorusJavaParser._parseVariableDeclaratorId(p.children?.variableDeclaratorId?.[0]),
+                    modifiers: QorusJavaParser._parseModifiers(p.children?.variableModifier),
+                    type: QorusJavaParser._parseUnnanType(p.children?.unannType?.[0]),
+                    varArity: false
+                });
+                continue;
+            }
+
+            p = paramNode?.children?.variableArityParameter?.[0];
+            if (p) {
+                const id = p.children?.Identifier?.[0];
+                if (id) {
+                    params.push({
+                        loc: p.location,
+                        name: {
+                            identifier: id.image,
+                            loc: {
+                                startLine: id.startLine,
+                                endLine: id.endLine,
+                                startColumn: id.startColumn,
+                                endColumn: id.endColumn,
+                                startOffset: id.startOffset,
+                                endOffset: id.endOffset
+                            }
+                        },
+                        modifiers: QorusJavaParser._parseModifiers(p.children?.variableModifier),
+                        type: QorusJavaParser._parseUnnanType(p.children?.unannType?.[0]),
+                        varArity: true
+                    });
+                }
+            }
+        }
+
+        return params.length > 0 ? params : undefined;
+    }
+
     private static _parseConstructorName(declaratorNode): object | undefined {
         const id = declaratorNode?.children?.simpleTypeName?.[0];
         if (id) {
@@ -120,102 +301,85 @@ export class QorusJavaParser {
         return undefined;
     }
 
+    private static _parseVariableInitializer(initializerNode): object | undefined {
+        const expr = initializerNode?.children?.expression?.[0];
+        let specificExpr = expr?.children?.ternaryExpression?.[0];
+        if (specificExpr) {
+            return {
+                loc: initializerNode.location,
+                unparsedInitializer: true
+            };
+        }
+
+        specificExpr = expr?.children?.lambdaExpression?.[0];
+        if (specificExpr) {
+            return {
+                loc: initializerNode.location,
+                unparsedLambda: true
+            };
+        }
+    }
+
+    private static _parseVariableDeclarator(declaratorNode): object | undefined {
+        const children = declaratorNode?.children;
+        if (!children) {
+            return undefined;
+        }
+
+        const initializer = children.variableInitializer?.[0];
+        const eq = children.Equals?.[0];
+        return {
+            loc: declaratorNode.location,
+            name: QorusJavaParser._parseVariableDeclaratorId(children.variableDeclaratorId?.[0]),
+            assignment: initializer ? {
+                value: QorusJavaParser._parseVariableInitializer(initializer),
+                equalsKWLoc: eq ? {
+                    startLine: eq.startLine,
+                    endLine: eq.endLine,
+                    startColumn: eq.startColumn,
+                    endColumn: eq.endColumn,
+                    startOffset: eq.startOffset,
+                    endOffset: eq.endOffset
+                } : undefined
+            } : undefined
+        };
+    }
+
     private static _parseClassFieldVariables(declListNode): any[] {
         const vars = [];
         for (const vDecl of declListNode?.children?.variableDeclarator || []) {
-            const id = vDecl?.children?.variableDeclaratorId?.[0]?.children?.Identifier?.[0]?.image;
-            if (id) {
-                vars.push({
-                    identifier: id,
-                    loc: vDecl.location
-                });
+            const vd = QorusJavaParser._parseVariableDeclarator(vDecl);
+            if (vd) {
+                vars.push(vd);
             }
         }
         return vars;
     }
 
-    private static _parseClassFieldType(typeNode): object | undefined {
-        // handle class/interface types
-        let type = typeNode?.children?.unannReferenceType?.[0]?.children?.unannClassOrInterfaceType?.[0];
-        if (type) {
-            return {
-                identifier: type?.children?.unannClassType?.[0]?.children?.Identifier?.[0]?.image,
-                loc: type.location
-            };
-        }
-    
-        // handle primitive types
-        type = typeNode?.children?.unannPrimitiveType?.[0];
-        if (!type) {
-            return undefined;
-        }
-
-        // handle boolean
-        if (type?.children?.Boolean?.[0]) {
-            return {
-                identifier: 'boolean',
-                loc: type.location
-            };
-        }
-
-        // handle number types
-        type = type?.children?.numericType?.[0];
-        if (!type) {
-            return undefined;
-        }
-
-        // handle integer types
-        let numtype = type?.children?.integralType?.[0];
-        if (numtype) {
-            const children = numtype?.children;
-            const typename = children?.Byte?.[0]?.image
-                ?? children?.Short?.[0]?.image
-                ?? children?.Int?.[0]?.image
-                ?? children?.Long?.[0]?.image
-                ?? children?.Char?.[0]?.image;
-            return {
-                identifier: typename,
-                loc: numtype.location
-            };
-        }
-
-        // handle float types
-        numtype = type?.children?.floatingPointType?.[0];
-        if (numtype) {
-            const children = numtype?.children;
-            const typename = children?.Float?.[0]?.image
-                ?? children?.Double?.[0]?.image;
-            return {
-                identifier: typename,
-                loc: numtype.location
-            };
-        }
-
-        return undefined;
-    }
-
     private static _parseConstructorDecl(constrNode): object | undefined {
         const children = constrNode?.children;
+        const constrDeclarator = children?.constructorDeclarator?.[0];
         return {
             loc: constrNode.location,
-            name: QorusJavaParser._parseConstructorName(children?.constructorDeclarator?.[0]),
+            name: QorusJavaParser._parseConstructorName(constrDeclarator),
             modifiers: QorusJavaParser._parseModifiers(children?.constructorModifier),
-            throws: QorusJavaParser._parseThrows(children?.throws?.[0]),
-            body: undefined
-            //
+            parameters: QorusJavaParser._parseMethodParameters(constrDeclarator?.children?.formalParameterList?.[0]),
+            throws: QorusJavaParser._parseThrows(children?.throws?.[0])
+            //body: undefined
         };
     }
 
     private static _parseClassMethodDecl(methodNode): object | undefined {
         const headerChildren = methodNode?.children?.methodHeader?.[0]?.children;
+        const methodDeclarator = headerChildren?.methodDeclarator?.[0];
         return {
             loc: methodNode.location,
-            name: QorusJavaParser._parseClassMethodName(headerChildren?.methodDeclarator?.[0]),
+            name: QorusJavaParser._parseClassMethodName(methodDeclarator),
             modifiers: QorusJavaParser._parseModifiers(methodNode?.children?.methodModifier),
+            parameters: QorusJavaParser._parseMethodParameters(methodDeclarator?.children?.formalParameterList?.[0]),
             returnType: QorusJavaParser._parseClassMethodReturnType(headerChildren?.result?.[0]),
-            throws: QorusJavaParser._parseThrows(headerChildren?.throws?.[0]),
-            body: undefined
-            //
+            throws: QorusJavaParser._parseThrows(headerChildren?.throws?.[0])
+            //body: undefined
         };
     }
 
@@ -225,7 +389,7 @@ export class QorusJavaParser {
             loc: fieldNode.location,
             variables: QorusJavaParser._parseClassFieldVariables(children?.variableDeclaratorList?.[0]),
             modifiers: QorusJavaParser._parseModifiers(children?.fieldModifier),
-            type: QorusJavaParser._parseClassFieldType(children?.unannType?.[0])
+            type: QorusJavaParser._parseUnnanType(children?.unannType?.[0])
         };
     }
 
