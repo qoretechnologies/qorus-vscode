@@ -125,6 +125,7 @@ export interface IField {
         iface_kind: string;
         type?: string;
     };
+    iface_kind?: string;
 }
 
 export declare interface IFieldChange {
