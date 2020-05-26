@@ -143,7 +143,7 @@ class ClassCreator extends InterfaceCreator {
                     connections_extra_class
                 });
 
-                info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
+                info = t`2FilesCreatedInDir ${this.rel_file_path} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
                 if (!this.has_code) {
@@ -176,7 +176,7 @@ class ClassCreator extends InterfaceCreator {
             ... iface_kind === 'step' && data['base-class-name']
                 ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
                 : {},
-            code: this.has_code ? this.file_name : undefined
+            code: this.rel_file_path
         });
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);

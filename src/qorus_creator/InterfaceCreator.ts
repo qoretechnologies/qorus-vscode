@@ -20,9 +20,10 @@ const indent = '    ';
 
 
 export abstract class InterfaceCreator {
-    protected suffix: string;
+    protected suffix: string = '';
     protected lang: string;
     protected target_dir: string;
+    protected target_subdir: string;
     protected file_base: string;
     protected yaml_file_base: string;
     protected orig_file_path: string;
@@ -32,9 +33,9 @@ export abstract class InterfaceCreator {
     protected has_code = false;
     protected had_code = false;
 
-    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind?: string, edit_type?: string): any {
+    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind: string, edit_type?: string): any {
         this.file_edit_info = undefined;
-        this.suffix = suffix;
+        this.suffix = suffix || '';
 
         let { target_dir, target_file } = data;
         const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
@@ -47,26 +48,29 @@ export abstract class InterfaceCreator {
             target_file = path.basename(data.path);
         }
 
-        if (this.lang === 'qore') {
-            if (target_file) {
-                this.file_base = target_file;
-                ['yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype',
-                 'qsd', 'qmc', 'qevent', 'qgroup', 'qqueue'].forEach(suffix => {
-                    this.file_base = path.basename(this.file_base, `.${suffix}`);
-                });
-            } else {
-                this.file_base = data.version !== undefined
+        switch (this.lang) {
+            case 'java':
+                this.file_base = data['class-name'];
+                this.yaml_file_base = data.version !== undefined
                     ? `${data.name}-${data.version}`
                     : data.name;
-            }
-            this.yaml_file_base = this.file_base;
-        } else {
-            this.file_base = target_file
-                ? path.basename(path.basename(target_file, lang_suffix[this.lang]), '.yaml')
-                : data['class-name'];
-            this.yaml_file_base = data.version !== undefined
-                ? `${data.name}-${data.version}`
-                : data.name;
+                this.target_subdir = iface_kind ? `${this.yaml_file_base}-${iface_kind}` : this.yaml_file_base;
+                break;
+            default:
+                if (target_file) {
+                    this.file_base = target_file;
+                    // remove all possible suffixes
+                    ['yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype',
+                     'qsd', 'qmc', 'qevent', 'qgroup', 'qqueue'].forEach(suffix => {
+                        this.file_base = path.basename(this.file_base, `.${suffix}`);
+                    });
+                } else {
+                    this.file_base = data.version !== undefined
+                        ? `${data.name}-${data.version}`
+                        : data.name;
+                }
+                this.yaml_file_base = this.file_base;
+                this.target_subdir = '';
         }
 
         if (orig_target_dir && orig_target_file) {
@@ -118,22 +122,25 @@ export abstract class InterfaceCreator {
 
     protected abstract editImpl(params: any);
 
-    protected get file_name() {
-        return this.has_code
-            ? (this.lang !== 'java'
-                ? `${this.file_base}${this.suffix || ''}${lang_suffix[this.lang]}`
-                : `${this.file_base}${lang_suffix[this.lang]}`)
-            : undefined;
+    protected get rel_file_path() {
+        if (!this.has_code) {
+            return undefined;
+        }
+
+        switch (this.lang) {
+            case 'java':
+                return path.join(this.target_subdir, `${this.file_base}${lang_suffix.java}`);
+            default:
+                return `${this.file_base}${this.suffix}${lang_suffix[this.lang]}`;
+        }
     }
 
     protected get yaml_file_name() {
-        return this.has_code && this.lang !== 'java'
-            ? `${this.file_name}.yaml`
-            : `${this.yaml_file_base}${this.suffix || ''}.yaml`;
+        return `${this.yaml_file_base}${this.suffix}.yaml`;
     }
 
     protected get file_path() {
-        return this.has_code ? path.join(this.target_dir, this.file_name) : undefined;
+        return this.has_code ? path.join(this.target_dir, this.rel_file_path) : undefined;
     }
 
     protected get yaml_file_path() {
@@ -169,6 +176,11 @@ export abstract class InterfaceCreator {
         }
 
         try {
+            const true_target_dir = path.join(this.target_dir, this.target_subdir);
+            if (!fs.existsSync(true_target_dir)) {
+               fs.mkdirSync(true_target_dir);
+            }
+
             fs.writeFileSync(this.file_path, contents);
         } catch (err) {
             msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
