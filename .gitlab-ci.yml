@@ -1,9 +1,8 @@
 stages:
-  - test
   - build
 
 uitest:
-  stage: test
+  stage: build
   image: alpine:latest
   tags:
     - docker-exec
