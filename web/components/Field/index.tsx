@@ -30,6 +30,7 @@ import StringField from './string';
 import TypeSelector from './typeSelector';
 import { validateField } from '../../helpers/validations';
 import { Callout } from '@blueprintjs/core';
+import ProcessorField from './processor';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -37,7 +38,7 @@ export interface IFieldProps extends IField {
     onChange: IFieldChange;
     interfaceKind: string;
     interfaceId: string;
-    requestFieldData: (fieldName: string, fieldKey: string) => string | null;
+    requestFieldData?: (fieldName: string, fieldKey: string) => string | null;
 }
 
 const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
@@ -82,6 +83,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                 {type === 'class-array' && <ClassArrayField {...rest} type={type} />}
                 {type === 'type-selector' && <TypeSelector {...rest} type={type} />}
                 {type === 'context-selector' && <ContextField {...rest} type={type} />}
+                {type === 'processor' && <ProcessorField {...rest} type={type} />}
                 {type === 'mapper-options' && (
                     <MapperOptionsField
                         {...rest}
