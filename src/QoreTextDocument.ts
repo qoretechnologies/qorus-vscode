@@ -28,5 +28,12 @@ export const loc2range = (loc: any, offset_string: string = ''): Range => new Ra
     nonNegative(loc.start_line - 1),
     nonNegative(loc.start_column + offset_string.length - 1),
     nonNegative(loc.end_line - 1),
-    nonNegative(loc.end_column - 1),
+    nonNegative(loc.end_column - 1)
+);
+
+export const javaLoc2range = (loc: any): Range => new Range(
+    loc.startLine - 1,
+    loc.startColumn - 1,
+    loc.endLine - 1,
+    loc.endColumn - 1
 );

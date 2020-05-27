@@ -103,7 +103,7 @@ export const classConnectionsCodeChanges = async (
         }
 
         edit_data = await setFileInfo(data);
-        if (edit_data.empty_private_member_block) {
+        if (edit_data.is_private_member_block_empty) {
             lines = deleteEmptyPrivateMemberBlock(edit_data);
             lines = cleanup(lines);
             writeFile(lines);
