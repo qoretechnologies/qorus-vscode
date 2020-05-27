@@ -57,7 +57,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         this.imports = this.imports || [];
         const methods = data[methods_key];
 
-        this.setPaths(data, orig_data, suffix);
+        this.setPaths(data, orig_data, suffix, iface_kind);
 
         const {ok, message} = this.checkData(params);
         if (!ok) {
@@ -76,7 +76,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         switch (edit_type) {
             case 'create':
                 contents = this.code(data, iface_kind, methods);
-                info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
+                info = t`2FilesCreatedInDir ${this.rel_file_path} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
                 const orig_method_names: string[] = (orig_data[methods_key] || []).map(method => method.name);
@@ -116,7 +116,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             type: iface_kind,
             ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
-            code: this.file_name
+            code: this.rel_file_path
         });
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);

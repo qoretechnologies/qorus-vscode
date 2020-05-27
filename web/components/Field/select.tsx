@@ -46,6 +46,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     warningMessageOnEmpty,
     autoSelect,
     reference,
+    iface_kind,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -138,11 +139,22 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     };
 
     const handleClick: () => void = () => {
+        let className: string;
+
+        if (requestFieldData) {
+            const classClassName = requestFieldData('class-class-name', 'value');
+            const cName = requestFieldData('class-name', 'value');
+
+            className = classClassName || cName;
+        }
+
         if (hasProcessor) {
             // Get only the processor related classes
             postMessage('creator-get-objects', {
                 object_type: 'processor-base-class',
                 lang: requestFieldData('lang', 'value') || 'qore',
+                iface_kind,
+                class_name: className,
             });
         } else if (get_message) {
             get_message.message_data = get_message.message_data || {};
@@ -151,6 +163,8 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                 object_type: get_message.object_type,
                 data: { ...get_message.message_data },
                 lang: requestFieldData ? requestFieldData('lang', 'value') : 'qore',
+                iface_kind,
+                class_name: className,
             });
         }
     };
