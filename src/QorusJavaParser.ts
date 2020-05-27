@@ -318,6 +318,8 @@ export class QorusJavaParser {
                 unparsedLambda: true
             };
         }
+
+        return undefined;
     }
 
     private static _parseVariableDeclarator(declaratorNode): object | undefined {
