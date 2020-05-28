@@ -59,14 +59,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         data: any
     ): Promise<CodeLens[]>;
 
-    protected addClassLenses(iface_kind: string, lenses: CodeLens[], symbol: any, data: any) {
-        if (!symbol.name) {
-            msg.error(t`CannotDetermineClassNamePosition`);
-            return;
-        }
-
-        const range = symbol.range ? symbol.range : loc2range(symbol.name.loc);
-
+    protected addClassLenses(iface_kind: string, lenses: CodeLens[], range: Range, data: any) {
         switch (iface_kind) {
             case 'mapper-code':
             case 'service':
@@ -169,7 +162,7 @@ export class QorusCodeLensProvider extends QorusCodeLensProviderBase {
                     return;
                 }
 
-                this.addClassLenses(iface_kind, lenses, symbol, data);
+                this.addClassLenses(iface_kind, lenses, loc2range(symbol.name.loc), data);
 
                 if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;

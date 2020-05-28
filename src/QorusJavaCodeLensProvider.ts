@@ -1,51 +1,42 @@
 import { CodeLens, TextDocument } from 'vscode';
-import { TextDocument as LsTextDocument } from 'vscode-languageserver-types';
 
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusCodeLensProviderBase } from './QorusCodeLensProvider';
-import { makeFileUri } from './qorus_utils';
-import { parseJavaInheritance } from './qorus_java_utils';
-import { getJavaDocumentSymbolsWithWait } from './vscode_java';
+import { QorusJavaParser }  from './QorusJavaParser';
+import { javaLoc2range } from './QoreTextDocument';
 
 export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
-    protected async provideLanguageSpecificImpl(document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
-        return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
-            if (!symbols || !symbols.length) {
-                return this.previous_lenses;
+    protected async provideLanguageSpecificImpl(_document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
+
+        await this.code_info.edit_info.setFileInfo(file_path, data);
+        let lenses: CodeLens[] = [];
+        data = this.code_info.fixData(data);
+
+        const parsed_data: any = QorusJavaParser.parseFileNoExcept(file_path);
+        parsed_data.classes.forEach(parsed_class => {
+            if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(parsed_class, data['class-name'])) {
+                return;
             }
 
-            await this.code_info.edit_info.setFileInfo(file_path, data);
-            let lenses: CodeLens[] = [];
-            data = this.code_info.fixData(data);
+            this.addClassLenses(iface_kind, lenses, javaLoc2range(parsed_class.name.loc), data);
 
-            symbols.forEach(symbol => {
-                if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, data['class-name'])) {
-                    return;
+            if (!['service', 'mapper-code'].includes(iface_kind)) {
+                return;
+            }
+
+            for (const method of parsed_class.body.methods || []) {
+                if (!QorusProjectEditInfo.isJavaDeclPublicMethod(method)) {
+                    continue;
                 }
 
-                const lsdoc = LsTextDocument.create(makeFileUri(file_path), 'java', 1, document.getText());
-                parseJavaInheritance(lsdoc, symbol);
-
-                this.addClassLenses(iface_kind, lenses, symbol, data);
-
-                if (!['service', 'mapper-code'].includes(iface_kind)) {
-                    return;
-                }
-
-                for (const child of symbol.children || []) {
-                    if (!this.code_info.edit_info.isJavaDeclPublicMethod(child, file_path)) {
-                        continue;
-                    }
-
-                    this.addMethodLenses(
-                        iface_kind, lenses, child.selectionRange, data,
-                        child.name.replace(/\(.*\)/, ''), symbol.name
-                    );
-                }
-            });
+                this.addMethodLenses(
+                    iface_kind, lenses, javaLoc2range(method.name.loc), data,
+                    method.name.identifier, parsed_class.name.identifier
+                );
+            }
 
             this.previous_lenses = lenses;
-            return lenses;
         });
+        return lenses;
     }
 }
