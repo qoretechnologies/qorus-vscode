@@ -12,8 +12,7 @@ import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
 import { QorusProjectEditInfo} from './QorusProjectEditInfo';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
-         all_root_classes, 
-         root_processor} from './qorus_constants';
+         all_root_classes, root_processor} from './qorus_constants';
 import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -521,7 +520,9 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getObjects(object_type: string, lang?: string) {
+    getObjects = params => {
+        const {object_type, lang, iface_kind, class_name} = params;
+
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
             if (lodashIsArray(objects)) {
@@ -592,23 +593,33 @@ export class QorusProjectCodeInfo {
                 }
                 break;
             case 'step-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.allJavaStepClasses(), root_steps))
-                    );
-                } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.allStepClasses(), root_steps))
-                    );
-                }
+                const lang_client = lang === 'java' ? 'java_lang_client' : 'lang_client';
+                const stepClassesMethod = lang === 'java' ? 'allJavaStepClasses' : 'allStepClasses';
+
+                this.waitForPending(['yaml', lang_client]).then(() => {
+                    const step_classes = this.yaml_info[stepClassesMethod]();
+
+                    let result = this.addDescToClasses(step_classes, root_steps);
+                    if (iface_kind === 'step' && class_name) {
+                        result = result.filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                    }
+
+                    postMessage('objects', result);
+                });
                 break;
             case 'base-class':
                 this.waitForPending(['yaml']).then(() => {
                     const classes = this.yaml_info.yamlDataByType('class');
-                    const user_classes = Object.keys(classes).map(key => ({
+
+                    let user_classes = Object.keys(classes).map(key => ({
                         name: key,
                         desc: classes[key].desc
                     }));
+
+                    if (iface_kind === 'class' && class_name) {
+                        user_classes = user_classes
+                            .filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                    }
 
                     const qorus_root_classes = this.addDescToClasses(all_root_classes, all_root_classes);
 
