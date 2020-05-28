@@ -19,12 +19,6 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
         return this.code_info.waitForPending(['yaml']).then(() => this.provideHoverImpl(document, position));
     }
 
-    isFileClass = (symbol, yaml_info) =>
-        symbol.kind === 5 &&
-        symbol.name === yaml_info['class-name']
-
-    isMethod = (symbol) => symbol.kind === 6;
-
     prepareBoolParam(header: string, param: any, def: boolean): string {
         return '\n\n**' + header + ':** `' + (param !== undefined ? param : def) + '`';
     }
@@ -146,7 +140,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
             +  (methods ? methods : '_(' + t`NoMethodsDescribed` + ')_');
     }
 
-    createClassHover(_symbol, yaml_info) {
+    createClassHover(yaml_info) {
         const markdown = new MarkdownString(
             this.prepareInterfaceInfoString(yaml_info) + '\n\n---\n\n' +
             this.prepareCodeClassInfoString(yaml_info)
@@ -155,11 +149,11 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
         return new Hover(markdown);
     }
 
-    createMethodHover(symbol, yaml_info) {
-        const methodName = symbol.name.replace(/\(.*\)/, '').replace(/.*::/, '');
+    createMethodHover(method_name, yaml_info) {
+        method_name = method_name.replace(/\(.*\)/, '').replace(/.*::/, '');
         let method;
         for (const m of yaml_info.methods || []) {
-            if (m.name === methodName) {
+            if (m.name === method_name) {
                 method = m;
                 break;
             }
@@ -190,11 +184,11 @@ export class QorusHoverProvider extends QorusHoverProviderBase {
 
         for (const symbol of symbols) {
             if (this.isSearchedSymbol(symbol, position)) {
-                if (this.isFileClass(symbol, yaml_info)) {
-                    return this.createClassHover(symbol, yaml_info);
+                if (symbol.kind === 5 && symbol.name === yaml_info['class-name']) {
+                    return this.createClassHover(yaml_info);
                 }
-                if (this.isMethod(symbol)) {
-                    return this.createMethodHover(symbol, yaml_info);
+                if (symbol.kind === 6) {
+                    return this.createMethodHover(symbol.name, yaml_info);
                 }
             }
         }
