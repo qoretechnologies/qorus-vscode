@@ -114,7 +114,7 @@ export class QorusProjectEditInfo {
     }
 
     static isJavaDeclPublicMethodXX = (parsed_method: any): boolean =>
-        (parsed_method.modifiers || []).some(({name}) => name === 'public')
+        !parsed_method.modifiers || parsed_method.modifiers.some(({name}) => name === 'public')
 
     private addClassInfo = (file: string, symbol: any, base_class_name?: string) => {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
@@ -230,7 +230,7 @@ export class QorusProjectEditInfo {
                     ? parsed_class.superclass.loc.startLine - 1
                     : undefined,
                 last_base_class_range_XX: parsed_class.superclass
-                    ? javaLoc2range(parsed_class.superclass.loc)
+                    ? javaLoc2range(parsed_class.superclass.loc, ' extends')
                     : undefined,
                 last_class_line_XX: class_def_range_XX.end.line,
                 base_class_names_XX: base_class_name ? [base_class_name] : [],
@@ -259,7 +259,7 @@ export class QorusProjectEditInfo {
 
     setFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
         switch (data.lang) {
-            case 'java': return this.setJavaFileInfo(file, data, add_class_connections_info);
+            case 'java': return this.setJavaFileInfo(file, data, true);
             default:     return this.setQoreFileInfo(file, data, add_class_connections_info);
         }
     }
@@ -427,6 +427,7 @@ export class QorusProjectEditInfo {
             const class_connection_names = Object.keys(class_connections);
             for (const parsed_class of parsed_classes) {
                 if (QorusProjectEditInfo.isJavaSymbolExpectedClassXX(parsed_class, class_name)) {
+                    msg.debug({no: parsed_class});
                     continue;
                 }
 
@@ -709,7 +710,8 @@ export class QorusProjectEditInfo {
 
             const is_constructor_empty = !remaining_constructor_code.match(/\S/);
 
-            // does the declaration text contain the command
+            // does the declaration text contain the command (count with the possibility that its
+            // alignment may be untidy - e.g. not on its own one line)
             // "<classConnectionMember> = new <ClassConnectionClass>();" ?
             // if yes take range of only this command (not the range of all the parsed_constructor)
 
@@ -856,7 +858,6 @@ export class QorusProjectEditInfo {
         };
 
         const parsed_data: any = QorusJavaParser.parseFileNoExcept(file);
-        msg.debug({newSymbols: parsed_data});
         {
             if (add_class_connections_info && class_connections) {
                 addClassConnectionClassXX(parsed_data.classes);
@@ -877,7 +878,7 @@ export class QorusProjectEditInfo {
 
                 for (const method of parsed_class.body.methods || []) {
                     if (!QorusProjectEditInfo.isJavaDeclPublicMethodXX(method)) {
-                        return;
+                        continue;
                     }
 
                     if (add_class_connections_info && this.edit_info[file].class_connections_class_name_XX) {
@@ -902,7 +903,6 @@ export class QorusProjectEditInfo {
             if (!symbols?.length) {
                 return;
             }
-            msg.debug({oldSymbols: symbols});
 
             if (add_class_connections_info && class_connections) {
                 addClassConnectionClass(symbols);
@@ -929,7 +929,6 @@ export class QorusProjectEditInfo {
                 }
             });
 
-            msg.debug({edit_info: this.edit_info[file]});
             return Promise.resolve(this.edit_info[file]);
         });
     }

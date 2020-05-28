@@ -223,7 +223,7 @@ export class QorusProject {
                 }
             }
             return dirs;
-        }
+        };
 
         file_data.source_directories = removeSubdirs(file_data.source_directories);
         fs.writeFileSync(this.config_file, JSON.stringify(file_data, null, 4) + '\n');
