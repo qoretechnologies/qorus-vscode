@@ -375,6 +375,7 @@ export class QorusProjectEditInfo {
 
         const maybeAddConstructorInfo = parsed_constructor => {
             const constructor_range = javaLoc2range(parsed_constructor.loc);
+            this.edit_info[file].constructor_range = constructor_range;
 
             // does the constructor contain something more then possibly
             // the member initialization command?
@@ -414,7 +415,7 @@ export class QorusProjectEditInfo {
                 .replace('{', '')
                 .replace('}', '');
 
-            const is_constructor_empty = !remaining_constructor_code.match(/\S/);
+            this.edit_info[file].is_constructor_empty = !remaining_constructor_code.match(/\S/);
 
             // does the declaration text contain the command (count with the possibility that its
             // alignment may be untidy - e.g. not on its own one line)
@@ -475,10 +476,6 @@ export class QorusProjectEditInfo {
                         .substr(class_name_start_pos + class_connections_class_name.length);
                     if (line_rest.match(/^\s*\(\s*\)\s*;/)) {
                         const semicolon_relative_pos = line_rest.indexOf(';');
-                        this.edit_info[file].constructor_range = constructor_range;
-                        if (is_constructor_empty) {
-                            this.edit_info[file].is_constructor_empty = true;
-                        }
                         this.edit_info[file].class_connections_member_initialization_range = {
                             start: {
                                 line: i,
@@ -498,10 +495,6 @@ export class QorusProjectEditInfo {
                             }
 
                             const semicolon_pos = line_rest.indexOf(';');
-                            this.edit_info[file].constructor_range = constructor_range;
-                            if (is_constructor_empty) {
-                                this.edit_info[file].is_constructor_empty = true;
-                            }
                             this.edit_info[file].class_connections_member_initialization_range = {
                                 start: {
                                     line: i,
