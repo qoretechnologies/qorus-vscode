@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { existsSync } from 'fs';
 import { t } from 'ttag';
 
 import { QorusJavaParser }  from './QorusJavaParser';
@@ -169,6 +170,10 @@ export class QorusProjectEditInfo {
     }
 
     setFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
+        if (!existsSync(file)) {
+            return Promise.reject(t`OrigIfaceFileDoesNotExist ${file}`);
+        }
+
         switch (data.lang) {
             case 'java': return this.setJavaFileInfo(file, data, true);
             default:     return this.setQoreFileInfo(file, data, add_class_connections_info);

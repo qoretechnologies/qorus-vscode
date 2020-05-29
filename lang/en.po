@@ -2198,3 +2198,6 @@ msgstr "Input type"
 
 msgid "OutputType"
 msgstr "Output type"
+
+msgid "OrigIfaceFileDoesNotExist ${ file }"
+msgstr "The original interface file ${ file } does not exist"
