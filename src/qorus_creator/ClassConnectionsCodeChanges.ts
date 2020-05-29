@@ -37,58 +37,15 @@ export const classConnectionsCodeChanges = async (
     const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
     const has_class_connections = Object.keys(data?.['class-connections'] || {}).length > 0;
 
-    let num_tries = 0;
-    const setFileInfo = async (params, add_class_connections_info = false, sleep = 1000) => {
-        // if a file is parsed by the java parser and immediately afterwards the file changes and is parsed again
-        // the parser returns the previous result as if he file has not changed
-        // so we need to insert some pause
-        if (lang === 'java' && sleep) {
-            await new Promise(resolve => setTimeout(resolve, sleep));
-        }
-
-        const edit_data = await edit_info.setFileInfo(file, params, add_class_connections_info);
-
-        // sometimes the java parser returns a nonsense, for example the class range start position is correct
-        // but the end position is at line 0
-        // in that case take some sleep and then try again
-        if (lang === 'java') {
-            const {class_connections_member_declaration_range, class_connections_trigger_ranges,
-                   method_decl_ranges, class_connections_class_range, class_def_range} = edit_data || {};
-
-            let all_ranges = [];
-            [class_connections_member_declaration_range, class_connections_class_range, class_def_range].forEach(range => {
-                if (range) {
-                    all_ranges.push(range);
-                }
-            });
-            Object.keys(method_decl_ranges || {}).forEach(method_name => {
-                all_ranges.push(method_decl_ranges[method_name]);
-            });
-            [class_connections_trigger_ranges].forEach(ranges => {
-                if (ranges) {
-                    all_ranges = [ ...all_ranges, ...ranges ];
-                }
-            });
-
-            if (num_tries++ < 100 &&
-                (!class_def_range || all_ranges.some(range => range.end.line < range.start.line)))
-            {
-                await new Promise(resolve => setTimeout(resolve, 300));
-                return setFileInfo(params, add_class_connections_info, sleep);
-            } else {
-                num_tries = 0;
-                return edit_data;
-            }
-        }
-
-        return edit_data;
+    const setFileInfo = async (params, add_class_connections_info = false) => {
+        return await edit_info.setFileInfo(file, params, add_class_connections_info);
     };
 
     const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
     // remove original class connections code
     if (had_class_connections) {
-        edit_data = await setFileInfo(mixed_data, true, 0);
+        edit_data = await setFileInfo(mixed_data, true);
         if (iface_kind === 'step') {
             trigger_names = code_info.triggers({iface_kind, 'base-class-name': orig_data['base-class-name']});
         }
