@@ -5,6 +5,7 @@ import { QorusProjectEditInfo }  from './QorusProjectEditInfo';
 import { QorusJavaParser }  from './QorusJavaParser';
 import { javaLoc2range } from './QoreTextDocument';
 
+
 export class QorusJavaHoverProvider extends QorusHoverProviderBase {
 
     async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined> {
@@ -22,7 +23,7 @@ export class QorusJavaHoverProvider extends QorusHoverProviderBase {
         }
 
         const isSearchedSymbol = (symbol, position) => {
-            if (symbol.name?.loc) {
+            if (!symbol.name?.loc) {
                 return false;
             }
 
