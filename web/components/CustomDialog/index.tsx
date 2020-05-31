@@ -9,9 +9,10 @@ import { DialogsContext } from '../../context/dialogs';
 
 export interface ICustomDialogProps extends IDialogProps {
     children: any;
+    noBottomPad?: boolean;
 }
 
-const CustomDialog: React.FC<ICustomDialogProps> = ({ children, ...rest }) => {
+const CustomDialog: React.FC<ICustomDialogProps> = ({ children, noBottomPad, ...rest }) => {
     const dialogContext = useContext(DialogsContext);
 
     useEffectOnce(() => {
@@ -25,7 +26,7 @@ const CustomDialog: React.FC<ICustomDialogProps> = ({ children, ...rest }) => {
     });
 
     return (
-        <Dialog {...rest} canEscapeKeyClose={false}>
+        <Dialog {...rest} canEscapeKeyClose={false} style={noBottomPad ? { paddingBottom: 0 } : {}}>
             {children}
         </Dialog>
     );

@@ -14,6 +14,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [initialData, setInitialData] = useState<any>({
             tab: 'ProjectConfig',
+            sidebarOpen: false,
         });
         const [confirmDialog, setConfirmDialog] = useState<{
             isOpen: boolean;
@@ -109,6 +110,14 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setInitialData((current) => {
                 const result = { ...current };
                 set(result, path, value);
+                return result;
+            });
+        };
+
+        const toggleSidebar: () => void = () => {
+            setInitialData((current) => {
+                const result = { ...current };
+                result.sidebarOpen = !result.sidebarOpen;
                 return result;
             });
         };
@@ -231,6 +240,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     callBackend,
                     unfinishedWork,
                     setUnfinishedWork,
+                    toggleSidebar,
                 }}
             >
                 <InitialContext.Consumer>

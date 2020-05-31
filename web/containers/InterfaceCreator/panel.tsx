@@ -132,13 +132,10 @@ export declare interface IFieldChange {
     onChange: (fieldName: string, value: any) => void;
 }
 
-export const FieldWrapper = styled.div`
+export const FieldWrapper = styled.div<{ padded?: boolean }>`
     display: flex;
     flex-flow: row;
-    &:not(:first-child) {
-        margin-top: 20px;
-    }
-    padding: 8px 0;
+    padding: 15px ${({ padded }) => (padded ? '20px' : 0)};
     flex: none;
 
     &:nth-child(even) {
