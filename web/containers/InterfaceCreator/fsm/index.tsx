@@ -14,6 +14,7 @@ import { InitialContext } from '../../../context/init';
 import styled from 'styled-components';
 import shortid from 'shortid';
 import FSMStateDialog from './stateDialog';
+import FSMTransitionDialog from './transitionDialog';
 
 export interface IFSMViewProps {
     t: TTranslator;
@@ -22,11 +23,11 @@ export interface IFSMViewProps {
 export interface IDraggableItem {
     type: 'toolbar-item' | 'state';
     name: string;
-    id?: string;
+    id?: number;
 }
 
 export interface IFSMTransition {
-    state?: string;
+    state?: number;
     fsm?: number;
     condition?: {
         type: string;
@@ -34,17 +35,19 @@ export interface IFSMTransition {
 }
 
 export interface IFSMState {
-    x?: number;
-    y?: number;
-    id?: string;
+    position?: {
+        x?: number;
+        y?: number;
+    };
+    id?: number;
     transitions?: IFSMTransition[];
     'error-transitions'?: IFSMTransition[];
-    initial: boolean;
+    initial?: boolean;
     final?: boolean;
     action?: string;
     'input-type'?: any;
     'output-type'?: any;
-    name: string;
+    name?: string;
 }
 
 export interface IFSMStates {
@@ -101,8 +104,9 @@ const FSMView: React.FC<IFSMViewProps> = () => {
     const { sidebarOpen, path } = useContext(InitialContext);
     const wrapperRef = useRef(null);
     const [states, setStates] = useState<IFSMStates>({});
-    const [selectedState, setSelectedState] = useState<string | null>(null);
-    const [editingState, setEditingState] = useState<string | null>(null);
+    const [selectedState, setSelectedState] = useState<number | null>(null);
+    const [editingState, setEditingState] = useState<number | null>(null);
+    const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number } | null>(null);
     const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(false);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
@@ -116,27 +120,33 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                 const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
                 const id = Math.max(...ids) + 1;
 
-                setStates((cur) => ({
-                    ...cur,
-                    [id]: {
-                        id,
-                        x: x + currentXPan - (sidebarOpen ? 333 : 153),
-                        y: y + currentYPan - 181,
-                        name: `State ${id}`,
-                    },
-                }));
+                setStates(
+                    (cur: IFSMStates): IFSMStates => ({
+                        ...cur,
+                        [id]: {
+                            id,
+                            position: {
+                                x: x + currentXPan - (sidebarOpen ? 333 : 153),
+                                y: y + currentYPan - 181,
+                            },
+                            final: false,
+                            initial: false,
+                            name: `State ${id}`,
+                        },
+                    })
+                );
             } else if (item.type === STATE_ITEM_TYPE) {
                 moveItem(item.id, monitor.getDifferenceFromInitialOffset());
             }
         },
     });
 
-    const moveItem: (id: string, coords: XYCoord) => void = (id, coords) => {
+    const moveItem: (id: number, coords: XYCoord) => void = (id, coords) => {
         setStates((cur) => {
             const newBoxes = { ...cur };
 
-            newBoxes[id].x += coords.x;
-            newBoxes[id].y += coords.y;
+            newBoxes[id].position.x += coords.x;
+            newBoxes[id].position.y += coords.y;
 
             return newBoxes;
         });
@@ -176,7 +186,7 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         currentYPan = y;
     };
 
-    const handleStateClick = (id: string): void => {
+    const handleStateClick = (id: number): void => {
         if (selectedState) {
             setStates((cur) => {
                 const newBoxes = { ...cur };
@@ -196,22 +206,39 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         }
     };
 
-    const handleStateEditClick = (id: string): void => {
+    const updateStateData = (id: number, data: IFSMState) => {
+        setStates(
+            (cur: IFSMStates): IFSMStates => {
+                const newStates = { ...cur };
+
+                newStates[id] = {
+                    ...newStates[id],
+                    ...data,
+                };
+
+                return newStates;
+            }
+        );
+        setEditingState(null);
+    };
+
+    const handleStateEditClick = (id: number): void => {
         setEditingState(id);
     };
 
     const transitions = reduce(
         states,
-        (newTransitions: any[], state: IFSMState, name: string) => {
+        (newTransitions: any[], state: IFSMState, id: number) => {
             if (!state.transitions) {
                 return newTransitions;
             }
 
             const stateTransitions = state.transitions.map((transition) => ({
-                x1: state.x,
-                y1: state.y,
-                x2: states[transition.state].x,
-                y2: states[transition.state].y,
+                state: id,
+                x1: state.position.x,
+                y1: state.position.y,
+                x2: states[transition.state].position.x,
+                y2: states[transition.state].position.y,
             }));
 
             return [...newTransitions, ...stateTransitions];
@@ -224,7 +251,26 @@ const FSMView: React.FC<IFSMViewProps> = () => {
     return (
         <>
             {editingState && (
-                <FSMStateDialog onClose={() => setEditingState(null)} data={states[editingState]} id={editingState} />
+                <FSMStateDialog
+                    onSubmit={updateStateData}
+                    onClose={() => setEditingState(null)}
+                    data={states[editingState]}
+                    id={editingState}
+                    otherStates={reduce(
+                        states,
+                        (newStates, state, id) =>
+                            parseInt(id) === editingState ? { ...newStates } : { ...newStates, [id]: state },
+                        {}
+                    )}
+                />
+            )}
+            {editingTransition && (
+                <FSMTransitionDialog
+                    onSubmit={updateStateData}
+                    onClose={() => setEditingTransition(null)}
+                    data={states[editingTransition.stateId].transitions[editingTransition.index]}
+                    {...editingTransition}
+                />
             )}
             <StyledToolbarWrapper>
                 <FSMToolbarItem name="state" count={size(states)}>
@@ -248,14 +294,15 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                                 key={id}
                                 id={id}
                                 {...state}
-                                selected={selectedState === id}
+                                selected={selectedState === parseInt(id)}
                                 onClick={handleStateClick}
                                 onEditClick={handleStateEditClick}
                             />
                         ))}
                         <svg height="100%" width="100%" style={{ position: 'absolute' }}>
-                            {transitions.map(({ x1, x2, y1, y2 }, index) => (
+                            {transitions.map(({ x1, x2, y1, y2, state }, index) => (
                                 <StyledFSMLine
+                                    onClick={() => setEditingTransition({ stateId: state, index })}
                                     key={index}
                                     stroke="#a9a9a9"
                                     strokeWidth={3}

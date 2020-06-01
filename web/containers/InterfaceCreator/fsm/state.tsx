@@ -6,9 +6,10 @@ import { ButtonGroup, Button } from '@blueprintjs/core';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
-    onClick: (id: string) => any;
-    onEditClick: (id: string) => any;
-    onDeleteClick: (id: string) => any;
+    onClick: (id: number) => any;
+    onEditClick: (id: number) => any;
+    onDeleteClick: (id: number) => any;
+    id: number;
 }
 
 const StyledFSMState = styled.div<{ x: number; y: number; selected: boolean }>`
@@ -33,16 +34,16 @@ const StyledFSMState = styled.div<{ x: number; y: number; selected: boolean }>`
     }
 `;
 
-const FSMState: React.FC<IFSMStateProps> = ({ x, y, id, selected, onClick, onEditClick, onDeleteClick, name }) => {
+const FSMState: React.FC<IFSMStateProps> = ({ position, id, selected, onClick, onEditClick, onDeleteClick, name }) => {
     const [, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
     });
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: number) => any) => {
         event.stopPropagation();
 
-        onClick(id);
+        func(id);
     };
 
     const handleMouseEnter = () => {
@@ -57,9 +58,9 @@ const FSMState: React.FC<IFSMStateProps> = ({ x, y, id, selected, onClick, onEdi
         <StyledFSMState
             key={id}
             ref={drag}
-            x={x}
-            y={y}
-            onClick={handleClick}
+            x={position.x}
+            y={position.y}
+            onClick={(e) => handleClick(e, onClick)}
             selected={selected}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -67,8 +68,8 @@ const FSMState: React.FC<IFSMStateProps> = ({ x, y, id, selected, onClick, onEdi
             <p>{name}</p>
             {isHovered && (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
-                    <Button icon="edit" intent="warning" onClick={() => onEditClick(id)} />
-                    <Button icon="cross" intent="danger" onClick={() => onDeleteClick(id)} />
+                    <Button icon="edit" intent="warning" onClick={(e) => handleClick(e, onEditClick)} />
+                    <Button icon="cross" intent="danger" onClick={(e) => handleClick(e, onDeleteClick)} />
                 </ButtonGroup>
             )}
         </StyledFSMState>

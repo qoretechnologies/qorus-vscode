@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import CustomDialog from '../../../components/CustomDialog';
-import { IFSMState, IFSMStates } from '.';
+import { IFSMState, IFSMStates, IFSMTransition } from '.';
 import { StyledDialogBody } from '../../ClassConnectionsManager';
 import { FieldWrapper, FieldInputWrapper, ContentWrapper, ActionsWrapper } from '../panel';
 import FieldLabel from '../../../components/FieldLabel';
@@ -14,17 +14,23 @@ import Connectors from '../../../components/Field/connectors';
 import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
 import { Messages } from '../../../constants/messages';
 import find from 'lodash/find';
+import RadioField from '../../../components/Field/radioField';
 
-export interface IFSMStateDialogProps {
+export interface IFSMTransitionDialogProps {
     onClose: () => any;
-    data: IFSMState;
-    id: number;
-    onSubmit: (id: number, newData: IFSMState) => void;
-    otherStates: IFSMStates;
+    data: IFSMTransition;
+    stateId: number;
+    index: number;
+    onSubmit: (stateId: number, index: number, newData: IFSMTransition) => void;
 }
 
-const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onSubmit, otherStates }) => {
-    const [newData, setNewData] = useState<IFSMState>(data);
+const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, data, stateId, index, onSubmit }) => {
+    const getConditionType: (condition: any) => 'custom' | 'connector' = (condition) => {
+        return !condition || typeof condition === 'string' ? 'custom' : 'connector';
+    };
+
+    const [newData, setNewData] = useState<IFSMTransition>(data);
+    const [conditionType, setConditionType] = useState<'custom' | 'connector'>(getConditionType(data?.condition));
     const t = useContext(TextContext);
 
     const handleDataUpdate = (name: string, value: any) => {
@@ -34,12 +40,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
         }));
     };
 
-    const isNameValid: (name: string) => boolean = (name) =>
-        validateField('string', name) && !find(otherStates, (state: IFSMState): boolean => state.name === name);
-
     const isDataValid: () => boolean = () => {
         return (
-            isNameValid(newData.name) &&
             (!newData['input-type'] || validateField('type-selector', newData['input-type'])) &&
             (!newData['output-type'] || validateField('type-selector', newData['output-type']))
         );
@@ -56,42 +58,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
             <Content style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
                 <ContentWrapper>
                     <FieldWrapper padded>
-                        <FieldLabel label={t('Name')} isValid={isNameValid(newData.name)} />
+                        <FieldLabel label={t('ConditionType')} isValid info={t('Optional')} />
                         <FieldInputWrapper>
-                            <String name="name" onChange={handleDataUpdate} value={newData.name} />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('Initial')} isValid />
-                        <FieldInputWrapper>
-                            <BooleanField name="initial" onChange={handleDataUpdate} value={newData.initial} />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('Final')} isValid info={t('Optional')} />
-                        <FieldInputWrapper>
-                            <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('InputType')} isValid info={t('Optional')} />
-                        <FieldInputWrapper>
-                            <Connectors
-                                name="input-type"
-                                isInitialEditing={data['input-type']}
-                                onChange={handleDataUpdate}
-                                value={newData['input-type']}
-                            />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('OutputType')} isValid info={t('Optional')} />
-                        <FieldInputWrapper>
-                            <Connectors
-                                name="output-type"
-                                isInitialEditing={data['output-type']}
-                                onChange={handleDataUpdate}
-                                value={newData['output-type']}
+                            <RadioField
+                                name="conditionType"
+                                onChange={(name, value) => setConditionType(value)}
+                                value={conditionType}
+                                items={[{ value: 'custom' }, { value: 'connector' }]}
                             />
                         </FieldInputWrapper>
                     </FieldWrapper>
@@ -107,7 +80,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                             icon={'tick'}
                             name={`fsn-submit-state`}
                             intent={Intent.SUCCESS}
-                            onClick={() => onSubmit(id, newData)}
+                            onClick={() => onSubmit(stateId, index, newData)}
                         />
                     </ButtonGroup>
                 </ActionsWrapper>
@@ -116,4 +89,4 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
     );
 };
 
-export default FSMStateDialog;
+export default FSMTransitionDialog;
