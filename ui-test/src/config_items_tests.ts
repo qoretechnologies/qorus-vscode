@@ -11,7 +11,8 @@ import {
 } from 'vscode-extension-tester';
 import { sleep } from './common/utils';
 import {
-    createClassWithConfigItems,
+    createServiceClassWithConfigItems,
+    createServiceWithConfigItems,
 } from './config_items_tests/config_items_tests';
 
 
@@ -82,5 +83,6 @@ describe('Config Items Tests', function() {
         await webview.switchToFrame();
     });
 
-    it('Create class', () => createClassWithConfigItems(webview));
+    it('Create class', () => createServiceClassWithConfigItems(webview));
+    it('Create service', () => createServiceWithConfigItems(webview, editorView));
 });

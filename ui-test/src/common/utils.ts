@@ -42,6 +42,14 @@ export const selectNthDropdownItem = async (webview: WebView, name: string, posi
     await clickElement(webview, `field-${name}-item`, position);
 };
 
+export const selectNthFilteredDropdownItem = async (webview: WebView, name: string, filter: string, position: number = 1) => {
+    await clickElement(webview, `field-${name}`);
+    await sleep(500);
+    await fillTextField(webview, 'select-filter', filter);
+    await sleep(500);
+    await clickElement(webview, `field-${name}-item`, position);
+};
+
 export const submitInterface = async (webview: WebView, iface: string) => {
     await clickElement(webview, `interface-creator-submit-${iface}`);
 };
