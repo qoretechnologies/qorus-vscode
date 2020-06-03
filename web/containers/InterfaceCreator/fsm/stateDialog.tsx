@@ -14,6 +14,10 @@ import Connectors from '../../../components/Field/connectors';
 import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
 import { Messages } from '../../../constants/messages';
 import find from 'lodash/find';
+import RadioField from '../../../components/Field/radioField';
+import SelectField from '../../../components/Field/select';
+import Spacer from '../../../components/Spacer';
+import ConnectorSelector from './connectorSelector';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -23,14 +27,17 @@ export interface IFSMStateDialogProps {
     otherStates: IFSMStates;
 }
 
+export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';
+
 const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onSubmit, otherStates }) => {
     const [newData, setNewData] = useState<IFSMState>(data);
+    const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
     const t = useContext(TextContext);
 
     const handleDataUpdate = (name: string, value: any) => {
         setNewData((cur) => ({
             ...cur,
-            [name]: value,
+            [name]: value === 'none' ? null : value,
         }));
     };
 
@@ -40,18 +47,68 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
     const isDataValid: () => boolean = () => {
         return (
             isNameValid(newData.name) &&
+            isActionValid() &&
             (!newData['input-type'] || validateField('type-selector', newData['input-type'])) &&
             (!newData['output-type'] || validateField('type-selector', newData['output-type']))
         );
     };
+
+    const isActionValid: () => boolean = () => {
+        switch (actionType) {
+            case 'mapper': {
+                return !!newData?.action?.value;
+            }
+            case 'pipeline': {
+                return !!newData?.action?.value;
+            }
+            case 'connector': {
+                return !!newData?.action?.value?.['class'] && !!newData?.action?.value?.connector;
+            }
+            default: {
+                return true;
+            }
+        }
+    };
+
+    const renderActionField = () => {
+        switch (actionType) {
+            case 'mapper': {
+                return (
+                    <SelectField
+                        get_message={{
+                            action: 'get-mappers',
+                        }}
+                        return_message={{
+                            action: 'return-mappers',
+                            return_value: 'mappers',
+                        }}
+                        onChange={(name, value) => handleDataUpdate('action', { type: 'mapper', value })}
+                        value={newData?.action?.value}
+                        name="action"
+                    />
+                );
+            }
+            case 'connector': {
+                return (
+                    <ConnectorSelector
+                        value={newData?.action?.value}
+                        onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
+                    />
+                );
+            }
+            default:
+                return null;
+        }
+    };
+
+    console.log(newData);
 
     return (
         <CustomDialog
             onClose={onClose}
             isOpen
             title={t('EditingState')}
-            noBottomPad
-            style={{ width: '80vw', height: '80vh' }}
+            style={{ width: '80vw', height: '80vh', paddingBottom: 0 }}
         >
             <Content style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
                 <ContentWrapper>
@@ -71,6 +128,31 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                         <FieldLabel label={t('Final')} isValid info={t('Optional')} />
                         <FieldInputWrapper>
                             <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper padded>
+                        <FieldLabel label={t('Action')} isValid={isActionValid()} info={t('Optional')} />
+                        <FieldInputWrapper>
+                            <RadioField
+                                name="action"
+                                onChange={(_name, value) => {
+                                    handleDataUpdate('action', null);
+                                    setActionType(value);
+                                }}
+                                value={actionType}
+                                items={[
+                                    { value: 'mapper' },
+                                    { value: 'pipeline' },
+                                    { value: 'connector' },
+                                    { value: 'none' },
+                                ]}
+                            />
+                            {actionType && actionType !== 'none' ? (
+                                <>
+                                    <Spacer size={20} />
+                                    {renderActionField()}
+                                </>
+                            ) : null}
                         </FieldInputWrapper>
                     </FieldWrapper>
                     <FieldWrapper padded>
@@ -99,7 +181,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                 <ActionsWrapper style={{ padding: '10px' }}>
                     <ButtonGroup fill>
                         <Tooltip content={t('ResetTooltip')}>
-                            <Button text={t('Reset')} icon={'history'} onClick={() => setNewData(data)} />
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                onClick={() => {
+                                    setActionType(null);
+                                    setNewData(data);
+                                }}
+                            />
                         </Tooltip>
                         <Button
                             text={t('Submit')}

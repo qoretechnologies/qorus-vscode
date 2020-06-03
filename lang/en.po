@@ -949,6 +949,18 @@ msgstr "Target directory"
 msgid "field-label-processor"
 msgstr "Processor"
 
+msgid "field-label-mapper"
+msgstr "Mapper"
+
+msgid "field-label-pipeline"
+msgstr "Pipeline"
+
+msgid "field-label-connector"
+msgstr "Connector"
+
+msgid "field-label-custom"
+msgstr "Custom expression"
+
 msgid "field-desc-processor"
 msgstr "Determines whether this class is used as a processor class"
 

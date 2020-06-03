@@ -13,7 +13,7 @@ import FSMDiagramWrapper from './diagramWrapper';
 import { InitialContext } from '../../../context/init';
 import styled from 'styled-components';
 import shortid from 'shortid';
-import FSMStateDialog from './stateDialog';
+import FSMStateDialog, { TAction } from './stateDialog';
 import FSMTransitionDialog from './transitionDialog';
 
 export interface IFSMViewProps {
@@ -32,6 +32,7 @@ export interface IFSMTransition {
     condition?: {
         type: string;
     };
+    errors?: string[];
 }
 
 export interface IFSMState {
@@ -44,7 +45,10 @@ export interface IFSMState {
     'error-transitions'?: IFSMTransition[];
     initial?: boolean;
     final?: boolean;
-    action?: string;
+    action?: {
+        type: TAction;
+        value: string | { class: string; connector: string; prefix?: string };
+    };
     'input-type'?: any;
     'output-type'?: any;
     name?: string;

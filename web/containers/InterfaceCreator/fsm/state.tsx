@@ -34,7 +34,29 @@ const StyledFSMState = styled.div<{ x: number; y: number; selected: boolean }>`
     }
 `;
 
-const FSMState: React.FC<IFSMStateProps> = ({ position, id, selected, onClick, onEditClick, onDeleteClick, name }) => {
+const StyledStateName = styled.p`
+    padding: 0;
+    margin: 0;
+    font-weight: 500;
+`;
+
+const StyledStateAction = styled.p`
+    padding: 0;
+    margin: 0;
+    color: #a9a9a9;
+    font-size: 12px;
+`;
+
+const FSMState: React.FC<IFSMStateProps> = ({
+    position,
+    id,
+    selected,
+    onClick,
+    onEditClick,
+    onDeleteClick,
+    name,
+    action,
+}) => {
     const [, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
     });
@@ -65,7 +87,8 @@ const FSMState: React.FC<IFSMStateProps> = ({ position, id, selected, onClick, o
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <p>{name}</p>
+            <StyledStateName>{name}</StyledStateName>
+            {action && <StyledStateAction>{action.type}</StyledStateAction>}
             {isHovered && (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
                     <Button icon="edit" intent="warning" onClick={(e) => handleClick(e, onEditClick)} />

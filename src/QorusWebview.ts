@@ -203,7 +203,7 @@ class QorusWebview {
                         case 'creator-get-objects':
                         case 'creator-get-resources':
                         case 'creator-get-directories':
-                            project.code_info.getObjects(message.object_type, message.lang);
+                            project.code_info.getObjects(message.object_type, message.lang, message.custom_data);
                             break;
                         case 'get-all-directories':
                             project.code_info.getObjects('all_dirs');

@@ -26,7 +26,7 @@ const CustomDialog: React.FC<ICustomDialogProps> = ({ children, noBottomPad, ...
     });
 
     return (
-        <Dialog {...rest} canEscapeKeyClose={false} style={noBottomPad ? { paddingBottom: 0 } : {}}>
+        <Dialog {...rest} canEscapeKeyClose={false}>
             {children}
         </Dialog>
     );

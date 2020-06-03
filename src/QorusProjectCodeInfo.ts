@@ -3,6 +3,8 @@ import * as jsyaml from 'js-yaml';
 import * as lodashIsArray from 'lodash/isArray';
 import * as lodashIsObject from 'lodash/isObject';
 import * as sortBy from 'lodash/sortBy';
+import * as filter from 'lodash/filter';
+import * as size from 'lodash/size';
 import * as flattenDeep from 'lodash/flattenDeep';
 import * as path from 'path';
 import { t, gettext } from 'ttag';
@@ -521,7 +523,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getObjects(object_type: string, lang?: string) {
+    getObjects(object_type: string, lang?: string, custom_data?: { connector_type?: string[] }) {
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
             if (lodashIsArray(objects)) {
@@ -558,6 +560,26 @@ export class QorusProjectCodeInfo {
                     })));
                 });
                 break;
+            case 'class-with-connectors':
+                    this.waitForPending(['yaml']).then(() => {
+                        const { connector_type } = custom_data || {};
+                        const isAnyConnectorOfType = (connectors: { name: string, method: string, type: string}[]): boolean => (
+                            connector_type ? connectors.some((connector) => connector_type.includes(connector.type)) : true
+                        );
+                        const classes = filter(this.yaml_info.yamlDataByType('class'), ({ 'class-connectors': class_connectors }) => {
+                            if (!class_connectors || !size(class_connectors) || !isAnyConnectorOfType(class_connectors)) {
+                                return false;
+                            }
+
+                            return true;
+                        }).map(({ name, desc, ...rest}) => ({
+                            name,
+                            desc,
+                            'class-connectors': rest['class-connectors']
+                        }))
+                        postMessage('objects', classes);
+                    });
+                    break;
             case 'service-base-class':
                 if (lang === 'java') {
                     this.waitForPending(['yaml', 'java_lang_client']).then(() =>
