@@ -1,26 +1,61 @@
-export const supported_langs = ['qore', 'java'];
+export const supported_langs = ['qore', 'python', 'java'];
 
 export const lang_suffix = {
-    java: '.java',
     qore: '',
+    python: '.py',
+    java: '.java',
 };
 
 export const lang_comment_chars = {
-    java: '//',
     qore: '#',
+    python: '#',
+    java: '//',
 };
 
 export const lang_inherits = {
     java: 'extends',
     qore: 'inherits',
 };
-
+/*
+const inherits = (lang, base_class) => {
+    switch (lang) {
+        case 'qore': return ` inherits ${base_class}`;
+        case 'python': return `(${base_class})`;
+        case 'java': return ` extends ${base_class}`;
+    }
+    return '';
+};
+*/
 export const default_parse_options = { qore: '\
 %new-style\n\
 %strict-args\n\
 %require-types\n\
 %enable-all-warnings\n\n\
-' };
+'
+};
+
+let class_template_: any = {};
+
+class_template_.qore = '\
+class ${this.class_name} {\n\
+${this.methods}\
+${this.connections_within_class}\
+}\
+${this.connections_extra_class}\
+';
+
+class_template_.python = '\
+class ${this.class_name}\n\
+${this.methods}\
+${this.connections_within_class}\
+${this.connections_extra_class}\
+';
+
+class_template_.java = '\
+class ${this.class_name} {\n\
+${this.methods}\
+${this.connections_within_class}}${this.connections_extra_class}\
+';
 
 const classTemplate = (with_base_class) => {
     let class_template: any = {};
