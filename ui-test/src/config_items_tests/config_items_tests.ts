@@ -99,7 +99,7 @@ export const createServiceWithConfigItems = async (webview: WebView, editorView:
 
     // edit method name dialog
     await sleep(1000);
-    await fillTextField(webview, 'field-methodName', '\b\b\b\bsomeMethod');
+    await fillTextField(webview, 'field-methodName', `${'\b'.repeat('init'.length)}someMethod`);
     const saveMethodNameButton = await getNthElement(webview, 'save-method-name-button');
     await saveMethodNameButton.click();
 
