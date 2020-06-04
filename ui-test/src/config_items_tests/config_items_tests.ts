@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { expect } from 'chai';
 import { By, WebView, EditorView } from 'vscode-extension-tester';
 import {
@@ -14,6 +16,12 @@ import {
     selectNthFilteredDropdownItem,
 } from '../common/utils';
 
+const SUBFOLDER = 'arpm';
+const CLASS_SRC_FILE = 'ServiceClassWithConfigItems-1.2.qclass';
+const CLASS_YAML_FILE = 'ServiceClassWithConfigItems-1.2.qclass.yaml';
+const SERVICE_SRC_FILE = 'service-inheriting-config-items-1.23.qsd';
+const SERVICE_YAML_FILE = 'service-inheriting-config-items-1.23.qsd.yaml';
+
 
 export const createServiceClassWithConfigItems = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
@@ -29,7 +37,7 @@ export const createServiceClassWithConfigItems = async (webview: WebView) => {
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-class-class-name', 'ServiceClassWithConfigItems');
     await fillTextField(webview, 'field-desc', 'Test class with config items');
-    await fillTextField(webview, 'field-version', '12.34');
+    await fillTextField(webview, 'field-version', '1.2');
     await selectField(webview, 'base-class-name');
     await sleep(1000);
     await selectNthFilteredDropdownItem(webview, 'base-class-name', 'QorusService');
@@ -58,7 +66,7 @@ export const createServiceClassWithConfigItems = async (webview: WebView) => {
 };
 
 // service that inherits the previous class
-export const createServiceWithConfigItems = async (webview: WebView, editorView: EditorView) => {
+export const createServiceWithConfigItems = async (webview: WebView, editorView: EditorView, folder: string) => {
     await webview.switchBack();
     await editorView.openEditor('Qorus Webview');
     await webview.switchToFrame();
@@ -70,7 +78,7 @@ export const createServiceWithConfigItems = async (webview: WebView, editorView:
     await fillTextField(webview, 'field-name', 'service-inheriting-config-items');
     await fillTextField(webview, 'field-desc', 'Test service inheriting class with config items');
     await selectNthFilteredDropdownItem(webview, 'base-class-name', 'ServiceClassWithConfigItems');
-    await fillTextField(webview, 'field-version', '12.34');
+    await fillTextField(webview, 'field-version', '1.23');
 
     await openConfigItemManager(webview);
     await openAddConfigItem(webview);
@@ -108,8 +116,18 @@ export const createServiceWithConfigItems = async (webview: WebView, editorView:
     await fillTextField(webview, 'field-desc', 'some method');
     await sleep(1000);
     await submitInterface(webview, 'service-methods');
+};
 
-    await sleep(8000);
+export const checkFiles = async (project_folder: string, gold_files_folder: string) => {
+    await sleep(2000);
+
+    const compare = (file_name: string) => {
+        const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, file_name));
+        const true_file_contents = fs.readFileSync(path.join(project_folder, SUBFOLDER, file_name));
+        expect(true_file_contents).to.eql(expected_file_contents);
+    };
+
+    [CLASS_SRC_FILE, CLASS_YAML_FILE, SERVICE_SRC_FILE, SERVICE_YAML_FILE].forEach(file => compare(file));
 };
 
 const openConfigItemManager = async (webview: WebView) => {
