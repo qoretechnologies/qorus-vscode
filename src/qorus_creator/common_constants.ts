@@ -216,6 +216,10 @@ export const field = {
                 icon_filename: 'qore-106x128.png',
             },
             {
+                value: 'python',
+                icon_filename: 'python-129x128.png',
+            },
+            {
                 value: 'java',
                 icon_filename: 'java-96x128.png',
             },
