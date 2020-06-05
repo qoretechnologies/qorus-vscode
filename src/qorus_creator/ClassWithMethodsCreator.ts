@@ -39,7 +39,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
                 suffix = '.qmc';
                 methods_key = 'mapper-methods';
-                this.method_template = mapper_code_method_template;
+                this.method_template = mapper_code_method_template[this.lang];
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);

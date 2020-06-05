@@ -293,12 +293,15 @@ export abstract class InterfaceCreator {
         };
 
         const inherits_kw = {
-            java: 'extends',
-            qore: 'inherits',
+            qore:   { before: ' inherits ', after: '' },
+            python: { before: '(',          after: ')' },
+            java:   { before: ' extends ',  after: '' },
         }[this.lang]
 
-        const eraseInheritsKw = () => {
-            const strings_to_erase = [` ${inherits_kw}`, `${inherits_kw} `, `${inherits_kw}`];
+        const eraseInheritsBefore = () => {
+            const inherits_before = inherits_kw.before.trim();
+            const strings_to_erase = [` ${inherits_before}`, `${inherits_before} `, `${inherits_before}`];
+
             for (let n = class_name_range.start.line; n <= first_base_class_line; n++) {
                 for (const string_to_erase of strings_to_erase) {
                     if (lines[n].includes(string_to_erase)) {
@@ -309,11 +312,11 @@ export abstract class InterfaceCreator {
             }
         };
 
-        const eraseCommaAfterBaseClassName = () => {
+        const eraseStrAfterBaseClassName = (str: string) => {
             for (let n = main_base_class_name_range.start.line; n <= last_class_line; n++) {
                 const pos_from =
                     n === main_base_class_name_range.start.line ? main_base_class_name_range.end.character : 0;
-                for (const string_to_erase of [', ', ',']) {
+                for (const string_to_erase of [`${str} `, `${str}`]) {
                     const pos = lines[n].indexOf(string_to_erase, pos_from);
                     if (pos > -1) {
                         lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
@@ -323,11 +326,11 @@ export abstract class InterfaceCreator {
             }
         };
 
-        const eraseCommaBeforeBaseClassName = () => {
+        const eraseStrBeforeBaseClassName = (str: string) => {
             for (let n = main_base_class_name_range.start.line; n >= first_base_class_line; n--) {
                 const pos_from =
                     n === main_base_class_name_range.start.line ? main_base_class_name_range.start.character : 0;
-                for (const string_to_erase of [', ', ',']) {
+                for (const string_to_erase of [`${str} `, `${str}`]) {
                     const pos = lines[n].lastIndexOf(string_to_erase, pos_from);
                     if (pos > -1) {
                         lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
@@ -337,12 +340,12 @@ export abstract class InterfaceCreator {
             }
         };
 
-        const eraseBaseClassName = (only_without_space: boolean = false) => {
+        const eraseBaseClassName = (without_space: boolean = false) => {
             const n = main_base_class_name_range.start.line;
             const pos = main_base_class_name_range.start.character;
             const length = main_base_class_name_range.end.character - main_base_class_name_range.start.character;
 
-            if (!only_without_space) {
+            if (!without_space) {
                 if (lines[n].substr(pos, length + 1) === `${orig_base_class_name} `) {
                     lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + length + 1);
                     return;
@@ -360,24 +363,27 @@ export abstract class InterfaceCreator {
         if (base_class_name && !orig_base_class_name) {
             if (has_other_base_class) {
                 if (!base_class_names.includes(base_class_name)) {
-                    eraseInheritsKw();
-                    replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name},`);
+                    eraseInheritsBefore();
+                    replace(class_name_range.end, '', `${inherits_kw.before}${base_class_name},`);
                 }
             } else {
-                replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name}`);
+                replace(class_name_range.end, '', `${inherits_kw.before}${base_class_name}${inherits_kw.after}`);
             }
         } else if (!base_class_name && orig_base_class_name) {
             if (has_other_base_class) {
                 if (main_base_class_ord > 0) {
                     eraseBaseClassName(true);
-                    eraseCommaBeforeBaseClassName();
+                    eraseStrBeforeBaseClassName(',');
                 } else {
-                    eraseCommaAfterBaseClassName();
+                    eraseStrAfterBaseClassName(',');
                     eraseBaseClassName(true);
                 }
             } else {
+                if (inherits_kw.after) {
+                    eraseStrAfterBaseClassName(inherits_kw.after);
+                }
                 eraseBaseClassName();
-                eraseInheritsKw();
+                eraseInheritsBefore();
             }
         } else if (base_class_name !== orig_base_class_name) {
             replace(main_base_class_name_range.start, orig_base_class_name, base_class_name);
