@@ -1,17 +1,11 @@
-import { field, subclass_template, simple_method_template } from './common_constants';
+import { field } from './common_constants';
 
-const imports = {
+export const service_imports = {
     java: [
         'import com.qoretechnologies.qorus.*;',
         'import com.qoretechnologies.qorus.service.*;'
     ]
 };
-
-export const serviceTemplates = lang => ({
-    template: subclass_template[lang],
-    method_template: simple_method_template[lang],
-    imports: imports[lang]
-});
 
 export const serviceFields = ({default_target_dir, is_editing}) => [
     field.targetDir(default_target_dir),

@@ -3,10 +3,10 @@ import * as jsyaml from 'js-yaml';
 
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { class_template, subclass_template, simple_method_template } from './common_constants';
-import { jobTemplates } from './job_constants';
-import { workflowTemplates } from './workflow_constants';
-import { stepTemplates } from './step_constants';
+import { simple_method_template, classTemplate } from './common_constants';
+import { job_imports } from './job_constants';
+import { workflow_imports } from './workflow_constants';
+import { step_imports } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { ClassConnections } from './ClassConnections';
 import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
@@ -20,27 +20,30 @@ class ClassCreator extends InterfaceCreator {
         const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
         this.lang = data.lang || 'qore';
 
-        let template: string;
-        let imports: string[];
+        let imports: string[] = [];
         let suffix: string;
+        this.has_code = false;
         switch (iface_kind) {
             case 'job':
-                ({template, imports} = jobTemplates(this.lang));
+                imports = job_imports[this.lang];
+                this.has_code = true;
                 suffix = '.qjob';
                 break;
             case 'step':
-                ({template, imports} = stepTemplates(this.lang));
+                imports = step_imports[this.lang];
+                this.has_code = true;
                 suffix = '.qstep';
                 break;
             case 'workflow':
                 if (data['class-name']) {
-                    ({template, imports} = workflowTemplates(this.lang));
+                    imports = workflow_imports[this.lang];
+                    this.has_code = true;
                 }
                 suffix = '.qwf';
                 break;
             case 'class':
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
-                template = (data['base-class-name'] ? subclass_template : class_template)[this.lang];
+                this.has_code = true;
                 suffix = '.qclass';
                 break;
             case 'mapper':
@@ -55,7 +58,6 @@ class ClassCreator extends InterfaceCreator {
                 return;
         }
 
-        this.has_code = !!template;
         this.had_code = iface_kind === 'workflow' ? !!orig_data?.['class-name'] : this.has_code;
 
         this.setPaths(data, orig_data, suffix, iface_kind, edit_type);
@@ -71,8 +73,6 @@ class ClassCreator extends InterfaceCreator {
             return;
         }
 
-        imports = imports || [];
-
         let triggers: string[] = [];
         let connections_within_class: string = '';
         let connections_extra_class: string = '';
@@ -84,6 +84,7 @@ class ClassCreator extends InterfaceCreator {
         }
 
         let methods = '';
+        let template: string;
         let contents: string;
         let info: string;
         let code_lines: string[];
@@ -135,6 +136,7 @@ class ClassCreator extends InterfaceCreator {
                     methods += '\n';
                 }
 
+                template = classTemplate(this.lang, !!data['base-class-name'], !methods && !connections_within_class);
                 contents = InterfaceCreator.fillTemplate(template, this.lang, [...imports, ...more_imports], {
                     class_name: data['class-name'],
                     base_class_name: data['base-class-name'],
@@ -156,6 +158,7 @@ class ClassCreator extends InterfaceCreator {
                     contents = code_lines.join('\n');
                 } else {
                     // has code now, but didn't have before this edit
+                    template = classTemplate(this.lang, !!data['base-class-name'], !methods && !connections_within_class);
                     contents = InterfaceCreator.fillTemplate(template, this.lang, [...imports, ...more_imports], {
                         class_name: data['class-name'],
                         base_class_name: data['base-class-name'],

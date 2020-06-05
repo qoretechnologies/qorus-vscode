@@ -1,37 +1,21 @@
 import { field } from './common_constants';
 
-let class_template: any = {};
-let method_template: any = {};
+// ================================================================
 
-class_template.qore = '\
-class ${this.class_name} {\n\
-${this.methods}\
-}\n\
-';
+export const mapper_code_method_template = {
+    qore:
+        '    static auto ${this.name}(auto ctx, hash<auto> record) {\n' +
+        '    }\n',
+    python:
+        '    @staticmethod\n' +
+        '    def ${this.method}():\n' +
+        '        pass\n',
+    java:
+        '    public static Object ${this.name}(Object ctx, Map<String, Object> record) {\n' +
+        '    }\n'
+};
 
-class_template.java = '\
-class ${this.class_name} {\n\
-${this.methods}\
-}\n\
-';
-
-method_template.qore = '\
-    static auto ${this.name}(auto ctx, hash<auto> record) {\n\
-    }\n\
-';
-
-method_template.java = '\
-    public static Object ${this.name}(Object ctx, Map<String, Object> record) {\n\
-    }\n\
-';
-
-export const mapperCodeTemplates = lang => ({
-    template: class_template[lang],
-    method_template: method_template[lang]
-});
-
-export const mapper_code_class_template = class_template;
-export const mapper_code_method_template = method_template;
+// ================================================================
 
 export const mapperFields = ({ default_target_dir, context }) => [
     field.targetDir(default_target_dir),

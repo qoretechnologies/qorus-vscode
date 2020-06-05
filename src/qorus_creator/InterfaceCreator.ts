@@ -8,7 +8,7 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
-import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
+import { default_parse_options } from './common_constants';
 import { types_with_version, default_version } from '../qorus_constants';
 import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier, sortRanges } from '../qorus_utils';
 import { t } from 'ttag';
@@ -17,6 +17,12 @@ import * as msg from '../qorus_message';
 
 const list_indent = '  - ';
 const indent = '    ';
+
+const lang_suffix = {
+    qore: '',
+    python: '.py',
+    java: '.java',
+};
 
 
 export abstract class InterfaceCreator {
@@ -286,7 +292,10 @@ export abstract class InterfaceCreator {
             lines[position.line] = chars.join('');
         };
 
-        const inherits_kw = lang_inherits[this.lang];
+        const inherits_kw = {
+            java: 'extends',
+            qore: 'inherits',
+        }[this.lang]
 
         const eraseInheritsKw = () => {
             const strings_to_erase = [` ${inherits_kw}`, `${inherits_kw} `, `${inherits_kw}`];
@@ -350,7 +359,7 @@ export abstract class InterfaceCreator {
 
         if (base_class_name && !orig_base_class_name) {
             if (has_other_base_class) {
-                if (!base_class_name.includes(base_class_name)) {
+                if (!base_class_names.includes(base_class_name)) {
                     eraseInheritsKw();
                     replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name},`);
                 }

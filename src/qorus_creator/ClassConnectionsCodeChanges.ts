@@ -4,7 +4,7 @@ import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
 import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
-import { serviceTemplates } from './service_constants';
+import { simple_method_template } from './common_constants';
 import { sortRanges } from '../qorus_utils';
 
 
@@ -343,7 +343,7 @@ const addMethods = (method_names, edit_data, lang) => {
         [ ... text_lines ],
         method_names,
         class_def_range,
-        serviceTemplates(lang).method_template,
+        simple_method_template[lang],
         lang
     );
 

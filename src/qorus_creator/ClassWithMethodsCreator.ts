@@ -2,8 +2,9 @@ import { workspace, window } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
 
 import { InterfaceCreator } from './InterfaceCreator';
-import { serviceTemplates } from './service_constants';
-import { mapperCodeTemplates } from './mapper_constants';
+import { service_imports } from './service_constants';
+import { mapper_code_method_template } from './mapper_constants';
+import { classTemplate, simple_method_template } from './common_constants';
 import { ClassConnections } from './ClassConnections';
 import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
@@ -12,9 +13,8 @@ import * as msg from '../qorus_message';
 
 
 class ClassWithMethodsCreator extends InterfaceCreator {
-    private class_template: string;
     private method_template: string;
-    private imports: string[];
+    private imports: string[] = [];
 
     editImpl = params => {
         const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
@@ -26,11 +26,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             case 'service':
                 suffix = '.qsd';
                 methods_key = 'methods';
-                ({
-                    template: this.class_template,
-                    method_template: this.method_template,
-                    imports: this.imports
-                 } = serviceTemplates(this.lang));
+                this.method_template = simple_method_template[this.lang];
+                this.imports = service_imports[this.lang];
                 if (!(data.methods || []).length) {
                     data.methods = [{
                         name: 'init',
@@ -42,10 +39,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
                 suffix = '.qmc';
                 methods_key = 'mapper-methods';
-                ({
-                    template: this.class_template,
-                    method_template: this.method_template,
-                 } = mapperCodeTemplates(this.lang));
+                this.method_template = mapper_code_method_template;
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
@@ -54,7 +48,6 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.has_code = this.had_code = true;
 
-        this.imports = this.imports || [];
         const methods = data[methods_key];
 
         this.setPaths(data, orig_data, suffix, iface_kind);
@@ -315,7 +308,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             methods += '\n';
         }
 
-        return InterfaceCreator.fillTemplate(this.class_template, this.lang, [...this.imports, ...imports], {
+        const template = classTemplate(this.lang, !!data['base-class-name'], !methods && !connections_within_class);
+        return InterfaceCreator.fillTemplate(template, this.lang, [...this.imports, ...imports], {
             class_name: data['class-name'],
             base_class_name: data['base-class-name'],
             methods,
