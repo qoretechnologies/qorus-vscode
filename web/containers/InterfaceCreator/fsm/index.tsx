@@ -110,7 +110,7 @@ const FSMView: React.FC<IFSMViewProps> = () => {
     const [states, setStates] = useState<IFSMStates>({});
     const [selectedState, setSelectedState] = useState<number | null>(null);
     const [editingState, setEditingState] = useState<number | null>(null);
-    const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number } | null>(null);
+    const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
     const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(false);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
@@ -190,8 +190,20 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         currentYPan = y;
     };
 
+    const getTransitionByState = (stateId: number, targetId: number): IFSMTransition | null => {
+        const { transitions } = states[stateId];
+
+        return transitions?.find((transition) => transition.state === targetId);
+    };
+
     const handleStateClick = (id: number): void => {
         if (selectedState) {
+            // Do nothing if the selected transition already
+            // exists
+            if (getTransitionByState(selectedState, id)) {
+                return;
+            }
+
             setStates((cur) => {
                 const newBoxes = { ...cur };
 
@@ -226,31 +238,95 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         setEditingState(null);
     };
 
+    const updateTransitionData = (stateId: number, index: number, data: IFSMTransition) => {
+        const transitionsCopy = [...states[stateId].transitions];
+
+        transitionsCopy[index] = {
+            ...transitionsCopy[index],
+            ...data,
+        };
+
+        updateStateData(stateId, { transitions: transitionsCopy });
+    };
+
     const handleStateEditClick = (id: number): void => {
         setEditingState(id);
     };
 
+    const hasBothWayTransition = (stateId: string, targetId: string): { stateId: string; index: number } => {
+        const transitionIndex = states[targetId].transitions?.findIndex(
+            (transition) => transition.state === parseInt(stateId)
+        );
+
+        if (transitionIndex || transitionIndex === 0) {
+            return { stateId: targetId, index: transitionIndex };
+        }
+
+        return null;
+    };
+
+    const isTransitionToSelf = (stateId: string, targetId: string): boolean => {
+        return stateId === targetId;
+    };
+
+    const handleStateDeleteClick = (id: number): void => {
+        setStates((current) => {
+            let newStates: IFSMStates = { ...current };
+
+            newStates = reduce(
+                newStates,
+                (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
+                    const newState: IFSMState = { ...state };
+
+                    if (parseInt(stateId) === id) {
+                        return modifiedStates;
+                    }
+
+                    if (state.transitions && getTransitionByState(parseInt(stateId), id)) {
+                        newState.transitions = newState.transitions.reduce(
+                            (newTransitions: IFSMTransition[], transition: IFSMTransition) => {
+                                if (transition.state === id) {
+                                    return newTransitions;
+                                }
+
+                                return [...newTransitions, transition];
+                            },
+                            []
+                        );
+                    }
+
+                    return { ...modifiedStates, [stateId]: newState };
+                },
+                {}
+            );
+
+            return newStates;
+        });
+    };
+
     const transitions = reduce(
         states,
-        (newTransitions: any[], state: IFSMState, id: number) => {
+        (newTransitions: any[], state: IFSMState, id: string) => {
             if (!state.transitions) {
                 return newTransitions;
             }
 
-            const stateTransitions = state.transitions.map((transition) => ({
-                state: id,
+            const stateTransitions = state.transitions.map((transition: IFSMTransition, index: number) => ({
+                isError: !!transition.errors,
+                transitionIndex: index,
+                state: parseInt(id),
+                targetState: transition.state,
                 x1: state.position.x,
                 y1: state.position.y,
                 x2: states[transition.state].position.x,
                 y2: states[transition.state].position.y,
+                order: !!transition.errors ? 0 : 1,
             }));
 
             return [...newTransitions, ...stateTransitions];
         },
         []
-    );
-
-    console.log(states, transitions);
+    ).sort((a, b) => a.order - b.order);
 
     return (
         <>
@@ -268,14 +344,14 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                     )}
                 />
             )}
-            {editingTransition && (
+            {size(editingTransition) ? (
                 <FSMTransitionDialog
-                    onSubmit={updateStateData}
-                    onClose={() => setEditingTransition(null)}
-                    data={states[editingTransition.stateId].transitions[editingTransition.index]}
-                    {...editingTransition}
+                    onSubmit={updateTransitionData}
+                    onClose={() => setEditingTransition([])}
+                    states={states}
+                    editingData={editingTransition}
                 />
-            )}
+            ) : null}
             <StyledToolbarWrapper>
                 <FSMToolbarItem name="state" count={size(states)}>
                     State
@@ -301,24 +377,57 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                                 selected={selectedState === parseInt(id)}
                                 onClick={handleStateClick}
                                 onEditClick={handleStateEditClick}
+                                onDeleteClick={handleStateDeleteClick}
                             />
                         ))}
                         <svg height="100%" width="100%" style={{ position: 'absolute' }}>
-                            {transitions.map(({ x1, x2, y1, y2, state }, index) => (
-                                <StyledFSMLine
-                                    onClick={() => setEditingTransition({ stateId: state, index })}
-                                    key={index}
-                                    stroke="#a9a9a9"
-                                    strokeWidth={3}
-                                    x1={x1 + 90}
-                                    y1={y1 + 25}
-                                    x2={x2 + 90}
-                                    y2={y2 + 25}
-                                    markerEnd="url(#arrow)"
-                                >
-                                    <text>test</text>
-                                </StyledFSMLine>
-                            ))}
+                            {transitions.map(
+                                ({ x1, x2, y1, y2, state, targetState, isError, transitionIndex }, index) =>
+                                    isTransitionToSelf(state, targetState) ? (
+                                        <circle
+                                            cx={x1 + 90}
+                                            cy={y1}
+                                            r={25}
+                                            fill="transparent"
+                                            stroke={isError ? 'red' : '#a9a9a9'}
+                                            strokeWidth={2}
+                                            strokeDasharray={isError ? '10 2' : undefined}
+                                            key={index}
+                                            onClick={() =>
+                                                setEditingTransition([{ stateId: state, index: transitionIndex }])
+                                            }
+                                        />
+                                    ) : (
+                                        <>
+                                            <StyledFSMLine
+                                                onClick={() => {
+                                                    setEditingTransition((cur) => {
+                                                        const result = [...cur];
+
+                                                        result.push({ stateId: state, index: transitionIndex });
+
+                                                        const hasBothWay = hasBothWayTransition(state, targetState);
+
+                                                        if (hasBothWay) {
+                                                            result.push(hasBothWay);
+                                                        }
+
+                                                        return result;
+                                                    });
+                                                }}
+                                                key={index}
+                                                stroke={isError ? 'red' : '#a9a9a9'}
+                                                strokeWidth={isError ? 4 : 2}
+                                                strokeDasharray={isError ? '10 2' : undefined}
+                                                markerEnd={isError ? 'url(#arrowheaderror)' : 'url(#arrowhead)'}
+                                                x1={x1 + 90}
+                                                y1={y1 + 25}
+                                                x2={x2 + 90}
+                                                y2={y2 + 25}
+                                            />
+                                        </>
+                                    )
+                            )}
                         </svg>
                     </StyledDiagram>
                 </FSMDiagramWrapper>
@@ -326,5 +435,9 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         </>
     );
 };
+
+/*
+d={`M ${x1 + 90} ${y1 + 25} L ${x2 + 90} ${y2 + 25}`}
+                                            */
 
 export default FSMView;

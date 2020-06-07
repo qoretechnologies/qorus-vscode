@@ -2210,3 +2210,12 @@ msgstr "Input type"
 
 msgid "OutputType"
 msgstr "Output type"
+
+msgid "TransitionErrorsNoInstance"
+msgstr "Active Qorus instance is required to display list of server errors"
+
+msgid "EditingTransition"
+msgstr "Editing transition(s)"
+
+msgid "EditingState"
+msgstr "Editing state"

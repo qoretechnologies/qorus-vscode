@@ -12,6 +12,7 @@ export interface IConnectorSelectorProps {
     onChange: (value: { class: string; connector: string }) => void;
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
+    types: string[];
 }
 
 export interface IClass {
@@ -25,9 +26,7 @@ export interface IConnector {
     type: 'input' | 'output' | 'input-output' | 'event' | 'condition';
 }
 
-const allowedConnectorTypes: string[] = ['input', 'input-output', 'output'];
-
-const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage }: IConnectorSelectorProps) => {
+const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, types }: IConnectorSelectorProps) => {
     const [classes, setClasses] = useState<IClass[]>(null);
 
     useMount(() => {
@@ -40,7 +39,7 @@ const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage }:
         postMessage('creator-get-objects', {
             object_type: 'class-with-connectors',
             custom_data: {
-                connector_type: ['input', 'output', 'input-output'],
+                connector_type: types,
             },
         });
     });
@@ -48,11 +47,10 @@ const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage }:
     const getConnectors = (): IConnector[] => {
         const selectedClass: IClass = classes.find((clss) => clss.name === value['class']);
 
-        return selectedClass['class-connectors'].filter((connector) => allowedConnectorTypes.includes(connector.type));
+        return selectedClass['class-connectors'].filter((connector) => types.includes(connector.type));
     };
 
     const handleChange = (name: string, val: any) => {
-        console.log(name, val);
         let newValue = value;
 
         if (name === 'class' && newValue) {

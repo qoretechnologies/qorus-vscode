@@ -93,6 +93,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                     <ConnectorSelector
                         value={newData?.action?.value}
                         onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
+                        types={['input', 'input-output', 'output']}
                     />
                 );
             }
