@@ -9,6 +9,7 @@ import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import { triggers } from './qorus_creator/standard_methods';
 import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
@@ -279,7 +280,7 @@ class QorusWebview {
                                 action: 'return-triggers',
                                 data: {
                                     ... message.data,
-                                    triggers: project.code_info.triggers(message.data).map(name => ({name}))
+                                    triggers: triggers(project.code_info, message.data).map(name => ({name}))
                                 }
                             });
                             break;

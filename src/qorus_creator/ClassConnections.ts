@@ -1,5 +1,6 @@
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
+import { triggers, stepTriggerSignatures } from './standard_methods';
 
 // =================================================================
 
@@ -67,10 +68,10 @@ export class ClassConnections {
 
         switch (this.iface_kind) {
             case 'step':
-                this.triggers = this.code_info.stepTriggerSignatures(this.base_class_name, this.lang);
+                this.triggers = stepTriggerSignatures(this.code_info, this.base_class_name, this.lang);
                 break;
             case 'job':
-                this.code_info.triggers({iface_kind: this.iface_kind}).forEach(trigger => {
+                triggers(this.code_info, {iface_kind: this.iface_kind}).forEach(trigger => {
                     this.triggers[trigger] = {
                         signature: this.lang === 'java' ? `public void ${trigger}() ${THROWS}` : `${trigger}()`
                     };
@@ -86,7 +87,7 @@ export class ClassConnections {
         let method_codes = [];
 
         const serviceTrigger = trigger => {
-            const is_standard = this.code_info.triggers({iface_kind: 'service'}).includes(trigger);
+            const is_standard = triggers(this.code_info, {iface_kind: 'service'}).includes(trigger);
             const signature = is_standard
                 ? this.lang === 'java'
                     ? `public void ${trigger}() ${THROWS}`

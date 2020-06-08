@@ -8,6 +8,7 @@ import { job_imports } from './job_constants';
 import { workflow_imports } from './workflow_constants';
 import { step_imports } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
+import { mandatoryStepMethods } from './standard_methods';
 import { ClassConnections } from './ClassConnections';
 import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
@@ -107,7 +108,7 @@ class ClassCreator extends InterfaceCreator {
 
                 else if (iface_kind === 'step') {
                     const mandatory_step_methods =
-                        this.code_info.mandatoryStepMethods(data['base-class-name'], this.lang);
+                        mandatoryStepMethods(this.code_info, data['base-class-name'], this.lang);
                     let method_strings = [];
                     const indent = '    ';
                     Object.keys(mandatory_step_methods).forEach(method_name => {

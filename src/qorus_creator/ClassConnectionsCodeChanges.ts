@@ -5,6 +5,7 @@ import { ClassConnections, GENERATED_TEXT, indent } from './ClassConnections';
 import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { simple_method_template } from './common_constants';
+import { triggers } from './standard_methods';
 import { sortRanges } from '../qorus_utils';
 
 
@@ -47,7 +48,7 @@ export const classConnectionsCodeChanges = async (
     if (had_class_connections) {
         edit_data = await setFileInfo(mixed_data, true);
         if (iface_kind === 'step') {
-            trigger_names = code_info.triggers({iface_kind, 'base-class-name': orig_data['base-class-name']});
+            trigger_names = triggers(code_info, {iface_kind, 'base-class-name': orig_data['base-class-name']});
         }
         lines = removeClassConnectionsCode(edit_data, iface_kind, trigger_names);
         lines = cleanup(lines);
