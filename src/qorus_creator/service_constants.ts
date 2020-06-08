@@ -1,6 +1,8 @@
 import { field } from './common_constants';
 
 export const service_imports = {
+    qore: [],
+    python: [],
     java: [
         'import com.qoretechnologies.qorus.*;',
         'import com.qoretechnologies.qorus.service.*;'
