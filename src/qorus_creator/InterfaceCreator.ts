@@ -9,6 +9,7 @@ import { qorus_webview } from '../QorusWebview';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { default_parse_options } from './common_constants';
+import { mandatoryStepMethods } from './standard_methods';
 import { types_with_version, default_version } from '../qorus_constants';
 import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier, sortRanges } from '../qorus_utils';
 import { t } from 'ttag';
@@ -839,8 +840,8 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
-    static mandatoryStepMethodsCode = (code_info, base_class_name, lang, skip: string[] = []) => {
-        const mandatory_step_methods = code_info.mandatoryStepMethods(base_class_name, lang);
+    static mandatoryStepMethodsCode = (code_info: QorusProjectCodeInfo, base_class_name, lang, skip: string[] = []) => {
+        const mandatory_step_methods = mandatoryStepMethods(code_info, base_class_name, lang);
 
         let method_strings = [];
         const indent = '    ';
@@ -850,11 +851,15 @@ export abstract class InterfaceCreator {
                 return;
             }
             const method_data = mandatory_step_methods[method_name];
-            let method_string = `${indent}${method_data.signature} {\n`;
+            let method_string = lang === 'python'
+                ? `${indent}def ${method_data.signature}:\n`
+                : `${indent}${method_data.signature} {\n`;
             if (method_data.body) {
                 method_string += `${indent}${indent}${method_data.body}\n`;
             }
-            method_string += `${indent}}\n`;
+            if (lang !== 'python') {
+                method_string += `${indent}}\n`;
+            }
             method_strings.push(method_string);
         });
 

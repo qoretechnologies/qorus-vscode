@@ -406,9 +406,7 @@ export class QorusProjectCodeInfo {
         }
 
         if (data.type === 'step' && data['base-class-name']) {
-            const step_type = (data.lang === 'java')
-                ? this.javaStepType(data['base-class-name'])
-                : this.stepType(data['base-class-name']);
+            const step_type = this.stepType(data['base-class-name']);
             if (step_type) {
                 data['step-type'] = step_type;
             }
@@ -745,15 +743,6 @@ export class QorusProjectCodeInfo {
     stepType = (base_class: string): string | undefined => {
         for (const step_type of root_steps) {
             if (this.yaml_info.stepClasses(step_type)[base_class]) {
-                return step_type;
-            }
-        }
-        return undefined;
-    }
-
-    javaStepType = (base_class: string): string | undefined => {
-        for (const step_type of root_steps) {
-            if (this.yaml_info.javaStepClasses(step_type)[base_class]) {
                 return step_type;
             }
         }

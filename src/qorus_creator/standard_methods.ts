@@ -7,7 +7,7 @@ export const mandatoryStepMethods = (code_info: QorusProjectCodeInfo, base_class
         return {};
     }
 
-    primary.body = '';
+    primary.body = lang === 'python' ? 'pass' : '';
 
     if (!array) {
         return { primary };
@@ -15,6 +15,7 @@ export const mandatoryStepMethods = (code_info: QorusProjectCodeInfo, base_class
 
     const array_body = {
         qore: 'return ();',
+        python: 'return [];',
         java: 'return new Object[0];'
     };
 
@@ -26,7 +27,7 @@ export const triggers = (code_info: QorusProjectCodeInfo, {iface_kind, 'base-cla
     switch (iface_kind) {
         case 'service': return ['start', 'stop', 'init'];
         case 'job':     return ['run'];
-        case 'step':    return Object.keys(stepTriggerSignatures(code_info, base_class));
+        case 'step':    return Object.keys(stepTriggerSignatures(code_info, base_class)); // only keys: does not depend on lang
         default:        return [];
     }
 }
@@ -76,6 +77,48 @@ export const stepTriggerSignatures = (code_info: QorusProjectCodeInfo, base_clas
         }
     };
 
+    stepTriggerSignatures.python = base_class => {
+        switch (code_info.stepType(base_class)) {
+            case 'QorusNormalStep':
+                return {
+                    primary: {signature: 'primary(self)'},
+                    validation: {signature: 'validation(self)'}
+                };
+            case 'QorusNormalArrayStep':
+                return {
+                    primary: {signature: 'primary(self, array_arg)', arg_names: ['array_arg']},
+                    validation: {signature: 'validation(self, array_arg)', arg_names: ['array_arg']},
+                    array: {signature: 'array(self)'}
+                };
+            case 'QorusEventStep':
+            case 'QorusSubworkflowStep':
+                return {
+                    primary: {signature: 'primary(self)'}
+                };
+            case 'QorusEventArrayStep':
+            case 'QorusSubworkflowArrayStep':
+                return {
+                    primary: {signature: 'primary(self, array_arg)', arg_names: ['array_arg']},
+                    array: {signature: 'array(self)'}
+                };
+            case 'QorusAsyncStep':
+                return {
+                    primary: {signature: 'primary(self)'},
+                    validation: {signature: 'validation(self, async_key)', arg_names: ['async_key']},
+                    end: {signature: 'end(self, queue_data)', arg_names: ['queue_data']}
+                };
+            case 'QorusAsyncArrayStep':
+                return {
+                    primary: {signature: 'primary(self, array_arg)', arg_names: ['array_arg']},
+                    validation: {signature: 'validation(self, async_key, array_arg)', arg_names: ['async_key', 'array_arg']},
+                    end: {signature: 'end(self, queue_data, array_arg)', arg_names: ['queue_data', 'array_arg']},
+                    array: {signature: 'array(self)'}
+                };
+            default:
+                return {};
+        }
+    };
+
     stepTriggerSignatures.java = base_class => {
         const fixSignature = triggers => {
             Object.keys(triggers).forEach(trigger => {
@@ -84,7 +127,7 @@ export const stepTriggerSignatures = (code_info: QorusProjectCodeInfo, base_clas
             return triggers;
         };
 
-        switch (code_info.javaStepType(base_class)) {
+        switch (code_info.stepType(base_class)) {
             case 'QorusNormalStep':
                 return fixSignature({
                     primary: {signature: 'void primary()'},
