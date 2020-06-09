@@ -6,8 +6,8 @@ import { triggers, stepTriggerSignatures } from './standard_methods';
 
 const CONN_CLASS = 'ClassConnections';
 const CONN_BASE_CLASS = 'Observer';
-const CONN_MEMBER = { qore: 'class_connections', java: 'classConnections' };
-const CONN_CLASS_MAP = { qore: 'class_map', java: 'classMap' };
+const CONN_MEMBER = { qore: 'class_connections', python: 'class_connections', java: 'classConnections' };
+const CONN_CLASS_MAP = { qore: 'class_map', python: 'class_map', java: 'classMap' };
 export const CONN_CALL_METHOD = 'callClassWithPrefixMethod';
 const CONN_MAPPER = 'mapper';
 const CONN_DATA = 'params';
@@ -22,21 +22,25 @@ const GENERATED = {
         begin: `####### ${GENERATED_TEXT.begin} ########`,
         end: `############ ${GENERATED_TEXT.end} ############`
     },
+    python: {
+        begin: `####### ${GENERATED_TEXT.begin} ########`,
+        end: `############ ${GENERATED_TEXT.end} ############`
+    },
     java: {
         begin: `// ==== ${GENERATED_TEXT.begin} ==== //`,
         end: `// ======== ${GENERATED_TEXT.end} ========= //`
     }
 };
 
-const THROWS = 'throws Throwable';
+const THROWS = 'throws Throwable'; // only java:
 
 export const indent = ' '.repeat(4);
 const indent1 = indent;
 const indent2 = indent.repeat(2);
 const indent3 = indent.repeat(3);
 
-const isArray = trigger => trigger.signature.indexOf(' array(') > -1;
-const isValidation = trigger => trigger.signature.indexOf(' validation(') > -1;
+const isArray = trigger => trigger.signature.indexOf('array(') > -1;
+const isValidation = trigger => trigger.signature.indexOf('validation(') > -1;
 const hasReturn = trigger => trigger.is_nonstandard_service || isValidation(trigger) || isArray(trigger);
 
 // =================================================================
@@ -64,6 +68,15 @@ export class ClassConnections {
     }
 
     code = () => {
+        const simpleMethodSignature = name => {
+            switch (this.lang) {
+                case 'qore': return `${name}()`;
+                case 'python': return `${name}(self)`;
+                case 'java': return `public void ${name}() ${THROWS}`;
+            }
+            return undefined;
+        };
+
         this.triggers = {};
 
         switch (this.iface_kind) {
@@ -71,10 +84,8 @@ export class ClassConnections {
                 this.triggers = stepTriggerSignatures(this.code_info, this.base_class_name, this.lang);
                 break;
             case 'job':
-                triggers(this.code_info, {iface_kind: this.iface_kind}).forEach(trigger => {
-                    this.triggers[trigger] = {
-                        signature: this.lang === 'java' ? `public void ${trigger}() ${THROWS}` : `${trigger}()`
-                    };
+                triggers(this.code_info, {iface_kind: 'job'}).forEach(trigger => {
+                    this.triggers[trigger] = { signature: simpleMethodSignature(trigger) };
                 });
                 break;
         }
@@ -88,13 +99,22 @@ export class ClassConnections {
 
         const serviceTrigger = trigger => {
             const is_standard = triggers(this.code_info, {iface_kind: 'service'}).includes(trigger);
-            const signature = is_standard
-                ? this.lang === 'java'
-                    ? `public void ${trigger}() ${THROWS}`
-                    : `${trigger}()`
-                : this.lang === 'java'
-                    ? `public Object ${trigger}(Object ${CONN_DATA}) ${THROWS}`
-                    : `auto ${trigger}(auto ${CONN_DATA})`;
+            let signature: string;
+            if (is_standard) {
+                signature = simpleMethodSignature(trigger);
+            } else {
+                switch (this.lang) {
+                    case 'qore':
+                        signature = `auto ${trigger}(auto ${CONN_DATA})`;
+                        break;
+                    case 'python':
+                        signature = `${trigger}(self, ${CONN_DATA})`;
+                        break;
+                    case 'java':
+                        signature = `public Object ${trigger}(Object ${CONN_DATA}) ${THROWS}`
+                        break;
+                }
+            }
 
             return {
                 signature,
@@ -121,7 +141,7 @@ export class ClassConnections {
                 const prefixed_class = prefix + connector_class;
 
                 let class_lang = 'qore';
-                if (this.lang === 'java') {
+                if (this.lang !== 'qore') {
                     class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || 'qore';
                     exists_qore_connector = exists_qore_connector || (class_lang === 'qore');
                 }
@@ -166,6 +186,7 @@ export class ClassConnections {
     private connClassName = () => `${CONN_CLASS}_${this.class_name}`;
 
     protected getImportsQore = () => []
+    protected getImportsPython = () => []
 
     protected getImportsJava = (exists_qore_connector) => {
         let imports = [
@@ -192,6 +213,12 @@ export class ClassConnections {
         `${indent1}private {\n` +
         this.memberDeclAndInitCodeQore() +
         `${indent1}}\n`;
+
+    protected memberDeclAndInitAllCodePython = () =>
+        `${indent1}${GENERATED.python.begin}\n` +
+        `${indent1}def __init__(self):\n` +
+        `${indent2}self.${CONN_MEMBER.python} = ${this.connClassName()}()\n` +
+        `${indent1}${GENERATED.python.end}\n`;
 
     memberDeclAndInitCodeQore = () =>
         `${indent2}${GENERATED.qore.begin}\n` +
@@ -262,6 +289,52 @@ export class ClassConnections {
                 `${indent2}}\n`;
             });
             code += `${indent1}}\n`;
+        }
+
+        return code;
+    }
+
+    protected extraClassCodePython = (event_based_connections) => {
+        let code = `class ${this.connClassName()}`;
+        if (event_based_connections.length) {
+            code += `(${CONN_BASE_CLASS}):`;
+            code += ` # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
+        } else {
+            code += ':\n';
+        }
+
+        code += `${indent1}def __init__(self):\n` +
+            `${indent2}# map of prefixed class names to class instances\n` +
+            `${indent2}self.${CONN_CLASS_MAP.qore} = {\n`;
+
+        for (const prefixed_class in this.classes) {
+            const class_data = this.classes[prefixed_class];
+            const prefix_arg = class_data.prefix ? `"${class_data.prefix}"` : '';
+            code += `${indent3}'${prefixed_class}': ${class_data.connector_class}(${prefix_arg}),\n`;
+        }
+
+        code += `${indent2}}\n`;
+
+        if (event_based_connections.length) {
+            code += '\n' + `${indent2}# register observers\n`;
+            event_based_connections.forEach(event_based => {code +=
+                `${indent2}self.${CONN_CALL_METHOD}("${event_based.prefixed_class}", "registerObserver", self)\n`;
+            });
+        }
+
+        code += `\n` +
+            `${indent1}def ${CONN_CALL_METHOD}(self, prefixed_class, method):\n` +
+            `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class)\n` +
+            `${indent2}return call_object_method_args(self.${CONN_CLASS_MAP.python}[prefixed_class], method, argv)\n`;
+
+        if (event_based_connections.length) {
+            code += '\n' +
+                `${indent1}# override ${CONN_BASE_CLASS}'s update()\n` +
+                `${indent1}def update(id, ${CONN_DATA}):\n`;
+            event_based_connections.forEach(event_based => {code +=
+                `${indent2}if (id == "${event_based.prefixed_class}.${event_based.method}"):\n` +
+                `${indent3}${event_based.connection_code_name}(${CONN_DATA})\n`;
+            });
         }
 
         return code;
@@ -378,6 +451,38 @@ export class ClassConnections {
         return code;
     }
 
+    protected methodCodePython = (connection_code_name, connectors) => {
+        let code = `${indent1}def ${connection_code_name}(self, ${CONN_DATA}):\n`;
+
+        code += `${indent2}UserApi.logDebug("${connection_code_name} called with data: %y", ${CONN_DATA})\n`;
+
+        let n = 0;
+        connectors.forEach(connector => {
+            ++n;
+            const prefixed_class = `${connector.prefix || ''}${connector.class}`;
+
+            if (connector.mapper) {
+                code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}")\n` +
+                `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAuto(${CONN_DATA})\n`;
+            }
+
+            if (connector.type === 'event') {
+                return;
+            }
+
+            code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", ${CONN_DATA})\n${indent2}`;
+            if (n !== connectors.length) {
+                code += `${CONN_DATA} = `;
+            } else {
+                code += 'return ';
+            }
+
+            code += `self.${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA})\n`;
+        });
+
+        return code;
+    }
+
     protected methodCodeJava = (connection_code_name, connectors) => {
         let code = `${indent1}public Object ${connection_code_name}(Object ${CONN_DATA}) ${THROWS} {\n`;
 
@@ -448,6 +553,45 @@ export class ClassConnections {
         }
 
         code += `${indent1}}\n`;
+        return code;
+    }
+
+    protected triggerCodePython = trigger => {
+        let code = `${indent1}def ${trigger.signature}:\n`;
+        let params_str = '';
+        if (trigger.connections.length) {
+            if (trigger.arg_names?.length) { // for steps
+                code += `${indent2}${CONN_DATA} = {` +
+                trigger.arg_names.map(arg_name => `"${arg_name}": ${arg_name}`).join(', ') +
+                '}\n';
+                params_str = CONN_DATA;
+            }
+            if (trigger.is_nonstandard_service) { // for non-standard service triggers
+                params_str = CONN_DATA;
+            }
+        }
+
+        let n = 0;
+        trigger.connections.forEach(connection => {
+            code += indent2;
+            if (++n === trigger.connections.length && hasReturn(trigger)) {
+                code += 'return ';
+            }
+            code += `self.${CONN_MEMBER.python}.${connection}(${params_str})\n`;
+        });
+
+        if (!trigger.connections.length) {
+            if (isValidation(trigger)) {
+                code += `${indent2}return OMQ.StatRetry\n`;
+            }
+            else if (isArray(trigger)) {
+                code += `${indent2}return []\n`;
+            }
+            else {
+                code += `${indent2}pass\n`;
+            }
+        }
+
         return code;
     }
 
