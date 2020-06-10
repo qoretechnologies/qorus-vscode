@@ -145,6 +145,9 @@ class QorusDelete {
                         : full_data.map(subData)
                                    .sort(sorter)
                 });
+            },
+            (error: any) => {
+                qorus_request.requestError(error, t`GettingInterfacesError ${iface_kind}`);
             }
         );
     }
