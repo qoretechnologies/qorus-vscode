@@ -1378,6 +1378,9 @@ msgstr "Value"
 msgid "field-label-qore"
 msgstr "Qore"
 
+msgid "field-label-python"
+msgstr "Python"
+
 msgid "field-label-java"
 msgstr "Java"
 
