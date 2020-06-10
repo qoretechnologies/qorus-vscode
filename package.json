@@ -1619,6 +1619,7 @@
         "webpack-merge": "^4.2.1"
     },
     "dependencies": {
+        "@andrewhead/python-program-analysis": "^0.4.8",
         "@babel/polyfill": "^7.7.0",
         "@blueprintjs/datetime": "^3.9.2",
         "@blueprintjs/select": "^3.8.0",
