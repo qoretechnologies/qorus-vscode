@@ -163,6 +163,9 @@ msgstr "Authentication failed"
 msgid "GettingInfoError"
 msgstr "Error in getting info"
 
+msgid "GettingInterfacesError ${ iface_kind }"
+msgstr "Error in getting list of ${ iface_kind }"
+
 msgid "AttemptToSetInactiveNotActiveInstance ${ url }"
 msgstr "Attempt to set inactive a Qorus instance that is not active: ${ url }"
 
