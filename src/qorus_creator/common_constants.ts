@@ -217,7 +217,7 @@ export const field = {
             },
             {
                 value: 'python',
-                icon_filename: 'python-128x128.png',
+                icon_filename: 'python-129x128.png',
             },
             {
                 value: 'java',
