@@ -2,15 +2,14 @@ import { Hover, Position, TextDocument } from 'vscode';
 
 import { QorusHoverProviderBase } from './QorusHoverProviderBase';
 import { QorusProjectEditInfo }  from './QorusProjectEditInfo';
-import { QorusJavaParser }  from './QorusJavaParser';
-import { javaLoc2range } from './QoreTextDocument';
+import { QorusPythonParser }  from './QorusPythonParser';
+import { findPythonClassNameRange, findPythonDefNameRange } from './QoreTextDocument';
 
 
-export class QorusJavaHoverProvider extends QorusHoverProviderBase {
-
+export class QorusPythonHoverProvider extends QorusHoverProviderBase {
     async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined> {
         const file_path: string = typeof document.uri === 'string' ? document.uri : document.uri.fsPath;
-        const parsed_data:any = QorusJavaParser.parseFileNoExcept(file_path);
+        const parsed_data:any = QorusPythonParser.parseFileNoExcept(file_path);
         const classes: any[] = parsed_data.classes || [];
 
         if (!classes.length) {
@@ -22,24 +21,43 @@ export class QorusJavaHoverProvider extends QorusHoverProviderBase {
             return undefined;
         }
 
-        const isSearchedSymbol = (symbol, position) => {
-            if (!symbol.name?.loc) {
+        const isSearchedClass = (symbol, position) => {
+            if (!symbol.loc) {
                 return false;
             }
 
-            const range = javaLoc2range(symbol.name.loc);
+            const range = findPythonClassNameRange(document, symbol.loc);
+            if (!range) {
+                return false;
+            }
+            return range.start.line === position.line
+                && range.start.character <= position.character
+                && range.end.character > position.character;
+        };
+
+        const isSearchedMethod = (symbol, position) => {
+            if (!symbol.loc) {
+                return false;
+            }
+
+            const range = findPythonDefNameRange(document, symbol.loc);
+            if (!range) {
+                return false;
+            }
             return range.start.line === position.line
                 && range.start.character <= position.character
                 && range.end.character > position.character;
         };
 
         const searchSymbol = (symbol, position) => {
-            if (isSearchedSymbol(symbol, position)) {
-                if (QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, yaml_info['class-name'])) {
+            if (isSearchedClass(symbol, position)) {
+                if (QorusProjectEditInfo.isPythonSymbolExpectedClass(symbol, yaml_info['class-name'])) {
                     return this.createClassHover(yaml_info);
                 }
-                if (QorusProjectEditInfo.isJavaDeclPublicMethod(symbol)) {
-                    return this.createMethodHover(symbol.name?.identifier, yaml_info);
+            }
+            if (isSearchedMethod(symbol, position)) {
+                if (QorusProjectEditInfo.isPythonDeclPublicMethod(symbol)) {
+                    return this.createMethodHover(symbol.name, yaml_info);
                 }
             }
             for (const method of symbol.body?.methods || []) {

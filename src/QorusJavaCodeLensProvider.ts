@@ -1,7 +1,7 @@
 import { CodeLens, TextDocument } from 'vscode';
 
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
-import { QorusCodeLensProviderBase } from './QorusCodeLensProvider';
+import { QorusCodeLensProviderBase } from './QorusCodeLensProviderBase';
 import { QorusJavaParser }  from './QorusJavaParser';
 import { javaLoc2range } from './QoreTextDocument';
 

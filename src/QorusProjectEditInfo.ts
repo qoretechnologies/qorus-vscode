@@ -57,6 +57,9 @@ export class QorusProjectEditInfo {
 
     static isJavaSymbolExpectedClass = (parsed_class: any, class_name?: string): boolean =>
         class_name && class_name === parsed_class.name.identifier
+    
+    static isPythonSymbolExpectedClass = (parsed_class: any, class_name?: string): boolean =>
+        class_name && class_name === parsed_class.name
 
     static isQoreDeclPublicMethod = (decl: any): boolean => {
         if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
@@ -72,6 +75,9 @@ export class QorusProjectEditInfo {
 
     static isJavaDeclPublicMethod = (parsed_method: any): boolean =>
         !parsed_method.modifiers || parsed_method.modifiers.some(({name}) => name === 'public')
+
+    static isPythonDeclPublicMethod = (parsed_method: any): boolean =>
+        !(parsed_method?.name?.startsWith('__'))
 
     private addClassInfo = (file: string, symbol: any, base_class_name?: string) => {
         const class_def_range: vscode.Range = loc2range(symbol.loc);
