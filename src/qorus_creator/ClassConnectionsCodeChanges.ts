@@ -35,6 +35,9 @@ export const classConnectionsCodeChanges = async (
     };
 
     const lang = data.lang || 'qore';
+    if (lang === 'python') {
+        return;
+    }
     const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
     const has_class_connections = Object.keys(data?.['class-connections'] || {}).length > 0;
 

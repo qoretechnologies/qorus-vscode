@@ -31,9 +31,42 @@ export const loc2range = (loc: any, offset_string: string = ''): Range => new Ra
     nonNegative(loc.end_column - 1)
 );
 
+export const pythonLoc2range = (loc: any): Range => new Range(
+    nonNegative(loc.first_line - 1),
+    nonNegative(loc.first_column),
+    nonNegative(loc.last_line - 1),
+    nonNegative(loc.last_column)
+);
+
 export const javaLoc2range = (loc: any, offset_string: string = ''): Range => new Range(
     loc.startLine - 1,
     loc.startColumn + offset_string.length - 1,
     loc.endLine - 1,
     loc.endColumn
 );
+
+export const pythonNameRange = (
+    line_text: string,
+    line_no,
+    start_char_pos: number,
+    object_name: string,
+    keyword: string): Range | undefined =>
+{
+    let line_part = line_text.substr(start_char_pos);
+    const pos = line_part.indexOf(keyword);
+    if (pos === -1) {
+        return undefined;
+    }
+
+    line_part = line_part.substr(keyword.length + 1);
+    if (line_part.indexOf(object_name) === -1) {
+        return undefined;
+    }
+
+    return new Range(
+        line_no,
+        start_char_pos + pos,
+        line_no,
+        start_char_pos + pos + object_name.length
+    );
+};
