@@ -137,7 +137,7 @@ class QorusDelete {
             (full_data: any) => {
                 qorus_webview.postMessage({
                     action: 'return-interfaces',
-                    iface_kind: iface_kind,
+                    iface_kind,
                     data: iface_kind === 'services'
                         ? full_data.filter(obj => obj.type !== 'system')
                                    .map(subData)
@@ -148,6 +148,11 @@ class QorusDelete {
             },
             (error: any) => {
                 qorus_request.requestError(error, t`GettingInterfacesError ${iface_kind}`);
+                qorus_webview.postMessage({
+                    action: 'return-interfaces',
+                    iface_kind,
+                    data: []
+                });
             }
         );
     }
