@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { Range } from 'vscode';
 
 import { makeFileUri } from './qorus_utils';
+//import * as msg from './qorus_message';
 
 export interface QoreTextDocument {
     uri: string;
@@ -46,13 +47,12 @@ export const javaLoc2range = (loc: any, offset_string: string = ''): Range => ne
 );
 
 export const pythonNameRange = (
-    line_text: string,
-    line_no,
-    start_char_pos: number,
+    lines: string[],
+    object_range: Range,
     object_name: string,
     keyword: string): Range | undefined =>
 {
-    let line_part = line_text.substr(start_char_pos);
+    let line_part = lines[object_range.start.line].substr(object_range.start.character);
     const pos = line_part.indexOf(keyword);
     if (pos === -1) {
         return undefined;
@@ -63,10 +63,12 @@ export const pythonNameRange = (
         return undefined;
     }
 
+    const object_name_start_char = object_range.start.character + keyword.length + 1 + pos;
+
     return new Range(
-        line_no,
-        start_char_pos + pos,
-        line_no,
-        start_char_pos + pos + object_name.length
+        object_range.start.line,
+        object_name_start_char,
+        object_range.start.line,
+        object_name_start_char + object_name.length
     );
 };
