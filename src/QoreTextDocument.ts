@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 import { Range } from 'vscode';
 
 import { makeFileUri } from './qorus_utils';
-//import * as msg from './qorus_message';
 
 export interface QoreTextDocument {
     uri: string;

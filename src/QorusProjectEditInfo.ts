@@ -140,7 +140,6 @@ export class QorusProjectEditInfo {
             parsed_class.name,
             'class'
         );
-        msg.debug({class_def_range, class_name_range});
 
         const num_inherited = (parsed_class.extends || []).length;
         const base_class_names = (parsed_class.extends || []).map(inherited => inherited.name);
@@ -659,7 +658,6 @@ export class QorusProjectEditInfo {
                 }
             });
         });
-        msg.debug({expected_trigger_names});
 
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
@@ -690,7 +688,6 @@ export class QorusProjectEditInfo {
         };
 
         const maybeAddTriggerStatements = parsed_method => {
-            msg.debug({parsed_method});
             if (!expected_trigger_names.includes(parsed_method.name)) {
                 return;
             }
@@ -709,19 +706,44 @@ export class QorusProjectEditInfo {
         const addConstructorInfo = parsed_constructor => {
             const constructor_range = pythonLoc2range(parsed_constructor.loc);
             this.edit_info[file].constructor_range = constructor_range;
+
+            let other_constructor_lines = [];
+            let is_generated = false;
+
+            const regexp = 'self\\.(\\S+)\\s*=\\s*' +
+                this.edit_info[file].class_connections_class_name +
+                '\\s*\\(\\s*\\)';
+
             for (let i = constructor_range.start.line + 1; i < constructor_range.end.line; i++) {
                 const line = this.edit_info[file].text_lines[i];
-                const regexp = 'self\\.(\\S+)\\s*=\\s*' + this.edit_info[file].class_connections_class_name;
                 const match_result = line.match(regexp);
                 if (match_result) {
                     this.edit_info[file].class_connections_member_name = match_result[1];
-                    break;
+                    const member_declaration_command = match_result[0];
+                    const member_declaration_command_start = line.indexOf(member_declaration_command);
+                    this.edit_info[file].class_connections_member_declaration_range = new vscode.Range(
+                        i,
+                        member_declaration_command_start,
+                        i,
+                        member_declaration_command_start + member_declaration_command.length
+                    );
+                } else {
+                    if(line.indexOf(GENERATED_TEXT.begin) > -1) {
+                        is_generated = true;
+                    }
+                    if(line.indexOf(GENERATED_TEXT.end) > -1) {
+                        is_generated = false;
+                    }
+                    if (!is_generated) {
+                        other_constructor_lines.push(line);
+                    }
                 }
             }
+
+            this.edit_info[file].is_constructor_empty = !other_constructor_lines.join('').match(/\S/);
         };
 
         const parsed_data: any = QorusPythonParser.parseFileNoExcept(file);
-        msg.debug({parsed_data});
 
         if (add_class_connections_info && class_connections) {
             addClassConnectionClass(parsed_data.classes);
@@ -761,7 +783,6 @@ export class QorusProjectEditInfo {
             }
         });
 
-        msg.debug({edit_info: this.edit_info[file]});
         return Promise.resolve(this.edit_info[file]);
     }
 }

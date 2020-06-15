@@ -215,10 +215,10 @@ export class ClassConnections {
         `${indent1}}\n`;
 
     protected memberDeclAndInitAllCodePython = () =>
-        `${indent1}${GENERATED.python.begin}\n` +
         `${indent1}def __init__(self):\n` +
+        `${indent2}${GENERATED.python.begin}\n` +
         `${indent2}self.${CONN_MEMBER.python} = ${this.connClassName()}()\n` +
-        `${indent1}${GENERATED.python.end}\n`;
+        `${indent2}${GENERATED.python.end}\n`;
 
     memberDeclAndInitCodeQore = () =>
         `${indent2}${GENERATED.qore.begin}\n` +
