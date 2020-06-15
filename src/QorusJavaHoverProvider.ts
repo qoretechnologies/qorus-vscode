@@ -3,7 +3,7 @@ import { Hover, Position, TextDocument } from 'vscode';
 import { QorusHoverProviderBase } from './QorusHoverProviderBase';
 import { QorusProjectEditInfo }  from './QorusProjectEditInfo';
 import { QorusJavaParser }  from './QorusJavaParser';
-import { javaLoc2range } from './QoreTextDocument';
+import { javaLoc2Range } from './QoreTextDocument';
 
 
 export class QorusJavaHoverProvider extends QorusHoverProviderBase {
@@ -27,7 +27,7 @@ export class QorusJavaHoverProvider extends QorusHoverProviderBase {
                 return false;
             }
 
-            const range = javaLoc2range(symbol.name.loc);
+            const range = javaLoc2Range(symbol.name.loc);
             return range.start.line === position.line
                 && range.start.character <= position.character
                 && range.end.character > position.character;

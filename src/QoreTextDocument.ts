@@ -24,21 +24,21 @@ export const qoreTextDocument = (file: string): QoreTextDocument => {
 };
 
 const nonNegative = value => value < 0 ? 0 : value;
-export const loc2range = (loc: any, offset_string: string = ''): Range => new Range(
+export const qoreLoc2Range = (loc: any, offset_string: string = ''): Range => new Range(
     nonNegative(loc.start_line - 1),
     nonNegative(loc.start_column + offset_string.length - 1),
     nonNegative(loc.end_line - 1),
     nonNegative(loc.end_column - 1)
 );
 
-export const pythonLoc2range = (loc: any): Range => new Range(
+export const pythonLoc2Range = (loc: any): Range => new Range(
     nonNegative(loc.first_line - 1),
     nonNegative(loc.first_column),
     nonNegative(loc.last_line - 1),
     nonNegative(loc.last_column)
 );
 
-export const javaLoc2range = (loc: any, offset_string: string = ''): Range => new Range(
+export const javaLoc2Range = (loc: any, offset_string: string = ''): Range => new Range(
     loc.startLine - 1,
     loc.startColumn + offset_string.length - 1,
     loc.endLine - 1,

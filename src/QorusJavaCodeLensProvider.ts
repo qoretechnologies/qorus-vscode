@@ -3,7 +3,7 @@ import { CodeLens, TextDocument } from 'vscode';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusCodeLensProviderBase } from './QorusCodeLensProviderBase';
 import { QorusJavaParser }  from './QorusJavaParser';
-import { javaLoc2range } from './QoreTextDocument';
+import { javaLoc2Range } from './QoreTextDocument';
 
 export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
     protected async provideLanguageSpecificImpl(_document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
@@ -18,7 +18,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 return;
             }
 
-            this.addClassLenses(iface_kind, lenses, javaLoc2range(parsed_class.name.loc), data);
+            this.addClassLenses(iface_kind, lenses, javaLoc2Range(parsed_class.name.loc), data);
 
             if (!['service', 'mapper-code'].includes(iface_kind)) {
                 return;
@@ -30,7 +30,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                 }
 
                 this.addMethodLenses(
-                    iface_kind, lenses, javaLoc2range(method.name.loc), data,
+                    iface_kind, lenses, javaLoc2Range(method.name.loc), data,
                     method.name.identifier, parsed_class.name.identifier
                 );
             }

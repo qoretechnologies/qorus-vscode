@@ -3,7 +3,7 @@ import { CodeLens, TextDocument } from 'vscode';
 import { QorusCodeLensProviderBase } from './QorusCodeLensProviderBase';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusPythonParser }  from './QorusPythonParser';
-import { pythonNameRange, pythonLoc2range } from './QoreTextDocument';
+import { pythonNameRange, pythonLoc2Range } from './QoreTextDocument';
 
 export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
     protected async provideLanguageSpecificImpl(document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
@@ -17,7 +17,7 @@ export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
                 return;
             }
 
-            const class_range = pythonLoc2range(parsed_class.loc);
+            const class_range = pythonLoc2Range(parsed_class.loc);
             const class_name_range = pythonNameRange(
                 document.lineAt(class_range.start.line).text,
                 class_range,
@@ -38,7 +38,7 @@ export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
                     continue;
                 }
 
-                const method_range = pythonLoc2range(method.loc);
+                const method_range = pythonLoc2Range(method.loc);
                 const meth_name_range = pythonNameRange(
                     document.lineAt(method_range.start.line).text,
                     method_range,

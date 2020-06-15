@@ -2,7 +2,7 @@ import { CodeLens, TextDocument } from 'vscode';
 
 import { QorusCodeLensProviderBase } from './QorusCodeLensProviderBase';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
-import { QoreTextDocument, loc2range } from './QoreTextDocument';
+import { QoreTextDocument, qoreLoc2Range } from './QoreTextDocument';
 import { makeFileUri } from './qorus_utils';
 import { qore_vscode } from './qore_vscode';
 
@@ -27,7 +27,7 @@ export class QorusQoreCodeLensProvider extends QorusCodeLensProviderBase {
                     return;
                 }
 
-                this.addClassLenses(iface_kind, lenses, loc2range(symbol.name.loc), data);
+                this.addClassLenses(iface_kind, lenses, qoreLoc2Range(symbol.name.loc), data);
 
                 if (!['service', 'mapper-code'].includes(iface_kind)) {
                     return;
@@ -39,7 +39,7 @@ export class QorusQoreCodeLensProvider extends QorusCodeLensProviderBase {
                     }
 
                     const method_name = decl.name.name;
-                    const name_range = loc2range(decl.name.loc);
+                    const name_range = qoreLoc2Range(decl.name.loc);
                     this.addMethodLenses(iface_kind, lenses, name_range, data, method_name);
                 }
             });
