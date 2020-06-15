@@ -3,10 +3,10 @@ import { CodeLens, TextDocument } from 'vscode';
 import { QorusCodeLensProviderBase } from './QorusCodeLensProviderBase';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusPythonParser }  from './QorusPythonParser';
-import { findPythonClassNameRange, findPythonDefNameRange } from './QoreTextDocument';
+import { pythonNameRange, pythonLoc2range } from './QoreTextDocument';
 
 export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
-    protected async provideLanguageSpecificImpl(_document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
+    protected async provideLanguageSpecificImpl(document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
         await this.code_info.edit_info.setFileInfo(file_path, data);
         let lenses: CodeLens[] = [];
         data = this.code_info.fixData(data);
@@ -17,7 +17,13 @@ export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
                 return;
             }
 
-            const class_name_range = findPythonClassNameRange(_document, parsed_class.loc);
+            const class_range = pythonLoc2range(parsed_class.loc);
+            const class_name_range = pythonNameRange(
+                document.lineAt(class_range.start.line).text,
+                class_range,
+                data['class-name'],
+                'class'
+            );
             if (!class_name_range) {
                 return;
             }
@@ -32,7 +38,13 @@ export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
                     continue;
                 }
 
-                const meth_name_range = findPythonDefNameRange(_document, method.loc);
+                const method_range = pythonLoc2range(method.loc);
+                const meth_name_range = pythonNameRange(
+                    document.lineAt(method_range.start.line).text,
+                    method_range,
+                    method.name,
+                    'def'
+                );
                 if (!meth_name_range) {
                     continue;
                 }

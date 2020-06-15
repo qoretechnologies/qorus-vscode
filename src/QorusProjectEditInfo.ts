@@ -135,7 +135,7 @@ export class QorusProjectEditInfo {
     private addPythonClassInfo = (file: string, parsed_class: any, base_class_name?: string) => {
         const class_def_range: vscode.Range = pythonLoc2range(parsed_class.loc);
         const class_name_range: vscode.Range = pythonNameRange(
-            this.edit_info[file].text_lines,
+            this.edit_info[file].text_lines[class_def_range.start.line],
             class_def_range,
             parsed_class.name,
             'class'
@@ -774,7 +774,7 @@ export class QorusProjectEditInfo {
                     method.name,
                     method_range,
                     pythonNameRange(
-                        this.edit_info[file].text_lines,
+                        this.edit_info[file].text_lines[method_range.start.line],
                         method_range,
                         method.name,
                         'def'

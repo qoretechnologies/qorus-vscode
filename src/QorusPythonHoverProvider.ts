@@ -3,7 +3,7 @@ import { Hover, Position, TextDocument } from 'vscode';
 import { QorusHoverProviderBase } from './QorusHoverProviderBase';
 import { QorusProjectEditInfo }  from './QorusProjectEditInfo';
 import { QorusPythonParser }  from './QorusPythonParser';
-import { findPythonClassNameRange, findPythonDefNameRange } from './QoreTextDocument';
+import { pythonNameRange, pythonLoc2range } from './QoreTextDocument';
 
 
 export class QorusPythonHoverProvider extends QorusHoverProviderBase {
@@ -26,7 +26,13 @@ export class QorusPythonHoverProvider extends QorusHoverProviderBase {
                 return false;
             }
 
-            const range = findPythonClassNameRange(document, symbol.loc);
+            const class_range = pythonLoc2range(symbol.loc);
+            const range = pythonNameRange(
+                document.lineAt(class_range.start.line).text,
+                class_range,
+                yaml_info['class-name'],
+                'class'
+            );
             if (!range) {
                 return false;
             }
@@ -40,7 +46,13 @@ export class QorusPythonHoverProvider extends QorusHoverProviderBase {
                 return false;
             }
 
-            const range = findPythonDefNameRange(document, symbol.loc);
+            const method_range = pythonLoc2range(symbol.loc);
+            const range = pythonNameRange(
+                document.lineAt(method_range.start.line).text,
+                method_range,
+                symbol.name,
+                'def'
+            );
             if (!range) {
                 return false;
             }
