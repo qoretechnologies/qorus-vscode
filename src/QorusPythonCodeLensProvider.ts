@@ -1,9 +1,11 @@
 import { CodeLens, TextDocument } from 'vscode';
+import { t } from 'ttag';
 
 import { QorusCodeLensProviderBase } from './QorusCodeLensProviderBase';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QorusPythonParser }  from './QorusPythonParser';
 import { pythonNameRange, pythonLoc2Range } from './QoreTextDocument';
+import * as msg from './qorus_message';
 
 export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
     protected async provideLanguageSpecificImpl(document: TextDocument, file_path: string, iface_kind: string, data: any): Promise<CodeLens[]> {
@@ -11,7 +13,15 @@ export class QorusPythonCodeLensProvider extends QorusCodeLensProviderBase {
         let lenses: CodeLens[] = [];
         data = this.code_info.fixData(data);
 
-        const parsed_data: any = QorusPythonParser.parseFileNoExcept(file_path);
+        let parsed_data: any;
+        try {
+            parsed_data = QorusPythonParser.parseFile(file_path);
+        } catch (error) {
+            msg.error(t`ErrorParsingFile ${file_path}`);
+            msg.debug({error});
+            return [];
+        }
+
         parsed_data.classes.forEach(parsed_class => {
             if (!QorusProjectEditInfo.isPythonSymbolExpectedClass(parsed_class, data['class-name'])) {
                 return;

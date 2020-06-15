@@ -743,7 +743,14 @@ export class QorusProjectEditInfo {
             this.edit_info[file].is_constructor_empty = !other_constructor_lines.join('').match(/\S/);
         };
 
-        const parsed_data: any = QorusPythonParser.parseFileNoExcept(file);
+        let parsed_data: any;
+        try {
+            parsed_data = QorusPythonParser.parseFile(file);
+        } catch (error) {
+            msg.error(t`ErrorParsingFile ${file}`);
+            msg.debug({error});
+            return Promise.resolve();
+        }
 
         if (add_class_connections_info && class_connections) {
             addClassConnectionClass(parsed_data.classes);

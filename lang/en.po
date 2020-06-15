@@ -2207,3 +2207,6 @@ msgstr "Output type"
 
 msgid "OrigIfaceFileDoesNotExist ${ file }"
 msgstr "The original interface file ${ file } does not exist"
+
+msgid "ErrorParsingFile ${ file }"
+msgstr "Error in parsing file ${ file }"
