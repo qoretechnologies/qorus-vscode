@@ -171,7 +171,8 @@ export class ClassConnections {
 
         const connections_extra_class = `\n\n${GENERATED[this.lang].begin}\n` +
             this[`extraClassCode${capitalize(this.lang)}`](event_based_connections) + '\n' +
-            method_codes.join('\n') + '}\n' +
+            method_codes.join('\n') +
+            (this.lang === 'python' ? '' : '}\n') +
             `${GENERATED[this.lang].end}\n`;
 
         return {
@@ -216,14 +217,17 @@ export class ClassConnections {
 
     protected memberDeclAndInitAllCodePython = () =>
         `${indent1}def __init__(self):\n` +
-        `${indent2}${GENERATED.python.begin}\n` +
-        `${indent2}self.${CONN_MEMBER.python} = ${this.connClassName()}()\n` +
-        `${indent2}${GENERATED.python.end}\n`;
+        this.memberDeclAndInitCodePython();
 
     memberDeclAndInitCodeQore = () =>
         `${indent2}${GENERATED.qore.begin}\n` +
         `${indent2}${this.connClassName()} ${CONN_MEMBER.qore}();\n` +
         `${indent2}${GENERATED.qore.end}\n`;
+
+    memberDeclAndInitCodePython = () =>
+        `${indent2}${GENERATED.python.begin}\n` +
+        `${indent2}self.${CONN_MEMBER.python} = ${this.connClassName()}()\n` +
+        `${indent2}${GENERATED.python.end}\n`;
 
     memberDeclAndInitAllCodeJava = () =>
         this.memberDeclCodeJava() +

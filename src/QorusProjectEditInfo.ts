@@ -731,10 +731,10 @@ export class QorusProjectEditInfo {
                     if(line.indexOf(GENERATED_TEXT.begin) > -1) {
                         is_generated = true;
                     }
-                    if(line.indexOf(GENERATED_TEXT.end) > -1) {
+                    else if(line.indexOf(GENERATED_TEXT.end) > -1) {
                         is_generated = false;
                     }
-                    if (!is_generated) {
+                    else if (!is_generated) {
                         other_constructor_lines.push(line);
                     }
                 }

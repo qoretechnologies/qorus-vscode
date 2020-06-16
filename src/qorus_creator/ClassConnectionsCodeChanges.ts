@@ -35,9 +35,6 @@ export const classConnectionsCodeChanges = async (
     };
 
     const lang = data.lang || 'qore';
-    if (lang === 'python') {
-        return;
-    }
     const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
     const has_class_connections = Object.keys(data?.['class-connections'] || {}).length > 0;
 
@@ -190,11 +187,19 @@ const insertMemberDeclAndMaybeInit = (class_connections, edit_data, lang) => {
     let lines = [ ...text_lines ];
     let line_shift = 0;
 
-    const member_decl_code = lang === 'qore'
-        ? class_connections.memberDeclAndInitCodeQore()
-        : constructor_range !== undefined
-            ? class_connections.memberDeclCodeJava()
-            : class_connections.memberDeclAndInitAllCodeJava();
+    let member_decl_code: string;
+    switch (lang) {
+        case 'qore':
+            member_decl_code = class_connections.memberDeclAndInitCodeQore();
+            break;
+        case 'python':
+            member_decl_code = class_connections.memberDeclAndInitCodePython();
+            break;
+        case 'java':
+            member_decl_code = constructor_range !== undefined
+                ? class_connections.memberDeclCodeJava()
+                : class_connections.memberDeclAndInitAllCodeJava();
+    }
 
     let member_decl_code_lines = member_decl_code.split(/\r?\n/);
     member_decl_code_lines.pop();
@@ -222,7 +227,7 @@ const insertMemberDeclAndMaybeInit = (class_connections, edit_data, lang) => {
             target_line = last_base_class_range.end.line + 1;
         } else {
             for (let i = last_base_class_range.end.line; i < last_class_line; i++) {
-                if (lines[i].match(/^\s*\{/)) {
+                if (lines[i]?.match(/^\s*\{/)) {
                     if (lines[i].match(/^\s*\{\s*$/)) {
                         target_line = i;
                     } else {
@@ -324,7 +329,7 @@ const removeRange = (orig_lines, range) => {
         }
     } else {
         let line_a = orig_lines[range.start.line];
-        let line_b = orig_lines[range.end.line];
+        let line_b = orig_lines[range.end.line] || '';
         line_a = line_a.substr(0, range.start.character) || '';
         line_b = line_b.substr(range.end.character + 1) || '';
         [line_a, line_b].forEach(line => {

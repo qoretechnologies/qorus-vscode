@@ -76,7 +76,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
                 code_lines = this.file_edit_info.text_lines;
-                code_lines = this.addMethods(code_lines, method_renaming_map.added);
+                if (method_renaming_map.added.length) {
+                    code_lines = this.addMethods(code_lines, method_renaming_map.added);
+                }
                 code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
@@ -118,10 +120,12 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
-            classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
-        }
-        if (open_file_on_success) {
-            workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+            if (edit_type !== 'create') {
+                classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
+            }
+            if (open_file_on_success) {
+                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+            }
         }
 
         if (['create', 'edit'].includes(edit_type)) {

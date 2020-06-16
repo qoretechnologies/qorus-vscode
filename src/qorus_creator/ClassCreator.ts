@@ -178,7 +178,9 @@ class ClassCreator extends InterfaceCreator {
 
         if (this.has_code) {
             if (this.writeFiles(contents, headers)) {
-                classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data, iface_kind, imports);
+                if (edit_type !== 'create') {
+                    classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data, iface_kind, imports);
+                }
                 if (open_file_on_success) {
                     workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
                 }
