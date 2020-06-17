@@ -217,7 +217,7 @@ export abstract class InterfaceCreator {
     }
 
     protected checkExistingInterface = (params: any): any => {
-        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data, } = params;
+        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data } = params;
 
         if (!['create', 'edit'].includes(edit_type)) {
             return {ok: true};

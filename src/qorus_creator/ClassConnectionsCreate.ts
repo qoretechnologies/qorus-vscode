@@ -215,7 +215,7 @@ export class ClassConnectionsCreate {
         this.memberDeclAndInitCodeQore() +
         `${indent1}}\n`;
 
-    protected memberDeclAndInitAllCodePython = () =>
+    memberDeclAndInitAllCodePython = () =>
         `${indent1}def __init__(self):\n` +
         this.memberDeclAndInitCodePython();
 

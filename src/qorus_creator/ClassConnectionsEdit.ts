@@ -6,12 +6,13 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { simple_method_template } from './common_constants';
 import { triggers } from './standard_methods';
-import { sortRanges } from '../qorus_utils';
+import { sortRanges, capitalize } from '../qorus_utils';
 
 
 export class ClassConnectionsEdit {
     private file: string;
     private iface_kind: string;
+    private class_connections: ClassConnectionsCreate;
 
     doChanges = async (
         file,
@@ -76,8 +77,8 @@ export class ClassConnectionsEdit {
 
         // add new class connections code
         if (has_class_connections) {
-            const class_connections = new ClassConnectionsCreate({ ...data, iface_kind }, code_info, lang);
-            let { imports: cc_imports, triggers, trigger_code, connections_extra_class } = class_connections.code();
+            this.class_connections = new ClassConnectionsCreate({ ...data, iface_kind }, code_info, lang);
+            let { imports: cc_imports, triggers, trigger_code, connections_extra_class } = this.class_connections.code();
             more_imports = cc_imports;
             trigger_names = triggers;
 
@@ -89,9 +90,9 @@ export class ClassConnectionsEdit {
             edit_data = await setFileInfo(data);
 
             let line_shift;
-            ({ lines, line_shift } = this.insertMemberDeclAndMaybeInit(class_connections, edit_data, lang));
+            ({ lines, line_shift } = this[`insertMemberDeclaration${capitalize(lang)}`](edit_data, lang));
             if (lang === 'java' && edit_data.constructor_range) {
-                ({ lines, line_shift } = this.insertMemberInitJava(class_connections, edit_data, lines, line_shift));
+                ({ lines, line_shift } = this.insertMemberInitJava(edit_data, lines, line_shift));
             }
             lines = this.insertTriggerCode(trigger_code, edit_data, lines, line_shift);
             let extra_class_code_lines = connections_extra_class.split(/\r?\n/);
@@ -135,10 +136,10 @@ export class ClassConnectionsEdit {
         } else {
             let methods_to_add = [];
             (method_names || []).forEach(method_name => {
-                    if (!trigger_names?.includes(method_name)) {
+                if (!trigger_names?.includes(method_name)) {
                     methods_to_add.push(method_name);
-                    }
-                    });
+                }
+            });
             if (methods_to_add?.length) {
                 edit_data = await setFileInfo(mixed_data);
                 lines = this.addMethods(methods_to_add, edit_data, lang);
@@ -159,10 +160,10 @@ export class ClassConnectionsEdit {
         }
     }
 
-    private insertMemberInitJava = (class_connections, edit_data, lines, line_shift) => {
+    private insertMemberInitJava = (edit_data, lines, line_shift) => {
         const { constructor_range } = edit_data;
 
-        const member_initialization_code_lines = class_connections.memberInitCodeJava().split(/\r?\n/);
+        const member_initialization_code_lines = this.class_connections.memberInitCodeJava().split(/\r?\n/);
         member_initialization_code_lines.pop();
 
         const constructor_end_line = constructor_range.end.line;
@@ -182,33 +183,17 @@ export class ClassConnectionsEdit {
         return { lines, line_shift };
     }
 
-    private insertMemberDeclAndMaybeInit = (class_connections, edit_data, lang) => {
+    protected insertMemberDeclarationQore = edit_data => {
         const {
             text_lines,
             private_member_block_range,
             last_class_line,
             last_base_class_range,
-            constructor_range
         } = edit_data;
         let lines = [ ...text_lines ];
         let line_shift = 0;
 
-        let member_decl_code: string;
-        switch (lang) {
-            case 'qore':
-                member_decl_code = class_connections.memberDeclAndInitCodeQore();
-                break;
-            case 'python':
-                member_decl_code = constructor_range !== undefined
-                    ? class_connections.memberDeclAndInitCodePython()
-                    : class_connections.memberDeclAndInitAllCodePython();
-                break;
-            case 'java':
-                member_decl_code = constructor_range !== undefined
-                    ? class_connections.memberDeclCodeJava()
-                    : class_connections.memberDeclAndInitAllCodeJava();
-        }
-
+        const member_decl_code: string = this.class_connections.memberDeclAndInitCodeQore();
         let member_decl_code_lines = member_decl_code.split(/\r?\n/);
         member_decl_code_lines.pop();
 
@@ -227,7 +212,7 @@ export class ClassConnectionsEdit {
             lines.splice(private_member_block_end_line + line_shift, 0, ...member_decl_code_lines);
             line_shift += member_decl_code_lines.length;
         } else {
-            let target_line; // line after which to insert the private member block
+            let target_line: number; // line where to insert the private member block
             // make sure that there is nothing after the opening '{' of the main class
             const class_decl_line_rest = lines[last_base_class_range.end.line].substr(last_base_class_range.end.character);
             // find the line with the '{'
@@ -251,16 +236,87 @@ export class ClassConnectionsEdit {
                 }
             }
 
-            if (lang === 'qore') {
-                lines.splice(target_line, 0, `${indent}private {`, `${indent}}` , '');
-                line_shift += 3;
-            } else {
-                target_line--;
-            }
+            lines.splice(target_line, 0, `${indent}private {`, `${indent}}` , '');
+            line_shift += 3;
 
             lines.splice(target_line + 1, 0, ...member_decl_code_lines);
             line_shift += member_decl_code_lines.length;
         }
+
+        return { lines, line_shift };
+    }
+
+    protected insertMemberDeclarationPython = edit_data => {
+        const {
+            text_lines,
+            constructor_range,
+            class_def_range,
+        } = edit_data;
+
+        let lines = [ ...text_lines ];
+        let member_decl_code: string;
+        let target_line: number; // line after which to insert the member_decl_code
+
+        if (constructor_range) {
+            member_decl_code = this.class_connections.memberDeclAndInitCodePython();
+            target_line = constructor_range.start.line;
+        } else {
+            member_decl_code = this.class_connections.memberDeclAndInitAllCodePython() + '\n';
+            target_line = class_def_range.start.line;
+        }
+
+        let member_decl_code_lines = member_decl_code.split(/\r?\n/);
+        member_decl_code_lines.pop();
+
+        lines.splice(target_line + 1, 0, ...member_decl_code_lines);
+        const line_shift = member_decl_code_lines.length;
+
+        return { lines, line_shift };
+    }
+
+    protected insertMemberDeclarationJava = edit_data => {
+        const {
+            text_lines,
+            last_class_line,
+            last_base_class_range,
+            constructor_range
+        } = edit_data;
+        let lines = [ ...text_lines ];
+        let line_shift = 0;
+
+        const member_decl_code: string = constructor_range !== undefined
+            ? this.class_connections.memberDeclCodeJava()
+            : this.class_connections.memberDeclAndInitAllCodeJava();
+
+        let member_decl_code_lines = member_decl_code.split(/\r?\n/);
+        member_decl_code_lines.pop();
+
+        let target_line: number; // line where to insert the member_decl_code
+        // make sure that there is nothing after the opening '{' of the main class
+        const class_decl_line_rest = lines[last_base_class_range.end.line].substr(last_base_class_range.end.character);
+        // find the line with the '{'
+        if (class_decl_line_rest.match(/^\s*\{\s*$/)) {
+            target_line = last_base_class_range.end.line + 1;
+        } else {
+            for (let i = last_base_class_range.end.line; i < last_class_line; i++) {
+                if (lines[i]?.match(/^\s*\{/)) {
+                    if (lines[i].match(/^\s*\{\s*$/)) {
+                        target_line = i;
+                    } else {
+                        const pos = lines[i].indexOf('{');
+                        const extra_line = ' '.repeat(pos + 1) + lines[i].substr(pos + 1);
+                        lines[i] = lines[i].substr(0, pos + 1);
+                        lines.splice(i, 0, extra_line);
+                        target_line = i + 1;
+                        line_shift++;
+                    }
+                    break;
+                }
+            }
+        }
+
+        lines.splice(target_line, 0, ...member_decl_code_lines);
+        line_shift += member_decl_code_lines.length;
 
         return { lines, line_shift };
     }
