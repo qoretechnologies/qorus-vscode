@@ -193,7 +193,9 @@ const insertMemberDeclAndMaybeInit = (class_connections, edit_data, lang) => {
             member_decl_code = class_connections.memberDeclAndInitCodeQore();
             break;
         case 'python':
-            member_decl_code = class_connections.memberDeclAndInitCodePython();
+            member_decl_code = constructor_range !== undefined
+                ? class_connections.memberDeclAndInitCodePython()
+                : class_connections.memberDeclAndInitAllCodePython();
             break;
         case 'java':
             member_decl_code = constructor_range !== undefined
