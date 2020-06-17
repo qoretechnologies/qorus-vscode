@@ -8,8 +8,8 @@ import { job_imports } from './job_constants';
 import { workflow_imports } from './workflow_constants';
 import { step_imports } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
-import { ClassConnections } from './ClassConnections';
-import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
+import { ClassConnectionsCreate } from './ClassConnectionsCreate';
+import { ClassConnectionsEdit } from './ClassConnectionsEdit';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -80,7 +80,7 @@ class ClassCreator extends InterfaceCreator {
         if (Object.keys(data['class-connections'] || {}).length) {
             ClassCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
-                  = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());
+                  = new ClassConnectionsCreate({...data, iface_kind}, this.code_info, this.lang).code());
         }
 
         let methods = '';
@@ -179,7 +179,7 @@ class ClassCreator extends InterfaceCreator {
         if (this.has_code) {
             if (this.writeFiles(contents, headers)) {
                 if (edit_type !== 'create') {
-                    classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data, iface_kind, imports);
+                    new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, imports);
                 }
                 if (open_file_on_success) {
                     workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));

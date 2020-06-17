@@ -45,7 +45,7 @@ const hasReturn = trigger => trigger.is_nonstandard_service || isValidation(trig
 
 // =================================================================
 
-export class ClassConnections {
+export class ClassConnectionsCreate {
     private connections: any;
     private class_name: string;
     private base_class_name: string;
