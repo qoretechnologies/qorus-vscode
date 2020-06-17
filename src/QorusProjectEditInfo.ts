@@ -8,7 +8,7 @@ import { qoreLoc2Range, pythonLoc2Range, javaLoc2Range,
          pythonNameRange, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
 import { qore_vscode } from './qore_vscode';
 import * as msg from './qorus_message';
-import { CONN_CALL_METHOD, GENERATED_TEXT } from './qorus_creator/ClassConnections';
+import { CONN_CALL_METHOD, GENERATED_TEXT } from './qorus_creator/ClassConnectionsCreate';
 
 export class QorusProjectEditInfo {
     private edit_info: any = {};

@@ -5,8 +5,8 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { service_imports } from './service_constants';
 import { mapper_code_method_template } from './mapper_constants';
 import { classTemplate, simple_method_template } from './common_constants';
-import { ClassConnections } from './ClassConnections';
-import { classConnectionsCodeChanges } from './ClassConnectionsCodeChanges';
+import { ClassConnectionsCreate } from './ClassConnectionsCreate';
+import { ClassConnectionsEdit } from './ClassConnectionsEdit';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
@@ -121,7 +121,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
             if (edit_type !== 'create') {
-                classConnectionsCodeChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
+                new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
             }
             if (open_file_on_success) {
                 workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
@@ -292,7 +292,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         if (Object.keys(data['class-connections'] || {}).length) {
             ClassWithMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports = []}
-                 = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());
+                 = new ClassConnectionsCreate({...data, iface_kind}, this.code_info, this.lang).code());
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
             both_connections_and_methods = !!method_objects.length;
         }

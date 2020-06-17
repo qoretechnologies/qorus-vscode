@@ -45,7 +45,7 @@ const hasReturn = trigger => trigger.is_nonstandard_service || isValidation(trig
 
 // =================================================================
 
-export class ClassConnections {
+export class ClassConnectionsCreate {
     private connections: any;
     private class_name: string;
     private base_class_name: string;
@@ -215,7 +215,7 @@ export class ClassConnections {
         this.memberDeclAndInitCodeQore() +
         `${indent1}}\n`;
 
-    protected memberDeclAndInitAllCodePython = () =>
+    memberDeclAndInitAllCodePython = () =>
         `${indent1}def __init__(self):\n` +
         this.memberDeclAndInitCodePython();
 
