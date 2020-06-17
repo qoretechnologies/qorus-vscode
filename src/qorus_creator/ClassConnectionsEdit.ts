@@ -33,27 +33,23 @@ export class ClassConnectionsEdit {
 
         const data = {
             ...new_data,
-            iface_kind
-        };
-
-        const mixed_data = {
-            ...data,
-            'class-connections': orig_data?.['class-connections']
+            iface_kind,
+            'orig-class-connections': orig_data?.['class-connections']
         };
 
         const lang = data.lang || 'qore';
         const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
         const has_class_connections = Object.keys(data?.['class-connections'] || {}).length > 0;
 
-        const setFileInfo = async (params, add_class_connections_info = false) => {
-            return await edit_info.setFileInfo(file, params, add_class_connections_info);
+        const setFileInfo = async (add_class_connections_info = false) => {
+            return await edit_info.setFileInfo(file, add_class_connections_info);
         };
 
         const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
         // remove original class connections code
         if (had_class_connections) {
-            edit_data = await setFileInfo(mixed_data, true);
+            edit_data = await setFileInfo(true);
             if (iface_kind === 'step') {
                 trigger_names = triggers(code_info, {iface_kind, 'base-class-name': orig_data['base-class-name']});
             }
@@ -67,7 +63,7 @@ export class ClassConnectionsEdit {
                 ({ class_connections_trigger_names: method_names } = edit_data);
             }
 
-            edit_data = await setFileInfo(data);
+            edit_data = await setFileInfo();
             if (edit_data.is_private_member_block_empty) {
                 lines = this.deleteEmptyPrivateMemberBlock(edit_data);
                 lines = this.cleanup(lines);
@@ -82,12 +78,12 @@ export class ClassConnectionsEdit {
             more_imports = cc_imports;
             trigger_names = triggers;
 
-            edit_data = await setFileInfo(data);
+            edit_data = await setFileInfo();
             lines = this.removeMethods(trigger_names, edit_data);
             lines = this.cleanup(lines);
             writeFile(lines);
 
-            edit_data = await setFileInfo(data);
+            edit_data = await setFileInfo();
 
             let line_shift;
             ({ lines, line_shift } = this[`insertMemberDeclaration${capitalize(lang)}`](edit_data, lang));
@@ -104,7 +100,7 @@ export class ClassConnectionsEdit {
         }
 
         if (iface_kind === 'step' && !has_class_connections) {
-            edit_data = await setFileInfo(data);
+            edit_data = await setFileInfo();
             let { text_lines: lines, class_def_range } = edit_data;
             const mandatory_step_methods = InterfaceCreator.mandatoryStepMethodsCode(
                 code_info,
@@ -141,7 +137,7 @@ export class ClassConnectionsEdit {
                 }
             });
             if (methods_to_add?.length) {
-                edit_data = await setFileInfo(mixed_data);
+                edit_data = await setFileInfo();
                 lines = this.addMethods(methods_to_add, edit_data, lang);
                 lines = this.cleanup(lines);
                 writeFile(lines);
@@ -153,7 +149,7 @@ export class ClassConnectionsEdit {
             writeFile(lines);
         }
 
-        edit_data = await setFileInfo(data);
+        edit_data = await setFileInfo();
         lines = this.possiblyRemoveFirstEmptyLine(edit_data);
         if (lines) {
             writeFile(lines);

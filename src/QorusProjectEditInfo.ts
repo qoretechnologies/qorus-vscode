@@ -378,7 +378,8 @@ export class QorusProjectEditInfo {
             iface_kind = data.type,
             'class-name': class_name,
             'base-class-name': base_class_name,
-            'class-connections': class_connections
+            'class-connections': class_connections,
+            'orig-class-connections': orig_class_connections
         } = data;
 
         if (!iface_kind) {
@@ -387,7 +388,7 @@ export class QorusProjectEditInfo {
 
         let expected_trigger_names = [];
         Object.keys(class_connections || {}).forEach(connection => {
-            class_connections[connection].forEach(connector => {
+            orig_class_connections[connection].forEach(connector => {
                 if (connector.trigger) {
                     expected_trigger_names.push(connector.trigger);
                 }
@@ -643,7 +644,8 @@ export class QorusProjectEditInfo {
             iface_kind = data.type,
             'class-name': class_name,
             'base-class-name': base_class_name,
-            'class-connections': class_connections
+            'class-connections': class_connections,
+            'orig-class-connections': orig_class_connections
         } = data;
 
         if (!iface_kind) {
@@ -651,7 +653,7 @@ export class QorusProjectEditInfo {
         }
 
         let expected_trigger_names = [];
-        Object.keys(class_connections || {}).forEach(connection => {
+        Object.keys(orig_class_connections || {}).forEach(connection => {
             class_connections[connection].forEach(connector => {
                 if (connector.trigger) {
                     expected_trigger_names.push(connector.trigger);
