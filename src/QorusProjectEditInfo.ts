@@ -232,19 +232,19 @@ export class QorusProjectEditInfo {
         }
     }
 
-    setFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
+    setFileInfo(file: string, data: any): Promise<any> {
         if (!existsSync(file)) {
             return Promise.reject(t`OrigIfaceFileDoesNotExist ${file}`);
         }
 
         switch (data.lang || 'qore') {
-            case 'python': return this.setPythonFileInfo(file, data, true);
-            case 'java': return this.setJavaFileInfo(file, data, true);
-            default: return this.setQoreFileInfo(file, data, add_class_connections_info);
+            case 'python': return this.setPythonFileInfo(file, data);
+            case 'java': return this.setJavaFileInfo(file, data);
+            default: return this.setQoreFileInfo(file, data);
         }
     }
 
-    private setQoreFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
+    private setQoreFileInfo(file: string, data: any): Promise<any> {
         this.edit_info[file] = undefined;
 
         const {
@@ -339,7 +339,7 @@ export class QorusProjectEditInfo {
         };
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-            if (add_class_connections_info && class_connections) {
+            if (class_connections) {
                 addClassConnectionClass(symbols);
             }
             symbols.forEach(symbol => {
@@ -350,7 +350,7 @@ export class QorusProjectEditInfo {
                 this.addQoreClassInfo(file, symbol, base_class_name);
 
                 for (const decl of symbol.declarations || []) {
-                    if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
+                    if (this.edit_info[file].class_connections_class_name) {
                         maybeAddClassConnectionMemberDeclaration(decl);
                         maybeAddTriggerStatements(decl);
                     } else {
@@ -371,7 +371,7 @@ export class QorusProjectEditInfo {
         });
     }
 
-    private setJavaFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
+    private setJavaFileInfo(file: string, data: any): Promise<any> {
         this.edit_info[file] = undefined;
 
         const {
@@ -595,7 +595,7 @@ export class QorusProjectEditInfo {
 
         const parsed_data: any = QorusJavaParser.parseFileNoExcept(file);
 
-        if (add_class_connections_info && class_connections) {
+        if (class_connections) {
             addClassConnectionClass(parsed_data.classes);
         }
 
@@ -606,7 +606,7 @@ export class QorusProjectEditInfo {
 
             this.addJavaClassInfo(file, parsed_class, base_class_name);
 
-            if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
+            if (this.edit_info[file].class_connections_class_name) {
                 for (const decl of parsed_class.body.fieldDecls || []) {
                     maybeAddClassConnectionMemberDeclaration(decl);
                 }
@@ -617,7 +617,7 @@ export class QorusProjectEditInfo {
                     continue;
                 }
 
-                if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
+                if (this.edit_info[file].class_connections_class_name) {
                     maybeAddTriggerStatements(method);
                 }
 
@@ -637,7 +637,7 @@ export class QorusProjectEditInfo {
         return Promise.resolve(this.edit_info[file]);
     }
 
-    private setPythonFileInfo(file: string, data: any, add_class_connections_info: boolean = false): Promise<any> {
+    private setPythonFileInfo(file: string, data: any): Promise<any> {
         this.edit_info[file] = undefined;
 
         const {
@@ -754,7 +754,7 @@ export class QorusProjectEditInfo {
             return Promise.resolve();
         }
 
-        if (add_class_connections_info && class_connections) {
+        if (class_connections) {
             addClassConnectionClass(parsed_data.classes);
         }
 
@@ -773,7 +773,7 @@ export class QorusProjectEditInfo {
                     continue;
                 }
 
-                if (add_class_connections_info && this.edit_info[file].class_connections_class_name) {
+                if (this.edit_info[file].class_connections_class_name) {
                     maybeAddTriggerStatements(method);
                 }
 

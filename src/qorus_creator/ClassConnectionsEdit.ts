@@ -38,18 +38,18 @@ export class ClassConnectionsEdit {
         };
 
         const lang = data.lang || 'qore';
-        const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
-        const has_class_connections = Object.keys(data?.['class-connections'] || {}).length > 0;
+        const had_class_connections = Object.keys(data['orig-class-connections'] || {}).length > 0;
+        const has_class_connections = Object.keys(data['class-connections'] || {}).length > 0;
 
-        const setFileInfo = async (add_class_connections_info = false) => {
-            return await edit_info.setFileInfo(file, add_class_connections_info);
+        const setFileInfo = async () => {
+            return await edit_info.setFileInfo(file, data);
         };
 
         const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
         // remove original class connections code
         if (had_class_connections) {
-            edit_data = await setFileInfo(true);
+            edit_data = await setFileInfo();
             if (iface_kind === 'step') {
                 trigger_names = triggers(code_info, {iface_kind, 'base-class-name': orig_data['base-class-name']});
             }
@@ -73,7 +73,7 @@ export class ClassConnectionsEdit {
 
         // add new class connections code
         if (has_class_connections) {
-            this.class_connections = new ClassConnectionsCreate({ ...data, iface_kind }, code_info, lang);
+            this.class_connections = new ClassConnectionsCreate({ ...data }, code_info, lang);
             let { imports: cc_imports, triggers, trigger_code, connections_extra_class } = this.class_connections.code();
             more_imports = cc_imports;
             trigger_names = triggers;
