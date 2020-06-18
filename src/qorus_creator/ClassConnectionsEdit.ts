@@ -11,35 +11,37 @@ import { sortRanges, capitalize } from '../qorus_utils';
 
 export class ClassConnectionsEdit {
     private file: string;
+    private lang: string;
     private iface_kind: string;
     private class_connections: ClassConnectionsCreate;
 
     doChanges = async (
-        file,
+        file: string,
         code_info: QorusProjectCodeInfo,
-        new_data,
-        orig_data,
-        iface_kind,
-        imports) =>
+        new_data: any,
+        orig_data: any,
+        iface_kind: string,
+        imports: string[]) =>
     {
         Object.assign(this, {file, iface_kind});
 
         const edit_info: QorusProjectEditInfo = code_info.edit_info;
-        let edit_data;
-        let lines;
-        let method_names;
-        let trigger_names;
-        let more_imports = [];
+        let edit_data: any;
+        let lines: string[];
+        let method_names: string[];
+        let trigger_names: string[];
+        let more_imports: string[] = [];
+
+        const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
+        const has_class_connections = Object.keys(new_data?.['class-connections'] || {}).length > 0;
 
         const data = {
             ...new_data,
             iface_kind,
-            'orig-class-connections': orig_data?.['class-connections']
+            'class-connections': orig_data?.['class-connections']
         };
 
-        const lang = data.lang || 'qore';
-        const had_class_connections = Object.keys(data['orig-class-connections'] || {}).length > 0;
-        const has_class_connections = Object.keys(data['class-connections'] || {}).length > 0;
+        this.lang = data.lang || 'qore';
 
         const setFileInfo = async () => {
             return await edit_info.setFileInfo(file, data);
@@ -73,7 +75,7 @@ export class ClassConnectionsEdit {
 
         // add new class connections code
         if (has_class_connections) {
-            this.class_connections = new ClassConnectionsCreate({ ...data }, code_info, lang);
+            this.class_connections = new ClassConnectionsCreate({ ...data }, code_info, this.lang);
             let { imports: cc_imports, triggers, trigger_code, connections_extra_class } = this.class_connections.code();
             more_imports = cc_imports;
             trigger_names = triggers;
@@ -86,8 +88,8 @@ export class ClassConnectionsEdit {
             edit_data = await setFileInfo();
 
             let line_shift;
-            ({ lines, line_shift } = this[`insertMemberDeclaration${capitalize(lang)}`](edit_data, lang));
-            if (lang === 'java' && edit_data.constructor_range) {
+            ({ lines, line_shift } = this[`insertMemberDeclaration${capitalize(this.lang)}`](edit_data));
+            if (this.lang === 'java' && edit_data.constructor_range) {
                 ({ lines, line_shift } = this.insertMemberInitJava(edit_data, lines, line_shift));
             }
             lines = this.insertTriggerCode(trigger_code, edit_data, lines, line_shift);
@@ -105,12 +107,12 @@ export class ClassConnectionsEdit {
             const mandatory_step_methods = InterfaceCreator.mandatoryStepMethodsCode(
                 code_info,
                 data['base-class-name'],
-                lang
+                this.lang
             );
 
             const end = class_def_range.end;
             const lines_before = lines.splice(0, end.line);
-            const line = lines.splice(0, 1)[0];
+            const line = lines.splice(0, 1)[0] || '';
             const line_before = line.substr(0, end.character - 1);
             const line_after = line.substr(end.character - 1);
             const lines_after = lines;
@@ -138,13 +140,13 @@ export class ClassConnectionsEdit {
             });
             if (methods_to_add?.length) {
                 edit_data = await setFileInfo();
-                lines = this.addMethods(methods_to_add, edit_data, lang);
+                lines = this.addMethods(methods_to_add, edit_data);
                 lines = this.cleanup(lines);
                 writeFile(lines);
             }
         }
 
-        if (lang === 'java') {
+        if (this.lang === 'java') {
             lines = this.fixJavaImports([ ...imports, ...more_imports ]);
             writeFile(lines);
         }
@@ -153,6 +155,15 @@ export class ClassConnectionsEdit {
         lines = this.possiblyRemoveFirstEmptyLine(edit_data);
         if (lines) {
             writeFile(lines);
+        }
+
+        if (this.lang === 'python' && !edit_data.is_class_empty) {
+            edit_data = await setFileInfo();
+            lines = this.possiblyRemoveUselessPass(edit_data);
+            if (lines) {
+                lines = this.cleanup(lines);
+                writeFile(lines);
+            }
         }
     }
 
@@ -334,6 +345,7 @@ export class ClassConnectionsEdit {
     private removeClassConnectionsCode = (edit_data, trigger_names) => {
         const {
             text_lines,
+            class_def_range,
             class_connections_class_range,
             class_connections_member_declaration_range,
             class_connections_member_initialization_range,
@@ -343,15 +355,19 @@ export class ClassConnectionsEdit {
             is_constructor_empty,
         } = edit_data;
 
-        let ranges = [
-            class_connections_class_range,
-            class_connections_member_declaration_range,
-            class_connections_member_initialization_range
-        ].filter(range => range !== undefined);
+        let ranges = [class_connections_class_range];
 
         if (is_constructor_empty) {
             ranges.push(constructor_range);
+        } else if (this.lang !== 'java') {
+            ranges.push(class_connections_member_initialization_range);
         }
+
+        if (this.lang !== 'python' || !is_constructor_empty) {
+            ranges.push(class_connections_member_declaration_range);
+        }
+
+        ranges = ranges.filter(range => range !== undefined);
 
         if (this.iface_kind === 'step' && trigger_names) {
             Object.keys(method_decl_ranges).forEach(method_name => {
@@ -363,7 +379,11 @@ export class ClassConnectionsEdit {
             ranges = [ ...ranges, ... class_connections_trigger_ranges || [] ];
         }
 
-        return this.removeRanges([...text_lines], ranges);
+        let lines = this.removeRanges([...text_lines], ranges);
+        if (this.lang) {
+            lines.splice(class_def_range.start.line + 1, 0, `${indent}pass`);
+        }
+        return lines;
     }
 
     private removeRanges = (lines, ranges) => {
@@ -388,10 +408,12 @@ export class ClassConnectionsEdit {
                 lines.push(line);
             }
         } else {
-            let line_a = orig_lines[range.start.line];
+            let line_a = orig_lines[range.start.line] || '';
             let line_b = orig_lines[range.end.line] || '';
-            line_a = line_a.substr(0, range.start.character) || '';
-            line_b = line_b.substr(range.end.character + 1) || '';
+            line_a = line_a.substr(0, range.start.character);
+            if (line_b) {
+                line_b = ' '.repeat(range.end.character + 1) + line_b.substr(range.end.character + 1);
+            }
             [line_a, line_b].forEach(line => {
                 if (line.match(/\S/)) {
                     lines.push(line);
@@ -405,15 +427,15 @@ export class ClassConnectionsEdit {
         return lines;
     }
 
-    private addMethods = (method_names, edit_data, lang) => {
+    private addMethods = (method_names, edit_data) => {
         const { text_lines, class_def_range } = edit_data;
 
         const lines = InterfaceCreator.addClassMethods(
             [ ... text_lines ],
             method_names,
             class_def_range,
-            simple_method_template[lang],
-            lang
+            simple_method_template[this.lang],
+            this.lang
         );
 
         return lines;
@@ -545,7 +567,7 @@ export class ClassConnectionsEdit {
             first_line = last_base_class_range.end.line + 1;
         } else {
             for (let i = last_base_class_range.end.line; i < last_class_line; i++) {
-                if (lines[i].match(/^\s*\{/)) {
+                if (lines[i]?.match(/^\s*\{/)) {
                     if (lines[i].match(/^\s*\{\s*$/)) {
                         first_line = i + 1;
                     } else {
@@ -563,6 +585,17 @@ export class ClassConnectionsEdit {
         if (first_line && lines[first_line] == '') {
             lines.splice(first_line, 1);
             return lines;
+        }
+        return undefined;
+    }
+
+    private possiblyRemoveUselessPass = edit_data => {
+        const { text_lines: lines, class_def_range } = edit_data;
+        for (let i = class_def_range.start.line + 1; i < class_def_range.end.line; i++) {
+            if (lines[i].match(/^\s*pass\s*$/)) {
+                lines.splice(i, 1);
+                return lines;
+            }
         }
         return undefined;
     }

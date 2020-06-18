@@ -141,6 +141,10 @@ export class QorusProjectEditInfo {
             'class'
         );
 
+        if (!parsed_class.body?.methods?.length && !parsed_class.body?.assignments?.length) {
+            this.edit_info[file].is_class_empty = true;
+        }
+
         const num_inherited = (parsed_class.extends || []).length;
         const base_class_names = (parsed_class.extends || []).map(inherited => inherited.name);
 
@@ -378,8 +382,7 @@ export class QorusProjectEditInfo {
             iface_kind = data.type,
             'class-name': class_name,
             'base-class-name': base_class_name,
-            'class-connections': class_connections,
-            'orig-class-connections': orig_class_connections
+            'class-connections': class_connections
         } = data;
 
         if (!iface_kind) {
@@ -388,7 +391,7 @@ export class QorusProjectEditInfo {
 
         let expected_trigger_names = [];
         Object.keys(class_connections || {}).forEach(connection => {
-            orig_class_connections[connection].forEach(connector => {
+            class_connections[connection].forEach(connector => {
                 if (connector.trigger) {
                     expected_trigger_names.push(connector.trigger);
                 }
@@ -644,8 +647,7 @@ export class QorusProjectEditInfo {
             iface_kind = data.type,
             'class-name': class_name,
             'base-class-name': base_class_name,
-            'class-connections': class_connections,
-            'orig-class-connections': orig_class_connections
+            'class-connections': class_connections
         } = data;
 
         if (!iface_kind) {
@@ -653,7 +655,7 @@ export class QorusProjectEditInfo {
         }
 
         let expected_trigger_names = [];
-        Object.keys(orig_class_connections || {}).forEach(connection => {
+        Object.keys(class_connections || {}).forEach(connection => {
             class_connections[connection].forEach(connector => {
                 if (connector.trigger) {
                     expected_trigger_names.push(connector.trigger);

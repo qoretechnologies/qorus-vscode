@@ -24,6 +24,7 @@ export const qoreTextDocument = (file: string): QoreTextDocument => {
 };
 
 const nonNegative = value => value < 0 ? 0 : value;
+
 export const qoreLoc2Range = (loc: any, offset_string: string = ''): Range => new Range(
     nonNegative(loc.start_line - 1),
     nonNegative(loc.start_column + offset_string.length - 1),
@@ -35,7 +36,7 @@ export const pythonLoc2Range = (loc: any): Range => new Range(
     nonNegative(loc.first_line - 1),
     nonNegative(loc.first_column),
     nonNegative(loc.last_line - 1),
-    nonNegative(loc.last_column)
+    nonNegative(loc.last_column - 1)
 );
 
 export const javaLoc2Range = (loc: any, offset_string: string = ''): Range => new Range(
