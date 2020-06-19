@@ -37,21 +37,25 @@ export class ClassConnectionsEdit {
 
         const data = {
             ...new_data,
-            iface_kind,
+            iface_kind
+        };
+
+        const mixed_data = {
+            ...data,
             'class-connections': orig_data?.['class-connections']
         };
 
         this.lang = data.lang || 'qore';
 
-        const setFileInfo = async () => {
-            return await edit_info.setFileInfo(file, data);
+        const setFileInfo = async (params = data) => {
+            return await edit_info.setFileInfo(file, params);
         };
 
         const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
 
         // remove original class connections code
         if (had_class_connections) {
-            edit_data = await setFileInfo();
+            edit_data = await setFileInfo(mixed_data);
             if (iface_kind === 'step') {
                 trigger_names = triggers(code_info, {iface_kind, 'base-class-name': orig_data['base-class-name']});
             }
@@ -123,6 +127,12 @@ export class ClassConnectionsEdit {
                 new_code_lines.pop();
             }
 
+            if (lines_before.length && lines_before[lines_before.length - 1] !== '' &&
+                new_code_lines.length && new_code_lines[0] !== '')
+            {
+                new_code_lines.unshift('');
+            }
+
             lines = [
                 ...lines_before,
                 ...new_code_lines,
@@ -139,7 +149,7 @@ export class ClassConnectionsEdit {
                 }
             });
             if (methods_to_add?.length) {
-                edit_data = await setFileInfo();
+                edit_data = await setFileInfo(mixed_data);
                 lines = this.addMethods(methods_to_add, edit_data);
                 lines = this.cleanup(lines);
                 writeFile(lines);
@@ -152,18 +162,18 @@ export class ClassConnectionsEdit {
         }
 
         edit_data = await setFileInfo();
-        lines = this.possiblyRemoveFirstEmptyLine(edit_data);
-        if (lines) {
-            writeFile(lines);
-        }
-
         if (this.lang === 'python' && !edit_data.is_class_empty) {
-            edit_data = await setFileInfo();
             lines = this.possiblyRemoveUselessPass(edit_data);
             if (lines) {
                 lines = this.cleanup(lines);
                 writeFile(lines);
+                edit_data = await setFileInfo();
             }
+        }
+
+        lines = this.possiblyRemoveFirstEmptyLine(edit_data);
+        if (lines) {
+            writeFile(lines);
         }
     }
 
@@ -380,7 +390,7 @@ export class ClassConnectionsEdit {
         }
 
         let lines = this.removeRanges([...text_lines], ranges);
-        if (this.lang) {
+        if (this.lang === 'python') {
             lines.splice(class_def_range.start.line + 1, 0, `${indent}pass`);
         }
         return lines;
@@ -442,13 +452,17 @@ export class ClassConnectionsEdit {
     }
 
     private removeMethods = (method_names, edit_data) => {
-        const { text_lines, method_decl_ranges } = edit_data;
+        const { text_lines, class_def_range, method_decl_ranges } = edit_data;
 
         const lines = InterfaceCreator.removeClassMethods(
             [ ... text_lines ],
             method_names,
             method_decl_ranges
         );
+
+        if (this.lang === 'python') {
+            lines.splice(class_def_range.start.line + 1, 0, `${indent}pass`);
+        }
 
         return lines;
     }
@@ -557,27 +571,35 @@ export class ClassConnectionsEdit {
     }
 
     private possiblyRemoveFirstEmptyLine = edit_data => {
-        const { text_lines: lines, last_class_line, last_base_class_range } = edit_data;
+        const { text_lines: lines, class_name_range, last_class_line, last_base_class_range } = edit_data;
 
-        const class_decl_line_rest = lines[last_base_class_range.end.line].substr(last_base_class_range.end.character);
+        // if lang is python then the first line is the one after the class declaration line
+        // otherwise the first line is the line after the line with the opening '{'
         let first_line;
 
-        // find the line with the '{'
-        if (class_decl_line_rest.match(/^\s*\{\s*$/)) {
-            first_line = last_base_class_range.end.line + 1;
+        if (this.lang === 'python') {
+            first_line = class_name_range.end.line + 1;
         } else {
-            for (let i = last_base_class_range.end.line; i < last_class_line; i++) {
-                if (lines[i]?.match(/^\s*\{/)) {
-                    if (lines[i].match(/^\s*\{\s*$/)) {
-                        first_line = i + 1;
-                    } else {
-                        const pos = lines[i].indexOf('{');
-                        const extra_line = ' '.repeat(pos + 1) + lines[i].substr(pos + 1);
-                        lines[i] = lines[i].substr(0, pos + 1);
-                        lines.splice(i, 0, extra_line);
-                        first_line = i + 2;
+            const class_decl_line_rest = last_base_class_range
+                ? lines[last_base_class_range.end.line].substr(last_base_class_range.end.character)
+                : lines[class_name_range.end.line].substr(class_name_range.end.character);
+
+            if (class_decl_line_rest.match(/^\s*\{\s*$/)) {
+                first_line = last_base_class_range.end.line + 1;
+            } else {
+                for (let i = last_base_class_range.end.line; i < last_class_line; i++) {
+                    if (lines[i]?.match(/^\s*\{/)) {
+                        if (lines[i].match(/^\s*\{\s*$/)) {
+                            first_line = i + 1;
+                        } else {
+                            const pos = lines[i].indexOf('{');
+                            const extra_line = ' '.repeat(pos + 1) + lines[i].substr(pos + 1);
+                            lines[i] = lines[i].substr(0, pos + 1);
+                            lines.splice(i, 0, extra_line);
+                            first_line = i + 2;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -591,12 +613,14 @@ export class ClassConnectionsEdit {
 
     private possiblyRemoveUselessPass = edit_data => {
         const { text_lines: lines, class_def_range } = edit_data;
-        for (let i = class_def_range.start.line + 1; i < class_def_range.end.line; i++) {
-            if (lines[i].match(/^\s*pass\s*$/)) {
+        let any_removed = false;
+        const to_remove = `${indent}pass`;
+        for (let i = class_def_range.end.line - 1; i > class_def_range.start.line; i--) {
+            if (lines[i] && lines[i].startsWith(to_remove)) {
                 lines.splice(i, 1);
-                return lines;
+                any_removed = true;
             }
         }
-        return undefined;
+        return any_removed ? lines : undefined;
     }
 }
