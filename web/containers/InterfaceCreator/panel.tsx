@@ -79,6 +79,7 @@ export interface IInterfaceCreatorPanel {
     allSelectedFields: { [type: string]: IField[] };
     data?: any;
     onDataFinishLoading?: () => any;
+    onDataFinishLoadingRecur?: (activeId: number) => any;
     isEditing?: boolean;
     allMethodsData?: any[];
     initialData?: any;
@@ -217,6 +218,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     context,
     onSubmitSuccess,
     setAsDraft,
+    onDataFinishLoadingRecur,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -315,6 +317,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         onDataFinishLoading();
                         // Set the mount to false
                         isInitialMount.current = false;
+                    }
+
+                    // Check if onDataFinishRecur function is set
+                    if (onDataFinishLoadingRecur) {
+                        // Run the callback
+                        onDataFinishLoadingRecur(activeId);
                     }
                     const currentInterfaceId = data ? clonedData.iface_id : shortid.generate();
                     // Check if the interface id exists, which means user

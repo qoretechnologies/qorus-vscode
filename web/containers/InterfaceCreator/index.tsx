@@ -26,7 +26,11 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
-                    {initialData.subtab === 'fsm' && <FSMView />}
+                    {initialData.subtab === 'fsm' && <FSMView 
+                        fsm={initialData.fsm}
+                        onSubmitSuccess={onSubmit}
+                        interfaceContext={context}
+                    />}
                     {initialData.subtab === 'service' && (
                         <ServicesView
                             service={initialData.service}

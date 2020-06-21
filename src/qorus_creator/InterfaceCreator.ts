@@ -239,7 +239,7 @@ export abstract class InterfaceCreator {
                 return {ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}`};
             }
         }
-
+        
         const { file_path, orig_file_path, yaml_file_path, orig_yaml_file_path } = this;
 
         if (file_path && file_path !== orig_file_path) {
@@ -248,6 +248,7 @@ export abstract class InterfaceCreator {
                 return {ok: false, message: t`FileAlreadyExists ${file_path}`};
             }
         }
+
         if (yaml_file_path !== orig_yaml_file_path) {
             const iface = this.code_info.yaml_info.yamlDataByYamlFile(yaml_file_path);
             if (iface) {
@@ -655,6 +656,7 @@ export abstract class InterfaceCreator {
                         });
                         break;
                     case 'steps':
+                    case 'triggers':
                         const lines = JSON.stringify(value, null, 4).split('\n');
                         for (let line of lines) {
                             result += `${indent}${line}\n`;
@@ -688,6 +690,8 @@ export abstract class InterfaceCreator {
                     case 'mapper_options':
                     case 'typeinfo':
                     case 'staticdata-type':
+                    case 'triggers':
+                    case 'states':
                     case 'context':
                         result += `${tag === 'mapper_options' ? 'options' : tag}:\n` +
                             InterfaceCreator.indentYamlDump(value, 1, true);

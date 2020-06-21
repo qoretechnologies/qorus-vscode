@@ -76,6 +76,7 @@ export class InterfaceCreatorDispatcher {
             case 'other':
             case 'mapper':
             case 'type':
+            case 'fsm':
                 class_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':

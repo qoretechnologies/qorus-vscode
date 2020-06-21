@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { STATE_ITEM_TYPE, IFSMState } from '.';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { ButtonGroup, Button } from '@blueprintjs/core';
 
 export interface IFSMStateProps extends IFSMState {
@@ -12,7 +12,14 @@ export interface IFSMStateProps extends IFSMState {
     id: number;
 }
 
-const StyledFSMState = styled.div<{ x: number; y: number; selected: boolean }>`
+const StyledFSMState = styled.div<{
+    x: number;
+    y: number;
+    selected: boolean;
+    initial: boolean;
+    final: boolean;
+    type: 'state' | 'fsm';
+}>`
     left: ${({ x }) => `${x}px`};
     top: ${({ y }) => `${y}px`};
     position: absolute;
@@ -20,18 +27,35 @@ const StyledFSMState = styled.div<{ x: number; y: number; selected: boolean }>`
     height: 50px;
     background-color: #fff;
     z-index: 20;
-    border: 1px solid;
-    border-color: ${({ selected }) => (selected ? 'blue' : '#a9a9a9')};
+    border: 2px solid;
+
+    ${({ selected, initial, final, type }) => {
+        let color: string = '#a9a9a9';
+
+        if (selected) {
+            color = '#277fba';
+        } else if (final) {
+            color = '#81358a';
+        } else if (initial) {
+            color = '#7fba27';
+        }
+
+        return css`
+            border-color: ${color};
+            border-style: ${type === 'state' ? 'solid' : 'dashed'};
+
+            &:hover {
+                box-shadow: 0 0 5px 0px ${color};
+            }
+        `;
+    }};
+
     border-radius: 3px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-flow: column;
-
-    &:hover {
-        box-shadow: 0 0 10px 1px #d7d7d7;
-    }
 `;
 
 const StyledStateName = styled.p`
@@ -56,6 +80,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
     onDeleteClick,
     name,
     action,
+    initial,
+    final,
+    type,
 }) => {
     const [, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
@@ -86,6 +113,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
             selected={selected}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            initial={initial}
+            final={final}
+            type={type}
         >
             <StyledStateName>{name}</StyledStateName>
             {action && <StyledStateAction>{action.type}</StyledStateAction>}

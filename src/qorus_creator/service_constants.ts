@@ -106,6 +106,23 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
             object_type: 'template',
             return_value: 'resources',
         },
+    },
+    {
+        name: 'fsm',
+        mandatory: false,
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'fsm',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'fsm',
+            return_value: 'objects',
+        },
+        reference: {
+            iface_kind: 'fsm',
+        }
     }
 ];
 

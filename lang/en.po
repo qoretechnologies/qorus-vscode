@@ -2219,3 +2219,17 @@ msgstr "Editing transition(s)"
 
 msgid "EditingState"
 msgstr "Editing state"
+
+msgid "field-label-triggers"
+msgstr "Triggers"
+
+msgid "field-label-event-connector"
+msgstr "Event connector"
+
+msgid "field-label-trigger"
+msgstr "Trigger"
+
+msgid "TriggerManager"
+msgstr "Manage trigger"
+
+

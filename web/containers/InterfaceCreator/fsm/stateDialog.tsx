@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import CustomDialog from '../../../components/CustomDialog';
 import { IFSMState, IFSMStates } from '.';
 import { StyledDialogBody } from '../../ClassConnectionsManager';
@@ -18,6 +18,7 @@ import RadioField from '../../../components/Field/radioField';
 import SelectField from '../../../components/Field/select';
 import Spacer from '../../../components/Spacer';
 import ConnectorSelector from './connectorSelector';
+import useUpdateEffect from 'react-use/lib/useUpdateEffect';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -25,20 +26,32 @@ export interface IFSMStateDialogProps {
     id: number;
     onSubmit: (id: number, newData: IFSMState) => void;
     otherStates: IFSMStates;
+    deleteState: (id: number) => any;
 }
 
 export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';
 
-const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onSubmit, otherStates }) => {
+const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onSubmit, otherStates, deleteState }) => {
     const [newData, setNewData] = useState<IFSMState>(data);
     const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
     const t = useContext(TextContext);
+
+    console.log(newData);
 
     const handleDataUpdate = (name: string, value: any) => {
         setNewData((cur) => ({
             ...cur,
             [name]: value === 'none' ? null : value,
         }));
+
+        if (name === 'type') {
+            handleDataUpdate('name', null);
+            handleDataUpdate('action', 'none');
+            handleDataUpdate('input-type', null);
+            handleDataUpdate('output-type', null);
+            handleDataUpdate('initial', false);
+            handleDataUpdate('final', false);
+        }
     };
 
     const isNameValid: (name: string) => boolean = (name) =>
@@ -106,78 +119,118 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
 
     return (
         <CustomDialog
-            onClose={onClose}
+            onClose={() => {
+                // If the name is empty and the original name was empty
+                // delete this state
+                if (!data.name) {
+                    deleteState(id);
+                }
+                onClose();
+            }}
             isOpen
             title={t('EditingState')}
-            style={{ width: '80vw', height: '80vh', paddingBottom: 0 }}
+            style={{ width: '80vw', paddingBottom: 0 }}
         >
             <Content style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
                 <ContentWrapper>
                     <FieldWrapper padded>
+                        <FieldLabel label={t('Type')} isValid />
+                        <FieldInputWrapper>
+                            <SelectField
+                                defaultItems={[{ name: 'state' }, { name: 'fsm' }]}
+                                onChange={handleDataUpdate}
+                                value={newData.type}
+                                name="type"
+                            />
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper padded>
                         <FieldLabel label={t('Name')} isValid={isNameValid(newData.name)} />
                         <FieldInputWrapper>
-                            <String name="name" onChange={handleDataUpdate} value={newData.name} />
+                            {newData.type === 'fsm' ? (
+                                <SelectField
+                                    get_message={{
+                                        action: 'creator-get-objects',
+                                        object_type: 'fsm',
+                                    }}
+                                    return_message={{
+                                        action: 'creator-return-objects',
+                                        object_type: 'fsm',
+                                        return_value: 'objects',
+                                    }}
+                                    defaultItems={[{ name: 'TestFSM1' }]}
+                                    onChange={handleDataUpdate}
+                                    value={newData?.name}
+                                    name="name"
+                                />
+                            ) : (
+                                <String name="name" onChange={handleDataUpdate} value={newData.name} />
+                            )}
                         </FieldInputWrapper>
                     </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('Initial')} isValid />
-                        <FieldInputWrapper>
-                            <BooleanField name="initial" onChange={handleDataUpdate} value={newData.initial} />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('Final')} isValid info={t('Optional')} />
-                        <FieldInputWrapper>
-                            <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('Action')} isValid={isActionValid()} info={t('Optional')} />
-                        <FieldInputWrapper>
-                            <RadioField
-                                name="action"
-                                onChange={(_name, value) => {
-                                    handleDataUpdate('action', null);
-                                    setActionType(value);
-                                }}
-                                value={actionType}
-                                items={[
-                                    { value: 'mapper' },
-                                    { value: 'pipeline' },
-                                    { value: 'connector' },
-                                    { value: 'none' },
-                                ]}
-                            />
-                            {actionType && actionType !== 'none' ? (
-                                <>
-                                    <Spacer size={20} />
-                                    {renderActionField()}
-                                </>
-                            ) : null}
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('InputType')} isValid info={t('Optional')} />
-                        <FieldInputWrapper>
-                            <Connectors
-                                name="input-type"
-                                isInitialEditing={data['input-type']}
-                                onChange={handleDataUpdate}
-                                value={newData['input-type']}
-                            />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
-                    <FieldWrapper padded>
-                        <FieldLabel label={t('OutputType')} isValid info={t('Optional')} />
-                        <FieldInputWrapper>
-                            <Connectors
-                                name="output-type"
-                                isInitialEditing={data['output-type']}
-                                onChange={handleDataUpdate}
-                                value={newData['output-type']}
-                            />
-                        </FieldInputWrapper>
-                    </FieldWrapper>
+                    {newData.type === 'state' && (
+                        <>
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('Initial')} isValid />
+                                <FieldInputWrapper>
+                                    <BooleanField name="initial" onChange={handleDataUpdate} value={newData.initial} />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('Final')} isValid info={t('Optional')} />
+                                <FieldInputWrapper>
+                                    <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('Action')} isValid={isActionValid()} info={t('Optional')} />
+                                <FieldInputWrapper>
+                                    <RadioField
+                                        name="action"
+                                        onChange={(_name, value) => {
+                                            handleDataUpdate('action', null);
+                                            setActionType(value);
+                                        }}
+                                        value={actionType}
+                                        items={[
+                                            { value: 'mapper' },
+                                            { value: 'pipeline' },
+                                            { value: 'connector' },
+                                            { value: 'none' },
+                                        ]}
+                                    />
+                                    {actionType && actionType !== 'none' ? (
+                                        <>
+                                            <Spacer size={20} />
+                                            {renderActionField()}
+                                        </>
+                                    ) : null}
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('InputType')} isValid info={t('Optional')} />
+                                <FieldInputWrapper>
+                                    <Connectors
+                                        name="input-type"
+                                        isInitialEditing={data['input-type']}
+                                        onChange={handleDataUpdate}
+                                        value={newData['input-type']}
+                                    />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('OutputType')} isValid info={t('Optional')} />
+                                <FieldInputWrapper>
+                                    <Connectors
+                                        name="output-type"
+                                        isInitialEditing={data['output-type']}
+                                        onChange={handleDataUpdate}
+                                        value={newData['output-type']}
+                                    />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                        </>
+                    )}
                 </ContentWrapper>
                 <ActionsWrapper style={{ padding: '10px' }}>
                     <ButtonGroup fill>

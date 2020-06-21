@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import CustomDialog from '../../../components/CustomDialog';
 import { IFSMState, IFSMStates, IFSMTransition } from '.';
 import { StyledDialogBody } from '../../ClassConnectionsManager';
@@ -16,6 +16,7 @@ import { Messages } from '../../../constants/messages';
 import uniq from 'lodash/uniq';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
+import every from 'lodash/every';
 import cloneDeep from 'lodash/cloneDeep';
 import RadioField from '../../../components/Field/radioField';
 import ConnectorSelector from './connectorSelector';
@@ -27,7 +28,7 @@ import styled from 'styled-components';
 export interface IFSMTransitionDialogProps {
     onClose: () => any;
     states: IFSMStates;
-    onSubmit: (stateId: number, index: number, newData: IFSMTransition) => void;
+    onSubmit: (stateId: number, index: number, newData: IFSMTransition, remove?: boolean) => void;
     editingData: { stateId: number; index: number }[];
 }
 
@@ -63,6 +64,8 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         return !condition ? 'none' : typeof condition === 'string' ? 'custom' : 'connector';
     };
 
+    console.log(editingData, states);
+
     const getTransitionFromStates: () => IModifiedTransitions = () =>
         editingData.reduce(
             (modifiedData, { stateId, index }) => ({
@@ -89,6 +92,16 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         }
     });
 
+    const removeTransition = (id: string) => {
+        setNewData((cur) => {
+            const result = { ...cur };
+
+            result[id] = null;
+
+            return result;
+        });
+    };
+
     const handleDataUpdate = (id: string, name: string, value: any) => {
         setNewData((cur) => {
             const result = { ...cur };
@@ -107,7 +120,7 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         forEach(newData, (transitionData, id) => {
             const [stateId, index] = id.split(':');
 
-            onSubmit(stateId, index, transitionData.data);
+            onSubmit(stateId, index, transitionData?.data, !transitionData);
         });
 
         onClose();
@@ -117,7 +130,7 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         let isValid = true;
 
         forEach(newData, (transitionData, id) => {
-            if (!isConditionValid(transitionData.conditionType, transitionData.data)) {
+            if (transitionData && !isConditionValid(transitionData.conditionType, transitionData.data)) {
                 isValid = false;
             }
         });
@@ -134,6 +147,12 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         }
 
         return true;
+    };
+
+    const areAllTransitionsDeleted = () => {
+        return every(newData, (data, id) => {
+            return !data;
+        });
     };
 
     const renderConditionField: (
@@ -186,60 +205,96 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
             onClose={onClose}
             isOpen
             title={t('EditingTransition')}
-            style={{ width: '80vw', height: '80vh', paddingBottom: 0 }}
+            style={{ width: '80vw', paddingBottom: 0 }}
         >
             <Content style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
                 <ContentWrapper>
-                    {map(newData, (transitionData: IModifiedTransition, id: string) => (
-                        <StyledTransitionWrapper>
-                            <h3>{transitionData.name}</h3>
-                            <FieldWrapper padded>
-                                <FieldLabel
-                                    label={t('Condition')}
-                                    isValid={isConditionValid(transitionData.conditionType, transitionData.data)}
-                                    info={t('Optional')}
-                                />
-                                <FieldInputWrapper>
-                                    <RadioField
-                                        name="conditionType"
-                                        onChange={(_name, value) => {
-                                            handleDataUpdate(id, 'condition', null);
-                                            handleDataUpdate(id, 'conditionType', value);
-                                        }}
-                                        value={transitionData.conditionType || 'none'}
-                                        items={[{ value: 'custom' }, { value: 'connector' }, { value: 'none' }]}
-                                    />
-                                    {transitionData.conditionType && transitionData.conditionType !== 'none' ? (
-                                        <>
-                                            <Spacer size={20} />
-                                            {renderConditionField(
-                                                id,
-                                                transitionData.conditionType,
-                                                transitionData.data
-                                            )}
-                                        </>
-                                    ) : null}
-                                </FieldInputWrapper>
-                            </FieldWrapper>
-                            <FieldWrapper padded>
-                                <FieldLabel label={t('Errors')} isValid info={t('Optional')} />
-                                <FieldInputWrapper>
-                                    {!qorus_instance && (
-                                        <>
-                                            <Callout intent={Intent.WARNING}>{t('TransitionErrorsNoInstance')}</Callout>
-                                            <Spacer size={10} />
-                                        </>
-                                    )}
-                                    {renderErrorsField(id, transitionData.data)}
-                                </FieldInputWrapper>
-                            </FieldWrapper>
-                        </StyledTransitionWrapper>
-                    ))}
+                    {areAllTransitionsDeleted() ? (
+                        <Callout style={{ marginLeft: '10px', marginTop: '10px', width: '99%' }} intent="warning">
+                            {t('AllTransitionsRemoved')}
+                        </Callout>
+                    ) : (
+                        <>
+                            {map(
+                                newData,
+                                (transitionData: IModifiedTransition, id: string) =>
+                                    transitionData && (
+                                        <StyledTransitionWrapper>
+                                            <h3>
+                                                {transitionData.name}
+                                                <Button
+                                                    style={{ float: 'right' }}
+                                                    intent="danger"
+                                                    icon="trash"
+                                                    onClick={() => {
+                                                        removeTransition(id);
+                                                    }}
+                                                />
+                                            </h3>
+                                            <FieldWrapper padded>
+                                                <FieldLabel
+                                                    label={t('Condition')}
+                                                    isValid={isConditionValid(
+                                                        transitionData.conditionType,
+                                                        transitionData.data
+                                                    )}
+                                                    info={t('Optional')}
+                                                />
+                                                <FieldInputWrapper>
+                                                    <RadioField
+                                                        name="conditionType"
+                                                        onChange={(_name, value) => {
+                                                            handleDataUpdate(id, 'condition', null);
+                                                            handleDataUpdate(id, 'conditionType', value);
+                                                        }}
+                                                        value={transitionData.conditionType || 'none'}
+                                                        items={[
+                                                            { value: 'custom' },
+                                                            { value: 'connector' },
+                                                            { value: 'none' },
+                                                        ]}
+                                                    />
+                                                    {transitionData.conditionType &&
+                                                    transitionData.conditionType !== 'none' ? (
+                                                        <>
+                                                            <Spacer size={20} />
+                                                            {renderConditionField(
+                                                                id,
+                                                                transitionData.conditionType,
+                                                                transitionData.data
+                                                            )}
+                                                        </>
+                                                    ) : null}
+                                                </FieldInputWrapper>
+                                            </FieldWrapper>
+                                            <FieldWrapper padded>
+                                                <FieldLabel label={t('Errors')} isValid info={t('Optional')} />
+                                                <FieldInputWrapper>
+                                                    {!qorus_instance && (
+                                                        <>
+                                                            <Callout intent={Intent.WARNING}>
+                                                                {t('TransitionErrorsNoInstance')}
+                                                            </Callout>
+                                                            <Spacer size={10} />
+                                                        </>
+                                                    )}
+                                                    {renderErrorsField(id, transitionData.data)}
+                                                </FieldInputWrapper>
+                                            </FieldWrapper>
+                                        </StyledTransitionWrapper>
+                                    )
+                            )}
+                        </>
+                    )}
                 </ContentWrapper>
                 <ActionsWrapper style={{ padding: '10px' }}>
                     <ButtonGroup fill>
                         <Tooltip content={t('ResetTooltip')}>
-                            <Button text={t('Reset')} icon={'history'} onClick={() => getTransitionFromStates()} />
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                onClick={() => setNewData(getTransitionFromStates())}
+                            />
                         </Tooltip>
                         <Button
                             text={t('Submit')}

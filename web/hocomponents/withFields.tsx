@@ -6,7 +6,7 @@ import { isArray } from 'util';
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
 
-const getInterfaceCollectionType: (type: string) => [] | {} = type => {
+const getInterfaceCollectionType: (type: string) => [] | {} = (type) => {
     switch (type) {
         case 'service-methods':
         case 'mapper-methods':
@@ -84,23 +84,35 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             mapper: '',
         });
 
-        const resetFields: (type: string) => void = type => {
-            setLocalFields(current => {
-                setLocalSelectedFields(current => {
+        const requestInterfaceData = (ifaceKind: string, field?: string): any => {
+            if (field) {
+                console.log(selectedFields[ifaceKind]);
+                return selectedFields[ifaceKind].find((f) => {
+                    console.log(f.name, field);
+                    return f.name === field;
+                });
+            }
+
+            return selectedFields[ifaceKind];
+        };
+
+        const resetFields: (type: string) => void = (type) => {
+            setLocalFields((current) => {
+                setLocalSelectedFields((current) => {
                     const newResult = { ...current };
                     // Reset the fields
                     newResult[type] = getInterfaceCollectionType(type);
                     return newResult;
                 });
 
-                _setInterfaceId(current => {
+                _setInterfaceId((current) => {
                     const newResult = { ...current };
                     // Set the interface id to null
                     newResult[type] = null;
                     return newResult;
                 });
 
-                props.setUnfinishedWork(current => {
+                props.setUnfinishedWork((current) => {
                     const newResult = { ...current };
                     // Set the interface id to null
                     newResult[type] = null;
@@ -117,15 +129,15 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const setInterfaceId: (interfaceType: string, id: string) => void = (interfaceType, id) => {
             // Sets the interface id, which is only used
             // for config items management
-            _setInterfaceId(current => ({
+            _setInterfaceId((current) => ({
                 ...current,
                 [interfaceType]: id,
             }));
         };
 
-        const setAsDraft: (type: string) => void = type => {
+        const setAsDraft: (type: string) => void = (type) => {
             if (!props.unfinishedWork[type]) {
-                props.setUnfinishedWork(current => {
+                props.setUnfinishedWork((current) => {
                     const newResult = { ...current };
                     // Set the interface id to null
                     newResult[type] = true;
@@ -135,7 +147,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setFields = (type, value, activeId) => {
-            setLocalFields(current => {
+            setLocalFields((current) => {
                 const newResult = { ...current };
                 // If active ID is set, we need to create/update
                 // a specific item
@@ -149,7 +161,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setSelectedFields = (type, value, activeId) => {
-            setLocalSelectedFields(current => {
+            console.log('SET SELECTED FIELDS', type, value, activeId);
+            setLocalSelectedFields((current) => {
                 const newResult = { ...current };
                 // If active ID is set, we need to create/update
                 // a specific item
@@ -163,7 +176,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setQuery = (type, value) => {
-            setLocalQuery(current => {
+            setLocalQuery((current) => {
                 const newResult = { ...current };
 
                 newResult[type] = typeof value === 'function' ? value(current[type]) : value;
@@ -173,7 +186,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setSelectedQuery = (type, value) => {
-            setLocalSelectedQuery(current => {
+            setLocalSelectedQuery((current) => {
                 const newResult = { ...current };
 
                 newResult[type] = typeof value === 'function' ? value(current[type]) : value;
@@ -183,7 +196,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         // check if the form is valid
-        const isFormValid: (type: string) => boolean = type => {
+        const isFormValid: (type: string) => boolean = (type) => {
             if (isArray(selectedFields[type])) {
                 return selectedFields[type].every(({ isValid }: IField) => isValid);
             }
@@ -196,6 +209,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         // Checks if method is valid
         const isSubItemValid: (itemId: number, type: string) => boolean = (itemId, type) => {
             if (itemId) {
+                console.log(selectedFields[type], itemId);
                 return (
                     selectedFields[type][itemId] && selectedFields[type][itemId].every(({ isValid }: IField) => isValid)
                 );
@@ -204,7 +218,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         // Remove method from the methods
         const removeSubItem: (itemId: number, type: string) => void = (itemId, type) => {
-            setLocalSelectedFields(current => {
+            setLocalSelectedFields((current) => {
                 const newResult = { ...current };
                 // Remove the method with the provided id
                 newResult[type] = reduce(
@@ -244,6 +258,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setInterfaceId,
                     unfinishedWork: props.unfinishedWork,
                     setAsDraft,
+                    requestInterfaceData,
                 }}
             >
                 <Component {...props} />

@@ -35,6 +35,7 @@ export const MENU = {
                 { name: 'Mapper Code', icon: 'function', tab: 'CreateInterface', subtab: 'mapper-code' },
                 { name: 'Type', icon: 'asterisk', tab: 'CreateInterface', subtab: 'type' },
                 { name: 'Other', icon: 'more', tab: 'CreateInterface', subtab: 'other' },
+                { name: 'FSM', icon: 'more', tab: 'CreateInterface', subtab: 'fsm' },
             ],
         },
     ],

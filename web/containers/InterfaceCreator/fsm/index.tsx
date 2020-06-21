@@ -4,6 +4,8 @@ import { TextContext } from '../../../context/text';
 import size from 'lodash/size';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
+import filter from 'lodash/filter';
+import cloneDeep from 'lodash/filter';
 
 import { useDrop, XYCoord } from 'react-dnd';
 import FSMToolbarItem from './toolbarItem';
@@ -15,9 +17,19 @@ import styled from 'styled-components';
 import shortid from 'shortid';
 import FSMStateDialog, { TAction } from './stateDialog';
 import FSMTransitionDialog from './transitionDialog';
+import { FieldWrapper, FieldInputWrapper, ActionsWrapper } from '../panel';
+import FieldLabel from '../../../components/FieldLabel';
+import { validateField } from '../../../helpers/validations';
+import String from '../../../components/Field/string';
+import { Tag, Button, ButtonGroup, Tooltip, Intent } from '@blueprintjs/core';
+import FSMTriggerDialog from './triggerDialog';
+import { Messages } from '../../../constants/messages';
+import FileString from '../../../components/Field/fileString';
 
 export interface IFSMViewProps {
-    t: TTranslator;
+    fsm: any;
+    onSubmitSuccess: () => any;
+    interfaceContext: any;
 }
 
 export interface IDraggableItem {
@@ -33,6 +45,18 @@ export interface IFSMTransition {
         type: string;
     };
     errors?: string[];
+}
+
+export type TTrigger = { class?: string; connector?: string; method?: string };
+
+export interface IFSMMetadata {
+    name: string;
+    desc: string;
+    triggers?: TTrigger[];
+    options?: {
+        'action-strategy': 'one' | 'all';
+        'max-thread-count': number;
+    };
 }
 
 export interface IFSMState {
@@ -52,6 +76,8 @@ export interface IFSMState {
     'input-type'?: any;
     'output-type'?: any;
     name?: string;
+    type: 'state' | 'fsm';
+    desc: string;
 }
 
 export interface IFSMStates {
@@ -100,29 +126,51 @@ const StyledFSMLine = styled.line`
     }
 `;
 
+const StyledFSMCircle = styled.circle`
+    transition: all 0.2s linear;
+    cursor: pointer;
+
+    &:hover {
+        stroke-width: 6;
+    }
+`;
+
 let currentXPan: number;
 let currentYPan: number;
 
-const FSMView: React.FC<IFSMViewProps> = () => {
+const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
     const t = useContext(TextContext);
-    const { sidebarOpen, path } = useContext(InitialContext);
+    const { sidebarOpen, path, confirmAction, callBackend, fsm } = useContext(InitialContext);
     const wrapperRef = useRef(null);
     const [states, setStates] = useState<IFSMStates>({});
+    const [metadata, setMetadata] = useState<IFSMMetadata>({
+        target_dir: null,
+        name: null,
+        desc: null,
+        triggers: [{ method: 'test' }],
+    });
     const [selectedState, setSelectedState] = useState<number | null>(null);
     const [editingState, setEditingState] = useState<number | null>(null);
+    const [triggerManager, setTriggerManager] = useState<{ isOpen: boolean; data?: TTrigger; index?: number }>({
+        isOpen: false,
+    });
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
     const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(false);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
     });
+    const [zoom, setZoom] = useState<number>(1);
     const [, drop] = useDrop({
         accept: DROP_ACCEPTS,
         drop: (item: IDraggableItem, monitor) => {
             if (item.type === TOOLBAR_ITEM_TYPE) {
-                const { x, y } = monitor.getClientOffset();
+                let { x, y } = monitor.getClientOffset();
                 const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
                 const id = Math.max(...ids) + 1;
+                const calculatePercDiff = (value) => value + (value / 100) * Math.abs(100 * (zoom - 1));
+                x = x / zoom;
+                y = y / zoom;
 
                 setStates(
                     (cur: IFSMStates): IFSMStates => ({
@@ -130,20 +178,32 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                         [id]: {
                             id,
                             position: {
-                                x: x + currentXPan - (sidebarOpen ? 333 : 153),
-                                y: y + currentYPan - 181,
+                                x: x + calculatePercDiff(currentXPan) - (sidebarOpen ? 333 : 153),
+                                y: y + calculatePercDiff(currentYPan) - 300,
                             },
                             final: false,
                             initial: false,
-                            name: `State ${id}`,
+                            name: item.name === 'state' ? `State ${id}` : null,
+                            type: item.name,
                         },
                     })
                 );
+
+                if (item.name === 'fsm') {
+                    setEditingState(id);
+                }
             } else if (item.type === STATE_ITEM_TYPE) {
                 moveItem(item.id, monitor.getDifferenceFromInitialOffset());
             }
         },
     });
+
+    const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
+        setMetadata((cur) => ({
+            ...cur,
+            [name]: value,
+        }));
+    };
 
     const moveItem: (id: number, coords: XYCoord) => void = (id, coords) => {
         setStates((cur) => {
@@ -204,6 +264,11 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                 return;
             }
 
+            // Also do nothing is the user is trying to transition FSM to itself
+            if (states[id].type === 'fsm' && selectedState === id) {
+                return;
+            }
+
             setStates((cur) => {
                 const newBoxes = { ...cur };
 
@@ -216,6 +281,7 @@ const FSMView: React.FC<IFSMViewProps> = () => {
 
                 return newBoxes;
             });
+
             setSelectedState(null);
         } else {
             setSelectedState(id);
@@ -238,13 +304,20 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         setEditingState(null);
     };
 
-    const updateTransitionData = (stateId: number, index: number, data: IFSMTransition) => {
-        const transitionsCopy = [...states[stateId].transitions];
+    const updateTransitionData = (stateId: number, index: number, data: IFSMTransition, remove?: boolean) => {
+        let transitionsCopy = [...states[stateId].transitions];
 
-        transitionsCopy[index] = {
-            ...transitionsCopy[index],
-            ...data,
-        };
+        if (remove) {
+            delete transitionsCopy[index];
+        } else {
+            transitionsCopy[index] = {
+                ...transitionsCopy[index],
+                ...data,
+            };
+        }
+
+        transitionsCopy = transitionsCopy.filter((t) => t);
+        transitionsCopy = size(transitionsCopy) === 0 ? null : transitionsCopy;
 
         updateStateData(stateId, { transitions: transitionsCopy });
     };
@@ -253,12 +326,43 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         setEditingState(id);
     };
 
+    const handleSubmitClick = async () => {
+        console.log({data: {
+            ...metadata,
+            states,
+        }});
+
+        const result = await callBackend(
+            fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+            undefined,
+            {
+                iface_kind: 'fsm',
+                orig_data: fsm,
+                data: {
+                    ...metadata,
+                    states,
+                },
+            },
+            t('Saving FSM...')
+        );
+
+        if (result.ok) {
+            if (onSubmitSuccess) {
+                onSubmitSuccess({
+                    ...metadata,
+                    states,
+                });
+            }
+            reset();
+        }
+    }
+
     const hasBothWayTransition = (stateId: string, targetId: string): { stateId: string; index: number } => {
         const transitionIndex = states[targetId].transitions?.findIndex(
             (transition) => transition.state === parseInt(stateId)
         );
 
-        if (transitionIndex || transitionIndex === 0) {
+        if (transitionIndex >= 0) {
             return { stateId: targetId, index: transitionIndex };
         }
 
@@ -328,14 +432,102 @@ const FSMView: React.FC<IFSMViewProps> = () => {
         []
     ).sort((a, b) => a.order - b.order);
 
+    const reset = () => {
+        setStates({});
+        setMetadata({ name: null, desc: null });
+    }
+
+    const calculateMargin = () => (zoom - 1) * 1000;
+
+    const getTriggerName = (trigger: TTrigger) => {
+        if (trigger.hasOwnProperty('method')) {
+            return trigger.method;
+        }
+
+        return `${trigger.class}:${trigger.connector}`;
+    };
+
     return (
         <>
+            <FieldWrapper>
+                <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', metadata.target_dir)} />
+                <FieldInputWrapper>
+                    <FileString
+                        onChange={handleMetadataChange}
+                        name="target_dir"
+                        value={metadata.target_dir}
+                        get_message={{
+                            action: 'creator-get-directories',
+                            object_type: 'target_dir',
+                        }}
+                        return_message={{
+                            action: 'creator-return-directories',
+                            object_type: 'target_dir',
+                            return_value: 'directories',
+                        }}
+                    />
+                </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper>
+                <FieldLabel isValid={validateField('string', metadata.name)} label={t('field-label-name')} />
+                <FieldInputWrapper>
+                    <String onChange={handleMetadataChange} value={metadata.name} name="name" />
+                </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper>
+                <FieldLabel isValid={validateField('string', metadata.desc)} label={t('field-label-desc')} />
+                <FieldInputWrapper>
+                    <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper>
+                <FieldLabel isValid={validateField('string', metadata.triggers)} label={t('field-label-triggers')} />
+                <FieldInputWrapper>
+                    {metadata.triggers.map((trigger: TTrigger, index: number) => (
+                        <>
+                            <Tag
+                                large
+                                interactive
+                                intent="none"
+                                minimal
+                                onClick={() => {
+                                    setTriggerManager({ isOpen: true, data: trigger, index });
+                                }}
+                                onRemove={() => {
+                                    console.log();
+                                }}
+                            >
+                                {getTriggerName(trigger)}
+                            </Tag>{' '}
+                        </>
+                    ))}
+                    <Button icon="add" intent="success" onClick={() => setTriggerManager({ isOpen: true })} />
+                </FieldInputWrapper>
+            </FieldWrapper>
+            {triggerManager.isOpen && (
+                <FSMTriggerDialog
+                    {...triggerManager}
+                    onClose={() => setTriggerManager({ isOpen: false })}
+                    onSubmit={(data, index) => {
+                        const newTriggers: TTrigger[] = cloneDeep(metadata.triggers);
+
+                        if (index || index === 0) {
+                            newTriggers[index] = data;
+                        } else {
+                            newTriggers.push(data);
+                        }
+
+                        handleMetadataChange('triggers', newTriggers);
+                    }}
+                />
+            )}
             {editingState && (
                 <FSMStateDialog
                     onSubmit={updateStateData}
                     onClose={() => setEditingState(null)}
                     data={states[editingState]}
                     id={editingState}
+                    deleteState={handleStateDeleteClick}
                     otherStates={reduce(
                         states,
                         (newStates, state, id) =>
@@ -353,8 +545,11 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                 />
             ) : null}
             <StyledToolbarWrapper>
-                <FSMToolbarItem name="state" count={size(states)}>
-                    State
+                <FSMToolbarItem name="state" count={size(filter(states, ({ type }: IFSMState) => type === 'state'))}>
+                    {t('State')}
+                </FSMToolbarItem>
+                <FSMToolbarItem name="fsm" count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}>
+                    {t('FSM')}
                 </FSMToolbarItem>
             </StyledToolbarWrapper>
             <StyledDiagramWrapper ref={wrapperRef}>
@@ -362,12 +557,18 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                     wrapperDimensions={wrapperDimensions}
                     setPan={setWrapperPan}
                     isHoldingShiftKey={isHoldingShiftKey}
+                    zoom={zoom}
                 >
                     <StyledDiagram
                         key={JSON.stringify(wrapperDimensions)}
                         ref={drop}
                         path={path}
                         onClick={() => !isHoldingShiftKey && setSelectedState(null)}
+                        style={{
+                            transform: `scale(${zoom})`,
+                            marginLeft: `${calculateMargin()}px`,
+                            marginTop: `${calculateMargin()}px`,
+                        }}
                     >
                         {map(states, (state, id) => (
                             <FSMState
@@ -384,9 +585,9 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                             {transitions.map(
                                 ({ x1, x2, y1, y2, state, targetState, isError, transitionIndex }, index) =>
                                     isTransitionToSelf(state, targetState) ? (
-                                        <circle
+                                        <StyledFSMCircle
                                             cx={x1 + 90}
-                                            cy={y1}
+                                            cy={y1 + 50}
                                             r={25}
                                             fill="transparent"
                                             stroke={isError ? 'red' : '#a9a9a9'}
@@ -432,6 +633,35 @@ const FSMView: React.FC<IFSMViewProps> = () => {
                     </StyledDiagram>
                 </FSMDiagramWrapper>
             </StyledDiagramWrapper>
+            <ActionsWrapper>
+                <div style={{ float: 'right', width: '100%' }}>
+                    <ButtonGroup fill>
+                        <Tooltip content={t('ResetTooltip')}>
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                onClick={() => {
+                                    confirmAction(
+                                        'ResetFieldsConfirm',
+                                        () => {
+                                            reset();
+                                        },
+                                        'Reset',
+                                        'warning'
+                                    );
+                                }}
+                            />
+                        </Tooltip>
+                        <Button
+                            text={t('Submit')}
+                            onClick={handleSubmitClick}
+                            disabled={false}
+                            icon={'tick'}
+                            intent={Intent.SUCCESS}
+                        />
+                    </ButtonGroup>
+                </div>
+            </ActionsWrapper>
         </>
     );
 };

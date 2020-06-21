@@ -6,6 +6,7 @@ export interface IFSMDiagramWrapperProps {
     wrapperDimensions: { width: number; height: number };
     setPan: (x: number, y: number) => void;
     children: any;
+    zoom: number;
 }
 
 const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
@@ -13,6 +14,7 @@ const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
     wrapperDimensions,
     children,
     setPan,
+    zoom,
 }) => (
     <ElementPan
         key={JSON.stringify(wrapperDimensions)}
@@ -22,6 +24,7 @@ const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
         startY={1000 - wrapperDimensions.height / 2}
         onPan={({ x, y }) => setPan(x, y)}
         enableDragging={isHoldingShiftKey}
+        zoom={zoom}
     >
         {children}
     </ElementPan>

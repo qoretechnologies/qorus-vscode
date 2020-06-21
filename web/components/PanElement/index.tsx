@@ -28,6 +28,7 @@ export class ElementPan extends React.Component<
         style?: {
             [key: string]: any;
         };
+        zoom: number;
     },
     ElementPanState
 > {
