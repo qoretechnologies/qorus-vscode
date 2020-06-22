@@ -1,7 +1,9 @@
+import * as path from 'path';
 import { expect } from 'chai';
 import { WebView, EditorView } from 'vscode-extension-tester';
 import {
     sleep,
+    compareWithGoldFiles,
     clickElement,
     getSelectedFields,
     getElementAttribute,
@@ -25,7 +27,7 @@ export const openCreateWorkflow = async (webview: WebView) => {
     expect(await getSelectedFields(webview)).to.have.length(4);
 };
 
-export const createWorkflow = async (webview: WebView, editorView: EditorView) => {
+export const createWorkflow = async (webview: WebView, editorView: EditorView, project_folder: string) => {
     // Submit disabled by default
     expect(await getElementAttribute(webview, 'interface-creator-submit-workflow', 'disabled')).to.equal('true');
 
@@ -77,10 +79,8 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView) =
 
     expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
 
-    const workflow = await editorView.openEditor('Workflow test-1.0.qwf');
-    const workflowText = await workflow.getText();
-
-    expect(workflowText).to.eql(
-        '%new-style\n%strict-args\n%require-types\n%enable-all-warnings\n\nclass TestWorkflow inherits QorusWorkflow {\n}\n'
-    );
+    compareWithGoldFiles(path.join(project_folder, 'arpm'), [
+        'Workflow test-1.0.qwf',
+        'Workflow test-1.0.qwf.yaml'
+    ]);
 };

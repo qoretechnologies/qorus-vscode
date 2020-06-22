@@ -24,7 +24,6 @@ describe('Config Items Tests', function() {
     let editorView: EditorView;
     let webview: WebView;
     let notificationsCenter: NotificationsCenter;
-    const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
@@ -67,5 +66,5 @@ describe('Config Items Tests', function() {
 
     it('Create class', () => createServiceClassWithConfigItems(webview));
     it('Create service', () => createServiceWithConfigItems(webview, editorView, project_folder));
-    it('Check files', () => checkFiles(project_folder, gold_files_folder));
+    it('Check files', () => checkFiles(project_folder));
 });
