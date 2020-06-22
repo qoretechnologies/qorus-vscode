@@ -167,6 +167,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editFsm",
+                "title": "Edit FSM",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editMapper",
                 "title": "Edit Mapper",
                 "category": "Qorus"
@@ -202,6 +207,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editFsm",
+                "title": "Edit FSM",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editWorkflowSteps",
                 "title": "Edit Workflow Steps",
                 "category": "Qorus"
@@ -214,6 +224,11 @@
             {
                 "command": "qorus.explorer.deployClass",
                 "title": "Deploy Class",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployFsm",
+                "title": "Deploy FSM",
                 "category": "Qorus"
             },
             {
@@ -273,6 +288,15 @@
             {
                 "command": "qorus.createJob",
                 "title": "Create New Job",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createFsm",
+                "title": "Create New FSM",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/create-new.svg",
@@ -438,6 +462,15 @@
                 }
             },
             {
+                "command": "qorus.views.deleteFsm",
+                "title": "Delete FSM",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deleteMapper",
                 "title": "Delete Mapper",
                 "category": "Qorus",
@@ -521,6 +554,15 @@
             {
                 "command": "qorus.views.deployClass",
                 "title": "Deploy Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployFsm",
+                "title": "Deploy FSM",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/cloud-upload.svg",
@@ -674,6 +716,15 @@
             {
                 "command": "qorus.views.editClass",
                 "title": "Edit Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editFsm",
+                "title": "Edit FSM",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -847,6 +898,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.deleteFsm",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.deleteMapper",
                     "when": "false"
                 },
@@ -884,6 +939,10 @@
                 },
                 {
                     "command": "qorus.views.deployClass",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployFsm",
                     "when": "false"
                 },
                 {
@@ -952,6 +1011,10 @@
                 },
                 {
                     "command": "qorus.views.editClass",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editFsm",
                     "when": "false"
                 },
                 {
@@ -1077,8 +1140,13 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createFsm",
                     "group": "2_workspace@9"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createOther",
+                    "group": "2_workspace@10"
                 },
                 {
                     "when": "explorerResourceIsFolder",
@@ -1222,6 +1290,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.createFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm-category",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.createJob",
                     "when": "view == qorusInterfaces && viewItem == job-category",
                     "group": "inline"
@@ -1274,6 +1347,11 @@
                 {
                     "command": "qorus.views.deleteClass",
                     "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm",
                     "group": "inline"
                 },
                 {
@@ -1354,6 +1432,11 @@
                 {
                     "command": "qorus.views.deployClass",
                     "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm",
                     "group": "inline"
                 },
                 {
@@ -1439,6 +1522,11 @@
                 {
                     "command": "qorus.views.editClass",
                     "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm",
                     "group": "inline"
                 },
                 {

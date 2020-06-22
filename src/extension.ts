@@ -81,7 +81,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code',
-        'class', 'other', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
+        'class', 'other', 'group', 'event', 'queue', 'type', 'fsm'].forEach(iface_kind =>
     {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {

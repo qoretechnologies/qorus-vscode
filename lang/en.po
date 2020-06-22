@@ -2232,4 +2232,5 @@ msgstr "Trigger"
 msgid "TriggerManager"
 msgstr "Manage trigger"
 
-
+msgid "FSMs"
+msgstr "Finite State Machines"
