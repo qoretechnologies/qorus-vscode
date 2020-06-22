@@ -1563,7 +1563,7 @@
         "start": "NODE_ENV=development babel-node server.js",
         "build": "NODE_ENV=production webpack",
         "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
-        "ui-run-tests": "rm -rf ui-test/test_project && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && cp ui-test/tests.code-workspace ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js && rm -rf ui-test/test_project"
+        "ui-run-tests": "rm -rf ui-test/test_project && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && cp ui-test/tests.code-workspace ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests ui-test/out/config_items_tests.js && rm -rf ui-test/test_project"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",
