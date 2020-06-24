@@ -39,18 +39,29 @@ export const selectField = async (webview: WebView, name: string) => {
     await clickElement(webview, `field-selector-${name}`);
 };
 
-export const selectNthDropdownItem = async (webview: WebView, name: string, position: number) => {
-    await clickElement(webview, `field-${name}`);
+export const selectNthDropdownItem = async (
+    webview: WebView,
+    name: string,
+    item_position: number,
+    element_position: number = 1) =>
+{
+    await clickElement(webview, `field-${name}`, element_position);
     await sleep(500);
-    await clickElement(webview, `field-${name}-item`, position);
+    await clickElement(webview, `field-${name}-item`, item_position);
 };
 
-export const selectNthFilteredDropdownItem = async (webview: WebView, name: string, filter: string, position: number = 1) => {
-    await clickElement(webview, `field-${name}`);
+export const selectNthFilteredDropdownItem = async (
+    webview: WebView,
+    name: string,
+    filter: string,
+    item_position: number = 1,
+    element_position: number = 1) =>
+{
+    await clickElement(webview, `field-${name}`, element_position);
     await sleep(500);
     await fillTextField(webview, 'select-filter', filter);
     await sleep(500);
-    await clickElement(webview, `field-${name}-item`, position);
+    await clickElement(webview, `field-${name}-item`, item_position);
 };
 
 export const submitInterface = async (webview: WebView, iface: string) => {
@@ -78,13 +89,19 @@ export const getElementAttribute = async (
 };
 
 export const compareWithGoldFiles = async (folder: string, files: string[]) => {
-    await sleep(2000);
+    await sleep(500);
 
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
 
     const compare = (file_name: string) => {
+        const file_path = path.join(folder, file_name);
+        const file_exists = fs.existsSync(file_path);
+        expect(file_exists).to.be.true;
+        if (!file_exists) {
+            return;
+        }
         const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, file_name));
-        const true_file_contents = fs.readFileSync(path.join(folder, file_name));
+        const true_file_contents = fs.readFileSync(file_path);
         expect(true_file_contents).to.eql(expected_file_contents);
     };
 

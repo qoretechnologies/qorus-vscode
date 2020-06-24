@@ -83,7 +83,7 @@ export const createClass = async (webview: WebView, editorView: EditorView) => {
     await fillTextField(webview, 'field-description', 'test config item of a base class');
     await selectField(webview, 'default_value');
     await sleep(500);
-    await fillTextField(webview, 'field-default_value', 'asdf zxcv');
+    await fillTextField(webview, 'field-default_value', 'default text');
     await sleep(500);
     await submitInterface(webview, 'config-item');
 
@@ -106,20 +106,21 @@ export const createService = async (webview: WebView, editorView: EditorView, fo
     await sleep(500);
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-name', 'service-inheriting-config-items');
-    await fillTextField(webview, 'field-desc', 'Test service inheriting classes with config items');
+    await fillTextField(webview, 'field-desc', 'Test service inheriting config items');
+    await sleep(1000);
     await selectNthFilteredDropdownItem(webview, 'base-class-name', 'ServiceClassWithConfigItems');
     await fillTextField(webview, 'field-version', '1.23');
-//    await selectField(webview, 'classes');
-//    await sleep(5000);
-//    await selectNthFilteredDropdownItem(webview, 'name', 'ClassWithConfigItems');
-//    await selectNthDropdownItem(webview, 'name', 3);
+    await selectField(webview, 'classes');
+    await sleep(1000);
+    await selectNthFilteredDropdownItem(webview, 'name', 'ClassWithConfigItems', 1, 2); // '2' since the first 'name' is in the service
+    await sleep(1000);
 
     await openConfigItemManager(webview);
     await openAddConfigItem(webview);
 
     // edit config item page
     await sleep(2000);
-    await fillTextField(webview, 'field-name', 'test-config-item-3', 2); // '2' since the first 'name' is in the service
+    await fillTextField(webview, 'field-name', 'test-config-item-3', 3); // '3' since there are another two 'name's
     await fillTextField(webview, 'field-description', 'test config item');
     await clickElement(webview, 'field-type-radio-list');
     await submitInterface(webview, 'config-item');
@@ -150,12 +151,15 @@ export const createService = async (webview: WebView, editorView: EditorView, fo
     await fillTextField(webview, 'field-desc', 'some method');
     await sleep(1000);
     await submitInterface(webview, 'service-methods');
+    await sleep(1000);
 };
 
 export const checkFiles = async (project_folder: string) => {
     compareWithGoldFiles(path.join(project_folder, 'arpm'), [
         'ServiceClassWithConfigItems-1.2.qclass',
         'ServiceClassWithConfigItems-1.2.qclass.yaml',
+        'ClassWithConfigItems-1.3.qclass',
+        'ClassWithConfigItems-1.3.qclass.yaml',
         'service-inheriting-config-items-1.23.qsd',
         'service-inheriting-config-items-1.23.qsd.yaml'
     ]);
