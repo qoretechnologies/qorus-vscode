@@ -8,7 +8,8 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
 import { field } from './common_constants';
 import { defaultValue } from './config_item_constants';
-import { lang_suffix, lang_inherits, default_parse_options } from './common_constants';
+import { default_parse_options } from './common_constants';
+import { mandatoryStepMethods } from './standard_methods';
 import { types_with_version, default_version } from '../qorus_constants';
 import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier, sortRanges } from '../qorus_utils';
 import { t } from 'ttag';
@@ -17,6 +18,12 @@ import * as msg from '../qorus_message';
 
 const list_indent = '  - ';
 const indent = '    ';
+
+const lang_suffix = {
+    qore: '',
+    python: '.py',
+    java: '.java',
+};
 
 
 export abstract class InterfaceCreator {
@@ -60,7 +67,7 @@ export abstract class InterfaceCreator {
                 if (target_file) {
                     this.file_base = target_file;
                     // remove all possible suffixes
-                    ['yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype',
+                    ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype',
                      'qsd', 'qmc', 'qevent', 'qgroup', 'qqueue'].forEach(suffix => {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
@@ -210,7 +217,7 @@ export abstract class InterfaceCreator {
     }
 
     protected checkExistingInterface = (params: any): any => {
-        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data, } = params;
+        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data } = params;
 
         if (!['create', 'edit'].includes(edit_type)) {
             return {ok: true};
@@ -287,10 +294,16 @@ export abstract class InterfaceCreator {
             lines[position.line] = chars.join('');
         };
 
-        const inherits_kw = lang_inherits[this.lang];
+        const inherits_kw = {
+            qore:   { before: ' inherits ', after: '' },
+            python: { before: '(',          after: ')' },
+            java:   { before: ' extends ',  after: '' },
+        }[this.lang]
 
-        const eraseInheritsKw = () => {
-            const strings_to_erase = [` ${inherits_kw}`, `${inherits_kw} `, `${inherits_kw}`];
+        const eraseInheritsBefore = () => {
+            const inherits_before = inherits_kw.before.trim();
+            const strings_to_erase = [` ${inherits_before}`, `${inherits_before} `, `${inherits_before}`];
+
             for (let n = class_name_range.start.line; n <= first_base_class_line; n++) {
                 for (const string_to_erase of strings_to_erase) {
                     if (lines[n].includes(string_to_erase)) {
@@ -301,11 +314,11 @@ export abstract class InterfaceCreator {
             }
         };
 
-        const eraseCommaAfterBaseClassName = () => {
+        const eraseStrAfterBaseClassName = (str: string) => {
             for (let n = main_base_class_name_range.start.line; n <= last_class_line; n++) {
                 const pos_from =
                     n === main_base_class_name_range.start.line ? main_base_class_name_range.end.character : 0;
-                for (const string_to_erase of [', ', ',']) {
+                for (const string_to_erase of [`${str} `, `${str}`]) {
                     const pos = lines[n].indexOf(string_to_erase, pos_from);
                     if (pos > -1) {
                         lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
@@ -315,11 +328,11 @@ export abstract class InterfaceCreator {
             }
         };
 
-        const eraseCommaBeforeBaseClassName = () => {
+        const eraseStrBeforeBaseClassName = (str: string) => {
             for (let n = main_base_class_name_range.start.line; n >= first_base_class_line; n--) {
                 const pos_from =
                     n === main_base_class_name_range.start.line ? main_base_class_name_range.start.character : 0;
-                for (const string_to_erase of [', ', ',']) {
+                for (const string_to_erase of [`${str} `, `${str}`]) {
                     const pos = lines[n].lastIndexOf(string_to_erase, pos_from);
                     if (pos > -1) {
                         lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
@@ -329,12 +342,12 @@ export abstract class InterfaceCreator {
             }
         };
 
-        const eraseBaseClassName = (only_without_space: boolean = false) => {
+        const eraseBaseClassName = (without_space: boolean = false) => {
             const n = main_base_class_name_range.start.line;
             const pos = main_base_class_name_range.start.character;
             const length = main_base_class_name_range.end.character - main_base_class_name_range.start.character;
 
-            if (!only_without_space) {
+            if (!without_space) {
                 if (lines[n].substr(pos, length + 1) === `${orig_base_class_name} `) {
                     lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + length + 1);
                     return;
@@ -351,25 +364,28 @@ export abstract class InterfaceCreator {
 
         if (base_class_name && !orig_base_class_name) {
             if (has_other_base_class) {
-                if (!base_class_name.includes(base_class_name)) {
-                    eraseInheritsKw();
-                    replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name},`);
+                if (!base_class_names.includes(base_class_name)) {
+                    eraseInheritsBefore();
+                    replace(class_name_range.end, '', `${inherits_kw.before}${base_class_name},`);
                 }
             } else {
-                replace(class_name_range.end, '', ` ${inherits_kw} ${base_class_name}`);
+                replace(class_name_range.end, '', `${inherits_kw.before}${base_class_name}${inherits_kw.after}`);
             }
         } else if (!base_class_name && orig_base_class_name) {
             if (has_other_base_class) {
                 if (main_base_class_ord > 0) {
                     eraseBaseClassName(true);
-                    eraseCommaBeforeBaseClassName();
+                    eraseStrBeforeBaseClassName(',');
                 } else {
-                    eraseCommaAfterBaseClassName();
+                    eraseStrAfterBaseClassName(',');
                     eraseBaseClassName(true);
                 }
             } else {
+                if (inherits_kw.after) {
+                    eraseStrAfterBaseClassName(inherits_kw.after);
+                }
                 eraseBaseClassName();
-                eraseInheritsKw();
+                eraseInheritsBefore();
             }
         } else if (base_class_name !== orig_base_class_name) {
             replace(main_base_class_name_range.start, orig_base_class_name, base_class_name);
@@ -829,8 +845,8 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
-    static mandatoryStepMethodsCode = (code_info, base_class_name, lang, skip: string[] = []) => {
-        const mandatory_step_methods = code_info.mandatoryStepMethods(base_class_name, lang);
+    static mandatoryStepMethodsCode = (code_info: QorusProjectCodeInfo, base_class_name, lang, skip: string[] = []) => {
+        const mandatory_step_methods = mandatoryStepMethods(code_info, base_class_name, lang);
 
         let method_strings = [];
         const indent = '    ';
@@ -840,11 +856,15 @@ export abstract class InterfaceCreator {
                 return;
             }
             const method_data = mandatory_step_methods[method_name];
-            let method_string = `${indent}${method_data.signature} {\n`;
+            let method_string = lang === 'python'
+                ? `${indent}def ${method_data.signature}:\n`
+                : `${indent}${method_data.signature} {\n`;
             if (method_data.body) {
                 method_string += `${indent}${indent}${method_data.body}\n`;
             }
-            method_string += `${indent}}\n`;
+            if (lang !== 'python') {
+                method_string += `${indent}}\n`;
+            }
             method_strings.push(method_string);
         });
 

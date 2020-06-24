@@ -1,0 +1,15 @@
+# This is a generated file, don't edit!
+type: class
+name: ServiceClassWithConfigItems
+desc: Test class with config items
+base-class-name: QorusService
+lang: qore
+version: "1.2"
+code: ServiceClassWithConfigItems-1.2.qclass
+config-items:
+  - name: test-config-item-1
+    default_value:
+        54
+    config_group: test
+    description: test config item of a base class
+    type: int

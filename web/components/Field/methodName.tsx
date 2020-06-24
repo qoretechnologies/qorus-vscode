@@ -88,6 +88,7 @@ const MethodNameField: FunctionComponent<IStringField & IField & IFieldChange> =
                 value={val}
             />
             <Button
+                name={'edit-method-name-button'}
                 onClick={() => {
                     setEditManager({
                         isOpen: true,
@@ -116,6 +117,7 @@ const MethodNameField: FunctionComponent<IStringField & IField & IFieldChange> =
                         <br />
                         <ControlGroup fill>
                             <Button
+                                name={'save-method-name-button'}
                                 text={t('Save')}
                                 disabled={!isNameValid(editManager.value)}
                                 onClick={() => {

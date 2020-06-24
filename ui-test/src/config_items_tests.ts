@@ -11,7 +11,9 @@ import {
 } from 'vscode-extension-tester';
 import { sleep } from './common/utils';
 import {
-    createClassWithConfigItems,
+    createServiceClassWithConfigItems,
+    createServiceWithConfigItems,
+    checkFiles,
 } from './config_items_tests/config_items_tests';
 
 
@@ -22,6 +24,7 @@ describe('Config Items Tests', function() {
     let editorView: EditorView;
     let webview: WebView;
     let notificationsCenter: NotificationsCenter;
+    const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
         driver = VSBrowser.instance.driver;
@@ -37,7 +40,7 @@ describe('Config Items Tests', function() {
         const input: InputBox = await new InputBox();
 
         await input.wait();
-        await input.setText(process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project');
+        await input.setText(project_folder);
         await input.confirm();
 
         await sleep(12000);
@@ -58,29 +61,10 @@ describe('Config Items Tests', function() {
         await webview.wait();
         await webview.switchToFrame();
 
-        await sleep(3000);
+        await sleep(1000);
     });
 
-    this.beforeEach(async () => {
-        await webview.switchBack();
-        // Clear all notifications before every run
-        await notificationsCenter.clearAllNotifications();
-
-        await webview.switchToFrame();
-    });
-
-    this.afterEach(async () => {
-        await webview.switchBack();
-        // Make sure there are no warning notifications after each test
-        const notifications = [
-            ...(await notificationsCenter.getNotifications(NotificationType.Warning)),
-            ...(await notificationsCenter.getNotifications(NotificationType.Error)),
-        ];
-
-        expect(notifications.length).to.eql(0);
-
-        await webview.switchToFrame();
-    });
-
-    it('Create class', () => createClassWithConfigItems(webview));
+    it('Create class', () => createServiceClassWithConfigItems(webview));
+    it('Create service', () => createServiceWithConfigItems(webview, editorView, project_folder));
+    it('Check files', () => checkFiles(project_folder));
 });

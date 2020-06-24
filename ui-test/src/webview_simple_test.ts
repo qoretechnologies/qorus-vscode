@@ -35,6 +35,7 @@ describe('Webview Simple Test', function() {
     let editorView: EditorView;
     let webview: WebView;
     let notificationsCenter: NotificationsCenter;
+    const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
         driver = VSBrowser.instance.driver;
@@ -50,7 +51,7 @@ describe('Webview Simple Test', function() {
         const input: InputBox = await new InputBox();
 
         await input.wait();
-        await input.setText(process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project');
+        await input.setText(project_folder);
         await input.confirm();
 
         await sleep(10000);
@@ -109,5 +110,5 @@ describe('Webview Simple Test', function() {
 
     // create workflow tests
     it('Opens workflow create page', () => openCreateWorkflow(webview));
-    it('Can create workflow', () => createWorkflow(webview, editorView));
+    it('Can create workflow', () => createWorkflow(webview, editorView, project_folder));
 });

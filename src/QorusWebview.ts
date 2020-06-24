@@ -9,6 +9,7 @@ import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
+import { triggers } from './qorus_creator/standard_methods';
 import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
@@ -203,10 +204,10 @@ class QorusWebview {
                         case 'creator-get-objects':
                         case 'creator-get-resources':
                         case 'creator-get-directories':
-                            project.code_info.getObjects(message.object_type, message.lang, message.custom_data);
+                            project.code_info.getObjects(message);
                             break;
                         case 'get-all-directories':
-                            project.code_info.getObjects('all_dirs');
+                            project.code_info.getObjects({object_type: 'all_dirs'});
                             break;
                         case 'get-initial-data':
                             this.postInitialData();
@@ -279,7 +280,7 @@ class QorusWebview {
                                 action: 'return-triggers',
                                 data: {
                                     ... message.data,
-                                    triggers: project.code_info.triggers(message.data).map(name => ({name}))
+                                    triggers: triggers(project.code_info, message.data).map(name => ({name}))
                                 }
                             });
                             break;

@@ -213,6 +213,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                         )}
                         inputProps={{
                             placeholder: t('Filter'),
+                            name: 'select-filter',
                         }}
                         popoverProps={{
                             popoverClassName: 'custom-popover',

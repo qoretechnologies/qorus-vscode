@@ -202,7 +202,7 @@ export class QorusProjectYamlInfo {
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
             this.inheritance_pairs[class_name] = [base_class_name];
-            if (yaml_data.lang) {
+            if (yaml_data.lang === 'java') {
                 this.java_inheritance_pairs[class_name] = [base_class_name];
             }
         }
@@ -223,6 +223,12 @@ export class QorusProjectYamlInfo {
             }
         }
         return base_classes;
+    }
+
+    isDescendantOrSelf = (class_name: string, possible_descendant_class_name: string): boolean => {
+        let descendants_and_self = { [class_name]: true };
+        this.baseClasses(descendants_and_self, { ...this.inheritance_pairs });
+        return Object.keys(descendants_and_self).includes(possible_descendant_class_name);
     }
 
     baseClassesFromInheritancePairs() {

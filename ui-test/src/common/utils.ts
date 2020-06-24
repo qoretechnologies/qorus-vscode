@@ -1,4 +1,7 @@
 import { By, WebView } from 'vscode-extension-tester';
+import { expect } from 'chai';
+import * as fs from 'fs';
+import * as path from 'path';
 
 type TSelector = 'id' | 'name' | 'className';
 
@@ -42,6 +45,14 @@ export const selectNthDropdownItem = async (webview: WebView, name: string, posi
     await clickElement(webview, `field-${name}-item`, position);
 };
 
+export const selectNthFilteredDropdownItem = async (webview: WebView, name: string, filter: string, position: number = 1) => {
+    await clickElement(webview, `field-${name}`);
+    await sleep(500);
+    await fillTextField(webview, 'select-filter', filter);
+    await sleep(500);
+    await clickElement(webview, `field-${name}-item`, position);
+};
+
 export const submitInterface = async (webview: WebView, iface: string) => {
     await clickElement(webview, `interface-creator-submit-${iface}`);
 };
@@ -64,4 +75,18 @@ export const getElementAttribute = async (
     selector: TSelector = 'name'
 ) => {
     return await (await getNthElement(webview, elementName, position, selector)).getAttribute(attribute);
+};
+
+export const compareWithGoldFiles = async (folder: string, files: string[]) => {
+    await sleep(2000);
+
+    const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
+
+    const compare = (file_name: string) => {
+        const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, file_name));
+        const true_file_contents = fs.readFileSync(path.join(folder, file_name));
+        expect(true_file_contents).to.eql(expected_file_contents);
+    };
+
+    files.forEach(file => compare(file));
 };

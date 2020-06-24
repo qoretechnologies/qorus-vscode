@@ -163,6 +163,9 @@ msgstr "Authentication failed"
 msgid "GettingInfoError"
 msgstr "Error in getting info"
 
+msgid "GettingInterfacesError ${ iface_kind }"
+msgstr "Error in getting list of ${ iface_kind }"
+
 msgid "AttemptToSetInactiveNotActiveInstance ${ url }"
 msgstr "Attempt to set inactive a Qorus instance that is not active: ${ url }"
 
@@ -1390,6 +1393,9 @@ msgstr "Value"
 msgid "field-label-qore"
 msgstr "Qore"
 
+msgid "field-label-python"
+msgstr "Python"
+
 msgid "field-label-java"
 msgstr "Java"
 
@@ -2252,3 +2258,8 @@ msgstr "Show metadata"
 
 msgid "HideMetadata"
 msgstr "Hide metadata"
+msgid "OrigIfaceFileDoesNotExist ${ file }"
+msgstr "The original interface file ${ file } does not exist"
+
+msgid "ErrorParsingFile ${ file }"
+msgstr "Error in parsing file ${ file }"
