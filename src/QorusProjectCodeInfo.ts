@@ -659,6 +659,7 @@ export class QorusProjectCodeInfo {
             case 'event':
             case 'queue':
             case 'type':
+            case 'fsm':
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.yaml_info.yamlDataByType(object_type)).map(name => ({name}))
                 ));

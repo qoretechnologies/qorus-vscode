@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@blueprintjs/core';
 const eventListener = require('eventlistener');
 
 export interface ElementPanState {
@@ -142,6 +143,10 @@ export class ElementPan extends React.Component<
     }
 
     public componentDidMount() {
+        this.init();
+    }
+
+    init = () => {
         if (this.props.startX) {
             this.el.scrollLeft = this.props.startX;
         }
@@ -188,6 +193,7 @@ export class ElementPan extends React.Component<
                 onTouchStart={this.props.enableDragging && this.onDragStart}
                 onMouseDown={this.props.enableDragging && this.onDragStart}
             >
+                <Button style={{ position: 'absolute', right: '15px', top: '15px', zIndex: 500 }} icon='zoom-to-fit' onClick={this.init} /> 
                 {this.props.children}
             </div>
         );

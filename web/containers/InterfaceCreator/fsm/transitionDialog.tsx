@@ -64,8 +64,6 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         return !condition ? 'none' : typeof condition === 'string' ? 'custom' : 'connector';
     };
 
-    console.log(editingData, states);
-
     const getTransitionFromStates: () => IModifiedTransitions = () =>
         editingData.reduce(
             (modifiedData, { stateId, index }) => ({

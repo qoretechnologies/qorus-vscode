@@ -2034,6 +2034,9 @@ msgstr "Invalid date provided"
 msgid "TriggerNoMethodsAvailable"
 msgstr "No service methods available. To add a trigger to a service building block, please create at least one method."
 
+msgid "StepBaseClassMissing"
+msgstr "The base class of the step is missing, please add base class first."
+
 msgid "NoMapperFieldsAvailable"
 msgstr "No fields available for factory type"
 
@@ -2234,3 +2237,18 @@ msgstr "Manage trigger"
 
 msgid "FSMs"
 msgstr "Finite State Machines"
+
+msgid "field-label-options"
+msgstr "Options"
+
+msgid "ActionStrategy"
+msgstr "Action strategy"
+
+msgid "MaxThreadCount"
+msgstr "Max thread count"
+
+msgid "ShowMetadata"
+msgstr "Show metadata"
+
+msgid "HideMetadata"
+msgstr "Hide metadata"

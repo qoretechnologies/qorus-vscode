@@ -36,8 +36,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
     const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
     const t = useContext(TextContext);
 
-    console.log(newData);
-
     const handleDataUpdate = (name: string, value: any) => {
         setNewData((cur) => ({
             ...cur,
@@ -114,8 +112,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                 return null;
         }
     };
-
-    console.log(newData);
 
     return (
         <CustomDialog

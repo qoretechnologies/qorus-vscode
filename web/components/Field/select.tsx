@@ -47,6 +47,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     autoSelect,
     reference,
     iface_kind,
+    context,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -196,7 +197,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
             : filteredItems.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
 
     return (
-        <FieldEnhancer>
+        <FieldEnhancer context={{ iface_kind, ...context }}>
             {(onEditClick, onCreateClick) => (
                 <ControlGroup fill>
                     <Select

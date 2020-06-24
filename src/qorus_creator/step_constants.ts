@@ -76,6 +76,23 @@ export const stepFields = ({default_target_dir, is_editing}) => [
             type: 'queue',
         },
     },
+    {
+        name: 'fsm',
+        mandatory: false,
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'fsm',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'fsm',
+            return_value: 'objects',
+        },
+        reference: {
+            iface_kind: 'fsm',
+        }
+    }
 ];
 
 export const stepTypeHeaders = step_type => {

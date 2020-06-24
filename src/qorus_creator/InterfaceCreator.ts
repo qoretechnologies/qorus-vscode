@@ -688,12 +688,13 @@ export abstract class InterfaceCreator {
                         break;
                     case 'fields':
                     case 'mapper_options':
+                    case 'fsm_options':
                     case 'typeinfo':
                     case 'staticdata-type':
                     case 'triggers':
                     case 'states':
                     case 'context':
-                        result += `${tag === 'mapper_options' ? 'options' : tag}:\n` +
+                        result += `${tag === 'mapper_options' || tag === 'fsm_options' ? 'options' : tag}:\n` +
                             InterfaceCreator.indentYamlDump(value, 1, true);
                         break;
                     case 'desc':

@@ -10,6 +10,8 @@ import RadioField from '../../../components/Field/radioField';
 import Content from '../../../components/Content';
 import { Intent, ButtonGroup, Tooltip, Button, Callout } from '@blueprintjs/core';
 import SelectField from '../../../components/Field/select';
+import StringField from '../../../components/Field/string';
+
 import ConnectorSelector from './connectorSelector';
 import { IManageDialog } from '../../ClassConnectionsManager/diagram';
 import { FieldContext } from '../../../context/fields';
@@ -33,7 +35,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
     data,
     onSubmit,
     onClose,
-    ifaceType = 'service',
+    ifaceType,
     methodsCount,
     baseClassName,
 }) => {
@@ -41,10 +43,8 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
     const initialData = useContext(InitialContext);
     const { requestInterfaceData } = useContext(FieldContext);
 
-    console.log(requestInterfaceData('service-methods'));
-
     const getBaseClassName = () => {
-        return requestInterfaceData(ifaceType, 'base-class-name');
+        return requestInterfaceData(ifaceType, 'base-class-name')?.value;
     };
 
     const getMethods: () => { name: string }[] = () => {
@@ -94,8 +94,21 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
 
     const renderTriggerField = () => {
         if (triggerType === 'trigger') {
+            if (!ifaceType && !newData.method) {
+                return null;
+            }
+
+            if (!ifaceType && newData.method) {
+                return <StringField disabled value={newData.method} />
+            }
+
             const methods = getMethods();
-            console.log(getBaseClassName());
+            const baseClassName: string = getBaseClassName();
+
+            if (ifaceType === 'step' && !baseClassName) {
+                return <Callout intent="warning">{t('StepBaseClassMissing')}</Callout>
+            }
+            
             return (
                 <>
                     {ifaceType === 'service' && methodsCount === 0 && (
@@ -116,7 +129,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
                                 ifaceType !== 'service' && {
                                     action: 'return-triggers',
                                     return_value: 'data.triggers',
-                                }
+                                } 
                             }
                             defaultItems={ifaceType === 'service' && methods}
                             value={newData.method}
@@ -152,7 +165,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
                                     setTriggerType(value);
                                 }}
                                 value={triggerType}
-                                items={[{ value: 'event-connector' }, { value: 'trigger' }]}
+                                items={!ifaceType && !newData.method ? [{ value: 'event-connector' }] : [{ value: 'event-connector' }, { value: 'trigger' }]}
                             />
                             <Spacer size={20} />
                             {renderTriggerField()}

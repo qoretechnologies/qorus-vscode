@@ -70,5 +70,22 @@ export const jobFields = ({default_target_dir, is_editing}) => [
     {
         name: 'schedule',
         type: 'cron',
+    },
+    {
+        name: 'fsm',
+        mandatory: false,
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'fsm',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'fsm',
+            return_value: 'objects',
+        },
+        reference: {
+            iface_kind: 'fsm',
+        }
     }
 ];

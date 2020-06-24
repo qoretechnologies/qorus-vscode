@@ -25,11 +25,15 @@ import { Tag, Button, ButtonGroup, Tooltip, Intent } from '@blueprintjs/core';
 import FSMTriggerDialog from './triggerDialog';
 import { Messages } from '../../../constants/messages';
 import FileString from '../../../components/Field/fileString';
+import SelectField from '../../../components/Field/select';
+
+import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
+import Number from '../../../components/Field/number';
+import Spacer from '../../../components/Spacer';
 
 export interface IFSMViewProps {
-    fsm: any;
     onSubmitSuccess: () => any;
-    interfaceContext: any;
+    setFsmReset: () => void; 
 }
 
 export interface IDraggableItem {
@@ -53,7 +57,8 @@ export interface IFSMMetadata {
     name: string;
     desc: string;
     triggers?: TTrigger[];
-    options?: {
+    target_dir: string;
+    fsm_options?: {
         'action-strategy': 'one' | 'all';
         'max-thread-count': number;
     };
@@ -138,16 +143,23 @@ const StyledFSMCircle = styled.circle`
 let currentXPan: number;
 let currentYPan: number;
 
-const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
+const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext }) => {
     const t = useContext(TextContext);
     const { sidebarOpen, path, confirmAction, callBackend, fsm } = useContext(InitialContext);
+    
     const wrapperRef = useRef(null);
-    const [states, setStates] = useState<IFSMStates>({});
+    const fieldsWrapperRef = useRef(null);
+
+    const [states, setStates] = useState<IFSMStates>(fsm?.states || {});
     const [metadata, setMetadata] = useState<IFSMMetadata>({
-        target_dir: null,
-        name: null,
-        desc: null,
-        triggers: [{ method: 'test' }],
+        target_dir: fsm?.target_dir || null,
+        name: fsm?.name || null,
+        desc: fsm?.desc || null,
+        triggers: fsm?.triggers || [],
+        fsm_options: fsm?.fsm_options || {
+            "action-strategy": 'one',
+            "max-thread-count": 1,
+        }
     });
     const [selectedState, setSelectedState] = useState<number | null>(null);
     const [editingState, setEditingState] = useState<number | null>(null);
@@ -160,7 +172,9 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
         width: 0,
         height: 0,
     });
+    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
     const [zoom, setZoom] = useState<number>(1);
+
     const [, drop] = useDrop({
         accept: DROP_ACCEPTS,
         drop: (item: IDraggableItem, monitor) => {
@@ -179,7 +193,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
                             id,
                             position: {
                                 x: x + calculatePercDiff(currentXPan) - (sidebarOpen ? 333 : 153),
-                                y: y + calculatePercDiff(currentYPan) - 300,
+                                y: y + calculatePercDiff(currentYPan) - (fieldsWrapperRef.current.getBoundingClientRect().height + 200),
                             },
                             final: false,
                             initial: false,
@@ -197,6 +211,15 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
             }
         },
     });
+
+    const isFSMValid = () => {
+        return (
+            validateField('string', metadata.target_dir) && 
+            validateField('string', metadata.name) && 
+            validateField('string', metadata.desc) && 
+            size(states)
+        )
+    }
 
     const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
         setMetadata((cur) => ({
@@ -217,6 +240,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
     };
 
     useMount(() => {
+        setFsmReset(() => reset);
         const { width, height } = wrapperRef.current.getBoundingClientRect();
 
         currentXPan = 1000 - width / 2;
@@ -230,6 +254,8 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
+            
+            setFsmReset(null);
         };
     });
 
@@ -327,11 +353,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
     };
 
     const handleSubmitClick = async () => {
-        console.log({data: {
-            ...metadata,
-            states,
-        }});
-
         const result = await callBackend(
             fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
             undefined,
@@ -434,10 +455,20 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
 
     const reset = () => {
         setStates({});
-        setMetadata({ name: null, desc: null });
+        setMetadata({ name: null, desc: null, triggers: [], target_dir: null, fsm_options: { "action-strategy": 'one', "max-thread-count": 1 } });
     }
 
     const calculateMargin = () => (zoom - 1) * 1000;
+
+    const handleTriggerRemove = (trigger: string): void => {
+        setMetadata(cur => {
+            const result = {...cur};
+
+            result.triggers = result.triggers.filter((trig) => trigger !== getTriggerName(trig));
+
+            return result;
+        })
+    }
 
     const getTriggerName = (trigger: TTrigger) => {
         if (trigger.hasOwnProperty('method')) {
@@ -446,67 +477,104 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
 
         return `${trigger.class}:${trigger.connector}`;
     };
-
+    
     return (
         <>
-            <FieldWrapper>
-                <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', metadata.target_dir)} />
-                <FieldInputWrapper>
-                    <FileString
-                        onChange={handleMetadataChange}
-                        name="target_dir"
-                        value={metadata.target_dir}
-                        get_message={{
-                            action: 'creator-get-directories',
-                            object_type: 'target_dir',
-                        }}
-                        return_message={{
-                            action: 'creator-return-directories',
-                            object_type: 'target_dir',
-                            return_value: 'directories',
-                        }}
-                    />
-                </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper>
-                <FieldLabel isValid={validateField('string', metadata.name)} label={t('field-label-name')} />
-                <FieldInputWrapper>
-                    <String onChange={handleMetadataChange} value={metadata.name} name="name" />
-                </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper>
-                <FieldLabel isValid={validateField('string', metadata.desc)} label={t('field-label-desc')} />
-                <FieldInputWrapper>
-                    <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
-                </FieldInputWrapper>
-            </FieldWrapper>
-            <FieldWrapper>
-                <FieldLabel isValid={validateField('string', metadata.triggers)} label={t('field-label-triggers')} />
-                <FieldInputWrapper>
-                    {metadata.triggers.map((trigger: TTrigger, index: number) => (
-                        <>
-                            <Tag
-                                large
-                                interactive
-                                intent="none"
-                                minimal
-                                onClick={() => {
-                                    setTriggerManager({ isOpen: true, data: trigger, index });
-                                }}
-                                onRemove={() => {
-                                    console.log();
-                                }}
-                            >
-                                {getTriggerName(trigger)}
-                            </Tag>{' '}
-                        </>
-                    ))}
-                    <Button icon="add" intent="success" onClick={() => setTriggerManager({ isOpen: true })} />
-                </FieldInputWrapper>
-            </FieldWrapper>
+            <div ref={fieldsWrapperRef}>
+                {!isMetadataHidden && (
+                    <>
+                        <FieldWrapper>
+                            <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', metadata.target_dir)} />
+                            <FieldInputWrapper>
+                                <FileString
+                                    onChange={handleMetadataChange}
+                                    name="target_dir"
+                                    value={metadata.target_dir}
+                                    get_message={{
+                                        action: 'creator-get-directories',
+                                        object_type: 'target_dir',
+                                    }}
+                                    return_message={{
+                                        action: 'creator-return-directories',
+                                        object_type: 'target_dir',
+                                        return_value: 'directories',
+                                    }}
+                                />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel isValid={validateField('string', metadata.name)} label={t('field-label-name')} />
+                            <FieldInputWrapper>
+                                <String onChange={handleMetadataChange} value={metadata.name} name="name" />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel isValid={validateField('string', metadata.desc)} label={t('field-label-desc')} />
+                            <FieldInputWrapper>
+                                <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel isValid={validateField('string', metadata.fsm_options)} label={t('field-label-options')} />
+                            <FieldInputWrapper>
+                                <p>{t('ActionStrategy')}</p>
+                                <SelectField 
+                                    onChange={(_, value) => {
+                                        handleMetadataChange('fsm_options', {
+                                            ...metadata.fsm_options,
+                                            'action-strategy': value,
+                                        })
+                                    }}
+                                    name='fsm_options'
+                                    value={metadata.fsm_options['action-strategy']}
+                                    defaultItems={[{ name: 'one'}, { name: 'all' }]}
+                                />
+                                <Spacer size={10} />
+                                <p>{t('MaxThreadCount')}</p>
+                                <Number 
+                                    onChange={(_, value) => {
+                                        handleMetadataChange('fsm_options', {
+                                            ...metadata.fsm_options,
+                                            'max-thread-count': value,
+                                        })
+                                    }}
+                                    name='fsm_options'
+                                    value={metadata.fsm_options['max-thread-count']}
+                                />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel isValid={validateField('string', metadata.triggers)} label={t('field-label-triggers')} />
+                            <FieldInputWrapper>
+                                {metadata.triggers.map((trigger: TTrigger, index: number) => (
+                                    <>
+                                        <Tag
+                                            large
+                                            interactive
+                                            intent="none"
+                                            minimal
+                                            onClick={() => {
+                                                setTriggerManager({ isOpen: true, data: trigger, index });
+                                            }}
+                                            onRemove={(e, props) => {
+                                                e.stopPropagation();
+                                                handleTriggerRemove(props.children);
+                                            }}
+                                        >
+                                            {getTriggerName(trigger)}
+                                        </Tag>{' '}
+                                    </>
+                                ))}
+                                <Button icon="add" intent="success" onClick={() => setTriggerManager({ isOpen: true })} />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                    </>
+                )}
+            </div>
             {triggerManager.isOpen && (
                 <FSMTriggerDialog
                     {...triggerManager}
+                    ifaceType={interfaceContext?.iface_kind}
                     onClose={() => setTriggerManager({ isOpen: false })}
                     onSubmit={(data, index) => {
                         const newTriggers: TTrigger[] = cloneDeep(metadata.triggers);
@@ -551,6 +619,12 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
                 <FSMToolbarItem name="fsm" count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}>
                     {t('FSM')}
                 </FSMToolbarItem>
+                <Button
+                    style={{ float: 'right' }}
+                    onClick={() => setIsMetadataHidden(cur => !cur)}
+                    text={t(isMetadataHidden ? 'ShowMetadata' : 'HideMetadata')}
+                    icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
+                />
             </StyledToolbarWrapper>
             <StyledDiagramWrapper ref={wrapperRef}>
                 <FSMDiagramWrapper
@@ -655,7 +729,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
                         <Button
                             text={t('Submit')}
                             onClick={handleSubmitClick}
-                            disabled={false}
+                            disabled={!isFSMValid()}
                             icon={'tick'}
                             intent={Intent.SUCCESS}
                         />
@@ -666,8 +740,4 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess }) => {
     );
 };
 
-/*
-d={`M ${x1 + 90} ${y1 + 25} L ${x2 + 90} ${y2 + 25}`}
-                                            */
-
-export default FSMView;
+export default withGlobalOptionsConsumer()(FSMView);

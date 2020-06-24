@@ -700,16 +700,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     );
                 });
                 // Add missing methods
-                if (allMethodsData) {
+                /*if (allMethodsData) {
                     allMethodsData.forEach((method) => {
                         // Check if this method exists in the
                         // data hash also check if the method has been deleted
                         if (!newData[subItemType].find((m) => m.orig_name === method.name)) {
                             // Add this method
-                            newData[subItemType].push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
+                            //newData[subItemType].push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
                         }
                     });
-                }
+                }*/
                 // Filter deleted methods
                 if (methodsList) {
                     newData[subItemType] = newData[subItemType].filter((m) =>

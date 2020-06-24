@@ -86,9 +86,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const requestInterfaceData = (ifaceKind: string, field?: string): any => {
             if (field) {
-                console.log(selectedFields[ifaceKind]);
                 return selectedFields[ifaceKind].find((f) => {
-                    console.log(f.name, field);
                     return f.name === field;
                 });
             }
@@ -161,7 +159,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setSelectedFields = (type, value, activeId) => {
-            console.log('SET SELECTED FIELDS', type, value, activeId);
             setLocalSelectedFields((current) => {
                 const newResult = { ...current };
                 // If active ID is set, we need to create/update
@@ -209,7 +206,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         // Checks if method is valid
         const isSubItemValid: (itemId: number, type: string) => boolean = (itemId, type) => {
             if (itemId) {
-                console.log(selectedFields[type], itemId);
                 return (
                     selectedFields[type][itemId] && selectedFields[type][itemId].every(({ isValid }: IField) => isValid)
                 );
