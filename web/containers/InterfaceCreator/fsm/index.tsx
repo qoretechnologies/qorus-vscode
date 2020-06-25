@@ -113,7 +113,7 @@ const StyledDiagram = styled.div<{ path: string }>`
         `url(${
             process.env.NODE_ENV === 'development'
                 ? `http://localhost:9876/images/tiny_grid.png`
-                : `vscode-resource:${path}/images/tiny_grid.png)`
+                : `vscode-resource:${path}/images/tiny_grid.png`
         })`};
     display: flex;
     align-items: center;
