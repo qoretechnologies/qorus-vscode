@@ -11,8 +11,9 @@ import {
 } from 'vscode-extension-tester';
 import { sleep } from './common/utils';
 import {
-    createServiceClassWithConfigItems,
-    createServiceWithConfigItems,
+    createServiceClass,
+    createClass,
+    createService,
     checkFiles,
 } from './config_items_tests/config_items_tests';
 
@@ -64,7 +65,8 @@ describe('Config Items Tests', function() {
         await sleep(1000);
     });
 
-    it('Create class', () => createServiceClassWithConfigItems(webview));
-    it('Create service', () => createServiceWithConfigItems(webview, editorView, project_folder));
+    it('Create service class', () => createServiceClass(webview));
+    it('Create class', () => createClass(webview, editorView));
+    it('Create service', () => createService(webview, editorView, project_folder));
     it('Check files', () => checkFiles(project_folder));
 });

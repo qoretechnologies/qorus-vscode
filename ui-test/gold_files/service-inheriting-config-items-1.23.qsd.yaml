@@ -1,15 +1,16 @@
 # This is a generated file, don't edit!
 type: service
 name: service-inheriting-config-items
-desc: Test service inheriting class with config items
+desc: Test service inheriting config items
 base-class-name: ServiceClassWithConfigItems
 class-name: ServiceInheritingConfigItems
+classes:
+  - ServiceClassWithConfigItems
+  - ClassWithConfigItems
 lang: qore
 version: "1.23"
 servicetype: USER
 code: service-inheriting-config-items-1.23.qsd
-classes:
-  - ServiceClassWithConfigItems
 config-items:
   - name: test-config-item-1
     parent:
@@ -17,6 +18,11 @@ config-items:
         interface-name: ServiceClassWithConfigItems
         interface-version: "1.2"
   - name: test-config-item-2
+    parent:
+        interface-type: class
+        interface-name: ClassWithConfigItems
+        interface-version: "1.3"
+  - name: test-config-item-3
     config_group: test
     description: test config item
     type: list
