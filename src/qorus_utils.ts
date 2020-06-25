@@ -31,8 +31,6 @@ export const isTest = (file_path: string): boolean => {
     return false;
 };
 
-export const isService = (file_path: string): boolean => getSuffix(file_path) === 'qsd';
-
 export const isVersion3 = (version?: string): boolean =>
     !!version && version.toString().substr(0, 1) == '3';
 

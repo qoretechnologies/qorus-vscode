@@ -9,10 +9,21 @@ import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
-import { filesInDir, isDeployable, isService, isVersion3 } from './qorus_utils';
+import { filesInDir, isDeployable, isVersion3 } from './qorus_utils';
 
 
 class QorusDeploy {
+
+    private code_info: QorusProjectCodeInfo | undefined = undefined;
+
+    private setCodeInfo = (uri: vscode.Uri): boolean => {
+        this.code_info = projects.projectCodeInfo(uri);
+        if (!this.code_info) {
+            msg.error(t`QorusProjectNotSet`);
+            return false;
+        }
+        return true;
+    }
 
     deployCurrentFile() {
         const editor = vscode.window.activeTextEditor;
@@ -52,10 +63,12 @@ class QorusDeploy {
     }
 
     private deployFileAndPairFile(uri: vscode.Uri): Thenable<boolean> {
+        if (!this.setCodeInfo(uri)) {
+            return Promise.resolve(false);
+        }
+
         const file_path: string = uri.fsPath;
-        const project = projects.getProject(uri);
-        const code_info = project && project.code_info;
-        const pair_file_path = code_info.pairFile(file_path);
+        const pair_file_path = this.code_info.pairFile(file_path);
 
         if (pair_file_path) {
             return this.doDeploy([file_path, pair_file_path]);
@@ -66,6 +79,10 @@ class QorusDeploy {
     }
 
     deployDir(uri: vscode.Uri) {
+        if (!this.setCodeInfo(uri)) {
+            return;
+        }
+
         const dir: string = uri.fsPath;
         msg.log(t`DeployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
@@ -80,7 +97,7 @@ class QorusDeploy {
     }
 
     deployAllInterfaces() {
-        const code_info: QorusProjectCodeInfo = projects.currentProjectCodeInfo();
+        const code_info: QorusProjectCodeInfo = this.code_info || projects.currentProjectCodeInfo();
         if (!code_info) {
             msg.error(t`QorusProjectNotSet`);
             return;
@@ -137,7 +154,7 @@ class QorusDeploy {
             }];
         }
         else {
-            QorusDeploy.prepareData(file_paths, data);
+            this.prepareData(file_paths, data);
         }
 
         msg.log(t`DeploymentHasStarted ${active_instance.name} ${active_instance.url}`);
@@ -173,7 +190,7 @@ class QorusDeploy {
         return qorus_request.doRequestAndCheckResult(options, texts);
     }
 
-    private static prepareData(files: string[], data: object[]) {
+    private prepareData(files: string[], data: object[]) {
         for (let file_path of files) {
             const file_relative_path = vscode.workspace.asRelativePath(file_path, false);
             msg.log(`    ${file_relative_path}`);
@@ -189,26 +206,23 @@ class QorusDeploy {
                 'file_content': buffer.toString('base64')
             });
 
-            if (isService(file_path)) {
-                const resources: string[] =
-                    QorusDeploy.getResources(file_content.toString(), path.dirname(file_path));
-                QorusDeploy.prepareData(resources, data);
+            if (file_path.endsWith('.qsd.yaml')) {
+                const resources: string[] = this.getResources(file_path);
+                this.prepareData(resources, data);
             }
         }
     }
 
-    private static getResources(file_content: string, dir_path: string): string[] {
-        let resources: string[] = [];
-        for (let line of file_content.split(/\r?\n/)) {
-            if (line.search(/^#\s*resource\s*:\s*(.*\S)\s*$/) > -1) {
-                resources = resources.concat(RegExp.$1.split(/\s+/));
-            }
-        }
+    private getResources = (file_path: string): string[] => {
+        let resources = this.code_info.yaml_info.yamlDataByYamlFile(file_path)?.resource || [];
+
         if (resources.length) {
+            const dir_path = path.dirname(file_path);
             resources = resources.map(basename => path.join(dir_path, basename));
             const pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
             return glob.sync(pattern, {nodir: true});
         }
+
         return [];
     }
 }
