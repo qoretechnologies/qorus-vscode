@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { expect } from 'chai';
-import { By, WebView, EditorView } from 'vscode-extension-tester';
+import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
 import {
     sleep,
     compareWithGoldFiles,
@@ -163,6 +163,20 @@ export const checkFiles = async (project_folder: string) => {
         'service-inheriting-config-items-1.23.qsd',
         'service-inheriting-config-items-1.23.qsd.yaml'
     ]);
+};
+
+export const openFile = async (webview: WebView, workbench: Workbench, input: InputBox, project_folder: string) => {
+    await webview.switchBack();
+    await workbench.executeCommand('Extest: Open File');
+
+    await sleep(1000);
+
+    await input.wait();
+    await input.setText(path.join(project_folder, 'arpm', 'ClassWithConfigItems-1.3.qclass.yaml'));
+    await input.confirm();
+    await sleep(1000);
+    await workbench.executeCommand('Qorus: Edit Current Interface');
+    await sleep(5000);
 };
 
 const openConfigItemManager = async (webview: WebView) => {

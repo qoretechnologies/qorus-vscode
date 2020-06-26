@@ -15,6 +15,7 @@ import {
     createClass,
     createService,
     checkFiles,
+    openFile,
 } from './config_items_tests/config_items_tests';
 
 
@@ -22,6 +23,7 @@ describe('Config Items Tests', function() {
     this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
+    let input: InputBox;
     let editorView: EditorView;
     let webview: WebView;
     let notificationsCenter: NotificationsCenter;
@@ -36,9 +38,9 @@ describe('Config Items Tests', function() {
 
         await workbench.executeCommand('Extest: Open Folder');
 
-        await sleep(3000);
+        await sleep(1000);
 
-        const input: InputBox = await new InputBox();
+        input = await new InputBox();
 
         await input.wait();
         await input.setText(project_folder);
@@ -69,4 +71,5 @@ describe('Config Items Tests', function() {
     it('Create class', () => createClass(webview, editorView));
     it('Create service', () => createService(webview, editorView, project_folder));
     it('Check files', () => checkFiles(project_folder));
+    it('Open file', () => openFile(webview, workbench, input, project_folder));
 });
