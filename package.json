@@ -131,6 +131,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.editCurrentInterface",
+                "title": "Edit Current Interface",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.openUrlInExternalBrowser",
                 "title": "Open URL in an External Tool",
                 "category": "Qorus"
@@ -803,6 +808,12 @@
                 "command": "qorus.deployCurrentFile",
                 "key": "ctrl+alt+o",
                 "mac": "cmd+alt+r",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "qorus.editCurrentInterface",
+                "key": "ctrl+alt+e",
+                "mac": "cmd+alt+e",
                 "when": "editorTextFocus"
             },
             {
