@@ -124,6 +124,21 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.editCurrentInterface', () => {
+        const editor = vscode.window.activeTextEditor;
+        const code_info = projects.projectCodeInfo(editor?.document.uri);
+        if (!code_info) {
+            return;
+        }
+        const data = code_info.yaml_info.yamlDataByFile(editor.document.fileName);
+        if (!data) {
+            return;
+        }
+        const fixed_data = code_info.fixData(data);
+        vscode.commands.executeCommand('qorus.editInterface', fixed_data, data.type);
+    });
+    context.subscriptions.push(disposable);
+
     disposable = vscode.commands.registerCommand('qorus.deleteMethod', (data: any, iface_kind: string) =>
             creator.deleteMethod(data, iface_kind));
     context.subscriptions.push(disposable);

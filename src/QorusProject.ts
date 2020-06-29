@@ -373,8 +373,11 @@ class QorusProjects {
         return this.projects[project_folder];
     }
 
-    projectCodeInfo(file_path): QorusProjectCodeInfo | undefined {
-        return this.getProject(vscode.Uri.file(file_path))?.code_info;
+    projectCodeInfo(uri: vscode.Uri | string): QorusProjectCodeInfo | undefined {
+        if (typeof uri === 'string') {
+            uri = vscode.Uri.file(uri);
+        }
+        return this.getProject(uri)?.code_info;
     }
 
     currentProjectCodeInfo(): QorusProjectCodeInfo | undefined {
