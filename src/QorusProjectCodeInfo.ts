@@ -546,43 +546,23 @@ export class QorusProjectCodeInfo {
                 });
                 break;
             case 'service-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaServiceClasses(), [root_service]))
-                    );
-                } else {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(), [root_service]))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(lang), [root_service]))
+                );
                 break;
             case 'job-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaJobClasses(), [root_job]))
-                    );
-                } else {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.jobClasses(), [root_job]))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.jobClasses(lang), [root_job]))
+                );
                 break;
             case 'workflow-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaWorkflowClasses(), [root_workflow]))
-                    );
-                } else {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.workflowClasses(), [root_workflow]))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.workflowClasses(lang), [root_workflow]))
+                );
                 break;
             case 'step-base-class':
-                const stepClassesMethod = lang === 'java' ? 'allJavaStepClasses' : 'allStepClasses';
-
                 this.waitForPending(['yaml']).then(() => {
-                    const step_classes = this.yaml_info[stepClassesMethod]();
+                    const step_classes = this.yaml_info.allStepClasses(lang);
 
                     let result = this.addDescToClasses(step_classes, root_steps);
                     if (iface_kind === 'step' && class_name) {
@@ -612,15 +592,9 @@ export class QorusProjectCodeInfo {
                 });
                 break;
             case 'processor-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaProcessorClasses(), [root_processor]))
-                    );
-                } else {
-                    this.waitForPending(['yaml']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.processorClasses(), [root_processor]))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.processorClasses(lang), [root_processor]))
+                );
                 break;
             case 'author':
                 this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));

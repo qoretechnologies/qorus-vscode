@@ -51,31 +51,66 @@ export class QorusProjectYamlInfo {
     private java_workflow_classes = {};
     private java_processor_classes = {};
 
-    serviceClasses = () => ({ ...this.service_classes });
-    jobClasses = () => ({ ...this.job_classes });
-    workflowClasses = () => ({ ...this.workflow_classes });
-    processorClasses = () => ({ ...this.processor_classes });
+    private python_job_classes = {};
+    private python_service_classes = {};
+    private python_step_classes = {};
+    private python_workflow_classes = {};
+    private python_processor_classes = {};
 
-    javaServiceClasses = () => ({ ...this.java_service_classes });
-    javaJobClasses = () => ({ ...this.java_job_classes });
-    javaWorkflowClasses = () => ({ ...this.java_workflow_classes });
-    javaProcessorClasses = () => ({ ...this.java_processor_classes });
-
-    stepClasses = step_type => ({ ...this.step_classes[step_type] });
-    javaStepClasses = step_type => ({ ...this.java_step_classes[step_type] });
-
-    allStepClasses = () => {
-        let ret_val = {};
-        for (const step_type of root_steps) {
-            Object.assign(ret_val, this.step_classes[step_type]);
+    serviceClasses = lang => {
+        switch (lang) {
+            case 'python': return { ...this.python_service_classes };
+            case 'java': return { ...this.java_service_classes };
+            default: return { ...this.service_classes };
         }
-        return ret_val;
     }
 
-    allJavaStepClasses = () => {
+    jobClasses = lang => {
+        switch (lang) {
+            case 'python': return { ...this.python_job_classes };
+            case 'java': return { ...this.java_job_classes };
+            default: return { ...this.job_classes };
+        }
+    }
+
+    workflowClasses = lang => {
+        switch (lang) {
+            case 'python': return { ...this.python_workflow_classes };
+            case 'java': return { ...this.java_workflow_classes };
+            default: return { ...this.workflow_classes };
+        }
+    }
+
+    processorClasses = lang => {
+        switch (lang) {
+            case 'python': return { ...this.python_processor_classes };
+            case 'java': return { ...this.java_processor_classes };
+            default: return { ...this.processor_classes };
+        }
+    }
+
+    stepClasses = (step_type, lang = 'qore') => {
+        switch (lang) {
+            case 'python': return { ...this.python_step_classes[step_type] };
+            case 'java': return { ...this.java_step_classes[step_type] };
+            default: return { ...this.step_classes[step_type] };
+        }
+    }
+
+    allStepClasses = lang => {
         let ret_val = {};
         for (const step_type of root_steps) {
-            Object.assign(ret_val, this.java_step_classes[step_type]);
+            switch (lang) {
+                case 'python':
+                    Object.assign(ret_val, this.python_step_classes[step_type]);
+                    break;
+                case 'java':
+                    Object.assign(ret_val, this.java_step_classes[step_type]);
+                    break;
+                default:
+                    Object.assign(ret_val, this.step_classes[step_type]);
+                    break;
+            }
         }
         return ret_val;
     }
@@ -108,9 +143,15 @@ export class QorusProjectYamlInfo {
         this.java_workflow_classes = { [root_workflow]: true };
         this.java_processor_classes = { [root_processor]: true };
 
+        this.python_job_classes = { [root_job]: true };
+        this.python_service_classes = { [root_service]: true };
+        this.python_workflow_classes = { [root_workflow]: true };
+        this.python_processor_classes = { [root_processor]: true };
+
         for (const step_type of root_steps) {
             this.step_classes[step_type] = { [step_type]: true };
             this.java_step_classes[step_type] = { [step_type]: true };
+            this.python_step_classes[step_type] = { [step_type]: true };
         }
     }
 
