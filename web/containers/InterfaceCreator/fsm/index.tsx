@@ -30,6 +30,7 @@ import SelectField from '../../../components/Field/select';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import Number from '../../../components/Field/number';
 import Spacer from '../../../components/Spacer';
+import { GlobalContext } from '../../../context/global';
 
 export interface IFSMViewProps {
     onSubmitSuccess: () => any;
@@ -43,7 +44,7 @@ export interface IDraggableItem {
 }
 
 export interface IFSMTransition {
-    state?: number;
+    state?: string;
     fsm?: number;
     condition?: {
         type: string;
@@ -69,7 +70,6 @@ export interface IFSMState {
         x?: number;
         y?: number;
     };
-    id?: number;
     transitions?: IFSMTransition[];
     'error-transitions'?: IFSMTransition[];
     initial?: boolean;
@@ -146,7 +146,8 @@ let currentYPan: number;
 const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext }) => {
     const t = useContext(TextContext);
     const { sidebarOpen, path, confirmAction, callBackend, fsm } = useContext(InitialContext);
-    
+    const { resetAllInterfaceData } = useContext(GlobalContext);
+
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
 
@@ -161,8 +162,8 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             "max-thread-count": 1,
         }
     });
-    const [selectedState, setSelectedState] = useState<number | null>(null);
-    const [editingState, setEditingState] = useState<number | null>(null);
+    const [selectedState, setSelectedState] = useState<string | null>(null);
+    const [editingState, setEditingState] = useState<string | null>(null);
     const [triggerManager, setTriggerManager] = useState<{ isOpen: boolean; data?: TTrigger; index?: number }>({
         isOpen: false,
     });
@@ -181,7 +182,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             if (item.type === TOOLBAR_ITEM_TYPE) {
                 let { x, y } = monitor.getClientOffset();
                 const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
-                const id = Math.max(...ids) + 1;
+                const id = (Math.max(...ids) + 1).toString();
                 const calculatePercDiff = (value) => value + (value / 100) * Math.abs(100 * (zoom - 1));
                 x = x / zoom;
                 y = y / zoom;
@@ -190,7 +191,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     (cur: IFSMStates): IFSMStates => ({
                         ...cur,
                         [id]: {
-                            id,
                             position: {
                                 x: x + calculatePercDiff(currentXPan) - (sidebarOpen ? 333 : 153),
                                 y: y + calculatePercDiff(currentYPan) - (fieldsWrapperRef.current.getBoundingClientRect().height + 200),
@@ -276,13 +276,13 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         currentYPan = y;
     };
 
-    const getTransitionByState = (stateId: number, targetId: number): IFSMTransition | null => {
+    const getTransitionByState = (stateId: string, targetId: string): IFSMTransition | null => {
         const { transitions } = states[stateId];
 
         return transitions?.find((transition) => transition.state === targetId);
     };
 
-    const handleStateClick = (id: number): void => {
+    const handleStateClick = (id: string): void => {
         if (selectedState) {
             // Do nothing if the selected transition already
             // exists
@@ -301,7 +301,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 newBoxes[selectedState].transitions = [
                     ...(newBoxes[selectedState].transitions || []),
                     {
-                        state: id,
+                        state: id.toString(),
                     },
                 ];
 
@@ -348,7 +348,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         updateStateData(stateId, { transitions: transitionsCopy });
     };
 
-    const handleStateEditClick = (id: number): void => {
+    const handleStateEditClick = (id: string): void => {
         setEditingState(id);
     };
 
@@ -375,12 +375,13 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 });
             }
             reset();
+            resetAllInterfaceData('fsm');
         }
     }
 
     const hasBothWayTransition = (stateId: string, targetId: string): { stateId: string; index: number } => {
         const transitionIndex = states[targetId].transitions?.findIndex(
-            (transition) => transition.state === parseInt(stateId)
+            (transition) => transition.state === stateId
         );
 
         if (transitionIndex >= 0) {
@@ -394,7 +395,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         return stateId === targetId;
     };
 
-    const handleStateDeleteClick = (id: number): void => {
+    const handleStateDeleteClick = (id: string): void => {
         setStates((current) => {
             let newStates: IFSMStates = { ...current };
 
@@ -403,11 +404,11 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 (modifiedStates: IFSMStates, state: IFSMState, stateId: string) => {
                     const newState: IFSMState = { ...state };
 
-                    if (parseInt(stateId) === id) {
+                    if (stateId === id) {
                         return modifiedStates;
                     }
 
-                    if (state.transitions && getTransitionByState(parseInt(stateId), id)) {
+                    if (state.transitions && getTransitionByState(stateId, id)) {
                         newState.transitions = newState.transitions.reduce(
                             (newTransitions: IFSMTransition[], transition: IFSMTransition) => {
                                 if (transition.state === id) {
@@ -439,7 +440,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             const stateTransitions = state.transitions.map((transition: IFSMTransition, index: number) => ({
                 isError: !!transition.errors,
                 transitionIndex: index,
-                state: parseInt(id),
+                state: id,
                 targetState: transition.state,
                 x1: state.position.x,
                 y1: state.position.y,
@@ -599,7 +600,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     otherStates={reduce(
                         states,
                         (newStates, state, id) =>
-                            parseInt(id) === editingState ? { ...newStates } : { ...newStates, [id]: state },
+                            id === editingState ? { ...newStates } : { ...newStates, [id]: state },
                         {}
                     )}
                 />
@@ -647,9 +648,9 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                         {map(states, (state, id) => (
                             <FSMState
                                 key={id}
-                                id={id}
                                 {...state}
-                                selected={selectedState === parseInt(id)}
+                                id={id}
+                                selected={selectedState === id}
                                 onClick={handleStateClick}
                                 onEditClick={handleStateEditClick}
                                 onDeleteClick={handleStateDeleteClick}

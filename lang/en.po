@@ -2244,6 +2244,9 @@ msgstr "Manage trigger"
 msgid "FSMs"
 msgstr "Finite State Machines"
 
+msgid "FiniteStateMachine"
+msgstr "Finite State Machine"
+
 msgid "field-label-options"
 msgstr "Options"
 

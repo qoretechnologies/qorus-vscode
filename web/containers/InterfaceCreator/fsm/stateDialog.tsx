@@ -23,10 +23,10 @@ import useUpdateEffect from 'react-use/lib/useUpdateEffect';
 export interface IFSMStateDialogProps {
     onClose: () => any;
     data: IFSMState;
-    id: number;
-    onSubmit: (id: number, newData: IFSMState) => void;
+    id: string;
+    onSubmit: (id: string, newData: IFSMState) => void;
     otherStates: IFSMStates;
-    deleteState: (id: number) => any;
+    deleteState: (id: string) => any;
 }
 
 export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';

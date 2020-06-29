@@ -6,10 +6,10 @@ import { ButtonGroup, Button } from '@blueprintjs/core';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
-    onClick: (id: number) => any;
-    onEditClick: (id: number) => any;
-    onDeleteClick: (id: number) => any;
-    id: number;
+    onClick: (id: string) => any;
+    onEditClick: (id: string) => any;
+    onDeleteClick: (id: string) => any;
+    id: string;
 }
 
 const StyledFSMState = styled.div<{
@@ -89,7 +89,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     });
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: number) => any) => {
+    const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
         event.stopPropagation();
 
         func(id);
