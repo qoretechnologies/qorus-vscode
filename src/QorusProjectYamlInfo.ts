@@ -17,7 +17,7 @@ export class QorusProjectYamlInfo {
     yamlDataByYamlFile = file => this.yaml_data[file];
     yamlDataByFile = file => path.extname(file) === '.yaml'
         ? this.yaml_data[file]
-        : this.yaml_data[this.src_2_yaml[file]];
+        : this.yaml_data[this.src_2_yaml[file]]
 
     private name_2_yaml: any = {};
     private class_2_yaml: any = {};

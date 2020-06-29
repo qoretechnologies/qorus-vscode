@@ -42,8 +42,6 @@ export class QorusProjectCodeInfo {
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
-    private base_classes_files_watcher: vscode.FileSystemWatcher;
-    private java_files_watcher: vscode.FileSystemWatcher;
     private module_files_watcher: vscode.FileSystemWatcher;
     private config_file_watcher: vscode.FileSystemWatcher;
 
@@ -443,16 +441,6 @@ export class QorusProjectCodeInfo {
         this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
-        this.base_classes_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{qclass,qfd}');
-        this.base_classes_files_watcher.onDidCreate(() => this.update(['lang_client']));
-        this.base_classes_files_watcher.onDidChange(() => this.update(['lang_client']));
-        this.base_classes_files_watcher.onDidDelete(() => this.update(['lang_client']));
-
-        this.java_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{java}');
-        this.java_files_watcher.onDidCreate(() => this.update(['java_lang_client']));
-        this.java_files_watcher.onDidChange(() => this.update(['java_lang_client']));
-        this.java_files_watcher.onDidDelete(() => this.update(['java_lang_client']));
-
         this.module_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.qm');
         this.module_files_watcher.onDidCreate(() => this.update(['modules']));
         this.module_files_watcher.onDidDelete(() => this.update(['modules']));
@@ -559,42 +547,41 @@ export class QorusProjectCodeInfo {
                 break;
             case 'service-base-class':
                 if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.javaServiceClasses(), [root_service]))
                     );
                 } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(), [root_service]))
                     );
                 }
                 break;
             case 'job-base-class':
                 if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.javaJobClasses(), [root_job]))
                     );
                 } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.jobClasses(), [root_job]))
                     );
                 }
                 break;
             case 'workflow-base-class':
                 if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.javaWorkflowClasses(), [root_workflow]))
                     );
                 } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.workflowClasses(), [root_workflow]))
                     );
                 }
                 break;
             case 'step-base-class':
-                const lang_client = lang === 'java' ? 'java_lang_client' : 'lang_client';
                 const stepClassesMethod = lang === 'java' ? 'allJavaStepClasses' : 'allStepClasses';
 
-                this.waitForPending(['yaml', lang_client]).then(() => {
+                this.waitForPending(['yaml']).then(() => {
                     const step_classes = this.yaml_info[stepClassesMethod]();
 
                     let result = this.addDescToClasses(step_classes, root_steps);
@@ -626,11 +613,11 @@ export class QorusProjectCodeInfo {
                 break;
             case 'processor-base-class':
                 if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.javaProcessorClasses(), [root_processor]))
                     );
                 } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
+                    this.waitForPending(['yaml']).then(() =>
                         postMessage('objects', this.addDescToClasses(this.yaml_info.processorClasses(), [root_processor]))
                     );
                 }
