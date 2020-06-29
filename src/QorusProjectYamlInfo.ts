@@ -236,18 +236,15 @@ export class QorusProjectYamlInfo {
         this.baseClasses(this.job_classes, { ...this.inheritance_pairs });
         this.baseClasses(this.workflow_classes, { ...this.inheritance_pairs });
         this.baseClasses(this.processor_classes, { ...this.inheritance_pairs });
-        for (const step_type of root_steps) {
-            this.step_classes[step_type] =
-                this.baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
-        }
-    }
 
-    javaBaseClassesFromInheritancePairs() {
         this.baseClasses(this.java_service_classes, { ...this.java_inheritance_pairs });
         this.baseClasses(this.java_job_classes, { ...this.java_inheritance_pairs });
         this.baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
         this.baseClasses(this.java_processor_classes, { ...this.java_inheritance_pairs });
+
         for (const step_type of root_steps) {
+            this.step_classes[step_type] =
+                this.baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
             this.java_step_classes[step_type] =
                 this.baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
         }

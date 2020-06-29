@@ -769,7 +769,6 @@ export class QorusProjectCodeInfo {
         this.setPending('yaml', true);
         this.yaml_info.addSingleYamlInfo(file);
         this.yaml_info.baseClassesFromInheritancePairs();
-        this.yaml_info.javaBaseClassesFromInheritancePairs();
         this.setPending('yaml', false);
     }
 
@@ -789,7 +788,6 @@ export class QorusProjectCodeInfo {
         }
         this.notifyTrees();
         this.yaml_info.baseClassesFromInheritancePairs();
-        this.yaml_info.javaBaseClassesFromInheritancePairs();
         this.setPending('yaml', false);
     }
 
