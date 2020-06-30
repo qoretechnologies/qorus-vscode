@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.3.0
+
+#### New features
+
+-   support for editing Java interfaces
+-   added the command 'Close Webview'
+-   added the command 'Edit current interface'
+
+#### Bug fixes
+
+-   fixed deletion of service and mapper code methods
+-   fixed updating base classes in the selection box
+-   Java source files are now created in a subdirectory (to fix name collisions)
+-   fixed: on submitting edited interface check whether the original still exists
+-   fixed: Java class cannot inherit Qore class
+-   fixed freezing on deleting a mapper
+-   fixed including resources to service deployment
+
 ## 1.2.1
 
 - re-release of 1.2.0 without garbage files as part of the package
@@ -49,7 +67,7 @@
 -   Mapper codes are properly reset after successfuly submiting
 -   Fixed code generation for Java array step triggers and for Java async array step signatures
 -   Fixed a bug where sometimes an empty `value_true_type` key would be saved in the yaml file
--   Fixed a race condition bug that would cause the newly added step for a workflow diagram to show `Loading step:0` instead of the step's name and version 
+-   Fixed a race condition bug that would cause the newly added step for a workflow diagram to show `Loading step:0` instead of the step's name and version
 -   Value maps are now properly displayed in the UI after being saved
 -   Empty lists and hashes are now properly displayed in the UI as `{}` and `[]` respectively
 -   Static data context is now properly passed to mappers even from new Workflows
