@@ -1187,12 +1187,12 @@
                     "group": "2_workspace@11"
                 },
                 {
-                    "when": "resourceExtname =~ /^\\.(yaml|java)$/",
+                    "when": "resourceExtname =~ /^\\.(yaml|java|py)$/",
                     "command": "qorus.explorer.editInterface",
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname =~ /^\\.(yaml|java)$/",
+                    "when": "resourceExtname =~ /^\\.(yaml|java|py)$/",
                     "command": "qorus.explorer.deployInterface",
                     "group": "2_workspace@11"
                 },
