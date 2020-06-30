@@ -62,7 +62,7 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
     return (
         <StyledTab>
             <StyledHeader>
-                {isEditing() ? `Edit ${getTypeName(type, t)} "${getName()}"` : `New ${type}`}
+                {isEditing() ? `Edit ${getTypeName(type, t)} "${getName()}"` : `New ${getTypeName(type, t)}`}
                 <Button minimal icon="help" />
                 {isEditing() && (
                     <div style={{ float: 'right' }}>

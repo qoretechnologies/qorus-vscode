@@ -1114,6 +1114,9 @@ msgstr "Mapper options"
 msgid "field-label-functions"
 msgstr "Functions"
 
+msgid "field-label-fsm"
+msgstr "Finite State Machine"
+
 msgid "field-desc-functions"
 msgstr "An optional list of functions to load into the service program object"
 
