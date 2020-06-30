@@ -2,6 +2,7 @@ import * as jsyaml from 'js-yaml';
 import * as shortid from 'shortid';
 import * as flattenDeep from 'lodash/flattenDeep';
 import { qorus_webview } from '../QorusWebview';
+import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { QorusProjectYamlInfo } from '../QorusProjectYamlInfo';
 import { default_version } from '../qorus_constants';
 import { defaultValue, configItemFields } from './config_item_constants';
@@ -11,6 +12,7 @@ import * as msg from '../qorus_message';
 
 
 export class InterfaceInfo {
+    private code_info: QorusProjectCodeInfo;
     private yaml_info: QorusProjectYamlInfo;
     private iface_by_id = {};
     private are_orig_config_items_set: boolean = false;
@@ -18,8 +20,9 @@ export class InterfaceInfo {
     private last_conf_group: string | undefined;
     private last_other_if_kind: string | undefined; // one of ['Group', 'Event', 'Queue']
 
-    constructor(project_yaml_info: QorusProjectYamlInfo) {
-        this.yaml_info = project_yaml_info;
+    constructor(code_info: QorusProjectCodeInfo) {
+        this.code_info = code_info;
+        this.yaml_info = code_info.yaml_info;
     }
 
     private maybeInitIfaceId = (iface_id, iface_kind) => {
@@ -396,27 +399,23 @@ export class InterfaceInfo {
     private workflowStepsConfigItems = steps => {
         let items = [];
         flattenDeep(steps).forEach(name => {
-            // Create immediately invoked function so the parent function does not
-            // have to implement async / await
-            (async () => {
-                const step_data: any = await this.yaml_info.yamlDataByNameSync('step', name);
-                if (!step_data) {
-                    msg.error(t`YamlDataNotFound ${'step'} ${name}`);
-                    return;
+            const step_data: any = this.yaml_info.yamlDataByName('step', name);
+            if (!step_data) {
+                msg.error(t`YamlDataNotFound ${'step'} ${name}`);
+                return;
+            }
+            const iface_id = this.addIfaceById(step_data, 'step');
+            if (step_data['base-class-name']) {
+                this.addClassConfigItems(iface_id, step_data['base-class-name']);
+            }
+            (step_data.classes || []).forEach(class_data => {
+                class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
+            });
+            (step_data['config-items'] || []).forEach(item => {
+                if (items.findIndex(item2 => item2.name === item.name) === -1) {
+                    items.push(item);
                 }
-                const iface_id = this.addIfaceById(step_data, 'step');
-                if (step_data['base-class-name']) {
-                    this.addClassConfigItems(iface_id, step_data['base-class-name']);
-                }
-                (step_data.classes || []).forEach(class_data => {
-                    class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
-                });
-                (step_data['config-items'] || []).forEach(item => {
-                    if (items.findIndex(item2 => item2.name === item.name) === -1) {
-                        items.push(item);
-                    }
-                });
-            })();
+            });
         });
         return deepCopy(items);
     }
@@ -459,6 +458,10 @@ export class InterfaceInfo {
     }
 
     getConfigItems = params => {
+        this.code_info.waitForPending(['yaml']).then(() => this.getConfigItemsImpl(params));
+    }
+
+    private getConfigItemsImpl = params => {
         let {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
         if (!iface_id) {
             return;

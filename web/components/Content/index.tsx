@@ -6,18 +6,18 @@ const StyledContent = styled.div`
     flex-flow: column;
     overflow-y: auto;
     flex: 1;
-    padding: 0 0 0 15px;
 
     h3 {
         margin: 0;
         margin-bottom: 15px;
+        margin-left: 15px;
     }
 `;
 
 export interface IContent {
     children: ReactNode;
     title?: string;
-    style: any;
+    style?: any;
 }
 
 const Content: FunctionComponent<IContent> = ({ children, title, style }) => (

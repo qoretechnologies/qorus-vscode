@@ -55,6 +55,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChang
 
     return (
         <TextArea
+            name={`field-${name}`}
             style={{
                 width: '100%',
                 resize: 'none',
@@ -67,7 +68,6 @@ const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChang
     );
 };
 
-export default compose(
-    withMessageHandler(),
-    withTextContext()
-)(LongStringField) as FunctionComponent<ILongStringField & IField & IFieldChange>;
+export default compose(withMessageHandler(), withTextContext())(LongStringField) as FunctionComponent<
+    ILongStringField & IField & IFieldChange
+>;

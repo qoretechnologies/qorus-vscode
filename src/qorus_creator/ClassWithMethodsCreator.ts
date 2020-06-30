@@ -1,19 +1,20 @@
-import { workspace, window, Position } from 'vscode';
+import { workspace, window } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
 
 import { InterfaceCreator } from './InterfaceCreator';
-import { serviceTemplates } from './service_constants';
-import { mapperCodeTemplates } from './mapper_constants';
-import { ClassConnections } from './ClassConnections';
+import { service_imports } from './service_constants';
+import { mapper_code_method_template } from './mapper_constants';
+import { classTemplate, simple_method_template } from './common_constants';
+import { ClassConnectionsCreate } from './ClassConnectionsCreate';
+import { ClassConnectionsEdit } from './ClassConnectionsEdit';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
 
 class ClassWithMethodsCreator extends InterfaceCreator {
-    private class_template: string;
     private method_template: string;
-    private imports: string[];
+    private imports: string[] = [];
 
     editImpl = params => {
         const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
@@ -25,11 +26,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             case 'service':
                 suffix = '.qsd';
                 methods_key = 'methods';
-                ({
-                    template: this.class_template,
-                    method_template: this.method_template,
-                    imports: this.imports
-                 } = serviceTemplates(this.lang));
+                this.method_template = simple_method_template[this.lang];
+                this.imports = service_imports[this.lang];
                 if (!(data.methods || []).length) {
                     data.methods = [{
                         name: 'init',
@@ -41,10 +39,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
                 suffix = '.qmc';
                 methods_key = 'mapper-methods';
-                ({
-                    template: this.class_template,
-                    method_template: this.method_template,
-                 } = mapperCodeTemplates(this.lang));
+                this.method_template = mapper_code_method_template[this.lang];
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
@@ -53,10 +48,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.has_code = this.had_code = true;
 
-        this.imports = this.imports || [];
         const methods = data[methods_key];
 
-        this.setPaths(data, orig_data, suffix);
+        this.setPaths(data, orig_data, suffix, iface_kind);
 
         const {ok, message} = this.checkData(params);
         if (!ok) {
@@ -74,16 +68,17 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let code_lines: string[];
         switch (edit_type) {
             case 'create':
-            case 'recreate':
                 contents = this.code(data, iface_kind, methods);
-                info = t`2FilesCreatedInDir ${this.file_name} ${this.yaml_file_name} ${this.target_dir}`;
+                info = t`2FilesCreatedInDir ${this.rel_file_path} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
                 const orig_method_names: string[] = (orig_data[methods_key] || []).map(method => method.name);
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
-                code_lines = this.edit_info.text_lines;
-                code_lines = this.addMethods([...code_lines], method_renaming_map.added);
+                code_lines = this.file_edit_info.text_lines;
+                if (method_renaming_map.added.length) {
+                    code_lines = this.addMethods(code_lines, method_renaming_map.added);
+                }
                 code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
@@ -94,7 +89,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                     break;
                 }
                 const method_name = methods[data.method_index].name;
-                code_lines = this.removeMethods(this.edit_info.text_lines, [method_name]);
+                code_lines = this.removeMethods(this.file_edit_info.text_lines, [method_name]);
                 contents = code_lines.join('\n');
                 if (iface_kind === 'service') {
                     info = t`ServiceMethodHasBeenDeleted ${method_name}`;
@@ -116,7 +111,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             type: iface_kind,
             ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
-            code: this.file_name
+            code: this.rel_file_path
         });
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
@@ -125,6 +120,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
+            if (edit_type !== 'create') {
+                new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
+            }
             if (open_file_on_success) {
                 workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
             }
@@ -194,7 +192,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private renameMethods(lines: string[], renaming: any): string[] {
         let lines_with_renaming = {};
         for (const name of Object.keys(renaming)) {
-            const range = this.edit_info.method_name_ranges[name];
+            const range = this.file_edit_info.method_name_ranges[name];
             if (!lines_with_renaming[range.start.line]) {
                 lines_with_renaming[range.start.line] = {};
             }
@@ -218,53 +216,39 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     }
 
     private removeMethods(lines: string[], removed: string[]): string[] {
-        const removeRange = (lines, range) => {
-            let rows = [];
-            for (let i = 0; i < range.start.line; i++) {
-                rows.push(lines[i]);
-            }
-            rows.push(lines[range.start.line].substr(0, range.start.character));
-            for (let i = range.end.line + 1; i < lines.length; i++) {
-                rows.push(lines[i]);
-            }
-            return rows;
-        };
-
-        let rangesToRemove = removed.map(name => this.edit_info.method_decl_ranges[name]);
-        while (rangesToRemove.length) {
-            lines = removeRange(lines, rangesToRemove.pop());
-        }
-        return lines;
+        return InterfaceCreator.removeClassMethods(
+            [ ...lines ],
+            removed,
+            this.file_edit_info.method_decl_ranges
+        );
     }
 
     private addMethods(lines: string[], added: string[]): string[] {
-        const end: Position = this.edit_info.class_def_range.end;
-
-        const lines_before = lines.splice(0, end.line);
-        const line = lines.splice(0, 1)[0];
-        const line_before = line.substr(0, end.character - 1);
-        const line_after = line.substr(end.character - 1);
-        const lines_after = lines;
-
-        let new_code = line_before;
-        for (let name of added) {
-            new_code += '\n' + this.fillTemplate(this.method_template, undefined, { name }, false);
-        }
-        const new_code_lines = new_code.split(/\r?\n/);
-        if (new_code_lines[new_code_lines.length - 1] === '') {
-            new_code_lines.pop();
-        }
-
-        return [
-            ...lines_before,
-            ...new_code_lines,
-            line_after,
-            ...lines_after
-        ];
+        return InterfaceCreator.addClassMethods(
+            [ ...lines ],
+            added,
+            this.file_edit_info.class_def_range,
+            this.method_template,
+            this.lang
+        );
     }
 
     deleteMethod(data: any, iface_kind) {
-        const {methods, method_index} = data;
+        const {methods: service_methods, 'mapper-methods': mapper_code_methods, method_index} = data;
+
+        let methods;
+        switch (iface_kind) {
+            case 'service':
+                methods = service_methods;
+                break;
+            case 'mapper-code':
+                methods = mapper_code_methods;
+                break;
+            default:
+                msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
+                return;
+        }
+
         if ((methods || []).length < 2) {
             if (iface_kind === 'service') {
                 msg.error(t`CannotDeleteTheOnlyOneServiceMethod`);
@@ -293,7 +277,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 data,
                 iface_kind,
                 edit_type: 'delete-method',
-                orig_data: undefined,
+                orig_data: data,
                 open_file_on_success : false
             });
         });
@@ -308,21 +292,28 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         if (Object.keys(data['class-connections'] || {}).length) {
             ClassWithMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports = []}
-                 = new ClassConnections({...data, iface_kind}, this.code_info, this.lang).code());
+                 = new ClassConnectionsCreate({...data, iface_kind}, this.code_info, this.lang).code());
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
             both_connections_and_methods = !!method_objects.length;
         }
 
         let method_strings = [];
         for (let method of method_objects) {
-            method_strings.push(this.fillTemplate(this.method_template, undefined, { name: method.name }, false));
+            method_strings.push(InterfaceCreator.fillTemplate(
+                this.method_template,
+                this.lang,
+                undefined,
+                { name: method.name },
+                false
+            ));
         }
         let methods = method_strings.join('\n');
         if (both_connections_and_methods) {
             methods += '\n';
         }
 
-        return this.fillTemplate(this.class_template, [...this.imports, ...imports], {
+        const template = classTemplate(this.lang, !!data['base-class-name'], !methods && !connections_within_class);
+        return InterfaceCreator.fillTemplate(template, this.lang, [...this.imports, ...imports], {
             class_name: data['class-name'],
             base_class_name: data['base-class-name'],
             methods,

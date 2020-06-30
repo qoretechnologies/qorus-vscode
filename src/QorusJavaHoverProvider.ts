@@ -1,53 +1,58 @@
 import { Hover, Position, TextDocument } from 'vscode';
 
-import { QorusHoverProviderBase } from './QorusHoverProvider';
-import { makeFileUri, getFilePathFromUri } from './qorus_utils';
-import { getJavaDocumentSymbols } from './vscode_java';
+import { QorusHoverProviderBase } from './QorusHoverProviderBase';
+import { QorusProjectEditInfo }  from './QorusProjectEditInfo';
+import { QorusJavaParser }  from './QorusJavaParser';
+import { javaLoc2Range } from './QoreTextDocument';
+
 
 export class QorusJavaHoverProvider extends QorusHoverProviderBase {
-    isSearchedSymbol = (symbol, position) =>
-        symbol.selectionRange.start.line === position.line &&
-        symbol.selectionRange.start.character <= position.character &&
-        symbol.selectionRange.end.character > position.character
 
     async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined> {
-        let symbols;
-        if (typeof document.uri === 'string') {
-            symbols = await getJavaDocumentSymbols(document.uri);
-        } else {
-            symbols = await getJavaDocumentSymbols(makeFileUri(document.uri.fsPath));
-        }
+        const file_path: string = typeof document.uri === 'string' ? document.uri : document.uri.fsPath;
+        const parsed_data:any = QorusJavaParser.parseFileNoExcept(file_path);
+        const classes: any[] = parsed_data.classes || [];
 
-        // sanity check
-        if (!symbols || (Array.isArray(symbols) && symbols.length == 0)) {
+        if (!classes.length) {
             return undefined;
         }
 
-        const filePath = getFilePathFromUri(document.uri);
-        const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(filePath);
+        const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
         if (!yaml_info) {
             return undefined;
         }
 
+        const isSearchedSymbol = (symbol, position) => {
+            if (!symbol.name?.loc) {
+                return false;
+            }
+
+            const range = javaLoc2Range(symbol.name.loc);
+            return range.start.line === position.line
+                && range.start.character <= position.character
+                && range.end.character > position.character;
+        };
+
         const searchSymbol = (symbol, position) => {
-            if (this.isSearchedSymbol(symbol, position)) {
-                if (this.isFileClass(symbol, yaml_info)) {
-                    return this.createClassHover(symbol, yaml_info);
+            if (isSearchedSymbol(symbol, position)) {
+                if (QorusProjectEditInfo.isJavaSymbolExpectedClass(symbol, yaml_info['class-name'])) {
+                    return this.createClassHover(yaml_info);
                 }
-                if (this.isMethod(symbol)) {
-                    return this.createMethodHover(symbol, yaml_info);
+                if (QorusProjectEditInfo.isJavaDeclPublicMethod(symbol)) {
+                    return this.createMethodHover(symbol.name?.identifier, yaml_info);
                 }
             }
-            for (const child of symbol.children) {
-                const result = searchSymbol(child, position);
+            for (const method of symbol.body?.methods || []) {
+                const result = searchSymbol(method, position);
                 if (result) {
                     return result;
                 }
             }
             return undefined;
         };
-        for (const symbol of symbols) {
-            const result = searchSymbol(symbol, position);
+
+        for (const parsed_class of classes) {
+            const result = searchSymbol(parsed_class, position);
             if (result) {
                 return result;
             }

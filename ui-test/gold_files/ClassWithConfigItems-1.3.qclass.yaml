@@ -1,0 +1,13 @@
+# This is a generated file, don't edit!
+type: class
+name: ClassWithConfigItems
+desc: Test class with config items
+lang: qore
+version: "1.3"
+code: ClassWithConfigItems-1.3.qclass
+config-items:
+  - name: test-config-item-2
+    default_value:
+        "default text"
+    config_group: test
+    description: test config item of a base class

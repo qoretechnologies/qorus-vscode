@@ -1,13 +1,13 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { Uri } from 'vscode';
+import { Uri, Range } from 'vscode';
 
 export const isDeployable = (file_path: string): boolean =>
     hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qconst', 'qconn', 'qstep', 'qm',
                                  'qmapper', 'qvmap', 'qsm', 'qrf', 'qscript', 'java', 'yaml', 'qmc']);
 
 export const expectsYamlFile = (file_path: string): boolean =>
-    hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qstep', 'qmc', 'java']);
+    hasOneOfSuffixes(file_path, ['qfd', 'qwf', 'qsd', 'qjob', 'qclass', 'qstep', 'qmc', 'java', 'py']);
 
 export const hasSuffix = (file_path: string, suffix: string): boolean => {
     return hasOneOfSuffixes(file_path, [suffix]);
@@ -30,8 +30,6 @@ export const isTest = (file_path: string): boolean => {
 
     return false;
 };
-
-export const isService = (file_path: string): boolean => getSuffix(file_path) === 'qsd';
 
 export const isVersion3 = (version?: string): boolean =>
     !!version && version.toString().substr(0, 1) == '3';
@@ -146,3 +144,19 @@ export const compareVersion = (v1, v2) => {
     }
     return v1.length === v2.length ? 0: (v1.length < v2.length ? -1 : 1);
 };
+
+export const sortRanges = (ranges: Range[]): Range[] => ranges.sort((a, b) => {
+    if (a.start.line < b.start.line) {
+        return -1;
+    }
+    if (a.start.line > b.start.line) {
+        return 1;
+    }
+    if (a.start.character < b.start.character) {
+        return -1;
+    }
+    if (a.start.character > b.start.character) {
+        return 1;
+    }
+    return 0;
+});

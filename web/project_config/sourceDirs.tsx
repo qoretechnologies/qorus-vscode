@@ -91,7 +91,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                     <StyledDirWrapper>
                         {size(sourceDirs) ? (
                             sourceDirs.map(dir => (
-                                <p key={dir}>
+                                <p key={dir} name="source-dir">
                                     <Icon icon="folder-close" />
                                     {dir}
                                     <Button
@@ -105,6 +105,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                                             )
                                         }
                                         style={{ marginTop: '3px', float: 'right' }}
+                                        name="source-dir-remove"
                                     />
                                 </p>
                             ))
@@ -122,6 +123,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                             onChange={(_name, value) => onSubmitClick(value.map(path => path.name || path))}
                             value={sourceDirs.map(dir => ({ name: dir }))}
                             useRelativePath
+                            name="source-dirs"
                             get_message={{
                                 action: Messages.GET_PROJECT_DIRS,
                             }}

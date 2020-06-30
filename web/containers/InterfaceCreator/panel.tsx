@@ -125,6 +125,7 @@ export interface IField {
         iface_kind: string;
         type?: string;
     };
+    iface_kind?: string;
 }
 
 export declare interface IFieldChange {
@@ -137,7 +138,12 @@ export const FieldWrapper = styled.div`
     &:not(:first-child) {
         margin-top: 20px;
     }
+    padding: 8px 0;
     flex: none;
+
+    &:nth-child(even) {
+        background-color: #fafafa;
+    }
 `;
 
 export const FieldInputWrapper = styled.div`
@@ -833,13 +839,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         }
     });
 
-    const requestFieldData: (fieldName: string, fieldKey: string) => string = (fieldName, fieldKey) => {
+    const requestFieldData: (fieldName: string, fieldKey?: string) => string = (fieldName, fieldKey) => {
         // Find this field
         const field: IField = selectedFields.find((field: IField) => field.name === fieldName);
         // Check if this field exists & is selected
         if (field) {
             // Return the requested field property
-            return field[fieldKey];
+            return fieldKey ? field[fieldKey] : field;
         }
         // Return null
         return null;
@@ -1033,8 +1039,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     </ActionsWrapper>
                 ) : null}
             </SidePanel>
-            <Content title={t(stepTwoTitle)}>
-                <SearchWrapper>
+            <Content title={t(stepTwoTitle)} style={{ paddingLeft: 0 }}>
+                <SearchWrapper style={{ marginLeft: '15px' }}>
                     <InputGroup
                         placeholder={t('FilterSelectedFields')}
                         value={selectedQuery}
@@ -1050,7 +1056,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         selectedFieldList,
                         (field: IField) =>
                             !field.internal && (
-                                <FieldWrapper key={field.name}>
+                                <FieldWrapper key={field.name} name="selected-field" style={{ paddingLeft: '15px' }}>
                                     <FieldLabel
                                         info={field.markdown && t('MarkdownSupported')}
                                         label={t(`field-label-${field.name}`)}
@@ -1142,6 +1148,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 text={t(submitLabel)}
                                 disabled={!canSubmit()}
                                 icon={'tick'}
+                                name={`interface-creator-submit-${type}`}
                                 intent={Intent.SUCCESS}
                                 onClick={handleSubmitClick}
                             />

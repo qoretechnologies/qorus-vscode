@@ -1,60 +1,101 @@
-export const supported_langs = ['qore', 'java'];
-
-export const lang_suffix = {
-    java: '.java',
-    qore: '',
+export const default_parse_options = {
+    qore:
+        '%new-style\n' +
+        '%strict-args\n' +
+        '%require-types\n' +
+        '%enable-all-warnings\n\n'
 };
 
-export const lang_comment_chars = {
-    java: '//',
-    qore: '#',
+// ================================================================
+
+export const empty_class_template = {
+    qore:
+        'class ${this.class_name} {\n' +
+        '}\n',
+    python:
+        'class ${this.class_name}:\n' +
+        '    pass\n',
+    java:
+        'class ${this.class_name} {\n' +
+        '}'
 };
 
-export const lang_inherits = {
-    java: 'extends',
-    qore: 'inherits',
+export const empty_subclass_template = {
+    qore:
+        'class ${this.class_name} inherits ${this.base_class_name} {\n' +
+        '}\n',
+    python:
+        'class ${this.class_name}(${this.base_class_name}):\n' +
+        '    pass\n',
+    java:
+        'class ${this.class_name} extends ${this.base_class_name} {\n' +
+        '}'
 };
 
-export const default_parse_options = '\
-%new-style\n\
-%strict-args\n\
-%require-types\n\
-%enable-all-warnings\n\n\
-';
-
-const classTemplate = (with_base_class) => {
-    let class_template: any = {};
-
-    supported_langs.forEach(lang => {
-        class_template[lang] = 'class ${this.class_name}';
-        if (with_base_class) {
-            class_template[lang] += ` ${lang_inherits[lang]}` + ' ${this.base_class_name}';
-        }
-        class_template[lang] += ' {\n';
-        class_template[lang] += '${this.methods}';
-        class_template[lang] += '${this.connections_within_class}}${this.connections_extra_class}';
-    });
-
-    return class_template;
+export const class_template = {
+    qore:
+        'class ${this.class_name} {\n' +
+        '${this.methods}' +
+        '${this.connections_within_class}' +
+        '}' +
+        '${this.connections_extra_class}',
+    python:
+        'class ${this.class_name}:\n' +
+        '${this.methods}' +
+        '${this.connections_within_class}' +
+        '${this.connections_extra_class}',
+    java:
+        'class ${this.class_name} {\n' +
+        '${this.methods}' +
+        '${this.connections_within_class}' +
+        '}' +
+        '${this.connections_extra_class}'
 };
 
-export const class_template = classTemplate(false);
-export const subclass_template = classTemplate(true);
+export const subclass_template = {
+    qore:
+        'class ${this.class_name} inherits ${this.base_class_name} {\n' +
+        '${this.methods}' +
+        '${this.connections_within_class}' +
+        '}' +
+        '${this.connections_extra_class}',
+    python:
+        'class ${this.class_name}(${this.base_class_name}):\n' +
+        '${this.methods}' +
+        '${this.connections_within_class}' +
+        '${this.connections_extra_class}',
+    java:
+        'class ${this.class_name} extends ${this.base_class_name} {\n' +
+        '${this.methods}' +
+        '${this.connections_within_class}' +
+        '}' +
+        '${this.connections_extra_class}'
+};
 
+export const classTemplate = (lang, is_subclass, is_empty) =>
+    is_subclass
+        ? is_empty
+            ? empty_subclass_template[lang]
+            : subclass_template[lang]
+        : is_empty
+            ? empty_class_template[lang]
+            : class_template[lang];
 
-let method_template: any = {};
+// ================================================================
 
-method_template.qore = '\
-    ${this.name}() {\n\
-    }\n\
-';
+export const simple_method_template = {
+    qore:
+        '    ${this.name}() {\n' +
+        '    }\n',
+    python:
+        '    def ${this.name}(self):\n' +
+        '        pass\n',
+    java:
+        '    public void ${this.name}() throws Throwable {\n' +
+        '    }\n'
+};
 
-method_template.java = '\
-    public void ${this.name}() throws Throwable {\n\
-    }\n\
-';
-
-export const simple_method_template = method_template;
+// ================================================================
 
 export const classFields = ({ is_editing, default_target_dir }) => [
     field.targetDir(default_target_dir),
@@ -107,6 +148,12 @@ export const classFields = ({ is_editing, default_target_dir }) => [
         name: 'class-connectors',
         mandatory: false,
         type: 'class-connectors',
+    },
+    {
+        name: 'processor',
+        mandatory: false,
+        type: 'processor',
+        notify_on_add: true,
     },
 ];
 
@@ -168,6 +215,10 @@ export const field = {
                 value: 'qore',
                 icon_filename: 'qore-106x128.png',
             },
+//            {
+//                value: 'python',
+//                icon_filename: 'python-129x128.png',
+//            },
             {
                 value: 'java',
                 icon_filename: 'java-96x128.png',
@@ -175,6 +226,7 @@ export const field = {
         ],
         default_value: 'qore',
         disabled: is_editing,
+        on_change: 'lang-changed',
     }),
     constants: {
         name: 'constants',

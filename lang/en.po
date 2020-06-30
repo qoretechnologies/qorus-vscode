@@ -163,6 +163,9 @@ msgstr "Authentication failed"
 msgid "GettingInfoError"
 msgstr "Error in getting info"
 
+msgid "GettingInterfacesError ${ iface_kind }"
+msgstr "Error in getting list of ${ iface_kind }"
+
 msgid "AttemptToSetInactiveNotActiveInstance ${ url }"
 msgstr "Attempt to set inactive a Qorus instance that is not active: ${ url }"
 
@@ -946,6 +949,12 @@ msgstr "Webview has been closed because current workspace has not been set"
 msgid "field-label-target_dir"
 msgstr "Target directory"
 
+msgid "field-label-processor"
+msgstr "Processor"
+
+msgid "field-desc-processor"
+msgstr "Determines whether this class is used as a processor class"
+
 msgid "field-desc-target_dir"
 msgstr "Directory where the code will be saved"
 
@@ -1371,6 +1380,9 @@ msgstr "Value"
 
 msgid "field-label-qore"
 msgstr "Qore"
+
+msgid "field-label-python"
+msgstr "Python"
 
 msgid "field-label-java"
 msgstr "Java"
@@ -2025,6 +2037,9 @@ msgstr "The class selected does not have any connectors"
 msgid "ActiveInstanceProvidersConnectors"
 msgstr "An active instance is required to add input / output providers."
 
+msgid "ActiveInstanceRequired"
+msgstr "An active instance is required to manage this part."
+
 msgid "AddNewMapper"
 msgstr "Add new mapper"
 
@@ -2174,3 +2189,24 @@ msgstr "Only characters a-z, 0-9 and _ are allowed for this field"
 
 msgid "NoEditInfo ${ file }"
 msgstr "Unable to get edit info for file ${ file }"
+
+msgid "Optional"
+msgstr "Optional"
+
+msgid "Arguments"
+msgstr "Arguments"
+
+msgid "Options"
+msgstr "Options"
+
+msgid "InputType"
+msgstr "Input type"
+
+msgid "OutputType"
+msgstr "Output type"
+
+msgid "OrigIfaceFileDoesNotExist ${ file }"
+msgstr "The original interface file ${ file } does not exist"
+
+msgid "ErrorParsingFile ${ file }"
+msgstr "Error in parsing file ${ file }"

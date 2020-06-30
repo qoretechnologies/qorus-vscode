@@ -125,7 +125,7 @@ export class QorusLogin extends QorusAuth {
         qorus_webview.setActiveQorusInstance(undefined);
     }
 
-    protected requestError(error_data: any, default_error: string) {
+    requestError(error_data: any, default_error: string) {
         let url: string = error_data.options ? error_data.options.uri || '' : '';
 
         const params_pos = url.indexOf('?');

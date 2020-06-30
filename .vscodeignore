@@ -18,4 +18,5 @@ qorusproject.json
 server.js
 tsconfig.json
 tslint.json
+vsc-extension-quickstart.md
 webpack.config.js

@@ -7,15 +7,17 @@ import * as msg from './qorus_message';
 import { installQorusJavaApiSources } from './qorus_java_utils';
 import { dash2Pascal, capitalize } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
-import { QorusCodeLensProvider } from './QorusCodeLensProvider';
 import { deployer } from './QorusDeploy';
-import { QorusHoverProvider } from './QorusHoverProvider';
 import { qorusIcons } from './QorusIcons';
 import { interface_tree } from './QorusInterfaceTree';
 import { QorusJavaCodeLensProvider } from './QorusJavaCodeLensProvider';
 import { QorusJavaHoverProvider } from './QorusJavaHoverProvider';
 import { qorus_locale } from './QorusLocale';
 import { config_filename, projects } from './QorusProject';
+import { QorusPythonCodeLensProvider } from './QorusPythonCodeLensProvider';
+import { QorusPythonHoverProvider } from './QorusPythonHoverProvider';
+import { QorusQoreCodeLensProvider } from './QorusQoreCodeLensProvider';
+import { QorusQoreHoverProvider } from './QorusQoreHoverProvider';
 import { qorus_request } from './QorusRequest';
 import { tester } from './QorusTest';
 import { instance_tree } from './QorusInstanceTree';
@@ -77,6 +79,9 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.closeWebview', () => qorus_webview.dispose());
+    context.subscriptions.push(disposable);
+
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code',
         'class', 'other', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
     {
@@ -119,6 +124,21 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.editCurrentInterface', () => {
+        const editor = vscode.window.activeTextEditor;
+        const code_info = projects.projectCodeInfo(editor?.document.uri);
+        if (!code_info) {
+            return;
+        }
+        const data = code_info.yaml_info.yamlDataByFile(editor.document.fileName);
+        if (!data) {
+            return;
+        }
+        const fixed_data = code_info.fixData(data);
+        vscode.commands.executeCommand('qorus.editInterface', fixed_data, data.type);
+    });
+    context.subscriptions.push(disposable);
+
     disposable = vscode.commands.registerCommand('qorus.deleteMethod', (data: any, iface_kind: string) =>
             creator.deleteMethod(data, iface_kind));
     context.subscriptions.push(disposable);
@@ -136,7 +156,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     disposable = vscode.languages.registerCodeLensProvider(
         [{ language: 'qore', scheme: 'file' }],
-        new QorusCodeLensProvider()
+        new QorusQoreCodeLensProvider()
     );
     context.subscriptions.push(disposable);
 
@@ -146,15 +166,27 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(disposable);
 
+    disposable = vscode.languages.registerCodeLensProvider(
+        [{ language: 'python', scheme: 'file' }],
+        new QorusPythonCodeLensProvider()
+    );
+    context.subscriptions.push(disposable);
+
     disposable = vscode.languages.registerHoverProvider(
         [{ language: 'qore', scheme: 'file' }],
-        new QorusHoverProvider()
+        new QorusQoreHoverProvider()
     );
     context.subscriptions.push(disposable);
 
     disposable = vscode.languages.registerHoverProvider(
         [{ language: 'java', scheme: 'file' }],
         new QorusJavaHoverProvider()
+    );
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.languages.registerHoverProvider(
+        [{ language: 'python', scheme: 'file' }],
+        new QorusPythonHoverProvider()
     );
     context.subscriptions.push(disposable);
 

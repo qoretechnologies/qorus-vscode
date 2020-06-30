@@ -73,6 +73,7 @@ let SidebarItem: Function = ({
                 onClick={() => {
                     initialData.changeTab(itemData.tab, itemData.subtab);
                 }}
+                name={itemData.name}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
@@ -88,6 +89,7 @@ let SidebarItem: Function = ({
                     active: isActive,
                     submenuCategory: onExpandClick,
                 })}
+                name={itemData.name}
                 onClick={onExpandClick}
             >
                 <Icon intent={intent} icon={itemData.icon} /> {!isCollapsed && t(itemData.name)}

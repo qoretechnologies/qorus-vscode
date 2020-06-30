@@ -7,23 +7,19 @@ import * as flattenDeep from 'lodash/flattenDeep';
 import * as path from 'path';
 import { t, gettext } from 'ttag';
 import * as vscode from 'vscode';
-import { TextDocument as lsTextDocument } from 'vscode-languageserver-types';
 
 import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
-import { qore_vscode } from './qore_vscode';
-import { parseJavaInheritance } from './qorus_java_utils';
+import { QorusProjectEditInfo} from './QorusProjectEditInfo';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
-         all_root_classes } from './qorus_constants';
-import { filesInDir, hasSuffix, makeFileUri, suffixToIfaceKind, capitalize, isObject } from './qorus_utils';
+         all_root_classes, root_processor} from './qorus_constants';
+import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
-import { loc2range, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
 import { qorus_webview } from './QorusWebview';
 import { field } from './qorus_creator/common_constants';
 import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
 import * as globals from './global_config_item_values';
-import { getJavaDocumentSymbolsWithWait } from './vscode_java';
 import { interface_tree } from './QorusInterfaceTree';
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
@@ -34,20 +30,18 @@ export class QorusProjectCodeInfo {
     private project: QorusProject;
     private iface_info: InterfaceInfo;
     private yaml_files_info: QorusProjectYamlInfo;
+    private document_symbols_edit_info: QorusProjectEditInfo;
 
     private info_update_pending: any = {};
     private file_tree: any[] = [];
     private dir_tree: any[] = [];
     private all_dir_tree: any = {};
-    private edit_info: any = {};
     private modules: string[] = [];
     private source_directories = [];
     private mapper_types: any[] = [];
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
-    private base_classes_files_watcher: vscode.FileSystemWatcher;
-    private java_files_watcher: vscode.FileSystemWatcher;
     private module_files_watcher: vscode.FileSystemWatcher;
     private config_file_watcher: vscode.FileSystemWatcher;
 
@@ -56,278 +50,27 @@ export class QorusProjectCodeInfo {
     constructor(project: QorusProject) {
         this.project = project;
         this.yaml_files_info = new QorusProjectYamlInfo();
-        this.iface_info = new InterfaceInfo(this.yaml_files_info);
+        this.document_symbols_edit_info = new QorusProjectEditInfo();
+        this.iface_info = new InterfaceInfo(this);
         this.initInfo();
         this.initFileWatchers();
         this.update(undefined, true);
     }
 
-    get interface_info(): any {
+    get interface_info(): InterfaceInfo {
         return this.iface_info;
     }
 
-    get yaml_info(): any {
+    get yaml_info(): QorusProjectYamlInfo {
         return this.yaml_files_info;
+    }
+
+    get edit_info(): QorusProjectEditInfo {
+        return this.document_symbols_edit_info;
     }
 
     getProject(): QorusProject {
         return this.project;
-    }
-
-    addText(document: vscode.TextDocument) {
-        const file = document.uri.fsPath;
-
-        if (!this.edit_info[file]) {
-            this.edit_info[file] = {};
-        }
-        this.edit_info[file].text_lines = [];
-        for (let i = 0; i < document.lineCount; i++) {
-            this.edit_info[file].text_lines.push(document.lineAt(i).text);
-        }
-    }
-
-    addTextLines(file: string, contents: string) {
-        if (!this.edit_info[file]) {
-            this.edit_info[file] = {};
-        }
-
-        let lines = contents.split(/\r?\n/);
-        while (lines[0] === '') {
-            lines.shift();
-        }
-        while (lines[lines.length-1] === '') {
-            lines.pop();
-        }
-
-        this.edit_info[file].text_lines = lines;
-    }
-
-    private addMethodInfo(
-        file: string,
-        method_name: string,
-        decl_range: any,
-        name_range: any)
-    {
-        if (!this.edit_info[file]) {
-            this.edit_info[file] = {};
-        }
-        if (!this.edit_info[file].method_decl_ranges) {
-            this.edit_info[file].method_decl_ranges = {};
-            this.edit_info[file].method_name_ranges = {};
-        }
-        this.edit_info[file].method_decl_ranges[method_name] = decl_range;
-        this.edit_info[file].method_name_ranges[method_name] = name_range;
-    }
-
-    static isSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
-        class_name &&
-        symbol.nodetype === 1 &&
-        symbol.kind === 1 &&
-        symbol.name &&
-        class_name === symbol.name.name
-
-    isJavaSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
-        class_name &&
-        symbol.kind === 5 &&
-        class_name === symbol.name
-
-    private addClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
-        const class_def_range: vscode.Range = loc2range(symbol.loc);
-        const class_name_range: vscode.Range = loc2range(symbol.name.loc, 'class ');
-
-        const num_inherited = (symbol.inherits || []).length;
-        const base_class_names = (symbol.inherits || []).map(inherited => inherited.name.name);
-
-        const addClassInfo = (main_base_class_ord: number = -1) => {
-            if (!this.edit_info[file]) {
-                this.edit_info[file] = {};
-            }
-            Object.assign(this.edit_info[file], {
-                class_def_range,
-                class_name_range,
-                main_base_class_name_range: main_base_class_ord === -1
-                    ? undefined
-                    : loc2range(symbol.inherits[main_base_class_ord].name.loc),
-                first_base_class_line: num_inherited > 0
-                    ? loc2range(symbol.inherits[0].name.loc).start.line
-                    : undefined,
-                last_class_line: loc2range(symbol.loc).end.line,
-                base_class_names,
-                main_base_class_ord
-            });
-        };
-
-        if (num_inherited > 0) {
-            if (base_class_name) {
-                const index = symbol.inherits.findIndex(inherited =>
-                    inherited.name && inherited.name.name === base_class_name);
-
-                if (index > -1) {
-                    addClassInfo(index);
-                } else {
-                    if (message_on_mismatch) {
-                        msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
-                    }
-                    addClassInfo();
-                }
-            } else {
-                addClassInfo();
-            }
-        } else {
-            if (base_class_name) {
-                msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
-            }
-            addClassInfo();
-        }
-    }
-
-    addJavaClassCodeInfo = (file: string, symbol: any, base_class_name?: string, message_on_mismatch: boolean = true) => {
-        const class_def_range: vscode.Range = symbol.range;
-        const class_name_range: vscode.Range = symbol.selectionRange;
-
-        const addClassInfo = (main_base_class_ord: number = -1) => {
-            if (!this.edit_info[file]) {
-                this.edit_info[file] = {};
-            }
-            Object.assign(this.edit_info[file], {
-                class_def_range,
-                class_name_range,
-                main_base_class_name_range: main_base_class_ord === -1
-                    ? undefined
-                    : symbol.extends.range,
-                first_base_class_line: symbol.extends
-                    ? symbol.extends.range.start.line
-                    : undefined,
-                last_class_line: symbol.range.end.line,
-                base_class_names: base_class_name ? [base_class_name] : [],
-                main_base_class_ord
-            });
-        };
-
-        if (symbol.extends) {
-            if (base_class_name) {
-                if (symbol.extends.name === base_class_name) {
-                    addClassInfo(0);
-                } else {
-                    if (message_on_mismatch) {
-                        msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
-                    }
-                    addClassInfo();
-                }
-            } else {
-                addClassInfo();
-            }
-        } else {
-            if (base_class_name) {
-                msg.error(t`SrcAndYamlBaseClassMismatch ${base_class_name} ${file}`);
-            }
-            addClassInfo();
-        }
-    }
-
-    static isDeclPublicMethod = (decl: any): boolean => {
-        if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
-            return false;
-        }
-
-        if (decl.modifiers.indexOf('private') > -1) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private addClassDeclCodeInfo = (file: string, decl: any) => {
-        if (!QorusProjectCodeInfo.isDeclPublicMethod(decl)) {
-            return;
-        }
-
-        const method_name = decl.name.name;
-        const decl_range = loc2range(decl.loc);
-        const name_range = loc2range(decl.name.loc);
-
-        this.addMethodInfo(file, method_name, decl_range, name_range);
-    }
-
-    addJavaClassDeclCodeInfo = (file: string, decl: any): boolean => {
-        if (decl.kind !== 6) { // must be method
-            return false;
-        }
-
-        this.addMethodInfo(file, decl.name.replace('()', ''), decl.range, decl.selectionRange);
-
-        return true;
-    }
-
-    addFileCodeInfo(file: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
-        const iface_kind = suffixToIfaceKind(path.extname(file));
-        if (!iface_kind || (this.edit_info[file] && !force)) {
-            return Promise.resolve();
-        }
-
-        const doc: QoreTextDocument = qoreTextDocument(file);
-        this.addTextLines(file, doc.text);
-
-        return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
-            symbols.forEach(symbol => {
-                if (!QorusProjectCodeInfo.isSymbolExpectedClass(symbol, class_name)) {
-                    return;
-                }
-
-                this.addClassCodeInfo(file, symbol, base_class_name);
-
-                if (!['service', 'mapper-code'].includes(iface_kind)) {
-                    return;
-                }
-
-                for (const decl of symbol.declarations || []) {
-                    this.addClassDeclCodeInfo(file, decl);
-                }
-            });
-            return Promise.resolve();
-        });
-    }
-
-    addJavaFileCodeInfo(file_path: string, class_name?: string, base_class_name?: string, force: boolean = true): Promise<void> {
-        const yaml_info = this.yaml_info.yamlDataBySrcFile(file_path);
-        const iface_kind = yaml_info.type;
-        if (this.edit_info[file_path] && !force) {
-            return Promise.resolve();
-        }
-
-        const doc: QoreTextDocument = qoreTextDocument(file_path);
-        this.addTextLines(file_path, doc.text);
-
-        return getJavaDocumentSymbolsWithWait(makeFileUri(file_path)).then(async symbols => {
-            if (!symbols || !symbols.length) {
-                return Promise.reject(t`NoEditInfo ${file_path}`);
-            }
-
-            const lsdoc = lsTextDocument.create(
-                makeFileUri(file_path), 'java', 1, fs.readFileSync(file_path).toString()
-            );
-            symbols.forEach(symbol => {
-                if (!this.isJavaSymbolExpectedClass(symbol, class_name)) {
-                    return;
-                }
-
-                parseJavaInheritance(lsdoc, symbol);
-                this.addJavaClassCodeInfo(file_path, symbol, base_class_name);
-
-                if (iface_kind !== 'service') {
-                    return;
-                }
-
-                for (const child of symbol.children || []) {
-                    this.addJavaClassDeclCodeInfo(file_path, child);
-                }
-            });
-            return Promise.resolve();
-        });
-    }
-
-    editInfo(file: string) {
-        return this.edit_info[file];
     }
 
     private notifyTrees() {
@@ -365,36 +108,33 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
-            // Immediately invoked function
-            (async () => {
-                const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
+            const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
 
-                let raw_data;
-                if (class_name) {
-                    raw_data = this.yaml_info.yamlDataByName('class', class_name);
-                } else {
-                    const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-                    raw_data = await this.yaml_info.yamlDataByNameSync(true_iface_kind, name_key);
-                }
-                const data = this.fixData(raw_data);
+            let raw_data;
+            if (class_name) {
+                raw_data = this.yaml_info.yamlDataByName('class', class_name);
+            } else {
+                const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
+                raw_data = this.yaml_info.yamlDataByName(true_iface_kind, name_key);
+            }
+            const data = this.fixData(raw_data);
 
-                const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
+            const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
 
-                qorus_webview.postMessage({
-                    action: 'return-interface-data',
-                    data: {
-                        iface_kind,
-                        custom_data,
-                        [iface_kind]: { ...data, iface_id },
-                        ... include_tabs
-                            ? {
-                                tab: 'CreateInterface',
-                                subtab: iface_kind,
-                            }
-                            : {},
-                    },
-                });
-            })()
+            qorus_webview.postMessage({
+                action: 'return-interface-data',
+                data: {
+                    iface_kind,
+                    custom_data,
+                    [iface_kind]: { ...data, iface_id },
+                    ... include_tabs
+                        ? {
+                            tab: 'CreateInterface',
+                            subtab: iface_kind,
+                        }
+                        : {},
+                },
+            });
         });
     }
 
@@ -425,15 +165,17 @@ export class QorusProjectCodeInfo {
     }
 
     getMapperCodeMethods = name => {
-        const mapper_code = this.yaml_info.yamlDataByName('mapper-code', name);
-        if (!mapper_code) {
-            msg.log(t`MapperCodeNotFound ${name}`);
-        }
-        const methods = (mapper_code && mapper_code.methods) || [];
-        qorus_webview.postMessage({
-            action: 'return-mapper-code-methods',
-            name,
-            methods
+        this.waitForPending(['yaml']).then(() => {
+            const mapper_code = this.yaml_info.yamlDataByName('mapper-code', name);
+            if (!mapper_code) {
+                msg.log(t`MapperCodeNotFound ${name}`);
+            }
+            const methods = (mapper_code && mapper_code.methods) || [];
+            qorus_webview.postMessage({
+                action: 'return-mapper-code-methods',
+                name,
+                methods
+            });
         });
     }
 
@@ -487,15 +229,6 @@ export class QorusProjectCodeInfo {
             });
         };
 
-        const type = this.yaml_info.yamlDataByName('type', path.join(name, path_in_data));
-        if (type) {
-            const {typeinfo} = type;
-            if (typeinfo) {
-                postMessage(typeinfo);
-                return;
-            }
-        }
-
         const onSuccess = response => {
             const data = JSON.parse(response);
             postMessage(data);
@@ -506,7 +239,18 @@ export class QorusProjectCodeInfo {
             postMessage();
         };
 
-        qorus_request.doRequest(url, 'GET', onSuccess, onError);
+        this.waitForPending(['yaml']).then(() => {
+            const type = this.yaml_info.yamlDataByName('type', path.join(name, path_in_data));
+            if (type) {
+                const {typeinfo} = type;
+                if (typeinfo) {
+                    postMessage(typeinfo);
+                    return;
+                }
+            }
+
+            qorus_request.doRequest(url, 'GET', onSuccess, onError);
+        });
     }
 
     fixData(orig_data: any): any {
@@ -551,6 +295,10 @@ export class QorusProjectCodeInfo {
                 }
             }
         });
+
+        if (data.processor && data.processor.options) {
+            data.processor.options = jsyaml.safeDump(data.processor.options);
+        }
 
         if (data.fields) {
             Object.keys(data.fields).forEach(field_name => {
@@ -656,9 +404,7 @@ export class QorusProjectCodeInfo {
         }
 
         if (data.type === 'step' && data['base-class-name']) {
-            const step_type = (data.lang === 'java')
-                ? this.javaStepType(data['base-class-name'])
-                : this.stepType(data['base-class-name']);
+            const step_type = this.stepType(data['base-class-name']);
             if (step_type) {
                 data['step-type'] = step_type;
             }
@@ -691,19 +437,9 @@ export class QorusProjectCodeInfo {
         this.all_files_watcher.onDidDelete(() => this.update(['file_tree']));
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
-        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.yaml_info.addSingleYamlInfo(uri.fsPath));
+        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
         this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
-
-        this.base_classes_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{qclass,qfd}');
-        this.base_classes_files_watcher.onDidCreate(() => this.update(['lang_client']));
-        this.base_classes_files_watcher.onDidChange(() => this.update(['lang_client']));
-        this.base_classes_files_watcher.onDidDelete(() => this.update(['lang_client']));
-
-        this.java_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.{java}');
-        this.java_files_watcher.onDidCreate(() => this.update(['java_lang_client']));
-        this.java_files_watcher.onDidChange(() => this.update(['java_lang_client']));
-        this.java_files_watcher.onDidDelete(() => this.update(['java_lang_client']));
 
         this.module_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.qm');
         this.module_files_watcher.onDidCreate(() => this.update(['modules']));
@@ -770,7 +506,9 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getObjects(object_type: string, lang?: string) {
+    getObjects = params => {
+        const {object_type, lang, iface_kind, class_name} = params;
+
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
             if (lodashIsArray(objects)) {
@@ -808,62 +546,55 @@ export class QorusProjectCodeInfo {
                 });
                 break;
             case 'service-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaServiceClasses(), [root_service]))
-                    );
-                } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(), [root_service]))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(lang), [root_service]))
+                );
                 break;
             case 'job-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaJobClasses(), [root_job]))
-                    );
-                } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.jobClasses(), [root_job]))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.jobClasses(lang), [root_job]))
+                );
                 break;
             case 'workflow-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.javaWorkflowClasses(), [root_workflow]))
-                    );
-                } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.workflowClasses(), [root_workflow]))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.workflowClasses(lang), [root_workflow]))
+                );
                 break;
             case 'step-base-class':
-                if (lang === 'java') {
-                    this.waitForPending(['yaml', 'java_lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.allJavaStepClasses(), root_steps))
-                    );
-                } else {
-                    this.waitForPending(['yaml', 'lang_client']).then(() =>
-                        postMessage('objects', this.addDescToClasses(this.yaml_info.allStepClasses(), root_steps))
-                    );
-                }
+                this.waitForPending(['yaml']).then(() => {
+                    const step_classes = this.yaml_info.allStepClasses(lang);
+
+                    let result = this.addDescToClasses(step_classes, root_steps);
+                    if (iface_kind === 'step' && class_name) {
+                        result = result.filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                    }
+
+                    postMessage('objects', result);
+                });
                 break;
             case 'base-class':
                 this.waitForPending(['yaml']).then(() => {
                     const classes = this.yaml_info.yamlDataByType('class');
-                    const user_classes = Object.keys(classes).map(key => ({
+
+                    let user_classes = Object.keys(classes).map(key => ({
                         name: key,
                         desc: classes[key].desc
                     }));
+
+                    if (iface_kind === 'class' && class_name) {
+                        user_classes = user_classes
+                            .filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                    }
 
                     const qorus_root_classes = this.addDescToClasses(all_root_classes, all_root_classes);
 
                     postMessage('objects', [ ...user_classes, ...qorus_root_classes ]);
                 });
-
+                break;
+            case 'processor-base-class':
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.addDescToClasses(this.yaml_info.processorClasses(lang), [root_processor]))
+                );
                 break;
             case 'author':
                 this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));
@@ -944,8 +675,6 @@ export class QorusProjectCodeInfo {
             if (info_list.includes('yaml')) {
                 setTimeout(() => {
                     this.updateYamlInfo(file_data.source_directories);
-                    this.yaml_info.baseClassesFromInheritancePairs();
-                    this.yaml_info.javaBaseClassesFromInheritancePairs();
                 }, 0);
             }
             if (info_list.includes('modules')) {
@@ -981,142 +710,6 @@ export class QorusProjectCodeInfo {
         return undefined;
     }
 
-    mandatoryStepMethods = (base_class, lang) => {
-        let { primary, array } = this.stepTriggerSignatures(base_class, lang);
-        if (!primary) {
-            return {};
-        }
-
-        primary.body = '';
-
-        if (!array) {
-            return { primary };
-        }
-
-        const array_body = {
-            qore: 'return ();',
-            java: 'return new Object[0];'
-        };
-
-        array.body = array_body[lang] || '';
-        return { primary, array };
-    }
-
-    triggers = ({iface_kind, 'base-class-name': base_class = undefined}) => {
-        switch (iface_kind) {
-            case 'service': return ['start', 'stop', 'init'];
-            case 'job':     return ['run'];
-            case 'step':    return Object.keys(this.stepTriggerSignatures(base_class));
-            default:        return [];
-        }
-    }
-
-    stepTriggerSignatures = (base_class, lang = 'qore') => {
-        let stepTriggerSignatures: any = {};
-
-        stepTriggerSignatures.qore = base_class => {
-            switch (this.stepType(base_class)) {
-                case 'QorusNormalStep':
-                    return {
-                        primary: {signature: 'primary()'},
-                        validation: {signature: 'string validation()'}
-                    };
-                case 'QorusNormalArrayStep':
-                    return {
-                        primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
-                        validation: {signature: 'string validation(auto array_arg)', arg_names: ['array_arg']},
-                        array: {signature: 'softlist<auto> array()'}
-                    };
-                case 'QorusEventStep':
-                case 'QorusSubworkflowStep':
-                    return {
-                        primary: {signature: 'primary()'}
-                    };
-                case 'QorusEventArrayStep':
-                case 'QorusSubworkflowArrayStep':
-                    return {
-                        primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
-                        array: {signature: 'softlist<auto> array()'}
-                    };
-                case 'QorusAsyncStep':
-                    return {
-                        primary: {signature: 'primary()'},
-                        validation: {signature: 'string validation(*string async_key)', arg_names: ['async_key']},
-                        end: {signature: 'end(auto queue_data)', arg_names: ['queue_data']}
-                    };
-                case 'QorusAsyncArrayStep':
-                    return {
-                        primary: {signature: 'primary(auto array_arg)', arg_names: ['array_arg']},
-                        validation: {signature: 'string validation(*string async_key, auto array_arg)', arg_names: ['async_key', 'array_arg']},
-                        end: {signature: 'end(auto queue_data, auto array_arg)', arg_names: ['queue_data', 'array_arg']},
-                        array: {signature: 'softlist<auto> array()'}
-                    };
-                default:
-                    return {};
-            }
-        };
-
-        stepTriggerSignatures.java = base_class => {
-            const fixSignature = triggers => {
-                Object.keys(triggers).forEach(trigger => {
-                    triggers[trigger].signature = `public ${triggers[trigger].signature} throws Throwable`;
-                });
-                return triggers;
-            };
-
-            switch (this.javaStepType(base_class)) {
-                case 'QorusNormalStep':
-                    return fixSignature({
-                        primary: {signature: 'void primary()'},
-                        validation: {signature: 'String validation()'}
-                    });
-                case 'QorusNormalArrayStep':
-                    return fixSignature({
-                        primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
-                        validation: {signature: 'String validation(Object array_arg)', arg_names: ['array_arg']},
-                        array: {signature: 'Object[] array()'}
-                    });
-                case 'QorusEventStep':
-                case 'QorusSubworkflowStep':
-                    return fixSignature({
-                        primary: {signature: 'void primary()'}
-                    });
-                case 'QorusEventArrayStep':
-                case 'QorusSubworkflowArrayStep':
-                    return fixSignature({
-                        primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
-                        array: {signature: 'Object[] array()'}
-                    });
-                case 'QorusAsyncStep':
-                    return fixSignature({
-                        primary: {signature: 'void primary()'},
-                        validation: {signature: 'String validation(String async_key)', arg_names: ['async_key']},
-                        end: {signature: 'void end(Object queue_data)', arg_names: ['queue_data']}
-                    });
-                case 'QorusAsyncArrayStep':
-                    return fixSignature({
-                        primary: {signature: 'void primary(Object array_arg)', arg_names: ['array_arg']},
-                        validation: {signature: 'String validation(String async_key, Object array_arg)', arg_names: ['async_key', 'array_arg']},
-                        end: {signature: 'void end(Object queue_data, Object array_arg)', arg_names: ['queue_data', 'array_arg']},
-                        array: {signature: 'Object[] array()'}
-                    });
-                default:
-                    return {};
-            }
-        };
-
-        return stepTriggerSignatures[lang](base_class);
-    }
-
-    javaStepType = (base_class: string): string | undefined => {
-        for (const step_type of root_steps) {
-            if (this.yaml_info.javaStepClasses(step_type)[base_class]) {
-                return step_type;
-            }
-        }
-        return undefined;
-    }
-
     setFields = ({'base-class-name': base_class_name, iface_id, iface_kind}) => {
         if (!base_class_name || iface_kind !== 'step') {
             return;
@@ -1146,6 +739,13 @@ export class QorusProjectCodeInfo {
         }
     }
 
+    private addSingleYamlInfo(file: string) {
+        this.setPending('yaml', true);
+        this.yaml_info.addSingleYamlInfo(file);
+        this.yaml_info.baseClassesFromInheritancePairs();
+        this.setPending('yaml', false);
+    }
+
     private updateYamlInfo(source_directories: string[]) {
         this.setPending('yaml', true);
         this.yaml_info.initData();
@@ -1161,6 +761,7 @@ export class QorusProjectCodeInfo {
             }
         }
         this.notifyTrees();
+        this.yaml_info.baseClassesFromInheritancePairs();
         this.setPending('yaml', false);
     }
 

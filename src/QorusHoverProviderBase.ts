@@ -6,8 +6,6 @@ import {
 
 import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
-import { getFilePathFromUri } from './qorus_utils';
-import { qore_vscode } from './qore_vscode';
 
 export abstract class QorusHoverProviderBase implements HoverProvider {
     protected code_info: QorusProjectCodeInfo = undefined;
@@ -18,12 +16,6 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
         this.code_info = projects.currentProjectCodeInfo();
         return this.code_info.waitForPending(['yaml']).then(() => this.provideHoverImpl(document, position));
     }
-
-    isFileClass = (symbol, yaml_info) =>
-        symbol.kind === 5 &&
-        symbol.name === yaml_info['class-name']
-
-    isMethod = (symbol) => symbol.kind === 6;
 
     prepareBoolParam(header: string, param: any, def: boolean): string {
         return '\n\n**' + header + ':** `' + (param !== undefined ? param : def) + '`';
@@ -146,7 +138,7 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
             +  (methods ? methods : '_(' + t`NoMethodsDescribed` + ')_');
     }
 
-    createClassHover(_symbol, yaml_info) {
+    createClassHover(yaml_info) {
         const markdown = new MarkdownString(
             this.prepareInterfaceInfoString(yaml_info) + '\n\n---\n\n' +
             this.prepareCodeClassInfoString(yaml_info)
@@ -155,11 +147,11 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
         return new Hover(markdown);
     }
 
-    createMethodHover(symbol, yaml_info) {
-        const methodName = symbol.name.replace(/\(.*\)/, '').replace(/.*::/, '');
+    createMethodHover(method_name, yaml_info) {
+        method_name = method_name.replace(/\(.*\)/, '').replace(/.*::/, '');
         let method;
         for (const m of yaml_info.methods || []) {
-            if (m.name === methodName) {
+            if (m.name === method_name) {
                 method = m;
                 break;
             }
@@ -170,35 +162,5 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
             return new Hover(markdown);
         }
         return new Hover('(' + t`NoDescriptionFound` + ')');
-    }
-}
-
-export class QorusHoverProvider extends QorusHoverProviderBase {
-    isSearchedSymbol = (symbol, position) =>
-        symbol.location.range.start.line === position.line &&
-        symbol.location.range.start.character <= position.character &&
-        symbol.location.range.end.character > position.character
-
-    async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined> {
-        let symbols = await qore_vscode.exports.getDocumentSymbols(document);
-
-        const filePath = getFilePathFromUri(document.uri);
-        const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(filePath);
-        if (!yaml_info) {
-            return undefined;
-        }
-
-        for (const symbol of symbols) {
-            if (this.isSearchedSymbol(symbol, position)) {
-                if (this.isFileClass(symbol, yaml_info)) {
-                    return this.createClassHover(symbol, yaml_info);
-                }
-                if (this.isMethod(symbol)) {
-                    return this.createMethodHover(symbol, yaml_info);
-                }
-            }
-        }
-
-        return undefined;
     }
 }

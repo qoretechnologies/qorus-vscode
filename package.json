@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -131,6 +131,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.editCurrentInterface",
+                "title": "Edit Current Interface",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.openUrlInExternalBrowser",
                 "title": "Open URL in an External Tool",
                 "category": "Qorus"
@@ -147,9 +152,14 @@
             },
             {
                 "command": "qorus.webview",
-                "title": "Webview",
+                "title": "Open Webview",
                 "category": "Qorus",
                 "icon": "images/qorus_logo_28.png"
+            },
+            {
+                "command": "qorus.closeWebview",
+                "title": "Close Webview",
+                "category": "Qorus"
             },
             {
                 "command": "qorus.explorer.editClass",
@@ -798,6 +808,12 @@
                 "command": "qorus.deployCurrentFile",
                 "key": "ctrl+alt+o",
                 "mac": "cmd+alt+r",
+                "when": "editorTextFocus"
+            },
+            {
+                "command": "qorus.editCurrentInterface",
+                "key": "ctrl+alt+e",
+                "mac": "cmd+alt+e",
                 "when": "editorTextFocus"
             },
             {
@@ -1551,11 +1567,14 @@
     "scripts": {
         "vscode:prepublish": "npm run compile && npm run build",
         "compile": "tsc -p ./src",
+        "compile:test": "cd ui-test && tsc -p ./src",
         "watch": "tsc -watch -p ./src",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "start": "NODE_ENV=development babel-node server.js",
-        "build": "NODE_ENV=production webpack"
+        "build": "NODE_ENV=production webpack",
+        "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
+        "ui-run-tests": "rm -rf ui-test/test_project && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && cp ui-test/tests.code-workspace ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js && rm -rf ui-test/test_project"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",
@@ -1611,6 +1630,7 @@
         "webpack-merge": "^4.2.1"
     },
     "dependencies": {
+        "@andrewhead/python-program-analysis": "^0.4.8",
         "@babel/polyfill": "^7.7.0",
         "@blueprintjs/datetime": "^3.9.2",
         "@blueprintjs/select": "^3.8.0",
@@ -1622,6 +1642,7 @@
         "cronstrue": "^1.81.0",
         "fs-extra": "^8.1.0",
         "gettext-parser": "^2.0.0",
+        "java-parser": "^0.8.0",
         "js-yaml": "^3.13.1",
         "moment": "^2.24.0",
         "react-autocomplete": "^1.8.1",
