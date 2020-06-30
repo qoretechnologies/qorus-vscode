@@ -35,6 +35,10 @@ export class ClassConnectionsEdit {
         const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
         const has_class_connections = Object.keys(new_data?.['class-connections'] || {}).length > 0;
 
+        if (!had_class_connections && !has_class_connections) {
+            return;
+        }
+
         const data = {
             ...new_data,
             iface_kind
