@@ -118,7 +118,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
             onClose={() => {
                 // If the name is empty and the original name was empty
                 // delete this state
-                if (!data.name) {
+                if ((data.type === 'fsm' && !data.name) || (data.type === 'state' && !data.action?.value)) {
                     deleteState(id);
                 }
                 onClose();
@@ -192,7 +192,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                                             { value: 'mapper' },
                                             { value: 'pipeline' },
                                             { value: 'connector' },
-                                            { value: 'none' },
                                         ]}
                                     />
                                     {actionType && actionType !== 'none' ? (

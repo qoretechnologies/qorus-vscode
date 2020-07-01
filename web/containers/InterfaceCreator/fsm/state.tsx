@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useDrag } from 'react-dnd';
 import { STATE_ITEM_TYPE, IFSMState } from '.';
 import styled, { css } from 'styled-components';
 import { ButtonGroup, Button } from '@blueprintjs/core';
+import { ContextMenuContext } from '../../../context/contextMenu';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
@@ -12,14 +13,16 @@ export interface IFSMStateProps extends IFSMState {
     id: string;
 }
 
-const StyledFSMState = styled.div<{
+export interface IFSMStateStyleProps {
     x: number;
     y: number;
     selected: boolean;
     initial: boolean;
     final: boolean;
-    type: 'state' | 'fsm';
-}>`
+    type: 'mapper' | 'connector' | 'pipeline' | 'fsm';
+};
+
+const StyledFSMState = styled.div<IFSMStateStyleProps>`
     left: ${({ x }) => `${x}px`};
     top: ${({ y }) => `${y}px`};
     position: absolute;
@@ -29,7 +32,7 @@ const StyledFSMState = styled.div<{
     z-index: 20;
     border: 2px solid;
 
-    ${({ selected, initial, final, type }) => {
+    ${({ selected, initial, final }) => {
         let color: string = '#a9a9a9';
 
         if (selected) {
@@ -42,13 +45,37 @@ const StyledFSMState = styled.div<{
 
         return css`
             border-color: ${color};
-            border-style: ${type === 'state' ? 'solid' : 'dashed'};
+            border-style: solid;
 
             &:hover {
                 box-shadow: 0 0 5px 0px ${color};
             }
         `;
     }};
+
+    ${({ type }) => {
+        switch (type) {
+            case 'connector':
+                return css`
+                    transform: skew(15deg);
+                    span {
+                        transform: skew(-15deg);
+                    }
+                `;
+            case 'mapper':
+                return null;
+            case 'pipeline':
+                return css`
+                    border-radius: 50px;
+                `;
+            case 'fsm':
+                return css`
+                    border-style: dashed;
+                `;
+            default:
+                return null;
+        }
+    }}
 
     border-radius: 3px;
     cursor: pointer;
@@ -88,6 +115,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
     });
     const [isHovered, setIsHovered] = useState<boolean>(false);
+    const { addMenu } = useContext(ContextMenuContext);
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
         event.stopPropagation();
@@ -115,7 +143,16 @@ const FSMState: React.FC<IFSMStateProps> = ({
             onMouseLeave={handleMouseLeave}
             initial={initial}
             final={final}
-            type={type}
+            type={type === 'fsm' ? 'fsm' : action?.type}
+            onContextMenu={(event) => {
+                addMenu({
+                    event,
+                    data: [{
+                        item: 'test',
+                        onClick: () => { console.log('click') },
+                    }],
+                })
+            }}
         >
             <StyledStateName>{name}</StyledStateName>
             {action && <StyledStateAction>{action.type}</StyledStateAction>}

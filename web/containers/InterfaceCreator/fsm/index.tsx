@@ -199,13 +199,14 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                             initial: false,
                             name: item.name === 'state' ? `State ${id}` : null,
                             type: item.name,
+                            action: item.name === 'state' ? {
+                                type: item.stateType,
+                            } : undefined,
                         },
                     })
                 );
 
-                if (item.name === 'fsm') {
-                    setEditingState(id);
-                }
+                setEditingState(id);                
             } else if (item.type === STATE_ITEM_TYPE) {
                 moveItem(item.id, monitor.getDifferenceFromInitialOffset());
             }
@@ -515,35 +516,37 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
-                            <FieldLabel isValid={validateField('string', metadata.fsm_options)} label={t('field-label-options')} />
-                            <FieldInputWrapper>
-                                <p>{t('ActionStrategy')}</p>
-                                <SelectField 
-                                    onChange={(_, value) => {
-                                        handleMetadataChange('fsm_options', {
-                                            ...metadata.fsm_options,
-                                            'action-strategy': value,
-                                        })
-                                    }}
-                                    name='fsm_options'
-                                    value={metadata.fsm_options['action-strategy']}
-                                    defaultItems={[{ name: 'one'}, { name: 'all' }]}
-                                />
-                                <Spacer size={10} />
-                                <p>{t('MaxThreadCount')}</p>
-                                <Number 
-                                    onChange={(_, value) => {
-                                        handleMetadataChange('fsm_options', {
-                                            ...metadata.fsm_options,
-                                            'max-thread-count': value,
-                                        })
-                                    }}
-                                    name='fsm_options'
-                                    value={metadata.fsm_options['max-thread-count']}
-                                />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
+                        {/* 
+                            <FieldWrapper>
+                                <FieldLabel isValid={validateField('string', metadata.fsm_options)} label={t('field-label-options')} />
+                                <FieldInputWrapper>
+                                    <p>{t('ActionStrategy')}</p>
+                                    <SelectField 
+                                        onChange={(_, value) => {
+                                            handleMetadataChange('fsm_options', {
+                                                ...metadata.fsm_options,
+                                                'action-strategy': value,
+                                            })
+                                        }}
+                                        name='fsm_options'
+                                        value={metadata.fsm_options['action-strategy']}
+                                        defaultItems={[{ name: 'one'}, { name: 'all' }]}
+                                    />
+                                    <Spacer size={10} />
+                                    <p>{t('MaxThreadCount')}</p>
+                                    <Number 
+                                        onChange={(_, value) => {
+                                            handleMetadataChange('fsm_options', {
+                                                ...metadata.fsm_options,
+                                                'max-thread-count': value,
+                                            })
+                                        }}
+                                        name='fsm_options'
+                                        value={metadata.fsm_options['max-thread-count']}
+                                    />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                        */}
                         <FieldWrapper>
                             <FieldLabel isValid={validateField('string', metadata.triggers)} label={t('field-label-triggers')} />
                             <FieldInputWrapper>
@@ -614,10 +617,16 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 />
             ) : null}
             <StyledToolbarWrapper>
-                <FSMToolbarItem name="state" count={size(filter(states, ({ type }: IFSMState) => type === 'state'))}>
-                    {t('State')}
+                <FSMToolbarItem name="state" type="mapper" count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}>
+                    {t('Mapper')}
                 </FSMToolbarItem>
-                <FSMToolbarItem name="fsm" count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}>
+                <FSMToolbarItem name="state" type="pipeline" count={size(filter(states, ({ action }: IFSMState) => action?.type === 'pipeline'))}>
+                    {t('Pipeline')}
+                </FSMToolbarItem>
+                <FSMToolbarItem name="state" type="connector" count={size(filter(states, ({ action }: IFSMState) => action?.type === 'connector'))}>
+                    {t('Connector')}
+                </FSMToolbarItem>
+                <FSMToolbarItem name="fsm" type="fsm" count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}>
                     {t('FSM')}
                 </FSMToolbarItem>
                 <Button
