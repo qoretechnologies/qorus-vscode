@@ -35,6 +35,10 @@ export class ClassConnectionsEdit {
         const had_class_connections = Object.keys(orig_data?.['class-connections'] || {}).length > 0;
         const has_class_connections = Object.keys(new_data?.['class-connections'] || {}).length > 0;
 
+        if (!had_class_connections && !has_class_connections) {
+            return;
+        }
+
         const data = {
             ...new_data,
             iface_kind
@@ -107,11 +111,13 @@ export class ClassConnectionsEdit {
 
         if (iface_kind === 'step' && !has_class_connections) {
             edit_data = await setFileInfo();
+            method_names = Object.keys(edit_data?.method_name_ranges || {});
             let { text_lines: lines, class_def_range } = edit_data;
             const mandatory_step_methods = InterfaceCreator.mandatoryStepMethodsCode(
                 code_info,
                 data['base-class-name'],
-                this.lang
+                this.lang,
+                method_names
             );
 
             const end = class_def_range.end;
