@@ -2,7 +2,7 @@ import { workspace, window } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
 
 import { InterfaceCreator } from './InterfaceCreator';
-import { service_imports } from './service_constants';
+import { serviceImports } from './service_constants';
 import { mapper_code_method_template } from './mapper_constants';
 import { classTemplate, simple_method_template } from './common_constants';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
@@ -27,7 +27,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 suffix = '.qsd';
                 methods_key = 'methods';
                 this.method_template = simple_method_template[this.lang];
-                this.imports = service_imports[this.lang];
+                this.imports = serviceImports(this.lang, data['base-class-name']);
                 if (!(data.methods || []).length) {
                     data.methods = [{
                         name: 'init',

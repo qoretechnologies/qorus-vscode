@@ -1,12 +1,18 @@
+import { root_service } from '../qorus_constants';
 import { field } from './common_constants';
 
-export const service_imports = {
-    qore: [],
-    python: [],
-    java: [
-        'import com.qoretechnologies.qorus.*;',
-        'import com.qoretechnologies.qorus.service.*;'
-    ]
+export const serviceImports = (lang: string, base_class_name: string) => {
+    switch (lang) {
+        case 'python':
+            return base_class_name === root_service ? [ `from svc import ${base_class_name}` ] : [];
+        case 'java':
+            return [
+                'import com.qoretechnologies.qorus.*;',
+                'import com.qoretechnologies.qorus.service.*;'
+            ];
+        default:
+            return [];
+    }
 };
 
 export const serviceFields = ({default_target_dir, is_editing}) => [

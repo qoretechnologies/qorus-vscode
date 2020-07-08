@@ -1,12 +1,18 @@
+import { root_steps } from '../qorus_constants';
 import { field } from './common_constants';
 
-export const step_imports = {
-    qore: [],
-    python: [],
-    java: [
-        'import com.qoretechnologies.qorus.*;',
-        'import com.qoretechnologies.qorus.workflow.*;'
-    ]
+export const stepImports = (lang: string, base_class_name: string) => {
+    switch (lang) {
+        case 'python':
+            return root_steps.includes(base_class_name) ? [ `from wf import ${base_class_name}` ] : [];
+        case 'java':
+            return [
+                'import com.qoretechnologies.qorus.*;',
+                'import com.qoretechnologies.qorus.workflow.*;'
+            ];
+        default:
+            return [];
+    }
 };
 
 export const stepFields = ({default_target_dir, is_editing}) => [

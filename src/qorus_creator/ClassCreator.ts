@@ -4,9 +4,9 @@ import * as jsyaml from 'js-yaml';
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { simple_method_template, classTemplate } from './common_constants';
-import { job_imports } from './job_constants';
-import { workflow_imports } from './workflow_constants';
-import { step_imports } from './step_constants';
+import { jobImports } from './job_constants';
+import { workflowImports } from './workflow_constants';
+import { stepImports } from './step_constants';
 import { stepTypeHeaders } from './step_constants';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
 import { ClassConnectionsEdit } from './ClassConnectionsEdit';
@@ -25,18 +25,18 @@ class ClassCreator extends InterfaceCreator {
         this.has_code = false;
         switch (iface_kind) {
             case 'job':
-                imports = job_imports[this.lang];
+                imports = jobImports(this.lang, data['base-class-name']);
                 this.has_code = true;
                 suffix = '.qjob';
                 break;
             case 'step':
-                imports = step_imports[this.lang];
+                imports = stepImports(this.lang, data['base-class-name']);
                 this.has_code = true;
                 suffix = '.qstep';
                 break;
             case 'workflow':
                 if (data['class-name']) {
-                    imports = workflow_imports[this.lang];
+                    imports = workflowImports(this.lang, data['base-class-name']);
                     this.has_code = true;
                 }
                 suffix = '.qwf';
