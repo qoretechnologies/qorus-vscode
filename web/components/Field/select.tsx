@@ -1,16 +1,38 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import { Select } from '@blueprintjs/select';
-import { MenuItem, Button, Tooltip, ControlGroup, Classes, Callout } from '@blueprintjs/core';
+import React, {
+    FunctionComponent,
+    useEffect,
+    useState
+} from 'react';
+
+import {
+    get,
+    includes
+} from 'lodash';
 import useMount from 'react-use/lib/useMount';
-import { includes, get, size } from 'lodash';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import { TTranslator } from '../../App';
-import withTextContext from '../../hocomponents/withTextContext';
 import { compose } from 'recompose';
-import StringField from './string';
+
+import {
+    Button,
+    Callout,
+    Classes,
+    ControlGroup,
+    MenuItem,
+    Tooltip
+} from '@blueprintjs/core';
+import { Select } from '@blueprintjs/select';
+
+import { TTranslator } from '../../App';
+import {
+    IField,
+    IFieldChange
+} from '../../containers/InterfaceCreator/panel';
+import withMessageHandler, {
+    TMessageListener,
+    TPostMessage
+} from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
 import FieldEnhancer from '../FieldEnhancer';
-import { Messages } from '../../constants/messages';
+import StringField from './string';
 
 export interface ISelectField {
     addMessageListener: TMessageListener;
@@ -199,7 +221,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     return (
         <FieldEnhancer context={{ iface_kind, ...context }}>
             {(onEditClick, onCreateClick) => (
-                <ControlGroup fill>
+                <ControlGroup fill={fill}>
                     <Select
                         items={filteredItems}
                         itemRenderer={(item, data) => (
@@ -220,7 +242,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                             targetClassName: fill ? 'select-popover' : '',
                             position: 'left',
                         }}
-                        className={Classes.FILL}
+                        className={fill ? Classes.FILL : ''}
                         onItemSelect={(item: any) => handleSelectClick(item)}
                         query={query}
                         onQueryChange={(newQuery: string) => setQuery(newQuery)}
@@ -228,7 +250,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                     >
                         <Button
                             name={`field-${name}`}
-                            fill
+                            fill={fill}
                             text={value ? value : placeholder || t('PleaseSelect')}
                             rightIcon={'caret-down'}
                             onClick={handleClick}

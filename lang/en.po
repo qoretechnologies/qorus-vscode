@@ -2269,3 +2269,23 @@ msgstr "The original interface file ${ file } does not exist"
 
 msgid "ErrorParsingFile ${ file }"
 msgstr "Error in parsing file ${ file }"
+
+msgid "Initial"
+msgstr "Initial"
+
+msgid "Final"
+msgstr "Final"
+
+msgid "AllTransitionsRemoved"
+msgstr "All transitions were removed"
+
+msgid "RemoveAllTransitions"
+msgstr "Remove all transitions"
+
+msgid "PleaseSelectFSM"
+msgstr " - Please select an FSM to add triggers"
+
+msgid "NoTriggersYet"
+msgstr "No triggers added yet"
+
+

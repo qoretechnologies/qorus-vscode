@@ -1,9 +1,21 @@
 import React, { createContext } from 'react';
 
+import {
+    IconName,
+    Intent
+} from '@blueprintjs/core';
+
 export interface IContextMenu {
-  event: React.MouseEvent<HTMLElement>;
-  data: { item: string, onClick: () => any }[];
-  onClose?: () => any;
+    event: React.MouseEvent<HTMLElement>;
+    data: {
+        item?: string;
+        onClick?: () => any;
+        icon?: IconName;
+        rightIcon?: IconName;
+        title?: string;
+        intent?: Intent;
+    }[];
+    onClose?: () => any;
 }
 
 export interface IContextMenuContext {

@@ -1,20 +1,31 @@
-import { Position } from 'vscode';
-import * as path from 'path';
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
+import * as path from 'path';
+import { t } from 'ttag';
+import { Position } from 'vscode';
 
+import * as globals from '../global_config_item_values';
+import {
+    default_version,
+    types_with_version
+} from '../qorus_constants';
+import * as msg from '../qorus_message';
+import {
+    capitalize,
+    isValidIdentifier,
+    quotesIfNum,
+    removeDuplicates,
+    sortRanges
+} from '../qorus_utils';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
-import { field } from './common_constants';
+import {
+    default_parse_options,
+    field
+} from './common_constants';
 import { defaultValue } from './config_item_constants';
-import { default_parse_options } from './common_constants';
 import { mandatoryStepMethods } from './standard_methods';
-import { types_with_version, default_version } from '../qorus_constants';
-import { quotesIfNum, removeDuplicates, capitalize, isValidIdentifier, sortRanges } from '../qorus_utils';
-import { t } from 'ttag';
-import * as globals from '../global_config_item_values';
-import * as msg from '../qorus_message';
 
 const list_indent = '  - ';
 const indent = '    ';
@@ -24,7 +35,6 @@ const lang_suffix = {
     python: '.py',
     java: '.java',
 };
-
 
 export abstract class InterfaceCreator {
     protected suffix: string = '';
@@ -47,9 +57,10 @@ export abstract class InterfaceCreator {
         let { target_dir, target_file } = data;
         const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
 
-        this.target_dir = (iface_kind === 'type' && edit_type === 'create')
-            ? this.code_info.getProject()?.dirForTypePath(target_dir, data.path)
-            : target_dir;
+        this.target_dir =
+            iface_kind === 'type' && edit_type === 'create'
+                ? this.code_info.getProject()?.dirForTypePath(target_dir, data.path)
+                : target_dir;
 
         if (iface_kind === 'type' && !target_file) {
             target_file = path.basename(data.path);
@@ -58,23 +69,32 @@ export abstract class InterfaceCreator {
         switch (this.lang) {
             case 'java':
                 this.file_base = data['class-name'];
-                this.yaml_file_base = data.version !== undefined
-                    ? `${data.name}-${data.version}`
-                    : data.name;
+                this.yaml_file_base = data.version !== undefined ? `${data.name}-${data.version}` : data.name;
                 this.target_subdir = iface_kind ? `${this.yaml_file_base}-${iface_kind}` : this.yaml_file_base;
                 break;
             default:
                 if (target_file) {
                     this.file_base = target_file;
                     // remove all possible suffixes
-                    ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype',
-                     'qsd', 'qmc', 'qevent', 'qgroup', 'qqueue'].forEach(suffix => {
+                    [
+                        'py',
+                        'yaml',
+                        'qjob',
+                        'qstep',
+                        'qwf',
+                        'qclass',
+                        'qmapper',
+                        'qtype',
+                        'qsd',
+                        'qmc',
+                        'qevent',
+                        'qgroup',
+                        'qqueue',
+                    ].forEach((suffix) => {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
                 } else {
-                    this.file_base = data.version !== undefined
-                        ? `${data.name}-${data.version}`
-                        : data.name;
+                    this.file_base = data.version !== undefined ? `${data.name}-${data.version}` : data.name;
                 }
                 this.yaml_file_base = this.file_base;
                 this.target_subdir = '';
@@ -107,14 +127,14 @@ export abstract class InterfaceCreator {
                     this.code_info.setPending('edit_info', false);
                     this.editImpl(params);
                 },
-                error => {
+                (error) => {
                     msg.error(error);
                     this.code_info.setPending('edit_info', false);
                     qorus_webview.postMessage({
                         action: `creator-edit-interface-complete`,
                         request_id: params.request_id,
                         ok: false,
-                        message: error
+                        message: error,
                     });
                 }
             );
@@ -185,7 +205,7 @@ export abstract class InterfaceCreator {
         try {
             const true_target_dir = path.join(this.target_dir, this.target_subdir);
             if (!fs.existsSync(true_target_dir)) {
-               fs.mkdirSync(true_target_dir);
+                fs.mkdirSync(true_target_dir);
             }
 
             fs.writeFileSync(this.file_path, contents);
@@ -200,27 +220,34 @@ export abstract class InterfaceCreator {
     protected checkData = (params: any): any => {
         const items_to_check = ['checkExistingInterface', 'checkClassName'];
         for (const item_to_check of items_to_check) {
-            const {ok, message} = this[item_to_check](params);
+            const { ok, message } = this[item_to_check](params);
             if (!ok) {
-                return {ok, message};
+                return { ok, message };
             }
         }
-        return {ok: true};
-    }
+        return { ok: true };
+    };
 
     protected checkClassName = (params: any): any => {
-        const { data: { 'class-name': class_name } } = params;
+        const {
+            data: { 'class-name': class_name },
+        } = params;
         if (!class_name || isValidIdentifier(class_name)) {
-            return {ok: true};
+            return { ok: true };
         }
-        return {ok: false, message: t`InvalidClassName ${class_name}`};
-    }
+        return { ok: false, message: t`InvalidClassName ${class_name}` };
+    };
 
     protected checkExistingInterface = (params: any): any => {
-        let { iface_kind, edit_type, data: {name, version, type, 'class-name': class_name }, orig_data } = params;
+        let {
+            iface_kind,
+            edit_type,
+            data: { name, version, type, 'class-name': class_name },
+            orig_data,
+        } = params;
 
         if (!['create', 'edit'].includes(edit_type)) {
-            return {ok: true};
+            return { ok: true };
         }
 
         if (iface_kind === 'other') {
@@ -237,34 +264,34 @@ export abstract class InterfaceCreator {
         if (iface_name !== orig_iface_name) {
             const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
             if (iface) {
-                return {ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`};
+                return { ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}` };
             }
         }
         if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
             const iface = this.code_info.yaml_info.yamlDataByClass(iface_kind, class_name);
             if (iface) {
-                return {ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}`};
+                return { ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}` };
             }
         }
-        
+
         const { file_path, orig_file_path, yaml_file_path, orig_yaml_file_path } = this;
 
         if (file_path && file_path !== orig_file_path) {
             const iface = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
             if (iface) {
-                return {ok: false, message: t`FileAlreadyExists ${file_path}`};
+                return { ok: false, message: t`FileAlreadyExists ${file_path}` };
             }
         }
 
         if (yaml_file_path !== orig_yaml_file_path) {
             const iface = this.code_info.yaml_info.yamlDataByYamlFile(yaml_file_path);
             if (iface) {
-                return {ok: false, message: t`FileAlreadyExists ${yaml_file_path}`};
+                return { ok: false, message: t`FileAlreadyExists ${yaml_file_path}` };
             }
         }
 
-        return {ok: true};
-    }
+        return { ok: true };
+    };
 
     protected renameClassAndBaseClass(lines: string[], orig_data: any, header_data): string[] {
         const orig_class_name = orig_data['class-name'];
@@ -295,10 +322,10 @@ export abstract class InterfaceCreator {
         };
 
         const inherits_kw = {
-            qore:   { before: ' inherits ', after: '' },
-            python: { before: '(',          after: ')' },
-            java:   { before: ' extends ',  after: '' },
-        }[this.lang]
+            qore: { before: ' inherits ', after: '' },
+            python: { before: '(', after: ')' },
+            java: { before: ' extends ', after: '' },
+        }[this.lang];
 
         const eraseInheritsBefore = () => {
             const inherits_before = inherits_kw.before.trim();
@@ -408,10 +435,10 @@ export abstract class InterfaceCreator {
         }
         result += `${lines.shift()}\n`;
         if (lines.length) {
-            result += lines.map(str => `${indent.repeat(indent_level)}${str}`).join('\n') + '\n';
+            result += lines.map((str) => `${indent.repeat(indent_level)}${str}`).join('\n') + '\n';
         }
         return result;
-    }
+    };
 
     protected static createConfigItemHeaders = (items: any[]): string => {
         let result: string = 'config-items:\n';
@@ -442,16 +469,16 @@ export abstract class InterfaceCreator {
                         delete item.value_true_type;
                     }
 
-                    const non_star_type = type?.substring(type.indexOf("*") + 1);
+                    const non_star_type = type?.substring(type.indexOf('*') + 1);
                     if (['list', 'hash'].includes(non_star_type)) {
-                        let lines = jsyaml.safeDump(item[tag], {indent: 4}).split(/\r?\n/);
+                        let lines = jsyaml.safeDump(item[tag], { indent: 4 }).split(/\r?\n/);
                         if (/^\s*$/.test(lines.slice(-1)[0])) {
                             lines.pop();
                         }
                         if (non_star_type === 'list') {
-                            result += lines.map(str => `${indent}  ${str}`).join('\n') + '\n';
+                            result += lines.map((str) => `${indent}  ${str}`).join('\n') + '\n';
                         } else {
-                            result += lines.map(str => `${indent}${indent}${str}`).join('\n') + '\n';
+                            result += lines.map((str) => `${indent}${indent}${str}`).join('\n') + '\n';
                         }
                     } else {
                         result += `${indent}${indent}${JSON.stringify(item[tag])}\n`;
@@ -471,18 +498,34 @@ export abstract class InterfaceCreator {
                     continue;
                 }
 
-                if (['name', 'parent', 'parent_data', 'parent_class', 'value', 'level', 'is_set',
-                     'yamlData', 'orig_name', 'local-value', 'global-value', 'is_global_value_templated_string',
-                     'default_value', 'remove-global-value', 'workflow-value'].includes(tag))
-                {
+                if (
+                    [
+                        'name',
+                        'parent',
+                        'parent_data',
+                        'parent_class',
+                        'value',
+                        'level',
+                        'is_set',
+                        'yamlData',
+                        'orig_name',
+                        'local-value',
+                        'global-value',
+                        'is_global_value_templated_string',
+                        'default_value',
+                        'remove-global-value',
+                        'workflow-value',
+                    ].includes(tag)
+                ) {
                     continue;
                 }
 
                 const has_parent_data: boolean = (item.parent_data || false) && item.parent_data[tag] !== undefined;
 
-                if ((!has_parent_data && item[tag] !== defaultValue(tag)) ||
-                    (has_parent_data && item[tag] !== item.parent_data[tag]))
-                {
+                if (
+                    (!has_parent_data && item[tag] !== defaultValue(tag)) ||
+                    (has_parent_data && item[tag] !== item.parent_data[tag])
+                ) {
                     if (Array.isArray(item[tag])) {
                         result += `${indent}${tag}:\n`;
                         for (let entry of item[tag]) {
@@ -491,11 +534,11 @@ export abstract class InterfaceCreator {
                     } else {
                         switch (tag) {
                             case 'type':
-                                result += `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                result +=
+                                    `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: ` +
-                                    InterfaceCreator.indentYamlDump(item[tag], 1, false);
+                                result += `${indent}${tag}: ` + InterfaceCreator.indentYamlDump(item[tag], 1, false);
                                 break;
                             default:
                                 result += `${indent}${tag}: ${item[tag]}\n`;
@@ -506,7 +549,7 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    }
+    };
 
     protected createHeaders = (headers: any): string => {
         let result: string = '';
@@ -517,16 +560,18 @@ export abstract class InterfaceCreator {
         const base_class_name = headers['base-class-name'];
         if (base_class_name && !QorusProjectCodeInfo.isRootBaseClass(base_class_name)) {
             headers[classes_or_requires] = headers[classes_or_requires] || [];
-            if (!headers[classes_or_requires]
-                    .some(class_data => class_data['class-name'] === base_class_name && !class_data.prefix))
-            {
+            if (
+                !headers[classes_or_requires].some(
+                    (class_data) => class_data['class-name'] === base_class_name && !class_data.prefix
+                )
+            ) {
                 headers[classes_or_requires].unshift({ name: base_class_name });
             }
         }
 
         let classes = {};
         let exists_prefix = false;
-        (headers[classes_or_requires] || []).forEach(class_data => {
+        (headers[classes_or_requires] || []).forEach((class_data) => {
             if (!classes[class_data.name]) {
                 classes[class_data.name] = {
                     exists_prefix: false,
@@ -543,20 +588,20 @@ export abstract class InterfaceCreator {
         if (headers.fields) {
             const types = headers.output_field_option_types || [];
 
-            Object.keys(headers.fields).forEach(field_name => {
+            Object.keys(headers.fields).forEach((field_name) => {
                 let field = headers.fields[field_name];
                 if (field.code) {
-                    const [name, method, ... other] = field.code.split('.');
+                    const [name, method, ...other] = field.code.split('.');
                     if (name && method && !other.length) {
                         const mapper_code = this.code_info.yaml_info.yamlDataByName('mapper-code', name);
-                        const {'class-name': class_name, lang = 'qore'} = mapper_code;
-                        field.code = `${class_name}${lang === 'qore' ? '::': '.'}${method}`;
+                        const { 'class-name': class_name, lang = 'qore' } = mapper_code;
+                        field.code = `${class_name}${lang === 'qore' ? '::' : '.'}${method}`;
                     }
                 }
 
-                Object.keys(field).forEach(key => {
-                    const type_info = types.find(type => type.outputField === field_name && type.field === key);
-                    if (['list', 'hash'].some(type => type_info?.type.startsWith(type))) {
+                Object.keys(field).forEach((key) => {
+                    const type_info = types.find((type) => type.outputField === field_name && type.field === key);
+                    if (['list', 'hash'].some((type) => type_info?.type.startsWith(type))) {
                         field[key] = jsyaml.safeLoad(field[key]);
                     }
                 });
@@ -566,27 +611,38 @@ export abstract class InterfaceCreator {
         let ordered_tags = [];
         const at_the_beginning = ['type', 'name', 'desc'];
         const at_the_end = ['class-connections'];
-        at_the_beginning.forEach(tag => {
+        at_the_beginning.forEach((tag) => {
             if (headers[tag] !== undefined) {
                 ordered_tags.push(tag);
             }
         });
-        Object.keys(headers).forEach(tag => {
+        Object.keys(headers).forEach((tag) => {
             if (![...at_the_beginning, ...at_the_end].includes(tag)) {
                 ordered_tags.push(tag);
             }
         });
-        at_the_end.forEach(tag => {
+        at_the_end.forEach((tag) => {
             if (headers[tag] !== undefined) {
                 ordered_tags.push(tag);
             }
         });
 
         for (const tag of ordered_tags) {
-            if (['target_dir', 'target_file', 'methods', 'mapper-methods','orig_name',
-                 'method_index', 'output_field_option_types', 'active_method', 'yaml_file',
-                 'config-item-values', 'class-class-name'].includes(tag))
-            {
+            if (
+                [
+                    'target_dir',
+                    'target_file',
+                    'methods',
+                    'mapper-methods',
+                    'orig_name',
+                    'method_index',
+                    'output_field_option_types',
+                    'active_method',
+                    'yaml_file',
+                    'config-item-values',
+                    'class-class-name',
+                ].includes(tag)
+            ) {
                 continue;
             }
 
@@ -657,7 +713,9 @@ export abstract class InterfaceCreator {
                                             result += `${indent}${indent}${subkey}: ${connector[key][subkey]}\n`;
                                         }
                                     }
-                                } else if (!['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)) {
+                                } else if (
+                                    !['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)
+                                ) {
                                     result += `${indent}${key}: ${connector[key]}\n`;
                                 }
                             }
@@ -667,11 +725,12 @@ export abstract class InterfaceCreator {
                     case 'text-resource':
                     case 'bin-resource':
                     case 'template':
-                        value.forEach(({name}) => {
+                        value.forEach(({ name }) => {
                             result += `${list_indent}${path.relative(headers.target_dir, name)}\n`;
                         });
                         break;
                     case 'steps':
+                    case 'fsm':
                     case 'triggers':
                         const lines = JSON.stringify(value, null, 4).split('\n');
                         for (let line of lines) {
@@ -707,16 +766,15 @@ export abstract class InterfaceCreator {
                     case 'fsm_options':
                     case 'typeinfo':
                     case 'staticdata-type':
-                    case 'triggers':
                     case 'states':
                     case 'context':
-                        result += `${tag === 'mapper_options' || tag === 'fsm_options' ? 'options' : tag}:\n` +
+                        result +=
+                            `${tag === 'mapper_options' || tag === 'fsm_options' ? 'options' : tag}:\n` +
                             InterfaceCreator.indentYamlDump(value, 1, true);
                         break;
                     case 'desc':
                     case 'description':
-                        result += `${tag}: ` +
-                            InterfaceCreator.indentYamlDump(value, 0, false);
+                        result += `${tag}: ` + InterfaceCreator.indentYamlDump(value, 0, false);
                         break;
                     case 'processor':
                         value.options = value.options ? jsyaml.safeLoad(value.options) : null;
@@ -751,9 +809,9 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    }
+    };
 
-    protected static fixClassConnections = data => {
+    protected static fixClassConnections = (data) => {
         for (const connection in data['class-connections']) {
             for (const connector of data['class-connections'][connection]) {
                 const class_name_parts = connector.class.split(':');
@@ -763,13 +821,13 @@ export abstract class InterfaceCreator {
                 }
                 if (connector.mapper) {
                     data.mappers = data.mappers || [];
-                    if (!data.mappers.some(mapper => mapper.name === connector.mapper)) {
-                        data.mappers.push({name: connector.mapper});
+                    if (!data.mappers.some((mapper) => mapper.name === connector.mapper)) {
+                        data.mappers.push({ name: connector.mapper });
                     }
                 }
             }
         }
-    }
+    };
 
     protected deleteOrigFilesIfDifferent() {
         let files_to_delete: string[] = [];
@@ -780,8 +838,8 @@ export abstract class InterfaceCreator {
             files_to_delete.push(this.orig_yaml_file_path);
         }
 
-        files_to_delete.forEach(file => {
-            fs.unlink(file, err => {
+        files_to_delete.forEach((file) => {
+            fs.unlink(file, (err) => {
                 if (err) {
                     msg.error(t`RemoveFileError ${file} ${err.toString()}`);
                     return;
@@ -809,12 +867,7 @@ export abstract class InterfaceCreator {
             new_code_lines.pop();
         }
 
-        return [
-            ...lines_before,
-            ...new_code_lines,
-            line_after,
-            ...lines_after
-        ];
+        return [...lines_before, ...new_code_lines, line_after, ...lines_after];
     }
 
     static removeClassMethods(lines: string[], methods: string[], method_decl_ranges): string[] {
@@ -831,16 +884,18 @@ export abstract class InterfaceCreator {
         };
 
         const rangesToRemove = [];
-        methods.forEach(name => {
+        methods.forEach((name) => {
             if (method_decl_ranges?.[name]) {
                 rangesToRemove.push(method_decl_ranges[name]);
             }
         });
-        sortRanges(rangesToRemove).reverse().forEach(range => {
-            if (range) {
-                lines = removeRange(lines, range);
-            }
-        });
+        sortRanges(rangesToRemove)
+            .reverse()
+            .forEach((range) => {
+                if (range) {
+                    lines = removeRange(lines, range);
+                }
+            });
 
         return lines;
     }
@@ -851,14 +906,15 @@ export abstract class InterfaceCreator {
         let method_strings = [];
         const indent = '    ';
 
-        Object.keys(mandatory_step_methods).forEach(method_name => {
+        Object.keys(mandatory_step_methods).forEach((method_name) => {
             if (skip.includes(method_name)) {
                 return;
             }
             const method_data = mandatory_step_methods[method_name];
-            let method_string = lang === 'python'
-                ? `${indent}def ${method_data.signature}:\n`
-                : `${indent}${method_data.signature} {\n`;
+            let method_string =
+                lang === 'python'
+                    ? `${indent}def ${method_data.signature}:\n`
+                    : `${indent}${method_data.signature} {\n`;
             if (method_data.body) {
                 method_string += `${indent}${indent}${method_data.body}\n`;
             }
@@ -869,11 +925,15 @@ export abstract class InterfaceCreator {
         });
 
         return method_strings.join('\n');
-    }
+    };
 
-    static fillTemplate = (template: string, lang: string = 'qore', imports: string[] = [],
-                           vars: any, add_default_parse_options: boolean = true): string =>
-    {
+    static fillTemplate = (
+        template: string,
+        lang: string = 'qore',
+        imports: string[] = [],
+        vars: any,
+        add_default_parse_options: boolean = true
+    ): string => {
         let result = add_default_parse_options ? default_parse_options[lang] || '' : '';
         result += removeDuplicates(imports).join('\n');
         if (imports.length) {
@@ -881,5 +941,5 @@ export abstract class InterfaceCreator {
         }
         result += new Function('return `' + template + '`;').call(vars);
         return result;
-    }
+    };
 }

@@ -3,8 +3,13 @@ import React, { FunctionComponent } from 'react';
 import isArray from 'lodash/isArray';
 import useMount from 'react-use/lib/useMount';
 
+import { Callout } from '@blueprintjs/core';
+
 import { TTranslator } from '../../App';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import {
+    IField,
+    IFieldChange
+} from '../../containers/InterfaceCreator/panel';
 import withMessageHandler from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import ArrayAutoField from './arrayAuto';
@@ -17,6 +22,7 @@ import Cron from './cron';
 import DateField from './date';
 import MultiFileField from './fileArray';
 import FileField from './fileString';
+import FSMListField from './fsmList';
 import LongStringField from './longString';
 import MapperOptionsField from './mapperOptions';
 import MarkdownPreview from './markdownPreview';
@@ -24,13 +30,11 @@ import MethodNameField from './methodName';
 import MultiPairField from './multiPair';
 import MultiSelect from './multiSelect';
 import NumberField from './number';
+import ProcessorField from './processor';
 import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
 import TypeSelector from './typeSelector';
-import { validateField } from '../../helpers/validations';
-import { Callout } from '@blueprintjs/core';
-import ProcessorField from './processor';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -48,7 +52,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                 // Check if on_change is a list
                 const onChange: string[] = isArray(rest.on_change) ? rest.on_change : [rest.on_change];
                 // Post all the actions
-                onChange.forEach(action => {
+                onChange.forEach((action) => {
                     // Post the message with this handler
                     postMessage(action, {
                         [rest.name]: rest.value,
@@ -92,6 +96,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                     />
                 )}
                 {type === 'class-connectors' && <ClassConnectors {...rest} type={type} />}
+                {type === 'fsm-list' && <FSMListField {...rest} type={type} />}
                 {rest.markdown && <MarkdownPreview value={rest.value} />}
             </>
         );

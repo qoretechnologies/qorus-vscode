@@ -3,13 +3,10 @@ import { field } from './common_constants';
 export const step_imports = {
     qore: [],
     python: [],
-    java: [
-        'import com.qoretechnologies.qorus.*;',
-        'import com.qoretechnologies.qorus.workflow.*;'
-    ]
+    java: ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.workflow.*;'],
 };
 
-export const stepFields = ({default_target_dir, is_editing}) => [
+export const stepFields = ({ default_target_dir, is_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -36,7 +33,7 @@ export const stepFields = ({default_target_dir, is_editing}) => [
             return_value: 'objects',
         },
         on_change: ['get-config-items', 'creator-set-fields'],
-        notify_on_remove: true
+        notify_on_remove: true,
     },
     {
         name: 'event',
@@ -77,32 +74,32 @@ export const stepFields = ({default_target_dir, is_editing}) => [
     {
         name: 'fsm',
         mandatory: false,
-        type: 'select-string',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'fsm',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'fsm',
-            return_value: 'objects',
-        },
+        type: 'fsm-list',
         reference: {
             iface_kind: 'fsm',
-        }
-    }
+        },
+    },
 ];
 
-export const stepTypeHeaders = step_type => {
+export const stepTypeHeaders = (step_type) => {
     switch (step_type) {
-        case 'QorusAsyncStep': return {steptype: 'ASYNC'};
-        case 'QorusEventStep': return {steptype: 'EVENT'};
-        case 'QorusNormalStep': return {steptype: 'NORMAL'};
-        case 'QorusSubworkflowStep': return {steptype: 'SUBWORKFLOW'};
-        case 'QorusAsyncArrayStep': return {steptype: 'ASYNC', arraytype: 'SERIES'};
-        case 'QorusEventArrayStep': return {steptype: 'EVENT', arraytype: 'SERIES'};
-        case 'QorusNormalArrayStep': return {steptype: 'NORMAL', arraytype: 'SERIES'};
-        case 'QorusSubworkflowArrayStep': return  {steptype: 'SUBWORKFLOW', arraytype: 'SERIES'};
-        default: return {};
+        case 'QorusAsyncStep':
+            return { steptype: 'ASYNC' };
+        case 'QorusEventStep':
+            return { steptype: 'EVENT' };
+        case 'QorusNormalStep':
+            return { steptype: 'NORMAL' };
+        case 'QorusSubworkflowStep':
+            return { steptype: 'SUBWORKFLOW' };
+        case 'QorusAsyncArrayStep':
+            return { steptype: 'ASYNC', arraytype: 'SERIES' };
+        case 'QorusEventArrayStep':
+            return { steptype: 'EVENT', arraytype: 'SERIES' };
+        case 'QorusNormalArrayStep':
+            return { steptype: 'NORMAL', arraytype: 'SERIES' };
+        case 'QorusSubworkflowArrayStep':
+            return { steptype: 'SUBWORKFLOW', arraytype: 'SERIES' };
+        default:
+            return {};
     }
 };

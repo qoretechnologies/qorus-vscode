@@ -1,4 +1,8 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, {
+    FunctionComponent,
+    useEffect,
+    useState
+} from 'react';
 
 import last from 'lodash/last';
 import size from 'lodash/size';
@@ -8,8 +12,17 @@ import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 
-import { AnchorButton, Button, ButtonGroup, Callout, Classes, Navbar, NavbarGroup } from '@blueprintjs/core';
+import {
+    AnchorButton,
+    Button,
+    ButtonGroup,
+    Callout,
+    Classes,
+    Navbar,
+    NavbarGroup
+} from '@blueprintjs/core';
 
+import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
 import Menu from './components/Menu';
@@ -18,6 +31,10 @@ import { AppToaster } from './components/Toast';
 import { MENU } from './constants/menu';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
+import {
+    ContextMenuContext,
+    IContextMenu
+} from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
@@ -26,14 +43,15 @@ import withFunctions from './hocomponents/withFunctions';
 import withGlobalOptions from './hocomponents/withGlobalOptions';
 import withInitialData from './hocomponents/withInitialData';
 import withMapper from './hocomponents/withMapper';
-import withMessageHandler, { TMessageListener, TPostMessage } from './hocomponents/withMessageHandler';
+import withMessageHandler, {
+    TMessageListener,
+    TPostMessage
+} from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
 import { LoginContainer } from './login/Login';
 import ProjectConfig from './project_config/ProjectConfig';
 import { ReleasePackageContainer as ReleasePackage } from './release_package/ReleasePackage';
-import { IContextMenu, ContextMenuContext } from './context/contextMenu';
-import ContextMenu from './components/ContextMenu';
 
 const StyledApp = styled.div`
     display: flex;
@@ -105,7 +123,7 @@ const App: FunctionComponent<IApp> = ({
     const addDialog: (id: string, onClose: any) => void = (id, onClose) => {
         // Only add dialogs that can be closed
         if (onClose) {
-            setOpenedDialogs(current => [
+            setOpenedDialogs((current) => [
                 ...current,
                 {
                     id,
@@ -115,11 +133,11 @@ const App: FunctionComponent<IApp> = ({
         }
     };
 
-    const removeDialog: (id: string) => void = id => {
-        setOpenedDialogs(current => {
+    const removeDialog: (id: string) => void = (id) => {
+        setOpenedDialogs((current) => {
             const newDialogs = [...current];
 
-            return newDialogs.filter(dialog => dialog.id !== id);
+            return newDialogs.filter((dialog) => dialog.id !== id);
         });
     };
 
@@ -150,7 +168,7 @@ const App: FunctionComponent<IApp> = ({
     useEffectOnce(() => {
         // New text was received
         addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
-            setTexts(currentTexts => {
+            setTexts((currentTexts) => {
                 // Do not modify state if the text already
                 // exists
                 if (!currentTexts[data.text_id]) {
@@ -192,22 +210,25 @@ const App: FunctionComponent<IApp> = ({
         return <Loader text="Loading translations..." />;
     }
 
-    const t: TTranslator = text_id => {
-        return texts.find(textItem => textItem.id === text_id)?.text || text_id;
+    const t: TTranslator = (text_id) => {
+        return texts.find((textItem) => textItem.id === text_id)?.text || text_id;
     };
 
     return (
         <>
-            <ContextMenuContext.Provider value={{ addMenu: setContextMenu, removeMenu: (onClose?: () => any) => {
-                setContextMenu(null);
-                if (onClose) {
-                    onClose();
-                }
-            }}}>
+            <ContextMenuContext.Provider
+                value={{
+                    addMenu: setContextMenu,
+                    removeMenu: (onClose?: () => any) => {
+                        setContextMenu(null);
+                        if (onClose) {
+                            onClose();
+                        }
+                    },
+                }}
+            >
                 <DialogsContext.Provider value={{ addDialog, removeDialog }}>
-                    {contextMenu && (
-                        <ContextMenu {...contextMenu} />
-                    )}
+                    {contextMenu && <ContextMenu {...contextMenu} onClick={() => setContextMenu(null)} />}
                     <Navbar fixedToTop={true} className="dark">
                         <NavbarGroup>
                             <img
@@ -218,7 +239,8 @@ const App: FunctionComponent<IApp> = ({
                                 {t('Project')}: <span>{project_folder}</span>
                             </StyledInfo>
                             <StyledInfo>
-                                {t('ActiveQorusInstance')}: <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
+                                {t('ActiveQorusInstance')}:{' '}
+                                <span>{qorus_instance ? qorus_instance.name : t('N/A')}</span>
                             </StyledInfo>
                         </NavbarGroup>
                         <Pull right>
@@ -290,13 +312,13 @@ const App: FunctionComponent<IApp> = ({
     );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     project_folder: state.current_project_folder,
     login_visible: state.login_visible,
 });
 
-const mapDispatchToProps = dispatch => ({
-    setCurrentProjectFolder: folder => {
+const mapDispatchToProps = (dispatch) => ({
+    setCurrentProjectFolder: (folder) => {
         dispatch({ type: 'current_project_folder', current_project_folder: folder });
     },
     openLogin: () => {

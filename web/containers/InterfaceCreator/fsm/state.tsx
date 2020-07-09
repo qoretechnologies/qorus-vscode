@@ -1,15 +1,31 @@
-import React, { useState, useContext } from 'react';
+import React, {
+    useContext,
+    useState
+} from 'react';
+
 import { useDrag } from 'react-dnd';
-import { STATE_ITEM_TYPE, IFSMState } from '.';
 import styled, { css } from 'styled-components';
-import { ButtonGroup, Button } from '@blueprintjs/core';
+
+import {
+    Button,
+    ButtonGroup
+} from '@blueprintjs/core';
+
 import { ContextMenuContext } from '../../../context/contextMenu';
+import { TextContext } from '../../../context/text';
+import {
+    IFSMState,
+    STATE_ITEM_TYPE
+} from './';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
     onClick: (id: string) => any;
     onEditClick: (id: string) => any;
     onDeleteClick: (id: string) => any;
+    onUpdate: (id: string, data: any) => any;
+    startTransitionDrag: (id: string) => any;
+    stopTransitionDrag: (id: string) => any;
     id: string;
 }
 
@@ -20,7 +36,7 @@ export interface IFSMStateStyleProps {
     initial: boolean;
     final: boolean;
     type: 'mapper' | 'connector' | 'pipeline' | 'fsm';
-};
+}
 
 const StyledFSMState = styled.div<IFSMStateStyleProps>`
     left: ${({ x }) => `${x}px`};
@@ -110,12 +126,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
     initial,
     final,
     type,
+    onUpdate,
 }) => {
     const [, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
     });
+
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const { addMenu } = useContext(ContextMenuContext);
+    const t = useContext(TextContext);
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
         event.stopPropagation();
@@ -145,13 +164,53 @@ const FSMState: React.FC<IFSMStateProps> = ({
             final={final}
             type={type === 'fsm' ? 'fsm' : action?.type}
             onContextMenu={(event) => {
+                event.persist();
                 addMenu({
                     event,
-                    data: [{
-                        item: 'test',
-                        onClick: () => { console.log('click') },
-                    }],
-                })
+                    data: [
+                        {
+                            title: name,
+                        },
+                        {
+                            item: t('Initial'),
+                            onClick: () => {
+                                onUpdate(id, { initial: !initial });
+                            },
+                            icon: 'flow-linear',
+                            rightIcon: initial ? 'small-tick' : undefined,
+                        },
+                        {
+                            item: t('Final'),
+                            onClick: () => {
+                                onUpdate(id, { final: !final });
+                            },
+                            icon: 'flow-end',
+                            rightIcon: final ? 'small-tick' : undefined,
+                        },
+                        {
+                            item: t('RemoveAllTransitions'),
+                            onClick: () => {
+                                onUpdate(id, { transitions: null });
+                            },
+                            icon: 'cross',
+                        },
+                        {
+                            title: t('Actions'),
+                        },
+                        {
+                            item: t('Edit'),
+                            onClick: () => onEditClick(id),
+                            icon: 'edit',
+                            intent: 'warning',
+                        },
+                        {
+                            item: t('Delete'),
+                            onClick: () => onDeleteClick(id),
+                            icon: 'trash',
+                            intent: 'danger',
+                        },
+                    ],
+                });
             }}
         >
             <StyledStateName>{name}</StyledStateName>

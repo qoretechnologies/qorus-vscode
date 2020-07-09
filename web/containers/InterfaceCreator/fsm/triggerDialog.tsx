@@ -1,33 +1,46 @@
-import React, { useContext, useState } from 'react';
-import { TTrigger } from '.';
-import CustomDialog from '../../../components/CustomDialog';
-import { TextContext } from '../../../context/text';
-import { FieldWrapper, FieldInputWrapper, ContentWrapper, ActionsWrapper } from '../panel';
-import FieldLabel from '../../../components/FieldLabel';
-import Spacer from '../../../components/Spacer';
-import { validateField } from '../../../helpers/validations';
-import RadioField from '../../../components/Field/radioField';
+import React, {
+    useContext,
+    useState
+} from 'react';
+
+import map from 'lodash/map';
+import size from 'lodash/size';
+
+import {
+    Button,
+    ButtonGroup,
+    Callout,
+    Intent,
+    Tooltip
+} from '@blueprintjs/core';
+
 import Content from '../../../components/Content';
-import { Intent, ButtonGroup, Tooltip, Button, Callout } from '@blueprintjs/core';
+import CustomDialog from '../../../components/CustomDialog';
+import RadioField from '../../../components/Field/radioField';
 import SelectField from '../../../components/Field/select';
 import StringField from '../../../components/Field/string';
-
-import ConnectorSelector from './connectorSelector';
-import { IManageDialog } from '../../ClassConnectionsManager/diagram';
+import FieldLabel from '../../../components/FieldLabel';
+import Spacer from '../../../components/Spacer';
 import { FieldContext } from '../../../context/fields';
-import size from 'lodash/size';
-import map from 'lodash/map';
 import { InitialContext } from '../../../context/init';
+import { TextContext } from '../../../context/text';
+import { validateField } from '../../../helpers/validations';
+import {
+    ActionsWrapper,
+    ContentWrapper,
+    FieldInputWrapper,
+    FieldWrapper
+} from '../panel';
+import { TTrigger } from './';
+import ConnectorSelector from './connectorSelector';
 
 export interface IFSMTriggerDialogProps {
     index?: number;
+    fsmIndex: number;
     data?: TTrigger;
-    onSubmit: (data: TTrigger, index?: number) => any;
+    onSubmit: (data: TTrigger, index?: number, fsmIndex?: number) => any;
     onClose: any;
     ifaceType?: string;
-    methodsCount?: number;
-    methods?: any[];
-    baseClassName?: string;
 }
 
 const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
@@ -36,8 +49,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
     onSubmit,
     onClose,
     ifaceType,
-    methodsCount,
-    baseClassName,
+    fsmIndex,
 }) => {
     const t = useContext(TextContext);
     const initialData = useContext(InitialContext);
@@ -99,19 +111,19 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
             }
 
             if (!ifaceType && newData.method) {
-                return <StringField disabled value={newData.method} />
+                return <StringField disabled value={newData.method} />;
             }
 
             const methods = getMethods();
             const baseClassName: string = getBaseClassName();
 
             if (ifaceType === 'step' && !baseClassName) {
-                return <Callout intent="warning">{t('StepBaseClassMissing')}</Callout>
+                return <Callout intent="warning">{t('StepBaseClassMissing')}</Callout>;
             }
-            
+
             return (
                 <>
-                    {ifaceType === 'service' && methodsCount === 0 && (
+                    {ifaceType === 'service' && size(methods) === 0 && (
                         <Callout intent="warning">{t('TriggerNoMethodsAvailable')}</Callout>
                     )}
                     {(ifaceType !== 'service' || size(methods) !== 0) && (
@@ -129,7 +141,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
                                 ifaceType !== 'service' && {
                                     action: 'return-triggers',
                                     return_value: 'data.triggers',
-                                } 
+                                }
                             }
                             defaultItems={ifaceType === 'service' && methods}
                             value={newData.method}
@@ -165,7 +177,11 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
                                     setTriggerType(value);
                                 }}
                                 value={triggerType}
-                                items={!ifaceType && !newData.method ? [{ value: 'event-connector' }] : [{ value: 'event-connector' }, { value: 'trigger' }]}
+                                items={
+                                    !ifaceType && !newData.method
+                                        ? [{ value: 'event-connector' }]
+                                        : [{ value: 'event-connector' }, { value: 'trigger' }]
+                                }
                             />
                             <Spacer size={20} />
                             {renderTriggerField()}
@@ -184,7 +200,7 @@ const FSMTriggerDialog: React.FC<IFSMTriggerDialogProps> = ({
                             name={`fsm-submit-trigger`}
                             intent={Intent.SUCCESS}
                             onClick={() => {
-                                onSubmit(newData, index);
+                                onSubmit(newData, index, fsmIndex);
                                 onClose();
                             }}
                         />

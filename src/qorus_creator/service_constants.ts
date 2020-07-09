@@ -3,13 +3,10 @@ import { field } from './common_constants';
 export const service_imports = {
     qore: [],
     python: [],
-    java: [
-        'import com.qoretechnologies.qorus.*;',
-        'import com.qoretechnologies.qorus.service.*;'
-    ]
+    java: ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.service.*;'],
 };
 
-export const serviceFields = ({default_target_dir, is_editing}) => [
+export const serviceFields = ({ default_target_dir, is_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -39,7 +36,7 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
             object_type: 'service-base-class',
             return_value: 'objects',
         },
-        on_change: 'get-config-items'
+        on_change: 'get-config-items',
     },
     {
         name: 'service-autostart',
@@ -106,20 +103,11 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
     {
         name: 'fsm',
         mandatory: false,
-        type: 'select-string',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'fsm',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'fsm',
-            return_value: 'objects',
-        },
+        type: 'fsm-list',
         reference: {
             iface_kind: 'fsm',
-        }
-    }
+        },
+    },
 ];
 
 export const service_methods = [
@@ -133,11 +121,7 @@ export const service_methods = [
     {
         name: 'lock',
         type: 'enum',
-        items: [
-            {value: 'none'},
-            {value: 'read'},
-            {value: 'write'}
-        ],
+        items: [{ value: 'none' }, { value: 'read' }, { value: 'write' }],
         mandatory: false,
         default_value: 'none',
     },

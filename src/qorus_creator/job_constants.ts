@@ -3,13 +3,10 @@ import { field } from './common_constants';
 export const job_imports = {
     qore: [],
     python: [],
-    java: [
-        'import com.qoretechnologies.qorus.*;',
-        'import com.qoretechnologies.qorus.job.*;'
-    ]
+    java: ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.job.*;'],
 };
 
-export const jobFields = ({default_target_dir, is_editing}) => [
+export const jobFields = ({ default_target_dir, is_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -39,7 +36,7 @@ export const jobFields = ({default_target_dir, is_editing}) => [
             object_type: 'job-base-class',
             return_value: 'objects',
         },
-        on_change: 'get-config-items'
+        on_change: 'get-config-items',
     },
     {
         name: 'active',
@@ -71,18 +68,9 @@ export const jobFields = ({default_target_dir, is_editing}) => [
     {
         name: 'fsm',
         mandatory: false,
-        type: 'select-string',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'fsm',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'fsm',
-            return_value: 'objects',
-        },
+        type: 'fsm-list',
         reference: {
             iface_kind: 'fsm',
-        }
-    }
+        },
+    },
 ];

@@ -1,4 +1,7 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, {
+    FunctionComponent,
+    useState
+} from 'react';
 
 import set from 'lodash/set';
 import useMount from 'react-use/lib/useMount';
@@ -31,7 +34,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
                 if (!data.tab) {
                     data.tab = 'CreateInterface';
-                    data.subtab = 'fsm';
+                    data.subtab = 'service';
                 }
 
                 setInitialData((current) => ({
