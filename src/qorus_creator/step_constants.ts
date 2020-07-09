@@ -1,10 +1,12 @@
-import { root_steps } from '../qorus_constants';
+import { root_steps, classToPythonModule } from '../qorus_constants';
 import { field } from './common_constants';
 
 export const stepImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
-            return root_steps.includes(base_class_name) ? [ `from wf import ${base_class_name}` ] : [];
+            return root_steps.includes(base_class_name)
+                ? [ `from ${classToPythonModule(base_class_name)} import ${base_class_name}` ]
+                : [];
         case 'java':
             return [
                 'import com.qoretechnologies.qorus.*;',

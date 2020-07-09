@@ -1,10 +1,12 @@
-import { root_service } from '../qorus_constants';
+import { root_service, classToPythonModule } from '../qorus_constants';
 import { field } from './common_constants';
 
 export const serviceImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
-            return base_class_name === root_service ? [ `from svc import ${base_class_name}` ] : [];
+            return base_class_name === root_service
+                ? [ `from ${classToPythonModule(root_service)} import ${base_class_name}` ]
+                : [];
         case 'java':
             return [
                 'import com.qoretechnologies.qorus.*;',

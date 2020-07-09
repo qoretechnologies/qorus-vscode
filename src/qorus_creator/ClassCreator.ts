@@ -3,7 +3,7 @@ import * as jsyaml from 'js-yaml';
 
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
-import { simple_method_template, classTemplate } from './common_constants';
+import { simple_method_template, classTemplate, classImports } from './common_constants';
 import { jobImports } from './job_constants';
 import { workflowImports } from './workflow_constants';
 import { stepImports } from './step_constants';
@@ -42,6 +42,7 @@ class ClassCreator extends InterfaceCreator {
                 suffix = '.qwf';
                 break;
             case 'class':
+                imports = classImports(this.lang, data['base-class-name']);
                 data.name = data['class-name'] = toValidIdentifier(data['class-class-name'], true);
                 this.has_code = true;
                 suffix = '.qclass';

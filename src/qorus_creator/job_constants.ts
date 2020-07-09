@@ -1,10 +1,12 @@
-import { root_job } from '../qorus_constants';
+import { root_job, classToPythonModule } from '../qorus_constants';
 import { field } from './common_constants';
 
 export const jobImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
-            return base_class_name === root_job ? [ `from job import ${base_class_name}` ] : [];
+            return base_class_name === root_job
+                ? [ `from ${classToPythonModule(root_job)} import ${base_class_name}` ]
+                : [];
         case 'java':
             return [
                 'import com.qoretechnologies.qorus.*;',

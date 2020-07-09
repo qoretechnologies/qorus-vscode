@@ -14,3 +14,12 @@ export const root_steps = ['QorusAsyncStep', 'QorusEventStep', 'QorusNormalStep'
 export const all_root_classes = [...root_steps, root_service, root_job, root_workflow, root_processor];
 
 export const default_version = '1.0';
+
+export const classToPythonModule = (class_name: string): string | undefined => {
+    switch (class_name) {
+        case root_service: return 'svc';
+        case root_job: return 'job';
+        case root_workflow: return 'wf';
+        default: return root_steps.includes(class_name) ? 'wf' : undefined;
+    }
+};
