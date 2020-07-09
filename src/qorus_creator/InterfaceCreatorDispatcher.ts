@@ -44,7 +44,7 @@ export class InterfaceCreatorDispatcher {
     }
 
     static getSortedFields = (params: any): any[] => {
-        const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc'];
+        const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc', 'lang'];
         let unsorted = [ ...InterfaceCreatorDispatcher.getFields(params) ];
         let at_the_beginning = [];
         not_to_sort.forEach(field_name => {

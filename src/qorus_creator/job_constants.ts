@@ -1,9 +1,20 @@
+import {
+    classToPythonModule,
+    root_job
+} from '../qorus_constants';
 import { field } from './common_constants';
 
-export const job_imports = {
-    qore: [],
-    python: [],
-    java: ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.job.*;'],
+export const jobImports = (lang: string, base_class_name: string) => {
+    switch (lang) {
+        case 'python':
+            return base_class_name === root_job
+                ? [`from ${classToPythonModule(root_job)} import ${base_class_name}`]
+                : [];
+        case 'java':
+            return ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.job.*;'];
+        default:
+            return [];
+    }
 };
 
 export const jobFields = ({ default_target_dir, is_editing }) => [

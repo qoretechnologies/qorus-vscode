@@ -1,3 +1,5 @@
+import { classToPythonModule } from '../qorus_constants';
+
 export const default_parse_options = {
     qore:
         '%new-style\n' +
@@ -93,6 +95,18 @@ export const simple_method_template = {
     java:
         '    public void ${this.name}() throws Throwable {\n' +
         '    }\n'
+};
+
+// ================================================================
+
+export const classImports = (lang: string, base_class_name: string) => {
+    switch (lang) {
+        case 'python':
+            const module = classToPythonModule(base_class_name);
+            return module ? [ `from ${module} import ${base_class_name}` ] : [];
+        default:
+            return [];
+    }
 };
 
 // ================================================================

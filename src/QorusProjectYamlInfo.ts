@@ -38,6 +38,7 @@ export class QorusProjectYamlInfo {
 
     private inheritance_pairs: any = {};
     private java_inheritance_pairs: any = {};
+    private python_inheritance_pairs: any = {};
 
     private service_classes = {};
     private job_classes = {};
@@ -132,6 +133,7 @@ export class QorusProjectYamlInfo {
 
         this.inheritance_pairs = {};
         this.java_inheritance_pairs = {};
+        this.python_inheritance_pairs = {};
 
         this.job_classes = { [root_job]: true };
         this.service_classes = { [root_service]: true };
@@ -246,6 +248,9 @@ export class QorusProjectYamlInfo {
             if (yaml_data.lang === 'java') {
                 this.java_inheritance_pairs[class_name] = [base_class_name];
             }
+            if (yaml_data.lang === 'python') {
+                this.python_inheritance_pairs[class_name] = [base_class_name];
+            }
         }
     }
 
@@ -283,11 +288,18 @@ export class QorusProjectYamlInfo {
         this.baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
         this.baseClasses(this.java_processor_classes, { ...this.java_inheritance_pairs });
 
+        this.baseClasses(this.python_service_classes, { ...this.python_inheritance_pairs });
+        this.baseClasses(this.python_job_classes, { ...this.python_inheritance_pairs });
+        this.baseClasses(this.python_workflow_classes, { ...this.python_inheritance_pairs });
+        this.baseClasses(this.python_processor_classes, { ...this.python_inheritance_pairs });
+
         for (const step_type of root_steps) {
             this.step_classes[step_type] =
                 this.baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
             this.java_step_classes[step_type] =
                 this.baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
+            this.python_step_classes[step_type] =
+                this.baseClasses(this.python_step_classes[step_type], { ...this.python_inheritance_pairs });
         }
     }
 }

@@ -1,12 +1,20 @@
+import { root_workflow, classToPythonModule } from '../qorus_constants';
 import { field } from './common_constants';
 
-export const workflow_imports = {
-    qore: [],
-    python: [],
-    java: [
-        'import com.qoretechnologies.qorus.*;',
-        'import com.qoretechnologies.qorus.workflow.*;'
-    ]
+export const workflowImports = (lang: string, base_class_name: string) => {
+    switch (lang) {
+        case 'python':
+            return base_class_name === root_workflow
+                ? [ `from ${classToPythonModule(root_workflow)} import ${base_class_name}` ]
+                : [];
+        case 'java':
+            return [
+                'import com.qoretechnologies.qorus.*;',
+                'import com.qoretechnologies.qorus.workflow.*;'
+            ];
+        default:
+            return [];
+    }
 };
 
 export const workflowFields = ({is_editing, default_target_dir}) => [
