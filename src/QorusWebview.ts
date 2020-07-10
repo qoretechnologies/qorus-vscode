@@ -62,6 +62,11 @@ class QorusWebview {
             return;
         }
 
+        if (!projects.getProject()) {
+            msg.error(t`WorkspaceFolderUnsetCannotOpenWebview`);
+            return;
+        }
+
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
             doc => {
                 this.panel = vscode.window.createWebviewPanel(
