@@ -168,7 +168,7 @@ export class QorusProjectYamlInfo {
             return;
         }
 
-        if (!data?.type) {
+        if (!types.includes(data?.type)) {
             return;
         }
 
