@@ -1,11 +1,15 @@
-import React from 'react';
-import styled from 'styled-components';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import React, { useState } from 'react';
+
 import compose from 'recompose/compose';
-import { ButtonGroup, Button } from '@blueprintjs/core';
+import styled from 'styled-components';
+
+import { Button, ButtonGroup } from '@blueprintjs/core';
+
+import { TTranslator } from '../../App';
+import Tutorial from '../../components/Tutorial';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
+import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
 
 export interface ITabProps {
     initialData: any;
@@ -46,15 +50,72 @@ const StyledSeparator = styled.div`
     vertical-align: bottom;
 `;
 
+const getTypeName = (type: string, t): string => {
+    switch (type) {
+        case 'fsm':
+            return t('FiniteStateMachine');
+        default:
+            return type;
+    }
+};
+
+const tutorials = {
+    fsm: {
+        elements: [
+            { id: 'fsm-fields-wrapper', text: 'The fields you have to fill' },
+            { id: 'fsm-toolbar', text: 'The toolbar you drag from' },
+            { id: 'fsm-diagram', text: 'The diagram where your FSM will be displayed' },
+        ],
+    },
+};
+
+const TutorialButton = ({ type, onClick }) => {
+    const [isReady, setIsReady] = useState<boolean>(false);
+
+    /*useMount(() => {
+        let remainingElements = tutorials[type].elements;
+        let interval = setInterval(() => {
+            remainingElements = remainingElements.reduce((newElements, element) => {
+                // Check if this element is loaded
+                if (document.querySelector(`#${element.id}`)) {
+                    return [...newElements];
+                }
+                return [...newElements, element];
+            }, []);
+
+            if (remainingElements.length === 0) {
+                clearInterval(interval);
+                interval = null;
+                setIsReady(true);
+            }
+        }, 500);
+
+        return () => {
+            clearInterval(interval);
+        };
+    });*/
+
+    return isReady ? (
+        <Button icon="help" text="Tutorial" onClick={onClick} />
+    ) : (
+        <Button loading text="Waiting for elements" />
+    );
+};
+
 const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData }) => {
     const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
+    const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(false);
 
     return (
         <StyledTab>
+            {isTutorialOpen && <Tutorial data={tutorials[type]} />}
             <StyledHeader>
                 {isEditing() ? `Edit ${type} "${getName()}"` : `New ${type}`}
                 <Button minimal icon="help" />
+                <div style={{ float: 'right' }}>
+                    <TutorialButton type={type} onClick={() => setIsTutorialOpen(true)} />
+                </div>
                 {isEditing() && (
                     <div style={{ float: 'right' }}>
                         <ButtonGroup>
