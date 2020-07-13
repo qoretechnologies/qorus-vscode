@@ -2292,4 +2292,13 @@ msgstr "No triggers added yet"
 msgid "FSMSelectTargetState"
 msgstr "Please select the target state by left clicking, or click anywhere else to cancel."
 
+msgid "Minimap"
+msgstr "Minimap"
+
+msgid "ShowMinimap"
+msgstr "Show minimap"
+
+msgid "HideMinimap"
+msgstr "Hide minimap"
+
 
