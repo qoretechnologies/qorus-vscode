@@ -1,24 +1,39 @@
-import React, { useState, useContext, useEffect } from 'react';
-import CustomDialog from '../../../components/CustomDialog';
-import { IFSMState, IFSMStates } from '.';
-import { StyledDialogBody } from '../../ClassConnectionsManager';
-import { FieldWrapper, FieldInputWrapper, ContentWrapper, ActionsWrapper } from '../panel';
-import FieldLabel from '../../../components/FieldLabel';
-import { InitialContext } from '../../../context/init';
-import BooleanField from '../../../components/Field/boolean';
-import { TextContext } from '../../../context/text';
-import Content from '../../../components/Content';
-import { validateField } from '../../../helpers/validations';
-import String from '../../../components/Field/string';
-import Connectors from '../../../components/Field/connectors';
-import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
-import { Messages } from '../../../constants/messages';
+import React, {
+    useContext,
+    useState
+} from 'react';
+
 import find from 'lodash/find';
+
+import {
+    Button,
+    ButtonGroup,
+    Intent,
+    Tooltip
+} from '@blueprintjs/core';
+
+import Content from '../../../components/Content';
+import CustomDialog from '../../../components/CustomDialog';
+import BooleanField from '../../../components/Field/boolean';
+import Connectors from '../../../components/Field/connectors';
 import RadioField from '../../../components/Field/radioField';
 import SelectField from '../../../components/Field/select';
+import String from '../../../components/Field/string';
+import FieldLabel from '../../../components/FieldLabel';
 import Spacer from '../../../components/Spacer';
+import { TextContext } from '../../../context/text';
+import { validateField } from '../../../helpers/validations';
+import {
+    ActionsWrapper,
+    ContentWrapper,
+    FieldInputWrapper,
+    FieldWrapper
+} from '../panel';
+import {
+    IFSMState,
+    IFSMStates
+} from './';
 import ConnectorSelector from './connectorSelector';
-import useUpdateEffect from 'react-use/lib/useUpdateEffect';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -27,11 +42,20 @@ export interface IFSMStateDialogProps {
     onSubmit: (id: string, newData: IFSMState) => void;
     otherStates: IFSMStates;
     deleteState: (id: string) => any;
+    fsmName?: string;
 }
 
 export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';
 
-const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onSubmit, otherStates, deleteState }) => {
+const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
+    onClose,
+    data,
+    id,
+    onSubmit,
+    otherStates,
+    deleteState,
+    fsmName,
+}) => {
     const [newData, setNewData] = useState<IFSMState>(data);
     const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
     const t = useContext(TextContext);
@@ -154,6 +178,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                                         object_type: 'fsm',
                                         return_value: 'objects',
                                     }}
+                                    predicate={(name) => fsmName !== name}
                                     defaultItems={[{ name: 'TestFSM1' }]}
                                     onChange={handleDataUpdate}
                                     value={newData?.name}
@@ -188,11 +213,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({ onClose, data, id, onS
                                             setActionType(value);
                                         }}
                                         value={actionType}
-                                        items={[
-                                            { value: 'mapper' },
-                                            { value: 'pipeline' },
-                                            { value: 'connector' },
-                                        ]}
+                                        items={[{ value: 'mapper' }, { value: 'pipeline' }, { value: 'connector' }]}
                                     />
                                     {actionType && actionType !== 'none' ? (
                                         <>

@@ -34,7 +34,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
                 if (!data.tab) {
                     data.tab = 'CreateInterface';
-                    data.subtab = 'service';
+                    data.subtab = 'fsm';
                 }
 
                 setInitialData((current) => ({

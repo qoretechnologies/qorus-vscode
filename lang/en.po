@@ -2264,6 +2264,7 @@ msgstr "Show metadata"
 
 msgid "HideMetadata"
 msgstr "Hide metadata"
+
 msgid "OrigIfaceFileDoesNotExist ${ file }"
 msgstr "The original interface file ${ file } does not exist"
 
@@ -2287,5 +2288,8 @@ msgstr " - Please select an FSM to add triggers"
 
 msgid "NoTriggersYet"
 msgstr "No triggers added yet"
+
+msgid "FSMSelectTargetState"
+msgstr "Please select the target state by left clicking, or click anywhere else to cancel."
 
 

@@ -15,12 +15,6 @@ $green3: $qore-green;
 $green4: lighten($qore-green, 10);
 $green5: lighten($qore-green, 20);
 
-$blue1: darken($qore-cobalt, 20);
-$blue2: darken($qore-cobalt, 10);
-$blue3: $qore-cobalt;
-$blue4: lighten($qore-cobalt, 10);
-$blue5: lighten($qore-cobalt, 20);
-
 @import '~@blueprintjs/core/src/blueprint.scss';
 
 html,

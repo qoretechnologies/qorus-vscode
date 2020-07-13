@@ -18,6 +18,7 @@ import styled from 'styled-components';
 import {
     Button,
     ButtonGroup,
+    Callout,
     Intent,
     Tooltip
 } from '@blueprintjs/core';
@@ -564,6 +565,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             </div>
             {editingState && (
                 <FSMStateDialog
+                    fsmName={metadata.name}
                     onSubmit={updateStateData}
                     onClose={() => setEditingState(null)}
                     data={states[editingState]}
@@ -585,42 +587,48 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     editingData={editingTransition}
                 />
             ) : null}
-            <StyledToolbarWrapper>
-                <FSMToolbarItem
-                    name="state"
-                    type="mapper"
-                    count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
-                >
-                    {t('Mapper')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                    name="state"
-                    type="pipeline"
-                    count={size(filter(states, ({ action }: IFSMState) => action?.type === 'pipeline'))}
-                >
-                    {t('Pipeline')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                    name="state"
-                    type="connector"
-                    count={size(filter(states, ({ action }: IFSMState) => action?.type === 'connector'))}
-                >
-                    {t('Connector')}
-                </FSMToolbarItem>
-                <FSMToolbarItem
-                    name="fsm"
-                    type="fsm"
-                    count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
-                >
-                    {t('FSM')}
-                </FSMToolbarItem>
-                <Button
-                    style={{ float: 'right' }}
-                    onClick={() => setIsMetadataHidden((cur) => !cur)}
-                    text={t(isMetadataHidden ? 'ShowMetadata' : 'HideMetadata')}
-                    icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
-                />
-            </StyledToolbarWrapper>
+            {selectedState ? (
+                <Callout icon="info-sign" intent="primary">
+                    {t('FSMSelectTargetState')}
+                </Callout>
+            ) : (
+                <StyledToolbarWrapper id="fsm-toolbar">
+                    <FSMToolbarItem
+                        name="state"
+                        type="mapper"
+                        count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
+                    >
+                        {t('Mapper')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                        name="state"
+                        type="pipeline"
+                        count={size(filter(states, ({ action }: IFSMState) => action?.type === 'pipeline'))}
+                    >
+                        {t('Pipeline')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                        name="state"
+                        type="connector"
+                        count={size(filter(states, ({ action }: IFSMState) => action?.type === 'connector'))}
+                    >
+                        {t('Connector')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                        name="fsm"
+                        type="fsm"
+                        count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
+                    >
+                        {t('FSM')}
+                    </FSMToolbarItem>
+                    <Button
+                        style={{ float: 'right' }}
+                        onClick={() => setIsMetadataHidden((cur) => !cur)}
+                        text={t(isMetadataHidden ? 'ShowMetadata' : 'HideMetadata')}
+                        icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
+                    />
+                </StyledToolbarWrapper>
+            )}
             <StyledDiagramWrapper ref={wrapperRef}>
                 <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
@@ -645,10 +653,13 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 {...state}
                                 id={id}
                                 selected={selectedState === id}
+                                onDblClick={handleStateClick}
                                 onClick={handleStateClick}
                                 onUpdate={updateStateData}
                                 onEditClick={handleStateEditClick}
                                 onDeleteClick={handleStateDeleteClick}
+                                selectedState={selectedState}
+                                getTransitionByState={getTransitionByState}
                             />
                         ))}
                         <svg height="100%" width="100%" style={{ position: 'absolute' }}>

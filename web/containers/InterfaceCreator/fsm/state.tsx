@@ -4,7 +4,10 @@ import React, {
 } from 'react';
 
 import { useDrag } from 'react-dnd';
-import styled, { css } from 'styled-components';
+import styled, {
+    css,
+    keyframes
+} from 'styled-components';
 
 import {
     Button,
@@ -20,12 +23,15 @@ import {
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
+    onDblClick: (id: string) => any;
     onClick: (id: string) => any;
     onEditClick: (id: string) => any;
     onDeleteClick: (id: string) => any;
     onUpdate: (id: string, data: any) => any;
     startTransitionDrag: (id: string) => any;
     stopTransitionDrag: (id: string) => any;
+    selectedState?: boolean;
+    getTransitionByState: (stateId: string, id: string) => boolean;
     id: string;
 }
 
@@ -36,7 +42,22 @@ export interface IFSMStateStyleProps {
     initial: boolean;
     final: boolean;
     type: 'mapper' | 'connector' | 'pipeline' | 'fsm';
+    isAvailableForTransition: boolean;
 }
+
+const wiggleAnimation = (type) => keyframes`
+    0% {
+        transform: rotate(-2deg) ${type === 'connector' ? 'skew(15deg)' : ''};
+    }
+
+    50% {
+        transform: rotate(2deg) ${type === 'connector' ? 'skew(15deg)' : ''};
+    }
+
+    100% {
+        transform: rotate(-2deg) ${type === 'connector' ? 'skew(15deg)' : ''};
+    }
+`;
 
 const StyledFSMState = styled.div<IFSMStateStyleProps>`
     left: ${({ x }) => `${x}px`};
@@ -47,6 +68,7 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     background-color: #fff;
     z-index: 20;
     border: 2px solid;
+    transition: all 0.2s linear;
 
     ${({ selected, initial, final }) => {
         let color: string = '#a9a9a9';
@@ -69,12 +91,18 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
         `;
     }};
 
+    ${({ isAvailableForTransition, type }) =>
+        isAvailableForTransition &&
+        css`
+            animation: ${wiggleAnimation(type)} 0.3s linear infinite;
+        `}
+
     ${({ type }) => {
         switch (type) {
             case 'connector':
                 return css`
                     transform: skew(15deg);
-                    span {
+                    > * {
                         transform: skew(-15deg);
                     }
                 `;
@@ -119,6 +147,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     id,
     selected,
     onClick,
+    onDblClick,
     onEditClick,
     onDeleteClick,
     name,
@@ -127,6 +156,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
     final,
     type,
     onUpdate,
+    selectedState,
+    getTransitionByState,
 }) => {
     const [, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
@@ -156,12 +187,14 @@ const FSMState: React.FC<IFSMStateProps> = ({
             ref={drag}
             x={position.x}
             y={position.y}
-            onClick={(e) => handleClick(e, onClick)}
+            onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
+            onClick={!selectedState ? undefined : (e) => handleClick(e, onClick)}
             selected={selected}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             initial={initial}
             final={final}
+            isAvailableForTransition={selectedState ? !getTransitionByState(selectedState, id) : false}
             type={type === 'fsm' ? 'fsm' : action?.type}
             onContextMenu={(event) => {
                 event.persist();
