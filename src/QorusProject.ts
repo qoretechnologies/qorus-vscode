@@ -406,9 +406,12 @@ class QorusProjects {
                     const editor = vscode.window.activeTextEditor;
                     uri = editor?.document.uri;
                 }
+
                 if (uri) {
                     const workspace_folder = vscode.workspace.getWorkspaceFolder(uri);
                     return workspace_folder?.uri.fsPath;
+                } else {
+                    return workspace_folders[0].uri.fsPath;
                 }
         }
 

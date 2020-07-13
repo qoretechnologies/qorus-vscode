@@ -140,6 +140,7 @@ class ClassCreator extends InterfaceCreator {
                 if (this.had_code) {
                     code_lines = this.file_edit_info.text_lines;
                     code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
+                    code_lines = this.updateImports(code_lines, [...imports, ...more_imports]);
                     contents = code_lines.join('\n');
                 } else {
                     // has code now, but didn't have before this edit
