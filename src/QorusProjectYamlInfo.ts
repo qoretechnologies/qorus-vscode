@@ -36,6 +36,8 @@ export class QorusProjectYamlInfo {
     private authors: any = {};
     getAuthors = () => Object.keys(this.authors).map(name => ({name}));
 
+    private config_items: any = {};
+
     private inheritance_pairs: any = {};
     private java_inheritance_pairs: any = {};
     private python_inheritance_pairs: any = {};
@@ -252,6 +254,30 @@ export class QorusProjectYamlInfo {
                 this.python_inheritance_pairs[class_name] = [base_class_name];
             }
         }
+
+        (yaml_data['config-items'] || []).forEach(item => {
+            if (item.parent || !item.name) {
+                return;
+            }
+
+            if (!this.config_items[item.name]) {
+                this.config_items[item.name] = {};
+            }
+
+            const existing_item = this.config_items[item.name][item.prefix || ''];
+            if (existing_item &&
+                (existing_item.iface_type !== yaml_data.type ||
+                 existing_item.iface_name !== yaml_data.name))
+            {
+                msg.error(t`DuplicateConfigItemName ${existing_item.name} ${existing_item.prefix || ''} ${existing_item.iface_type} ${existing_item.iface_name} ${yaml_data.type} ${yaml_data.name}`);
+            }
+
+            this.config_items[item.name][item.prefix || ''] = {
+                ...item,
+                iface_type: yaml_data.type,
+                iface_name: yaml_data.name,
+            };
+        });
     }
 
     private baseClasses = (base_classes: any, inheritance_pairs: any): any => {
