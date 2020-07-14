@@ -2295,10 +2295,16 @@ msgstr "Please select the target state by left clicking, or click anywhere else 
 msgid "Minimap"
 msgstr "Minimap"
 
-msgid "ShowMinimap"
-msgstr "Show minimap"
+msgid "ToggleMinimap"
+msgstr "Toggle minimap"
 
-msgid "HideMinimap"
-msgstr "Hide minimap"
+msgid "Toolbar"
+msgstr "Toolbar"
+
+msgid "ToggleToolbar"
+msgstr "Toggle toolbar"
+
+msgid "Recenter"
+msgstr "Recenter diagram"
 
 

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
+
 import { ElementPan } from '../../../components/PanElement';
+import { TextContext } from '../../../context/text';
 
 export interface IFSMDiagramWrapperProps {
     isHoldingShiftKey?: boolean;
@@ -15,19 +17,26 @@ const FSMDiagramWrapper: React.FC<IFSMDiagramWrapperProps> = ({
     children,
     setPan,
     zoom,
-}) => (
-    <ElementPan
-        key={JSON.stringify(wrapperDimensions)}
-        width="100%"
-        height="100%"
-        startX={1000 - wrapperDimensions.width / 2}
-        startY={1000 - wrapperDimensions.height / 2}
-        onPan={({ x, y }) => setPan(x, y)}
-        enableDragging={isHoldingShiftKey}
-        zoom={zoom}
-    >
-        {children}
-    </ElementPan>
-);
+    items,
+}) => {
+    const t = useContext(TextContext);
+
+    return (
+        <ElementPan
+            key={JSON.stringify(wrapperDimensions)}
+            width="100%"
+            height="100%"
+            startX={1000 - wrapperDimensions.width / 2}
+            startY={1000 - wrapperDimensions.height / 2}
+            onPan={({ x, y }) => setPan(x, y)}
+            enableDragging={isHoldingShiftKey}
+            zoom={zoom}
+            items={items}
+            t={t}
+        >
+            {children}
+        </ElementPan>
+    );
+};
 
 export default FSMDiagramWrapper;

@@ -1,4 +1,6 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, {
+    useContext, useRef, useState
+} from 'react';
 
 import filter from 'lodash/filter';
 import map from 'lodash/map';
@@ -6,7 +8,7 @@ import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
@@ -33,8 +35,9 @@ export interface IFSMViewProps {
 
 export interface IDraggableItem {
     type: 'toolbar-item' | 'state';
-    name: string;
+    name: 'fsm' | 'state';
     id?: number;
+    stateType?: TAction;
 }
 
 export interface IFSMTransition {
@@ -113,54 +116,7 @@ const StyledDiagram = styled.div<{ path: string }>`
     align-items: center;
     justify-content: center;
     position: relative;
-    box-shadow: inset 1px 1px 0 0 red, inset -1px -1px 0 0 red;
-`;
-
-const StyledMinimapWrapper = styled.div`
-    width: 200px;
-    height: 200px;
-    position: absolute;
-    z-index: 200;
-    bottom: 0;
-    right: 0;
-    border: 1px solid #f1f1f1;
-    background-color: #fff;
-
-    p {
-        position: absolute;
-        display: inline-block;
-        left: calc(100% + 1px);
-        transform: translateX(-100%);
-        top: -30px;
-        font-weight: 500;
-        background-color: #fff;
-        padding: 5px 10px;
-        border-top-left-radius: 3px;
-        border-top-right-radius: 3px;
-        border: 1px solid #f1f1f1;
-    }
-`;
-
-const StyledMinimapItem = styled.div<{ top: number; left: number }>`
-    ${({ top, left }) => css`
-        left: ${left / 10}px;
-        top: ${top / 10}px;
-        width: 18px;
-        height: 5px;
-        border: 1px solid #a9a9a9;
-        position: absolute;
-    `}
-`;
-
-const StyledMinimapView = styled.div<{ top: number; left: number; height: number; width: number }>`
-    ${({ top, left, width, height }) => css`
-        left: ${left / 10}px;
-        top: ${top / 10}px;
-        width: ${width / 10}px;
-        height: ${height / 10}px;
-        border: 1px solid blue;
-        position: absolute;
-    `}
+    box-shadow: inset 10px 10px 80px -50px red, inset -10px -10px 80px -50px red;
 `;
 
 const StyledFSMLine = styled.line`
@@ -212,7 +168,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         height: 0,
     });
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
-    const [isMinimapHidden, setIsMinimapHidden] = useState<boolean>(false);
     const [zoom, setZoom] = useState<number>(1);
 
     const [, drop] = useDrop({
@@ -656,29 +611,16 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                             text={t(isMetadataHidden ? 'ShowMetadata' : 'HideMetadata')}
                             icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
                         />
-                        <Button
-                            onClick={() => setIsMinimapHidden((cur) => !cur)}
-                            text={t(isMinimapHidden ? 'ShowMinimap' : 'HideMinimap')}
-                            icon="map"
-                        />
                     </ButtonGroup>
                 </StyledToolbarWrapper>
             )}
-            <StyledDiagramWrapper ref={wrapperRef}>
-                {!isMinimapHidden && (
-                    <StyledMinimapWrapper>
-                        <p>{t('Minimap')}</p>
-                        {map(states, (state: IFSMState, id) => (
-                            <StyledMinimapItem key={id} top={state.position.y} left={state.position.x} />
-                        ))}
-                        <StyledMinimapView width={width} height={height} top={currentYPan} left={currentXPan} />
-                    </StyledMinimapWrapper>
-                )}
+            <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
                 <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
                     setPan={setWrapperPan}
                     isHoldingShiftKey={isHoldingShiftKey}
                     zoom={zoom}
+                    items={map(states, (state) => ({ x: state.position.x, y: state.position.y }))}
                 >
                     <StyledDiagram
                         key={JSON.stringify(wrapperDimensions)}

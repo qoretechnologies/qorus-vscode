@@ -1,16 +1,10 @@
 import React, {
-    useContext,
-    useState
+    useContext, useState
 } from 'react';
 
 import find from 'lodash/find';
 
-import {
-    Button,
-    ButtonGroup,
-    Intent,
-    Tooltip
-} from '@blueprintjs/core';
+import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
@@ -23,16 +17,8 @@ import FieldLabel from '../../../components/FieldLabel';
 import Spacer from '../../../components/Spacer';
 import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
-import {
-    ActionsWrapper,
-    ContentWrapper,
-    FieldInputWrapper,
-    FieldWrapper
-} from '../panel';
-import {
-    IFSMState,
-    IFSMStates
-} from './';
+import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
+import { IFSMState, IFSMStates } from './';
 import ConnectorSelector from './connectorSelector';
 
 export interface IFSMStateDialogProps {
