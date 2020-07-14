@@ -2308,3 +2308,8 @@ msgid "Recenter"
 msgstr "Recenter diagram"
 
 
+msgid "DuplicateConfigItemName ${ name } ${ prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
+msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""
+
+msgid "ConfigItemAlreadyExists ${ name } ${ prefix } ${ iface_type } ${ iface_name }"
+msgstr "Config item with name \"${ name }\" and prefix \"${ prefix }\" already exists in ${ iface_type } \"${ iface_name }\""
