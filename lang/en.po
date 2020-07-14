@@ -2211,5 +2211,8 @@ msgstr "The original interface file ${ file } does not exist"
 msgid "ErrorParsingFile ${ file }"
 msgstr "Error in parsing file ${ file }"
 
-msgid "DuplicateConfigItemName ${ item_name } ${ item_prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
-msgstr "Duplicate config item name \"${ item_name }\", prefix \"${ item_prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""
+msgid "DuplicateConfigItemName ${ name } ${ prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
+msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""
+
+msgid "ConfigItemAlreadyExists ${ name } ${ prefix } ${ iface_type } ${ iface_name }"
+msgstr "Config item with name \"${ name }\" and prefix \"${ prefix }\" already exists in ${ iface_type } \"${ iface_name }\""

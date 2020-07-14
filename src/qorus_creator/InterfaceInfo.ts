@@ -171,6 +171,20 @@ export class InterfaceInfo {
     updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type}) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
 
+        if (edit_type === 'create' && !item.parent) {
+            const existing_item = this.yaml_info.getConfigItem(item);
+            if (existing_item) {
+                const {name, prefix = '', iface_type, iface_name} = existing_item;
+                qorus_webview.postMessage({
+                    action: `creator-${edit_type}-interface-complete`,
+                    request_id,
+                    ok: false,
+                    message: t`ConfigItemAlreadyExists ${name} ${prefix} ${iface_type} ${iface_name}`
+                });
+                return;
+            }
+        }
+
         const default_value_true_type = item.type === 'any' && item.default_value_true_type
             ? item.default_value_true_type
             : item.type;
