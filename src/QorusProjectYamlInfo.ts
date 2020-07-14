@@ -265,7 +265,7 @@ export class QorusProjectYamlInfo {
                 this.config_items[item.name] = {};
             }
 
-            const existing_item = this.config_items[item.name][item.prefix || ''];
+            const existing_item = this.getConfigItem(item);
             if (existing_item &&
                 (existing_item.iface_type !== yaml_data.type ||
                  existing_item.iface_name !== yaml_data.name))
