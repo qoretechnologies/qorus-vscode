@@ -46,6 +46,15 @@ const StyledSeparator = styled.div`
     vertical-align: bottom;
 `;
 
+const getTypeName = (type: string, t): string => {
+    switch (type) {
+        case 'fsm':
+            return t('FiniteStateMachine');
+        default:
+            return type;
+    }
+}
+
 const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData }) => {
     const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
@@ -53,7 +62,7 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
     return (
         <StyledTab>
             <StyledHeader>
-                {isEditing() ? `Edit ${type} "${getName()}"` : `New ${type}`}
+                {isEditing() ? `Edit ${getTypeName(type, t)} "${getName()}"` : `New ${getTypeName(type, t)}`}
                 <Button minimal icon="help" />
                 {isEditing() && (
                     <div style={{ float: 'right' }}>

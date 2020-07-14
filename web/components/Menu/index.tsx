@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useContext } from 'react';
 import compose from 'recompose/compose';
 import classnames from 'classnames';
 import map from 'lodash/map';
@@ -12,6 +12,7 @@ import withHandlers from 'recompose/withHandlers';
 import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { transformMenu } from '../../helpers/menu';
+import { InitialContext } from '../../context/init';
 
 type SidebarProps = {
     isCollapsed: boolean;
@@ -21,53 +22,48 @@ type SidebarProps = {
     menu: Object;
 };
 
-const Sidebar: Function = ({
-    isCollapsed = true,
-    toggleMenu,
-    expandedSection,
-    handleSectionToggle,
-    menu,
-}: SidebarProps) => (
-    <div
-        className={classnames('sidebar', 'dark', {
-            expanded: !isCollapsed,
-        })}
-    >
-        <Scroll horizontal={false} className="sidebarScroll">
-            {map(menu, (menuData: Array<Object>, menuKey: string) => (
-                <SidebarSection
-                    sectionData={menuData}
-                    key={menuKey}
-                    isCollapsed={isCollapsed}
-                    expandedSection={expandedSection}
-                    onSectionToggle={handleSectionToggle}
-                />
-            ))}
-        </Scroll>
-        <div className="sidebarSection" id="menuCollapse">
-            <div className="sidebarItem" onClick={toggleMenu}>
-                <Icon icon={isCollapsed ? 'double-chevron-right' : 'double-chevron-left'} />{' '}
-                {!isCollapsed && 'Collapse'}
+const Sidebar: Function = ({ expandedSection, handleSectionToggle, menu }: SidebarProps) => {
+    const initialData = useContext(InitialContext);
+    const isCollapsed = !initialData.sidebarOpen;
+
+    return (
+        <div
+            className={classnames('sidebar', 'dark', {
+                expanded: !isCollapsed,
+            })}
+        >
+            <Scroll horizontal={false} className="sidebarScroll">
+                {map(menu, (menuData: Array<Object>, menuKey: string) => (
+                    <SidebarSection
+                        sectionData={menuData}
+                        key={menuKey}
+                        isCollapsed={isCollapsed}
+                        expandedSection={expandedSection}
+                        onSectionToggle={handleSectionToggle}
+                    />
+                ))}
+            </Scroll>
+            <div className="sidebarSection" id="menuCollapse">
+                <div className="sidebarItem" onClick={initialData.toggleSidebar}>
+                    <Icon icon={isCollapsed ? 'double-chevron-right' : 'double-chevron-left'} />{' '}
+                    {!isCollapsed && 'Collapse'}
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default compose(
-    withState('isCollapsed', 'toggleCollapsed', ({ isCollapsed }) => isCollapsed),
     withState('expandedSection', 'toggleSectionExpand', null),
     withHandlers({
         handleSectionToggle: ({ toggleSectionExpand }): Function => (sectionId: string): void => {
-            toggleSectionExpand(currentSectionId => {
+            toggleSectionExpand((currentSectionId) => {
                 if (currentSectionId === sectionId) {
                     return null;
                 }
 
                 return sectionId;
             });
-        },
-        toggleMenu: ({ toggleCollapsed }) => () => {
-            toggleCollapsed(value => !value);
         },
     }),
     mapProps(({ menu, favoriteItems, plugins, ...rest }) => ({

@@ -952,6 +952,18 @@ msgstr "Target directory"
 msgid "field-label-processor"
 msgstr "Processor"
 
+msgid "field-label-mapper"
+msgstr "Mapper"
+
+msgid "field-label-pipeline"
+msgstr "Pipeline"
+
+msgid "field-label-connector"
+msgstr "Connector"
+
+msgid "field-label-custom"
+msgstr "Custom expression"
+
 msgid "field-desc-processor"
 msgstr "Determines whether this class is used as a processor class"
 
@@ -1101,6 +1113,9 @@ msgstr "Mapper options"
 
 msgid "field-label-functions"
 msgstr "Functions"
+
+msgid "field-label-fsm"
+msgstr "Finite State Machine"
 
 msgid "field-desc-functions"
 msgstr "An optional list of functions to load into the service program object"
@@ -2028,6 +2043,9 @@ msgstr "Invalid date provided"
 msgid "TriggerNoMethodsAvailable"
 msgstr "No service methods available. To add a trigger to a service building block, please create at least one method."
 
+msgid "StepBaseClassMissing"
+msgstr "The base class of the step is missing, please add base class first."
+
 msgid "NoMapperFieldsAvailable"
 msgstr "No fields available for factory type"
 
@@ -2205,11 +2223,90 @@ msgstr "Input type"
 msgid "OutputType"
 msgstr "Output type"
 
+msgid "TransitionErrorsNoInstance"
+msgstr "Active Qorus instance is required to display list of server errors"
+
+msgid "EditingTransition"
+msgstr "Editing transition(s)"
+
+msgid "EditingState"
+msgstr "Editing state"
+
+msgid "field-label-triggers"
+msgstr "Triggers"
+
+msgid "field-label-event-connector"
+msgstr "Event connector"
+
+msgid "field-label-trigger"
+msgstr "Trigger"
+
+msgid "TriggerManager"
+msgstr "Manage trigger"
+
+msgid "FSMs"
+msgstr "Finite State Machines"
+
+msgid "FiniteStateMachine"
+msgstr "Finite State Machine"
+
+msgid "field-label-options"
+msgstr "Options"
+
+msgid "ActionStrategy"
+msgstr "Action strategy"
+
+msgid "MaxThreadCount"
+msgstr "Max thread count"
+
+msgid "ShowMetadata"
+msgstr "Show metadata"
+
+msgid "HideMetadata"
+msgstr "Hide metadata"
+
 msgid "OrigIfaceFileDoesNotExist ${ file }"
 msgstr "The original interface file ${ file } does not exist"
 
 msgid "ErrorParsingFile ${ file }"
 msgstr "Error in parsing file ${ file }"
+
+msgid "Initial"
+msgstr "Initial"
+
+msgid "Final"
+msgstr "Final"
+
+msgid "AllTransitionsRemoved"
+msgstr "All transitions were removed"
+
+msgid "RemoveAllTransitions"
+msgstr "Remove all transitions"
+
+msgid "PleaseSelectFSM"
+msgstr " - Please select an FSM to add triggers"
+
+msgid "NoTriggersYet"
+msgstr "No triggers added yet"
+
+msgid "FSMSelectTargetState"
+msgstr "Please select the target state by left clicking, or click anywhere else to cancel."
+
+msgid "Minimap"
+msgstr "Minimap"
+
+msgid "ToggleMinimap"
+msgstr "Toggle minimap"
+
+msgid "Toolbar"
+msgstr "Toolbar"
+
+msgid "ToggleToolbar"
+msgstr "Toggle toolbar"
+
+msgid "Recenter"
+msgstr "Recenter diagram"
+
 
 msgid "DuplicateConfigItemName ${ name } ${ prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
 msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""

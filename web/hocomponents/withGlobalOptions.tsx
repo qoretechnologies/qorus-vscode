@@ -11,6 +11,7 @@ import withMapperConsumer from './withMapperConsumer';
 export default () => (Component: any): any => {
     const EnhancedComponent = (props: any) => {
         const [typeReset, setTypeReset] = useState(null);
+        const [fsmReset, setFsmReset] = useState(null);
 
         const handleInterfaceReset: (type: string, soft?: boolean) => void = (type, soft) => {
             // Reset the initial data
@@ -59,7 +60,12 @@ export default () => (Component: any): any => {
                 case 'type':
                     // Reset type
                     typeReset && typeReset();
+                    props.resetInterfaceData('type');
                     break;
+                case 'fsm':
+                    // Reset FSM
+                    fsmReset && fsmReset();
+                    props.resetInterfaceData('fsm');
                 default:
                     break;
             }
@@ -70,6 +76,7 @@ export default () => (Component: any): any => {
                 value={{
                     resetAllInterfaceData: handleInterfaceReset,
                     setTypeReset,
+                    setFsmReset,
                 }}
             >
                 <Component {...props} />

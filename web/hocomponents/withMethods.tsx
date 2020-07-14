@@ -37,7 +37,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const handleAddMethodClick: () => void = () => {
             // Add new method id
-            setLastMethodId(current => current + 1);
+            setLastMethodId((current) => current + 1);
             setMethods((current: any[]) => [...current, { id: lastMethodId + 1 }]);
             setMethodsCount((current: number) => current + 1);
         };
@@ -56,6 +56,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setMethodsCount,
                     methodsData: props.methodsData,
                     resetMethods,
+                    lastMethodId,
                 }}
             >
                 <Component {...props} />

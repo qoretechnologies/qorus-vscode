@@ -1,4 +1,6 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, {
+    FunctionComponent, useState
+} from 'react';
 
 import set from 'lodash/set';
 import useMount from 'react-use/lib/useMount';
@@ -14,6 +16,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [initialData, setInitialData] = useState<any>({
             tab: 'ProjectConfig',
+            sidebarOpen: false,
         });
         const [confirmDialog, setConfirmDialog] = useState<{
             isOpen: boolean;
@@ -32,7 +35,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     data.tab = 'ProjectConfig';
                 }
 
-                setInitialData(current => ({
+                setInitialData((current) => ({
                     ...current,
                     ...data,
                 }));
@@ -42,7 +45,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Only set initial data if we are
                 // switching tabs
                 if (data.tab) {
-                    setInitialData(current => ({
+                    setInitialData((current) => ({
                         ...current,
                         ...data,
                     }));
@@ -69,7 +72,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (tab, subtab, force) => {
             const setTabs = () =>
-                setInitialData(current => ({
+                setInitialData((current) => ({
                     ...current,
                     tab,
                     subtab: subtab || null,
@@ -84,30 +87,38 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setStepSubmitCallback: (callback: () => any) => void = (callback): void => {
-            setInitialData(current => ({
+            setInitialData((current) => ({
                 ...current,
                 stepCallback: callback,
             }));
         };
 
-        const resetInterfaceData: (iface: string) => void = iface => {
-            setInitialData(current => ({
+        const resetInterfaceData: (iface: string) => void = (iface) => {
+            setInitialData((current) => ({
                 ...current,
                 [iface]: null,
             }));
         };
 
-        const setActiveInstance: (inst: any) => void = inst => {
-            setInitialData(current => ({
+        const setActiveInstance: (inst: any) => void = (inst) => {
+            setInitialData((current) => ({
                 ...current,
                 qorus_instance: inst,
             }));
         };
 
         const changeInitialData: (path: string, value: any) => any = (path, value) => {
-            setInitialData(current => {
+            setInitialData((current) => {
                 const result = { ...current };
                 set(result, path, value);
+                return result;
+            });
+        };
+
+        const toggleSidebar: () => void = () => {
+            setInitialData((current) => {
+                const result = { ...current };
+                result.sidebarOpen = !result.sidebarOpen;
                 return result;
             });
         };
@@ -127,7 +138,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }, 120000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
-                const listener = props.addMessageListener('fetch-data-complete', data => {
+                const listener = props.addMessageListener('fetch-data-complete', (data) => {
                     if (data.id === uniqueId) {
                         clearTimeout(timeout);
                         timeout = null;
@@ -184,7 +195,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }, 30000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
-                props.addMessageListener(returnMessage || `${getMessage}-complete`, data => {
+                props.addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
                     if (data.request_id === uniqueId) {
                         AppToaster.show(
                             {
@@ -230,10 +241,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     callBackend,
                     unfinishedWork,
                     setUnfinishedWork,
+                    toggleSidebar,
                 }}
             >
                 <InitialContext.Consumer>
-                    {initialProps => <Component {...initialProps} {...props} />}
+                    {(initialProps) => <Component {...initialProps} {...props} />}
                 </InitialContext.Consumer>
             </InitialContext.Provider>
         );

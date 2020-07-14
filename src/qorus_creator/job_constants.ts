@@ -1,23 +1,23 @@
-import { root_job, classToPythonModule } from '../qorus_constants';
+import {
+    classToPythonModule,
+    root_job
+} from '../qorus_constants';
 import { field } from './common_constants';
 
 export const jobImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
             return base_class_name === root_job
-                ? [ `from ${classToPythonModule(root_job)} import ${base_class_name}` ]
+                ? [`from ${classToPythonModule(root_job)} import ${base_class_name}`]
                 : [];
         case 'java':
-            return [
-                'import com.qoretechnologies.qorus.*;',
-                'import com.qoretechnologies.qorus.job.*;'
-            ];
+            return ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.job.*;'];
         default:
             return [];
     }
 };
 
-export const jobFields = ({default_target_dir, is_editing}) => [
+export const jobFields = ({ default_target_dir, is_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -47,7 +47,7 @@ export const jobFields = ({default_target_dir, is_editing}) => [
             object_type: 'job-base-class',
             return_value: 'objects',
         },
-        on_change: 'get-config-items'
+        on_change: 'get-config-items',
     },
     {
         name: 'active',
@@ -75,5 +75,13 @@ export const jobFields = ({default_target_dir, is_editing}) => [
     {
         name: 'schedule',
         type: 'cron',
-    }
+    },
+    {
+        name: 'fsm',
+        mandatory: false,
+        type: 'fsm-list',
+        reference: {
+            iface_kind: 'fsm',
+        },
+    },
 ];
