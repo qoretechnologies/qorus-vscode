@@ -66,12 +66,16 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show }) => {
 
     useMount(() => {
         const resizeObserver = new ResizeObserver(() => {
-            const { width, height } = document.querySelector('#pan-element').getBoundingClientRect();
+            const el = document.querySelector('#pan-element');
 
-            setWrapperSize({
-                width,
-                height,
-            });
+            if (el) {
+                const { width, height } = el.getBoundingClientRect();
+
+                setWrapperSize({
+                    width,
+                    height,
+                });
+            }
         });
 
         resizeObserver.observe(document.querySelector('#pan-element'));

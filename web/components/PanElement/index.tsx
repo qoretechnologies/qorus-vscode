@@ -32,7 +32,7 @@ const StyledToolbar = styled.div`
     flex-flow: column;
     right: 15px;
     top: 15px;
-    z-index: 500;
+    z-index: 10;
     border: 1px solid #c3c3c3;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
@@ -199,6 +199,10 @@ export class ElementPan extends React.Component<
         this.el.scrollLeft += x;
 
         this.setState({ scrollX: this.el.scrollLeft, scrollY: this.el.scrollTop });
+
+        if (this.props.onPan) {
+            this.props.onPan({ x: this.el.scrollLeft, y: this.el.scrollTop });
+        }
     };
 
     public onDragStop() {
