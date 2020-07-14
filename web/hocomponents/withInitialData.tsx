@@ -1,6 +1,5 @@
 import React, {
-    FunctionComponent,
-    useState
+    FunctionComponent, useState
 } from 'react';
 
 import set from 'lodash/set';
@@ -33,8 +32,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 setInitialData(null);
 
                 if (!data.tab) {
-                    data.tab = 'CreateInterface';
-                    data.subtab = 'fsm';
+                    data.tab = 'ProjectConfig';
                 }
 
                 setInitialData((current) => ({
