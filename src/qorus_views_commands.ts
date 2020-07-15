@@ -169,4 +169,4 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
                 break;
         }
     });
-}
+};

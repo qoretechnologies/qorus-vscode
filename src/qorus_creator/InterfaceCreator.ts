@@ -226,7 +226,7 @@ export abstract class InterfaceCreator {
             }
         }
         return { ok: true };
-    };
+    }
 
     protected checkClassName = (params: any): any => {
         const {
@@ -236,7 +236,7 @@ export abstract class InterfaceCreator {
             return { ok: true };
         }
         return { ok: false, message: t`InvalidClassName ${class_name}` };
-    };
+    }
 
     protected checkExistingInterface = (params: any): any => {
         let {
@@ -291,7 +291,7 @@ export abstract class InterfaceCreator {
         }
 
         return { ok: true };
-    };
+    }
 
     protected renameClassAndBaseClass(lines: string[], orig_data: any, header_data): string[] {
         const orig_class_name = orig_data['class-name'];
@@ -465,7 +465,7 @@ export abstract class InterfaceCreator {
             result += lines.map((str) => `${indent.repeat(indent_level)}${str}`).join('\n') + '\n';
         }
         return result;
-    };
+    }
 
     protected static createConfigItemHeaders = (items: any[]): string => {
         let result: string = 'config-items:\n';
@@ -576,7 +576,7 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    };
+    }
 
     protected createHeaders = (headers: any): string => {
         let result: string = '';
@@ -836,7 +836,7 @@ export abstract class InterfaceCreator {
         }
 
         return result;
-    };
+    }
 
     protected static fixClassConnections = (data) => {
         for (const connection in data['class-connections']) {
@@ -854,7 +854,7 @@ export abstract class InterfaceCreator {
                 }
             }
         }
-    };
+    }
 
     protected deleteOrigFilesIfDifferent() {
         let files_to_delete: string[] = [];
@@ -952,7 +952,7 @@ export abstract class InterfaceCreator {
         });
 
         return method_strings.join('\n');
-    };
+    }
 
     static fillTemplate = (
         template: string,
@@ -968,5 +968,5 @@ export abstract class InterfaceCreator {
         }
         result += new Function('return `' + template + '`;').call(vars);
         return result;
-    };
+    }
 }

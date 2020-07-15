@@ -65,7 +65,7 @@ class ClassCreator extends InterfaceCreator {
         this.setPaths(data, orig_data, suffix, iface_kind, edit_type);
 
         const {ok, message} = this.checkData(params);
-        
+
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${params.edit_type}-interface-complete`,
