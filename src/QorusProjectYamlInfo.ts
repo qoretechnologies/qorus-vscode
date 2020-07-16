@@ -35,10 +35,10 @@ export class QorusProjectYamlInfo {
 
     private authors: any = {};
     getAuthors = () => Object.keys(this.authors).map(name => ({name}));
-
+/*
     private config_items: any = {};
     getConfigItem = ({name, prefix = ''}) => this.config_items[name]?.[prefix];
-
+*/
     private inheritance_pairs: any = {};
     private java_inheritance_pairs: any = {};
     private python_inheritance_pairs: any = {};
@@ -255,7 +255,7 @@ export class QorusProjectYamlInfo {
                 this.python_inheritance_pairs[class_name] = [base_class_name];
             }
         }
-
+/*
         (yaml_data['config-items'] || []).forEach(item => {
             if (item.parent || !item.name) {
                 return;
@@ -279,6 +279,7 @@ export class QorusProjectYamlInfo {
                 iface_name: yaml_data.name,
             };
         });
+*/
     }
 
     private baseClasses = (base_classes: any, inheritance_pairs: any): any => {
