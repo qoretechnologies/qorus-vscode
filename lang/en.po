@@ -2358,26 +2358,56 @@ msgstr "
 # * Finite State Machine
 # The FSM title and description of what an FSM is
 msgid "tutorial-fsm-title"
-msgstr " - "
+msgstr "Finite State Machine name"
 msgid "tutorial-fsm-content"
-msgstr " - "
+msgstr "This provides the name of the Finite State Machine being edited or viewed"
 # The Fields of an FSM (target dir, name, description)
 msgid "tutorial-fsm-fields-title"
-msgstr " - "
+msgstr "Finite State Machine fields"
 msgid "tutorial-fsm-fields-content"
-msgstr " - "
+msgstr "
+ ### Target Directory
+ This will give the directory where the Finite State Machine configuration is stored on the file system.
+
+ ### Name
+ The Finite State Machine must have a unique name that is used as the label or reference from interfaces or other
+ Finiate State Machines.
+
+ ### Description
+ The description should explain to other users what the Finite State Machine does and also describe any data input
+ requirements or output data produced.
+"
 # The state boxes toolbar - should explain what each state represents
 msgid "tutorial-fsm-tools-title"
-msgstr " - "
+msgstr "Finite State Machine toolbar"
 msgid "tutorial-fsm-tools-content"
-msgstr " - "
+msgstr "
+ ### Mapper
+ Drag a mapper element to the diagram to add a data mapper to the Finite State Machine.
+
+ ### Pipeline
+ Pipelines provide more complex processing for record-based data, supporting multiple streams and record filters /
+ generators / grouping.
+
+ ### Connector
+ Connectors allow building-block-specific functionality to be employed in a Finite State Machine.
+
+ ### FSM
+ The FSM element allows a Finite State Machine to be called from another Finite State Machine.
+ "
 # The diagram
 msgid "tutorial-fsm-diagram-title"
-msgstr " - "
+msgstr "Finite State Machine diagram"
 msgid "tutorial-fsm-diagram-content"
-msgstr " - "
+msgstr "
+This area is the design area where the logic flow is implement and where individual elements can be customized.
+"
 # The toolbar with minimap
 msgid "tutorial-fsm-toolbar-title"
-msgstr " - "
+msgstr "Finite State Machine minimap"
 msgid "tutorial-fsm-toolbar-content"
-msgstr " - "
+msgstr "
+  Use this IDE element to see where you are in the context of the entire Finite State Machine diagram; the
+  minimap can also be used to quickly navigate to any part of the diagram, or to locate elements that are outside the
+  current viewing area in the main diagram area.
+"
