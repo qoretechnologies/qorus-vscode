@@ -307,8 +307,14 @@ export class ClassConnectionsCreate {
             code += ':\n';
         }
 
-        code += `${indent1}def __init__(self):\n` +
-            `${indent2}# map of prefixed class names to class instances\n` +
+        const some_qore_class = Object.keys(this.classes)
+                                      .some(prefixed_class => this.classes[prefixed_class].class_lang === 'qore');
+
+        code += `${indent1}def __init__(self):\n`;
+        if (some_qore_class) {
+            code += `${indent2}UserApi.startCapturingObjectsFromPython();\n`;
+        }
+        code += `${indent2}# map of prefixed class names to class instances\n` +
             `${indent2}self.${CONN_CLASS_MAP.qore} = {\n`;
 
         for (const prefixed_class in this.classes) {
@@ -318,6 +324,9 @@ export class ClassConnectionsCreate {
         }
 
         code += `${indent2}}\n`;
+        if (some_qore_class) {
+            code += `${indent2}UserApi.stopCapturingObjectsFromPython();\n`;
+        }
 
         if (event_based_connections.length) {
             code += '\n' + `${indent2}# register observers\n`;

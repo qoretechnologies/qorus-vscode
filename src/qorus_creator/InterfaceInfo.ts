@@ -172,6 +172,7 @@ export class InterfaceInfo {
         this.maybeInitIfaceId(iface_id, iface_kind);
 
         let iface = this.iface_by_id[iface_id];
+/*
         if (!item.parent) {
             // check existence of saved config items with the same name and prefix
             const existing_item = this.yaml_info.getConfigItem(item);
@@ -189,7 +190,7 @@ export class InterfaceInfo {
                 return;
             }
         }
-
+*/
         const default_value_true_type = item.type === 'any' && item.default_value_true_type
             ? item.default_value_true_type
             : item.type;
