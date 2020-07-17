@@ -21,7 +21,7 @@ export const mandatoryStepMethods = (code_info: QorusProjectCodeInfo, base_class
 
     array.body = array_body[lang] || '';
     return { primary, array };
-}
+};
 
 export const triggers = (code_info: QorusProjectCodeInfo, {iface_kind, 'base-class-name': base_class = undefined}) => {
     switch (iface_kind) {
@@ -30,7 +30,7 @@ export const triggers = (code_info: QorusProjectCodeInfo, {iface_kind, 'base-cla
         case 'step':    return Object.keys(stepTriggerSignatures(code_info, base_class)); // only keys: does not depend on lang
         default:        return [];
     }
-}
+};
 
 export const stepTriggerSignatures = (code_info: QorusProjectCodeInfo, base_class, lang = 'qore') => {
     let stepTriggerSignatures: any = {};
@@ -169,4 +169,4 @@ export const stepTriggerSignatures = (code_info: QorusProjectCodeInfo, base_clas
     };
 
     return stepTriggerSignatures[lang](base_class);
-}
+};

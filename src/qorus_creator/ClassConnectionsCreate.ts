@@ -111,7 +111,7 @@ export class ClassConnectionsCreate {
                         signature = `${trigger}(self, ${CONN_DATA})`;
                         break;
                     case 'java':
-                        signature = `public Object ${trigger}(Object ${CONN_DATA}) ${THROWS}`
+                        signature = `public Object ${trigger}(Object ${CONN_DATA}) ${THROWS}`;
                         break;
                 }
             }
@@ -186,8 +186,8 @@ export class ClassConnectionsCreate {
 
     private connClassName = () => `${CONN_CLASS}_${this.class_name}`;
 
-    protected getImportsQore = () => []
-    protected getImportsPython = () => []
+    protected getImportsQore = () => [];
+    protected getImportsPython = () => [];
 
     protected getImportsJava = (exists_qore_connector) => {
         let imports = [
@@ -213,38 +213,38 @@ export class ClassConnectionsCreate {
     protected memberDeclAndInitAllCodeQore = () =>
         `${indent1}private {\n` +
         this.memberDeclAndInitCodeQore() +
-        `${indent1}}\n`;
+        `${indent1}}\n`
 
     memberDeclAndInitAllCodePython = () =>
         `${indent1}def __init__(self):\n` +
-        this.memberDeclAndInitCodePython();
+        this.memberDeclAndInitCodePython()
 
     memberDeclAndInitCodeQore = () =>
         `${indent2}${GENERATED.qore.begin}\n` +
         `${indent2}${this.connClassName()} ${CONN_MEMBER.qore}();\n` +
-        `${indent2}${GENERATED.qore.end}\n`;
+        `${indent2}${GENERATED.qore.end}\n`
 
     memberDeclAndInitCodePython = () =>
         `${indent2}${GENERATED.python.begin}\n` +
         `${indent2}self.${CONN_MEMBER.python} = ${this.connClassName()}()\n` +
-        `${indent2}${GENERATED.python.end}\n`;
+        `${indent2}${GENERATED.python.end}\n`
 
     memberDeclAndInitAllCodeJava = () =>
         this.memberDeclCodeJava() +
         `${indent1}\n\n` +
         `${indent1}${this.class_name}() ${THROWS} {\n` +
         this.memberInitCodeJava() +
-        `${indent1}}\n`;
+        `${indent1}}\n`
 
     memberDeclCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
         `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
-        `${indent1}${GENERATED.java.end}\n`;
+        `${indent1}${GENERATED.java.end}\n`
 
     memberInitCodeJava = () =>
         `${indent2}${GENERATED.java.begin}\n` +
         `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
-        `${indent2}${GENERATED.java.end}\n`;
+        `${indent2}${GENERATED.java.end}\n`
 
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;

@@ -15,6 +15,8 @@ import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
 import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
 
+let hasAllMethodsLoaded: boolean;
+
 export const MethodSelector = styled.div`
     width: 100%;
     height: 30px;
@@ -22,8 +24,8 @@ export const MethodSelector = styled.div`
     padding: 0px 10px;
     margin-bottom: 5px;
     border: 1px solid #eee;
-    border-color: ${props => (props.active ? '#137cbd' : '#eee')};
-    border-left-color: ${props => (props.valid ? '#0F9960' : '#DB3737')};
+    border-color: ${(props) => (props.active ? '#137cbd' : '#eee')};
+    border-left-color: ${(props) => (props.valid ? '#0F9960' : '#DB3737')};
     border-left-width: 3px;
     border-radius: 3px;
     cursor: pointer;
@@ -156,9 +158,10 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 handleAddMethodClick,
                 setShowMethods,
                 methodsData,
+                lastMethodId,
             }) => (
                 <ClassConnectionsStateProvider type="service">
-                    {classConnectionsProps => (
+                    {(classConnectionsProps) => (
                         <>
                             <CreatorWrapper>
                                 <PanelWrapper>
@@ -205,9 +208,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                                 {methodsCount !== 1 && (
                                                                     <RemoveButton
                                                                         onClick={() => {
-                                                                            setMethods(current =>
+                                                                            setMethods((current) =>
                                                                                 current.filter(
-                                                                                    currentMethod =>
+                                                                                    (currentMethod) =>
                                                                                         currentMethod.id !== method.id
                                                                                 )
                                                                             );
@@ -245,6 +248,13 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                         initialData.changeInitialData('service.active_method', null);
                                                     }
                                                 }}
+                                                onDataFinishLoadingRecur={(id) => {
+                                                    if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
+                                                        setActiveMethod(id + 1);
+                                                    } else {
+                                                        hasAllMethodsLoaded = true;
+                                                    }
+                                                }}
                                                 initialInterfaceId={service ? service.iface_id : interfaceId.service}
                                                 type={'service-methods'}
                                                 activeId={activeMethod}
@@ -256,7 +266,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 onSubmitSuccess={onSubmitSuccess}
                                                 data={
                                                     methodsData &&
-                                                    methodsData.find(method => method.id === activeMethod)
+                                                    methodsData.find((method) => method.id === activeMethod)
                                                 }
                                                 onNameChange={(
                                                     methodId: number,

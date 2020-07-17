@@ -5,12 +5,18 @@ import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
-import { isBoolean, isNull, isString, isUndefined } from 'util';
+import {
+    isBoolean,
+    isNull,
+    isString,
+    isUndefined
+} from 'util';
 
 import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 
-import { IField } from '../containers/InterfaceCreator/panel';
 import { transformArgs } from '../components/Field/processor';
+import { TTrigger } from '../containers/InterfaceCreator/fsm';
+import { IField } from '../containers/InterfaceCreator/panel';
 
 const cron = require('cron-validator');
 
@@ -210,6 +216,11 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             }
 
             return valid;
+        }
+        case 'fsm-list': {
+            return value?.every(
+                (val: { name: string; triggers?: TTrigger[] }) => validateField('string', val.name) === true
+            );
         }
         case 'nothing':
             return false;

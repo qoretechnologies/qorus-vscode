@@ -79,6 +79,7 @@ export interface IInterfaceCreatorPanel {
     allSelectedFields: { [type: string]: IField[] };
     data?: any;
     onDataFinishLoading?: () => any;
+    onDataFinishLoadingRecur?: (activeId: number) => any;
     isEditing?: boolean;
     allMethodsData?: any[];
     initialData?: any;
@@ -132,13 +133,10 @@ export declare interface IFieldChange {
     onChange: (fieldName: string, value: any) => void;
 }
 
-export const FieldWrapper = styled.div`
+export const FieldWrapper = styled.div<{ padded?: boolean }>`
     display: flex;
     flex-flow: row;
-    &:not(:first-child) {
-        margin-top: 20px;
-    }
-    padding: 8px 0;
+    padding: 15px ${({ padded }) => (padded ? '20px' : 0)};
     flex: none;
 
     &:nth-child(even) {
@@ -220,6 +218,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     context,
     onSubmitSuccess,
     setAsDraft,
+    onDataFinishLoadingRecur,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -318,6 +317,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         onDataFinishLoading();
                         // Set the mount to false
                         isInitialMount.current = false;
+                    }
+
+                    // Check if onDataFinishRecur function is set
+                    if (onDataFinishLoadingRecur) {
+                        // Run the callback
+                        onDataFinishLoadingRecur(activeId);
                     }
                     const currentInterfaceId = data ? clonedData.iface_id : shortid.generate();
                     // Check if the interface id exists, which means user
@@ -695,16 +700,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     );
                 });
                 // Add missing methods
-                if (allMethodsData) {
+                /*if (allMethodsData) {
                     allMethodsData.forEach((method) => {
                         // Check if this method exists in the
                         // data hash also check if the method has been deleted
                         if (!newData[subItemType].find((m) => m.orig_name === method.name)) {
                             // Add this method
-                            newData[subItemType].push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
+                            //newData[subItemType].push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
                         }
                     });
-                }
+                }*/
                 // Filter deleted methods
                 if (methodsList) {
                     newData[subItemType] = newData[subItemType].filter((m) =>

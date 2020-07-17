@@ -3,6 +3,8 @@ import * as jsyaml from 'js-yaml';
 import * as lodashIsArray from 'lodash/isArray';
 import * as lodashIsObject from 'lodash/isObject';
 import * as sortBy from 'lodash/sortBy';
+import * as filter from 'lodash/filter';
+import * as size from 'lodash/size';
 import * as flattenDeep from 'lodash/flattenDeep';
 import * as path from 'path';
 import { t, gettext } from 'ttag';
@@ -507,7 +509,7 @@ export class QorusProjectCodeInfo {
     }
 
     getObjects = params => {
-        const {object_type, lang, iface_kind, class_name} = params;
+        const {object_type, lang, iface_kind, class_name, custom_data } = params;
 
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
@@ -545,6 +547,26 @@ export class QorusProjectCodeInfo {
                     })));
                 });
                 break;
+            case 'class-with-connectors':
+                    this.waitForPending(['yaml']).then(() => {
+                        const { connector_type } = custom_data || {};
+                        const isAnyConnectorOfType = (connectors: { name: string, method: string, type: string}[]): boolean => (
+                            connector_type ? connectors.some((connector) => connector_type.includes(connector.type)) : true
+                        );
+                        const classes = filter(this.yaml_info.yamlDataByType('class'), ({ 'class-connectors': class_connectors }) => {
+                            if (!class_connectors || !size(class_connectors) || !isAnyConnectorOfType(class_connectors)) {
+                                return false;
+                            }
+
+                            return true;
+                        }).map(({ name, desc, ...rest}) => ({
+                            name,
+                            desc,
+                            'class-connectors': rest['class-connectors']
+                        }))
+                        postMessage('objects', classes);
+                    });
+                    break;
             case 'service-base-class':
                 this.waitForPending(['yaml']).then(() =>
                     postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(lang), [root_service]))
@@ -607,6 +629,7 @@ export class QorusProjectCodeInfo {
             case 'event':
             case 'queue':
             case 'type':
+            case 'fsm':
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.yaml_info.yamlDataByType(object_type)).map(name => ({name}))
                 ));

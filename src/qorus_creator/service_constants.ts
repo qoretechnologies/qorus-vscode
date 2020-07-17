@@ -1,23 +1,23 @@
-import { root_service, classToPythonModule } from '../qorus_constants';
+import {
+    classToPythonModule,
+    root_service
+} from '../qorus_constants';
 import { field } from './common_constants';
 
 export const serviceImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
             return base_class_name === root_service
-                ? [ `from ${classToPythonModule(root_service)} import ${base_class_name}` ]
+                ? [`from ${classToPythonModule(root_service)} import ${base_class_name}`]
                 : [];
         case 'java':
-            return [
-                'import com.qoretechnologies.qorus.*;',
-                'import com.qoretechnologies.qorus.service.*;'
-            ];
+            return ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.service.*;'];
         default:
             return [];
     }
 };
 
-export const serviceFields = ({default_target_dir, is_editing}) => [
+export const serviceFields = ({ default_target_dir, is_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -47,7 +47,7 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
             object_type: 'service-base-class',
             return_value: 'objects',
         },
-        on_change: 'get-config-items'
+        on_change: 'get-config-items',
     },
     {
         name: 'service-autostart',
@@ -110,7 +110,15 @@ export const serviceFields = ({default_target_dir, is_editing}) => [
             object_type: 'template',
             return_value: 'resources',
         },
-    }
+    },
+    {
+        name: 'fsm',
+        mandatory: false,
+        type: 'fsm-list',
+        reference: {
+            iface_kind: 'fsm',
+        },
+    },
 ];
 
 export const service_methods = [
@@ -124,11 +132,7 @@ export const service_methods = [
     {
         name: 'lock',
         type: 'enum',
-        items: [
-            {value: 'none'},
-            {value: 'read'},
-            {value: 'write'}
-        ],
+        items: [{ value: 'none' }, { value: 'read' }, { value: 'write' }],
         mandatory: false,
         default_value: 'none',
     },

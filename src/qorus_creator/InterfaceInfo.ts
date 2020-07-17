@@ -171,6 +171,25 @@ export class InterfaceInfo {
     updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type}) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
 
+        let iface = this.iface_by_id[iface_id];
+        if (!item.parent) {
+            // check existence of saved config items with the same name and prefix
+            const existing_item = this.yaml_info.getConfigItem(item);
+            if (existing_item &&
+                (existing_item.iface_type !== iface.type ||
+                 existing_item.iface_name !== iface.name))
+            {
+                const {name, prefix = '', iface_type, iface_name} = existing_item;
+                qorus_webview.postMessage({
+                    action: `creator-${edit_type}-interface-complete`,
+                    request_id,
+                    ok: false,
+                    message: t`ConfigItemAlreadyExists ${name} ${prefix} ${iface_type} ${iface_name}`
+                });
+                return;
+            }
+        }
+
         const default_value_true_type = item.type === 'any' && item.default_value_true_type
             ? item.default_value_true_type
             : item.type;
@@ -190,7 +209,6 @@ export class InterfaceInfo {
         }
         delete item.can_be_undefined;
 
-        let iface = this.iface_by_id[iface_id];
         const name_to_search = item.orig_name || item.name;
         const index = iface['config-items'].findIndex(item2 => item2.name === name_to_search);
 

@@ -36,10 +36,11 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
     canBeRemoved,
     hideTextField,
     reference,
+    context,
 }) => {
     const initContext = useContext(InitialContext);
     return (
-        <FieldEnhancer>
+        <FieldEnhancer context={context}>
             {(onEditClick, onCreateClick) => (
                 <div>
                     <ControlGroup fill>

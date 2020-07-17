@@ -13,6 +13,7 @@ import ServicesView from './servicesView';
 import Tab from './tab';
 import TypeView from './typeView';
 import WorkflowsView, { CreatorWrapper } from './workflowsView';
+import FSMView from './fsm';
 
 export interface ICreateInterface {
     initialData: any;
@@ -25,6 +26,11 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
+                    {initialData.subtab === 'fsm' && <FSMView 
+                        fsm={initialData.fsm}
+                        onSubmitSuccess={onSubmit}
+                        interfaceContext={context}
+                    />}
                     {initialData.subtab === 'service' && (
                         <ServicesView
                             service={initialData.service}
@@ -49,7 +55,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
                             <ClassConnectionsStateProvider type="job">
-                                {classConnectionsProps => (
+                                {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         hasClassConnections
                                         hasConfigManager
@@ -80,7 +86,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     {initialData.subtab === 'step' && (
                         <CreatorWrapper>
                             <ClassConnectionsStateProvider type="step">
-                                {classConnectionsProps => (
+                                {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         type={'step'}
                                         data={initialData.step}
@@ -91,7 +97,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                         isEditing={!!initialData.step}
                                         onSubmitSuccess={
                                             initialData.stepCallback
-                                                ? data => {
+                                                ? (data) => {
                                                       initialData.stepCallback(
                                                           data.name,
                                                           data.version,

@@ -30,4 +30,4 @@ const messageImpl = (text: string, kind: string, log_too: boolean) => {
     if (log_too) {
         log(text);
     }
-}
+};

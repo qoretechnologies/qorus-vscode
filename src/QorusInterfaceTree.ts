@@ -66,6 +66,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
             children.push(new QorusTreeTypeCategoryNode(this.code_info));
             children.push(new QorusTreeMapperCategoryNode(this.code_info));
             children.push(new QorusTreeMapperCodeCategoryNode(this.code_info));
+            children.push(new QorusTreeFSMCategoryNode(this.code_info));
             children.push(new QorusTreeOtherCategoriesNode(this.code_info));
         }
 
@@ -197,6 +198,18 @@ class QorusTreeGroupNode extends QorusSingleInterfaceNode {
         this.description = data.version || '';
         this.contextValue = 'group';
         this.iconPath = qorusIcons.getGroupIcon();
+    }
+}
+
+class QorusTreeFSMNode extends QorusSingleInterfaceNode {
+    constructor(code_info, name: string, data: any) {
+        super(code_info, name, TreeItemCollapsibleState.None);
+        this.name = name;
+        this.data = data;
+        this.tooltip = data.desc;
+        this.description = data.version || '';
+        this.contextValue = 'fsm';
+        this.iconPath = qorusIcons.getFsmIcon();
     }
 }
 
@@ -391,6 +404,9 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                     case 'workflow':
                         children.push(new QorusTreeWorkflowNode(this.code_info, data.name, data));
                         break;
+                        case 'fsm':
+                            children.push(new QorusTreeFSMNode(this.code_info, data.name, data));
+                            break;
                     default:
                         break;
                 }
@@ -547,6 +563,20 @@ class QorusTreeTypeCategoryNode extends QorusTreeCategoryNode {
         let children = [];
         this.code_info.interfaceDataByType(this.category).forEach(({name, data}) => {
             children.push(new QorusTreeTypeNode(this.code_info, name, data));
+        });
+        return children;
+    }
+}
+
+class QorusTreeFSMCategoryNode extends QorusTreeCategoryNode {
+    constructor(code_info) {
+        super(code_info, t`FSMs`, 'fsm', TreeItemCollapsibleState.Expanded);
+    }
+
+    async getChildren(): Promise<QorusTreeTypeNode[]> {
+        let children = [];
+        this.code_info.interfaceDataByType(this.category).forEach(({name, data}) => {
+            children.push(new QorusTreeFSMNode(this.code_info, name, data));
         });
         return children;
     }
