@@ -28,6 +28,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
 
     refresh() {
         if (this.code_info) {
+            // @ts-ignore
             this.onTreeDataChanged.fire();
         }
     }
