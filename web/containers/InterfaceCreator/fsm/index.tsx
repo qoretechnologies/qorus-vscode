@@ -8,6 +8,7 @@ import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
+import shortid from 'shortid';
 import styled from 'styled-components';
 
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
@@ -54,7 +55,6 @@ export type TTrigger = { class?: string; connector?: string; method?: string };
 export interface IFSMMetadata {
     name: string;
     desc: string;
-    triggers?: TTrigger[];
     target_dir: string;
     fsm_options?: {
         'action-strategy': 'one' | 'all';
@@ -144,6 +144,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const t = useContext(TextContext);
     const { sidebarOpen, path, confirmAction, callBackend, fsm } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
+    const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || shortid.generate());
 
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
@@ -153,7 +154,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,
         desc: fsm?.desc || null,
-        triggers: fsm?.triggers || [],
         fsm_options: fsm?.fsm_options || {
             'action-strategy': 'one',
             'max-thread-count': 1,
@@ -459,7 +459,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         setMetadata({
             name: null,
             desc: null,
-            triggers: [],
             target_dir: null,
             fsm_options: { 'action-strategy': 'one', 'max-thread-count': 1 },
         });
@@ -555,6 +554,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     data={states[editingState]}
                     id={editingState}
                     deleteState={handleStateDeleteClick}
+                    interfaceId={interfaceId}
                     otherStates={reduce(
                         states,
                         (newStates, state, id) =>
