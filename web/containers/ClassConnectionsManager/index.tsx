@@ -353,9 +353,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                     <ContentWrapper
                         style={{
                             background: `url(${
-                                process.env.NODE_ENV === 'development'
-                                    ? `http://localhost:9876/images/tiny_grid.png`
-                                    : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
+                                `${initialData.image_path}/images/tiny_grid.png)`
                             }`,
                             padding: 10,
                         }}

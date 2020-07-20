@@ -107,11 +107,7 @@ const StyledDiagram = styled.div<{ path: string }>`
     width: ${DIAGRAM_SIZE}px;
     height: ${DIAGRAM_SIZE}px;
     background: ${({ path }) =>
-        `url(${
-            process.env.NODE_ENV === 'development'
-                ? `http://localhost:9876/images/tiny_grid.png`
-                : `vscode-resource:${path}/images/tiny_grid.png`
-        })`};
+        `url(${`${path}/images/tiny_grid.png`})`};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -142,7 +138,7 @@ let currentYPan: number;
 
 const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext }) => {
     const t = useContext(TextContext);
-    const { sidebarOpen, path, confirmAction, callBackend, fsm } = useContext(InitialContext);
+    const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
 
     const wrapperRef = useRef(null);
@@ -625,7 +621,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     <StyledDiagram
                         key={JSON.stringify(wrapperDimensions)}
                         ref={drop}
-                        path={path}
+                        path={image_path}
                         onClick={() => !isHoldingShiftKey && setSelectedState(null)}
                         style={{
                             transform: `scale(${zoom})`,

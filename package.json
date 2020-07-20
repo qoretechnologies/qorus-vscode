@@ -9,7 +9,7 @@
         "email": "vscode@qoretechnologies.com"
     },
     "engines": {
-        "vscode": "^1.25.0"
+        "vscode": "^1.47.0"
     },
     "extensionDependencies": [
         "qoretechnologies.qore-vscode"
@@ -1709,7 +1709,6 @@
         "typescript": "^3.7.0-beta",
         "url-loader": "^1.1.2",
         "vsce": "^1.66.0",
-        "vscode": "^1.1.36",
         "webpack": "^4.39.3",
         "webpack-cli": "^3.3.8",
         "webpack-dev-middleware": "^3.7.1",
@@ -1724,6 +1723,7 @@
         "@blueprintjs/select": "^3.8.0",
         "@blueprintjs/table": "^3.7.1",
         "@types/styled-components": "^4.1.19",
+        "@types/vscode": "^1.47.0",
         "archiver": "^3.1.1",
         "compressjs": "^1.0.3",
         "cron-validator": "^1.0.2",

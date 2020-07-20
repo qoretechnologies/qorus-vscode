@@ -30,10 +30,13 @@ class QorusWebview {
 
     private postInitialData = () => {
         const { uri, ...other_data } = this.initial_data;
+        const { authority, path, scheme } = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
+
         this.postMessage({
             action: 'return-initial-data',
             data: {
                 path: web_path,
+                image_path: `${scheme}://${authority}${path}`,
                 qorus_instance: qorus_request.activeQorusInstance(),
                 ...other_data,
             },
@@ -79,7 +82,9 @@ class QorusWebview {
                         enableCommandUris: true,
                     }
                 );
-                this.panel.webview.html = doc.getText().replace(/{{ path }}/g, this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)));
+                
+                let html = doc.getText().replace(/{{ path }}/g, this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)));
+                this.panel.webview.html = html.replace(/{{ csp }}/g, this.panel.webview.cspSource);
 
                 this.config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
                 this.message_on_config_file_change = true;

@@ -109,6 +109,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     name,
     qoruses,
     path,
+    image_path,
     active,
     onEnvironmentNameChange,
     onEnvironmentDeleteClick,
@@ -170,7 +171,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
                 <StyledQorusLogo active={active}>
                     <img
                         style={{ maxWidth: 30, maxHeight: 30 }}
-                        src={`vscode-resource:${path}/images/qorus_logo_256${active ? '' : '_bw'}.png`}
+                        src={`${image_path}/images/qorus_logo_256${active ? '' : '_bw'}.png`}
                     />
                 </StyledQorusLogo>
                 <StyledNameWrapper>
