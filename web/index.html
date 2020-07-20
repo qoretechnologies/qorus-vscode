@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src {{ csp }} http:; script-src {{ csp }} 'unsafe-eval' http:; style-src {{ csp }} 'unsafe-inline'; font-src {{ csp }} http:; connect-src {{ csp }} http:" />
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
         <link rel="stylesheet" href="{{ path }}/css/vendors.css" />
