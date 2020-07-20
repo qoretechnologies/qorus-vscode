@@ -27,6 +27,9 @@ export const isTest = (file_path: string): boolean => {
     if (suffix === 'java') {
         return path.basename(file_path, '.java').endsWith('Test');
     }
+    if (suffix === 'py') {
+        return path.basename(file_path, '.py').toLowerCase().endsWith('test');
+    }
 
     return false;
 };
