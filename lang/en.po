@@ -2359,7 +2359,17 @@ msgstr "
 msgid "tutorial-fsm-title"
 msgstr "Finite State Machine"
 msgid "tutorial-fsm-content"
-msgstr "Finite State machine is ..... *PLEASE FILL*"
+msgstr "Finite State Machines allow for arbitrary logic to be implemented in Qorus.
+
+Each state implements some logic or data processing, and then the execution of the Finite State Machine can move to
+one or more states until the execution is completed.
+
+Each transition from one state to another can be conditional on logic attached to the transition, which can use any
+available data to decide to move to the next state or not.
+
+Finite State Machines can be attached to service methods, workflow steps, and jobs, allowing for arbitrary logic to
+be implemented without the need for explicit coding.
+"
 # The Fields of an FSM (target dir, name, description)
 msgid "tutorial-fsm-fields-title"
 msgstr "Finite State Machine fields"
@@ -2382,7 +2392,7 @@ msgstr "Finite State Machine toolbar"
 msgid "tutorial-fsm-tools-content"
 msgstr "
  Drag and drop these boxes on the diagram below. These boxes represent the states of the Finite State Machine.
- 
+
  There are 4 types of states:
 
  ### Mapper
