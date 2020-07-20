@@ -113,6 +113,7 @@ const App: FunctionComponent<IApp> = ({
     qorus_instance,
     changeTab,
     path,
+    image_path,
     confirmDialog,
     setConfirmDialog,
 }) => {
@@ -233,7 +234,7 @@ const App: FunctionComponent<IApp> = ({
                         <NavbarGroup>
                             <img
                                 style={{ maxWidth: 30, maxHeight: 30, marginRight: 10 }}
-                                src={`vscode-resource:${path}/images/qorus_logo_256.png`}
+                                src={`${image_path}/images/qorus_logo_256.png`}
                             />
                             <StyledInfo>
                                 {t('Project')}: <span>{project_folder}</span>

@@ -35,6 +35,7 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
         = this.onTreeDataChanged.event;
 
     refresh() {
+        // @ts-ignore
         this.onTreeDataChanged.fire();
     }
 
