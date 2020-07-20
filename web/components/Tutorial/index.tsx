@@ -1,9 +1,11 @@
 import React, {
-    useCallback, useContext, useEffect, useState
+    useCallback, useContext, useEffect, useMemo, useState
 } from 'react';
 
 import maxBy from 'lodash/maxBy';
-import styled from 'styled-components';
+import styled, {
+    css, keyframes
+} from 'styled-components';
 
 import { Button, ButtonGroup, Icon, Tooltip } from '@blueprintjs/core';
 
@@ -89,7 +91,7 @@ const StyledTutorialBox = styled.div`
 `;
 
 const StyledBoxHeader = styled.div`
-    height: 30px;
+    min-height: 30px;
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -98,6 +100,23 @@ const StyledBoxHeader = styled.div`
     padding: 0 10px;
     font-weight: 600;
     border-bottom: 1px solid #c3c3c3;
+    padding: 10px;
+    position: relative;
+
+    span:first-child {
+        flex: 1;
+        margin-right: 10px;
+    }
+`;
+
+const fill = keyframes`
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 100%;
+    }
 `;
 
 const StyledBoxContent = styled.div`
@@ -114,6 +133,27 @@ const StyledBoxContent = styled.div`
 
 let timeout: NodeJS.Timeout;
 
+const StyledProgressBar = styled.div<{ time: number }>`
+    width: 100%;
+    height: 7px;
+    background-color: #eee;
+
+    div {
+        ${({ time }) => css`
+            width: 0%;
+            height: 100%;
+            background-color: #137cbd;
+            animation: ${fill} ${time}s linear;
+        `}
+    }
+`;
+
+const ProgressBar = ({ time, activeStep }) => (
+    <StyledProgressBar time={time} key={activeStep}>
+        <div />
+    </StyledProgressBar>
+);
+
 const Tutorial = ({ data, onClose }) => {
     const [activeStep, setActiveStep] = useState<number>(0);
     const [isContentLoaded, setIsContentLoaded] = useState<number>(0);
@@ -128,8 +168,10 @@ const Tutorial = ({ data, onClose }) => {
             timeout = setTimeout(() => {
                 if (activeStep !== data.length - 1) {
                     changeStep(true);
+                } else {
+                    setAutoPlay(false);
                 }
-            }, 400 * len);
+            }, 280 * len);
         } else {
             clearTimeout(timeout);
 
@@ -171,6 +213,9 @@ const Tutorial = ({ data, onClose }) => {
             event.preventDefault();
 
             onClose();
+        } else if (event.key === ' ') {
+            event.preventDefault();
+            setAutoPlay((cur) => !cur);
         }
     };
 
@@ -184,7 +229,11 @@ const Tutorial = ({ data, onClose }) => {
         });
     };
 
-    const setContentAndStyles = () => {
+    const contentAndStyles = useMemo(() => {
+        if (!isContentLoaded) {
+            return undefined;
+        }
+
         const { text, title, elementData }: { text: string; title: string; elementData: DOMRect } = data[activeStep];
         // We first need to update the title and content of the box
         // so the dimensions are correct before we try to position
@@ -219,18 +268,24 @@ const Tutorial = ({ data, onClose }) => {
         box.classList.add(side);
 
         if (side === 'top') {
+            const left = elementData.left + elementData.width / 2;
+
             return {
                 top: `${elementData.top - height - 20}px`,
-                left: `${elementData.left + elementData.width / 2}px`,
+                left: `${left - width / 2 < 20 ? 20 : left}px`,
                 transform: 'translateX(-50%)',
             };
         }
 
         if (side === 'bottom') {
+            const left = elementData.left + elementData.width / 2;
+            const isOutsideOfView = left - width / 2 < 20;
+
             return {
                 top: `${elementData.top + elementData.height + 20}px`,
-                left: `${elementData.left + elementData.width / 2}px`,
+                left: `${left}px`,
                 transform: 'translateX(-50%)',
+                maxWidth: isOutsideOfView ? elementData.width : undefined,
             };
         }
 
@@ -250,12 +305,16 @@ const Tutorial = ({ data, onClose }) => {
             };
         }
 
+        setTimeout(() => {
+            contentEl.classList.add('animate');
+        }, 1000);
+
         return {
             left: `${elementData.left + elementData.width / 2}px`,
             top: `${elementData.top + elementData.height / 2 - height / 2}px`,
             transform: 'translate(-50%)',
         };
-    };
+    }, [activeStep, isContentLoaded]);
 
     const measuredRef = useCallback((node: HTMLElement) => {
         if (node !== null) {
@@ -269,7 +328,7 @@ const Tutorial = ({ data, onClose }) => {
         }
     }, []);
 
-    const { title } = data[activeStep];
+    const { title, text } = data[activeStep];
 
     return (
         <>
@@ -279,40 +338,39 @@ const Tutorial = ({ data, onClose }) => {
                     style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)' }}
                     id="tutorial-controls"
                 >
-                    <Tooltip content={t('PrevStep')} style={{ zIndex: 1004 }}>
+                    <Tooltip content={t('PrevStep')}>
                         <Button
                             disabled={activeStep === 0}
                             icon="arrow-left"
                             onClick={() => {
-                                setAutoPlay(false);
                                 changeStep();
                             }}
                             intent="primary"
                         />
                     </Tooltip>
-                    <Tooltip content={t('NextStep')} style={{ zIndex: 1004 }}>
+                    <Tooltip content={t('NextStep')}>
                         <Button
                             disabled={activeStep === data.length - 1}
                             icon="arrow-right"
                             onClick={() => {
-                                setAutoPlay(false);
                                 changeStep(true);
                             }}
                             intent="primary"
                         />
                     </Tooltip>
                     {activeStep === data.length - 1 ? (
-                        <Tooltip content={t('RestartTutorial')} style={{ zIndex: 1004 }}>
+                        <Tooltip content={t('RestartTutorial')}>
                             <Button
                                 icon="refresh"
                                 onClick={() => {
                                     setActiveStep(0);
+                                    setAutoPlay(true);
                                 }}
                                 intent="primary"
                             />
                         </Tooltip>
                     ) : (
-                        <Tooltip content={autoPlay ? t('PauseTutorial') : t('PlayTutorial')} style={{ zIndex: 1004 }}>
+                        <Tooltip content={autoPlay ? t('PauseTutorial') : t('PlayTutorial')}>
                             <Button
                                 icon={autoPlay ? 'pause' : 'play'}
                                 onClick={() => setAutoPlay(!autoPlay)}
@@ -320,13 +378,13 @@ const Tutorial = ({ data, onClose }) => {
                             />
                         </Tooltip>
                     )}
-                    <Tooltip content={t('CloseTutorial')} style={{ zIndex: 1004 }}>
+                    <Tooltip content={t('CloseTutorial')}>
                         <Button icon="cross" onClick={onClose} />
                     </Tooltip>
                 </ButtonGroup>
                 <StyledTutorialBox
                     ref={measuredRef}
-                    style={isContentLoaded === 2 ? setContentAndStyles() : {}}
+                    style={isContentLoaded === 2 ? contentAndStyles : {}}
                     id="tutorial-box"
                 >
                     <StyledBoxHeader id="tutorial-box-title">
@@ -337,6 +395,9 @@ const Tutorial = ({ data, onClose }) => {
                             {activeStep + 1} / {data.length}
                         </span>
                     </StyledBoxHeader>
+                    {autoPlay && (
+                        <ProgressBar time={(t(text).split(' ').length * 280) / 1000} activeStep={activeStep} />
+                    )}
                     <StyledBoxContent ref={measuredContentRef} id="tutorial-box-content"></StyledBoxContent>
                 </StyledTutorialBox>
             </StyledTutorialWrapper>

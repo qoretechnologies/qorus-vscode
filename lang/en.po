@@ -2343,8 +2343,7 @@ msgstr "
 
   Click on the **X** or press the **[ESC]** to close the tutorial at any time.
 
-  The tutorial can also be set to _play_ through all it's steps automatically by clicking on the **play** icon.
-  Changing steps manually will _pause_ the tutorial presentation.
+  The tutorial can also be set to _play_ through all it's steps automatically by clicking on the **play** icon or pressing the **[SPACE]** key.
 "
 
 
@@ -2358,9 +2357,9 @@ msgstr "
 # * Finite State Machine
 # The FSM title and description of what an FSM is
 msgid "tutorial-fsm-title"
-msgstr "Finite State Machine name"
+msgstr "Finite State Machine"
 msgid "tutorial-fsm-content"
-msgstr "This provides the name of the Finite State Machine being edited or viewed"
+msgstr "Finite State machine is ..... *PLEASE FILL*"
 # The Fields of an FSM (target dir, name, description)
 msgid "tutorial-fsm-fields-title"
 msgstr "Finite State Machine fields"
@@ -2382,6 +2381,10 @@ msgid "tutorial-fsm-tools-title"
 msgstr "Finite State Machine toolbar"
 msgid "tutorial-fsm-tools-content"
 msgstr "
+ Drag and drop these boxes on the diagram below. These boxes represent the states of the Finite State Machine.
+ 
+ There are 4 types of states:
+
  ### Mapper
  Drag a mapper element to the diagram to add a data mapper to the Finite State Machine.
 
@@ -2401,6 +2404,14 @@ msgstr "Finite State Machine diagram"
 msgid "tutorial-fsm-diagram-content"
 msgstr "
 This area is the design area where the logic flow is implement and where individual elements can be customized.
+
+**Moving states:** Drag and move a state around to change it's position.
+
+**Connecting states:** Double click on a state and select the target available state. State will indicate it's availability as a valid target by wiggling.
+
+**Managing state:** Hovering on a state provides the controls for _editing_ and _deleting_ a state. Right clicking on a state provides even more actions.
+
+To move around the diagram, hold the **[SHIFT]** key and drag the view around. You can also use the minimap (described in the next tip).
 "
 # The toolbar with minimap
 msgid "tutorial-fsm-toolbar-title"
@@ -2410,4 +2421,8 @@ msgstr "
   Use this IDE element to see where you are in the context of the entire Finite State Machine diagram; the
   minimap can also be used to quickly navigate to any part of the diagram, or to locate elements that are outside the
   current viewing area in the main diagram area.
+
+  Simply drag and move the visible area to position yourself anywhere available on the diagram.
+
+  Both the minimap and whole toolbar can be closed for your convenience.
 "
