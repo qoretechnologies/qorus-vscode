@@ -83,7 +83,7 @@ class QorusWebview {
                     }
                 );
 
-                const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)) as unknown
+                const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)) as unknown;
                 let html = doc.getText().replace(/{{ path }}/g, uri as string);
                 this.panel.webview.html = html.replace(/{{ csp }}/g, this.panel.webview.cspSource);
 

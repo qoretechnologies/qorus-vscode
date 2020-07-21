@@ -1732,6 +1732,7 @@
         "gettext-parser": "^2.0.0",
         "java-parser": "^0.8.0",
         "js-yaml": "^3.13.1",
+        "markdown-it": "^11.0.0",
         "moment": "^2.24.0",
         "react-autocomplete": "^1.8.1",
         "react-dnd": "^9.4.0",
