@@ -1,25 +1,13 @@
-import React, {
-    useContext,
-    useState
-} from 'react';
+import React, { useContext, useState } from 'react';
 
 import { useDrag } from 'react-dnd';
-import styled, {
-    css,
-    keyframes
-} from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
-import {
-    Button,
-    ButtonGroup
-} from '@blueprintjs/core';
+import { Button, ButtonGroup } from '@blueprintjs/core';
 
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { TextContext } from '../../../context/text';
-import {
-    IFSMState,
-    STATE_ITEM_TYPE
-} from './';
+import { IFSMState, STATE_ITEM_TYPE } from './';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
@@ -133,6 +121,7 @@ const StyledStateName = styled.p`
     padding: 0;
     margin: 0;
     font-weight: 500;
+    text-align: center;
 `;
 
 const StyledStateAction = styled.p`
@@ -179,6 +168,16 @@ const FSMState: React.FC<IFSMStateProps> = ({
 
     const handleMouseLeave = () => {
         setIsHovered(false);
+    };
+
+    const calculateFontSize = (isAction) => {
+        const len = name.length;
+
+        if (len > 20) {
+            return isAction ? '10px' : '12px';
+        }
+
+        return undefined;
     };
 
     return (
@@ -246,8 +245,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 });
             }}
         >
-            <StyledStateName>{name}</StyledStateName>
-            {action && <StyledStateAction>{action.type}</StyledStateAction>}
+            <StyledStateName style={{ fontSize: calculateFontSize() }}>{name}</StyledStateName>
+            {action && (
+                <StyledStateAction style={{ fontSize: calculateFontSize(true) }}>{action.type}</StyledStateAction>
+            )}
             {isHovered && (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
                     <Button icon="edit" intent="warning" onClick={(e) => handleClick(e, onEditClick)} />

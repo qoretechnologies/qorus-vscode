@@ -2313,3 +2313,126 @@ msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ ifa
 
 msgid "ConfigItemAlreadyExists ${ name } ${ prefix } ${ iface_type } ${ iface_name }"
 msgstr "Config item with name \"${ name }\" and prefix \"${ prefix }\" already exists in ${ iface_type } \"${ iface_name }\""
+
+msgid "tutorial-controls"
+msgstr "Tutorial controls"
+
+msgid "PrevStep"
+msgstr "Previous step"
+
+msgid "NextStep"
+msgstr "Next step"
+
+msgid "RestartTutorial"
+msgstr "Restart tutorial"
+
+msgid "PlayTutorial"
+msgstr "Play tutorial automatically"
+
+msgid "PauseTutorial"
+msgstr "Pause tutorial"
+
+msgid "CloseTutorial"
+msgstr "Close tutorial"
+
+msgid "tutorial-controls-content"
+msgstr "
+  ### Welcome to the tutorial
+
+  Move between tips by clicking on the **arrows above** or use **[LEFT]** and **[RIGHT]** keys.
+
+  Click on the **X** or press the **[ESC]** to close the tutorial at any time.
+
+  The tutorial can also be set to _play_ through all it's steps automatically by clicking on the **play** icon or pressing the **[SPACE]** key.
+"
+
+
+
+
+#
+# TUTORIALS SECTION
+# !ADD NEW TRANSLATIONS NOT RELATED TO TUTORIAL BEFORE THIS!
+#
+
+# * Finite State Machine
+# The FSM title and description of what an FSM is
+msgid "tutorial-fsm-title"
+msgstr "Finite State Machine"
+msgid "tutorial-fsm-content"
+msgstr "Finite State Machines allow for arbitrary logic to be implemented in Qorus.
+
+Each state implements some logic or data processing, and then the execution of the Finite State Machine can move to
+one or more states until the execution is completed.
+
+Each transition from one state to another can be conditional on logic attached to the transition, which can use any
+available data to decide to move to the next state or not.
+
+Finite State Machines can be attached to service methods, workflow steps, and jobs, allowing for arbitrary logic to
+be implemented without the need for explicit coding.
+"
+# The Fields of an FSM (target dir, name, description)
+msgid "tutorial-fsm-fields-title"
+msgstr "Finite State Machine fields"
+msgid "tutorial-fsm-fields-content"
+msgstr "
+ ### Target Directory
+ This will give the directory where the Finite State Machine configuration is stored on the file system.
+
+ ### Name
+ The Finite State Machine must have a unique name that is used as the label or reference from interfaces or other
+ Finiate State Machines.
+
+ ### Description
+ The description should explain to other users what the Finite State Machine does and also describe any data input
+ requirements or output data produced.
+"
+# The state boxes toolbar - should explain what each state represents
+msgid "tutorial-fsm-tools-title"
+msgstr "Finite State Machine toolbar"
+msgid "tutorial-fsm-tools-content"
+msgstr "
+ Drag and drop these boxes on the diagram below. These boxes represent the states of the Finite State Machine.
+
+ There are 4 types of states:
+
+ ### Mapper
+ Drag a mapper element to the diagram to add a data mapper to the Finite State Machine.
+
+ ### Pipeline
+ Pipelines provide more complex processing for record-based data, supporting multiple streams and record filters /
+ generators / grouping.
+
+ ### Connector
+ Connectors allow building-block-specific functionality to be employed in a Finite State Machine.
+
+ ### FSM
+ The FSM element allows a Finite State Machine to be called from another Finite State Machine.
+ "
+# The diagram
+msgid "tutorial-fsm-diagram-title"
+msgstr "Finite State Machine diagram"
+msgid "tutorial-fsm-diagram-content"
+msgstr "
+This area is the design area where the logic flow is implement and where individual elements can be customized.
+
+**Moving states:** Drag and move a state around to change it's position.
+
+**Connecting states:** Double click on a state and select the target available state. State will indicate it's availability as a valid target by wiggling.
+
+**Managing state:** Hovering on a state provides the controls for _editing_ and _deleting_ a state. Right clicking on a state provides even more actions.
+
+To move around the diagram, hold the **[SHIFT]** key and drag the view around. You can also use the minimap (described in the next tip).
+"
+# The toolbar with minimap
+msgid "tutorial-fsm-toolbar-title"
+msgstr "Finite State Machine minimap"
+msgid "tutorial-fsm-toolbar-content"
+msgstr "
+  Use this IDE element to see where you are in the context of the entire Finite State Machine diagram; the
+  minimap can also be used to quickly navigate to any part of the diagram, or to locate elements that are outside the
+  current viewing area in the main diagram area.
+
+  Simply drag and move the visible area to position yourself anywhere available on the diagram.
+
+  Both the minimap and whole toolbar can be closed for your convenience.
+"

@@ -785,6 +785,20 @@ div.configItemsEditor {
     margin-bottom: unset;
 }
 
+.bp3-overlay,
+.bp3-transition-container {
+    z-index: 9999;
+}
+
+.tutorial-helper {
+    position: relative;
+    z-index: 1001 !important;
+    background-color: white;
+    border-radius: 6px;
+    border: 2px solid $qore-warning !important;
+    box-shadow: 0 0 10px 1px #000 !important;
+}
+
 @import '../components/DataOrEmptyTable/style.scss';
 @import '../components/Tree/style.scss';
 @import '../components/ContentByType/style.scss';
