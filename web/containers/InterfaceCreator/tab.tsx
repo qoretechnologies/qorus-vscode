@@ -89,7 +89,7 @@ const tutorials = {
     fsm: {
         elements: [
             {
-                id: 'interface-title',
+                id: 'fsm-interface-title',
                 title: 'tutorial-fsm-title',
                 text: 'tutorial-fsm-content',
             },
@@ -179,7 +179,7 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                 <Tutorial data={tutorialData.elements} onClose={() => setTutorialData({ isOpen: false })} />
             )}
             <StyledHeader>
-                <h2 id="interface-title">
+                <h2 id={`${type}-interface-title`}>
                     {isEditing() ? `Edit ${getTypeName(type, t)} "${getName()}"` : `New ${getTypeName(type, t)}`}
                 </h2>
                 <ButtonGroup>
