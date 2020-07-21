@@ -1,6 +1,4 @@
-import React, {
-    useContext, useRef, useState
-} from 'react';
+import React, { useContext, useRef, useState } from 'react';
 
 import filter from 'lodash/filter';
 import map from 'lodash/map';
@@ -54,7 +52,6 @@ export type TTrigger = { class?: string; connector?: string; method?: string };
 export interface IFSMMetadata {
     name: string;
     desc: string;
-    triggers?: TTrigger[];
     target_dir: string;
     fsm_options?: {
         'action-strategy': 'one' | 'all';
@@ -106,8 +103,7 @@ const StyledDiagramWrapper = styled.div`
 const StyledDiagram = styled.div<{ path: string }>`
     width: ${DIAGRAM_SIZE}px;
     height: ${DIAGRAM_SIZE}px;
-    background: ${({ path }) =>
-        `url(${`${path}/images/tiny_grid.png`})`};
+    background: ${({ path }) => `url(${`${path}/images/tiny_grid.png`})`};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -149,7 +145,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,
         desc: fsm?.desc || null,
-        triggers: fsm?.triggers || [],
         fsm_options: fsm?.fsm_options || {
             'action-strategy': 'one',
             'max-thread-count': 1,
@@ -455,7 +450,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         setMetadata({
             name: null,
             desc: null,
-            triggers: [],
             target_dir: null,
             fsm_options: { 'action-strategy': 'one', 'max-thread-count': 1 },
         });

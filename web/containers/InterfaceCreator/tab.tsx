@@ -1,6 +1,4 @@
-import React, {
-    useContext, useState
-} from 'react';
+import React, { useContext, useState } from 'react';
 
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -185,16 +183,17 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                     {isEditing() ? `Edit ${getTypeName(type, t)} "${getName()}"` : `New ${getTypeName(type, t)}`}
                 </h2>
                 <ButtonGroup>
-                    <TutorialButton
-                        type={type}
-                        onClick={(elements) =>
-                            setTutorialData({
-                                isOpen: true,
-                                elements,
-                            })
-                        }
-                    />
-
+                    {tutorials[type] && (
+                        <TutorialButton
+                            type={type}
+                            onClick={(elements) =>
+                                setTutorialData({
+                                    isOpen: true,
+                                    elements,
+                                })
+                            }
+                        />
+                    )}
                     {isEditing() && (
                         <>
                             <Button
