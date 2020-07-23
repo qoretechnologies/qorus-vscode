@@ -69,9 +69,7 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
                     {v.icon_filename && (
                         <LangIcon
                             src={
-                                process.env.NODE_ENV === 'development'
-                                    ? `http://localhost:9876/images/${v.icon_filename}`
-                                    : `vscode-resource:${initialData.path}/images/${v.icon_filename}`
+                                `${initialData.image_path}/images/${v.icon_filename}`
                             }
                         />
                     )}

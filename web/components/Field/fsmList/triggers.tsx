@@ -1,13 +1,8 @@
 import React, {
-    ReactNode,
-    useContext
+    ReactNode, useContext
 } from 'react';
 
-import {
-    Button,
-    Classes,
-    Tag
-} from '@blueprintjs/core';
+import { Button, Classes, Tag } from '@blueprintjs/core';
 
 import { TTrigger } from '../../../containers/InterfaceCreator/fsm';
 import { TextContext } from '../../../context/text';
@@ -22,7 +17,7 @@ export interface IFSMListTriggersProps {
 }
 
 const IFSMListTriggers: React.FC<IFSMListTriggersProps> = ({
-    triggers,
+    triggers = [],
     setTriggerManager,
     handleTriggerRemove,
     fsmIndex,

@@ -100,7 +100,7 @@ export class ElementPan extends React.Component<
             baseScrollY: 0,
             maxX: 0,
             maxY: 0,
-            showMinimap: false,
+            showMinimap: true,
             showToolbar: true,
         };
         this.onDragMove = this.onDragMove.bind(this);
@@ -283,7 +283,7 @@ export class ElementPan extends React.Component<
             >
                 {this.props.children}
                 {this.state.showToolbar ? (
-                    <StyledToolbar draggable>
+                    <StyledToolbar draggable id="pan-element-toolbar">
                         <StyledToolbarActions show={this.state.showMinimap}>
                             <p>{t('Toolbar')}</p>
                             <ButtonGroup minimal>
@@ -317,7 +317,10 @@ export class ElementPan extends React.Component<
                         />
                     </StyledToolbar>
                 ) : (
-                    <ButtonGroup style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 500 }}>
+                    <ButtonGroup
+                        style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 500 }}
+                        id="pan-element-toolbar"
+                    >
                         <Tooltip content={t('ToggleToolbar')}>
                             <Button
                                 icon="eye-open"

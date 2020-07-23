@@ -166,6 +166,7 @@ if (process.env.NODE_ENV === 'development') {
                 test: /\.js|css(\?.*)?$/i,
                 cache: true,
             }),
+            new CopyPlugin([{ from: '../images', to: 'images' }]),
         ],
     });
 }

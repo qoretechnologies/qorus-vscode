@@ -36,6 +36,9 @@ export class InterfaceInfo {
         if (iface_kind === 'workflow' && !this.iface_by_id[iface_id]['config-item-values']) {
             this.iface_by_id[iface_id]['config-item-values'] = [];
         }
+        if (iface_kind === 'fsm' && !this.iface_by_id[iface_id].states) {
+            this.iface_by_id[iface_id].states = {};
+        }
     }
 
     resetConfigItemsToOrig = iface_id => {
@@ -352,7 +355,7 @@ export class InterfaceInfo {
         return { ...inherited_item, ...this_item };
     }
 
-    private addClassConfigItems = (iface_id, class_name, prefix?) => {
+    private addClassConfigItems = (iface_id, class_name, prefix?, state_name?) => {
         const class_yaml_data = this.yaml_info.yamlDataByName('class', class_name);
         if (!class_yaml_data) {
             return;
@@ -374,18 +377,34 @@ export class InterfaceInfo {
                 item.prefix = prefix + (item.prefix || '');
             }
 
-            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
-                item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
-            );
+            if (state_name) {
+                const index = this.iface_by_id[iface_id].states[state_name]['config-items'].findIndex(item2 =>
+                    item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
+                );
 
-            if (index > -1) {
-                this.iface_by_id[iface_id]['config-items'][index] = {
-                    ... item,
-                    ... this.iface_by_id[iface_id]['config-items'][index]
-                };
-            }
-            else {
-                this.iface_by_id[iface_id]['config-items'].push(item);
+                if (index > -1) {
+                    this.iface_by_id[iface_id].states[state_name]['config-items'][index] = {
+                        ... item,
+                        ... this.iface_by_id[iface_id].states[state_name]['config-items'][index]
+                    };
+                }
+                else {
+                    this.iface_by_id[iface_id].states[state_name]['config-items'].push(item);
+                }
+            } else {
+                const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
+                    item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
+                );
+
+                if (index > -1) {
+                    this.iface_by_id[iface_id]['config-items'][index] = {
+                        ... item,
+                        ... this.iface_by_id[iface_id]['config-items'][index]
+                    };
+                }
+                else {
+                    this.iface_by_id[iface_id]['config-items'].push(item);
+                }
             }
         });
     }
@@ -455,6 +474,12 @@ export class InterfaceInfo {
         this.iface_by_id[iface_id]['config-items'] = iface['config-items'].filter(item =>
             !item.parent || item.parent['interface-name'] !== base_class_name || item.prefix
         );
+    }
+
+    removeStateClass = (iface_id, state_name) => {
+        const state = this.iface_by_id[iface_id]?.states?.[state_name];
+        delete state?.class_name;
+        delete state?.['config-items'];
     }
 
     removeAllClasses = ({iface_id, iface_kind}) => {
@@ -549,8 +574,15 @@ export class InterfaceInfo {
         this.code_info.waitForPending(['yaml']).then(() => this.getConfigItemsImpl(params));
     }
 
-    private getConfigItemsImpl = params => {
-        let {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps, state_name} = params;
+    private getConfigItemsImpl = ({
+        'base-class-name': base_class_name,
+        classes,
+        requires,
+        iface_id,
+        iface_kind,
+        steps,
+        state_data = {name: undefined, class_name: undefined}
+    }) => {
         if (!iface_id) {
             return;
         }
@@ -558,14 +590,12 @@ export class InterfaceInfo {
             return;
         }
 
-        requires = this.addClassNames(requires);
-        classes = this.addClassNames(classes);
-
         this.maybeInitIfaceId(iface_id, iface_kind);
 
         const classes_key = requires ? 'requires' : 'classes';
-        const classes_or_requires = requires ? requires : classes;
+        let classes_or_requires = requires ? requires : classes;
         if (classes_or_requires) {
+            classes_or_requires = this.addClassNames(classes_or_requires);
             this.addClasses(iface_id, classes_key, classes_or_requires);
         }
 
@@ -588,6 +618,15 @@ export class InterfaceInfo {
         (classes_or_requires || []).forEach(class_data => {
             class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
         });
+
+        const {name: state_name, class_name: state_class_name} = state_data;
+        if (state_name) {
+            if (state_class_name !== this.iface_by_id[iface_id].states[state_name].class_name) {
+                this.removeStateClass(iface_id, state_name);
+            }
+            this.addClassConfigItems(iface_id, state_name, '', state_class_name);
+            this.iface_by_id[iface_id].states[state_name].class_name = state_class_name;
+        }
 
         const default_type = defaultValue('type');
 

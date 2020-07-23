@@ -108,7 +108,7 @@ export class ClassConnectionsCreate {
                         signature = `auto ${trigger}(auto ${CONN_DATA})`;
                         break;
                     case 'python':
-                        signature = `${trigger}(self, ${CONN_DATA})`;
+                        signature = `${trigger}(self, *${CONN_DATA})`;
                         break;
                     case 'java':
                         signature = `public Object ${trigger}(Object ${CONN_DATA}) ${THROWS}`;
@@ -315,7 +315,7 @@ export class ClassConnectionsCreate {
             code += `${indent2}UserApi.startCapturingObjectsFromPython();\n`;
         }
         code += `${indent2}# map of prefixed class names to class instances\n` +
-            `${indent2}self.${CONN_CLASS_MAP.qore} = {\n`;
+            `${indent2}self.${CONN_CLASS_MAP.python} = {\n`;
 
         for (const prefixed_class in this.classes) {
             const class_data = this.classes[prefixed_class];
@@ -336,17 +336,17 @@ export class ClassConnectionsCreate {
         }
 
         code += `\n` +
-            `${indent1}def ${CONN_CALL_METHOD}(self, prefixed_class, method):\n` +
+            `${indent1}def ${CONN_CALL_METHOD}(self, prefixed_class, method, *argv):\n` +
             `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class)\n` +
-            `${indent2}return call_object_method_args(self.${CONN_CLASS_MAP.python}[prefixed_class], method, argv)\n`;
+            `${indent2}return getattr(self.${CONN_CLASS_MAP.python}[prefixed_class], method)(*argv)\n`;
 
         if (event_based_connections.length) {
             code += '\n' +
                 `${indent1}# override ${CONN_BASE_CLASS}'s update()\n` +
-                `${indent1}def update(id, ${CONN_DATA}):\n`;
+                `${indent1}def update(id, *${CONN_DATA}):\n`;
             event_based_connections.forEach(event_based => {code +=
                 `${indent2}if (id == "${event_based.prefixed_class}.${event_based.method}"):\n` +
-                `${indent3}${event_based.connection_code_name}(${CONN_DATA})\n`;
+                `${indent3}${event_based.connection_code_name}(*${CONN_DATA})\n`;
             });
         }
 
@@ -465,9 +465,9 @@ export class ClassConnectionsCreate {
     }
 
     protected methodCodePython = (connection_code_name, connectors) => {
-        let code = `${indent1}def ${connection_code_name}(self, ${CONN_DATA}):\n`;
+        let code = `${indent1}def ${connection_code_name}(self, *${CONN_DATA}):\n`;
 
-        code += `${indent2}UserApi.logDebug("${connection_code_name} called with data: %y", ${CONN_DATA})\n`;
+        code += `${indent2}UserApi.logDebug("${connection_code_name} called with data: %y", *${CONN_DATA})\n`;
 
         let n = 0;
         connectors.forEach(connector => {
@@ -483,14 +483,14 @@ export class ClassConnectionsCreate {
                 return;
             }
 
-            code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", ${CONN_DATA})\n${indent2}`;
+            code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", *${CONN_DATA})\n${indent2}`;
             if (n !== connectors.length) {
                 code += `${CONN_DATA} = `;
             } else {
                 code += 'return ';
             }
 
-            code += `self.${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA})\n`;
+            code += `self.${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", *${CONN_DATA})\n`;
         });
 
         return code;
@@ -577,10 +577,10 @@ export class ClassConnectionsCreate {
                 code += `${indent2}${CONN_DATA} = {` +
                 trigger.arg_names.map(arg_name => `"${arg_name}": ${arg_name}`).join(', ') +
                 '}\n';
-                params_str = CONN_DATA;
+                params_str = `*${CONN_DATA}`;
             }
             if (trigger.is_nonstandard_service) { // for non-standard service triggers
-                params_str = CONN_DATA;
+                params_str = `*${CONN_DATA}`;
             }
         }
 

@@ -443,6 +443,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                                 <EnvironmentPanel
                                     {...data}
                                     path={initialData.path}
+                                    image_path={initialData.image_path}
                                     active={isEnvironmentActive(data.qoruses)}
                                     activeInstance={qorus_instance && qorus_instance.name}
                                     onEnvironmentNameChange={handleEnvironmentNameChange}
