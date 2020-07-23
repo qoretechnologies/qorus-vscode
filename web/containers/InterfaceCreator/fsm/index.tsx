@@ -26,6 +26,7 @@ import FSMState from './state';
 import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
+import FSMTransitionOrderDialog from './transitionOrderDialog';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -155,6 +156,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const [selectedState, setSelectedState] = useState<string | null>(null);
     const [editingState, setEditingState] = useState<string | null>(null);
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
+    const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
     const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(false);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
@@ -556,6 +558,15 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     )}
                 />
             )}
+            {editingTransitionOrder && (
+                <FSMTransitionOrderDialog
+                    transitions={states[editingTransitionOrder].transitions}
+                    id={editingTransitionOrder}
+                    onClose={() => setEditingTransitionOrder(null)}
+                    getStateData={(id) => states[id]}
+                    onSubmit={updateStateData}
+                />
+            )}
             {size(editingTransition) ? (
                 <FSMTransitionDialog
                     onSubmit={updateTransitionData}
@@ -639,6 +650,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 onDeleteClick={handleStateDeleteClick}
                                 selectedState={selectedState}
                                 getTransitionByState={getTransitionByState}
+                                onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
                             />
                         ))}
                         <svg height="100%" width="100%" style={{ position: 'absolute' }}>
