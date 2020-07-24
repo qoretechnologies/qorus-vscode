@@ -4,6 +4,7 @@ import filter from 'lodash/filter';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import cloneDeep from 'lodash/cloneDeep';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
@@ -143,7 +144,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
 
-    const [states, setStates] = useState<IFSMStates>(fsm?.states || {});
+    const [states, setStates] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
     const [metadata, setMetadata] = useState<IFSMMetadata>({
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,
@@ -450,12 +451,12 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     ).sort((a, b) => a.order - b.order);
 
     const reset = () => {
-        setStates({});
+        setStates(cloneDeep(fsm?.states || {}));
         setMetadata({
-            name: null,
-            desc: null,
-            target_dir: null,
-            fsm_options: { 'action-strategy': 'one', 'max-thread-count': 1 },
+            name: fsm?.name,
+            desc: fsm?.desc,
+            target_dir: fsm?.target_dir,
+            fsm_options: fsm?.options || { 'action-strategy': 'one', 'max-thread-count': 1 },
         });
     };
 
