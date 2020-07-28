@@ -1,6 +1,4 @@
-import React, {
-    FunctionComponent, useEffect, useState
-} from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
@@ -12,9 +10,7 @@ import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { Messages } from '../../constants/messages';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
-import withMessageHandler, {
-    TMessageListener, TPostMessage
-} from '../../hocomponents/withMessageHandler';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import InterfaceCreatorPanel from '../InterfaceCreator/panel';
 import GlobalTable from './globalTable';
@@ -61,7 +57,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     resetFields,
     steps,
     definitionsOnly,
-    stateName,
+    stateData,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<any>(false);
@@ -69,6 +65,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
     useEffectOnce(() => {
         addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
+            console.log(data);
             setConfigItems(data);
         });
         // Listen for config items data request
@@ -89,7 +86,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_id: interfaceId,
             iface_kind: type,
             steps,
-            state_name: stateName,
+            state_data: stateData,
         });
     });
 
@@ -123,7 +120,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             parent_class: parent,
             iface_kind: type,
             is_templated_string: isTemplatedString,
-            state_name: stateName,
+            state_name: stateData.name,
         });
     };
 
@@ -133,7 +130,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_id: interfaceId,
             name: configItemName,
             iface_kind: type,
-            state_name: stateName,
+            state_name: stateData.name,
         });
     };
 
@@ -143,7 +140,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_id: interfaceId,
             name: configItemName,
             iface_kind: type,
-            state_name: stateName,
+            state_name: stateData.name,
         });
     };
 

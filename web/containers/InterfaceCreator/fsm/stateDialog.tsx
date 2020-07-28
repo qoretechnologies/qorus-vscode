@@ -1,6 +1,4 @@
-import React, {
-    useContext, useState
-} from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 
 import find from 'lodash/find';
 
@@ -22,6 +20,8 @@ import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
 import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import { IFSMState, IFSMStates } from './';
 import ConnectorSelector from './connectorSelector';
+import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import { Messages } from '../../../constants/messages';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -32,6 +32,7 @@ export interface IFSMStateDialogProps {
     deleteState: (id: string) => any;
     fsmName?: string;
     interfaceId: string;
+    postMessage: TPostMessage;
 }
 
 export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';
@@ -45,11 +46,24 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     deleteState,
     fsmName,
     interfaceId,
+    postMessage,
 }) => {
     const [newData, setNewData] = useState<IFSMState>(data);
     const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const t = useContext(TextContext);
+
+    useEffect(() => {
+        if (newData.action?.value?.['class'])
+            postMessage(Messages.GET_CONFIG_ITEMS, {
+                iface_kind: 'fsm',
+                iface_id: interfaceId,
+                state_data: {
+                    name: newData.name,
+                    class: newData.action.value['class'],
+                },
+            });
+    }, [newData.action?.value?.['class']]);
 
     const handleDataUpdate = (name: string, value: any) => {
         setNewData((cur) => ({
@@ -108,7 +122,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                             action: 'return-mappers',
                             return_value: 'mappers',
                         }}
-                        onChange={(name, value) => handleDataUpdate('action', { type: 'mapper', value })}
+                        onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
                         value={newData?.action?.value}
                         name="action"
                     />
@@ -256,7 +270,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     }}
                                 />
                             </Tooltip>
-                            <ManageConfigItemsButton type="fsm" onClick={() => setShowConfigItemsManager(true)} />
+                            {newData.action?.value?.['class'] && (
+                                <ManageConfigItemsButton type="fsm" onClick={() => setShowConfigItemsManager(true)} />
+                            )}
                             <Button
                                 text={t('Submit')}
                                 disabled={!isDataValid()}
@@ -276,11 +292,16 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     onClose={() => setShowConfigItemsManager(false)}
                     style={{ width: '80vw', backgroundColor: '#fff' }}
                 >
-                    <ConfigItemManager type="fsm" stateName={newData.name} definitionsOnly interfaceId={interfaceId} />
+                    <ConfigItemManager
+                        type="fsm"
+                        stateData={{ name: newData.name, class: newData.action?.value?.['class'] }}
+                        definitionsOnly
+                        interfaceId={interfaceId}
+                    />
                 </CustomDialog>
             )}
         </>
     );
 };
 
-export default FSMStateDialog;
+export default withMessageHandler()(FSMStateDialog);
