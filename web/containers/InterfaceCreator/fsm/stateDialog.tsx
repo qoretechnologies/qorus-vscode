@@ -60,7 +60,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 iface_id: interfaceId,
                 state_data: {
                     name: newData.name,
-                    class: newData.action.value['class'],
+                    class_name: newData.action.value['class'],
                 },
             });
     }, [newData.action?.value?.['class']]);
@@ -294,7 +294,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 >
                     <ConfigItemManager
                         type="fsm"
-                        stateData={{ name: newData.name, class: newData.action?.value?.['class'] }}
+                        stateData={{ name: newData.name, class_name: newData.action?.value?.['class'] }}
                         definitionsOnly
                         interfaceId={interfaceId}
                     />
