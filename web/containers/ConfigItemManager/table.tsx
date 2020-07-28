@@ -38,6 +38,7 @@ type ConfigItemsTableProps = {
     stepId?: number;
     type: string;
     definitionsOnly?: boolean;
+    disableAdding?: boolean;
 };
 
 const ConfigItemsTable: Function = (props: ConfigItemsTableProps) => (
@@ -153,6 +154,7 @@ let ItemsTable: Function = ({
     t,
     type,
     definitionsOnly,
+    disableAdding,
 }: ConfigItemsTableProps) => {
     const initContext = useContext(InitialContext);
 
@@ -197,15 +199,15 @@ let ItemsTable: Function = ({
                         <Th>{t('Level')}</Th>
                         {!title && <Th name="config_group">{t('Group')}</Th>}
                         <Th iconName="code" />
-                        <Th iconName="edit">{t('Structure')}</Th>
+                        {!disableAdding && <Th iconName="edit">{t('Structure')}</Th>}
                     </FixedRow>
                 </Thead>
                 <DataOrEmptyTable
                     condition={!configItemsData || configItemsData.length === 0}
-                    cols={definitionsOnly ? (groupName ? 6 : 7) : groupName ? 7 : 8}
+                    cols={definitionsOnly || disableAdding ? (groupName ? 6 : 7) : groupName ? 7 : 8}
                     small
                 >
-                    {props => (
+                    {(props) => (
                         <Tbody {...props}>
                             {configItemsData.map((item: any, index: number) => (
                                 <React.Fragment>
@@ -277,37 +279,51 @@ let ItemsTable: Function = ({
                                         <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
                                             item.type
                                         }/>`}</Td>
-                                        <ActionColumn>
-                                            <ButtonGroup>
-                                                <Button
-                                                    small
-                                                    intent="warning"
-                                                    icon="cog"
-                                                    title={t('button.edit-this-config-item')}
-                                                    onClick={() => {
-                                                        onEditStructureClick(item.name);
-                                                    }}
-                                                />
-                                                {!item.parent && (
+                                        {!disableAdding && (
+                                            <ActionColumn>
+                                                <ButtonGroup>
                                                     <Button
                                                         small
-                                                        intent="danger"
-                                                        icon="trash"
+                                                        intent="warning"
+                                                        icon="cog"
+                                                        title={t('button.edit-this-config-item')}
                                                         onClick={() => {
-                                                            initContext.confirmAction('ConfirmRemoveConfigItem', () => {
-                                                                onDeleteStructureClick(item.name);
-                                                            });
+                                                            onEditStructureClick(item.name);
                                                         }}
                                                     />
-                                                )}
-                                            </ButtonGroup>
-                                        </ActionColumn>
+
+                                                    {!item.parent && (
+                                                        <Button
+                                                            small
+                                                            intent="danger"
+                                                            icon="trash"
+                                                            onClick={() => {
+                                                                initContext.confirmAction(
+                                                                    'ConfirmRemoveConfigItem',
+                                                                    () => {
+                                                                        onDeleteStructureClick(item.name);
+                                                                    }
+                                                                );
+                                                            }}
+                                                        />
+                                                    )}
+                                                </ButtonGroup>
+                                            </ActionColumn>
+                                        )}
                                     </Tr>
                                     {showDescription && (
                                         <Tr>
                                             <Td
                                                 className="text"
-                                                colspan={definitionsOnly ? (groupName ? 6 : 7) : groupName ? 7 : 8}
+                                                colspan={
+                                                    definitionsOnly || disableAdding
+                                                        ? groupName
+                                                            ? 6
+                                                            : 7
+                                                        : groupName
+                                                        ? 7
+                                                        : 8
+                                                }
                                             >
                                                 <ReactMarkdown source={item.description} />
                                             </Td>
@@ -327,7 +343,7 @@ ItemsTable = compose(
     withState('showDescription', 'toggleDescription', false),
     withHandlers({
         handleToggleDescription: ({ toggleDescription }) => () => {
-            toggleDescription(value => !value);
+            toggleDescription((value) => !value);
         },
     }),
     withTextContext()
@@ -338,7 +354,7 @@ export default compose(
     withState('isGrouped', 'setIsGrouped', true),
     withHandlers({
         handleModalToggle: ({ toggleModalData }) => (item, onSubmit, intrf, levelType) => {
-            toggleModalData(value =>
+            toggleModalData((value) =>
                 value
                     ? null
                     : {
@@ -350,7 +366,7 @@ export default compose(
             );
         },
         handleGroupedToggle: ({ setIsGrouped }) => () => {
-            setIsGrouped(value => !value);
+            setIsGrouped((value) => !value);
         },
     }),
     mapProps(({ configItems, ...rest }) => ({

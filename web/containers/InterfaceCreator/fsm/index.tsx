@@ -144,6 +144,8 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
 
+    console.log(fsm);
+
     const [states, setStates] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
     const [metadata, setMetadata] = useState<IFSMMetadata>({
         target_dir: fsm?.target_dir || null,
@@ -625,7 +627,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     setPan={setWrapperPan}
                     isHoldingShiftKey={isHoldingShiftKey}
                     zoom={zoom}
-                    items={map(states, (state) => ({ x: state.position.x, y: state.position.y }))}
+                    items={map(states, (state) => console.log(states) || { x: state.position.x, y: state.position.y })}
                 >
                     <StyledDiagram
                         key={JSON.stringify(wrapperDimensions)}

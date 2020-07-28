@@ -24,6 +24,7 @@ export interface IConfigItemManager {
     baseClassName: string;
     interfaceId: string;
     definitionsOnly?: boolean;
+    disableAdding?: boolean;
 }
 
 const StyledConfigManagerWrapper = styled.div`
@@ -58,6 +59,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     steps,
     definitionsOnly,
     stateData,
+    disableAdding,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<any>(false);
@@ -147,7 +149,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     return (
         <>
             <StyledConfigManagerWrapper>
-                {type !== 'workflow' && (
+                {type !== 'workflow' && !disableAdding ? (
                     <Button
                         name={'add-config-item'}
                         text={t('AddConfigItem')}
@@ -155,7 +157,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                         icon="add"
                         onClick={() => setShowConfigItemPanel(true)}
                     />
-                )}
+                ) : null}
                 <StyledSeparator />
                 <div>
                     {configItems.global_items && (
@@ -182,6 +184,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             onEditStructureClick={handleEditStructureClick}
                             onDeleteStructureClick={handleDeleteStructureClick}
                             onSubmit={handleSubmit}
+                            disableAdding={disableAdding}
                             type={type}
                         />
                     ) : null}
