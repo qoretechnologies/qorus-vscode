@@ -467,11 +467,11 @@ export abstract class InterfaceCreator {
         return result;
     }
 
-    protected static createConfigItemHeaders = (items: any[]): string => {
-        let result: string = 'config-items:\n';
+    protected static createConfigItemHeaders = (items: any[], indent_level = 0): string => {
+        let result: string = `${indent.repeat(indent_level)}config-items:\n`;
 
         for (const item of [...items]) {
-            result += `${list_indent}name: ${item.name}\n`;
+            result += `${indent.repeat(indent_level)}${list_indent}name: ${item.name}\n`;
 
             if (item['global-value']) {
                 globals.set(item);
@@ -482,7 +482,7 @@ export abstract class InterfaceCreator {
 
             for (const tag of ['value', 'local-value', 'default_value']) {
                 if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
-                    result += `${indent}${tag === 'local-value' ? 'value' : tag}:\n`;
+                    result += `${indent.repeat(indent_level + 1)}${tag === 'local-value' ? 'value' : tag}:\n`;
 
                     let type = item.type;
                     if (type === 'any') {
@@ -503,20 +503,20 @@ export abstract class InterfaceCreator {
                             lines.pop();
                         }
                         if (non_star_type === 'list') {
-                            result += lines.map((str) => `${indent}  ${str}`).join('\n') + '\n';
+                            result += lines.map((str) => `${indent.repeat(indent_level + 1)}  ${str}`).join('\n') + '\n';
                         } else {
-                            result += lines.map((str) => `${indent}${indent}${str}`).join('\n') + '\n';
+                            result += lines.map((str) => `${indent.repeat(indent_level + 2)}${str}`).join('\n') + '\n';
                         }
                     } else {
-                        result += `${indent}${indent}${JSON.stringify(item[tag])}\n`;
+                        result += `${indent.repeat(indent_level + 2)}${JSON.stringify(item[tag])}\n`;
                     }
                 }
             }
 
             if (item.parent) {
-                result += `${indent}parent:\n`;
+                result += `${indent.repeat(indent_level + 1)}parent:\n`;
                 for (const tag in item.parent) {
-                    result += `${indent}${indent}${tag}: ${quotesIfNum(item.parent[tag])}\n`;
+                    result += `${indent.repeat(indent_level + 2)}${tag}: ${quotesIfNum(item.parent[tag])}\n`;
                 }
             }
 
@@ -552,21 +552,20 @@ export abstract class InterfaceCreator {
                     (has_parent_data && item[tag] !== item.parent_data[tag])
                 ) {
                     if (Array.isArray(item[tag])) {
-                        result += `${indent}${tag}:\n`;
+                        result += `${indent.repeat(indent_level + 1)}${tag}:\n`;
                         for (let entry of item[tag]) {
-                            result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
+                            result += `${indent.repeat(indent_level + 1)}${list_indent}${JSON.stringify(entry)}\n`;
                         }
                     } else {
                         switch (tag) {
                             case 'type':
-                                result +=
-                                    `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                result += `${indent.repeat(indent_level + 1)}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: ` + InterfaceCreator.indentYamlDump(item[tag], 1, false);
+                                result += `${indent.repeat(indent_level + 1)}${tag}: ` + InterfaceCreator.indentYamlDump(item[tag], 1, false);
                                 break;
                             default:
-                                result += `${indent}${tag}: ${item[tag]}\n`;
+                                result += `${indent.repeat(indent_level + 1)}${tag}: ${item[tag]}\n`;
                         }
                     }
                 }
