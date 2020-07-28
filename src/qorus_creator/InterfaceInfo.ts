@@ -621,10 +621,15 @@ export class InterfaceInfo {
 
         const {name: state_name, class_name: state_class_name} = state_data;
         if (state_name) {
+            if (!this.iface_by_id[iface_id].states[state_name]) {
+                this.iface_by_id[iface_id].states[state_name] = {
+                    'config-items': []
+                };
+            }
             if (state_class_name !== this.iface_by_id[iface_id].states[state_name].class_name) {
                 this.removeStateClass(iface_id, state_name);
             }
-            this.addClassConfigItems(iface_id, state_name, '', state_class_name);
+            this.addClassConfigItems(iface_id, state_class_name, '', state_name);
             this.iface_by_id[iface_id].states[state_name].class_name = state_class_name;
         }
 
@@ -737,7 +742,7 @@ export class InterfaceInfo {
             });
         } else {
             if (state_name) {
-                const state = (this.iface_by_id[iface_id].states || []).find(state2 => state2.name === state_name);
+                const state = this.iface_by_id[iface_id].states[state_name];
                 items = [ ...state?.['config-items'] || [] ];
             } else {
                 items = [ ...this.iface_by_id[iface_id]['config-items'] || [] ];
