@@ -14,6 +14,7 @@ import Tab from './tab';
 import TypeView from './typeView';
 import WorkflowsView, { CreatorWrapper } from './workflowsView';
 import FSMView from './fsm';
+import Pipeline from './pipeline';
 
 export interface ICreateInterface {
     initialData: any;
@@ -26,11 +27,16 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
-                    {initialData.subtab === 'fsm' && <FSMView 
-                        fsm={initialData.fsm}
-                        onSubmitSuccess={onSubmit}
-                        interfaceContext={context}
-                    />}
+                    {initialData.subtab === 'fsm' && (
+                        <FSMView fsm={initialData.fsm} onSubmitSuccess={onSubmit} interfaceContext={context} />
+                    )}
+                    {initialData.subtab === 'pipeline' && (
+                        <Pipeline
+                            pipeline={initialData.pipeline}
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                        />
+                    )}
                     {initialData.subtab === 'service' && (
                         <ServicesView
                             service={initialData.service}
