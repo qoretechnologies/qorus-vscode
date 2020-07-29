@@ -358,6 +358,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             undefined,
             {
                 iface_kind: 'fsm',
+                iface_id: interfaceId,
                 orig_data: fsm,
                 data: {
                     ...metadata,
