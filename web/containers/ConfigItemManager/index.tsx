@@ -122,7 +122,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             parent_class: parent,
             iface_kind: type,
             is_templated_string: isTemplatedString,
-            state_name: stateData.name,
+            state_id: stateData.id,
         });
     };
 
@@ -132,7 +132,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_id: interfaceId,
             name: configItemName,
             iface_kind: type,
-            state_name: stateData.name,
+            state_id: stateData.id,
         });
     };
 
@@ -142,7 +142,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_id: interfaceId,
             name: configItemName,
             iface_kind: type,
-            state_name: stateData.name,
+            state_id: stateData.id,
         });
     };
 

@@ -4,6 +4,7 @@ import filter from 'lodash/filter';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import compose from 'recompose/compose';
 import cloneDeep from 'lodash/cloneDeep';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
@@ -28,6 +29,7 @@ import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
+import withMessageHandler from '../../../hocomponents/withMessageHandler';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -135,7 +137,7 @@ const StyledFSMCircle = styled.circle`
 let currentXPan: number;
 let currentYPan: number;
 
-const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext }) => {
+const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext, postMessage }) => {
     const t = useContext(TextContext);
     const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
@@ -424,6 +426,11 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 },
                 {}
             );
+
+            postMessage('remove-fsm-state', {
+                iface_id: interfaceId,
+                state_id: id,
+            });
 
             return newStates;
         });
@@ -742,4 +749,4 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     );
 };
 
-export default withGlobalOptionsConsumer()(FSMView);
+export default compose(withGlobalOptionsConsumer(), withMessageHandler())(FSMView);

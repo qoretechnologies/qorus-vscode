@@ -294,7 +294,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 >
                     <ConfigItemManager
                         type="fsm"
-                        stateData={{ name: newData.name, class_name: newData.action?.value?.['class'] }}
+                        stateData={{ id, class_name: newData.action?.value?.['class'] }}
                         interfaceId={interfaceId}
                         disableAdding
                     />
