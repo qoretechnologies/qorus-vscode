@@ -12,7 +12,7 @@ export default class WorkflowStepDependencyParser {
             if (!this.stepDependencyMap[step]) {
                 this.stepDependencyMap[step] = [];
             }
-            predecessors.forEach(preStep => {
+            predecessors.forEach((preStep) => {
                 this.stepDependencyMap[step].push(preStep);
             });
         } else {
@@ -39,11 +39,11 @@ export default class WorkflowStepDependencyParser {
         steps = isArray(steps) ? steps : [steps];
         steps.forEach((step_list_entry: [] | string): void => {
             if (typeof step_list_entry === 'object') {
-                step_list_entry.forEach(deep_step => {
+                step_list_entry.forEach((deep_step) => {
                     this.processWorkflowSteps(deep_step, predecessors);
                 });
                 predecessors = [];
-                step_list_entry.forEach(deep_step => {
+                step_list_entry.forEach((deep_step) => {
                     this.getLastStep(predecessors, deep_step);
                 });
             } else {
@@ -63,7 +63,7 @@ export default class WorkflowStepDependencyParser {
     getLastStep(predecessors, step) {
         if (typeof step === 'object') {
             if (typeof step[step.length - 1] === 'object') {
-                step[step.length - 1].forEach(innerStep => {
+                step[step.length - 1].forEach((innerStep) => {
                     this.getLastStep(predecessors, innerStep);
                 });
             } else {
