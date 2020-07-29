@@ -268,6 +268,9 @@ class QorusWebview {
                         case 'config-item-type-changed':
                             creator.configItemTypeChanged(message);
                             break;
+                        case 'remove-fsm-state':
+                            interface_info.removeFsmState(message);
+                            break;
                         case 'lang-changed':
                             creator.langChanged(message);
                             break;

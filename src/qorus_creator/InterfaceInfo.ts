@@ -569,6 +569,12 @@ export class InterfaceInfo {
         }));
     }
 
+    removeFsmState = ({iface_id, state_id}) => {
+        if (this.iface_by_id[iface_id]?.states?.[state_id]) {
+            delete this.iface_by_id[iface_id].states[state_id];
+        }
+    }
+
     getConfigItems = params => {
         this.code_info.waitForPending(['yaml']).then(() => this.getConfigItemsImpl(params));
     }
