@@ -651,6 +651,8 @@ export abstract class InterfaceCreator {
             }
         });
 
+        const iface_data = this.code_info.interface_info.getInfo(iface_id);
+
         for (const tag of ordered_tags) {
             if (
                 [
@@ -790,11 +792,20 @@ export abstract class InterfaceCreator {
                     case 'fsm_options':
                     case 'typeinfo':
                     case 'staticdata-type':
-                    case 'states':
                     case 'context':
                         result +=
                             `${['mapper_options', 'fsm_options'].includes(tag) ? 'options' : tag}:\n` +
                             InterfaceCreator.indentYamlDump(value, 1, true);
+                        break;
+                    case 'states':
+                        result += `${tag}:\n`;
+                        Object.keys(value).forEach(id => {
+                            result += `${indent}'${id}':\n` +
+                                InterfaceCreator.indentYamlDump(value[id], 2, true);
+                            if (iface_data?.states[id]?.['config-items']?.length) {
+                                result += InterfaceCreator.createConfigItemHeaders(iface_data.states[id]['config-items'], 2);
+                            }
+                        });
                         break;
                     case 'desc':
                     case 'description':
@@ -832,13 +843,11 @@ export abstract class InterfaceCreator {
             }
         }
 
-        const iface_data = this.code_info.interface_info.getInfo(iface_id);
-        const hasArrayTag = tag => iface_data && iface_data[tag] && iface_data[tag].length;
-        if (hasArrayTag('config-items')) {
+        if (iface_data?.['config-items']?.length) {
             result += InterfaceCreator.createConfigItemHeaders(iface_data['config-items']);
         }
 
-        if (iface_kind === 'workflow' && hasArrayTag('config-item-values')) {
+        if (iface_kind === 'workflow' && iface_data?.['config-item-values']?.length) {
             result += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']},
                                       {indent: 2, skipInvalid: true})
                             .replace(/\r?\n  -\r?\n/g, '\n  - ');
