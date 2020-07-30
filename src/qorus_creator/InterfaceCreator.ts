@@ -575,7 +575,7 @@ export abstract class InterfaceCreator {
         return result;
     }
 
-    protected createHeaders = (headers: any): string => {
+    protected createHeaders = (headers: any, iface_id: string, iface_kind?: string): string => {
         let result: string = '';
 
         const classes_or_requires = headers.type === 'class' ? 'requires' : 'classes';
@@ -830,6 +830,18 @@ export abstract class InterfaceCreator {
                         result += `${tag}: ${value}\n`;
                 }
             }
+        }
+
+        const iface_data = this.code_info.interface_info.getInfo(iface_id);
+        const hasArrayTag = tag => iface_data && iface_data[tag] && iface_data[tag].length;
+        if (hasArrayTag('config-items')) {
+            result += InterfaceCreator.createConfigItemHeaders(iface_data['config-items']);
+        }
+
+        if (iface_kind === 'workflow' && hasArrayTag('config-item-values')) {
+            result += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']},
+                                      {indent: 2, skipInvalid: true})
+                            .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 
         return result;

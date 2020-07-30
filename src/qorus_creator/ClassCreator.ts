@@ -1,5 +1,4 @@
 import { workspace, window } from 'vscode';
-import * as jsyaml from 'js-yaml';
 
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
@@ -166,19 +165,7 @@ class ClassCreator extends InterfaceCreator {
                 ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
                 : {},
             code: this.rel_file_path
-        });
-
-        const iface_data = this.code_info.interface_info.getInfo(iface_id);
-        const hasArrayTag = tag => iface_data && iface_data[tag] && iface_data[tag].length;
-        if (hasArrayTag('config-items')) {
-            headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
-        }
-
-        if (iface_kind === 'workflow' && hasArrayTag('config-item-values')) {
-            headers += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']},
-                                       {indent: 2, skipInvalid: true})
-                             .replace(/\r?\n  -\r?\n/g, '\n  - ');
-        }
+        }, iface_id, iface_kind);
 
         if (this.has_code) {
             if (this.writeFiles(contents, headers)) {

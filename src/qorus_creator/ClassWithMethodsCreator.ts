@@ -113,12 +113,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
             code: this.rel_file_path
-        });
-
-        const iface_data = this.code_info.interface_info.getInfo(iface_id);
-        if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
-            headers += ClassWithMethodsCreator.createConfigItemHeaders(iface_data['config-items']);
-        }
+        }, iface_id);
 
         if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
             if (edit_type !== 'create') {
