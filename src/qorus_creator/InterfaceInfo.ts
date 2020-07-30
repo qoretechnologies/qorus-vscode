@@ -123,6 +123,7 @@ export class InterfaceInfo {
         state_id
     }) => {
         this.maybeInitIfaceId(iface_id, iface_kind);
+        const state_data = { id: state_id };
         if (!level) {
             msg.log(t`LevelNeededToUpdateCIValue`);
 
@@ -130,12 +131,12 @@ export class InterfaceInfo {
                 this.addClassConfigItems(iface_id, parent_class);
             }
 
-            this.getConfigItems({iface_id, iface_kind, state_id});
+            this.getConfigItems({iface_id, iface_kind, state_data});
 
             return;
         }
 
-        if (['step', 'job', 'service', 'class'].includes(level)) {
+        if (['step', 'job', 'service', 'class', 'fsm'].includes(level)) {
             level = 'local';
         }
 
@@ -202,7 +203,7 @@ export class InterfaceInfo {
             }
         }
 
-        this.getConfigItems({iface_id, iface_kind, state_id});
+        this.getConfigItems({iface_id, iface_kind, state_data});
     }
 
     updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type, state_id}) => {
@@ -305,7 +306,15 @@ export class InterfaceInfo {
         });
 
         const {'base-class-name': base_class_name, classes, requires, steps} = iface;
-        this.getConfigItems({iface_id, iface_kind, 'base-class-name': base_class_name, classes, requires, steps, state_id});
+        this.getConfigItems({
+             iface_id,
+             iface_kind,
+             'base-class-name': base_class_name,
+             classes,
+             requires,
+             steps,
+             state_data: {id: state_id}
+        });
     }
 
     deleteConfigItem = ({iface_id, iface_kind, name, state_id}) => {
@@ -330,7 +339,7 @@ export class InterfaceInfo {
             msg.error(t`ConfigItemNotFound ${name}`);
         }
 
-        this.getConfigItems({iface_id, iface_kind, state_id});
+        this.getConfigItems({iface_id, iface_kind, state_data: {id: state_id}});
     }
 
     private configItemInheritedData = this_item => {
