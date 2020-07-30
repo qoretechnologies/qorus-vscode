@@ -59,7 +59,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 iface_kind: 'fsm',
                 iface_id: interfaceId,
                 state_data: {
-                    name: newData.name,
+                    id,
                     class_name: newData.action.value['class'],
                 },
             });
