@@ -665,6 +665,7 @@ export abstract class InterfaceCreator {
                     'output_field_option_types',
                     'active_method',
                     'yaml_file',
+                    'config-items',
                     'config-item-values',
                     'class-class-name',
                 ].includes(tag)
@@ -800,6 +801,7 @@ export abstract class InterfaceCreator {
                     case 'states':
                         result += `${tag}:\n`;
                         Object.keys(value).forEach(id => {
+                            delete value[id]['config-items'];
                             result += `${indent}'${id}':\n` +
                                 InterfaceCreator.indentYamlDump(value[id], 2, true);
                             if (iface_data?.states[id]?.['config-items']?.length) {

@@ -196,6 +196,7 @@ export class InterfaceInfo {
                         item['remove-global-value'] = true;
                     }
                 } else {
+                    delete item.value;
                     item[level + '-value'] = parseIfComplex(item);
                     item[templated_key] = is_templated_string;
                     item.value_true_type = value_true_type;
