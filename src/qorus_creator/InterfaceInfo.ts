@@ -190,13 +190,13 @@ export class InterfaceInfo {
             if (item === undefined) {
                 msg.error(t`ConfigItemNotFound ${name}`);
             } else {
+                delete item.value;
                 if (value === null && remove) {
                     delete item[level + '-value'];
                     if (level === 'global') {
                         item['remove-global-value'] = true;
                     }
                 } else {
-                    delete item.value;
                     item[level + '-value'] = parseIfComplex(item);
                     item[templated_key] = is_templated_string;
                     item.value_true_type = value_true_type;
