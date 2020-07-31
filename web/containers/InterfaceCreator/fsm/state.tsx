@@ -131,6 +131,20 @@ const StyledStateAction = styled.p`
     font-size: 12px;
 `;
 
+export const calculateFontSize = (name, isAction?: boolean) => {
+    if (!name) {
+        return undefined;
+    }
+
+    const len = name.length;
+
+    if (len > 20) {
+        return isAction ? '10px' : '12px';
+    }
+
+    return undefined;
+};
+
 const FSMState: React.FC<IFSMStateProps> = ({
     position,
     id,
@@ -168,16 +182,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
 
     const handleMouseLeave = () => {
         setIsHovered(false);
-    };
-
-    const calculateFontSize = (isAction) => {
-        const len = name.length;
-
-        if (len > 20) {
-            return isAction ? '10px' : '12px';
-        }
-
-        return undefined;
     };
 
     return (
@@ -245,9 +249,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 });
             }}
         >
-            <StyledStateName style={{ fontSize: calculateFontSize() }}>{name}</StyledStateName>
+            <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
             {action && (
-                <StyledStateAction style={{ fontSize: calculateFontSize(true) }}>{action.type}</StyledStateAction>
+                <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>{action.type}</StyledStateAction>
             )}
             {isHovered && (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>

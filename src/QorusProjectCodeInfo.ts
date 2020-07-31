@@ -567,6 +567,18 @@ export class QorusProjectCodeInfo {
                         postMessage('objects', classes);
                     });
                     break;
+            case 'class-with-processor':
+                this.waitForPending(['yaml']).then(() => {
+                    const classes = filter(this.yaml_info.yamlDataByType('class'), ({ processor }) => {
+                        return !!processor;
+                    }).map(({ name, desc, ...rest}) => ({
+                        name,
+                        desc,
+                        processor: rest.processor,
+                    }))
+                    postMessage('objects', classes);
+                });
+                break;
             case 'service-base-class':
                 this.waitForPending(['yaml']).then(() =>
                     postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(lang), [root_service]))

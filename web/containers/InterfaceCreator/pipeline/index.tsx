@@ -1,35 +1,25 @@
 import React, { useContext, useRef, useState } from 'react';
 
-import filter from 'lodash/filter';
-import map from 'lodash/map';
-import reduce from 'lodash/reduce';
-import size from 'lodash/size';
-import { useDrop, XYCoord } from 'react-dnd';
-import useMount from 'react-use/lib/useMount';
-import styled from 'styled-components';
+import set from 'lodash/set';
+import get from 'lodash/get';
+import omit from 'lodash/omit';
 import Tree from 'react-d3-tree';
+import styled from 'styled-components';
 
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core';
 
 import FileString from '../../../components/Field/fileString';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
-import { Messages } from '../../../constants/messages';
+import { ContextMenuContext } from '../../../context/contextMenu';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
-import FSMDiagramWrapper from './diagramWrapper';
-import FSMState from './state';
-import FSMStateDialog, { TAction } from './stateDialog';
-import FSMToolbarItem from './toolbarItem';
-import FSMTransitionDialog from './transitionDialog';
-import { transformPipelineData } from '../../../helpers/pipeline';
-import WorkflowStepDependencyParser from '../../../helpers/StepDependencyParser';
-
-const stepsParser = new WorkflowStepDependencyParser();
+import PipelineElementDialog from './elementDialog';
+import { calculateFontSize } from '../fsm/state';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -70,94 +60,96 @@ const StyledDiagramWrapper = styled.div<{ path: string }>`
     background: ${({ path }) => `url(${`${path}/images/tiny_grid.png`})`};
 `;
 
+const StyledNodeLabel = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+
+    span {
+        text-align: center;
+    }
+`;
+
+const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
+    const { addMenu } = useContext(ContextMenuContext);
+    const t = useContext(TextContext);
+
+    return (
+        <StyledNodeLabel
+            onContextMenu={(event) => {
+                if (nodeData.type === 'start') {
+                    return;
+                }
+
+                event.persist();
+
+                const menu = {
+                    event,
+                    data: [
+                        {
+                            item: t('Edit'),
+                            onClick: () => onEditClick(nodeData),
+                            icon: 'edit',
+                            intent: 'warning',
+                        },
+                        {
+                            item: t('Delete'),
+                            onClick: () => onDeleteClick(nodeData),
+                            icon: 'trash',
+                            intent: 'danger',
+                        },
+                    ],
+                };
+
+                if (nodeData.type === 'queue') {
+                    menu.data.unshift({
+                        item: t('AddElement'),
+                        onClick: () => onAddClick({ parentPath: nodeData.path }),
+                        icon: 'add',
+                        intent: 'none',
+                    });
+                }
+
+                menu.data.unshift({
+                    title: nodeData.name,
+                });
+
+                addMenu(menu);
+            }}
+        >
+            <span style={{ fontSize: calculateFontSize(nodeData.name) }}>{nodeData.name}</span>
+            {nodeData.type !== 'start' && (
+                <span style={{ fontSize: calculateFontSize(nodeData.name, true) }} className={Classes.TEXT_MUTED}>
+                    {nodeData.type}
+                </span>
+            )}
+        </StyledNodeLabel>
+    );
+};
+
 const PipelineView: React.FC<IPipelineViewProps> = () => {
     const wrapperRef = useRef(null);
     const t = useContext(TextContext);
     const { sidebarOpen, path, image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
 
-    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
-    const [metadata, setMetadata] = useState<IPipelineMetadata>({
-        target_dir: pipeline?.target_dir || null,
-        name: pipeline?.name || null,
-        desc: pipeline?.desc || null,
-        elements: pipeline?.elements || [],
-    });
+    const transformNodeData = (data, path) => {
+        return data.reduce((newData, item, index) => {
+            const newItem = { ...item };
 
-    const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
-        setMetadata((cur) => ({
-            ...cur,
-            [name]: value,
-        }));
+            newItem.nodeSvgShape = getNodeShapeData(item.type);
+            newItem.path = `${path}[${index}]`;
+
+            if (item.children) {
+                newItem.children = transformNodeData(newItem.children, `${newItem.path}.children`);
+            }
+
+            return [...newData, newItem];
+        }, []);
     };
-
-    const reset = () => {
-        //setStates({});
-        setMetadata({
-            name: null,
-            desc: null,
-            target_dir: null,
-            elements: pipeline?.elements || [],
-        });
-    };
-
-    let testingData = [
-        { type: 'mapper', name: 'MyMapper' },
-        {
-            type: 'queue',
-            name: 'MyQueue1',
-            children: [
-                { type: 'processor', name: 'MyProcessor' },
-                {
-                    type: 'queue',
-                    name: 'MyQueue1-1',
-                    children: [
-                        { type: 'mapper', name: 'MyMapper1-1-1' },
-                        { type: 'processor', name: 'MyProcessor1-1-1' },
-                    ],
-                },
-                {
-                    type: 'queue',
-                    name: 'MyQueue1-2',
-                    children: [
-                        { type: 'processor', name: 'MyProcessor1-2-1' },
-                        {
-                            type: 'queue',
-                            name: 'MyQueue1-2-1',
-                            children: [{ type: 'mapper', name: 'MyMapper1-2-1-1' }],
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            type: 'queue',
-            name: 'MyQueue1',
-            children: [
-                { type: 'processor', name: 'MyProcessor' },
-                {
-                    type: 'queue',
-                    name: 'MyQueue1-1',
-                    children: [
-                        { type: 'mapper', name: 'MyMapper1-1-1' },
-                        { type: 'processor', name: 'MyProcessor1-1-1' },
-                    ],
-                },
-                {
-                    type: 'queue',
-                    name: 'MyQueue1-2',
-                    children: [
-                        { type: 'processor', name: 'MyProcessor1-2-1' },
-                        {
-                            type: 'queue',
-                            name: 'MyQueue1-2-1',
-                            children: [{ type: 'mapper', name: 'MyMapper1-2-1-1' }],
-                        },
-                    ],
-                },
-            ],
-        },
-    ];
 
     const getNodeShapeData = (type: string) => {
         switch (type) {
@@ -196,27 +188,157 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
         }
     };
 
-    const transformNodeData = (data, path) => {
-        return data.reduce((newData, item, index) => {
-            const newItem = { ...item };
+    const [selectedElement, setSelectedElement] = useState<IPipelineElement | null>(null);
+    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
+    const [metadata, setMetadata] = useState<IPipelineMetadata>({
+        target_dir: pipeline?.target_dir || null,
+        name: pipeline?.name || null,
+        desc: pipeline?.desc || null,
+        elements: pipeline?.elements || [],
+    });
+    const [elements, setElements] = useState<IPipelineElement[]>(
+        transformNodeData(
+            [
+                {
+                    type: 'start',
+                    children: pipeline?.children || [
+                        { type: 'mapper', name: 'MyMapper' },
+                        {
+                            type: 'queue',
+                            name: 'MyQueue1',
+                            children: [
+                                { type: 'processor', name: 'MyProcessor' },
+                                {
+                                    type: 'queue',
+                                    name: 'MyQueue1-1',
+                                    children: [
+                                        { type: 'mapper', name: 'MyMapper1-1-1' },
+                                        { type: 'processor', name: 'MyProcessor1-1-1' },
+                                    ],
+                                },
+                                {
+                                    type: 'queue',
+                                    name: 'MyQueue1-2',
+                                    children: [
+                                        { type: 'processor', name: 'MyProcessor1-2-1' },
+                                        {
+                                            type: 'queue',
+                                            name: 'MyQueue1-2-1',
+                                            children: [{ type: 'mapper', name: 'MyMapper1-2-1-1' }],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        {
+                            type: 'queue',
+                            name: 'MyQueue1',
+                            children: [
+                                { type: 'processor', name: 'MyProcessor' },
+                                {
+                                    type: 'queue',
+                                    name: 'MyQueue1-1',
+                                    children: [
+                                        { type: 'mapper', name: 'MyMapper1-1-1' },
+                                        { type: 'processor', name: 'MyProcessor1-1-1' },
+                                    ],
+                                },
+                                {
+                                    type: 'queue',
+                                    name: 'MyQueue1-2',
+                                    children: [
+                                        { type: 'processor', name: 'MyProcessor1-2-1' },
+                                        {
+                                            type: 'queue',
+                                            name: 'MyQueue1-2-1',
+                                            children: [{ type: 'mapper', name: 'MyMapper1-2-1-1' }],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+            ''
+        )
+    );
 
-            newItem.nodeSvgShape = getNodeShapeData(item.type);
-            newItem.path = `${path}[${index}]`;
-
-            if (item.children) {
-                newItem.children = transformNodeData(newItem.children, `${newItem.path}.children`);
-            }
-
-            return [...newData, newItem];
-        }, []);
+    const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
+        setMetadata((cur) => ({
+            ...cur,
+            [name]: value,
+        }));
     };
 
-    testingData = transformNodeData([{ type: 'start', children: testingData }], '');
+    const reset = () => {
+        //setStates({});
+        setMetadata({
+            name: null,
+            desc: null,
+            target_dir: null,
+            elements: pipeline?.elements || [],
+        });
+    };
 
-    console.log(testingData);
+    const handleDataSubmit = (data) => {
+        setElements((cur) => {
+            let result = [...cur];
+            // We are adding a child to a queue
+            if (data.parentPath) {
+                const children = get(result, `${data.parentPath}.children`);
+                // Push the new item
+                children.push(omit(data, ['parentPath']));
+            } else {
+                set(result, data.path, data);
+            }
+
+            result = transformNodeData(result, '');
+
+            return result;
+        });
+    };
+
+    const filterRemovedElements = (data) =>
+        data.reduce((newData, element) => {
+            if (!element) {
+                return newData;
+            }
+            if (element.children) {
+                return [
+                    ...newData,
+                    {
+                        ...element,
+                        children: filterRemovedElements(element.children),
+                    },
+                ];
+            }
+
+            return [...newData, element];
+        }, []);
+
+    const removeElement = (elementData: IPipelineElement) => {
+        setElements((cur) => {
+            let result = [...cur];
+
+            set(result, elementData.path, undefined);
+
+            result = filterRemovedElements(result);
+            result = transformNodeData(result, '');
+
+            return result;
+        });
+    };
 
     return (
         <>
+            {selectedElement && (
+                <PipelineElementDialog
+                    data={selectedElement}
+                    onClose={() => setSelectedElement(null)}
+                    onSubmit={handleDataSubmit}
+                />
+            )}
             <div id="pipeline-fields-wrapper">
                 {!isMetadataHidden && (
                     <>
@@ -266,15 +388,31 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
             <StyledDiagramWrapper ref={wrapperRef} id="pipeline-diagram" path={image_path}>
                 {wrapperRef.current && (
                     <Tree
-                        data={testingData}
+                        data={elements}
                         orientation="vertical"
                         pathFunc="straight"
                         translate={{ x: wrapperRef.current.getBoundingClientRect().width / 2, y: 100 }}
                         nodeSize={{ x: 250, y: 250 }}
                         onClick={(nodeData) => console.log(nodeData)}
-                        onLinkClick={(source, target) => console.log(source, target)}
+                        transitionDuration={0}
                         textLayout={{
                             textAnchor: 'middle',
+                        }}
+                        allowForeignObjects
+                        nodeLabelComponent={{
+                            render: (
+                                <NodeLabel
+                                    onEditClick={setSelectedElement}
+                                    onAddClick={setSelectedElement}
+                                    onDeleteClick={(elementData) => removeElement(elementData)}
+                                />
+                            ),
+                            foreignObjectWrapper: {
+                                width: '200px',
+                                height: '60px',
+                                y: -30,
+                                x: -100,
+                            },
                         }}
                         collapsible={false}
                         styles={{
