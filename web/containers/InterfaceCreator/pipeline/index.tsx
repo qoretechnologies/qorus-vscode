@@ -73,135 +73,8 @@ const StyledNodeLabel = styled.div`
     }
 `;
 
-const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
-    const { addMenu } = useContext(ContextMenuContext);
-    const t = useContext(TextContext);
+/*
 
-    return (
-        <StyledNodeLabel
-            onContextMenu={(event) => {
-                if (nodeData.type === 'start') {
-                    return;
-                }
-
-                event.persist();
-
-                const menu = {
-                    event,
-                    data: [
-                        {
-                            item: t('Edit'),
-                            onClick: () => onEditClick(nodeData),
-                            icon: 'edit',
-                            intent: 'warning',
-                        },
-                        {
-                            item: t('Delete'),
-                            onClick: () => onDeleteClick(nodeData),
-                            icon: 'trash',
-                            intent: 'danger',
-                        },
-                    ],
-                };
-
-                if (nodeData.type === 'queue') {
-                    menu.data.unshift({
-                        item: t('AddElement'),
-                        onClick: () => onAddClick({ parentPath: nodeData.path }),
-                        icon: 'add',
-                        intent: 'none',
-                    });
-                }
-
-                menu.data.unshift({
-                    title: nodeData.name,
-                });
-
-                addMenu(menu);
-            }}
-        >
-            <span style={{ fontSize: calculateFontSize(nodeData.name) }}>{nodeData.name}</span>
-            {nodeData.type !== 'start' && (
-                <span style={{ fontSize: calculateFontSize(nodeData.name, true) }} className={Classes.TEXT_MUTED}>
-                    {nodeData.type}
-                </span>
-            )}
-        </StyledNodeLabel>
-    );
-};
-
-const PipelineView: React.FC<IPipelineViewProps> = () => {
-    const wrapperRef = useRef(null);
-    const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
-    const { resetAllInterfaceData } = useContext(GlobalContext);
-
-    const transformNodeData = (data, path) => {
-        return data.reduce((newData, item, index) => {
-            const newItem = { ...item };
-
-            newItem.nodeSvgShape = getNodeShapeData(item.type);
-            newItem.path = `${path}[${index}]`;
-
-            if (item.children) {
-                newItem.children = transformNodeData(newItem.children, `${newItem.path}.children`);
-            }
-
-            return [...newData, newItem];
-        }, []);
-    };
-
-    const getNodeShapeData = (type: string) => {
-        switch (type) {
-            case 'mapper':
-            case 'processor':
-                return {
-                    shape: 'rect',
-                    shapeProps: {
-                        width: '200px',
-                        height: '60px',
-                        x: -100,
-                        y: -30,
-                        fill: '#fff',
-                        stroke: '#a9a9a9',
-                    },
-                };
-            case 'queue':
-                return {
-                    shape: 'ellipse',
-                    shapeProps: {
-                        rx: 100,
-                        ry: 30,
-                        fill: '#fff',
-                        stroke: '#a9a9a9',
-                    },
-                };
-            case 'start':
-                return {
-                    shape: 'circle',
-                    shapeProps: {
-                        r: 25,
-                        fill: '#d7d7d7',
-                        stroke: '#a9a9a9',
-                    },
-                };
-        }
-    };
-
-    const [selectedElement, setSelectedElement] = useState<IPipelineElement | null>(null);
-    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
-    const [metadata, setMetadata] = useState<IPipelineMetadata>({
-        target_dir: pipeline?.target_dir || null,
-        name: pipeline?.name || null,
-        desc: pipeline?.desc || null,
-        elements: pipeline?.elements || [],
-    });
-    const [elements, setElements] = useState<IPipelineElement[]>(
-        transformNodeData(
-            [
-                {
-                    type: 'start',
-                    children: pipeline?.children || [
                         { type: 'mapper', name: 'MyMapper' },
                         {
                             type: 'queue',
@@ -257,7 +130,149 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
                                 },
                             ],
                         },
-                    ],
+                    
+                        */
+
+const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
+    const { addMenu } = useContext(ContextMenuContext);
+    const t = useContext(TextContext);
+
+    return (
+        <StyledNodeLabel
+            onContextMenu={(event) => {
+                event.persist();
+
+                let menu = { event, data: [] };
+
+                if (nodeData.type !== 'start') {
+                    menu.data.unshift({
+                        item: t('Edit'),
+                        onClick: () => onEditClick(nodeData),
+                        icon: 'edit',
+                        intent: 'warning',
+                    });
+                    menu.data.unshift({
+                        item: t('Delete'),
+                        onClick: () => onDeleteClick(nodeData),
+                        icon: 'trash',
+                        intent: 'danger',
+                    });
+                }
+
+                if (nodeData.type === 'queue' || nodeData.type === 'start') {
+                    menu.data.unshift({
+                        item: t('AddElement'),
+                        onClick: () => onAddClick({ parentPath: nodeData.path }),
+                        icon: 'add',
+                        intent: 'none',
+                    });
+                }
+
+                menu.data.unshift({
+                    title: nodeData.name || t('Start'),
+                });
+
+                addMenu(menu);
+            }}
+        >
+            <span style={{ fontSize: calculateFontSize(nodeData.name) }}>{nodeData.name}</span>
+            {nodeData.type !== 'start' && (
+                <span style={{ fontSize: calculateFontSize(nodeData.name, true) }} className={Classes.TEXT_MUTED}>
+                    {nodeData.type}
+                </span>
+            )}
+        </StyledNodeLabel>
+    );
+};
+
+const PipelineView: React.FC<IPipelineViewProps> = () => {
+    const wrapperRef = useRef(null);
+    const t = useContext(TextContext);
+    const { sidebarOpen, path, image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
+    const { resetAllInterfaceData } = useContext(GlobalContext);
+
+    const transformNodeData = (data, path) => {
+        return data.reduce((newData, item, index) => {
+            const newItem = { ...item };
+
+            newItem.nodeSvgShape = getNodeShapeData(item.type, item.children);
+            newItem.path = `${path}[${index}]`;
+
+            if (item.children) {
+                newItem.children = transformNodeData(newItem.children, `${newItem.path}.children`);
+            }
+
+            return [...newData, newItem];
+        }, []);
+    };
+
+    const isDataValid = (data) => {
+        return data.reduce((isValid, item) => {
+            if (item.type === 'queue' || item.type === 'start') {
+                if (item.children && item.children.length > 0) {
+                    if (!isDataValid(item.children)) {
+                        isValid = false;
+                    }
+                } else {
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }, true);
+    };
+
+    const getNodeShapeData = (type: string, children: any[]) => {
+        switch (type) {
+            case 'mapper':
+            case 'processor':
+                return {
+                    shape: 'rect',
+                    shapeProps: {
+                        width: '200px',
+                        height: '60px',
+                        x: -100,
+                        y: -30,
+                        fill: '#fff',
+                        stroke: '#a9a9a9',
+                    },
+                };
+            case 'queue':
+                return {
+                    shape: 'ellipse',
+                    shapeProps: {
+                        rx: 100,
+                        ry: 30,
+                        fill: children.length === 0 ? '#fddcd4' : '#fff',
+                        stroke: children?.length === 0 ? '#d13913' : '#a9a9a9',
+                    },
+                };
+            case 'start':
+                return {
+                    shape: 'circle',
+                    shapeProps: {
+                        r: 25,
+                        fill: '#d7d7d7',
+                        stroke: '#a9a9a9',
+                    },
+                };
+        }
+    };
+
+    const [selectedElement, setSelectedElement] = useState<IPipelineElement | null>(null);
+    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
+    const [metadata, setMetadata] = useState<IPipelineMetadata>({
+        target_dir: pipeline?.target_dir || null,
+        name: pipeline?.name || null,
+        desc: pipeline?.desc || null,
+        elements: pipeline?.elements || [],
+    });
+    const [elements, setElements] = useState<IPipelineElement[]>(
+        transformNodeData(
+            [
+                {
+                    type: 'start',
+                    children: pipeline?.children || [],
                 },
             ],
             ''
@@ -474,7 +489,7 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
                         <Button
                             text={t('Submit')}
                             onClick={() => true}
-                            disabled={true}
+                            disabled={!isDataValid(elements)}
                             icon={'tick'}
                             intent={Intent.SUCCESS}
                         />
