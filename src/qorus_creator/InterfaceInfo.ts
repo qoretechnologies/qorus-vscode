@@ -25,7 +25,7 @@ export class InterfaceInfo {
         this.yaml_info = code_info.yaml_info;
     }
 
-    private maybeInitIfaceId = (iface_id, iface_kind) => {
+    private maybeInitIfaceId = ({iface_id, iface_kind, state_id = undefined}) => {
         if (!this.iface_by_id[iface_id]) {
             this.iface_by_id[iface_id] = {};
         }
@@ -36,8 +36,13 @@ export class InterfaceInfo {
         if (iface_kind === 'workflow' && !this.iface_by_id[iface_id]['config-item-values']) {
             this.iface_by_id[iface_id]['config-item-values'] = [];
         }
-        if (iface_kind === 'fsm' && !this.iface_by_id[iface_id].states) {
-            this.iface_by_id[iface_id].states = {};
+        if (iface_kind === 'fsm') {
+            if (!this.iface_by_id[iface_id].states) {
+                this.iface_by_id[iface_id].states = {};
+            }
+            if (state_id && !this.iface_by_id[iface_id].states[state_id]) {
+                this.iface_by_id[iface_id].states[state_id] = {};
+            }
         }
     }
 
@@ -88,10 +93,10 @@ export class InterfaceInfo {
     }
 
     addIfaceById = (data: any, iface_kind: string): string => {
-        const id = shortid.generate();
-        this.maybeInitIfaceId(id, iface_kind);
-        this.iface_by_id[id] = data;
-        return id;
+        const iface_id = shortid.generate();
+        this.maybeInitIfaceId({iface_id, iface_kind});
+        this.iface_by_id[iface_id] = data;
+        return iface_id;
     }
 
     getInfo = (id: string): any => {
@@ -122,7 +127,7 @@ export class InterfaceInfo {
         value_true_type,
         state_id
     }) => {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId({iface_id, iface_kind});
         const state_data = { id: state_id };
         if (!level) {
             msg.log(t`LevelNeededToUpdateCIValue`);
@@ -208,7 +213,7 @@ export class InterfaceInfo {
     }
 
     updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type, state_id}) => {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId({iface_id, iface_kind});
 
         let iface = this.iface_by_id[iface_id];
 /*
@@ -333,7 +338,7 @@ export class InterfaceInfo {
             config_items = iface['config-items'];
         }
 
-        const index = config_items.findIndex(item => item.name === name);
+        const index = (config_items || []).findIndex(item => item.name === name);
         if (index > -1) {
             config_items.splice(index, 1);
         } else {
@@ -388,6 +393,9 @@ export class InterfaceInfo {
             }
 
             if (state_id) {
+                if (!this.iface_by_id[iface_id].states[state_id]['config-items']) {
+                    this.iface_by_id[iface_id].states[state_id]['config-items'] = [];
+                }
                 const index = this.iface_by_id[iface_id].states[state_id]?.['config-items'].findIndex(item2 =>
                     item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
                 );
@@ -461,7 +469,7 @@ export class InterfaceInfo {
     }
 
     removeBaseClass = ({iface_id, iface_kind}) => {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId({iface_id, iface_kind});
         let iface = this.iface_by_id[iface_id];
 
         const base_class_name = iface['base-class-name'];
@@ -487,12 +495,14 @@ export class InterfaceInfo {
 
     removeStateClass = (iface_id, state_id) => {
         const state = this.iface_by_id[iface_id]?.states?.[state_id];
-        delete state?.class_name;
-        delete state?.['config-items'];
+        if (state) {
+            delete state.class_name;
+            delete state['config-items'];
+        }
     }
 
     removeAllClasses = ({iface_id, iface_kind}) => {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId({iface_id, iface_kind});
         this.removeClassesConfigItems(iface_id);
         delete this.iface_by_id[iface_id].classes;
         delete this.iface_by_id[iface_id].requires;
@@ -605,7 +615,8 @@ export class InterfaceInfo {
             return;
         }
 
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        const {id: state_id, class_name: state_class_name} = state_data;
+        this.maybeInitIfaceId({iface_id, iface_kind, state_id});
 
         const classes_key = requires ? 'requires' : 'classes';
         let classes_or_requires = requires ? requires : classes;
@@ -634,13 +645,7 @@ export class InterfaceInfo {
             class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
         });
 
-        const {id: state_id, class_name: state_class_name} = state_data;
         if (state_id) {
-            if (!this.iface_by_id[iface_id].states[state_id]) {
-                this.iface_by_id[iface_id].states[state_id] = {
-                    'config-items': []
-                };
-            }
             if (state_class_name !== this.iface_by_id[iface_id].states[state_id].class_name) {
                 this.removeStateClass(iface_id, state_id);
             }
