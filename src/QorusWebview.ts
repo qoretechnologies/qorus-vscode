@@ -260,7 +260,7 @@ class QorusWebview {
                             interface_info.updateConfigItemValue(message);
                             break;
                         case 'reset-config-items':
-                            interface_info.resetConfigItemsToOrig(message.iface_id);
+                            interface_info.resetConfigItemsToOrig(message);
                             break;
                         case 'delete-config-item':
                             interface_info.deleteConfigItem(message);
