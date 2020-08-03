@@ -95,6 +95,13 @@ export class InterfaceInfo {
     addIfaceById = (data: any, iface_kind: string): string => {
         const iface_id = shortid.generate();
         this.maybeInitIfaceId({iface_id, iface_kind});
+        if (iface_kind === 'fsm') {
+            (Object.keys(data.states) || []).forEach(state_id => {
+                if (data.states[state_id]?.action?.value?.class) {
+                    data.states[state_id].class_name = data.states[state_id].action.value.class;
+                }
+            });
+        }
         this.iface_by_id[iface_id] = data;
         return iface_id;
     }
@@ -127,7 +134,7 @@ export class InterfaceInfo {
         value_true_type,
         state_id
     }) => {
-        this.maybeInitIfaceId({iface_id, iface_kind});
+        this.maybeInitIfaceId({iface_id, iface_kind, state_id});
         const state_data = { id: state_id };
         if (!level) {
             msg.log(t`LevelNeededToUpdateCIValue`);
@@ -646,7 +653,7 @@ export class InterfaceInfo {
         });
 
         if (state_id) {
-            if (state_class_name !== this.iface_by_id[iface_id].states[state_id].class_name) {
+            if (state_class_name && state_class_name !== this.iface_by_id[iface_id].states[state_id].class_name) {
                 this.removeStateClass(iface_id, state_id);
             }
             this.addClassConfigItems(iface_id, state_class_name, '', state_id);
