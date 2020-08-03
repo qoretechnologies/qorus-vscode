@@ -40,13 +40,8 @@ export class InterfaceInfo {
             if (!this.iface_by_id[iface_id].states) {
                 this.iface_by_id[iface_id].states = {};
             }
-            if (state_id) {
-                if (!this.iface_by_id[iface_id].states[state_id]) {
-                    this.iface_by_id[iface_id].states[state_id] = {};
-                }
-                if (!this.iface_by_id[iface_id].states[state_id]['config-items']) {
-                    this.iface_by_id[iface_id].states[state_id]['config-items'] = [];
-                }
+            if (state_id && !this.iface_by_id[iface_id].states[state_id]) {
+                this.iface_by_id[iface_id].states[state_id] = {};
             }
         }
     }
@@ -398,6 +393,9 @@ export class InterfaceInfo {
             }
 
             if (state_id) {
+                if (!this.iface_by_id[iface_id].states[state_id]['config-items']) {
+                    this.iface_by_id[iface_id].states[state_id]['config-items'] = [];
+                }
                 const index = this.iface_by_id[iface_id].states[state_id]?.['config-items'].findIndex(item2 =>
                     item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
                 );
@@ -497,8 +495,10 @@ export class InterfaceInfo {
 
     removeStateClass = (iface_id, state_id) => {
         const state = this.iface_by_id[iface_id]?.states?.[state_id];
-        delete state?.class_name;
-        delete state?.['config-items'];
+        if (state) {
+            delete state.class_name;
+            delete state['config-items'];
+        }
     }
 
     removeAllClasses = ({iface_id, iface_kind}) => {
