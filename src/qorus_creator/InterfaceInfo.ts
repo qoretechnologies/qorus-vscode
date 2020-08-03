@@ -15,7 +15,6 @@ export class InterfaceInfo {
     private code_info: QorusProjectCodeInfo;
     private yaml_info: QorusProjectYamlInfo;
     private iface_by_id = {};
-    private are_orig_config_items_set: boolean = false;
 
     private last_conf_group: string | undefined;
     private last_other_if_kind: string | undefined; // one of ['Group', 'Event', 'Queue']
@@ -46,14 +45,15 @@ export class InterfaceInfo {
         }
     }
 
-    resetConfigItemsToOrig = iface_id => {
+    resetConfigItemsToOrig = ({iface_id, state_id}) => {
         if (!this.checkIfaceId(iface_id)) {
             return;
         }
 
         const iface = this.iface_by_id[iface_id];
         if (iface.type === 'fsm') {
-            (Object.keys(iface.states) || []).forEach(state_id => {
+            const state_ids = state_id ? [state_id] : (Object.keys(iface.states) || []);
+            state_ids.forEach(state_id => {
                 const state = iface.states[state_id];
                 state['config-items'] = deepCopy(state['orig-config-items'] || []);
                 state['orig-config-items'] = [];
@@ -62,7 +62,6 @@ export class InterfaceInfo {
             iface['config-items'] = deepCopy(iface['orig-config-items'] || []);
             iface['orig-config-items'] = [];
         }
-        this.are_orig_config_items_set = false;
     }
 
     setOrigConfigItems = (iface_id, report_unknown_iface_id = true) => {
@@ -79,7 +78,6 @@ export class InterfaceInfo {
         } else {
             iface['orig-config-items'] = deepCopy(iface['config-items'] || []);
         }
-        this.are_orig_config_items_set = true;
     }
 
     private checkIfaceId = (iface_id, report_unknown_iface_id = true): boolean => {
@@ -798,9 +796,5 @@ export class InterfaceInfo {
         }
 
         qorus_webview.postMessage(message);
-
-        if (!this.are_orig_config_items_set) {
-            this.setOrigConfigItems(iface_id);
-        }
     }
 }
