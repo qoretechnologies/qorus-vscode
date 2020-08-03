@@ -22,6 +22,7 @@ import { IFSMState, IFSMStates } from './';
 import ConnectorSelector from './connectorSelector';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import { Messages } from '../../../constants/messages';
+import { InitialContext } from '../../../context/init';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -52,9 +53,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const t = useContext(TextContext);
+    const { confirmAction } = useContext(InitialContext);
 
     useEffect(() => {
-        if (newData.action?.value?.['class'])
+        if (newData.action?.value?.['class']) {
+            console.log(newData.action.value);
             postMessage(Messages.GET_CONFIG_ITEMS, {
                 iface_kind: 'fsm',
                 iface_id: interfaceId,
@@ -63,6 +66,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     class_name: newData.action.value['class'],
                 },
             });
+        }
     }, [newData.action?.value?.['class']]);
 
     const handleDataUpdate = (name: string, value: any) => {
@@ -265,13 +269,28 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     text={t('Reset')}
                                     icon={'history'}
                                     onClick={() => {
-                                        setActionType(null);
-                                        setNewData(data);
+                                        confirmAction(
+                                            'ResetFieldsConfirm',
+                                            () => {
+                                                postMessage(Messages.RESET_CONFIG_ITEMS, {
+                                                    iface_id: interfaceId,
+                                                    state_id: id,
+                                                });
+                                                setActionType(data?.action?.type);
+                                                setNewData(data);
+                                            },
+                                            'Reset',
+                                            'warning'
+                                        );
                                     }}
                                 />
                             </Tooltip>
                             {newData.action?.value?.['class'] && (
-                                <ManageConfigItemsButton type="fsm" onClick={() => setShowConfigItemsManager(true)} />
+                                <ManageConfigItemsButton
+                                    type="fsm"
+                                    key={newData.action.value['class']}
+                                    onClick={() => setShowConfigItemsManager(true)}
+                                />
                             )}
                             <Button
                                 text={t('Submit')}

@@ -461,6 +461,9 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     ).sort((a, b) => a.order - b.order);
 
     const reset = () => {
+        postMessage(Messages.RESET_CONFIG_ITEMS, {
+            iface_id: interfaceId,
+        });
         setStates(cloneDeep(fsm?.states || {}));
         setMetadata({
             name: fsm?.name,
