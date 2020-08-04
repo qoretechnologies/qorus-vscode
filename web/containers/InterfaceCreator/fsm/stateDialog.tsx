@@ -298,7 +298,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                 icon={'tick'}
                                 name={`fsn-submit-state`}
                                 intent={Intent.SUCCESS}
-                                onClick={() => onSubmit(id, newData)}
+                                onClick={() => {
+                                    postMessage('submit-fsm-state', {
+                                        iface_id: interfaceId,
+                                        state_id: id,
+                                    });
+                                    onSubmit(id, newData)
+                                }}
                             />
                         </ButtonGroup>
                     </ActionsWrapper>
