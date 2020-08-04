@@ -107,6 +107,26 @@ const tutorials = {
             { id: 'pan-element-toolbar', title: 'tutorial-fsm-toolbar-title', text: 'tutorial-fsm-toolbar-content' },
         ],
     },
+    pipeline: {
+        elements: [
+            {
+                id: 'pipeline-interface-title',
+                title: 'tutorial-pipeline-title',
+                text: 'tutorial-pipeline-content',
+            },
+            {
+                id: 'pipeline-fields-wrapper',
+                title: 'tutorial-pipeline-fields-title',
+                text: 'tutorial-pipeline-fields-content',
+            },
+            {
+                id: 'pipeline-diagram',
+                title: 'tutorial-pipeline-diagram-title',
+                text: 'tutorial-fsm-diagram-content',
+            },
+            { id: 'pipeline-start', title: 'pipeline-start-title', text: 'pipeline-start-content' },
+        ],
+    },
 };
 
 const TutorialButton = ({ type, onClick }) => {

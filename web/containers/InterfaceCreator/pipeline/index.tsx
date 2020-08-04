@@ -73,72 +73,13 @@ const StyledNodeLabel = styled.div`
     }
 `;
 
-/*
-
-                        { type: 'mapper', name: 'MyMapper' },
-                        {
-                            type: 'queue',
-                            name: 'MyQueue1',
-                            children: [
-                                { type: 'processor', name: 'MyProcessor' },
-                                {
-                                    type: 'queue',
-                                    name: 'MyQueue1-1',
-                                    children: [
-                                        { type: 'mapper', name: 'MyMapper1-1-1' },
-                                        { type: 'processor', name: 'MyProcessor1-1-1' },
-                                    ],
-                                },
-                                {
-                                    type: 'queue',
-                                    name: 'MyQueue1-2',
-                                    children: [
-                                        { type: 'processor', name: 'MyProcessor1-2-1' },
-                                        {
-                                            type: 'queue',
-                                            name: 'MyQueue1-2-1',
-                                            children: [{ type: 'mapper', name: 'MyMapper1-2-1-1' }],
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                        {
-                            type: 'queue',
-                            name: 'MyQueue1',
-                            children: [
-                                { type: 'processor', name: 'MyProcessor' },
-                                {
-                                    type: 'queue',
-                                    name: 'MyQueue1-1',
-                                    children: [
-                                        { type: 'mapper', name: 'MyMapper1-1-1' },
-                                        { type: 'processor', name: 'MyProcessor1-1-1' },
-                                    ],
-                                },
-                                {
-                                    type: 'queue',
-                                    name: 'MyQueue1-2',
-                                    children: [
-                                        { type: 'processor', name: 'MyProcessor1-2-1' },
-                                        {
-                                            type: 'queue',
-                                            name: 'MyQueue1-2-1',
-                                            children: [{ type: 'mapper', name: 'MyMapper1-2-1-1' }],
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    
-                        */
-
 const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
     const { addMenu } = useContext(ContextMenuContext);
     const t = useContext(TextContext);
 
     return (
         <StyledNodeLabel
+            id={nodeData.type === 'start' ? 'pipeline-start' : undefined}
             onContextMenu={(event) => {
                 event.persist();
 
@@ -287,7 +228,18 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
     };
 
     const reset = () => {
-        //setStates({});
+        setElements(
+            transformNodeData(
+                [
+                    {
+                        type: 'start',
+                        children: pipeline?.children || [],
+                    },
+                ],
+                ''
+            )
+        );
+
         setMetadata({
             name: null,
             desc: null,
