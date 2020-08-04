@@ -30,7 +30,6 @@ export class InterfaceInfo {
         }
         if (hasConfigItems(iface_kind) && !this.iface_by_id[iface_id]['config-items']) {
             this.iface_by_id[iface_id]['config-items'] = [];
-            this.iface_by_id[iface_id]['orig-config-items'] = [];
         }
         if (iface_kind === 'workflow' && !this.iface_by_id[iface_id]['config-item-values']) {
             this.iface_by_id[iface_id]['config-item-values'] = [];
@@ -56,11 +55,9 @@ export class InterfaceInfo {
             state_ids.forEach(state_id => {
                 const state = iface.states[state_id];
                 state['config-items'] = deepCopy(state['orig-config-items'] || []);
-                state['orig-config-items'] = [];
             });
         } else {
             iface['config-items'] = deepCopy(iface['orig-config-items'] || []);
-            iface['orig-config-items'] = [];
         }
     }
 
@@ -101,6 +98,7 @@ export class InterfaceInfo {
             });
         }
         this.iface_by_id[iface_id] = data;
+        this.setOrigConfigItems(iface_id);
         return iface_id;
     }
 
@@ -498,7 +496,7 @@ export class InterfaceInfo {
         );
     }
 
-    removeStateClass = (iface_id, state_id) => {
+    private removeStateClass = (iface_id, state_id) => {
         const state = this.iface_by_id[iface_id]?.states?.[state_id];
         if (state) {
             delete state.class_name;
@@ -651,7 +649,8 @@ export class InterfaceInfo {
         });
 
         if (state_id) {
-            if (state_class_name && state_class_name !== this.iface_by_id[iface_id].states[state_id].class_name) {
+            const orig_state_class_name = this.iface_by_id[iface_id].states[state_id].class_name;
+            if (state_class_name && orig_state_class_name && state_class_name !== orig_state_class_name) {
                 this.removeStateClass(iface_id, state_id);
             }
             this.addClassConfigItems(iface_id, state_class_name, '', state_id);

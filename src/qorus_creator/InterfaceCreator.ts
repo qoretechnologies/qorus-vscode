@@ -5,25 +5,13 @@ import { t } from 'ttag';
 import { Position } from 'vscode';
 
 import * as globals from '../global_config_item_values';
-import {
-    default_version,
-    types_with_version
-} from '../qorus_constants';
+import { default_version, types_with_version } from '../qorus_constants';
 import * as msg from '../qorus_message';
-import {
-    capitalize,
-    isValidIdentifier,
-    quotesIfNum,
-    removeDuplicates,
-    sortRanges
-} from '../qorus_utils';
+import { capitalize, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges, deepCopy } from '../qorus_utils';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
-import {
-    default_parse_options,
-    field
-} from './common_constants';
+import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
 
@@ -801,9 +789,12 @@ export abstract class InterfaceCreator {
                     case 'states':
                         result += `${tag}:\n`;
                         Object.keys(value).forEach(id => {
-                            delete value[id]['config-items'];
+                            let cloned_value = deepCopy(value[id]);
+                            delete cloned_value['config-items'];
+                            delete cloned_value['orig-config-items'];
+                            delete cloned_value.class_name;
                             result += `${indent}'${id}':\n` +
-                                InterfaceCreator.indentYamlDump(value[id], 2, true);
+                                InterfaceCreator.indentYamlDump(cloned_value, 2, true);
                             if (iface_data?.states[id]?.['config-items']?.length) {
                                 result += InterfaceCreator.createConfigItemHeaders(iface_data.states[id]['config-items'], 2);
                             }
