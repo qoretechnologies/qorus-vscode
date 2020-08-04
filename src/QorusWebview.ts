@@ -20,12 +20,11 @@ class QorusWebview {
     private message_on_config_file_change: boolean = true;
     private initial_data: any = {};
 
-    get opening_data(): any {
-        return this.initial_data;
-    }
-
-    set opening_data(data: any) {
+    setInitialData(data: any, do_post: boolean = false) {
         this.initial_data = data;
+        if (do_post) {
+            this.postInitialData();
+        }
     }
 
     private postInitialData = () => {
