@@ -148,7 +148,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.deleteOrigFilesIfDifferent();
         if (hasConfigItems(iface_kind)) {
-            this.code_info.interface_info.setOrigConfigItems(iface_id, edit_type === 'edit');
+            this.code_info.interface_info.setOrigConfigItems({iface_id}, edit_type === 'edit');
         }
     }
 
