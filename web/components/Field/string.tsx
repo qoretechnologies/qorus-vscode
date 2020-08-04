@@ -20,6 +20,7 @@ export interface IStringField {
     read_only?: boolean;
     placeholder?: string;
     canBeNull?: boolean;
+    style?: React.CSSProperties;
 }
 
 const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
@@ -36,6 +37,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     disabled,
     placeholder,
     canBeNull,
+    style,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -64,6 +66,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
 
     return (
         <InputGroup
+            style={style}
             name={`field-${name}`}
             placeholder={placeholder}
             disabled={disabled}

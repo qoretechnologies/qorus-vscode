@@ -6,11 +6,13 @@ import { size } from 'lodash';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withTextContext from '../../hocomponents/withTextContext';
 import { TTranslator } from '../../App';
+import String from './string';
 
 type IPair = {
     id: number;
     prefix: string;
     name: string;
+    desc?: string;
 };
 
 export const StyledPairField = styled.div`
@@ -18,7 +20,13 @@ export const StyledPairField = styled.div`
 `;
 
 const ClassArrayField: FunctionComponent<
-    { t: TTranslator; showClassesWarning: boolean; defaultSelectItems: any[]; withTextField?: boolean } & IField &
+    {
+        t: TTranslator;
+        showClassesWarning: boolean;
+        defaultSelectItems: any[];
+        withTextField?: boolean;
+        hasDescription?: boolean;
+    } & IField &
         IFieldChange
 > = ({
     name,
@@ -33,6 +41,7 @@ const ClassArrayField: FunctionComponent<
     reference,
     withTextField,
     canRemoveLast,
+    hasDescription,
 }) => {
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
         // Check if the current value is empty
@@ -91,6 +100,17 @@ const ClassArrayField: FunctionComponent<
                         }}
                         hideTextField={!withTextField}
                     />
+                    {hasDescription && (
+                        <String
+                            style={{ width: 'calc(100% - 30px)', marginLeft: '30px' }}
+                            placeholder={t('field-label-desc')}
+                            name="desc"
+                            onChange={(name, value) => {
+                                changePairData(index, name, value);
+                            }}
+                            value={pair.desc}
+                        />
+                    )}
                 </StyledPairField>
             ))}
             <ButtonGroup fill style={{ marginBottom: '10px' }}>

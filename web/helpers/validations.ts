@@ -5,12 +5,7 @@ import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
-import {
-    isBoolean,
-    isNull,
-    isString,
-    isUndefined
-} from 'util';
+import { isBoolean, isNull, isString, isUndefined } from 'util';
 
 import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 
@@ -196,11 +191,32 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
 
             return false;
         }
+        case 'processor-args': {
+            let valid = true;
+
+            // Check if the fields are not empty
+            if (
+                !value.every(
+                    (pair: { [key: string]: string }): boolean =>
+                        pair.name && pair.name !== '' && pair.prefix && pair.prefix !== ''
+                )
+            ) {
+                valid = false;
+            }
+            // Get a list of unique values
+            const uniqueValues: any[] = uniqWith(value, (cur, prev) => cur.prefix === prev.prefix);
+            // Check if there are any duplicates
+            if (size(uniqueValues) !== size(value)) {
+                valid = false;
+            }
+
+            return valid;
+        }
         case 'processor': {
             let valid = true;
 
             // Validate the arguments
-            if (value?.args && !validateField('class-array', transformArgs(value.args, true))) {
+            if (value?.args && !validateField('processor-args', transformArgs(value.args, true))) {
                 valid = false;
             }
             // Validate the input and output types
@@ -208,10 +224,6 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
                 valid = false;
             }
             if (value?.['processor-output-type'] && !validateField('type-selector', value?.['processor-output-type'])) {
-                valid = false;
-            }
-            // Validate the options
-            if (value?.options && !validateField('hash', value?.options)) {
                 valid = false;
             }
 

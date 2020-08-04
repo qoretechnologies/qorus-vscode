@@ -5,6 +5,7 @@ import { IFieldChange, IField } from '../../containers/InterfaceCreator/panel';
 import SelectField from './select';
 import { InitialContext } from '../../context/init';
 import FieldEnhancer from '../FieldEnhancer';
+import { TextContext } from '../../context/text';
 
 export interface IPairField {
     keyName: string;
@@ -39,6 +40,8 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
     context,
 }) => {
     const initContext = useContext(InitialContext);
+    const t = useContext(TextContext);
+
     return (
         <FieldEnhancer context={context}>
             {(onEditClick, onCreateClick) => (
@@ -61,6 +64,7 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
                                 />
                                 {hideTextField && (
                                     <StringField
+                                        placeholder={t('field-label-name')}
                                         name={keyName}
                                         value={keyValue}
                                         onChange={(fieldName: string, value: string): void => {
@@ -74,6 +78,7 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
                             <>
                                 {!hideTextField && (
                                     <StringField
+                                        placeholder={t('field-label-name')}
                                         name={keyName}
                                         value={keyValue}
                                         onChange={(fieldName: string, value: string): void => {

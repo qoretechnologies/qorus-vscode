@@ -12,8 +12,8 @@ import useMount from 'react-use/lib/useMount';
 import withTextContext from '../../hocomponents/withTextContext';
 import { Callout, Spinner } from '@blueprintjs/core';
 
-export type TProcessorArgs = { [arg: string]: string };
-export type TProcessorArgsList = { id: number; prefix: string; name: string }[];
+export type TProcessorArgs = { name: string; type: string; desc?: string }[];
+export type TProcessorArgsList = { id: number; prefix: string; name: string; desc?: string }[];
 export type TTypeProvider = { path: string; name: string; type: string };
 export type TProcessorOptions = { [key: string]: any };
 
@@ -31,16 +31,13 @@ export const transformArgs: (
     fromValue?: boolean
 ) => TProcessorArgs | TProcessorArgsList = (args, fromValue) => {
     if (fromValue) {
-        let i = 0;
         return size(args) === 0
             ? []
             : (reduce(
                   args as TProcessorArgs,
-                  (newArgs, type, arg) => {
+                  (newArgs, arg, index) => {
                       // Build the list argument
-                      const listArg = { id: i, prefix: arg, name: type };
-
-                      i++;
+                      const listArg = { id: index, prefix: arg.name, name: arg.type, desc: arg.desc };
 
                       return [...newArgs, listArg];
                   },
@@ -51,8 +48,8 @@ export const transformArgs: (
             ? undefined
             : (reduce(
                   args as TProcessorArgsList,
-                  (newArgs: TProcessorArgs, arg) => ({ ...newArgs, [arg.prefix]: arg.name }),
-                  {}
+                  (newArgs: TProcessorArgs, arg) => [...newArgs, { name: arg.prefix, type: arg.name, desc: arg.desc }],
+                  []
               ) as TProcessorArgs);
     }
 };
@@ -64,7 +61,6 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
     );
     const [inputType, setInputType] = useState<TTypeProvider>(value?.['processor-input-type']);
     const [outputType, setOutputType] = useState<TTypeProvider>(value?.['processor-input-type']);
-    const [options, setOptions] = useState<TProcessorOptions>(value?.options);
     const [types, setTypes] = useState(null);
 
     useMount(() => {
@@ -91,9 +87,8 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
             args: transformArgs(args),
             'processor-input-type': inputType,
             'processor-output-type': outputType,
-            options,
         });
-    }, [args, inputType, outputType, options]);
+    }, [args, inputType, outputType]);
 
     if (initialData.qorus_instance && !types) {
         return <Spinner size={20}>Loading...</Spinner>;
@@ -109,6 +104,7 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
                     name="processor-args"
                     keyName="arg"
                     valueName="type"
+                    hasDescription
                     defaultSelectItems={types.map((type) => ({
                         name: type.name,
                     }))}
@@ -142,13 +138,6 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
                     onChange={(_name, value) => setOutputType(value)}
                 />
             )}
-            <p>{t('Options')}</p>
-            <AutoField
-                defaultType="hash"
-                onChange={(name, value) => setOptions(value)}
-                value={options}
-                requestFieldData={(data) => (data === 'can_be_undefined' ? true : 'hash')}
-            />
         </div>
     );
 };
