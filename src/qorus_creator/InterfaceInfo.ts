@@ -99,7 +99,7 @@ export class InterfaceInfo {
             });
         }
         this.iface_by_id[iface_id] = data;
-        this.setOrigConfigItems(iface_id);
+        this.setOrigConfigItems({iface_id});
         return iface_id;
     }
 
