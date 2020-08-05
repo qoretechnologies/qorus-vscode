@@ -81,6 +81,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             handleDataUpdate('output-type', null);
             handleDataUpdate('initial', false);
             handleDataUpdate('final', false);
+            setActionType('none');
         }
     };
 
@@ -88,6 +89,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
         validateField('string', name) && !find(otherStates, (state: IFSMState): boolean => state.name === name);
 
     const isDataValid: () => boolean = () => {
+        console.log(newData, actionType);
         return (
             isNameValid(newData.name) &&
             isActionValid() &&
@@ -302,7 +304,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                         iface_id: interfaceId,
                                         state_id: id,
                                     });
-                                    onSubmit(id, newData)
+                                    onSubmit(id, newData);
                                 }}
                             />
                         </ButtonGroup>
