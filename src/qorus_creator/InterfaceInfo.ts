@@ -61,14 +61,15 @@ export class InterfaceInfo {
         }
     }
 
-    setOrigConfigItems = (iface_id, report_unknown_iface_id = true) => {
+    setOrigConfigItems = ({iface_id, state_id = undefined}, report_unknown_iface_id = true) => {
         if (!this.checkIfaceId(iface_id, report_unknown_iface_id)) {
             return;
         }
 
         const iface = this.iface_by_id[iface_id];
         if (iface.type === 'fsm') {
-            (Object.keys(iface.states) || []).forEach(state_id => {
+            const state_ids = state_id ? [state_id] : (Object.keys(iface.states) || []);
+            state_ids.forEach(state_id => {
                 const state = iface.states[state_id];
                 state['orig-config-items'] = deepCopy(state['config-items'] || []);
             });
@@ -98,7 +99,7 @@ export class InterfaceInfo {
             });
         }
         this.iface_by_id[iface_id] = data;
-        this.setOrigConfigItems(iface_id);
+        this.setOrigConfigItems({iface_id});
         return iface_id;
     }
 

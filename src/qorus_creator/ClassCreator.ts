@@ -195,16 +195,19 @@ class ClassCreator extends InterfaceCreator {
         }
 
         delete data.yaml_file;
-        qorus_webview.opening_data = {
-            tab: 'CreateInterface',
-            subtab: iface_kind,
-            [iface_kind]: data
-        };
 
         this.deleteOrigFilesIfDifferent();
         if (hasConfigItems(iface_kind) || iface_kind === 'fsm') {
-            this.code_info.interface_info.setOrigConfigItems(iface_id, edit_type === 'edit');
+            this.code_info.interface_info.setOrigConfigItems({iface_id}, edit_type === 'edit');
         }
+
+        data.target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
+
+        qorus_webview.setInitialData({
+            tab: 'CreateInterface',
+            subtab: iface_kind,
+            [iface_kind]: data
+        }, true);
     }
 }
 
