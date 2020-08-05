@@ -17,7 +17,17 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private imports: string[] = [];
 
     editImpl = params => {
-        const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
+        const {
+            data,
+            orig_data,
+            edit_type,
+            iface_id,
+            iface_kind,
+            open_file_on_success,
+            no_data_return,
+            request_id
+        } = params;
+
         this.lang = data.lang || 'qore';
 
         let suffix: string;
@@ -151,8 +161,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         qorus_webview.setInitialData({
             tab: 'CreateInterface',
             subtab: iface_kind,
-            [iface_kind]: data
-        }, true);
+            [iface_kind]: { ...data, iface_id }
+        }, !no_data_return);
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {
