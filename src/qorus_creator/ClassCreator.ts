@@ -216,7 +216,7 @@ class ClassCreator extends InterfaceCreator {
         qorus_webview.setInitialData({
             tab: 'CreateInterface',
             subtab: iface_kind,
-            [iface_kind]: data
+            [iface_kind]: { ...data, iface_id }
         }, !no_data_return);
     }
 }
