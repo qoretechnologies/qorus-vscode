@@ -759,6 +759,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         orig_data: data,
                         workflow,
                         open_file_on_success: openFileOnSubmit !== false,
+                        no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
                     t(`Saving ${type}...`)
@@ -788,6 +789,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 ? initialData['mapper-code']
                                 : data,
                         open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
+                        no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
                     t(`Saving ${type}...`)

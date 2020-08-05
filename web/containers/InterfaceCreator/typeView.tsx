@@ -152,6 +152,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             {
                 iface_kind: 'type',
                 orig_data: initialData.type,
+                no_data_return: !!onSubmitSuccess,
                 data: {
                     target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
                     target_file: !targetFile || targetFile === '' ? undefined : targetFile,

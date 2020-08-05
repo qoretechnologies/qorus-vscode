@@ -362,6 +362,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 iface_kind: 'fsm',
                 iface_id: interfaceId,
                 orig_data: fsm,
+                no_data_return: !!onSubmitSuccess,
                 data: {
                     ...metadata,
                     states,
@@ -638,7 +639,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     setPan={setWrapperPan}
                     isHoldingShiftKey={isHoldingShiftKey}
                     zoom={zoom}
-                    items={map(states, (state) => console.log(states) || { x: state.position.x, y: state.position.y })}
+                    items={map(states, (state) => ({ x: state.position.x, y: state.position.y }))}
                 >
                     <StyledDiagram
                         key={JSON.stringify(wrapperDimensions)}

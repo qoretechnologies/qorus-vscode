@@ -57,7 +57,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
     useEffect(() => {
         if (newData.action?.value?.['class']) {
-            console.log(newData.action.value);
             postMessage(Messages.GET_CONFIG_ITEMS, {
                 iface_kind: 'fsm',
                 iface_id: interfaceId,
