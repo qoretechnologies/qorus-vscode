@@ -10,6 +10,7 @@ import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
 import styled from 'styled-components';
+import maxBy from 'lodash/maxBy';
 
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
@@ -474,6 +475,53 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         });
     };
 
+    const getTargetStatePosition = (x1, y1, x2, y2) => {
+        const modifiedX1 = x1 + 10000;
+        const modifiedX2 = x2 + 10000;
+        const modifiedY1 = y1 + 10000;
+        const modifiedY2 = y2 + 10000;
+
+        const sides = [];
+
+        const horizontal = modifiedX1 - modifiedX2;
+        const vertical = modifiedY1 - modifiedY2;
+
+        if (x1 > x2) {
+            sides.push({ side: 'left', value: Math.abs(horizontal) });
+        } else {
+            sides.push({ side: 'right', value: Math.abs(horizontal) });
+        }
+
+        if (y1 > y2) {
+            sides.push({ side: 'top', value: Math.abs(vertical) });
+        } else {
+            sides.push({ side: 'bottom', value: Math.abs(vertical) });
+        }
+
+        const { side } = maxBy(sides, 'value');
+
+        switch (side) {
+            case 'right': {
+                return { x2, y2: y2 + 25 };
+            }
+            case 'left': {
+                return { x2: x2 + 180, y2: y2 + 25 };
+            }
+            case 'bottom': {
+                return { x2: x2 + 90, y2 };
+            }
+            case 'top': {
+                return { x2: x2 + 90, y2: y2 + 50 };
+            }
+            default: {
+                return {
+                    x2: 0,
+                    y2: 0,
+                };
+            }
+        }
+    };
+
     const calculateMargin = () => (zoom - 1) * 1000;
     const { width = 0, height = 0 } = wrapperRef?.current?.getBoundingClientRect() || {};
 
@@ -707,11 +755,11 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                                 stroke={isError ? 'red' : '#a9a9a9'}
                                                 strokeWidth={isError ? 4 : 2}
                                                 strokeDasharray={isError ? '10 2' : undefined}
+                                                id={getTargetStatePosition(x1, y1, x2, y2)}
                                                 markerEnd={isError ? 'url(#arrowheaderror)' : 'url(#arrowhead)'}
                                                 x1={x1 + 90}
                                                 y1={y1 + 25}
-                                                x2={x2 + 90}
-                                                y2={y2 + 25}
+                                                {...getTargetStatePosition(x1, y1, x2, y2)}
                                             />
                                         </>
                                     )
