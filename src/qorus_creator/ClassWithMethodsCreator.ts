@@ -147,22 +147,19 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             msg.info(info);
         }
 
-        delete data.method_index;
-        delete data.servicetype;
-        delete data.yaml_file;
-
         this.deleteOrigFilesIfDifferent();
         if (hasConfigItems(iface_kind)) {
             this.code_info.interface_info.setOrigConfigItems({iface_id}, edit_type === 'edit');
         }
 
-        data.target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
+        if (!!no_data_return) {
+            return;
+        }
 
-        qorus_webview.setInitialData({
-            tab: 'CreateInterface',
-            subtab: iface_kind,
-            [iface_kind]: { ...data, iface_id }
-        }, !no_data_return);
+        const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
+        const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
+        const fixed_data = this.code_info.fixData(yaml_data);
+        commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {
