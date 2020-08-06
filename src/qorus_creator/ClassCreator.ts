@@ -62,6 +62,9 @@ class ClassCreator extends InterfaceCreator {
             case 'fsm':
                 suffix = `.q${iface_kind}`;
                 break;
+            case 'pipeline':
+                suffix = `.qpipe`;
+                break;
             case 'other':
                 suffix = `.q${data.type.toLowerCase()}`;
                 break;

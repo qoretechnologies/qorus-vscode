@@ -11,6 +11,7 @@ import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core
 import FileString from '../../../components/Field/fileString';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
+import { Messages } from '../../../constants/messages';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
@@ -227,6 +228,33 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
         }));
     };
 
+    const handleSubmitClick = async () => {
+        const result = await callBackend(
+            pipeline ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
+            undefined,
+            {
+                iface_kind: 'pipeline',
+                orig_data: pipeline,
+                data: {
+                    ...metadata,
+                    elements,
+                },
+            },
+            t('Saving Pipeline...')
+        );
+
+        if (result.ok) {
+            if (onSubmitSuccess) {
+                onSubmitSuccess({
+                    ...metadata,
+                    states,
+                });
+            }
+            reset();
+            resetAllInterfaceData('pipeline');
+        }
+    };
+
     const reset = () => {
         setElements(
             transformNodeData(
@@ -440,7 +468,7 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
                         </Tooltip>
                         <Button
                             text={t('Submit')}
-                            onClick={() => true}
+                            onClick={handleSubmitClick}
                             disabled={!isDataValid(elements)}
                             icon={'tick'}
                             intent={Intent.SUCCESS}

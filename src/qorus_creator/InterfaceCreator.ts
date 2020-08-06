@@ -78,6 +78,8 @@ export abstract class InterfaceCreator {
                         'qevent',
                         'qgroup',
                         'qqueue',
+                        'qfsm',
+                        'qpipe',
                     ].forEach((suffix) => {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
@@ -751,6 +753,12 @@ export abstract class InterfaceCreator {
                         for (let line of lines) {
                             result += `${indent}${line}\n`;
                         }
+                        break;
+                    case 'elements':
+                        value.forEach(element => {
+                            result += `${list_indent}\n`;
+                            result += InterfaceCreator.indentYamlDump(element, 1, true);
+                        });
                         break;
                 }
             } else {
