@@ -1,6 +1,7 @@
-import { workspace, window } from 'vscode';
-import { qorus_webview } from '../QorusWebview';
+import { workspace, window, commands } from 'vscode';
+import * as path from 'path';
 
+import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceImports } from './service_constants';
 import { mapper_code_method_template } from './mapper_constants';
@@ -17,7 +18,17 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     private imports: string[] = [];
 
     editImpl = params => {
-        const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
+        const {
+            data,
+            orig_data,
+            edit_type,
+            iface_id,
+            iface_kind,
+            open_file_on_success,
+            no_data_return,
+            request_id
+        } = params;
+
         this.lang = data.lang || 'qore';
 
         let suffix: string;
@@ -113,12 +124,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
             code: this.rel_file_path
-        });
-
-        const iface_data = this.code_info.interface_info.getInfo(iface_id);
-        if (iface_data && iface_data['config-items'] && iface_data['config-items'].length) {
-            headers += ClassWithMethodsCreator.createConfigItemHeaders(iface_data['config-items']);
-        }
+        }, iface_id);
 
         if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
             if (edit_type !== 'create') {
@@ -142,19 +148,19 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             msg.info(info);
         }
 
-        delete data.method_index;
-        delete data.servicetype;
-        delete data.yaml_file;
-        qorus_webview.opening_data = {
-            tab: 'CreateInterface',
-            subtab: iface_kind,
-            [iface_kind]: data
-        };
-
         this.deleteOrigFilesIfDifferent();
         if (hasConfigItems(iface_kind)) {
-            this.code_info.interface_info.setOrigConfigItems(iface_id, edit_type === 'edit');
+            this.code_info.interface_info.setOrigConfigItems({iface_id}, edit_type === 'edit');
         }
+
+        if (!!no_data_return) {
+            return;
+        }
+
+        const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
+        const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
+        const fixed_data = this.code_info.fixData(yaml_data);
+        commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {

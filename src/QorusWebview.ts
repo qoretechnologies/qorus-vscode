@@ -20,12 +20,11 @@ class QorusWebview {
     private message_on_config_file_change: boolean = true;
     private initial_data: any = {};
 
-    get opening_data(): any {
-        return this.initial_data;
-    }
-
-    set opening_data(data: any) {
+    setInitialData(data: any, do_post: boolean = false) {
         this.initial_data = data;
+        if (do_post) {
+            this.postInitialData();
+        }
     }
 
     private postInitialData = () => {
@@ -260,13 +259,19 @@ class QorusWebview {
                             interface_info.updateConfigItemValue(message);
                             break;
                         case 'reset-config-items':
-                            interface_info.resetConfigItemsToOrig(message.iface_id);
+                            interface_info.resetConfigItemsToOrig(message);
+                            break;
+                        case 'submit-fsm-state':
+                            interface_info.setOrigConfigItems(message);
                             break;
                         case 'delete-config-item':
                             interface_info.deleteConfigItem(message);
                             break;
                         case 'config-item-type-changed':
                             creator.configItemTypeChanged(message);
+                            break;
+                        case 'remove-fsm-state':
+                            interface_info.removeFsmState(message);
                             break;
                         case 'lang-changed':
                             creator.langChanged(message);

@@ -15,7 +15,6 @@ export class InterfaceInfo {
     private code_info: QorusProjectCodeInfo;
     private yaml_info: QorusProjectYamlInfo;
     private iface_by_id = {};
-    private are_orig_config_items_set: boolean = false;
 
     private last_conf_group: string | undefined;
     private last_other_if_kind: string | undefined; // one of ['Group', 'Event', 'Queue']
@@ -25,36 +24,58 @@ export class InterfaceInfo {
         this.yaml_info = code_info.yaml_info;
     }
 
-    private maybeInitIfaceId = (iface_id, iface_kind) => {
+    private maybeInitIfaceId = ({iface_id, iface_kind, state_id = undefined}) => {
         if (!this.iface_by_id[iface_id]) {
             this.iface_by_id[iface_id] = {};
         }
         if (hasConfigItems(iface_kind) && !this.iface_by_id[iface_id]['config-items']) {
             this.iface_by_id[iface_id]['config-items'] = [];
-            this.iface_by_id[iface_id]['orig-config-items'] = [];
         }
         if (iface_kind === 'workflow' && !this.iface_by_id[iface_id]['config-item-values']) {
             this.iface_by_id[iface_id]['config-item-values'] = [];
         }
+        if (iface_kind === 'fsm') {
+            if (!this.iface_by_id[iface_id].states) {
+                this.iface_by_id[iface_id].states = {};
+            }
+            if (state_id && !this.iface_by_id[iface_id].states[state_id]) {
+                this.iface_by_id[iface_id].states[state_id] = {};
+            }
+        }
     }
 
-    resetConfigItemsToOrig = iface_id => {
+    resetConfigItemsToOrig = ({iface_id, state_id}) => {
         if (!this.checkIfaceId(iface_id)) {
             return;
         }
 
-        this.iface_by_id[iface_id]['config-items'] = deepCopy(this.iface_by_id[iface_id]['orig-config-items'] || []);
-        this.iface_by_id[iface_id]['orig-config-items'] = [];
-        this.are_orig_config_items_set = false;
+        const iface = this.iface_by_id[iface_id];
+        if (iface.type === 'fsm') {
+            const state_ids = state_id ? [state_id] : (Object.keys(iface.states) || []);
+            state_ids.forEach(state_id => {
+                const state = iface.states[state_id];
+                state['config-items'] = deepCopy(state['orig-config-items'] || []);
+            });
+        } else {
+            iface['config-items'] = deepCopy(iface['orig-config-items'] || []);
+        }
     }
 
-    setOrigConfigItems = (iface_id, report_unknown_iface_id = true) => {
+    setOrigConfigItems = ({iface_id, state_id = undefined}, report_unknown_iface_id = true) => {
         if (!this.checkIfaceId(iface_id, report_unknown_iface_id)) {
             return;
         }
 
-        this.iface_by_id[iface_id]['orig-config-items'] = deepCopy(this.iface_by_id[iface_id]['config-items'] || []);
-        this.are_orig_config_items_set = true;
+        const iface = this.iface_by_id[iface_id];
+        if (iface.type === 'fsm') {
+            const state_ids = state_id ? [state_id] : (Object.keys(iface.states) || []);
+            state_ids.forEach(state_id => {
+                const state = iface.states[state_id];
+                state['orig-config-items'] = deepCopy(state['config-items'] || []);
+            });
+        } else {
+            iface['orig-config-items'] = deepCopy(iface['config-items'] || []);
+        }
     }
 
     private checkIfaceId = (iface_id, report_unknown_iface_id = true): boolean => {
@@ -68,10 +89,18 @@ export class InterfaceInfo {
     }
 
     addIfaceById = (data: any, iface_kind: string): string => {
-        const id = shortid.generate();
-        this.maybeInitIfaceId(id, iface_kind);
-        this.iface_by_id[id] = data;
-        return id;
+        const iface_id = shortid.generate();
+        this.maybeInitIfaceId({iface_id, iface_kind});
+        if (iface_kind === 'fsm') {
+            (Object.keys(data.states) || []).forEach(state_id => {
+                if (data.states[state_id]?.action?.value?.class) {
+                    data.states[state_id].class_name = data.states[state_id].action.value.class;
+                }
+            });
+        }
+        this.iface_by_id[iface_id] = data;
+        this.setOrigConfigItems({iface_id});
+        return iface_id;
     }
 
     getInfo = (id: string): any => {
@@ -90,10 +119,20 @@ export class InterfaceInfo {
         this.last_other_if_kind = other_iface_kind && capitalize(other_iface_kind);
     }
 
-    updateConfigItemValue =
-        ({iface_id, iface_kind, name, value, level, parent_class, remove, is_templated_string, value_true_type}) =>
-    {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+    updateConfigItemValue = ({
+        iface_id,
+        iface_kind,
+        name,
+        value,
+        level,
+        parent_class,
+        remove,
+        is_templated_string,
+        value_true_type,
+        state_id
+    }) => {
+        this.maybeInitIfaceId({iface_id, iface_kind, state_id});
+        const state_data = { id: state_id };
         if (!level) {
             msg.log(t`LevelNeededToUpdateCIValue`);
 
@@ -101,12 +140,12 @@ export class InterfaceInfo {
                 this.addClassConfigItems(iface_id, parent_class);
             }
 
-            this.getConfigItems({iface_id, iface_kind});
+            this.getConfigItems({iface_id, iface_kind, state_data});
 
             return;
         }
 
-        if (['step', 'job', 'service', 'class'].includes(level)) {
+        if (['step', 'job', 'service', 'class', 'fsm'].includes(level)) {
             level = 'local';
         }
 
@@ -147,11 +186,20 @@ export class InterfaceInfo {
                 item.value_true_type = value_true_type;
             }
         } else {
-            let item = this.iface_by_id[iface_id]['config-items'].find(ci_value => ci_value.name === name);
+            const iface = this.iface_by_id[iface_id];
+            let config_items: any[];
+            if (state_id) {
+                config_items = iface.states?.[state_id]?.['config-items'];
+            } else {
+                config_items = iface['config-items'];
+            }
+
+            let item = (config_items || []).find(ci_value => ci_value.name === name);
 
             if (item === undefined) {
                 msg.error(t`ConfigItemNotFound ${name}`);
             } else {
+                delete item.value;
                 if (value === null && remove) {
                     delete item[level + '-value'];
                     if (level === 'global') {
@@ -165,11 +213,11 @@ export class InterfaceInfo {
             }
         }
 
-        this.getConfigItems({iface_id, iface_kind});
+        this.getConfigItems({iface_id, iface_kind, state_data});
     }
 
-    updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type}) => {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+    updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type, state_id}) => {
+        this.maybeInitIfaceId({iface_id, iface_kind});
 
         let iface = this.iface_by_id[iface_id];
 /*
@@ -210,35 +258,50 @@ export class InterfaceInfo {
         }
         delete item.can_be_undefined;
 
+        let config_items: any[];
+        let state: any;
+        if (state_id) {
+            state = iface.states?.[state_id];
+            config_items = state?.['config-items'];
+        } else {
+            config_items = iface['config-items'];
+        }
+        config_items = config_items || [];
+
         const name_to_search = item.orig_name || item.name;
-        const index = iface['config-items'].findIndex(item2 => item2.name === name_to_search);
+        const index = config_items.findIndex(item2 => item2.name === name_to_search);
 
         if (index > -1) {
+            let existing_item = config_items[index];
             if (name_to_search !== item.name) {
-                iface['config-items'][index].name = item.name;
+                existing_item.name = item.name;
             }
 
-            const orig_type = iface['config-items'][index].type || defaultValue('type');
-            const orig_value_true_type = orig_type === 'any' && iface['config-items'][index].value_true_type
-                ? iface['config-items'][index].value_true_type
+            const orig_type = existing_item.type || defaultValue('type');
+            const orig_value_true_type = orig_type === 'any' && existing_item.value_true_type
+                ? existing_item.value_true_type
                 : orig_type;
 
             if (![orig_value_true_type, 'any'].includes(item.type)) {
-                delete iface['config-items'][index]['local-value'];
+                delete existing_item['local-value'];
             }
 
             const field_names = configItemFields(this).map(field => field.name);
             field_names.forEach(field_name => {
-                delete iface['config-items'][index][field_name];
+                delete existing_item[field_name];
             });
 
-            iface['config-items'][index] = {
-                ... iface['config-items'][index],
-                ... item
-            };
+            existing_item = { ... existing_item, ... item };
+            config_items[index] = existing_item;
         }
         else {
-            iface['config-items'].push(item);
+            config_items.push(item);
+        }
+
+        if (state) {
+            state['config-items'] = config_items;
+        } else {
+            iface['config-items'] = config_items;
         }
 
         if (item.config_group) {
@@ -253,24 +316,40 @@ export class InterfaceInfo {
         });
 
         const {'base-class-name': base_class_name, classes, requires, steps} = iface;
-        this.getConfigItems({iface_id, iface_kind, 'base-class-name': base_class_name, classes, requires, steps});
+        this.getConfigItems({
+             iface_id,
+             iface_kind,
+             'base-class-name': base_class_name,
+             classes,
+             requires,
+             steps,
+             state_data: {id: state_id}
+        });
     }
 
-    deleteConfigItem = ({iface_id, iface_kind, name}) => {
+    deleteConfigItem = ({iface_id, iface_kind, name, state_id}) => {
         if (!this.checkIfaceId(iface_id)) {
             return;
         }
 
-        iface_kind = iface_kind || this.iface_by_id[iface_id].type;
+        let iface = this.iface_by_id[iface_id];
+        iface_kind = iface_kind || iface.type;
 
-        const index = this.iface_by_id[iface_id]['config-items'].findIndex(item => item.name === name);
+        let config_items: any[];
+        if (state_id) {
+            config_items = iface.states?.[state_id]?.['config-items'];
+        } else {
+            config_items = iface['config-items'];
+        }
+
+        const index = (config_items || []).findIndex(item => item.name === name);
         if (index > -1) {
-            this.iface_by_id[iface_id]['config-items'].splice(index, 1);
+            config_items.splice(index, 1);
         } else {
             msg.error(t`ConfigItemNotFound ${name}`);
         }
 
-        this.getConfigItems({iface_id, iface_kind});
+        this.getConfigItems({iface_id, iface_kind, state_data: {id: state_id}});
     }
 
     private configItemInheritedData = this_item => {
@@ -295,7 +374,7 @@ export class InterfaceInfo {
         return { ...inherited_item, ...this_item };
     }
 
-    private addClassConfigItems = (iface_id, class_name, prefix?) => {
+    private addClassConfigItems = (iface_id, class_name, prefix?, state_id?) => {
         const class_yaml_data = this.yaml_info.yamlDataByName('class', class_name);
         if (!class_yaml_data) {
             return;
@@ -317,24 +396,54 @@ export class InterfaceInfo {
                 item.prefix = prefix + (item.prefix || '');
             }
 
-            const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
-                item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
-            );
+            if (state_id) {
+                if (!this.iface_by_id[iface_id].states[state_id]['config-items']) {
+                    this.iface_by_id[iface_id].states[state_id]['config-items'] = [];
+                }
+                const index = this.iface_by_id[iface_id].states[state_id]?.['config-items'].findIndex(item2 =>
+                    item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
+                );
 
-            if (index > -1) {
-                this.iface_by_id[iface_id]['config-items'][index] = {
-                    ... item,
-                    ... this.iface_by_id[iface_id]['config-items'][index]
-                };
-            }
-            else {
-                this.iface_by_id[iface_id]['config-items'].push(item);
+                if (index > -1) {
+                    this.iface_by_id[iface_id].states[state_id]['config-items'][index] = {
+                        ... item,
+                        ... this.iface_by_id[iface_id].states[state_id]['config-items'][index]
+                    };
+                }
+                else {
+                    this.iface_by_id[iface_id].states[state_id]['config-items'].push(item);
+                }
+            } else {
+                const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
+                    item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
+                );
+
+                if (index > -1) {
+                    this.iface_by_id[iface_id]['config-items'][index] = {
+                        ... item,
+                        ... this.iface_by_id[iface_id]['config-items'][index]
+                    };
+                }
+                else {
+                    this.iface_by_id[iface_id]['config-items'].push(item);
+                }
             }
         });
     }
 
-    getConfigItem = ({iface_id, name}) => {
-        const config_items = iface_id && this.iface_by_id[iface_id] && this.iface_by_id[iface_id]['config-items'];
+    getConfigItem = ({iface_id, name, state_id}) => {
+        const iface = iface_id && this.iface_by_id[iface_id];
+        if (!iface) {
+            return;
+        }
+
+        let config_items;
+        if (state_id) {
+            config_items = iface.states?.[state_id]?.['config-items'];
+        } else {
+            config_items = iface['config-items'];
+        }
+
         const config_item = (config_items || []).find(item => item.name === name);
         if (!config_item) {
             return;
@@ -364,7 +473,7 @@ export class InterfaceInfo {
     }
 
     removeBaseClass = ({iface_id, iface_kind}) => {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId({iface_id, iface_kind});
         let iface = this.iface_by_id[iface_id];
 
         const base_class_name = iface['base-class-name'];
@@ -388,8 +497,16 @@ export class InterfaceInfo {
         );
     }
 
+    private removeStateClass = (iface_id, state_id) => {
+        const state = this.iface_by_id[iface_id]?.states?.[state_id];
+        if (state) {
+            delete state.class_name;
+            delete state['config-items'];
+        }
+    }
+
     removeAllClasses = ({iface_id, iface_kind}) => {
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        this.maybeInitIfaceId({iface_id, iface_kind});
         this.removeClassesConfigItems(iface_id);
         delete this.iface_by_id[iface_id].classes;
         delete this.iface_by_id[iface_id].requires;
@@ -476,27 +593,39 @@ export class InterfaceInfo {
         }));
     }
 
+    removeFsmState = ({iface_id, state_id}) => {
+        if (this.iface_by_id[iface_id]?.states?.[state_id]) {
+            delete this.iface_by_id[iface_id].states[state_id];
+        }
+    }
+
     getConfigItems = params => {
         this.code_info.waitForPending(['yaml']).then(() => this.getConfigItemsImpl(params));
     }
 
-    private getConfigItemsImpl = params => {
-        let {'base-class-name': base_class_name, classes, requires, iface_id, iface_kind, steps} = params;
+    private getConfigItemsImpl = ({
+        'base-class-name': base_class_name,
+        classes,
+        requires,
+        iface_id,
+        iface_kind,
+        steps,
+        state_data = {id: undefined, class_name: undefined}
+    }) => {
         if (!iface_id) {
             return;
         }
-        if (!['workflow', 'job', 'service', 'class', 'step'].includes(iface_kind)) {
+        if (!['workflow', 'job', 'service', 'class', 'step', 'fsm'].includes(iface_kind)) {
             return;
         }
 
-        requires = this.addClassNames(requires);
-        classes = this.addClassNames(classes);
-
-        this.maybeInitIfaceId(iface_id, iface_kind);
+        const {id: state_id, class_name: state_class_name} = state_data;
+        this.maybeInitIfaceId({iface_id, iface_kind, state_id});
 
         const classes_key = requires ? 'requires' : 'classes';
-        const classes_or_requires = requires ? requires : classes;
+        let classes_or_requires = requires ? requires : classes;
         if (classes_or_requires) {
+            classes_or_requires = this.addClassNames(classes_or_requires);
             this.addClasses(iface_id, classes_key, classes_or_requires);
         }
 
@@ -519,6 +648,15 @@ export class InterfaceInfo {
         (classes_or_requires || []).forEach(class_data => {
             class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
         });
+
+        if (state_id) {
+            const orig_state_class_name = this.iface_by_id[iface_id].states[state_id].class_name;
+            if (state_class_name && orig_state_class_name && state_class_name !== orig_state_class_name) {
+                this.removeStateClass(iface_id, state_id);
+            }
+            this.addClassConfigItems(iface_id, state_class_name, '', state_id);
+            this.iface_by_id[iface_id].states[state_id].class_name = state_class_name;
+        }
 
         const default_type = defaultValue('type');
 
@@ -628,7 +766,12 @@ export class InterfaceInfo {
                 }
             });
         } else {
-            items = [ ...this.iface_by_id[iface_id]['config-items'] || []];
+            if (state_id) {
+                const state = this.iface_by_id[iface_id].states[state_id];
+                items = [ ...state?.['config-items'] || [] ];
+            } else {
+                items = [ ...this.iface_by_id[iface_id]['config-items'] || [] ];
+            }
         }
 
         const local_items = (items || []).map(item => fixLocalItem({ ...item }));
@@ -653,9 +796,5 @@ export class InterfaceInfo {
         }
 
         qorus_webview.postMessage(message);
-
-        if (!this.are_orig_config_items_set) {
-            this.setOrigConfigItems(iface_id);
-        }
     }
 }

@@ -173,7 +173,7 @@
             },
             {
                 "command": "qorus.explorer.editFsm",
-                "title": "Edit FSM",
+                "title": "Edit Finite State Machine",
                 "category": "Qorus"
             },
             {
@@ -213,7 +213,7 @@
             },
             {
                 "command": "qorus.explorer.editFsm",
-                "title": "Edit FSM",
+                "title": "Edit Finite State Machine",
                 "category": "Qorus"
             },
             {
@@ -233,7 +233,7 @@
             },
             {
                 "command": "qorus.explorer.deployFsm",
-                "title": "Deploy FSM",
+                "title": "Deploy Finite State Machine",
                 "category": "Qorus"
             },
             {
@@ -301,7 +301,7 @@
             },
             {
                 "command": "qorus.createFsm",
-                "title": "Create New FSM",
+                "title": "Create New Finite State Machine",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/create-new.svg",
@@ -468,7 +468,7 @@
             },
             {
                 "command": "qorus.views.deleteFsm",
-                "title": "Delete FSM",
+                "title": "Delete Finite State Machine",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/trash.svg",
@@ -567,7 +567,7 @@
             },
             {
                 "command": "qorus.views.deployFsm",
-                "title": "Deploy FSM",
+                "title": "Deploy Finite State Machine",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/cloud-upload.svg",
@@ -729,7 +729,7 @@
             },
             {
                 "command": "qorus.views.editFsm",
-                "title": "Edit FSM",
+                "title": "Edit Finite State Machine",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",

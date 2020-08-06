@@ -61,7 +61,7 @@ export class QorusLogin extends QorusAuth {
                 this.addToken(qorus_instance.url, token, set_active);
                 instance_tree.refresh();
                 msg.info(t`LoginSuccessful`);
-                qorus_webview.opening_data = { tab: 'ProjectConfig' };
+                qorus_webview.setInitialData({ tab: 'ProjectConfig' });
                 qorus_webview.postMessage({
                     action: 'close-login',
                     qorus_instance: set_active ? qorus_instance : null,
