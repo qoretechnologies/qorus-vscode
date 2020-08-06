@@ -24,6 +24,7 @@ const StepIconName = 'step.svg';
 const ValueMapIconName = 'value-map.svg';
 const WorkflowIconName = 'workflow.svg';
 const FsmIconName = 'fsm.svg';
+const PipelineIconName = 'pipeline.svg';
 
 
 export class QorusIcons  {
@@ -46,6 +47,7 @@ export class QorusIcons  {
     private valueMapIcon;
     private workflowIcon;
     private fsmIcon;
+    private pipelineIcon;
 
     constructor() {
     }
@@ -127,6 +129,10 @@ export class QorusIcons  {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, FsmIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, FsmIconName))
         };
+        this.pipelineIcon = {
+            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, PipelineIconName)),
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, PipelineIconName))
+        };
     }
 
     getClassIcon() {
@@ -203,6 +209,10 @@ export class QorusIcons  {
 
     getFsmIcon() {
         return this.fsmIcon;
+    }
+
+    getPipelineIcon() {
+        return this.pipelineIcon;
     }
 }
 

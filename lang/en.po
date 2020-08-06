@@ -2250,6 +2250,9 @@ msgstr "Finite State Machines"
 msgid "FiniteStateMachine"
 msgstr "Finite State Machine"
 
+msgid "Pipelines"
+msgstr "Pipelines"
+
 msgid "field-label-options"
 msgstr "Options"
 

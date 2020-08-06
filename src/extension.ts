@@ -76,14 +76,14 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
+    disposable = vscode.commands.registerCommand('qorus.openWebview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.closeWebview', () => qorus_webview.dispose());
     context.subscriptions.push(disposable);
 
-    ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code',
-        'class', 'other', 'group', 'event', 'queue', 'type', 'fsm'].forEach(iface_kind =>
+    ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class',
+        'other', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {

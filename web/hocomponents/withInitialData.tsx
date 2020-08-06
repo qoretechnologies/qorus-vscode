@@ -30,8 +30,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 setInitialData(null);
 
                 if (!data.tab) {
-                    data.tab = 'CreateInterface';
-                    data.subtab = 'pipeline';
+                    data.tab = 'ProjectConfig';
                 }
 
                 setInitialData((current) => ({

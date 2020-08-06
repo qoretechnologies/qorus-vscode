@@ -21,8 +21,10 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     );
 
     // delete commands
-    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm'].forEach(iface_kind => {
+    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group',
+        'job', 'mapper', 'mapper-code', 'queue', 'service', 'step', 'value-map',
+        'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
+    {
         const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             vswindow.showWarningMessage(
@@ -42,8 +44,10 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     });
 
     // deploy commands
-    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group', 'job', 'mapper',
-     'mapper-code', 'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm'].forEach(iface_kind => {
+    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group',
+        'job', 'mapper', 'mapper-code', 'queue', 'service', 'step', 'value-map',
+        'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
+    {
         const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
             vswindow.showWarningMessage(
@@ -89,7 +93,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps',
-        'workflow', 'group', 'event', 'queue', 'type', 'fsm'].forEach(iface_kind =>
+        'workflow', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command_part = dash2Pascal(iface_kind);
         disposable = commands.registerCommand(`qorus.views.edit${command_part}`, (data: any) => {
@@ -122,6 +126,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
             case 'service':
             case 'step':
             case 'fsm':
+            case 'pipeline':
             case 'workflow':
                 if (iface_data.target_dir && iface_data.target_file) {
                     const filePath = join(iface_data.target_dir, iface_data.target_file);
@@ -141,7 +146,6 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
                     );
                 }
                 break;
-
             case 'connection':
             case 'error':
             case 'value-map':
