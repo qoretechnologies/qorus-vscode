@@ -771,22 +771,14 @@ export abstract class InterfaceCreator {
                         };
                         const dumpChild = (child: any, indent_level: number) => {
                             result += `${indent.repeat(indent_level)}${list_indent}name: ${child.name}\n`;
+                            if (child.id) {
+                                result += `${indent.repeat(indent_level + 1)}id: ${child.id}\n`;
+                            }
                             result += `${indent.repeat(indent_level + 1)}type: ${child.type}\n`;
                             dumpChildren(child.children, indent_level + 1)
-
-                            delete child.name;
-                            delete child.type;
-                            delete child.children;
-                            delete child._children;
-
-                            result += `${indent.repeat(indent_level + 1)}options:\n`;
-                            result += InterfaceCreator.indentYamlDump(child, indent_level + 2, true);
                         };
+
                         dumpChildren(value[0].children, 0);
-                        let cloned_value = deepCopy(value[0]);
-                        result += 'options: \n';
-                        delete cloned_value.children;
-                        result += InterfaceCreator.indentYamlDump(cloned_value, 1, true);
                         break;
                 }
             } else {
