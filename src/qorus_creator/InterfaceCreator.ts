@@ -676,6 +676,9 @@ export abstract class InterfaceCreator {
                     case 'codes':
                         result += 'mapper-code:\n';
                         break;
+                    case 'elements':
+                    case 'children':
+                        break;
                     default:
                         result += `${tag}:\n`;
                 }
@@ -755,10 +758,35 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'elements':
-                        value.forEach(element => {
-                            result += `${list_indent}\n`;
-                            result += InterfaceCreator.indentYamlDump(element, 1, true);
-                        });
+                    case 'children':
+                        const dumpChildren = (children: any, indent_level: number) => {
+                            if (!children?.length) {
+                                return;
+                            }
+
+                            result += `${indent.repeat(indent_level)}children:\n`;
+                            children.forEach(child => {
+                                dumpChild(child, indent_level);
+                            });
+                        };
+                        const dumpChild = (child: any, indent_level: number) => {
+                            result += `${indent.repeat(indent_level)}${list_indent}name: ${child.name}\n`;
+                            result += `${indent.repeat(indent_level + 1)}type: ${child.type}\n`;
+                            dumpChildren(child.children, indent_level + 1)
+
+                            delete child.name;
+                            delete child.type;
+                            delete child.children;
+                            delete child._children;
+
+                            result += `${indent.repeat(indent_level + 1)}options:\n`;
+                            result += InterfaceCreator.indentYamlDump(child, indent_level + 2, true);
+                        };
+                        dumpChildren(value[0].children, 0);
+                        let cloned_value = deepCopy(value[0]);
+                        result += 'options: \n';
+                        delete cloned_value.children;
+                        result += InterfaceCreator.indentYamlDump(cloned_value, 1, true);
                         break;
                 }
             } else {
