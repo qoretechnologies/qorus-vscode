@@ -143,6 +143,7 @@ export class InterfaceCreatorDispatcher {
                     addField('class-name');
                     addField('base-class-name');
                 }
+                break;
             case 'processor':
                 if (iface_kind === 'class') {
                     addField('base-class-name');
