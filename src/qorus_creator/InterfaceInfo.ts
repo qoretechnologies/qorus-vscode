@@ -60,9 +60,15 @@ export class InterfaceInfo {
             }
 
             const specific_data_id = this.specificDataId(iface_kind, state_id, processor_id);
-            if (specific_data_id && !this.iface_by_id[iface_id].specific_data[specific_data_id]) {
-                this.iface_by_id[iface_id].specific_data[specific_data_id] = {};
+            if (specific_data_id) {
+                this.maybeInitSpecificDataId(iface_id, specific_data_id);
             }
+        }
+    }
+
+    private maybeInitSpecificDataId = (iface_id, specific_data_id) => {
+        if (!this.iface_by_id[iface_id].specific_data[specific_data_id]) {
+            this.iface_by_id[iface_id].specific_data[specific_data_id] = {};
         }
     }
 
@@ -115,11 +121,16 @@ export class InterfaceInfo {
     addIfaceById = (data: any, iface_kind: string): string => {
         const iface_id = shortid.generate();
         this.maybeInitIfaceId({iface_id, iface_kind});
+        this.iface_by_id[iface_id] = {
+            ... this.iface_by_id[iface_id],
+            data
+        };
 
         if (iface_kind === 'fsm') {
             (Object.keys(data.states) || []).forEach(state_id => {
                 if (data.states[state_id]?.action?.value?.class) {
-                    data.specific_data[state_id].class_name = data.states[state_id].action.value.class;
+                    this.maybeInitSpecificDataId(iface_id, state_id);
+                    this.iface_by_id[iface_id].specific_data[state_id].class_name = data.states[state_id].action.value.class;
                 }
             });
         } else if (iface_kind === 'pipeline') {
@@ -134,7 +145,10 @@ export class InterfaceInfo {
                             addProcessorClasses(child.children);
                             break;
                         case 'processor':
-                            child.id && (data.specific_data[child.id].class_name = child.name);
+                            if (child.id) {
+                                this.maybeInitSpecificDataId(iface_id, child.id);
+                                this.iface_by_id[iface_id].specific_data[child.id].class_name = child.name;
+                            }
                             break;
                     }
                 });
@@ -142,7 +156,6 @@ export class InterfaceInfo {
             addProcessorClasses(data.children);
         }
 
-        this.iface_by_id[iface_id] = data;
         this.setOrigConfigItems({iface_id});
         return iface_id;
     }
