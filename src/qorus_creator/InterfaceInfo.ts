@@ -115,13 +115,33 @@ export class InterfaceInfo {
     addIfaceById = (data: any, iface_kind: string): string => {
         const iface_id = shortid.generate();
         this.maybeInitIfaceId({iface_id, iface_kind});
+
         if (iface_kind === 'fsm') {
             (Object.keys(data.states) || []).forEach(state_id => {
                 if (data.states[state_id]?.action?.value?.class) {
                     data.specific_data[state_id].class_name = data.states[state_id].action.value.class;
                 }
             });
+        } else if (iface_kind === 'pipeline') {
+            const addProcessorClasses = (children: any[]) => {
+                if (!children?.length) {
+                    return;
+                }
+
+                children.forEach(child => {
+                    switch (child.type) {
+                        case 'queue':
+                            addProcessorClasses(child.children);
+                            break;
+                        case 'processor':
+                            child.id && (data.specific_data[child.id].class_name = child.name);
+                            break;
+                    }
+                });
+            };
+            addProcessorClasses(data.children);
         }
+
         this.iface_by_id[iface_id] = data;
         this.setOrigConfigItems({iface_id});
         return iface_id;
