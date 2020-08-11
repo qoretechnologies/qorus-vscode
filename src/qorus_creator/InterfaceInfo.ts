@@ -123,7 +123,7 @@ export class InterfaceInfo {
         this.maybeInitIfaceId({iface_id, iface_kind});
         this.iface_by_id[iface_id] = {
             ... this.iface_by_id[iface_id],
-            data
+            ... data
         };
 
         if (iface_kind === 'fsm') {
