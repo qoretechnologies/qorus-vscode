@@ -771,10 +771,13 @@ export abstract class InterfaceCreator {
                         };
                         const dumpChild = (child: any, indent_level: number) => {
                             result += `${indent.repeat(indent_level)}${list_indent}name: ${child.name}\n`;
+                            result += `${indent.repeat(indent_level + 1)}type: ${child.type}\n`;
                             if (child.id) {
                                 result += `${indent.repeat(indent_level + 1)}id: ${child.id}\n`;
+                                if (iface_data?.specific_data?.[child.id]?.['config-items']?.length) {
+                                    result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[child.id]['config-items'], indent_level + 1);
+                                }
                             }
-                            result += `${indent.repeat(indent_level + 1)}type: ${child.type}\n`;
                             dumpChildren(child.children, indent_level + 1)
                         };
 
@@ -823,8 +826,8 @@ export abstract class InterfaceCreator {
                             delete cloned_value.class_name;
                             result += `${indent}'${id}':\n` +
                                 InterfaceCreator.indentYamlDump(cloned_value, 2, true);
-                            if (iface_data?.states[id]?.['config-items']?.length) {
-                                result += InterfaceCreator.createConfigItemHeaders(iface_data.states[id]['config-items'], 2);
+                            if (iface_data?.specific_data?.[id]?.['config-items']?.length) {
+                                result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[id]['config-items'], 2);
                             }
                         });
                         break;
