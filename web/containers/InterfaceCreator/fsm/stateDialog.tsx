@@ -89,7 +89,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
         validateField('string', name) && !find(otherStates, (state: IFSMState): boolean => state.name === name);
 
     const isDataValid: () => boolean = () => {
-        console.log(newData, actionType);
         return (
             isNameValid(newData.name) &&
             isActionValid() &&

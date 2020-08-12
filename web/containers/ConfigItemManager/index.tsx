@@ -67,7 +67,6 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
 
     useEffectOnce(() => {
         addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
-            console.log(data);
             setConfigItems(data);
         });
         // Listen for config items data request

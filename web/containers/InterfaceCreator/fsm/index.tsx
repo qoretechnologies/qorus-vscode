@@ -147,8 +147,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
 
-    console.log(fsm);
-
     const [states, setStates] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
     const [metadata, setMetadata] = useState<IFSMMetadata>({
         target_dir: fsm?.target_dir || null,
