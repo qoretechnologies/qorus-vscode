@@ -779,7 +779,7 @@ export abstract class InterfaceCreator {
                             dumpChildren(child.children, indent_level + 1)
                         };
 
-                        dumpChildren(value[0].children, 0);
+                        dumpChildren(value, 0);
                         break;
                 }
             } else {
