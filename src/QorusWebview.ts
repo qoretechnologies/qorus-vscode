@@ -262,6 +262,7 @@ class QorusWebview {
                             interface_info.resetConfigItemsToOrig(message);
                             break;
                         case 'submit-fsm-state':
+                        case 'submit-processor':
                             interface_info.setOrigConfigItems(message);
                             break;
                         case 'delete-config-item':
