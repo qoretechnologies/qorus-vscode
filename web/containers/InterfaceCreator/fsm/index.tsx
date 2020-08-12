@@ -4,9 +4,13 @@ import filter from 'lodash/filter';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import compose from 'recompose/compose';
+import cloneDeep from 'lodash/cloneDeep';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
+import shortid from 'shortid';
 import styled from 'styled-components';
+import maxBy from 'lodash/maxBy';
 
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
@@ -25,6 +29,8 @@ import FSMState from './state';
 import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
+import FSMTransitionOrderDialog from './transitionOrderDialog';
+import withMessageHandler from '../../../hocomponents/withMessageHandler';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -132,15 +138,16 @@ const StyledFSMCircle = styled.circle`
 let currentXPan: number;
 let currentYPan: number;
 
-const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext }) => {
+const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext, postMessage }) => {
     const t = useContext(TextContext);
     const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
+    const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || shortid.generate());
 
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
 
-    const [states, setStates] = useState<IFSMStates>(fsm?.states || {});
+    const [states, setStates] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
     const [metadata, setMetadata] = useState<IFSMMetadata>({
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,
@@ -153,6 +160,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const [selectedState, setSelectedState] = useState<string | null>(null);
     const [editingState, setEditingState] = useState<string | null>(null);
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
+    const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
     const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(false);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
@@ -351,7 +359,9 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             undefined,
             {
                 iface_kind: 'fsm',
+                iface_id: interfaceId,
                 orig_data: fsm,
+                no_data_return: !!onSubmitSuccess,
                 data: {
                     ...metadata,
                     states,
@@ -417,6 +427,11 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 {}
             );
 
+            postMessage('remove-fsm-state', {
+                iface_id: interfaceId,
+                state_id: id,
+            });
+
             return newStates;
         });
     };
@@ -446,13 +461,63 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     ).sort((a, b) => a.order - b.order);
 
     const reset = () => {
-        setStates({});
-        setMetadata({
-            name: null,
-            desc: null,
-            target_dir: null,
-            fsm_options: { 'action-strategy': 'one', 'max-thread-count': 1 },
+        postMessage(Messages.RESET_CONFIG_ITEMS, {
+            iface_id: interfaceId,
         });
+        setStates(cloneDeep(fsm?.states || {}));
+        setMetadata({
+            name: fsm?.name,
+            desc: fsm?.desc,
+            target_dir: fsm?.target_dir,
+            fsm_options: fsm?.options || { 'action-strategy': 'one', 'max-thread-count': 1 },
+        });
+    };
+
+    const getTargetStatePosition = (x1, y1, x2, y2) => {
+        const modifiedX1 = x1 + 10000;
+        const modifiedX2 = x2 + 10000;
+        const modifiedY1 = y1 + 10000;
+        const modifiedY2 = y2 + 10000;
+
+        const sides = [];
+
+        const horizontal = modifiedX1 - modifiedX2;
+        const vertical = modifiedY1 - modifiedY2;
+
+        if (x1 > x2) {
+            sides.push({ side: 'left', value: Math.abs(horizontal) });
+        } else {
+            sides.push({ side: 'right', value: Math.abs(horizontal) });
+        }
+
+        if (y1 > y2) {
+            sides.push({ side: 'top', value: Math.abs(vertical) });
+        } else {
+            sides.push({ side: 'bottom', value: Math.abs(vertical) });
+        }
+
+        const { side } = maxBy(sides, 'value');
+
+        switch (side) {
+            case 'right': {
+                return { x2, y2: y2 + 25 };
+            }
+            case 'left': {
+                return { x2: x2 + 180, y2: y2 + 25 };
+            }
+            case 'bottom': {
+                return { x2: x2 + 90, y2 };
+            }
+            case 'top': {
+                return { x2: x2 + 90, y2: y2 + 50 };
+            }
+            default: {
+                return {
+                    x2: 0,
+                    y2: 0,
+                };
+            }
+        }
     };
 
     const calculateMargin = () => (zoom - 1) * 1000;
@@ -545,12 +610,22 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     data={states[editingState]}
                     id={editingState}
                     deleteState={handleStateDeleteClick}
+                    interfaceId={interfaceId}
                     otherStates={reduce(
                         states,
                         (newStates, state, id) =>
                             id === editingState ? { ...newStates } : { ...newStates, [id]: state },
                         {}
                     )}
+                />
+            )}
+            {editingTransitionOrder && (
+                <FSMTransitionOrderDialog
+                    transitions={states[editingTransitionOrder].transitions}
+                    id={editingTransitionOrder}
+                    onClose={() => setEditingTransitionOrder(null)}
+                    getStateData={(id) => states[id]}
+                    onSubmit={updateStateData}
                 />
             )}
             {size(editingTransition) ? (
@@ -636,6 +711,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 onDeleteClick={handleStateDeleteClick}
                                 selectedState={selectedState}
                                 getTransitionByState={getTransitionByState}
+                                onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
                             />
                         ))}
                         <svg height="100%" width="100%" style={{ position: 'absolute' }}>
@@ -677,11 +753,11 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                                 stroke={isError ? 'red' : '#a9a9a9'}
                                                 strokeWidth={isError ? 4 : 2}
                                                 strokeDasharray={isError ? '10 2' : undefined}
+                                                id={getTargetStatePosition(x1, y1, x2, y2)}
                                                 markerEnd={isError ? 'url(#arrowheaderror)' : 'url(#arrowhead)'}
                                                 x1={x1 + 90}
                                                 y1={y1 + 25}
-                                                x2={x2 + 90}
-                                                y2={y2 + 25}
+                                                {...getTargetStatePosition(x1, y1, x2, y2)}
                                             />
                                         </>
                                     )
@@ -723,4 +799,4 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     );
 };
 
-export default withGlobalOptionsConsumer()(FSMView);
+export default compose(withGlobalOptionsConsumer(), withMessageHandler())(FSMView);

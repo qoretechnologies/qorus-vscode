@@ -1,5 +1,5 @@
-import { workspace, window } from 'vscode';
-import * as jsyaml from 'js-yaml';
+import { workspace, window, commands } from 'vscode';
+import * as path from 'path';
 
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
@@ -17,7 +17,17 @@ import * as msg from '../qorus_message';
 
 class ClassCreator extends InterfaceCreator {
     editImpl = params => {
-        const {data, orig_data, edit_type, iface_id, iface_kind, open_file_on_success, request_id} = params;
+        const {
+            data,
+            orig_data,
+            edit_type,
+            iface_id,
+            iface_kind,
+            open_file_on_success,
+            no_data_return,
+            request_id
+        } = params;
+
         this.lang = data.lang || 'qore';
 
         let imports: string[] = [];
@@ -166,19 +176,7 @@ class ClassCreator extends InterfaceCreator {
                 ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
                 : {},
             code: this.rel_file_path
-        });
-
-        const iface_data = this.code_info.interface_info.getInfo(iface_id);
-        const hasArrayTag = tag => iface_data && iface_data[tag] && iface_data[tag].length;
-        if (hasArrayTag('config-items')) {
-            headers += ClassCreator.createConfigItemHeaders(iface_data['config-items']);
-        }
-
-        if (iface_kind === 'workflow' && hasArrayTag('config-item-values')) {
-            headers += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']},
-                                       {indent: 2, skipInvalid: true})
-                             .replace(/\r?\n  -\r?\n/g, '\n  - ');
-        }
+        }, iface_id, iface_kind);
 
         if (this.has_code) {
             if (this.writeFiles(contents, headers)) {
@@ -207,17 +205,19 @@ class ClassCreator extends InterfaceCreator {
             msg.info(info);
         }
 
-        delete data.yaml_file;
-        qorus_webview.opening_data = {
-            tab: 'CreateInterface',
-            subtab: iface_kind,
-            [iface_kind]: data
-        };
-
         this.deleteOrigFilesIfDifferent();
-        if (hasConfigItems(iface_kind)) {
-            this.code_info.interface_info.setOrigConfigItems(iface_id, edit_type === 'edit');
+        if (hasConfigItems(iface_kind) || iface_kind === 'fsm') {
+            this.code_info.interface_info.setOrigConfigItems({iface_id}, edit_type === 'edit');
         }
+
+        if (!!no_data_return) {
+            return;
+        }
+
+        const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
+        const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
+        const fixed_data = this.code_info.fixData(yaml_data);
+        commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
     }
 }
 

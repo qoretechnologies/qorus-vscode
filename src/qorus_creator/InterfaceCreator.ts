@@ -5,25 +5,13 @@ import { t } from 'ttag';
 import { Position } from 'vscode';
 
 import * as globals from '../global_config_item_values';
-import {
-    default_version,
-    types_with_version
-} from '../qorus_constants';
+import { default_version, types_with_version } from '../qorus_constants';
 import * as msg from '../qorus_message';
-import {
-    capitalize,
-    isValidIdentifier,
-    quotesIfNum,
-    removeDuplicates,
-    sortRanges
-} from '../qorus_utils';
+import { capitalize, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges, deepCopy } from '../qorus_utils';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
-import {
-    default_parse_options,
-    field
-} from './common_constants';
+import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
 
@@ -467,11 +455,11 @@ export abstract class InterfaceCreator {
         return result;
     }
 
-    protected static createConfigItemHeaders = (items: any[]): string => {
-        let result: string = 'config-items:\n';
+    protected static createConfigItemHeaders = (items: any[], indent_level = 0): string => {
+        let result: string = `${indent.repeat(indent_level)}config-items:\n`;
 
         for (const item of [...items]) {
-            result += `${list_indent}name: ${item.name}\n`;
+            result += `${indent.repeat(indent_level)}${list_indent}name: ${item.name}\n`;
 
             if (item['global-value']) {
                 globals.set(item);
@@ -482,7 +470,7 @@ export abstract class InterfaceCreator {
 
             for (const tag of ['value', 'local-value', 'default_value']) {
                 if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
-                    result += `${indent}${tag === 'local-value' ? 'value' : tag}:\n`;
+                    result += `${indent.repeat(indent_level + 1)}${tag === 'local-value' ? 'value' : tag}:\n`;
 
                     let type = item.type;
                     if (type === 'any') {
@@ -503,20 +491,20 @@ export abstract class InterfaceCreator {
                             lines.pop();
                         }
                         if (non_star_type === 'list') {
-                            result += lines.map((str) => `${indent}  ${str}`).join('\n') + '\n';
+                            result += lines.map((str) => `${indent.repeat(indent_level + 1)}  ${str}`).join('\n') + '\n';
                         } else {
-                            result += lines.map((str) => `${indent}${indent}${str}`).join('\n') + '\n';
+                            result += lines.map((str) => `${indent.repeat(indent_level + 2)}${str}`).join('\n') + '\n';
                         }
                     } else {
-                        result += `${indent}${indent}${JSON.stringify(item[tag])}\n`;
+                        result += `${indent.repeat(indent_level + 2)}${JSON.stringify(item[tag])}\n`;
                     }
                 }
             }
 
             if (item.parent) {
-                result += `${indent}parent:\n`;
+                result += `${indent.repeat(indent_level + 1)}parent:\n`;
                 for (const tag in item.parent) {
-                    result += `${indent}${indent}${tag}: ${quotesIfNum(item.parent[tag])}\n`;
+                    result += `${indent.repeat(indent_level + 2)}${tag}: ${quotesIfNum(item.parent[tag])}\n`;
                 }
             }
 
@@ -525,25 +513,23 @@ export abstract class InterfaceCreator {
                     continue;
                 }
 
-                if (
-                    [
-                        'name',
-                        'parent',
-                        'parent_data',
-                        'parent_class',
-                        'value',
-                        'level',
-                        'is_set',
-                        'yamlData',
-                        'orig_name',
-                        'local-value',
-                        'global-value',
-                        'is_global_value_templated_string',
-                        'default_value',
-                        'remove-global-value',
-                        'workflow-value',
-                    ].includes(tag)
-                ) {
+                if ([
+                    'name',
+                    'parent',
+                    'parent_data',
+                    'parent_class',
+                    'value',
+                    'level',
+                    'is_set',
+                    'yamlData',
+                    'orig_name',
+                    'local-value',
+                    'global-value',
+                    'is_global_value_templated_string',
+                    'default_value',
+                    'remove-global-value',
+                    'workflow-value',
+                ].includes(tag)) {
                     continue;
                 }
 
@@ -554,21 +540,20 @@ export abstract class InterfaceCreator {
                     (has_parent_data && item[tag] !== item.parent_data[tag])
                 ) {
                     if (Array.isArray(item[tag])) {
-                        result += `${indent}${tag}:\n`;
+                        result += `${indent.repeat(indent_level + 1)}${tag}:\n`;
                         for (let entry of item[tag]) {
-                            result += `${indent}${list_indent}${JSON.stringify(entry)}\n`;
+                            result += `${indent.repeat(indent_level + 1)}${list_indent}${JSON.stringify(entry)}\n`;
                         }
                     } else {
                         switch (tag) {
                             case 'type':
-                                result +=
-                                    `${indent}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
+                                result += `${indent.repeat(indent_level + 1)}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent}${tag}: ` + InterfaceCreator.indentYamlDump(item[tag], 1, false);
+                                result += `${indent.repeat(indent_level + 1)}${tag}: ` + InterfaceCreator.indentYamlDump(item[tag], 1, false);
                                 break;
                             default:
-                                result += `${indent}${tag}: ${item[tag]}\n`;
+                                result += `${indent.repeat(indent_level + 1)}${tag}: ${item[tag]}\n`;
                         }
                     }
                 }
@@ -578,7 +563,7 @@ export abstract class InterfaceCreator {
         return result;
     }
 
-    protected createHeaders = (headers: any): string => {
+    protected createHeaders = (headers: any, iface_id: string, iface_kind?: string): string => {
         let result: string = '';
 
         const classes_or_requires = headers.type === 'class' ? 'requires' : 'classes';
@@ -654,6 +639,8 @@ export abstract class InterfaceCreator {
             }
         });
 
+        const iface_data = this.code_info.interface_info.getInfo(iface_id);
+
         for (const tag of ordered_tags) {
             if (
                 [
@@ -666,6 +653,7 @@ export abstract class InterfaceCreator {
                     'output_field_option_types',
                     'active_method',
                     'yaml_file',
+                    'config-items',
                     'config-item-values',
                     'class-class-name',
                 ].includes(tag)
@@ -793,11 +781,24 @@ export abstract class InterfaceCreator {
                     case 'fsm_options':
                     case 'typeinfo':
                     case 'staticdata-type':
-                    case 'states':
                     case 'context':
                         result +=
-                            `${tag === 'mapper_options' || tag === 'fsm_options' ? 'options' : tag}:\n` +
+                            `${['mapper_options', 'fsm_options'].includes(tag) ? 'options' : tag}:\n` +
                             InterfaceCreator.indentYamlDump(value, 1, true);
+                        break;
+                    case 'states':
+                        result += `${tag}:\n`;
+                        Object.keys(value).forEach(id => {
+                            let cloned_value = deepCopy(value[id]);
+                            delete cloned_value['config-items'];
+                            delete cloned_value['orig-config-items'];
+                            delete cloned_value.class_name;
+                            result += `${indent}'${id}':\n` +
+                                InterfaceCreator.indentYamlDump(cloned_value, 2, true);
+                            if (iface_data?.states[id]?.['config-items']?.length) {
+                                result += InterfaceCreator.createConfigItemHeaders(iface_data.states[id]['config-items'], 2);
+                            }
+                        });
                         break;
                     case 'desc':
                     case 'description':
@@ -833,6 +834,16 @@ export abstract class InterfaceCreator {
                         result += `${tag}: ${value}\n`;
                 }
             }
+        }
+
+        if (iface_data?.['config-items']?.length) {
+            result += InterfaceCreator.createConfigItemHeaders(iface_data['config-items']);
+        }
+
+        if (iface_kind === 'workflow' && iface_data?.['config-item-values']?.length) {
+            result += jsyaml.safeDump({'config-item-values': iface_data['config-item-values']},
+                                      {indent: 2, skipInvalid: true})
+                            .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 
         return result;

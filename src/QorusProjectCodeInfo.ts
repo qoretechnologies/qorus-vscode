@@ -365,21 +365,34 @@ export class QorusProjectCodeInfo {
             data[tag] = transformed_data;
         });
 
-        (data['config-items'] || []).forEach(item => {
-            if (!item.stricty_local) {
-                const global_value = globals.get(item.name);
-                if (global_value !== undefined) {
-                    item['global-value'] = global_value.value;
-                    item.is_global_value_templated_string = global_value.is_value_templated_string;
+        const fixConfigItems = (items: any[] | undefined) => {
+            if (!items) {
+                return;
+            }
+
+            items.forEach(item => {
+                if (!item.stricty_local) {
+                    const global_value = globals.get(item.name);
+                    if (global_value !== undefined) {
+                        item['global-value'] = global_value.value;
+                        item.is_global_value_templated_string = global_value.is_value_templated_string;
+                    }
                 }
-            }
 
-            if (data.type !== 'workflow' && item.value !== undefined) {
-                item['local-value'] = item.value;
-            }
+                if (data.type !== 'workflow' && item.value !== undefined) {
+                    item['local-value'] = item.value;
+                }
 
-            delete item.value;
-        });
+                delete item.value;
+            });
+        };
+
+        fixConfigItems(data['config-items']);
+        if (data.type === 'fsm' && data.states) {
+            Object.keys(data.states).forEach(id => {
+                fixConfigItems(data.states[id]['config-items']);
+            });
+        }
 
         for (const method of data.methods || []) {
             if (method.author) {

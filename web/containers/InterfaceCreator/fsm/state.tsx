@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 
 import { useDrag } from 'react-dnd';
 import styled, { css, keyframes } from 'styled-components';
@@ -16,6 +16,7 @@ export interface IFSMStateProps extends IFSMState {
     onEditClick: (id: string) => any;
     onDeleteClick: (id: string) => any;
     onUpdate: (id: string, data: any) => any;
+    onTransitionOrderClick: (id: string) => any;
     startTransitionDrag: (id: string) => any;
     stopTransitionDrag: (id: string) => any;
     selectedState?: boolean;
@@ -139,6 +140,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     onDblClick,
     onEditClick,
     onDeleteClick,
+    onTransitionOrderClick,
     name,
     action,
     initial,
@@ -218,6 +220,13 @@ const FSMState: React.FC<IFSMStateProps> = ({
                             },
                             icon: 'flow-end',
                             rightIcon: final ? 'small-tick' : undefined,
+                        },
+                        {
+                            item: t('ManageTransitions'),
+                            onClick: () => {
+                                onTransitionOrderClick(id);
+                            },
+                            icon: 'property',
                         },
                         {
                             item: t('RemoveAllTransitions'),
