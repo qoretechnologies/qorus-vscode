@@ -145,9 +145,12 @@ export class InterfaceInfo {
                             addProcessorClasses(child.children);
                             break;
                         case 'processor':
-                            if (child.id) {
-                                this.maybeInitSpecificDataId(iface_id, child.id);
-                                this.iface_by_id[iface_id].specific_data[child.id].class_name = child.name;
+                            if (child.pid) {
+                                this.maybeInitSpecificDataId(iface_id, child.pid);
+                                this.iface_by_id[iface_id].specific_data[child.pid].class_name = child.name;
+                                if (child['config-items']?.length) {
+                                    this.iface_by_id[iface_id].specific_data[child.pid]['config-items'] = child['config-items'];
+                                }
                             }
                             break;
                     }
