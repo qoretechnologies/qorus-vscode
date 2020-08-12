@@ -1,12 +1,6 @@
-import React, {
-    FunctionComponent,
-    useState
-} from 'react';
+import React, { FunctionComponent, useState } from 'react';
 
-import {
-    every,
-    reduce
-} from 'lodash';
+import { every, reduce } from 'lodash';
 import { isArray } from 'util';
 
 import { IField } from '../containers/InterfaceCreator/panel';
@@ -91,9 +85,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
 
         const requestInterfaceData = (ifaceKind: string, field?: string): any => {
-            console.log(selectedFields, ifaceKind);
-            console.log(selectedFields[ifaceKind]);
-
             if (!selectedFields[ifaceKind] || selectedFields[ifaceKind].length === 0) {
                 return null;
             }

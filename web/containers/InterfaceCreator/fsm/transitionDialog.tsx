@@ -36,7 +36,6 @@ export type TTransitionCondition = 'custom' | 'connector' | 'none';
 
 export interface IModifiedTransition {
     name: string;
-    conditionType: TTransitionCondition;
     data: IFSMTransition;
 }
 
@@ -57,12 +56,111 @@ const StyledTransitionWrapper = styled.div`
     }
 `;
 
+export const getConditionType: (condition: any) => TTransitionCondition = (condition) =>
+    condition === null || condition === undefined ? 'none' : typeof condition === 'object' ? 'connector' : 'custom';
+
+export const isConditionValid: (transitionData: IFSMTransition) => boolean = (transitionData) => {
+    const condition = getConditionType(transitionData.condition);
+
+    if (condition === 'connector') {
+        return !!transitionData?.condition?.['class'] && !!transitionData?.condition?.connector;
+    }
+
+    if (condition === 'custom') {
+        return validateField('string', transitionData?.condition);
+    }
+
+    return true;
+};
+
+export const TransitionEditor = ({ onChange, transitionData, errors, qorus_instance }) => {
+    const t = useContext(TextContext);
+
+    const renderConditionField: (conditionType: TTransitionCondition, transitionData: IFSMTransition) => any = (
+        conditionType,
+        transitionData
+    ) => {
+        switch (conditionType) {
+            case 'connector': {
+                return (
+                    <ConnectorSelector
+                        value={transitionData?.condition}
+                        onChange={(value) => onChange('condition', value)}
+                        types={['condition']}
+                    />
+                );
+            }
+            case 'custom': {
+                return (
+                    <String
+                        name="condition"
+                        onChange={(name, value) => onChange(name, value)}
+                        value={transitionData?.condition}
+                    />
+                );
+            }
+            default:
+                return null;
+        }
+    };
+
+    const renderErrorsField: (transitionData: IFSMTransition) => any = (transitionData) => {
+        if (qorus_instance && !errors) {
+            return <Spinner size={14} />;
+        }
+
+        return (
+            <MultiSelect
+                simple
+                default_items={[{ name: 'All' }, ...(errors || [])]}
+                name="errors"
+                onChange={(_name, value) => onChange('errors', value)}
+                value={transitionData?.errors}
+            />
+        );
+    };
+
+    const conditionType = getConditionType(transitionData.condition);
+
+    return (
+        <>
+            <FieldWrapper padded>
+                <FieldLabel label={t('Condition')} isValid={isConditionValid(transitionData)} info={t('Optional')} />
+                <FieldInputWrapper>
+                    <RadioField
+                        name="conditionType"
+                        onChange={(_name, value) => {
+                            onChange('condition', value === 'none' ? null : value === 'custom' ? '' : { class: null });
+                        }}
+                        value={conditionType || 'none'}
+                        items={[{ value: 'custom' }, { value: 'connector' }, { value: 'none' }]}
+                    />
+                    {conditionType && conditionType !== 'none' ? (
+                        <>
+                            <Spacer size={20} />
+                            {renderConditionField(conditionType, transitionData)}
+                        </>
+                    ) : null}
+                </FieldInputWrapper>
+            </FieldWrapper>
+            <FieldWrapper padded>
+                <FieldLabel label={t('Errors')} isValid info={t('Optional')} />
+                <FieldInputWrapper>
+                    {!qorus_instance && (
+                        <>
+                            <Callout intent={Intent.WARNING}>{t('TransitionErrorsNoInstance')}</Callout>
+                            <Spacer size={10} />
+                        </>
+                    )}
+                    {renderErrorsField(transitionData)}
+                </FieldInputWrapper>
+            </FieldWrapper>
+        </>
+    );
+};
+
 const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, states, editingData, onSubmit }) => {
     const { qorus_instance, fetchData } = useContext<{ qorus_instance?: string }>(InitialContext);
-
-    const getConditionType: (condition: any) => TTransitionCondition = (condition) => {
-        return !condition ? 'none' : typeof condition === 'string' ? 'custom' : 'connector';
-    };
 
     const getTransitionFromStates: () => IModifiedTransitions = () =>
         editingData.reduce(
@@ -70,7 +168,6 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
                 ...modifiedData,
                 [`${stateId}:${index}`]: {
                     name: `${states[stateId].name} -> ${states[states[stateId].transitions[index].state].name}`,
-                    conditionType: getConditionType(states[stateId].transitions[index].condition),
                     data: cloneDeep(states)[stateId].transitions[index],
                 },
             }),
@@ -104,11 +201,7 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         setNewData((cur) => {
             const result = { ...cur };
 
-            if (name === 'conditionType') {
-                result[id].conditionType = value;
-            } else {
-                result[id].data[name] = value;
-            }
+            result[id].data[name] = value;
 
             return result;
         });
@@ -128,7 +221,7 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         let isValid = true;
 
         forEach(newData, (transitionData, id) => {
-            if (transitionData && !isConditionValid(transitionData.conditionType, transitionData.data)) {
+            if (transitionData && !isConditionValid(transitionData.data)) {
                 isValid = false;
             }
         });
@@ -136,66 +229,10 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
         return isValid;
     };
 
-    const isConditionValid: (conditionType: TTransitionCondition, transitionData: IFSMTransition) => boolean = (
-        conditionType,
-        transitionData
-    ) => {
-        if (conditionType === 'connector') {
-            return !!transitionData?.condition?.['class'] && !!transitionData?.condition?.connector;
-        }
-
-        return true;
-    };
-
     const areAllTransitionsDeleted = () => {
-        return every(newData, (data, id) => {
+        return every(newData, (data) => {
             return !data;
         });
-    };
-
-    const renderConditionField: (
-        id: string,
-        conditionType: TTransitionCondition,
-        transitionData: IFSMTransition
-    ) => any = (id, conditionType, transitionData) => {
-        switch (conditionType) {
-            case 'connector': {
-                return (
-                    <ConnectorSelector
-                        value={transitionData?.condition}
-                        onChange={(value) => handleDataUpdate(id, 'condition', value)}
-                        types={['condition']}
-                    />
-                );
-            }
-            case 'custom': {
-                return (
-                    <String
-                        name="condition"
-                        onChange={(name, value) => handleDataUpdate(id, name, value)}
-                        value={transitionData?.condition}
-                    />
-                );
-            }
-            default:
-                return null;
-        }
-    };
-
-    const renderErrorsField: (id: string, transitionData: IFSMTransition) => any = (id, transitionData) => {
-        if (qorus_instance && !errors) {
-            return <Spinner size={14} />;
-        }
-
-        return (
-            <MultiSelect
-                simple
-                default_items={[{ name: 'All' }, ...(errors || [])]}
-                name="errors"
-                onChange={(_name, value) => handleDataUpdate(id, 'errors', value)}
-                value={transitionData?.errors}
-            />
-        );
     };
 
     return (
@@ -229,56 +266,12 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
                                                     }}
                                                 />
                                             </h3>
-                                            <FieldWrapper padded>
-                                                <FieldLabel
-                                                    label={t('Condition')}
-                                                    isValid={isConditionValid(
-                                                        transitionData.conditionType,
-                                                        transitionData.data
-                                                    )}
-                                                    info={t('Optional')}
-                                                />
-                                                <FieldInputWrapper>
-                                                    <RadioField
-                                                        name="conditionType"
-                                                        onChange={(_name, value) => {
-                                                            handleDataUpdate(id, 'condition', null);
-                                                            handleDataUpdate(id, 'conditionType', value);
-                                                        }}
-                                                        value={transitionData.conditionType || 'none'}
-                                                        items={[
-                                                            { value: 'custom' },
-                                                            { value: 'connector' },
-                                                            { value: 'none' },
-                                                        ]}
-                                                    />
-                                                    {transitionData.conditionType &&
-                                                    transitionData.conditionType !== 'none' ? (
-                                                        <>
-                                                            <Spacer size={20} />
-                                                            {renderConditionField(
-                                                                id,
-                                                                transitionData.conditionType,
-                                                                transitionData.data
-                                                            )}
-                                                        </>
-                                                    ) : null}
-                                                </FieldInputWrapper>
-                                            </FieldWrapper>
-                                            <FieldWrapper padded>
-                                                <FieldLabel label={t('Errors')} isValid info={t('Optional')} />
-                                                <FieldInputWrapper>
-                                                    {!qorus_instance && (
-                                                        <>
-                                                            <Callout intent={Intent.WARNING}>
-                                                                {t('TransitionErrorsNoInstance')}
-                                                            </Callout>
-                                                            <Spacer size={10} />
-                                                        </>
-                                                    )}
-                                                    {renderErrorsField(id, transitionData.data)}
-                                                </FieldInputWrapper>
-                                            </FieldWrapper>
+                                            <TransitionEditor
+                                                onChange={(name, value) => handleDataUpdate(id, name, value)}
+                                                transitionData={transitionData.data}
+                                                errors={errors}
+                                                qorus_instance={qorus_instance}
+                                            />
                                         </StyledTransitionWrapper>
                                     )
                             )}

@@ -34,8 +34,12 @@ export const MENU = {
                 { name: 'Mapper', icon: 'layout-group-by', tab: 'CreateInterface', subtab: 'mapper' },
                 { name: 'Mapper Code', icon: 'function', tab: 'CreateInterface', subtab: 'mapper-code' },
                 { name: 'Type', icon: 'asterisk', tab: 'CreateInterface', subtab: 'type' },
+<<<<<<< HEAD
                 { name: 'FSM', icon: 'layout', tab: 'CreateInterface', subtab: 'fsm' },
                 { name: 'Pipeline', icon: 'graph', tab: 'CreateInterface', subtab: 'pipeline' },
+=======
+                { name: 'FiniteStateMachine', icon: 'layout', tab: 'CreateInterface', subtab: 'fsm' },
+>>>>>>> develop
                 { name: 'Other', icon: 'more', tab: 'CreateInterface', subtab: 'other' },
             ],
         },

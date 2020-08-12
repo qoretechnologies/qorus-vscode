@@ -2310,6 +2310,29 @@ msgstr "Toggle toolbar"
 msgid "Recenter"
 msgstr "Recenter diagram"
 
+msgid "EditingTransitionOrder"
+msgstr "Edit transitions order"
+
+msgid "TransitionToState"
+msgstr "Transition to state"
+
+msgid "TransitionUp"
+msgstr "Move transition up"
+
+msgid "TransitionDown"
+msgstr "Move transition down"
+
+msgid "Missing"
+msgstr "Missing"
+
+msgid "TransitionErrors"
+msgstr "Error(s)"
+
+msgid "TransitionOrderCondition"
+msgstr "condition"
+
+msgid "ManageTransitions"
+msgstr "Manage transitions"
 
 msgid "DuplicateConfigItemName ${ name } ${ prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
 msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""

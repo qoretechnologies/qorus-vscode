@@ -678,6 +678,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 orig_data: initialData.mapper,
                 open_file_on_success: !mapperSubmit,
                 iface_id: interfaceId.mapper,
+                no_data_return: !!onSubmitSuccess ||!!mapperSubmit,
             },
             t('Saving mapper...')
         );
