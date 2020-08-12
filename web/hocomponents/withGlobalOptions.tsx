@@ -82,7 +82,7 @@ export default () => (Component: any): any => {
                     resetAllInterfaceData: handleInterfaceReset,
                     setTypeReset,
                     setFsmReset,
-                    pipelineReset,
+                    setPipelineReset,
                 }}
             >
                 <Component {...props} />
