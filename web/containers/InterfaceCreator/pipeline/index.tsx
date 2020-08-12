@@ -50,7 +50,6 @@ export interface IPipelineMetadata {
     target_dir: string;
     name: string;
     desc: string;
-    elements: IPipelineElement[];
     options?: { [key: string]: any };
 }
 
@@ -207,7 +206,6 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
         target_dir: pipeline?.target_dir || null,
         name: pipeline?.name || null,
         desc: pipeline?.desc || null,
-        elements: pipeline?.elements || [],
     });
     const [elements, setElements] = useState<IPipelineElement[]>(
         transformNodeData(
@@ -237,19 +235,13 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
                 orig_data: pipeline,
                 data: {
                     ...metadata,
-                    elements,
+                    children: elements,
                 },
             },
             t('Saving Pipeline...')
         );
 
         if (result.ok) {
-            if (onSubmitSuccess) {
-                onSubmitSuccess({
-                    ...metadata,
-                    states,
-                });
-            }
             reset();
             resetAllInterfaceData('pipeline');
         }
@@ -272,7 +264,6 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
             name: null,
             desc: null,
             target_dir: null,
-            elements: pipeline?.elements || [],
         });
     };
 
