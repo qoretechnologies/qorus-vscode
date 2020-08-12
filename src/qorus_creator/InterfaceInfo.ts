@@ -685,17 +685,17 @@ export class InterfaceInfo {
         iface_kind,
         steps,
         state_data = {id: undefined, class_name: undefined},
-        processor_data = {id: undefined, class_name: undefined}
+        processor_data = {pid: undefined, class_name: undefined}
     }) => {
         if (!iface_id) {
             return;
         }
-        if (!['workflow', 'job', 'service', 'class', 'step', 'fsm'].includes(iface_kind)) {
+        if (!['workflow', 'job', 'service', 'class', 'step', 'fsm', 'pipeline'].includes(iface_kind)) {
             return;
         }
 
         const {id: state_id, class_name: state_class_name} = state_data;
-        const {id: processor_id, class_name: processor_class_name} = processor_data;
+        const {pid: processor_id, class_name: processor_class_name} = processor_data;
         const specific_data_class_name = state_class_name || processor_class_name;
         const specific_data_id = this.specificDataId(iface_kind, state_id, processor_id);
         this.maybeInitIfaceId({iface_id, iface_kind, state_id, processor_id});
@@ -733,7 +733,7 @@ export class InterfaceInfo {
                 this.removeClassFromSpecificData(iface_id, specific_data_id);
             }
             this.addClassConfigItems(iface_id, specific_data_class_name, '', specific_data_id);
-            this.iface_by_id[iface_id].specific_data[state_id].class_name = specific_data_class_name;
+            this.iface_by_id[iface_id].specific_data[specific_data_id].class_name = specific_data_class_name;
         }
 
         const default_type = defaultValue('type');
