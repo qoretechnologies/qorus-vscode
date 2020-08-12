@@ -676,7 +676,6 @@ export abstract class InterfaceCreator {
                     case 'codes':
                         result += 'mapper-code:\n';
                         break;
-                    case 'elements':
                     case 'children':
                         break;
                     default:
@@ -757,7 +756,6 @@ export abstract class InterfaceCreator {
                             result += `${indent}${line}\n`;
                         }
                         break;
-                    case 'elements':
                     case 'children':
                         const dumpChildren = (children: any, indent_level: number) => {
                             if (!children?.length) {
