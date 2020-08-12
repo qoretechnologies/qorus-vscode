@@ -22,10 +22,14 @@ import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
 import { calculateFontSize } from '../fsm/state';
 import shortid from 'shortid';
+import compose from 'recompose/compose';
+import { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import useMount from 'react-use/lib/useMount';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
-    setFsmReset: () => void;
+    setPipelineReset: (func: any) => void;
+    postMessage: TPostMessage;
 }
 
 export interface IPipelineProcessor {
@@ -127,11 +131,19 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
     );
 };
 
-const PipelineView: React.FC<IPipelineViewProps> = () => {
+const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset }) => {
     const wrapperRef = useRef(null);
     const t = useContext(TextContext);
     const { sidebarOpen, path, image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
+
+    useMount(() => {
+        setPipelineReset(() => reset);
+
+        return () => {
+            setPipelineReset(null);
+        };
+    });
 
     const transformNodeData = (data, path) => {
         return data.reduce((newData, item, index) => {
@@ -251,6 +263,9 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
     };
 
     const reset = () => {
+        postMessage(Messages.RESET_CONFIG_ITEMS, {
+            iface_id: interfaceId,
+        });
         setElements(
             transformNodeData(
                 [
@@ -475,4 +490,4 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
     );
 };
 
-export default withGlobalOptionsConsumer()(PipelineView);
+export default compose(withGlobalOptionsConsumer(), withMessageHandler())(PipelineView);

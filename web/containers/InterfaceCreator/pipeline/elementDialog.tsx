@@ -139,6 +139,12 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
                                 name={`fsn-submit-state`}
                                 intent={Intent.SUCCESS}
                                 onClick={() => {
+                                    if (newData.type === 'processor') {
+                                        postMessage('submit-processor', {
+                                            iface_id: interfaceId,
+                                            processor_id: newData.pid,
+                                        });
+                                    }
                                     onSubmit(newData);
                                     onClose();
                                 }}

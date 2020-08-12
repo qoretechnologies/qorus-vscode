@@ -12,6 +12,7 @@ export default () => (Component: any): any => {
     const EnhancedComponent = (props: any) => {
         const [typeReset, setTypeReset] = useState(null);
         const [fsmReset, setFsmReset] = useState(null);
+        const [pipelineReset, setPipelineReset] = useState(null);
 
         const handleInterfaceReset: (type: string, soft?: boolean) => void = (type, soft) => {
             // Reset the initial data
@@ -66,6 +67,10 @@ export default () => (Component: any): any => {
                     // Reset FSM
                     fsmReset && fsmReset();
                     props.resetInterfaceData('fsm');
+                case 'fsm':
+                    // Reset FSM
+                    pipelineReset && pipelineReset();
+                    props.resetInterfaceData('pipeline');
                 default:
                     break;
             }
@@ -77,6 +82,7 @@ export default () => (Component: any): any => {
                     resetAllInterfaceData: handleInterfaceReset,
                     setTypeReset,
                     setFsmReset,
+                    pipelineReset,
                 }}
             >
                 <Component {...props} />
