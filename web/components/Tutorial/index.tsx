@@ -1,11 +1,7 @@
-import React, {
-    useCallback, useContext, useEffect, useMemo, useState
-} from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import maxBy from 'lodash/maxBy';
-import styled, {
-    css, keyframes
-} from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 import { Button, ButtonGroup, Icon, Tooltip } from '@blueprintjs/core';
 
@@ -267,41 +263,37 @@ const Tutorial = ({ data, onClose }) => {
         box.classList.remove('top', 'left', 'right', 'bottom', 'center');
         box.classList.add(side);
 
+        let style;
+
         if (side === 'top') {
-            const left = elementData.left + elementData.width / 2;
-
-            return {
-                top: `${elementData.top - height - 20}px`,
-                left: `${left - width / 2 < 20 ? 20 : left}px`,
+            style = {
+                top: elementData.top - height - 20,
+                left: elementData.left + elementData.width / 2,
                 transform: 'translateX(-50%)',
             };
-        }
-
-        if (side === 'bottom') {
-            const left = elementData.left + elementData.width / 2;
-            const isOutsideOfView = left - width / 2 < 20;
-
-            return {
-                top: `${elementData.top + elementData.height + 20}px`,
-                left: `${left}px`,
+        } else if (side === 'bottom') {
+            style = {
+                top: elementData.top + elementData.height + 20,
+                left: elementData.left + elementData.width / 2,
                 transform: 'translateX(-50%)',
-                maxWidth: isOutsideOfView ? elementData.width : undefined,
             };
-        }
-
-        if (side === 'left') {
-            return {
-                left: `${elementData.left - width - 20}px`,
-                top: `${elementData.top + elementData.height / 2}px`,
+        } else if (side === 'left') {
+            style = {
+                left: elementData.left - width - 20,
+                top: elementData.top + elementData.height / 2,
                 transform: 'translateY(-50%)',
             };
-        }
-
-        if (side === 'left') {
-            return {
-                left: `${elementData.left + elementData.width + 20}px`,
-                top: `${elementData.top + elementData.height / 2}px`,
+        } else if (side === 'right') {
+            style = {
+                left: elementData.left + elementData.width + 20,
+                top: elementData.top + elementData.height / 2,
                 transform: 'translateY(-50%)',
+            };
+        } else {
+            style = {
+                left: elementData.left + elementData.width / 2,
+                top: elementData.top + elementData.height / 2 - height / 2,
+                transform: 'translate(-50%)',
             };
         }
 
@@ -309,11 +301,17 @@ const Tutorial = ({ data, onClose }) => {
             contentEl.classList.add('animate');
         }, 1000);
 
-        return {
-            left: `${elementData.left + elementData.width / 2}px`,
-            top: `${elementData.top + elementData.height / 2 - height / 2}px`,
-            transform: 'translate(-50%)',
-        };
+        if ((side === 'top' || side === 'bottom') && style.left < width / 2) {
+            style.transform = null;
+            style.left = style.left - elementData.width / 2 - 20;
+        }
+
+        if ((side === 'left' || side === 'right') && style.top < height / 2) {
+            style.transform = null;
+            style.top = style.top - elementData.height / 2 - 20;
+        }
+
+        return style;
     }, [activeStep, isContentLoaded]);
 
     const measuredRef = useCallback((node: HTMLElement) => {

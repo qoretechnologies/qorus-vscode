@@ -84,7 +84,6 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
 
     return (
         <StyledNodeLabel
-            id={nodeData.type === 'start' ? 'pipeline-start' : undefined}
             onContextMenu={(event) => {
                 event.persist();
 
@@ -213,6 +212,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         r: 25,
                         fill: '#d7d7d7',
                         stroke: '#a9a9a9',
+                        id: 'pipeline-start',
                     },
                 };
         }
