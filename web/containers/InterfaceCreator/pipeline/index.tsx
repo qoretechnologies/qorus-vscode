@@ -23,7 +23,7 @@ import PipelineElementDialog from './elementDialog';
 import { calculateFontSize } from '../fsm/state';
 import shortid from 'shortid';
 import compose from 'recompose/compose';
-import { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import useMount from 'react-use/lib/useMount';
 
 export interface IPipelineViewProps {
