@@ -60,6 +60,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     definitionsOnly,
     stateData,
     disableAdding,
+    processorData,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<any>(false);
@@ -88,6 +89,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_kind: type,
             steps,
             state_data: stateData,
+            processor_data: processorData,
         });
     });
 
@@ -122,6 +124,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_kind: type,
             is_templated_string: isTemplatedString,
             state_id: stateData?.id,
+            processor_id: processorData?.pid,
         });
     };
 
@@ -132,6 +135,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             name: configItemName,
             iface_kind: type,
             state_id: stateData?.id,
+            processor_id: processorData?.pid,
         });
     };
 
@@ -142,6 +146,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             name: configItemName,
             iface_kind: type,
             state_id: stateData?.id,
+            processor_id: processorData?.pid,
         });
     };
 

@@ -115,17 +115,23 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
                                     text={t('Reset')}
                                     icon={'history'}
                                     onClick={() => {
+                                        if (newData.type === 'processor' && newData.name) {
+                                            postMessage(Messages.RESET_CONFIG_ITEMS, {
+                                                iface_id: interfaceId,
+                                                processor_id: newData.pid,
+                                            });
+                                        }
                                         setNewData(data);
                                     }}
                                 />
                             </Tooltip>
-                            {newData.type === 'processor' && (
+                            {newData.type === 'processor' && newData.name ? (
                                 <ManageButton
                                     type="pipeline"
                                     key={newData.type}
                                     onClick={() => setShowConfigItemsManager(true)}
                                 />
-                            )}
+                            ) : null}
                             <Button
                                 text={t('Submit')}
                                 disabled={!isDataValid()}
@@ -149,7 +155,7 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
                     style={{ width: '80vw', backgroundColor: '#fff' }}
                 >
                     <ConfigItemManager
-                        type="fsm"
+                        type="pipeline"
                         processorData={{ pid: newData.pid, class_name: newData.name }}
                         interfaceId={interfaceId}
                         disableAdding
