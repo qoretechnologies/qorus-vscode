@@ -193,7 +193,7 @@ export class InterfaceInfo {
 
         const specific_data_id = this.specificDataId(iface_kind, state_id, processor_id);
         const state_data = { id: state_id };
-        const processor_data = { id: processor_id };
+        const processor_data = { pid: processor_id };
 
         if (!level) {
             msg.log(t`LevelNeededToUpdateCIValue`);
@@ -207,7 +207,7 @@ export class InterfaceInfo {
             return;
         }
 
-        if (['step', 'job', 'service', 'class', 'fsm'].includes(level)) {
+        if (['step', 'job', 'service', 'class', 'fsm', 'pipeline'].includes(level)) {
             level = 'local';
         }
 
@@ -387,7 +387,7 @@ export class InterfaceInfo {
              requires,
              steps,
              state_data: {id: state_id},
-             processor_data: {id: processor_id}
+             processor_data: {pid: processor_id}
         });
     }
 
@@ -418,7 +418,7 @@ export class InterfaceInfo {
             iface_id,
             iface_kind,
             state_data: {id: state_id},
-            processor_data: {id: processor_id}
+            processor_data: {pid: processor_id}
         });
     }
 
