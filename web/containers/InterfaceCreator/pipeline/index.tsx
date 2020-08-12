@@ -21,6 +21,7 @@ import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsCo
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
 import { calculateFontSize } from '../fsm/state';
+import shortid from 'shortid';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -201,6 +202,7 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
     };
 
     const [selectedElement, setSelectedElement] = useState<IPipelineElement | null>(null);
+    const [interfaceId, setInterfaceId] = useState(pipeline?.iface_id || shortid.generate());
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
     const [metadata, setMetadata] = useState<IPipelineMetadata>({
         target_dir: pipeline?.target_dir || null,
@@ -232,6 +234,7 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
             undefined,
             {
                 iface_kind: 'pipeline',
+                iface_id: interfaceId,
                 orig_data: pipeline,
                 data: {
                     ...metadata,
@@ -323,6 +326,7 @@ const PipelineView: React.FC<IPipelineViewProps> = () => {
                     data={selectedElement}
                     onClose={() => setSelectedElement(null)}
                     onSubmit={handleDataSubmit}
+                    interfaceId={interfaceId}
                 />
             )}
             <div id="pipeline-fields-wrapper">
