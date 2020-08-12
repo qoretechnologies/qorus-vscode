@@ -161,19 +161,24 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
     };
 
     const isDataValid = (data) => {
-        return data.reduce((isValid, item) => {
-            if (item.type === 'queue' || item.type === 'start') {
-                if (item.children && item.children.length > 0) {
-                    if (!isDataValid(item.children)) {
+        return (
+            data.reduce((isValid, item) => {
+                if (item.type === 'queue' || item.type === 'start') {
+                    if (item.children && item.children.length > 0) {
+                        if (!isDataValid(item.children)) {
+                            isValid = false;
+                        }
+                    } else {
                         isValid = false;
                     }
-                } else {
-                    isValid = false;
                 }
-            }
 
-            return isValid;
-        }, true);
+                return isValid;
+            }, true) &&
+            validateField('string', metadata.name) &&
+            validateField('string', metadata.desc) &&
+            validateField('string', metadata.target_dir)
+        );
     };
 
     const getNodeShapeData = (type: string, children: any[]) => {
@@ -250,7 +255,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 orig_data: pipeline,
                 data: {
                     ...metadata,
-                    children: elements,
+                    children: elements[0].children,
                 },
             },
             t('Saving Pipeline...')
@@ -398,7 +403,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         pathFunc="straight"
                         translate={{ x: wrapperRef.current.getBoundingClientRect().width / 2, y: 100 }}
                         nodeSize={{ x: 250, y: 250 }}
-                        onClick={(nodeData) => console.log(nodeData)}
                         transitionDuration={0}
                         textLayout={{
                             textAnchor: 'middle',

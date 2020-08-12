@@ -2340,6 +2340,9 @@ msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ ifa
 msgid "ConfigItemAlreadyExists ${ name } ${ prefix } ${ iface_type } ${ iface_name }"
 msgstr "Config item with name \"${ name }\" and prefix \"${ prefix }\" already exists in ${ iface_type } \"${ iface_name }\""
 
+msgid "AddElement"
+msgstr "Add child element"
+
 msgid "tutorial-controls"
 msgstr "Tutorial controls"
 
