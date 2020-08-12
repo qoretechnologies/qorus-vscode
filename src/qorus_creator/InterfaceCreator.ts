@@ -770,10 +770,10 @@ export abstract class InterfaceCreator {
                         const dumpChild = (child: any, indent_level: number) => {
                             result += `${indent.repeat(indent_level)}${list_indent}name: ${child.name}\n`;
                             result += `${indent.repeat(indent_level + 1)}type: ${child.type}\n`;
-                            if (child.id) {
-                                result += `${indent.repeat(indent_level + 1)}id: ${child.id}\n`;
-                                if (iface_data?.specific_data?.[child.id]?.['config-items']?.length) {
-                                    result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[child.id]['config-items'], indent_level + 1);
+                            if (child.pid) {
+                                result += `${indent.repeat(indent_level + 1)}id: ${child.pid}\n`;
+                                if (iface_data?.specific_data?.[child.pid]?.['config-items']?.length) {
+                                    result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[child.pid]['config-items'], indent_level + 1);
                                 }
                             }
                             dumpChildren(child.children, indent_level + 1)
