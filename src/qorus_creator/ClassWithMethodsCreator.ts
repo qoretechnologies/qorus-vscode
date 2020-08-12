@@ -157,10 +157,12 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             return;
         }
 
-        const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
-        const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
-        const fixed_data = this.code_info.fixData(yaml_data);
-        commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
+        this.code_info.waitForPending(['yaml']).then(() => {
+            const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
+            const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
+            const fixed_data = this.code_info.fixData(yaml_data);
+            commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
+        });
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {
