@@ -388,11 +388,34 @@ export class QorusProjectCodeInfo {
         };
 
         fixConfigItems(data['config-items']);
+
         if (data.type === 'fsm' && data.states) {
             Object.keys(data.states).forEach(id => {
                 fixConfigItems(data.states[id]['config-items']);
             });
         }
+
+        const fixProcessors = (children: any[]) => {
+            if (!children?.length) {
+                return;
+            }
+
+            children.forEach(child => {
+                switch (child.type) {
+                    case 'queue':
+                        fixProcessors(child.children);
+                        break;
+                    case 'processor':
+                        fixConfigItems(child['config-items']);
+                        if (child.id) {
+                            child.pid = child.id;
+                            delete child.id;
+                        }
+                        break;
+                }
+            });
+        };
+        fixProcessors(data.children);
 
         for (const method of data.methods || []) {
             if (method.author) {
