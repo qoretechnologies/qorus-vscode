@@ -2465,3 +2465,23 @@ msgstr "
 
   Both the minimap and whole toolbar can be closed for your convenience.
 "
+
+msgid "tutorial-pipeline-title"
+msgstr "-"
+msgid "tutorial-pipeline-content"
+msgstr "-"
+
+msgid "tutorial-pipeline-fields-title"
+msgstr "-"
+msgid "tutorial-pipeline-fields-content"
+msgstr "-"
+
+msgid "tutorial-pipeline-diagram-title"
+msgstr "-"
+msgid "tutorial-pipeline-diagram-content"
+msgstr "-"
+
+msgid "pipeline-start-title" 
+msgstr "-"
+msgid "pipeline-start-content"
+msgstr "-"

@@ -267,16 +267,17 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         }
     };
 
-    const reset = () => {
+    const reset = (hard?: boolean) => {
         postMessage(Messages.RESET_CONFIG_ITEMS, {
             iface_id: interfaceId,
         });
+
         setElements(
             transformNodeData(
                 [
                     {
                         type: 'start',
-                        children: pipeline?.children || [],
+                        children: hard ? [] : pipeline?.children || [],
                     },
                 ],
                 ''

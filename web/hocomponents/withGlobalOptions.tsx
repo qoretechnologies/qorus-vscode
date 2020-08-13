@@ -64,13 +64,11 @@ export default () => (Component: any): any => {
                     props.resetInterfaceData('type');
                     break;
                 case 'fsm':
-                    // Reset FSM
-                    fsmReset && fsmReset();
                     props.resetInterfaceData('fsm');
-                case 'fsm':
-                    // Reset FSM
-                    pipelineReset && pipelineReset();
+                    fsmReset && fsmReset();
+                case 'pipeline':
                     props.resetInterfaceData('pipeline');
+                    pipelineReset && pipelineReset(true);
                 default:
                     break;
             }
