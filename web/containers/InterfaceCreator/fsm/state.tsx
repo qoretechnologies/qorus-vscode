@@ -58,6 +58,12 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     z-index: 20;
     border: 2px solid;
     transition: all 0.2s linear;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
 
     ${({ selected, initial, final }) => {
         let color: string = '#a9a9a9';
@@ -109,13 +115,6 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
                 return null;
         }
     }}
-
-    border-radius: 3px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-flow: column;
 `;
 
 const StyledStateName = styled.p`
