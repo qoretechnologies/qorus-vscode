@@ -132,6 +132,25 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                     />
                 );
             }
+            case 'pipeline': {
+                return (
+                    <SelectField
+                        get_message={{
+                            action: 'creator-get-objects',
+                            object_type: 'pipeline',
+                        }}
+                        return_message={{
+                            action: 'creator-return-objects',
+                            object_type: 'pipeline',
+                            return_value: 'objects',
+                        }}
+                        predicate={(name) => fsmName !== name}
+                        onChange={(_name, value) => handleDataUpdate('action', { type: 'pipeline', value })}
+                        value={newData?.action?.value}
+                        name="action"
+                    />
+                );
+            }
             case 'connector': {
                 return (
                     <ConnectorSelector
@@ -189,7 +208,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                             return_value: 'objects',
                                         }}
                                         predicate={(name) => fsmName !== name}
-                                        defaultItems={[{ name: 'TestFSM1' }]}
                                         onChange={handleDataUpdate}
                                         value={newData?.name}
                                         name="name"
