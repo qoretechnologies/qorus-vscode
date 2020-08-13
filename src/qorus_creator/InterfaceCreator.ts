@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 import * as path from 'path';
 import { t } from 'ttag';
-import { Position } from 'vscode';
+import { Position, commands } from 'vscode';
 
 import * as globals from '../global_config_item_values';
 import { default_version, types_with_version } from '../qorus_constants';
@@ -205,6 +205,16 @@ export abstract class InterfaceCreator {
         }
 
         return true;
+    }
+
+    protected returnData = async (data: any) => {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        this.code_info.waitForPending(['yaml']).then(() => {
+            const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
+            const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
+            const fixed_data = this.code_info.fixData(yaml_data);
+            commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
+        });
     }
 
     protected checkData = (params: any): any => {

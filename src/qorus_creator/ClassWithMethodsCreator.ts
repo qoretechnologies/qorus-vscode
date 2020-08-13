@@ -1,5 +1,4 @@
-import { workspace, window, commands } from 'vscode';
-import * as path from 'path';
+import { workspace, window } from 'vscode';
 
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
@@ -153,16 +152,9 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             this.code_info.interface_info.setOrigConfigItems({iface_id}, edit_type === 'edit');
         }
 
-        if (!!no_data_return) {
-            return;
+        if (!no_data_return) {
+            this.returnData(data);
         }
-
-        this.code_info.waitForPending(['yaml']).then(() => {
-            const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
-            const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
-            const fixed_data = this.code_info.fixData(yaml_data);
-            commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
-        });
     }
 
     private methodRenamingMap(orig_names: string[], new_methods: any[]): any {
