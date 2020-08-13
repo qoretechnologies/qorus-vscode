@@ -128,9 +128,13 @@ export class InterfaceInfo {
 
         if (iface_kind === 'fsm') {
             (Object.keys(data.states) || []).forEach(state_id => {
-                if (data.states[state_id]?.action?.value?.class) {
-                    this.maybeInitSpecificDataId(iface_id, state_id);
-                    this.iface_by_id[iface_id].specific_data[state_id].class_name = data.states[state_id].action.value.class;
+                const state = data.states[state_id];
+                this.maybeInitSpecificDataId(iface_id, state_id);
+                if (state?.action?.value?.class) {
+                    this.iface_by_id[iface_id].specific_data[state_id].class_name = state.action.value.class;
+                }
+                if (state['config-items']?.length) {
+                    this.iface_by_id[iface_id].specific_data[state_id]['config-items'] = state['config-items'];
                 }
             });
         } else if (iface_kind === 'pipeline') {
