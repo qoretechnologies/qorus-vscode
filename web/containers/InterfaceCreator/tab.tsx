@@ -122,7 +122,7 @@ const tutorials = {
             {
                 id: 'pipeline-diagram',
                 title: 'tutorial-pipeline-diagram-title',
-                text: 'tutorial-fsm-diagram-content',
+                text: 'tutorial-pipeline-diagram-content',
             },
             { id: 'pipeline-start', title: 'pipeline-start-title', text: 'pipeline-start-content' },
         ],
