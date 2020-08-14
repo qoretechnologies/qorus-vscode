@@ -153,7 +153,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         if (!no_data_return) {
-            this.returnData(data);
+            this.returnData(data, iface_id);
         }
     }
 
