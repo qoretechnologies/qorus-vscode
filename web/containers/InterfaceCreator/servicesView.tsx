@@ -14,6 +14,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
 import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
+import useMount from 'react-use/lib/useMount';
 
 let hasAllMethodsLoaded: boolean;
 
@@ -145,6 +146,12 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     interfaceId,
     initialData,
 }) => {
+    useMount(() => {
+        return () => {
+            hasAllMethodsLoaded = false;
+        };
+    });
+
     return (
         <MethodsContext.Consumer>
             {({
@@ -159,6 +166,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 setShowMethods,
                 methodsData,
                 lastMethodId,
+                initialActiveMethod,
             }) => (
                 <ClassConnectionsStateProvider type="service">
                     {(classConnectionsProps) => (
@@ -242,6 +250,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 stepOneTitle={t('SelectFieldsSecondStep')}
                                                 stepTwoTitle={t('FillDataThirdStep')}
                                                 onBackClick={() => {
+                                                    hasAllMethodsLoaded = false;
                                                     setActiveMethod(null);
                                                     setShowMethods(false);
                                                     if (service) {
@@ -249,10 +258,13 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     }
                                                 }}
                                                 onDataFinishLoadingRecur={(id) => {
-                                                    if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
-                                                        setActiveMethod(id + 1);
-                                                    } else {
-                                                        hasAllMethodsLoaded = true;
+                                                    if (!hasAllMethodsLoaded) {
+                                                        if ((id || 1) + 1 <= lastMethodId && !hasAllMethodsLoaded) {
+                                                            setActiveMethod(id + 1);
+                                                        } else {
+                                                            hasAllMethodsLoaded = true;
+                                                            setActiveMethod(initialActiveMethod);
+                                                        }
                                                     }
                                                 }}
                                                 initialInterfaceId={service ? service.iface_id : interfaceId.service}
