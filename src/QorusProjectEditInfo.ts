@@ -12,7 +12,7 @@ import { CONN_CALL_METHOD, GENERATED_TEXT } from './qorus_creator/ClassConnectio
 
 export class QorusProjectEditInfo {
     private edit_info: any = {};
-    getInfo = file => this.edit_info[file]
+    getInfo = file => this.edit_info[file];
 
     private addTextLines = (file: string, contents: string) => {
         if (!this.edit_info[file]) {
@@ -427,7 +427,7 @@ export class QorusProjectEditInfo {
                     }
                 }
             }
-        }
+        };
 
         const maybeAddClassConnectionMemberDeclaration = decl => {
             if (decl.type.identifier !== this.edit_info[file].class_connections_class_name) {

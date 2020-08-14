@@ -786,7 +786,7 @@ export abstract class InterfaceCreator {
                                     result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[child.pid]['config-items'], indent_level + 1);
                                 }
                             }
-                            dumpChildren(child.children, indent_level + 1)
+                            dumpChildren(child.children, indent_level + 1);
                         };
 
                         dumpChildren(value, 0);
