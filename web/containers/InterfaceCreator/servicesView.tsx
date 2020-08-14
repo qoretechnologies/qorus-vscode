@@ -167,6 +167,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                 methodsData,
                 lastMethodId,
                 initialActiveMethod,
+                initialShowMethods,
             }) => (
                 <ClassConnectionsStateProvider type="service">
                     {(classConnectionsProps) => (
@@ -187,7 +188,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                             data={service && omit(service, 'methods')}
                                             isEditing={!!service}
                                             onDataFinishLoading={
-                                                service && activeMethod
+                                                service && initialShowMethods
                                                     ? () => {
                                                           setShowMethods(true);
                                                       }
