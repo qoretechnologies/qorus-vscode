@@ -778,8 +778,10 @@ export abstract class InterfaceCreator {
                             });
                         };
                         const dumpChild = (child: any, indent_level: number) => {
-                            result += `${indent.repeat(indent_level)}${list_indent}name: ${child.name}\n`;
-                            result += `${indent.repeat(indent_level + 1)}type: ${child.type}\n`;
+                            result += `${indent.repeat(indent_level)}${list_indent}type: ${child.type}\n`;
+                            if (child.name) {
+                                result += `${indent.repeat(indent_level + 1)}name: ${child.name}\n`;
+                            }
                             if (child.pid) {
                                 result += `${indent.repeat(indent_level + 1)}id: ${child.pid}\n`;
                                 if (iface_data?.specific_data?.[child.pid]?.['config-items']?.length) {
