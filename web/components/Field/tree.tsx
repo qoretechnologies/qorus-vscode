@@ -35,6 +35,11 @@ const StyledTreeWrapper = styled.div`
     }
 `;
 
+const StyledTreeScroller = styled.div`
+    max-height: 400px;
+    overflow: auto;
+`;
+
 const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     get_message,
     return_message,
@@ -62,7 +67,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
         });
     });
 
-    const handleNodeClick: (node: ITreeNode<{ path: string; rel_path: string }>) => void = node => {
+    const handleNodeClick: (node: ITreeNode<{ path: string; rel_path: string }>) => void = (node) => {
         // Which path should be used
         const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
         // If we are dealing with single string
@@ -70,11 +75,11 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
             onChange(name, usedPath);
         } else {
             // Multiple files can be selected
-            if (value.find(sel => sel.name === usedPath)) {
+            if (value.find((sel) => sel.name === usedPath)) {
                 // Remove the selected item
                 onChange(
                     name,
-                    value.filter(path => path.name !== usedPath)
+                    value.filter((path) => path.name !== usedPath)
                 );
             } else {
                 onChange(name, [...value, { name: usedPath }]);
@@ -82,7 +87,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
         }
     };
 
-    const handleNodeCollapse: (node: ITreeNode<{ path: string }>) => void = node => {
+    const handleNodeCollapse: (node: ITreeNode<{ path: string }>) => void = (node) => {
         // Which path should be used
         const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
 
@@ -91,14 +96,14 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
         );
     };
 
-    const handleNodeExpand: (node: ITreeNode<{ path: string }>) => void = node => {
+    const handleNodeExpand: (node: ITreeNode<{ path: string }>) => void = (node) => {
         // Which path should be used
         const usedPath: string = useRelativePath ? node.nodeData.rel_path : node.nodeData.path;
 
         setExpanded((currentExpanded: string[]): string[] => [...currentExpanded, usedPath]);
     };
 
-    const transformItems: (data: any[]) => ITreeNode<{ path: string }>[] = data => {
+    const transformItems: (data: any[]) => ITreeNode<{ path: string }>[] = (data) => {
         const result = data.reduce((newData, item, index): ITreeNode[] => {
             // Recursively build the child nodes (folders and files)
             const childNodes: any[] | undefined =
@@ -119,7 +124,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                     id: index,
                     depth: index,
                     hasCaret: !isFile && size(item.dirs) + size(item.files) !== 0,
-                    isSelected: single ? value === path : value.find(sel => sel.name === path),
+                    isSelected: single ? value === path : value.find((sel) => sel.name === path),
                     icon: isFile ? 'document' : isExpanded ? 'folder-open' : 'folder-close',
                     isExpanded,
                     label: item.basename,
@@ -137,18 +142,20 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
 
     return (
         <>
-            <StyledTreeWrapper onClick={() => setRootExpanded(cur => !cur)} name={`folder-expander-${name}`}>
+            <StyledTreeWrapper onClick={() => setRootExpanded((cur) => !cur)} name={`folder-expander-${name}`}>
                 <Icon icon={isRootExpanded ? 'folder-open' : 'folder-close'} /> {isRootExpanded ? 'Hide' : 'Show'}{' '}
                 folders{' '}
             </StyledTreeWrapper>
-            {isRootExpanded && (
-                <Tree
-                    contents={transformItems(items)}
-                    onNodeClick={handleNodeClick}
-                    onNodeCollapse={handleNodeCollapse}
-                    onNodeExpand={handleNodeExpand}
-                />
-            )}
+            <StyledTreeScroller>
+                {isRootExpanded && (
+                    <Tree
+                        contents={transformItems(items)}
+                        onNodeClick={handleNodeClick}
+                        onNodeCollapse={handleNodeCollapse}
+                        onNodeExpand={handleNodeExpand}
+                    />
+                )}
+            </StyledTreeScroller>
         </>
     );
 };

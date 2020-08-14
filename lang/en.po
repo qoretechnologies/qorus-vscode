@@ -2232,6 +2232,9 @@ msgstr "Editing transition(s)"
 msgid "EditingState"
 msgstr "Editing state"
 
+msgid "ManagePipeElement"
+msgstr "Manage pipeline element"
+
 msgid "field-label-triggers"
 msgstr "Triggers"
 

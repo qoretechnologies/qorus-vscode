@@ -59,6 +59,10 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
     };
 
     const isDataValid = () => {
+        if (newData.type === 'queue') {
+            return true;
+        }
+
         return validateField('string', newData.type) && validateField('string', newData.name);
     };
 
@@ -67,7 +71,7 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
             <CustomDialog
                 onClose={onClose}
                 isOpen
-                title={t('EditingState')}
+                title={t('ManagePipeElement')}
                 style={{ width: '50vw', paddingBottom: 0 }}
             >
                 <Content style={{ paddingLeft: 0, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
@@ -83,7 +87,7 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        {newData?.type && (
+                        {newData?.type && newData.type !== 'queue' ? (
                             <FieldWrapper padded>
                                 <FieldLabel label={t('Name')} isValid={validateField('string', newData.name)} />
                                 <FieldInputWrapper>
@@ -106,7 +110,7 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
                                     />
                                 </FieldInputWrapper>
                             </FieldWrapper>
-                        )}
+                        ) : null}
                     </ContentWrapper>
                     <ActionsWrapper style={{ padding: '10px' }}>
                         <ButtonGroup fill>
