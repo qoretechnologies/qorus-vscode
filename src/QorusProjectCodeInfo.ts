@@ -599,7 +599,7 @@ export class QorusProjectCodeInfo {
                             name,
                             desc,
                             'class-connectors': rest['class-connectors']
-                        }))
+                        }));
                         postMessage('objects', classes);
                     });
                     break;
@@ -611,7 +611,7 @@ export class QorusProjectCodeInfo {
                         name,
                         desc,
                         processor: rest.processor,
-                    }))
+                    }));
                     postMessage('objects', classes);
                 });
                 break;
