@@ -944,11 +944,11 @@ export abstract class InterfaceCreator {
 
         const lines_before = lines.splice(0, end.line);
         const line = lines.splice(0, 1)[0];
-        const line_before = line.substr(0, end.character - 1);
-        const line_after = line.substr(end.character - 1);
+        const line_before = line && line.substr(0, end.character - 1);
+        const line_after = (line && line.substr(end.character - 1)) || '';
         const lines_after = lines;
 
-        let new_code = line_before;
+        let new_code = line_before || '';
         for (let name of methods) {
             new_code += '\n' + InterfaceCreator.fillTemplate(template, lang, undefined, { name }, false);
         }
