@@ -626,11 +626,11 @@ export abstract class InterfaceCreator {
             Object.keys(headers.fields).forEach((field_name) => {
                 let field = headers.fields[field_name];
                 if (field.code) {
-                    const [name, method, ...other] = field.code.split('.');
+                    const [name, method, ...other] = field.code.split('::');
                     if (name && method && !other.length) {
                         const mapper_code = this.code_info.yaml_info.yamlDataByName('mapper-code', name);
-                        const { 'class-name': class_name, lang = 'qore' } = mapper_code;
-                        field.code = `${class_name}${lang === 'qore' ? '::' : '.'}${method}`;
+                        const { 'class-name': class_name } = mapper_code;
+                        field.code = `${class_name}::${method}`;
                     }
                 }
 

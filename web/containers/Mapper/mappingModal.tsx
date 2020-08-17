@@ -64,7 +64,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             types[key] = type;
         }
         // Set the relation
-        setRelation(current => {
+        setRelation((current) => {
             const newField = { ...current };
             newField[key] = value;
             return newField;
@@ -75,7 +75,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         _name,
         value
     ) => {
-        setRelation(current => {
+        setRelation((current) => {
             const newField = { ...current };
             newField.type_options = value;
             return newField;
@@ -101,7 +101,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             // Check if the value exists
             if (value) {
                 // Map through the options
-                value.forEach(val => {
+                value.forEach((val) => {
                     // Get the type of this option
                     const optionType = output.type.supported_options[val.name]?.type;
                     // Check if the option is valid
@@ -126,14 +126,14 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     };
 
     const handleAddClick = (name: string) => {
-        setRelation(current => ({
+        setRelation((current) => ({
             ...current,
             [name]: null,
         }));
     };
 
     const handleRemoveClick = (name: string) => {
-        setRelation(current => {
+        setRelation((current) => {
             let result = { ...current };
             // Remove the key
             delete result[name];
@@ -154,7 +154,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                         // Check if the condition for required roles is still
                         // met, because a field could be removed that is the required
                         // roles
-                        if (requires_roles.every(role => updatedRoles.includes(role))) {
+                        if (requires_roles.every((role) => updatedRoles.includes(role))) {
                             // Keep the key in
                             return { ...newRelation, [key]: value };
                         }
@@ -199,7 +199,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         if (requires_roles) {
             // Check if all the keys from the list
             // are selected
-            if (!requires_roles.every(role => uniqueRoles.includes(role))) {
+            if (!requires_roles.every((role) => uniqueRoles.includes(role))) {
                 isDisabled = true;
             }
         }
@@ -221,7 +221,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         } else {
             // Check if none of the keys roles & a * role isn't
             // yet included
-            if (!unique_roles.every(role => !uniqueRoles.includes(role)) || uniqueRoles.includes('*')) {
+            if (!unique_roles.every((role) => !uniqueRoles.includes(role)) || uniqueRoles.includes('*')) {
                 isDisabled = true;
             }
         }
@@ -254,13 +254,13 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     const getPossibleInputs =
         inputs &&
         inputs
-            .filter(input => {
+            .filter((input) => {
                 return (
                     size(input.type.types_returned) <= size(output.type.types_accepted) &&
                     output.type.types_accepted.some((type: string) => input.type.types_returned.includes(type))
                 );
             })
-            .map(input => ({
+            .map((input) => ({
                 name: input.path,
                 desc: input.desc,
             }));
@@ -296,8 +296,8 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                         {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
                                             <MapperCodeField
                                                 onChange={handleChange}
-                                                defaultCode={value && value.split('.')[0]}
-                                                defaultMethod={value && value.split('.')[1]}
+                                                defaultCode={value && value.split('::')[0]}
+                                                defaultMethod={value && value.split('::')[1]}
                                             />
                                         ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
                                             <OptionHashField

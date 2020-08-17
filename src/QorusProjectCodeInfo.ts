@@ -306,13 +306,12 @@ export class QorusProjectCodeInfo {
             Object.keys(data.fields).forEach(field_name => {
                 let field = data.fields[field_name];
                 if (field.code) {
-                    const splitter = field.code.indexOf('::') > -1 ? '::' : '.';
-                    const code_parts = field.code.split(splitter);
+                    const code_parts = field.code.split('::');
                     if (code_parts.length === 2) {
                         const [class_name, method] = code_parts;
                         const mapper_code = this.yaml_info.yamlDataByName('mapper-code', class_name);
                         if (mapper_code) {
-                            field.code = `${mapper_code.name}.${method}`;
+                            field.code = `${mapper_code.name}::${method}`;
                         }
                     }
                 }
