@@ -84,11 +84,11 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     selectedFields,
     interfaceContext,
 }) => {
-    const getConnectorsCount = connections => {
+    const getConnectorsCount = (connections) => {
         if (connections) {
             let count = 0;
 
-            forEach(connections, conn => {
+            forEach(connections, (conn) => {
                 count += size(conn);
             });
             return count;
@@ -112,14 +112,14 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
             if (data.iface_kind === 'class') {
                 // Add the class data
-                setClassesData(current => ({
+                setClassesData((current) => ({
                     ...current,
                     [data.class.name]: data.class,
                 }));
             }
         });
         // Request data for each class
-        classes.forEach(classData => {
+        classes.forEach((classData) => {
             const splitClass = classData.name.split(':');
             const className = splitClass[1] || splitClass[0];
             // Request the data
@@ -169,7 +169,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         );
         if (!data.isEditing) {
             // Increase the ID
-            setLastConnectorId(current => current + 1);
+            setLastConnectorId((current) => current + 1);
         }
     };
 
@@ -182,14 +182,6 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                     if (index === id) {
                         // Add new connector
                         return [...newConnectors];
-                    }
-                    // If this is the previous connector
-                    // or the connector after
-                    // remove the mapper, since the relations
-                    // are no longer valid
-                    if (index === id - 1 || index === id + 1) {
-                        // Remove the mapper
-                        return [...newConnectors, omit(connector, ['mapper'])];
                     }
                     // Return unchanged
                     return [...newConnectors, connector];
@@ -217,7 +209,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
 
     const getUniqueClasses = () => {
         const uniqClasses = {};
-        classes.forEach(classData => {
+        classes.forEach((classData) => {
             const splitClass = classData.name.split(':');
             const className = splitClass[1] || splitClass[0];
             uniqClasses[className] = {};
@@ -240,7 +232,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                             placeholder={t('Name')}
                             value={manageDialog.newName}
                             onChange={(_fieldName, value) =>
-                                setManageDialog(current => ({ ...current, newName: value }))
+                                setManageDialog((current) => ({ ...current, newName: value }))
                             }
                         />
                         <br />
@@ -307,10 +299,10 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                         icon="trash"
                                         intent="danger"
                                         minimal
-                                        onClick={event => {
+                                        onClick={(event) => {
                                             event.stopPropagation();
                                             initContext.confirmAction('ConfirmRemoveConnection', () => {
-                                                setConnections(current => {
+                                                setConnections((current) => {
                                                     if (selectedConnection === name) {
                                                         setSelectedConnection(null);
                                                     }
@@ -343,7 +335,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                         })
                                     );
                                     setSelectedConnection(`${t('Connection')}_${lastConnectionId + 1}`);
-                                    setLastConnectionId(cur => cur + 1);
+                                    setLastConnectionId((cur) => cur + 1);
                                 }}
                             />
                         </ButtonGroup>
@@ -352,9 +344,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                 <Content>
                     <ContentWrapper
                         style={{
-                            background: `url(${
-                                `${initialData.image_path}/images/tiny_grid.png)`
-                            }`,
+                            background: `url(${`${initialData.image_path}/images/tiny_grid.png)`}`,
                             padding: 10,
                         }}
                     >
