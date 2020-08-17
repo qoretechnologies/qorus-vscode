@@ -277,6 +277,10 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 hasClassConnections
                                                 methodsList={methods}
                                                 onSubmitSuccess={onSubmitSuccess}
+                                                onSubmit={() => {
+                                                    hasAllMethodsLoaded = false;
+                                                }}
+                                                forceSubmit
                                                 data={
                                                     methodsData &&
                                                     methodsData.find((method) => method.id === activeMethod)
