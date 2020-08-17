@@ -73,7 +73,8 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 if (!currentType) {
                     handleChange(name, value === undefined ? undefined : value);
                 } else if (typeValue !== 'any') {
-                    handleChange(name, undefined);
+                    console.log('setting to undefined', value);
+                    handleChange(name, value === null ? null : undefined);
                 }
             }
         }
@@ -100,6 +101,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     const handleChange: (name: string, value: any) => void = (name, value) => {
         // Run the onchange
         if (onChange && currentInternalType) {
+            console.log(name, value, currentInternalType, canBeNull());
             onChange(name, value, currentInternalType, canBeNull());
         }
     };
@@ -107,9 +109,12 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     const handleNullToggle = () => {
         setType(defaultType || 'any');
         setInternalType(defaultType || 'any');
-        setIsSetToNull((current) => !current);
+        setIsSetToNull((current) => {
+            return !current;
+        });
+
         // Handle change
-        handleChange(name, null);
+        handleChange(name, isSetToNull ? undefined : null);
     };
 
     const renderField = (currentType: string) => {
