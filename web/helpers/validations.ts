@@ -5,12 +5,7 @@ import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
-import {
-    isBoolean,
-    isNull,
-    isString,
-    isUndefined
-} from 'util';
+import { isBoolean, isNull, isString, isUndefined } from 'util';
 
 import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 
@@ -73,12 +68,25 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             );
         }
         case 'array-of-pairs': {
+            let valid = true;
             // Check if every pair has key & value
             // assigned properly
-            return value.every(
-                (pair: { [key: string]: string }): boolean =>
-                    pair[field.fields[0]] !== '' && pair[field.fields[1]] !== ''
-            );
+            if (
+                !value.every(
+                    (pair: { [key: string]: string }): boolean =>
+                        pair[field.fields[0]] !== '' && pair[field.fields[1]] !== ''
+                )
+            ) {
+                valid = false;
+            }
+            // Get a list of unique values
+            const uniqueValues: any[] = uniqWith(value, (cur, prev) => cur[field.fields[0]] === prev[field.fields[0]]);
+            // Check if there are any duplicates
+            if (size(uniqueValues) !== size(value)) {
+                valid = false;
+            }
+
+            return valid;
         }
         case 'class-connectors': {
             let valid = true;
