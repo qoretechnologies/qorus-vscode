@@ -25,21 +25,15 @@ export const StyledPairField = styled.div`
     margin-bottom: 10px;
 `;
 
-const MapperOptionsField: FunctionComponent<{
-    t: TTranslator;
-    items: any[];
-    mapperType: string;
-    initialData?: any;
-} & IField &
-    IFieldChange> = ({
-    name,
-    onChange,
-    value = [{ id: 1, value: '', name: '' }],
-    get_message,
-    return_message,
-    t,
-    initialData,
-}) => {
+const MapperOptionsField: FunctionComponent<
+    {
+        t: TTranslator;
+        items: any[];
+        mapperType: string;
+        initialData?: any;
+    } & IField &
+        IFieldChange
+> = ({ name, onChange, value = [{ id: 1, value: '', name: '' }], get_message, return_message, t, initialData }) => {
     const [options, setOptions] = useState(null);
     const [items, setItems] = useState([]);
 
@@ -113,7 +107,7 @@ const MapperOptionsField: FunctionComponent<{
         onChange(name, [...getValue(), { id: size(value) + 1, value: undefined, name: '' }]);
     };
 
-    const handleRemoveClick: (id: number) => void = id => {
+    const handleRemoveClick: (id: number) => void = (id) => {
         // Remove the selected pair
         onChange(
             name,
@@ -121,15 +115,15 @@ const MapperOptionsField: FunctionComponent<{
         );
     };
 
-    const getNameType: (name: string) => string = name => {
+    const getNameType: (name: string) => string = (name) => {
         // Find the option and return it's type
         return options[name].type;
     };
 
     // Filter the items
     const filteredItems = items
-        .filter(item => !getValue().find(val => val.name === item.name))
-        .filter(item => item.name !== 'global_type_options');
+        .filter((item) => !getValue().find((val) => val.name === item.name))
+        .filter((item) => item.name !== 'global_type_options');
 
     return (
         <>
@@ -152,6 +146,7 @@ const MapperOptionsField: FunctionComponent<{
                             {pair.name ? (
                                 <AutoField
                                     defaultType={getNameType(pair.name)}
+                                    key={getNameType(pair.name)}
                                     name="value"
                                     value={pair.value}
                                     onChange={(fieldName: string, value: string): void => {
