@@ -967,6 +967,10 @@ export abstract class InterfaceCreator {
                 rows.push(lines[i]);
             }
             rows.push(lines[range.start.line].substr(0, range.start.character));
+            const range_end_line_part = lines[range.end.line]?.substr(range.end.character);
+            if (range_end_line_part) {
+                rows.push(' '.repeat(range.end.character) + range_end_line_part);
+            }
             for (let i = range.end.line + 1; i < lines.length; i++) {
                 rows.push(lines[i]);
             }
