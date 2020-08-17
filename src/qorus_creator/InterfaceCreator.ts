@@ -208,7 +208,7 @@ export abstract class InterfaceCreator {
     }
 
     protected returnData = async (data: any, iface_id: string) => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 500));
         this.code_info.waitForPending(['yaml']).then(() => {
             const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
             const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
