@@ -1,4 +1,5 @@
 import { workspace, window } from 'vscode';
+import * as jsyaml from 'js-yaml';
 
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
@@ -125,7 +126,8 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             code: this.rel_file_path
         }, iface_id);
 
-        if (this.writeFiles(contents, headers + ClassWithMethodsCreator.createMethodHeaders(methods))) {
+        const method_headers = ClassWithMethodsCreator.createMethodHeaders(methods);
+        if (this.writeFiles(contents, headers + method_headers)) {
             if (edit_type !== 'create') {
                 new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
             }
@@ -153,7 +155,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         if (!no_data_return) {
-            this.returnData(data, iface_id);
+            this.returnData(jsyaml.safeLoad(headers + method_headers), iface_id);
         }
     }
 

@@ -1,4 +1,5 @@
 import { workspace, window } from 'vscode';
+import * as jsyaml from 'js-yaml';
 
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
@@ -213,7 +214,7 @@ class ClassCreator extends InterfaceCreator {
         }
 
         if (!no_data_return) {
-            this.returnData(data, iface_id);
+            this.returnData(jsyaml.safeLoad(headers), iface_id);
         }
     }
 }

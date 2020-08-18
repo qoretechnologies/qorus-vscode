@@ -207,25 +207,20 @@ export abstract class InterfaceCreator {
         return true;
     }
 
-    protected returnData = async (data: any, iface_id: string) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        this.code_info.waitForPending(['yaml']).then(() => {
-            const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
-            const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
-            const fixed_data = this.code_info.fixData(yaml_data);
+    protected returnData = (data: any, iface_id: string) => {
+        const fixed_data = this.code_info.fixData(data);
 
-            let iface_kind = fixed_data.type;
-            if (['group', 'event', 'queue'].includes(iface_kind)) {
-                iface_kind = 'other';
-                fixed_data.type = capitalize(fixed_data.type);
-            }
+        let iface_kind = fixed_data.type;
+        if (['group', 'event', 'queue'].includes(iface_kind)) {
+            iface_kind = 'other';
+            fixed_data.type = capitalize(fixed_data.type);
+        }
 
-            qorus_webview.setInitialData({
-                tab: 'CreateInterface',
-                subtab: iface_kind,
-                [iface_kind]: { ...fixed_data, iface_id }
-            }, true);
-        });
+        qorus_webview.setInitialData({
+            tab: 'CreateInterface',
+            subtab: iface_kind,
+            [iface_kind]: { ...fixed_data, iface_id }
+        }, true);
     }
 
     protected checkData = (params: any): any => {
