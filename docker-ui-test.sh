@@ -78,7 +78,7 @@ tmux new-session -d -s "${session_name}" "ffmpeg -f x11grab -video_size 1680x105
 
 # run tests
 set +e
-ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js
+ui-test/node_modules/.bin/extest run-tests "ui-test/out/*.js"
 rc="$?"
 
 # send command to turn off video recording cleanly
