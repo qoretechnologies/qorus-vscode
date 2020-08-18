@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { By, WebView } from 'vscode-extension-tester';
-import { sleep, confirmDeletion } from '../common/utils';
+import { sleep, confirmDialog } from '../common/utils';
 
 
 export const openEnvironmentPage = async (webview: WebView) => {
@@ -30,7 +30,7 @@ export const deleteEnvironment = async (webview: WebView) => {
     const environmentDeleteButtons = await webview.findWebElements(By.name('delete-environment'));
     expect(environmentDeleteButtons).to.have.length(4);
     await environmentDeleteButtons[3].click();
-    await confirmDeletion(webview);
+    await confirmDialog(webview);
     environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
     expect(environmentPanels).to.have.length(3);
 };
@@ -82,7 +82,7 @@ export const editInstance = async (webview: WebView) => {
 
 export const deleteInstance = async (webview: WebView) => {
     await (await webview.findWebElements(By.name('instance-delete')))[4].click();
-    await confirmDeletion(webview);
+    await confirmDialog(webview);
 
     const instances = await webview.findWebElements(By.name('instance-item'));
     const links = await webview.findWebElements(By.name('instance-link'));
@@ -110,7 +110,7 @@ export const addUrl = async (webview: WebView) => {
 
 export const deleteUrl = async (webview: WebView) => {
     await (await webview.findWebElement(By.name('other-url-delete'))).click();
-    await confirmDeletion(webview);
+    await confirmDialog(webview);
 
     const items = await webview.findWebElements(By.name('other-url-item'));
 
@@ -132,7 +132,7 @@ export const addAndRemoveSourceDirectory = async (webview: WebView) => {
     await sleep(500);
 
     await (await webview.findWebElements(By.name('source-dir-remove')))[0].click();
-    await confirmDeletion(webview);
+    await confirmDialog(webview);
 
     //expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(19);
 

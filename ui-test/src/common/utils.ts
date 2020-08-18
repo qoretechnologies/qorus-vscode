@@ -68,9 +68,9 @@ export const submitInterface = async (webview: WebView, iface: string) => {
     await clickElement(webview, `interface-creator-submit-${iface}`);
 };
 
-export const confirmDeletion = async (webview: WebView) => {
+export const confirmDialog = async (webview: WebView) => {
     await sleep(500);
-    await clickElement(webview, 'remove-confirm', 1, 'id');
+    await clickElement(webview, 'global-dialog-confirm', 1, 'id');
     await sleep(1000);
 };
 

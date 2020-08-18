@@ -15,7 +15,7 @@ import {
     submitInterface,
     selectNthDropdownItem,
     selectNthFilteredDropdownItem,
-    confirmDeletion,
+    confirmDialog,
 } from '../common/utils';
 
 
@@ -69,7 +69,7 @@ export const createClass = async (webview: WebView, editorView: EditorView) => {
 
     await clickElement(webview, 'Class');
     await sleep(2000);
-    confirmDeletion(webview);
+    confirmDialog(webview);
 
     await sleep(5000);
     await selectNthFolder(webview, 'target_dir', 1);
@@ -107,7 +107,7 @@ export const createService = async (webview: WebView, editorView: EditorView, fo
 
     await clickElement(webview, 'Service');
     await sleep(2000);
-    confirmDeletion(webview);
+    confirmDialog(webview);
 
     await sleep(500);
     await selectNthFolder(webview, 'target_dir', 1);
