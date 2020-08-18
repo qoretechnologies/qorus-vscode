@@ -291,10 +291,10 @@ const App: FunctionComponent<IApp> = ({
                                         <Button
                                             text={t('Cancel')}
                                             onClick={() => setConfirmDialog({})}
-                                            id="remove-cancel"
+                                            id="global-dialog-cancel"
                                         />
                                         <Button
-                                            id="remove-confirm"
+                                            id="global-dialog-confirm"
                                             text={t(confirmDialog.btnText || 'Remove')}
                                             intent={confirmDialog.btnStyle || 'danger'}
                                             onClick={() => {
