@@ -126,7 +126,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [envName, setEnvName] = useState<string>(name);
 
-    const handleNameChange: (event: React.FormEvent<HTMLElement>) => void = event => {
+    const handleNameChange: (event: React.FormEvent<HTMLElement>) => void = (event) => {
         setEnvName(event.target.value);
     };
 
@@ -151,7 +151,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
         onInstanceSubmit(id, name, url);
     };
 
-    const handleInstanceDelete: (instanceId: number) => void = instanceId => {
+    const handleInstanceDelete: (instanceId: number) => void = (instanceId) => {
         // Submit the new instance
         onInstanceDelete(id, instanceId);
     };
@@ -166,7 +166,7 @@ const EnvironmentPanel: FunctionComponent<IEnvironmentPanel> = ({
     };
 
     return (
-        <StyledEnvWrapper>
+        <StyledEnvWrapper className="env-panel">
             <StyledEnvHeader>
                 <StyledQorusLogo active={active}>
                     <img
