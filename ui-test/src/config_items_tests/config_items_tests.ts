@@ -67,11 +67,9 @@ export const createClass = async (webview: WebView, editorView: EditorView) => {
     await webview.switchToFrame();
     await sleep(500);
 
-    await clickElement(webview, 'Class');
-    await sleep(2000);
-    confirmDialog(webview);
+    await clickElement(webview, 'button-create-new', 1, 'id');
+    await sleep(500);
 
-    await sleep(5000);
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-class-class-name', 'ClassWithConfigItems');
     await fillTextField(webview, 'field-desc', 'Test class with config items');
@@ -109,7 +107,7 @@ export const createService = async (webview: WebView, editorView: EditorView, fo
     await sleep(2000);
     confirmDialog(webview);
 
-    await sleep(500);
+    await sleep(2000);
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-name', 'service-inheriting-config-items');
     await fillTextField(webview, 'field-desc', 'Test service inheriting config items');

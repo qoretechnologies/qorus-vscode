@@ -217,6 +217,7 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                     {isEditing() && (
                         <>
                             <Button
+                                id="button-create-new"
                                 icon="add"
                                 text="Create new"
                                 intent="success"
