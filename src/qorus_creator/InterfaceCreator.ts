@@ -208,7 +208,7 @@ export abstract class InterfaceCreator {
     }
 
     protected returnData = async (data: any, iface_id: string) => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 500));
         this.code_info.waitForPending(['yaml']).then(() => {
             const target_file = data.target_file || this.rel_file_path || this.yaml_file_name;
             const yaml_data = this.code_info.yaml_info.yamlDataByFile(path.join(data.target_dir, target_file));
@@ -967,6 +967,10 @@ export abstract class InterfaceCreator {
                 rows.push(lines[i]);
             }
             rows.push(lines[range.start.line].substr(0, range.start.character));
+            const range_end_line_part = lines[range.end.line]?.substr(range.end.character);
+            if (range_end_line_part) {
+                rows.push(' '.repeat(range.end.character) + range_end_line_part);
+            }
             for (let i = range.end.line + 1; i < lines.length; i++) {
                 rows.push(lines[i]);
             }

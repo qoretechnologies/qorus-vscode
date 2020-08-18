@@ -23,7 +23,7 @@ export const clickElement = async (webview: WebView, name: string, position: num
 };
 
 export const fillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1) => {
-    await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
+    await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys('\b'.repeat(1000) + value);
 };
 
 export const getElementText = async (webview: WebView, name: string, position: number = 1, selector: TSelector = 'name') => {
