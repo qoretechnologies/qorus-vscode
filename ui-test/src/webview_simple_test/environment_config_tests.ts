@@ -2,10 +2,9 @@ import { expect } from 'chai';
 import { By, WebView } from 'vscode-extension-tester';
 import { sleep, confirmDialog } from '../common/utils';
 
-
 export const openEnvironmentPage = async (webview: WebView) => {
     await sleep(3000);
-    const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
+    const environmentPanels = await webview.findWebElements(By.className('env-panel'));
     expect(environmentPanels).to.have.length(3);
 };
 
@@ -20,18 +19,18 @@ export const addEnvironment = async (webview: WebView) => {
     const environmentSubmit = await webview.findWebElement(By.name('new-environment-submit'));
     await environmentSubmit.click();
 
-    const environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
+    const environmentPanels = await webview.findWebElements(By.className('env-panel'));
     expect(environmentPanels).to.have.length(4);
 };
 
 export const deleteEnvironment = async (webview: WebView) => {
-    let environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
+    let environmentPanels = await webview.findWebElements(By.className('env-panel'));
     expect(environmentPanels).to.have.length(4);
     const environmentDeleteButtons = await webview.findWebElements(By.name('delete-environment'));
     expect(environmentDeleteButtons).to.have.length(4);
     await environmentDeleteButtons[3].click();
     await confirmDialog(webview);
-    environmentPanels = await webview.findWebElements(By.className('sc-cmTdod'));
+    environmentPanels = await webview.findWebElements(By.className('env-panel'));
     expect(environmentPanels).to.have.length(3);
 };
 
