@@ -63,11 +63,11 @@ class ClassWithMethodsCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix, iface_kind);
 
-        const {ok, message} = this.checkData(params);
+        let {ok, message} = this.checkData(params);
         if (!ok) {
             qorus_webview.postMessage({
-                action: `creator-${params.edit_type}-interface-complete`,
-                request_id: params.request_id,
+                action: `creator-${edit_type}-interface-complete`,
+                request_id,
                 ok,
                 message
             });
@@ -126,14 +126,24 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             code: this.rel_file_path
         }, iface_id);
 
-        const method_headers = ClassWithMethodsCreator.createMethodHeaders(methods);
-        if (this.writeFiles(contents, headers + method_headers)) {
-            if (edit_type !== 'create') {
-                new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
-            }
-            if (open_file_on_success) {
-                workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
-            }
+        headers += ClassWithMethodsCreator.createMethodHeaders(methods);
+
+        ({ ok, message } = this.writeFiles(contents, headers));
+        if (!ok) {
+            qorus_webview.postMessage({
+                action: `creator-${edit_type}-interface-complete`,
+                request_id,
+                ok: false,
+                message
+            });
+            return;
+        }
+
+        if (edit_type !== 'create') {
+            new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
+        }
+        if (open_file_on_success) {
+            workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
         }
 
         if (['create', 'edit'].includes(edit_type)) {
@@ -155,7 +165,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         }
 
         if (!no_data_return) {
-            this.returnData(jsyaml.safeLoad(headers + method_headers), iface_id);
+            this.returnData(jsyaml.safeLoad(headers), iface_id);
         }
     }
 

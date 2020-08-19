@@ -77,11 +77,11 @@ class ClassCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix, iface_kind, edit_type);
 
-        const {ok, message} = this.checkData(params);
+        let {ok, message} = this.checkData(params);
 
         if (!ok) {
             qorus_webview.postMessage({
-                action: `creator-${params.edit_type}-interface-complete`,
+                action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok,
                 message
@@ -182,7 +182,8 @@ class ClassCreator extends InterfaceCreator {
         }, iface_id, iface_kind);
 
         if (this.has_code) {
-            if (this.writeFiles(contents, headers)) {
+            ({ ok, message } = this.writeFiles(contents, headers));
+            if (ok) {
                 if (edit_type !== 'create') {
                     new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, imports);
                 }
@@ -191,7 +192,17 @@ class ClassCreator extends InterfaceCreator {
                 }
             }
         } else {
-            this.writeYamlFile(headers);
+            ({ ok, message } = this.writeYamlFile(headers));
+        }
+
+        if (!ok) {
+            qorus_webview.postMessage({
+                action: `creator-${edit_type}-interface-complete`,
+                request_id,
+                ok: false,
+                message
+            });
+            return;
         }
 
         if (['create', 'edit'].includes(edit_type)) {

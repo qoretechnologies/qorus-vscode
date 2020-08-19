@@ -164,21 +164,22 @@ export abstract class InterfaceCreator {
         return path.join(this.target_dir, this.yaml_file_name);
     }
 
-    protected writeYamlFile(headers: string, file_path?: string) {
+    protected writeYamlFile(headers: string, file_path?: string): any  {
         const generated_file_info = "# This is a generated file, don't edit!\n";
         file_path = file_path || this.yaml_file_path;
 
         try {
             fs.writeFileSync(file_path, generated_file_info + headers);
         } catch (err) {
-            msg.error(t`WriteFileError ${file_path} ${err.toString()}`);
-            return false;
+            const message = t`WriteFileError ${file_path} ${err.toString()}`;
+            msg.error(message);
+            return { ok: false, message };
         }
 
-        return true;
+        return { ok: true };
     }
 
-    protected writeFiles(contents: string, headers: string) {
+    protected writeFiles(contents: string, headers: string): any {
         contents = contents.replace(/(\t| )+\n/g, '\n');
         while (contents.match(/\n\n\n/)) {
             contents = contents.replace(/\n\n\n/g, '\n\n');
@@ -188,8 +189,9 @@ export abstract class InterfaceCreator {
             contents += '\n';
         }
 
-        if (!this.writeYamlFile(headers)) {
-            return false;
+        let { ok, message } = this.writeYamlFile(headers);
+        if (!ok) {
+            return { ok: false, message };
         }
 
         try {
@@ -200,11 +202,12 @@ export abstract class InterfaceCreator {
 
             fs.writeFileSync(this.file_path, contents);
         } catch (err) {
-            msg.error(t`WriteFileError ${this.file_path} ${err.toString()}`);
-            return false;
+            message = t`WriteFileError ${this.file_path} ${err.toString()}`;
+            msg.error(message);
+            return { ok: false, message };
         }
 
-        return true;
+        return { ok: true };
     }
 
     protected returnData = (data: any, iface_id: string) => {
