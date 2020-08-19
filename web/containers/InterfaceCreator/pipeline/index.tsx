@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 
 import set from 'lodash/set';
 import get from 'lodash/get';
@@ -25,6 +25,8 @@ import shortid from 'shortid';
 import compose from 'recompose/compose';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import useMount from 'react-use/lib/useMount';
+import ConnectorField from '../../../components/Field/connectors';
+import MapperOptions from '../../../components/Field/mapperOptions';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -56,6 +58,7 @@ export interface IPipelineMetadata {
     name: string;
     desc: string;
     options?: { [key: string]: any };
+    'input-provider': any;
 }
 
 const StyledDiagramWrapper = styled.div<{ path: string }>`
@@ -225,6 +228,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         target_dir: pipeline?.target_dir || null,
         name: pipeline?.name || null,
         desc: pipeline?.desc || null,
+        'input-provider': pipeline?.['input-provider'] || undefined,
     });
     const [elements, setElements] = useState<IPipelineElement[]>(
         transformNodeData(
@@ -284,11 +288,21 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             )
         );
 
-        setMetadata({
-            name: null,
-            desc: null,
-            target_dir: null,
-        });
+        if (hard) {
+            setMetadata({
+                name: null,
+                desc: null,
+                target_dir: null,
+                'input-provider': null,
+            });
+        } else {
+            setMetadata({
+                name: pipeline?.name,
+                desc: pipeline?.desc,
+                target_dir: pipeline?.target_dir,
+                'input-provider': pipeline?.['input-provider'],
+            });
+        }
     };
 
     const handleDataSubmit = (data) => {
@@ -391,6 +405,35 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                             />
                             <FieldInputWrapper>
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel
+                                label={t('field-label-input-provider')}
+                                isValid={validateField('type-selector', metadata['input-provider'])}
+                            />
+                            <FieldInputWrapper>
+                                <ConnectorField
+                                    key={metadata['input-provider']}
+                                    value={metadata['input-provider']}
+                                    isInitialEditing={!!pipeline}
+                                    name="input-provider"
+                                    onChange={handleMetadataChange}
+                                />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel
+                                label={t('field-label-input-provider-options')}
+                                isValid={validateField('pipeline-options', metadata['input-provider-options'])}
+                            />
+                            <FieldInputWrapper>
+                                <MapperOptions
+                                    value={metadata?.['input-provider-options']}
+                                    onChange={handleMetadataChange}
+                                    name="input-provider-options"
+                                    url="/system/pipeline_options"
+                                />
                             </FieldInputWrapper>
                         </FieldWrapper>
                     </>

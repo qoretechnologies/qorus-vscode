@@ -833,6 +833,7 @@ export abstract class InterfaceCreator {
                     case 'fsm_options':
                     case 'typeinfo':
                     case 'staticdata-type':
+                    case 'input-provider':
                     case 'context':
                         result +=
                             `${['mapper_options', 'fsm_options'].includes(tag) ? 'options' : tag}:\n` +

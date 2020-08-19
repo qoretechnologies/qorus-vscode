@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import SelectField from './select';
-import { Button, ButtonGroup, ControlGroup } from '@blueprintjs/core';
+import { Button, ButtonGroup, ControlGroup, Classes } from '@blueprintjs/core';
 import styled from 'styled-components';
 import size from 'lodash/size';
 import omit from 'lodash/omit';
@@ -31,9 +31,19 @@ const MapperOptionsField: FunctionComponent<
         items: any[];
         mapperType: string;
         initialData?: any;
+        url?: string;
     } & IField &
         IFieldChange
-> = ({ name, onChange, value = [{ id: 1, value: '', name: '' }], get_message, return_message, t, initialData }) => {
+> = ({
+    name,
+    onChange,
+    value = [{ id: 1, value: '', name: '' }],
+    get_message,
+    return_message,
+    t,
+    initialData,
+    url,
+}) => {
     const [options, setOptions] = useState(null);
     const [items, setItems] = useState([]);
 
@@ -65,13 +75,13 @@ const MapperOptionsField: FunctionComponent<
             setOptions(null);
             setItems([]);
             // Fetch the options for this mapper type
-            const data = await initialData.fetchData('/mappertypes/Mapper');
+            const data = await initialData.fetchData(url || '/mappertypes/Mapper/user_options');
             // Save the new options
-            setOptions(data.data.user_options);
+            setOptions(data.data);
             // Save the items
             setItems(
                 reduce(
-                    data.data.user_options,
+                    data.data,
                     (transformedOpts, data, opt) => [...transformedOpts, { name: opt, desc: data.desc }],
                     []
                 )
@@ -131,7 +141,7 @@ const MapperOptionsField: FunctionComponent<
                 <StyledPairField key={pair.id || index}>
                     <div>
                         <ControlGroup fill>
-                            <Button text={`${index + 1}.`} />
+                            <Button text={`${index + 1}.`} className={Classes.FIXED} />
                             <SelectField
                                 name="name"
                                 value={pair.name}

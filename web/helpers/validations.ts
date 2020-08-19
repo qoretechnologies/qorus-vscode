@@ -56,8 +56,9 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             // Strings cannot be empty
             return isValid;
         }
+        case 'pipeline-options':
         case 'mapper-options': {
-            if (isObject(value)) {
+            if (!value || isObject(value)) {
                 return false;
             }
             // Check if every pair has key & value
