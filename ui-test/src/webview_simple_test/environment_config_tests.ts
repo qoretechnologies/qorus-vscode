@@ -58,8 +58,8 @@ export const addInstance = async (webview: WebView) => {
 
     expect(instances).to.have.length(9);
     expect(links).to.have.length(9);
-    expect(await links[5].getText()).to.equal('test');
-    expect(await links[5].getAttribute('href')).to.equal('https://google.com/');
+    expect(await links[4].getText()).to.equal('test');
+    expect(await links[4].getAttribute('href')).to.equal('https://google.com/');
 };
 
 export const editInstance = async (webview: WebView) => {
