@@ -1,16 +1,52 @@
-import { By, WebView } from 'vscode-extension-tester';
+import { By, WebView, Workbench, EditorView } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
 
 type TSelector = 'id' | 'name' | 'className';
 
+export const setupWebview = async () => {
+    const workbench = new Workbench();
+    const editorView = new EditorView();
+
+    await sleep(3000);
+
+    await workbench.executeCommand('Qorus: Open Webview');
+
+    let isWebviewOpen = false;
+
+    while (!isWebviewOpen) {
+        isWebviewOpen = (await editorView.getOpenEditorTitles()).includes('Qorus Webview');
+    }
+
+    await sleep(1000);
+
+    const webview = await new WebView(editorView, 'Qorus Webview');
+    const notificationsCenter = await workbench.openNotificationsCenter();
+    await notificationsCenter.clearAllNotifications();
+
+    await webview.wait();
+    await webview.switchToFrame();
+
+    await sleep(3000);
+
+    return {
+        workbench,
+        editorView,
+        webview,
+    };
+};
 
 export const sleep = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const getNthElement = async (webview: WebView, name: string, position: number = 1, selector: TSelector = 'name') => {
+export const getNthElement = async (
+    webview: WebView,
+    name: string,
+    position: number = 1,
+    selector: TSelector = 'name'
+) => {
     return (await webview.findWebElements(By[selector](name)))[position - 1];
 };
 
@@ -18,7 +54,12 @@ export const getElements = async (webview: WebView, name: string, selector: TSel
     return await webview.findWebElements(By[selector](name));
 };
 
-export const clickElement = async (webview: WebView, name: string, position: number = 1, selector: TSelector = 'name') => {
+export const clickElement = async (
+    webview: WebView,
+    name: string,
+    position: number = 1,
+    selector: TSelector = 'name'
+) => {
     await (await getNthElement(webview, name, position, selector)).click();
 };
 
@@ -26,7 +67,12 @@ export const fillTextField = async (webview: WebView, name: string, value: strin
     await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
 };
 
-export const getElementText = async (webview: WebView, name: string, position: number = 1, selector: TSelector = 'name') => {
+export const getElementText = async (
+    webview: WebView,
+    name: string,
+    position: number = 1,
+    selector: TSelector = 'name'
+) => {
     return await (await getNthElement(webview, name, position, selector)).getText();
 };
 
@@ -43,8 +89,8 @@ export const selectNthDropdownItem = async (
     webview: WebView,
     name: string,
     item_position: number,
-    element_position: number = 1) =>
-{
+    element_position: number = 1
+) => {
     await clickElement(webview, `field-${name}`, element_position);
     await sleep(500);
     await clickElement(webview, `field-${name}-item`, item_position);
@@ -55,8 +101,8 @@ export const selectNthFilteredDropdownItem = async (
     name: string,
     filter: string,
     item_position: number = 1,
-    element_position: number = 1) =>
-{
+    element_position: number = 1
+) => {
     await clickElement(webview, `field-${name}`, element_position);
     await sleep(500);
     await fillTextField(webview, 'select-filter', filter);
@@ -105,5 +151,5 @@ export const compareWithGoldFiles = async (folder: string, files: string[]) => {
         expect(true_file_contents).to.eql(expected_file_contents);
     };
 
-    files.forEach(file => compare(file));
+    files.forEach((file) => compare(file));
 };

@@ -58,8 +58,8 @@ export const addInstance = async (webview: WebView) => {
 
     expect(instances).to.have.length(9);
     expect(links).to.have.length(9);
-    expect(await links[5].getText()).to.equal('test');
-    expect(await links[5].getAttribute('href')).to.equal('https://google.com/');
+    expect(await links[4].getText()).to.equal('test');
+    expect(await links[4].getAttribute('href')).to.equal('https://google.com/');
 };
 
 export const editInstance = async (webview: WebView) => {
@@ -117,6 +117,8 @@ export const deleteUrl = async (webview: WebView) => {
 };
 
 export const addAndRemoveSourceDirectory = async (webview: WebView) => {
+    await sleep(3000);
+
     await (await webview.findWebElement(By.name('manage-source-dirs'))).click();
 
     await sleep(500);
@@ -135,7 +137,6 @@ export const addAndRemoveSourceDirectory = async (webview: WebView) => {
 
     //expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(19);
 
-    await (await webview.findWebElement(By.className('bp3-overlay'))).click();
     await (await webview.findWebElement(By.className('bp3-dialog-close-button'))).click();
 
     await sleep(2000);
