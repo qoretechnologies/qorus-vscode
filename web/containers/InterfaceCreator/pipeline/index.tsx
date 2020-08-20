@@ -1,14 +1,22 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, {
+    useContext, useRef, useState
+} from 'react';
 
-import set from 'lodash/set';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
+import set from 'lodash/set';
+import size from 'lodash/size';
 import Tree from 'react-d3-tree';
+import useMount from 'react-use/lib/useMount';
+import compose from 'recompose/compose';
+import shortid from 'shortid';
 import styled from 'styled-components';
 
 import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core';
 
+import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
+import MapperOptions from '../../../components/Field/mapperOptions';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
 import { Messages } from '../../../constants/messages';
@@ -18,15 +26,10 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
+import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
-import { calculateFontSize } from '../fsm/state';
-import shortid from 'shortid';
-import compose from 'recompose/compose';
-import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
-import useMount from 'react-use/lib/useMount';
-import ConnectorField from '../../../components/Field/connectors';
-import MapperOptions from '../../../components/Field/mapperOptions';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -81,7 +84,7 @@ const StyledNodeLabel = styled.div`
     }
 `;
 
-const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
+const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueueClick }) => {
     const { addMenu } = useContext(ContextMenuContext);
     const t = useContext(TextContext);
 
@@ -95,22 +98,43 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
                 if (nodeData.type !== 'start') {
                     menu.data.unshift({
                         item: t('Edit'),
-                        onClick: () => onEditClick(nodeData),
+                        onClick: () => onEditClick({ nodeData }),
                         icon: 'edit',
                         intent: 'warning',
                     });
                     menu.data.unshift({
                         item: t('Delete'),
-                        onClick: () => onDeleteClick(nodeData),
+                        onClick: () => onDeleteClick({ nodeData }),
                         icon: 'trash',
                         intent: 'danger',
                     });
                 }
 
-                if (nodeData.type === 'queue' || nodeData.type === 'start') {
+                const hasOnlyQueues = nodeData.children?.every((child) => child.type === 'queue');
+
+                if (hasOnlyQueues) {
+                    menu.data.unshift({
+                        item: t('AddQueue'),
+                        onClick: () =>
+                            onAddQueueClick({
+                                parentPath: nodeData.path,
+                                name: null,
+                                children: [],
+                                _children: [],
+                                type: 'queue',
+                            }),
+                        icon: 'add',
+                        intent: 'none',
+                    });
+                } else if (!size(nodeData.children)) {
                     menu.data.unshift({
                         item: t('AddElement'),
-                        onClick: () => onAddClick({ parentPath: nodeData.path }),
+                        onClick: () =>
+                            onAddClick({
+                                nodeData: { parentPath: nodeData.path },
+                                parentData: nodeData,
+                                onlyQueue: hasOnlyQueues,
+                            }),
                         icon: 'add',
                         intent: 'none',
                     });
@@ -358,7 +382,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         <>
             {selectedElement && (
                 <PipelineElementDialog
-                    data={selectedElement}
+                    data={selectedElement.nodeData}
+                    parentData={selectedElement.parentData}
+                    onlyQueue={selectedElement.onlyQueue}
                     onClose={() => setSelectedElement(null)}
                     onSubmit={handleDataSubmit}
                     interfaceId={interfaceId}
@@ -409,8 +435,13 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         </FieldWrapper>
                         <FieldWrapper>
                             <FieldLabel
+                                info={t('Optional')}
                                 label={t('field-label-input-provider')}
-                                isValid={validateField('type-selector', metadata['input-provider'])}
+                                isValid={
+                                    metadata['input-provider']
+                                        ? validateField('type-selector', metadata['input-provider'])
+                                        : true
+                                }
                             />
                             <FieldInputWrapper>
                                 <ConnectorField
@@ -422,20 +453,22 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
-                            <FieldLabel
-                                label={t('field-label-input-provider-options')}
-                                isValid={validateField('pipeline-options', metadata['input-provider-options'])}
-                            />
-                            <FieldInputWrapper>
-                                <MapperOptions
-                                    value={metadata?.['input-provider-options']}
-                                    onChange={handleMetadataChange}
-                                    name="input-provider-options"
-                                    url="/system/pipeline_options"
+                        {metadata['input-provider'] && (
+                            <FieldWrapper>
+                                <FieldLabel
+                                    label={t('field-label-input-provider-options')}
+                                    isValid={validateField('pipeline-options', metadata['input-provider-options'])}
                                 />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
+                                <FieldInputWrapper>
+                                    <MapperOptions
+                                        value={metadata?.['input-provider-options']}
+                                        onChange={handleMetadataChange}
+                                        name="input-provider-options"
+                                        url="/system/pipeline_options"
+                                    />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                        )}
                     </>
                 )}
             </div>
@@ -458,6 +491,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                     onEditClick={setSelectedElement}
                                     onAddClick={setSelectedElement}
                                     onDeleteClick={(elementData) => removeElement(elementData)}
+                                    onAddQueueClick={handleDataSubmit}
                                 />
                             ),
                             foreignObjectWrapper: {

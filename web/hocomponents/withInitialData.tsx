@@ -1,4 +1,6 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, {
+    FunctionComponent, useState
+} from 'react';
 
 import set from 'lodash/set';
 import useMount from 'react-use/lib/useMount';
@@ -28,8 +30,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         useMount(() => {
             props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
                 setInitialData(null);
-
-                console.log(data);
 
                 if (!data.tab) {
                     data.tab = 'ProjectConfig';

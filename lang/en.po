@@ -961,6 +961,12 @@ msgstr "Pipeline"
 msgid "field-desc-pipeline"
 msgstr "Any data pipelines accessible and used by the interface"
 
+msgid "field-label-input-provider"
+msgstr "Input provider"
+
+msgid "field-desc-input-provider"
+msgstr "Input provider"
+
 msgid "field-label-connector"
 msgstr "Connector"
 
@@ -2429,6 +2435,9 @@ msgstr "Config item with name \"${ name }\" and prefix \"${ prefix }\" already e
 
 msgid "AddElement"
 msgstr "Add child element"
+
+msgid "AddQueue"
+msgstr "Add queue"
 
 msgid "tutorial-controls"
 msgstr "Tutorial controls"
