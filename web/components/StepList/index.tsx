@@ -441,6 +441,7 @@ const NewStepPopover = compose(
                                             handleInsert(nameField.value, typeField.value, versionField.value);
                                             setStepDialog(false);
                                         }}
+                                        onSubmitSuccess={() => true}
                                         openFileOnSubmit={false}
                                         forceSubmit
                                         {...classConnectionsProps}

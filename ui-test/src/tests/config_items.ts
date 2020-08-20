@@ -18,7 +18,6 @@ import {
     confirmDialog,
 } from '../common/utils';
 
-
 export const createServiceClass = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
     await clickElement(webview, 'Class');
@@ -165,7 +164,7 @@ export const checkFiles = async (project_folder: string) => {
         'ClassWithConfigItems-1.3.qclass',
         'ClassWithConfigItems-1.3.qclass.yaml',
         'service-inheriting-config-items-1.23.qsd',
-        'service-inheriting-config-items-1.23.qsd.yaml'
+        'service-inheriting-config-items-1.23.qsd.yaml',
     ]);
 };
 
@@ -181,6 +180,8 @@ export const openFile = async (webview: WebView, workbench: Workbench, input: In
     await sleep(1000);
     await workbench.executeCommand('Qorus: Edit Current Interface');
     await sleep(5000);
+    await webview.switchToFrame();
+    await sleep(2000);
 };
 
 const openConfigItemManager = async (webview: WebView) => {

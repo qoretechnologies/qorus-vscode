@@ -17,8 +17,9 @@ import {
     getElements,
 } from '../common/utils';
 
-
 export const openCreateWorkflow = async (webview: WebView) => {
+    await sleep(4000);
+
     await clickElement(webview, 'CreateInterface');
     await clickElement(webview, 'Workflow');
 
@@ -64,6 +65,8 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView, p
     await fillTextField(webview, 'field-version', '1.0');
     await submitInterface(webview, 'step');
 
+    await sleep(2000);
+
     expect(await getElements(webview, 'steplist-step')).to.have.length(1);
     expect(await getElementAttribute(webview, 'interface-creator-submit-workflow-steps', 'disabled')).to.equal(null);
 
@@ -79,8 +82,5 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView, p
 
     expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
 
-    compareWithGoldFiles(path.join(project_folder, 'arpm'), [
-        'Workflow test-1.0.qwf',
-        'Workflow test-1.0.qwf.yaml'
-    ]);
+    compareWithGoldFiles(path.join(project_folder, 'arpm'), ['Workflow test-1.0.qwf', 'Workflow test-1.0.qwf.yaml']);
 };
