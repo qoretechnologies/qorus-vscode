@@ -24,6 +24,7 @@ import { ContextMenuContext } from '../../../context/contextMenu';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { rebuildOptions } from '../../../helpers/mapper';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
@@ -62,6 +63,7 @@ export interface IPipelineMetadata {
     desc: string;
     options?: { [key: string]: any };
     'input-provider': any;
+    'input-provider-options': any;
 }
 
 const StyledDiagramWrapper = styled.div<{ path: string }>`
@@ -253,6 +255,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         name: pipeline?.name || null,
         desc: pipeline?.desc || null,
         'input-provider': pipeline?.['input-provider'] || undefined,
+        'input-provider-options': pipeline?.['input-provider-options'] || undefined,
     });
     const [elements, setElements] = useState<IPipelineElement[]>(
         transformNodeData(
@@ -283,6 +286,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 orig_data: pipeline,
                 data: {
                     ...metadata,
+                    'input-provider-options': rebuildOptions(metadata['input-provider-options']),
                     children: elements[0].children,
                 },
             },
@@ -318,6 +322,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 desc: null,
                 target_dir: null,
                 'input-provider': null,
+                'input-provider-options': null,
             });
         } else {
             setMetadata({
@@ -325,6 +330,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 desc: pipeline?.desc,
                 target_dir: pipeline?.target_dir,
                 'input-provider': pipeline?.['input-provider'],
+                'input-provider-options': pipeline?.['input-provider-options'],
             });
         }
     };
@@ -445,7 +451,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                             />
                             <FieldInputWrapper>
                                 <ConnectorField
-                                    key={metadata['input-provider']}
                                     value={metadata['input-provider']}
                                     isInitialEditing={!!pipeline}
                                     name="input-provider"

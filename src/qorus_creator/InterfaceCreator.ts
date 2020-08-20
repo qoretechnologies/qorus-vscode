@@ -7,7 +7,7 @@ import { Position } from 'vscode';
 import * as globals from '../global_config_item_values';
 import { default_version, types_with_version } from '../qorus_constants';
 import * as msg from '../qorus_message';
-import { capitalize, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges, deepCopy } from '../qorus_utils';
+import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
@@ -828,6 +828,7 @@ export abstract class InterfaceCreator {
                         break;
                     case 'fields':
                     case 'mapper_options':
+                    case 'input-provider-options':
                     case 'fsm_options':
                     case 'typeinfo':
                     case 'staticdata-type':
