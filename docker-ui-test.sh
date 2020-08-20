@@ -53,7 +53,7 @@ sed -i 's/const args = \[/const args = \["--disable-gpu", /' browser.js
 # setup test environment
 cd ${rootdir}
 mkdir -p test-resources/settings
-npm run compile:test
+rm -rf ui-test/out && npm run compile:test
 
 # extester setup
 cd ${rootdir}
@@ -78,7 +78,7 @@ tmux new-session -d -s "${session_name}" "ffmpeg -f x11grab -video_size 1680x105
 
 # run tests
 set +e
-for f in ui-test/out/*.js; do ui-test/node_modules/.bin/extest run-tests $f; done
+ui-test/node_modules/.bin/extest run-tests ui-test/out/*.spec.js
 rc="$?"
 
 # send command to turn off video recording cleanly
