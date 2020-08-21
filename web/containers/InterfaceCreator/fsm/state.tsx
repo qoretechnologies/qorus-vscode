@@ -1,7 +1,11 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, {
+    useContext, useState
+} from 'react';
 
 import { useDrag } from 'react-dnd';
-import styled, { css, keyframes } from 'styled-components';
+import styled, {
+    css, keyframes
+} from 'styled-components';
 
 import { Button, ButtonGroup } from '@blueprintjs/core';
 
@@ -162,6 +166,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     onUpdate,
     selectedState,
     getTransitionByState,
+    toggleDragging,
 }) => {
     const [, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
@@ -177,12 +182,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
         func(id);
     };
 
-    const handleMouseEnter = () => {
+    const handleMouseEnter = (event) => {
+        event.stopPropagation();
         setIsHovered(true);
+        toggleDragging(false);
     };
 
     const handleMouseLeave = () => {
         setIsHovered(false);
+        toggleDragging(true);
     };
 
     return (

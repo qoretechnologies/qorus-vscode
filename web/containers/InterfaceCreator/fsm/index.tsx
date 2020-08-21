@@ -1,16 +1,18 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, {
+    useContext, useRef, useState
+} from 'react';
 
+import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import map from 'lodash/map';
+import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import compose from 'recompose/compose';
-import cloneDeep from 'lodash/cloneDeep';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
+import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
-import maxBy from 'lodash/maxBy';
 
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
@@ -23,6 +25,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
+import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import FSMDiagramWrapper from './diagramWrapper';
 import FSMState from './state';
@@ -30,7 +33,6 @@ import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
-import withMessageHandler from '../../../hocomponents/withMessageHandler';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -161,7 +163,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const [editingState, setEditingState] = useState<string | null>(null);
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
     const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
-    const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(false);
+    const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(true);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
@@ -688,6 +690,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     items={map(states, (state) => ({ x: state.position.x, y: state.position.y }))}
                 >
                     <StyledDiagram
+                        title="Hold [SHIFT] to move the diagram around"
                         key={JSON.stringify(wrapperDimensions)}
                         ref={drop}
                         path={image_path}
@@ -711,6 +714,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 onDeleteClick={handleStateDeleteClick}
                                 selectedState={selectedState}
                                 getTransitionByState={getTransitionByState}
+                                toggleDragging={setIsHoldingShiftKey}
                                 onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
                             />
                         ))}
