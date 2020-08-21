@@ -627,8 +627,7 @@ export abstract class InterfaceCreator {
                     const [name, method, ...other] = field.code.split('::');
                     if (name && method && !other.length) {
                         const mapper_code = this.code_info.yaml_info.yamlDataByName('mapper-code', name);
-                        const { 'class-name': class_name } = mapper_code;
-                        field.code = `${class_name}::${method}`;
+                        field.code = `${mapper_code.name}::${method}`;
                     }
                 }
 
