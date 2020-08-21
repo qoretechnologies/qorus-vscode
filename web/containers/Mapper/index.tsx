@@ -420,6 +420,36 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
     };
 
+    const renameFieldRelation: (oldPath: string, newPath: string, type: string) => void = (oldPath, newPath, type) => {
+        // Remove the selected relation
+        // @ts-ignore
+        setRelations(current =>
+            reduce(
+                current,
+                (newRelations, rel, relationOutput: string) => {
+                    if (type === 'outputs') {
+                        if (relationOutput && relationOutput.startsWith(oldPath)) {
+                            const path = relationOutput.replace(oldPath, newPath);
+
+                            return { ...newRelations, [path]: rel };
+                        }
+
+                        return { ...newRelations, [relationOutput]: rel };
+                    } else {
+                        if (rel.name && rel.name.startsWith(oldPath)) {
+                            rel.name = rel.name.replace(oldPath, newPath);
+
+                            return { ...newRelations, [relationOutput]: rel };
+                        }
+
+                        return { ...newRelations, [relationOutput]: rel };
+                    }
+                },
+                {}
+            )
+        );
+    };
+
     const clearInputs: (soft?: boolean) => void = soft => {
         // Reset all the data to default
         if (!soft) {
@@ -539,7 +569,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 onSubmit: data => {
                     if (edit) {
                         editField(type, field.path, data);
-                        removeFieldRelations(field.path, type);
+                        renameFieldRelation(field.path, data.path, type);
                     } else {
                         addField(type, field?.path || '', data);
                     }
