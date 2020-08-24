@@ -47,12 +47,11 @@ const TYPE_COLORS = {
 };
 
 export const StyledMapperWrapper = styled.div`
-    width: 900px;
+    width: 920px;
     display: flex;
     flex-flow: row;
     justify-content: space-between;
     margin: 0 auto;
-    overflow-x: scroll;
     height: 100%;
 `;
 
