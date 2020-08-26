@@ -782,7 +782,7 @@ export abstract class InterfaceCreator {
                                 result += `${indent.repeat(indent_level + 1)}name: ${child.name}\n`;
                             }
                             if (child.pid) {
-                                result += `${indent.repeat(indent_level + 1)}id: ${child.pid}\n`;
+                                result += `${indent.repeat(indent_level + 1)}pid: ${child.pid}\n`;
                                 if (iface_data?.specific_data?.[child.pid]?.['config-items']?.length) {
                                     result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[child.pid]['config-items'], indent_level + 1);
                                 }
