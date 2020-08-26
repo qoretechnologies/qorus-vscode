@@ -93,6 +93,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 code_lines = this.renameClassAndBaseClass(code_lines, orig_data, data);
                 code_lines = this.renameMethods(code_lines, method_renaming_map.renamed);
                 code_lines = this.removeMethods(code_lines, method_renaming_map.removed);
+                code_lines = this.updateImports(code_lines, [...this.imports]);
                 contents = code_lines.join('\n');
                 break;
             case 'delete-method':

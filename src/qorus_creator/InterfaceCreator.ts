@@ -433,6 +433,24 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
+    protected updateImports = (code_lines: string[], imports: string[]): string[] => {
+        const isImportLine = (line:string): boolean => {
+            switch (this.lang) {
+                case 'java': return !!line.match(/^import /);
+                case 'python': return !!line.match(/^from\s+\S+\s+import /);
+                default: return false;
+            }
+        };
+
+        const existing_import_lines: string[] = code_lines.filter(line => isImportLine(line));
+        let import_lines_to_add: string[] = imports.filter(line => !existing_import_lines.includes(line));
+
+        if (!existing_import_lines.length && import_lines_to_add.length) {
+            import_lines_to_add.push('');
+        }
+        return [...import_lines_to_add, ...code_lines];
+    }
+
     private static indentYamlDump = (value, indent_level, is_on_new_line) => {
         let lines = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
         if (/^\s*$/.test(lines.slice(-1)[0])) {
