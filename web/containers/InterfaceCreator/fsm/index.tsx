@@ -1,6 +1,4 @@
-import React, {
-    useContext, useRef, useState
-} from 'react';
+import React, { useContext, useRef, useState } from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -530,7 +528,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             <div ref={fieldsWrapperRef} id="fsm-fields-wrapper">
                 {!isMetadataHidden && (
                     <>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 label={t('field-label-target_dir')}
                                 isValid={validateField('file-string', metadata.target_dir)}
@@ -552,7 +550,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 isValid={validateField('string', metadata.name)}
                                 label={t('field-label-name')}
@@ -561,7 +559,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 <String onChange={handleMetadataChange} value={metadata.name} name="name" />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 isValid={validateField('string', metadata.desc)}
                                 label={t('field-label-desc')}
@@ -570,37 +568,6 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        {/* 
-                            <FieldWrapper>
-                                <FieldLabel isValid={validateField('string', metadata.fsm_options)} label={t('field-label-options')} />
-                                <FieldInputWrapper>
-                                    <p>{t('ActionStrategy')}</p>
-                                    <SelectField 
-                                        onChange={(_, value) => {
-                                            handleMetadataChange('fsm_options', {
-                                                ...metadata.fsm_options,
-                                                'action-strategy': value,
-                                            })
-                                        }}
-                                        name='fsm_options'
-                                        value={metadata.fsm_options['action-strategy']}
-                                        defaultItems={[{ name: 'one'}, { name: 'all' }]}
-                                    />
-                                    <Spacer size={10} />
-                                    <p>{t('MaxThreadCount')}</p>
-                                    <Number 
-                                        onChange={(_, value) => {
-                                            handleMetadataChange('fsm_options', {
-                                                ...metadata.fsm_options,
-                                                'max-thread-count': value,
-                                            })
-                                        }}
-                                        name='fsm_options'
-                                        value={metadata.fsm_options['max-thread-count']}
-                                    />
-                                </FieldInputWrapper>
-                            </FieldWrapper>
-                        */}
                     </>
                 )}
             </div>
