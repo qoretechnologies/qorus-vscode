@@ -1,14 +1,20 @@
 import React, { useContext, useRef, useState } from 'react';
 
-import set from 'lodash/set';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
+import set from 'lodash/set';
+import size from 'lodash/size';
 import Tree from 'react-d3-tree';
+import useMount from 'react-use/lib/useMount';
+import compose from 'recompose/compose';
+import shortid from 'shortid';
 import styled from 'styled-components';
 
 import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core';
 
+import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
+import MapperOptions from '../../../components/Field/mapperOptions';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
 import { Messages } from '../../../constants/messages';
@@ -16,15 +22,14 @@ import { ContextMenuContext } from '../../../context/contextMenu';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { rebuildOptions } from '../../../helpers/mapper';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
+import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
-import { calculateFontSize } from '../fsm/state';
-import shortid from 'shortid';
-import compose from 'recompose/compose';
-import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
-import useMount from 'react-use/lib/useMount';
+import MultiSelect from '../../../components/Field/multiSelect';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -56,6 +61,9 @@ export interface IPipelineMetadata {
     name: string;
     desc: string;
     options?: { [key: string]: any };
+    groups?: any;
+    'input-provider': any;
+    'input-provider-options': any;
 }
 
 const StyledDiagramWrapper = styled.div<{ path: string }>`
@@ -78,7 +86,7 @@ const StyledNodeLabel = styled.div`
     }
 `;
 
-const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
+const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueueClick }) => {
     const { addMenu } = useContext(ContextMenuContext);
     const t = useContext(TextContext);
 
@@ -92,22 +100,43 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick }) => {
                 if (nodeData.type !== 'start') {
                     menu.data.unshift({
                         item: t('Edit'),
-                        onClick: () => onEditClick(nodeData),
+                        onClick: () => onEditClick({ nodeData }),
                         icon: 'edit',
                         intent: 'warning',
                     });
                     menu.data.unshift({
                         item: t('Delete'),
-                        onClick: () => onDeleteClick(nodeData),
+                        onClick: () => onDeleteClick({ nodeData }),
                         icon: 'trash',
                         intent: 'danger',
                     });
                 }
 
-                if (nodeData.type === 'queue' || nodeData.type === 'start') {
+                const hasOnlyQueues = nodeData.children?.every((child) => child.type === 'queue');
+
+                if (hasOnlyQueues) {
+                    menu.data.unshift({
+                        item: t('AddQueue'),
+                        onClick: () =>
+                            onAddQueueClick({
+                                parentPath: nodeData.path,
+                                name: null,
+                                children: [],
+                                _children: [],
+                                type: 'queue',
+                            }),
+                        icon: 'add',
+                        intent: 'none',
+                    });
+                } else if (!size(nodeData.children)) {
                     menu.data.unshift({
                         item: t('AddElement'),
-                        onClick: () => onAddClick({ parentPath: nodeData.path }),
+                        onClick: () =>
+                            onAddClick({
+                                nodeData: { parentPath: nodeData.path },
+                                parentData: nodeData,
+                                onlyQueue: hasOnlyQueues,
+                            }),
                         icon: 'add',
                         intent: 'none',
                     });
@@ -225,6 +254,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         target_dir: pipeline?.target_dir || null,
         name: pipeline?.name || null,
         desc: pipeline?.desc || null,
+        groups: pipeline?.groups || [],
+        'input-provider': pipeline?.['input-provider'] || undefined,
+        'input-provider-options': pipeline?.['input-provider-options'] || undefined,
     });
     const [elements, setElements] = useState<IPipelineElement[]>(
         transformNodeData(
@@ -255,6 +287,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 orig_data: pipeline,
                 data: {
                     ...metadata,
+                    'input-provider-options': rebuildOptions(metadata['input-provider-options']),
                     children: elements[0].children,
                 },
             },
@@ -284,11 +317,25 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             )
         );
 
-        setMetadata({
-            name: null,
-            desc: null,
-            target_dir: null,
-        });
+        if (hard) {
+            setMetadata({
+                name: null,
+                desc: null,
+                target_dir: null,
+                groups: [],
+                'input-provider': null,
+                'input-provider-options': null,
+            });
+        } else {
+            setMetadata({
+                name: pipeline?.name,
+                desc: pipeline?.desc,
+                target_dir: pipeline?.target_dir,
+                groups: pipeline?.groups || [],
+                'input-provider': pipeline?.['input-provider'],
+                'input-provider-options': pipeline?.['input-provider-options'],
+            });
+        }
     };
 
     const handleDataSubmit = (data) => {
@@ -344,7 +391,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         <>
             {selectedElement && (
                 <PipelineElementDialog
-                    data={selectedElement}
+                    data={selectedElement.nodeData}
+                    parentData={selectedElement.parentData}
+                    onlyQueue={selectedElement.onlyQueue}
                     onClose={() => setSelectedElement(null)}
                     onSubmit={handleDataSubmit}
                     interfaceId={interfaceId}
@@ -393,6 +442,67 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
                             </FieldInputWrapper>
                         </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel
+                                isValid={validateField('select-array', metadata.groups)}
+                                label={t('field-label-groups')}
+                            />
+                            <FieldInputWrapper>
+                                <MultiSelect
+                                    onChange={handleMetadataChange}
+                                    get_message={{
+                                        action: 'creator-get-objects',
+                                        object_type: 'group',
+                                    }}
+                                    return_message={{
+                                        action: 'creator-return-objects',
+                                        object_type: 'group',
+                                        return_value: 'objects',
+                                    }}
+                                    reference={{
+                                        iface_kind: 'other',
+                                        type: 'group',
+                                    }}
+                                    value={metadata.groups}
+                                    name="groups"
+                                />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel
+                                info={t('Optional')}
+                                label={t('field-label-input-provider')}
+                                isValid={
+                                    metadata['input-provider']
+                                        ? validateField('type-selector', metadata['input-provider'])
+                                        : true
+                                }
+                            />
+                            <FieldInputWrapper>
+                                <ConnectorField
+                                    value={metadata['input-provider']}
+                                    isInitialEditing={!!pipeline}
+                                    name="input-provider"
+                                    onChange={handleMetadataChange}
+                                />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        {metadata['input-provider'] && (
+                            <FieldWrapper>
+                                <FieldLabel
+                                    label={t('field-label-input-provider-options')}
+                                    isValid={validateField('pipeline-options', metadata['input-provider-options'])}
+                                />
+                                <FieldInputWrapper>
+                                    <MapperOptions
+                                        value={metadata?.['input-provider-options']}
+                                        onChange={handleMetadataChange}
+                                        name="input-provider-options"
+                                        url="/system/pipeline_options"
+                                    />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                        )}
                     </>
                 )}
             </div>
@@ -415,6 +525,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                     onEditClick={setSelectedElement}
                                     onAddClick={setSelectedElement}
                                     onDeleteClick={(elementData) => removeElement(elementData)}
+                                    onAddQueueClick={handleDataSubmit}
                                 />
                             ),
                             foreignObjectWrapper: {

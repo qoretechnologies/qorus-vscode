@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
+import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
-import forEach from 'lodash/forEach';
 import size from 'lodash/size';
 import { useDrop } from 'react-dnd';
 import compose from 'recompose/compose';
@@ -13,7 +13,9 @@ import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import { Messages } from '../../constants/messages';
-import { flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField } from '../../helpers/mapper';
+import {
+    flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField, rebuildOptions
+} from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -663,15 +665,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         // Add the relations
         mapper.fields = filterEmptyRelations(relations);
         // Rebuild the mapper options
-        const mapperOptions: { [key: string]: any } = mapper.mapper_options
-            ? mapper.mapper_options.reduce(
-                  (newOptions, opt) => ({
-                      ...newOptions,
-                      [opt.name]: opt.value,
-                  }),
-                  {}
-              )
-            : {};
+        const mapperOptions: { [key: string]: any } = rebuildOptions(mapper.mapper_options);
         // Add the input & output providers
         mapper.mapper_options = {
             ...mapperOptions,

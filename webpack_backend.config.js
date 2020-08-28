@@ -18,7 +18,7 @@ let webpackConfig = {
     name: 'backend',
     cache: false,
     output: {
-        path: `${root}/dist`,
+        path: `${root}/out`,
         libraryTarget: 'commonjs2',
         devtoolModuleFilenameTemplate: '../[resource-path]',
         filename: 'extension.js',
