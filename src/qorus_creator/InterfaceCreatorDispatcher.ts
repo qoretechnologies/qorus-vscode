@@ -10,7 +10,7 @@ import { stepFields } from './step_constants';
 import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_constants';
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
-import { gettext } from 'ttag';
+import { t, gettext } from 'ttag';
 
 
 export class InterfaceCreatorDispatcher {
@@ -105,7 +105,7 @@ export class InterfaceCreatorDispatcher {
         }
     }
 
-    static langChanged({lang, iface_id, iface_kind}) {
+    static langChanged({ lang, iface_id, iface_kind }, interface_info) {
         if (lang === 'java') {
             qorus_webview.postMessage({
                 action: 'creator-remove-field',
@@ -118,6 +118,14 @@ export class InterfaceCreatorDispatcher {
                 field: 'target_file',
                 iface_id,
                 iface_kind
+            });
+        }
+
+        const orig_lang = interface_info.getData(iface_id)?.lang || 'qore';
+        if (orig_lang !== lang) {
+            qorus_webview.postMessage({
+                action: 'maybe-recreate-interface',
+                message: t`LangChangeRecreateQuestion`
             });
         }
     }

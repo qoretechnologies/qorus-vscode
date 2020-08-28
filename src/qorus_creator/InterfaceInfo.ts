@@ -24,6 +24,8 @@ export class InterfaceInfo {
         this.yaml_info = code_info.yaml_info;
     }
 
+    getData = (iface_id: string): any => deepCopy(this.iface_by_id[iface_id]);
+
     private hasSpecificData = iface_kind => ['fsm', 'pipeline'].includes(iface_kind);
 
     private specificDataId = (iface_kind, state_id, processor_id) => {

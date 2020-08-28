@@ -275,7 +275,7 @@ class QorusWebview {
                             interface_info.removeSpecificData(message);
                             break;
                         case 'lang-changed':
-                            creator.langChanged(message);
+                            creator.langChanged(message, interface_info);
                             break;
                         case 'get-objects-with-static-data':
                             project.code_info.getObjectsWithStaticData(message);
