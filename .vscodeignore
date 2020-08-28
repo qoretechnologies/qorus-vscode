@@ -6,6 +6,7 @@ src/**
 test-resources/**
 ui-test/**
 web/**
+node_modules
 
 .babelrc
 .classpath
@@ -20,3 +21,5 @@ tsconfig.json
 tslint.json
 vsc-extension-quickstart.md
 webpack.config.js
+webpack_backend.config.js
+docker-ui-test.sh
