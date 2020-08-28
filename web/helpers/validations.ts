@@ -134,7 +134,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'file-tree':
             // Check if there is atleast one value
             // selected
-            return value.length !== 0;
+            return value && value.length !== 0;
         case 'cron':
             // Check if the cron is valid
             return cron.isValidCron(value, { alias: true });

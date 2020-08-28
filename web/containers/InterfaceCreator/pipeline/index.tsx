@@ -1,6 +1,4 @@
-import React, {
-    useContext, useRef, useState
-} from 'react';
+import React, { useContext, useRef, useState } from 'react';
 
 import get from 'lodash/get';
 import omit from 'lodash/omit';
@@ -31,6 +29,7 @@ import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMess
 import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
+import MultiSelect from '../../../components/Field/multiSelect';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -62,6 +61,7 @@ export interface IPipelineMetadata {
     name: string;
     desc: string;
     options?: { [key: string]: any };
+    groups?: any;
     'input-provider': any;
     'input-provider-options': any;
 }
@@ -254,6 +254,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         target_dir: pipeline?.target_dir || null,
         name: pipeline?.name || null,
         desc: pipeline?.desc || null,
+        groups: pipeline?.groups || [],
         'input-provider': pipeline?.['input-provider'] || undefined,
         'input-provider-options': pipeline?.['input-provider-options'] || undefined,
     });
@@ -321,6 +322,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 name: null,
                 desc: null,
                 target_dir: null,
+                groups: [],
                 'input-provider': null,
                 'input-provider-options': null,
             });
@@ -329,6 +331,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 name: pipeline?.name,
                 desc: pipeline?.desc,
                 target_dir: pipeline?.target_dir,
+                groups: pipeline?.groups || [],
                 'input-provider': pipeline?.['input-provider'],
                 'input-provider-options': pipeline?.['input-provider-options'],
             });
@@ -437,6 +440,32 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                             />
                             <FieldInputWrapper>
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper>
+                            <FieldLabel
+                                isValid={validateField('select-array', metadata.groups)}
+                                label={t('field-label-groups')}
+                            />
+                            <FieldInputWrapper>
+                                <MultiSelect
+                                    onChange={handleMetadataChange}
+                                    get_message={{
+                                        action: 'creator-get-objects',
+                                        object_type: 'group',
+                                    }}
+                                    return_message={{
+                                        action: 'creator-return-objects',
+                                        object_type: 'group',
+                                        return_value: 'objects',
+                                    }}
+                                    reference={{
+                                        iface_kind: 'other',
+                                        type: 'group',
+                                    }}
+                                    value={metadata.groups}
+                                    name="groups"
+                                />
                             </FieldInputWrapper>
                         </FieldWrapper>
                         <FieldWrapper>

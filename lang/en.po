@@ -964,6 +964,9 @@ msgstr "Any data pipelines accessible and used by the interface"
 msgid "field-label-input-provider"
 msgstr "Input provider"
 
+msgid "field-label-input-provider-options"
+msgstr "Input provider options"
+
 msgid "field-desc-input-provider"
 msgstr "Input provider"
 
