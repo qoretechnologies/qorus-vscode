@@ -6,6 +6,7 @@ import { QorusJavaParser }  from './QorusJavaParser';
 import { QorusPythonParser }  from './QorusPythonParser';
 import { qoreLoc2Range, pythonLoc2Range, javaLoc2Range,
          pythonNameRange, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
+import { qorus_webview } from './QorusWebview';
 import { qore_vscode } from './qore_vscode';
 import * as msg from './qorus_message';
 import { CONN_CALL_METHOD, GENERATED_TEXT } from './qorus_creator/ClassConnectionsCreate';
@@ -17,6 +18,15 @@ export class QorusProjectEditInfo {
     private setError = (file: string, error: string): string => {
         this.edit_info[file] = {error};
         return error;
+    }
+
+    checkError = (file: string) => {
+        if (this.edit_info?.[file]?.error) {
+            qorus_webview.postMessage({
+                action: 'maybe-recreate-interface',
+                message: this.edit_info[file].error
+            });
+        }
     }
 
     private addTextLines = (file: string, contents: string) => {

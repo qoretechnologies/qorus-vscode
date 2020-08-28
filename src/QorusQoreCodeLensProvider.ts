@@ -35,24 +35,24 @@ export class QorusQoreCodeLensProvider extends QorusCodeLensProviderBase {
                         if (!QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, data['class-name'])) {
                             return;
                         }
-    
+
                         this.addClassLenses(iface_kind, lenses, qoreLoc2Range(symbol.name.loc), data);
-    
+
                         if (!['service', 'mapper-code'].includes(iface_kind)) {
                             return;
                         }
-    
+
                         for (const decl of symbol.declarations || []) {
                             if (!QorusProjectEditInfo.isQoreDeclPublicMethod(decl)) {
                                 continue;
                             }
-    
+
                             const method_name = decl.name.name;
                             const name_range = qoreLoc2Range(decl.name.loc);
                             this.addMethodLenses(iface_kind, lenses, name_range, data, method_name);
                         }
                     });
-    
+
                     this.previous_lenses = lenses;
                     return lenses;
                 });

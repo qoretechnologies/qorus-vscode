@@ -107,7 +107,12 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.editInterface',
                                                  (data: any, iface_kind: string) =>
     {
-        const iface_info: InterfaceInfo = projects.currentInterfaceInfo();
+        const code_info = projects.currentProjectCodeInfo();
+        if (!code_info) {
+            return;
+        }
+
+        const iface_info: InterfaceInfo = code_info.interface_info;
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
         if (['group', 'event', 'queue'].includes(iface_kind)) {
@@ -121,6 +126,11 @@ export async function activate(context: vscode.ExtensionContext) {
             subtab: iface_kind,
             [iface_kind]: { ...data, iface_id }
         });
+
+        const { target_dir, target_file } = data;
+        if (target_dir && target_file) {
+            code_info.edit_info.checkError(path.join(target_dir, target_file));
+        }
     });
     context.subscriptions.push(disposable);
 

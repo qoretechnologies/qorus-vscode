@@ -10,8 +10,8 @@ import * as msg from './qorus_message';
 export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) => {
     let disposable;
 
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow',
-        'workflow-steps', 'service-methods', 'mapper-code-methods', 'fsm'].forEach(iface_kind =>
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow', 'workflow-steps',
+        'service-methods', 'mapper-code-methods', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
