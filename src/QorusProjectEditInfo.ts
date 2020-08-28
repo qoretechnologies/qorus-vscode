@@ -22,9 +22,10 @@ export class QorusProjectEditInfo {
 
     checkError = (file: string) => {
         if (this.edit_info?.[file]?.error) {
+            msg.error(this.edit_info[file].error);
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
-                message: this.edit_info[file].error
+                message: t`BadEditDataRecreateQuestion`
             });
         }
     }

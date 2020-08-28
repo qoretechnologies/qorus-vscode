@@ -370,6 +370,9 @@ msgstr "Project configuration file has changed on disk"
 msgid "ConfigChangedOnDiskDialogQuestion"
 msgstr "Project configuration file has changed on disk. Do you want to reload or overwrite it?"
 
+msgid "BadEditDataRecreateQuestion"
+msgstr "The source code cannot be parsed or is inconsistent with the metada. Do you want to re-create the interface as new? Any custom code will be lost."
+
 msgid "LangChangeRecreateQuestion"
 msgstr "Do you want to re-create the interface as new with another language? Any custom code will be lost."
 
