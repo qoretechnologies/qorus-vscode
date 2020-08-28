@@ -42,7 +42,7 @@
     "activationEvents": [
         "*"
     ],
-    "main": "out/extension",
+    "main": "dist/extension.js",
     "contributes": {
         "languages": [
             {
@@ -1741,13 +1741,13 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile && npm run build",
-        "compile": "tsc -p ./src",
+        "vscode:prepublish": "rm -rf dist && npm run compile && npm run build",
+        "compile": "NODE_ENV=production webpack --mode development --config webpack_backend.config.js",
         "compile:test": "cd ui-test && tsc -p ./src",
-        "watch": "tsc -watch -p ./src",
+        "watch": "NODE_ENV=development webpack --mode development --config webpack_backend.config.js",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
-        "start": "rm -rf dist && NODE_ENV=development babel-node server.js",
-        "build": "rm -rf dist && NODE_ENV=production webpack",
+        "start": "NODE_ENV=development babel-node server.js",
+        "build": "NODE_ENV=production webpack --config webpack.config.js",
         "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
         "ui-run-tests": "rm -rf ui-test/test_project && rm -rf ui-test/out && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && cp ui-test/tests.code-workspace ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ 'ui-test/out/*.js' && rm -rf ui-test/test_project && rm -rf ui-test/out",
         "ui-run-single-test": "rm -rf ui-test/test_project && rm -rf ui-test/out && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && cp ui-test/tests.code-workspace ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ \"ui-test/out/{_setup,$TEST_NAME}.spec.js\" && rm -rf ui-test/test_project && rm -rf ui-test/out"
@@ -1760,6 +1760,7 @@
         "@babel/plugin-proposal-decorators": "^7.6.0",
         "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
         "@babel/plugin-proposal-optional-chaining": "^7.6.0",
+        "@babel/plugin-transform-runtime": "^7.11.0",
         "@babel/preset-env": "^7.6.0",
         "@babel/preset-react": "^7.0.0",
         "@babel/preset-typescript": "^7.6.0",
