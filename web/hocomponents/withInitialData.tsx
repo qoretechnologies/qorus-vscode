@@ -1,4 +1,6 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, {
+    FunctionComponent, useState
+} from 'react';
 
 import set from 'lodash/set';
 import useMount from 'react-use/lib/useMount';

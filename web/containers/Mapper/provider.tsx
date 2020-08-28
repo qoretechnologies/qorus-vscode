@@ -1,4 +1,6 @@
-import React, { FC, useCallback, useContext, useState } from 'react';
+import React, {
+    FC, useCallback, useContext, useState
+} from 'react';
 
 import map from 'lodash/map';
 import size from 'lodash/size';
@@ -381,7 +383,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     />
                     {nodes.map((child, index) => (
                         <SelectField
-                            key={title + index}
+                            key={`${title}-${index}`}
                             name="smth"
                             disabled={isLoading}
                             defaultItems={child.values}

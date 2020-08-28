@@ -1,21 +1,24 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, {
+    useContext, useEffect, useState
+} from 'react';
+
+import shortid from 'shortid';
+
+import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import SelectField from '../../../components/Field/select';
-import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
-import { TextContext } from '../../../context/text';
-import { ContentWrapper, FieldInputWrapper, FieldWrapper, ActionsWrapper } from '../panel';
-import { validateField } from '../../../helpers/validations';
-import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
-import shortid from 'shortid';
 import { Messages } from '../../../constants/messages';
+import { TextContext } from '../../../context/text';
+import { validateField } from '../../../helpers/validations';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
-import ManageButton from '../../ConfigItemManager/manageButton';
 import ConfigItemManager from '../../ConfigItemManager';
+import ManageButton from '../../ConfigItemManager/manageButton';
+import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 
-const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessage }) => {
+const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceId, postMessage, onlyQueue }) => {
     const t = useContext(TextContext);
     const [newData, setNewData] = useState(data);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
@@ -38,8 +41,8 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
             const result = { ...cur };
             //* If the user is changing type, remove children and name
             if (name === 'type') {
-                result.children = value === 'queue' ? [] : null;
-                result._children = value === 'queue' ? [] : null;
+                result.children = [];
+                result._children = [];
                 result.name = null;
                 result.pid = undefined;
             }
@@ -80,7 +83,11 @@ const PipelineElementDialog = ({ onClose, data, onSubmit, interfaceId, postMessa
                             <FieldLabel label={t('Type')} isValid={validateField('string', newData.type)} />
                             <FieldInputWrapper>
                                 <SelectField
-                                    defaultItems={[{ name: 'queue' }, { name: 'mapper' }, { name: 'processor' }]}
+                                    defaultItems={
+                                        onlyQueue
+                                            ? [{ name: 'queue' }]
+                                            : [{ name: 'queue' }, { name: 'mapper' }, { name: 'processor' }]
+                                    }
                                     onChange={handleDataUpdate}
                                     value={newData.type}
                                     name="type"
