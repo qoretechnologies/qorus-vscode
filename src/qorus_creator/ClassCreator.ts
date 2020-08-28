@@ -225,7 +225,11 @@ class ClassCreator extends InterfaceCreator {
         }
 
         if (!no_data_return) {
-            this.returnData(jsyaml.safeLoad(headers), iface_id);
+            this.returnData({
+                ...jsyaml.safeLoad(headers),
+                target_dir: this.target_dir,
+                target_file: this.has_code ? this.rel_file_path : this.yaml_file_name,
+            }, iface_id);
         }
     }
 }

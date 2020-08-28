@@ -442,22 +442,13 @@ export abstract class InterfaceCreator {
             }
         };
 
-        // remove existing import lines
-        let num_import_lines: number = 0;
-        for (const line of code_lines) {
-            if (!isImportLine(line) && line.match(/\S/)) {
-                break;
-            }
-            num_import_lines++;
-        }
-        code_lines = code_lines.splice(num_import_lines);
+        const existing_import_lines: string[] = code_lines.filter(line => isImportLine(line));
+        let import_lines_to_add: string[] = imports.filter(line => !existing_import_lines.includes(line));
 
-        // add import lines
-        if (imports.length) {
-            code_lines = [...imports, '', ...code_lines];
+        if (!existing_import_lines.length && import_lines_to_add.length) {
+            import_lines_to_add.push('');
         }
-
-        return code_lines;
+        return [...import_lines_to_add, ...code_lines];
     }
 
     private static indentYamlDump = (value, indent_level, is_on_new_line) => {
@@ -627,8 +618,7 @@ export abstract class InterfaceCreator {
                     const [name, method, ...other] = field.code.split('::');
                     if (name && method && !other.length) {
                         const mapper_code = this.code_info.yaml_info.yamlDataByName('mapper-code', name);
-                        const { 'class-name': class_name } = mapper_code;
-                        field.code = `${class_name}::${method}`;
+                        field.code = `${mapper_code.name}::${method}`;
                     }
                 }
 
@@ -792,7 +782,7 @@ export abstract class InterfaceCreator {
                                 result += `${indent.repeat(indent_level + 1)}name: ${child.name}\n`;
                             }
                             if (child.pid) {
-                                result += `${indent.repeat(indent_level + 1)}id: ${child.pid}\n`;
+                                result += `${indent.repeat(indent_level + 1)}pid: ${child.pid}\n`;
                                 if (iface_data?.specific_data?.[child.pid]?.['config-items']?.length) {
                                     result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[child.pid]['config-items'], indent_level + 1);
                                 }

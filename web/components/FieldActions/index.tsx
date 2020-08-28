@@ -1,6 +1,12 @@
-import React, { FunctionComponent, useContext } from 'react';
+import React, {
+    FunctionComponent, useContext
+} from 'react';
+
+import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-import { ButtonGroup, Button, Tooltip } from '@blueprintjs/core';
+
+import { Button, ButtonGroup, Tooltip } from '@blueprintjs/core';
+
 import { InitialContext } from '../../context/init';
 
 const StyledFieldLabel = styled.div`
@@ -28,7 +34,7 @@ const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, r
             <FieldLabelControls>
                 <ButtonGroup minimal>
                     {desc && (
-                        <Tooltip content={desc}>
+                        <Tooltip content={<ReactMarkdown source={desc} />}>
                             <Button icon={'info-sign'} />
                         </Tooltip>
                     )}
