@@ -572,7 +572,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 isValid={
                                     metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
