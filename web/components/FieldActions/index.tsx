@@ -1,6 +1,4 @@
-import React, {
-    FunctionComponent, useContext
-} from 'react';
+import React, { FunctionComponent, useContext } from 'react';
 
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
@@ -13,10 +11,9 @@ const StyledFieldLabel = styled.div`
     padding: 0px 0 0 10px;
     flex: 0 1 auto;
     min-width: 80px;
-`;
-
-const FieldLabelControls = styled.div`
-    float: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 `;
 
 export interface IFieldActions {
@@ -31,21 +28,20 @@ const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, r
 
     return (
         <StyledFieldLabel>
-            <FieldLabelControls>
-                <ButtonGroup minimal>
-                    {desc && (
-                        <Tooltip content={<ReactMarkdown source={desc} />}>
-                            <Button icon={'info-sign'} />
-                        </Tooltip>
-                    )}
+            <ButtonGroup minimal>
+                {removable && (
                     <Button
                         icon={'trash'}
                         intent="danger"
-                        disabled={!removable}
                         onClick={() => onClick && initContext.confirmAction('ConfirmRemoveField', () => onClick(name))}
                     />
-                </ButtonGroup>
-            </FieldLabelControls>
+                )}
+                {desc && (
+                    <Tooltip content={<ReactMarkdown source={desc} />}>
+                        <Button icon={'info-sign'} />
+                    </Tooltip>
+                )}
+            </ButtonGroup>
         </StyledFieldLabel>
     );
 };

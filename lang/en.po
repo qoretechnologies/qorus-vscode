@@ -976,6 +976,12 @@ msgstr "Input provider options"
 msgid "field-desc-input-provider"
 msgstr "Input provider"
 
+msgid "field-label-system-options"
+msgstr "System options"
+
+msgid "field-desc-system-options"
+msgstr "System options DESCRIPTION PLEASE FILL ME"
+
 msgid "field-label-connector"
 msgstr "Connector"
 

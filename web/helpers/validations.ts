@@ -4,6 +4,7 @@ import isNaN from 'lodash/isNaN';
 import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
+import every from 'lodash/every';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 
@@ -12,6 +13,7 @@ import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 import { transformArgs } from '../components/Field/processor';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
+import { splitByteSize } from './functions';
 
 const cron = require('cron-validator');
 
@@ -230,6 +232,26 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             return value?.every(
                 (val: { name: string; triggers?: TTrigger[] }) => validateField('string', val.name) === true
             );
+        }
+        case 'system-options': {
+            return every(value, (optionData) => validateField(optionData.type, optionData.value));
+        }
+        case 'byte-size': {
+            console.log(value);
+            let valid = true;
+
+            const [bytes, size] = splitByteSize(value);
+            console.log(bytes, size);
+
+            if (!validateField('number', bytes)) {
+                valid = false;
+            }
+
+            if (!validateField('string', size)) {
+                valid = false;
+            }
+
+            return valid;
         }
         case 'nothing':
             return false;

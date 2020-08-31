@@ -16,6 +16,8 @@ import SelectField from './select';
 import StringField from './string';
 import TextareaField from './textarea';
 import withTextContext from '../../hocomponents/withTextContext';
+import SystemOptions from './systemOptions';
+import ByteSizeField from './byteSize';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -179,6 +181,10 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                         type={currentType}
                     />
                 );
+            case 'byte-size':
+                return (
+                    <ByteSizeField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
+                )
             case 'any':
                 return null;
             default:

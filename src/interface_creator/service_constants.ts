@@ -119,6 +119,11 @@ export const serviceFields = ({ default_target_dir, is_editing }) => [
             iface_kind: 'fsm',
         },
     },
+    {
+        name: 'system-options',
+        type: 'system-options',
+        mandatory: false,
+    }
 ];
 
 export const service_methods = [

@@ -35,6 +35,7 @@ import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
 import TypeSelector from './typeSelector';
+import SystemOptions from './systemOptions';
 
 export interface IFieldProps extends IField {
     t: TTranslator;
@@ -97,6 +98,7 @@ const Field: FunctionComponent<IFieldProps> = withMessageHandler()(
                 )}
                 {type === 'class-connectors' && <ClassConnectors {...rest} type={type} />}
                 {type === 'fsm-list' && <FSMListField {...rest} type={type} />}
+                {type === 'system-options' && <SystemOptions {...rest} />}
                 {rest.markdown && <MarkdownPreview value={rest.value} />}
             </>
         );

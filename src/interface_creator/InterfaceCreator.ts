@@ -820,6 +820,7 @@ export abstract class InterfaceCreator {
                     case 'mapper_options':
                     case 'input-provider-options':
                     case 'fsm_options':
+                    case 'system-options':
                     case 'typeinfo':
                     case 'staticdata-type':
                     case 'input-provider':
