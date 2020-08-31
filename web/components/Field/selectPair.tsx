@@ -37,6 +37,8 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
     hideTextField,
     reference,
     context,
+    requestFieldData,
+    iface_kind,
 }) => {
     const initContext = useContext(InitialContext);
     return (
@@ -54,9 +56,11 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
                                     return_message={return_message}
                                     defaultItems={defaultSelectItems}
                                     reference={reference}
+                                    iface_kind={iface_kind}
                                     onChange={(fieldName: string, value: string) => {
                                         onChange(fieldName, value);
                                     }}
+                                    requestFieldData={requestFieldData}
                                     fill
                                 />
                                 {hideTextField && (
@@ -89,6 +93,8 @@ const SelectPairField: FunctionComponent<IField & IPairField & IFieldChange> = (
                                     return_message={return_message}
                                     defaultItems={defaultSelectItems}
                                     reference={reference}
+                                    requestFieldData={requestFieldData}
+                                    iface_kind={iface_kind}
                                     onChange={(fieldName: string, value: string) => {
                                         onChange(fieldName, value);
                                     }}
