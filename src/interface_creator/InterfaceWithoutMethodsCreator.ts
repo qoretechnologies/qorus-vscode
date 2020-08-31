@@ -15,7 +15,7 @@ import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
 
-class ClassCreator extends InterfaceCreator {
+class InterfaceWithoutMethodsCreator extends InterfaceCreator {
     editImpl = params => {
         const {
             data,
@@ -69,7 +69,7 @@ class ClassCreator extends InterfaceCreator {
                 suffix = `.q${data.type.toLowerCase()}`;
                 break;
             default:
-                msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassCreator'}`);
+                msg.log(t`InvalidIfaceKind ${iface_kind} ${'InterfaceWithoutMethodsCreator'}`);
                 return;
         }
 
@@ -94,7 +94,7 @@ class ClassCreator extends InterfaceCreator {
         let connections_extra_class: string = '';
         let more_imports: string[] = [];
         if (Object.keys(data['class-connections'] || {}).length) {
-            ClassCreator.fixClassConnections(data);
+            InterfaceWithoutMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
                   = new ClassConnectionsCreate({...data, iface_kind}, this.code_info, this.lang).code());
         }
@@ -234,4 +234,4 @@ class ClassCreator extends InterfaceCreator {
     }
 }
 
-export const class_creator = new ClassCreator();
+export const interface_without_methods_creator = new InterfaceWithoutMethodsCreator();

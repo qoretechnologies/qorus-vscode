@@ -22,8 +22,8 @@ import { qorus_request } from './QorusRequest';
 import { tester } from './QorusTest';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
-import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
-import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
+import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { registerQorusExplorerCommands } from './qorus_explorer_commands';
 import { registerQorusViewsCommands } from './qorus_views_commands';
 
@@ -90,7 +90,7 @@ export async function activate(context: vscode.ExtensionContext) {
             const uri = data instanceof vscode.Uri ? data : undefined;
 
             if (['group', 'event', 'queue'].includes(iface_kind)) {
-                const iface_info: InterfaceInfo = projects.currentInterfaceInfo();
+                const iface_info: QorusProjectInterfaceInfo = projects.currentInterfaceInfo();
                 iface_info.last_other_iface_kind = iface_kind;
                 iface_kind = 'other';
             }
@@ -112,7 +112,7 @@ export async function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const iface_info: InterfaceInfo = code_info.interface_info;
+        const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
         if (['group', 'event', 'queue'].includes(iface_kind)) {

@@ -8,8 +8,9 @@ import { projects, QorusProject, config_filename } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
-import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
-import { triggers } from './qorus_creator/standard_methods';
+import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
+import { FormChangesResponder } from './interface_creator/FormChangesResponder';
+import { triggers } from './interface_creator/standard_methods';
 import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
@@ -229,10 +230,10 @@ class QorusWebview {
                             creator.editInterface({ ...message, edit_type: 'edit', interface_info });
                             break;
                         case 'creator-field-added':
-                            creator.fieldAdded(message);
+                            FormChangesResponder.fieldAdded(message);
                             break;
                         case 'creator-field-removed':
-                            creator.fieldRemoved({ ...message, interface_info });
+                            FormChangesResponder.fieldRemoved({ ...message, interface_info });
                             break;
                         case 'creator-set-fields':
                             project.code_info.setFields(message);
@@ -269,13 +270,13 @@ class QorusWebview {
                             interface_info.deleteConfigItem(message);
                             break;
                         case 'config-item-type-changed':
-                            creator.configItemTypeChanged(message);
+                            FormChangesResponder.configItemTypeChanged(message);
                             break;
                         case 'remove-fsm-state':
                             interface_info.removeSpecificData(message);
                             break;
                         case 'lang-changed':
-                            creator.langChanged(message, interface_info);
+                            FormChangesResponder.langChanged(message, interface_info);
                             break;
                         case 'get-objects-with-static-data':
                             project.code_info.getObjectsWithStaticData(message);

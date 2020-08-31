@@ -9,7 +9,7 @@ import { qoreLoc2Range, pythonLoc2Range, javaLoc2Range,
 import { qorus_webview } from './QorusWebview';
 import { qore_vscode } from './qore_vscode';
 import * as msg from './qorus_message';
-import { CONN_CALL_METHOD, GENERATED_TEXT } from './qorus_creator/ClassConnectionsCreate';
+import { CONN_CALL_METHOD, GENERATED_TEXT } from './interface_creator/ClassConnectionsCreate';
 
 export class QorusProjectEditInfo {
     private edit_info: any = {};

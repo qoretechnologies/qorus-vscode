@@ -19,8 +19,8 @@ import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
-import { field } from './qorus_creator/common_constants';
-import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import { field } from './interface_creator/common_constants';
+import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import * as globals from './global_config_item_values';
 import { interface_tree } from './QorusInterfaceTree';
 
@@ -30,7 +30,7 @@ const log_update_messages = false;
 
 export class QorusProjectCodeInfo {
     private project: QorusProject;
-    private iface_info: InterfaceInfo;
+    private iface_info: QorusProjectInterfaceInfo;
     private yaml_files_info: QorusProjectYamlInfo;
     private document_symbols_edit_info: QorusProjectEditInfo;
 
@@ -53,13 +53,13 @@ export class QorusProjectCodeInfo {
         this.project = project;
         this.yaml_files_info = new QorusProjectYamlInfo();
         this.document_symbols_edit_info = new QorusProjectEditInfo();
-        this.iface_info = new InterfaceInfo(this);
+        this.iface_info = new QorusProjectInterfaceInfo(this);
         this.initInfo();
         this.initFileWatchers();
         this.update(undefined, true);
     }
 
-    get interface_info(): InterfaceInfo {
+    get interface_info(): QorusProjectInterfaceInfo {
         return this.iface_info;
     }
 

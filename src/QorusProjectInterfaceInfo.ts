@@ -1,17 +1,17 @@
 import * as jsyaml from 'js-yaml';
 import * as shortid from 'shortid';
 import * as flattenDeep from 'lodash/flattenDeep';
-import { qorus_webview } from '../QorusWebview';
-import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
-import { QorusProjectYamlInfo } from '../QorusProjectYamlInfo';
-import { default_version } from '../qorus_constants';
-import { defaultValue, configItemFields } from './config_item_constants';
-import { hasConfigItems, deepCopy, capitalize } from '../qorus_utils';
+import { qorus_webview } from './QorusWebview';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
+import { default_version } from './qorus_constants';
+import { defaultValue, configItemFields } from './interface_creator/config_item_constants';
+import { hasConfigItems, deepCopy, capitalize } from './qorus_utils';
 import { t } from 'ttag';
-import * as msg from '../qorus_message';
+import * as msg from './qorus_message';
 
 
-export class InterfaceInfo {
+export class QorusProjectInterfaceInfo {
     private code_info: QorusProjectCodeInfo;
     private yaml_info: QorusProjectYamlInfo;
     private iface_by_id = {};

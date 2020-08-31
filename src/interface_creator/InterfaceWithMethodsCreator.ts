@@ -13,7 +13,7 @@ import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
 
-class ClassWithMethodsCreator extends InterfaceCreator {
+class InterfaceWithMethodsCreator extends InterfaceCreator {
     private method_template: string;
     private imports: string[] = [];
 
@@ -53,7 +53,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 this.method_template = mapper_code_method_template[this.lang];
                 break;
             default:
-                msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
+                msg.log(t`InvalidIfaceKind ${iface_kind} ${'InterfaceWithMethodsCreator'}`);
                 return;
         }
 
@@ -126,7 +126,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
             code: this.rel_file_path
         }, iface_id);
 
-        headers += ClassWithMethodsCreator.createMethodHeaders(methods);
+        headers += InterfaceWithMethodsCreator.createMethodHeaders(methods);
 
         ({ ok, message } = this.writeFiles(contents, headers));
         if (!ok) {
@@ -262,7 +262,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
                 methods = mapper_code_methods;
                 break;
             default:
-                msg.log(t`InvalidIfaceKind ${iface_kind} ${'ClassWithMethodsCreator'}`);
+                msg.log(t`InvalidIfaceKind ${iface_kind} ${'InterfaceWithMethodsCreator'}`);
                 return;
         }
 
@@ -307,7 +307,7 @@ class ClassWithMethodsCreator extends InterfaceCreator {
         let connections_extra_class: string = '';
         let both_connections_and_methods = false;
         if (Object.keys(data['class-connections'] || {}).length) {
-            ClassWithMethodsCreator.fixClassConnections(data);
+            InterfaceWithMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports = []}
                  = new ClassConnectionsCreate({...data, iface_kind}, this.code_info, this.lang).code());
             method_objects = method_objects.filter(method_object => !triggers.includes(method_object.name));
@@ -367,4 +367,4 @@ class ClassWithMethodsCreator extends InterfaceCreator {
     }
 }
 
-export const class_with_methods_creator = new ClassWithMethodsCreator();
+export const interface_with_methods_creator = new InterfaceWithMethodsCreator();

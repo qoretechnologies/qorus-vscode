@@ -8,7 +8,7 @@ import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { instance_tree } from './QorusInstanceTree';
 import { QorusProjectJavaConfig } from './QorusProjectJavaConfig';
 import { qorus_webview } from './QorusWebview';
-import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import * as msg from './qorus_message';
 import { project_template } from './qorus_project_template';
 
@@ -36,7 +36,7 @@ export class QorusProject {
         return this.project_code_info;
     }
 
-    get interface_info(): InterfaceInfo {
+    get interface_info(): QorusProjectInterfaceInfo {
         return this.project_code_info.interface_info;
     }
 
@@ -384,7 +384,7 @@ class QorusProjects {
         return this.getProject()?.code_info;
     }
 
-    currentInterfaceInfo(): InterfaceInfo | undefined {
+    currentInterfaceInfo(): QorusProjectInterfaceInfo | undefined {
         const code_info = this.currentProjectCodeInfo();
         return code_info && code_info.interface_info;
     }
