@@ -25,7 +25,7 @@ export const openFSMPage = async (webview: WebView) => {
 
     await sleep(3000);
 
-    expect(await getSelectedFields(webview)).to.have.length(3);
+    expect(await getSelectedFields(webview)).to.have.length(4);
 };
 
 export const createWorkflow = async (webview: WebView, editorView: EditorView, project_folder: string) => {

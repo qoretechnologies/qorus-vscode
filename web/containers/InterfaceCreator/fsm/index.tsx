@@ -31,6 +31,7 @@ import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
+import MultiSelect from '../../../components/Field/multiSelect';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -59,6 +60,7 @@ export interface IFSMMetadata {
     name: string;
     desc: string;
     target_dir: string;
+    groups?: any[];
     fsm_options?: {
         'action-strategy': 'one' | 'all';
         'max-thread-count': number;
@@ -152,6 +154,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,
         desc: fsm?.desc || null,
+        groups: fsm?.groups || [],
         fsm_options: fsm?.fsm_options || {
             'action-strategy': 'one',
             'max-thread-count': 1,
@@ -469,6 +472,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             name: fsm?.name,
             desc: fsm?.desc,
             target_dir: fsm?.target_dir,
+            groups: fsm?.groups || [],
             fsm_options: fsm?.options || { 'action-strategy': 'one', 'max-thread-count': 1 },
         });
     };
@@ -566,6 +570,35 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                             />
                             <FieldInputWrapper>
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                            </FieldInputWrapper>
+                        </FieldWrapper>
+                        <FieldWrapper name="selected-field">
+                            <FieldLabel
+                                isValid={
+                                    metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
+                                }
+                                info={t('Optional')}
+                                label={t('field-label-groups')}
+                            />
+                            <FieldInputWrapper>
+                                <MultiSelect
+                                    onChange={handleMetadataChange}
+                                    get_message={{
+                                        action: 'creator-get-objects',
+                                        object_type: 'group',
+                                    }}
+                                    return_message={{
+                                        action: 'creator-return-objects',
+                                        object_type: 'group',
+                                        return_value: 'objects',
+                                    }}
+                                    reference={{
+                                        iface_kind: 'other',
+                                        type: 'group',
+                                    }}
+                                    value={metadata.groups}
+                                    name="groups"
+                                />
                             </FieldInputWrapper>
                         </FieldWrapper>
                     </>

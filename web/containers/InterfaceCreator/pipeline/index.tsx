@@ -444,7 +444,10 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         </FieldWrapper>
                         <FieldWrapper>
                             <FieldLabel
-                                isValid={validateField('select-array', metadata.groups)}
+                                isValid={
+                                    metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
+                                }
+                                info={t('Optional')}
                                 label={t('field-label-groups')}
                             />
                             <FieldInputWrapper>
