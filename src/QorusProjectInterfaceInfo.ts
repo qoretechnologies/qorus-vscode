@@ -16,6 +16,7 @@ export class QorusProjectInterfaceInfo {
     private yaml_info: QorusProjectYamlInfo;
     private iface_by_id = {};
 
+    private last_target_dir: string | undefined;
     private last_conf_group: string | undefined;
     private last_other_if_kind: string | undefined; // one of ['Group', 'Event', 'Queue']
 
@@ -183,6 +184,14 @@ export class QorusProjectInterfaceInfo {
 
     set last_other_iface_kind(other_iface_kind: string | undefined) {
         this.last_other_if_kind = other_iface_kind && capitalize(other_iface_kind);
+    }
+
+    get last_target_directory(): string | undefined {
+        return this.last_target_dir;
+    }
+
+    set last_target_directory(last_target_dir: string | undefined) {
+        this.last_target_dir = last_target_dir;
     }
 
     updateConfigItemValue = ({

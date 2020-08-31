@@ -208,7 +208,7 @@ class QorusWebview {
                                 fields: creator.getSortedFields({
                                     ... message,
                                     interface_info,
-                                    default_target_dir: initial_data.uri && initial_data.uri.fsPath,
+                                    default_target_dir: initial_data.uri?.fsPath || interface_info.last_target_directory
                                 }),
                             });
                             break;
@@ -277,6 +277,9 @@ class QorusWebview {
                             break;
                         case 'lang-changed':
                             FormChangesResponder.langChanged(message, interface_info);
+                            break;
+                        case 'target-dir-changed':
+                            interface_info.last_target_directory = message.target_dir;
                             break;
                         case 'get-objects-with-static-data':
                             project.code_info.getObjectsWithStaticData(message);
