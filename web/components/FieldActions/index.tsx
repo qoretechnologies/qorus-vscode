@@ -2,6 +2,7 @@ import React, { FunctionComponent, useContext } from 'react';
 
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
+import size from 'lodash/size';
 
 import { Button, ButtonGroup, Tooltip } from '@blueprintjs/core';
 
@@ -21,9 +22,10 @@ export interface IFieldActions {
     name: string;
     onClick: (name: string) => any;
     removable: boolean;
+    value: any;
 }
 
-const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, removable }) => {
+const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, removable, value }) => {
     const initContext = useContext(InitialContext);
 
     return (
@@ -33,7 +35,15 @@ const FieldActions: FunctionComponent<IFieldActions> = ({ desc, name, onClick, r
                     <Button
                         icon={'trash'}
                         intent="danger"
-                        onClick={() => onClick && initContext.confirmAction('ConfirmRemoveField', () => onClick(name))}
+                        onClick={() => {
+                            if (onClick) {
+                                if (size(value)) {
+                                    initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
+                                } else {
+                                    onClick(name);
+                                }
+                            }
+                        }}
                     />
                 )}
                 {desc && (
