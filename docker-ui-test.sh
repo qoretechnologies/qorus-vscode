@@ -8,6 +8,7 @@ export PATH=${rootdir}/node_modules/.bin:${PATH}
 export DISPLAY=:0
 export XAUTHORITY=${HOME}/.Xauthority
 export PROJECT_FOLDER=${rootdir}/ui-test/test_project
+export TEST_GOLD_FILES=${rootdir}/ui-test/gold_files
 
 find_active_monitor() {
     x_output=`xrandr -q | grep "connected primary" | xargs | cut -d' ' -f1`
