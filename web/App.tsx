@@ -290,7 +290,10 @@ const App: FunctionComponent<IApp> = ({
                                     <ButtonGroup>
                                         <Button
                                             text={t('Cancel')}
-                                            onClick={() => setConfirmDialog({})}
+                                            onClick={() => {
+                                                confirmDialog.onCancel && confirmDialog.onCancel();
+                                                setConfirmDialog({})
+                                            }}
                                             id="global-dialog-cancel"
                                         />
                                         <Button

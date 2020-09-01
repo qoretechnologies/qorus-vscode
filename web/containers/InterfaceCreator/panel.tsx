@@ -1,4 +1,4 @@
-import React, { FormEvent, FunctionComponent, useEffect, useRef, useState } from 'react';
+import React, { FormEvent, FunctionComponent, useEffect, useRef, useState, useContext } from 'react';
 
 import {
     camelCase,
@@ -46,6 +46,8 @@ import ClassConnectionsManager from '../ClassConnectionsManager';
 import ConfigItemManager from '../ConfigItemManager';
 import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { processSteps } from './workflowsView';
+import useMount from 'react-use/lib/useMount';
+import { InitialContext } from '../../context/init';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -194,7 +196,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     forceSubmit,
     resetFields,
     openFileOnSubmit,
-    initialData,
     hasConfigManager,
     parent,
     interfaceId,
@@ -225,6 +226,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
+    const initialData = useContext(InitialContext);
 
     const getClasses = () => {
         const classes = selectedFields?.find((field: IField) => field.name === 'classes');
@@ -614,8 +616,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 // Post the message with this handler
                                 postMessage(action, {
                                     [currentField.name]: value,
+                                    [`orig_${currentField.name}`]: currentField.value,
                                     iface_kind: type,
                                     iface_id: interfaceId,
+                                    is_editing: isEditing,
                                 });
                             });
                         }
