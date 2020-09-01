@@ -22,7 +22,7 @@ export class FormChangesResponder {
         }
     }
 
-    static langChanged({ lang, iface_id, iface_kind }, interface_info) {
+    static langChanged({ lang, orig_lang, iface_id, iface_kind, is_editing }) {
         if (lang === 'java') {
             qorus_webview.postMessage({
                 action: 'creator-remove-field',
@@ -38,11 +38,11 @@ export class FormChangesResponder {
             });
         }
 
-        const orig_lang = interface_info.getData(iface_id)?.lang || 'qore';
-        if (orig_lang !== lang) {
+        if (is_editing && orig_lang !== lang) {
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
-                message: t`LangChangeRecreateQuestion`
+                message: t`LangChangeRecreateQuestion`,
+                orig_lang
             });
         }
     }
