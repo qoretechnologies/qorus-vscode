@@ -1095,6 +1095,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                         />
                                     </FieldInputWrapper>
                                     <FieldActions
+                                        value={field.value}
                                         desc={t(`field-desc-${field.name}`)}
                                         name={field.name}
                                         onClick={removeField}
