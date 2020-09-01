@@ -312,7 +312,7 @@ export class ClassConnectionsCreate {
 
         code += `${indent1}def __init__(self):\n`;
         if (some_qore_class) {
-            code += `${indent2}UserApi.startCapturingObjectsFromPython();\n`;
+            code += `${indent2}UserApi.startCapturingObjectsFromPython()\n`;
         }
         code += `${indent2}# map of prefixed class names to class instances\n` +
             `${indent2}self.${CONN_CLASS_MAP.python} = {\n`;
@@ -325,7 +325,7 @@ export class ClassConnectionsCreate {
 
         code += `${indent2}}\n`;
         if (some_qore_class) {
-            code += `${indent2}UserApi.stopCapturingObjectsFromPython();\n`;
+            code += `${indent2}UserApi.stopCapturingObjectsFromPython()\n`;
         }
 
         if (event_based_connections.length) {
