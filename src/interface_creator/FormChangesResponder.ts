@@ -42,7 +42,9 @@ export class FormChangesResponder {
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
                 message: t`LangChangeRecreateQuestion`,
-                orig_lang
+                orig_lang,
+                iface_id,
+                iface_kind
             });
         }
     }
