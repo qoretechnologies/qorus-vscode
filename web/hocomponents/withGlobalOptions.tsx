@@ -10,6 +10,7 @@ import useMount from 'react-use/lib/useMount';
 import { Messages } from '../constants/messages';
 import withMessageHandler from './withMessageHandler';
 import { InitialContext } from '../context/init';
+import shortid from 'shortid';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: any): any => {
@@ -21,13 +22,21 @@ export default () => (Component: any): any => {
 
         useMount(() => {
             const recreateListener = props.addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (dt) => {
-                console.log(dt);
                 initialData.confirmAction(
                     dt.message,
-                    () => true,
+                    () => {
+                        props.resetInterfaceData(dt.iface_kind);
+                        props.setInterfaceId(dt.iface_kind, shortid.generate());
+                    },
                     'Recreate',
                     undefined,
-                    () => {}
+                    () => {
+                        if (dt.orig_lang) {
+                            props.updateField(dt.iface_kind, 'lang', dt.orig_lang, dt.iface_id);
+                        } else {
+                            handleInterfaceReset(dt.iface_kind);
+                        }
+                    }
                 );
             });
 

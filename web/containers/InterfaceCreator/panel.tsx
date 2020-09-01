@@ -48,6 +48,7 @@ import ManageConfigButton from '../ConfigItemManager/manageButton';
 import { processSteps } from './workflowsView';
 import useMount from 'react-use/lib/useMount';
 import { InitialContext } from '../../context/init';
+import { maybeSendOnChangeEvent } from '../../helpers/common';
 
 export interface IInterfaceCreatorPanel {
     type: string;
@@ -605,24 +606,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             // Change the method name in the side panel
                             onNameChange(activeId, value, metadata?.originalName);
                         }
-                        // Check if this field has an on_change message
-                        if (currentField.on_change) {
-                            // Check if on_change is a list
-                            const onChange: string[] = isArray(currentField.on_change)
-                                ? currentField.on_change
-                                : [currentField.on_change];
-                            // Post all the actions
-                            onChange.forEach((action) => {
-                                // Post the message with this handler
-                                postMessage(action, {
-                                    [currentField.name]: value,
-                                    [`orig_${currentField.name}`]: currentField.value,
-                                    iface_kind: type,
-                                    iface_id: interfaceId,
-                                    is_editing: isEditing,
-                                });
-                            });
-                        }
+                        // On change events
+                        maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
                         // Add the value
                         return [
                             ...newFields,
