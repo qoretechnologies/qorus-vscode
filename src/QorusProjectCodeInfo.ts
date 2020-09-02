@@ -644,10 +644,9 @@ export class QorusProjectCodeInfo {
             case 'base-class':
                 this.waitForPending(['yaml']).then(() => {
                     const classes = this.yaml_info.yamlDataByType('class');
-                    msg.debug({classes});
 
                     let user_classes = Object.keys(classes).filter(key => 
-                         lang_inheritance[lang].includes(classes[key].lang || default_lang)
+                        lang_inheritance[lang].includes(classes[key].lang || default_lang)
                     ).map(key => ({
                         name: key,
                         desc: classes[key].desc
