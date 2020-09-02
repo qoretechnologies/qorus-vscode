@@ -48,7 +48,7 @@ export class QorusProjectYamlInfo {
     private processor_classes: any = {};
     private step_classes: any = {};
 
-    serviceClasses = lang => {
+    serviceClasses = (lang = 'qore') => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -58,7 +58,7 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
-    jobClasses = lang => {
+    jobClasses = (lang = 'qore') => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -68,7 +68,7 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
-    workflowClasses = lang => {
+    workflowClasses = (lang = 'qore') => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -78,7 +78,7 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
-    processorClasses = lang => {
+    processorClasses = (lang = 'qore') => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
