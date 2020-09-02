@@ -134,6 +134,7 @@ export class QorusProjectYamlInfo {
             this.workflow_classes[lang] = { [root_workflow]: true };
             this.processor_classes[lang] = { [root_processor]: true };
 
+            this.step_classes[lang] = {};
             root_steps.forEach(step_type => {
                 this.step_classes[lang][step_type] = { [step_type]: true };
             });
@@ -288,7 +289,7 @@ export class QorusProjectYamlInfo {
 
             root_steps.forEach(step_type => {
                 this.step_classes[lang][step_type] =
-                    this.baseClasses(this.step_classes[lang][step_type], { ...this.inheritance_pairs });
+                    this.baseClasses(this.step_classes[lang][step_type], { ...this.inheritance_pairs[lang] });
             });
         });
     }
