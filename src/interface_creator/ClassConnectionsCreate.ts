@@ -1,6 +1,7 @@
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
 import { triggers, stepTriggerSignatures } from './standard_methods';
+import { default_lang } from '../qorus_constants';
 
 // =================================================================
 
@@ -56,7 +57,7 @@ export class ClassConnectionsCreate {
     private triggers: any = {};
     private classes: any = {};
 
-    constructor(data, code_info, lang = 'qore') {
+    constructor(data, code_info, lang = default_lang) {
         const {
             'class-connections': connections,
             iface_kind,
@@ -142,7 +143,7 @@ export class ClassConnectionsCreate {
 
                 let class_lang = 'qore';
                 if (this.lang !== 'qore') {
-                    class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || 'qore';
+                    class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || default_lang;
                     exists_qore_connector = exists_qore_connector || (class_lang === 'qore');
                 }
                 this.classes[prefixed_class] = { connector_class, prefix, class_lang };

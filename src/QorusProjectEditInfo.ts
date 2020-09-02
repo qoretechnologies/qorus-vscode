@@ -8,6 +8,7 @@ import { qoreLoc2Range, pythonLoc2Range, javaLoc2Range,
          pythonNameRange, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
 import { qorus_webview } from './QorusWebview';
 import { qore_vscode } from './qore_vscode';
+import { default_lang } from './qorus_constants';
 import * as msg from './qorus_message';
 import { CONN_CALL_METHOD, GENERATED_TEXT } from './interface_creator/ClassConnectionsCreate';
 
@@ -270,11 +271,13 @@ export class QorusProjectEditInfo {
 
         this.edit_info[file] = undefined;
 
-        switch (data.lang || 'qore') {
+        switch (data.lang || default_lang) {
             case 'python': return this.setPythonFileInfo(file, class_name, base_class_name, class_connections);
             case 'java': return this.setJavaFileInfo(file, class_name, base_class_name, class_connections);
-            default: return this.setQoreFileInfo(file, class_name, base_class_name, class_connections);
+            case 'qore': return this.setQoreFileInfo(file, class_name, base_class_name, class_connections);
         }
+
+        return Promise.resolve(undefined);
     }
 
     private setQoreFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {

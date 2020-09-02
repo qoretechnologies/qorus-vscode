@@ -6,7 +6,7 @@ import { t } from 'ttag';
 import * as msg from './qorus_message';
 import { root_steps, root_job, root_service, root_workflow, root_processor,
          types, types_with_version, default_version,
-         lang_inheritance, supported_langs } from './qorus_constants';
+         lang_inheritance, supported_langs, default_lang } from './qorus_constants';
 
 
 export class QorusProjectYamlInfo {
@@ -48,7 +48,7 @@ export class QorusProjectYamlInfo {
     private processor_classes: any = {};
     private step_classes: any = {};
 
-    serviceClasses = (lang = 'qore') => {
+    serviceClasses = (lang = default_lang) => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -58,7 +58,7 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
-    jobClasses = (lang = 'qore') => {
+    jobClasses = (lang = default_lang) => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -68,7 +68,7 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
-    workflowClasses = (lang = 'qore') => {
+    workflowClasses = (lang = default_lang) => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -78,7 +78,7 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
-    processorClasses = (lang = 'qore') => {
+    processorClasses = (lang = default_lang) => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -88,7 +88,7 @@ export class QorusProjectYamlInfo {
         return ret_val;
     }
 
-    stepClasses = (step_type, lang = 'qore') => {
+    stepClasses = (step_type, lang = default_lang) => {
         let ret_val = {};
         for (const supported_lang of supported_langs) {
             if (lang_inheritance[lang].includes(supported_lang)) {
@@ -228,7 +228,7 @@ export class QorusProjectYamlInfo {
         const base_class_name = yaml_data['base-class-name'];
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
-            this.inheritance_pairs[yaml_data.lang || 'qore'][class_name] = [base_class_name];
+            this.inheritance_pairs[yaml_data.lang || default_lang][class_name] = [base_class_name];
         }
 /*
         (yaml_data['config-items'] || []).forEach(item => {

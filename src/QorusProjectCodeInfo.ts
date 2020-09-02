@@ -14,7 +14,7 @@ import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
 import { QorusProjectEditInfo} from './QorusProjectEditInfo';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
-         all_root_classes, root_processor, lang_inheritance} from './qorus_constants';
+         all_root_classes, root_processor, lang_inheritance, default_lang} from './qorus_constants';
 import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -544,7 +544,7 @@ export class QorusProjectCodeInfo {
     }
 
     getObjects = params => {
-        const {object_type, lang = 'qore', iface_kind, class_name, custom_data } = params;
+        const {object_type, lang = default_lang, iface_kind, class_name, custom_data } = params;
 
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
@@ -647,7 +647,7 @@ export class QorusProjectCodeInfo {
                     msg.debug({classes});
 
                     let user_classes = Object.keys(classes).filter(key => 
-                         lang_inheritance[lang].includes(classes[key].lang || 'qore')
+                         lang_inheritance[lang].includes(classes[key].lang || default_lang)
                     ).map(key => ({
                         name: key,
                         desc: classes[key].desc

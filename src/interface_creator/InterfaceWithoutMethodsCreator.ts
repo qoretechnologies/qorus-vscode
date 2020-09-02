@@ -11,6 +11,7 @@ import { stepTypeHeaders } from './step_constants';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
 import { ClassConnectionsEdit } from './ClassConnectionsEdit';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
+import { default_lang } from '../qorus_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -28,7 +29,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             request_id
         } = params;
 
-        this.lang = data.lang || 'qore';
+        this.lang = data.lang || default_lang;
 
         let imports: string[] = [];
         let suffix: string;

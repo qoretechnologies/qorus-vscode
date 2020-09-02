@@ -1,4 +1,5 @@
 import { QorusProjectCodeInfo} from '../QorusProjectCodeInfo';
+import { default_lang } from '../qorus_constants';
 
 
 export const mandatoryStepMethods = (code_info: QorusProjectCodeInfo, base_class, lang) => {
@@ -32,7 +33,7 @@ export const triggers = (code_info: QorusProjectCodeInfo, {iface_kind, 'base-cla
     }
 };
 
-export const stepTriggerSignatures = (code_info: QorusProjectCodeInfo, base_class, lang = 'qore') => {
+export const stepTriggerSignatures = (code_info: QorusProjectCodeInfo, base_class, lang = default_lang) => {
     let stepTriggerSignatures: any = {};
 
     stepTriggerSignatures.qore = base_class => {

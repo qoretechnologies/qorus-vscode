@@ -5,7 +5,7 @@ import { t } from 'ttag';
 import { Position } from 'vscode';
 
 import * as globals from '../global_config_item_values';
-import { default_version, types_with_version } from '../qorus_constants';
+import { default_version, types_with_version, default_lang } from '../qorus_constants';
 import * as msg from '../qorus_message';
 import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
 import { projects } from '../QorusProject';
@@ -1014,7 +1014,7 @@ export abstract class InterfaceCreator {
 
     static fillTemplate = (
         template: string,
-        lang: string = 'qore',
+        lang: string = default_lang,
         imports: string[] = [],
         vars: any,
         add_default_parse_options: boolean = true

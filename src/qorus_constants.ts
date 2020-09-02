@@ -31,3 +31,5 @@ export const lang_inheritance = {
 };
 
 export const supported_langs = Object.keys(lang_inheritance);
+
+export const default_lang = 'qore';
