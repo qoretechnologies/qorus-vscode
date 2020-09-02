@@ -75,7 +75,9 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 if (!currentType) {
                     handleChange(name, value === undefined ? undefined : value);
                 } else if (typeValue !== 'any') {
-                    handleChange(name, value === null ? null : undefined);
+                    const typeFromValue = value ? getTypeFromValue(maybeParseYaml(value)) : 'any';
+
+                    handleChange(name, value === null ? null : typeValue === typeFromValue ? value : undefined);
                 }
             }
         }
@@ -182,9 +184,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                     />
                 );
             case 'byte-size':
-                return (
-                    <ByteSizeField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
-                )
+                return <ByteSizeField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
             case 'any':
                 return null;
             default:
