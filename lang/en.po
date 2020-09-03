@@ -2382,6 +2382,9 @@ msgstr "The original interface file ${ file } does not exist"
 msgid "ErrorParsingFile ${ file }"
 msgstr "Error in parsing file ${ file }"
 
+msgid "ErrorParsingFileOrNoSymbolsFound ${ file }"
+msgstr "Error in parsing file ${ file } or no symbols found"
+
 msgid "Initial"
 msgstr "Initial"
 
