@@ -110,6 +110,11 @@ export abstract class InterfaceCreator {
         this.code_info = projects.currentProjectCodeInfo();
 
         if (params.orig_data) {
+            if (path.extname(params.orig_data.target_file) === '.yaml') {
+                this.editImpl(params);
+                return;
+            }
+
             this.code_info.setPending('edit_info', true);
             const orig_file = path.join(params.orig_data.target_dir, params.orig_data.target_file);
             this.code_info.edit_info.setFileInfo(orig_file, params.orig_data).then(
