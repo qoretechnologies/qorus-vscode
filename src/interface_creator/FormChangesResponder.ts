@@ -22,7 +22,7 @@ export class FormChangesResponder {
         }
     }
 
-    static langChanged({ lang, orig_lang, iface_id, iface_kind, is_editing }) {
+    static langChanged({ lang, orig_lang, iface_id, iface_kind, send_response }) {
         if (lang === 'java') {
             qorus_webview.postMessage({
                 action: 'creator-remove-field',
@@ -38,7 +38,7 @@ export class FormChangesResponder {
             });
         }
 
-        if (is_editing && orig_lang !== lang) {
+        if (send_response && orig_lang !== lang) {
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
                 message: t`LangChangeRecreateQuestion`,
