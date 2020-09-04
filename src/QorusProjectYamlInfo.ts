@@ -274,9 +274,9 @@ export class QorusProjectYamlInfo {
         return base_classes;
     }
 
-    isDescendantOrSelf = (class_name: string, possible_descendant_class_name: string): boolean => {
+    isDescendantOrSelf = (class_name: string, possible_descendant_class_name: string, lang: string): boolean => {
         let descendants_and_self = { [class_name]: true };
-        this.baseClasses(descendants_and_self, { ...this.inheritance_pairs });
+        this.baseClasses(descendants_and_self, { ...this.inheritance_pairs[lang] });
         return Object.keys(descendants_and_self).includes(possible_descendant_class_name);
     }
 

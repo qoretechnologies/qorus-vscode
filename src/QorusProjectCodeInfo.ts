@@ -636,7 +636,7 @@ export class QorusProjectCodeInfo {
 
                     let result = this.addDescToClasses(step_classes, root_steps);
                     if (iface_kind === 'step' && class_name) {
-                        result = result.filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                        result = result.filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name, lang));
                     }
 
                     postMessage('objects', result);
@@ -655,7 +655,7 @@ export class QorusProjectCodeInfo {
 
                     if (iface_kind === 'class' && class_name) {
                         user_classes = user_classes
-                            .filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                            .filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name, lang));
                     }
 
                     const qorus_root_classes = this.addDescToClasses(all_root_classes, all_root_classes);
