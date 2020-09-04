@@ -56,6 +56,8 @@ export class ClassConnectionsCreate {
 
     private triggers: any = {};
     private classes: any = {};
+    private exists_qore_connector = false; // used only for java
+    private qore_classes_in_python = {};
 
     constructor(data, code_info, lang = default_lang) {
         const {
@@ -124,8 +126,6 @@ export class ClassConnectionsCreate {
             };
         };
 
-        let exists_qore_connector = false; // used only for java
-
         for (const connection in this.connections) {
             const connection_code_name = toValidIdentifier(connection);
             let connectors = [];
@@ -144,7 +144,10 @@ export class ClassConnectionsCreate {
                 let class_lang = 'qore';
                 if (this.lang !== 'qore') {
                     class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || default_lang;
-                    exists_qore_connector = exists_qore_connector || (class_lang === 'qore');
+                    this.exists_qore_connector = this.exists_qore_connector || (class_lang === 'qore');
+                    if (class_lang === 'qore') {
+                        this.qore_classes_in_python[connector_class] = true;;
+                    }
                 }
                 this.classes[prefixed_class] = { connector_class, prefix, class_lang };
 
@@ -181,16 +184,18 @@ export class ClassConnectionsCreate {
             trigger_code,
             connections_within_class,
             connections_extra_class,
-            imports: this[`getImports${capitalize(this.lang)}`](exists_qore_connector)
+            imports: this[`getImports${capitalize(this.lang)}`]()
         };
     }
 
     private connClassName = () => `${CONN_CLASS}_${this.class_name}`;
 
     protected getImportsQore = () => [];
-    protected getImportsPython = () => [];
 
-    protected getImportsJava = (exists_qore_connector) => {
+    protected getImportsPython = () =>
+        Object.keys(this.qore_classes_in_python).map(qore_class => `from qore.__root__ import ${qore_class}`);
+
+    protected getImportsJava = () => {
         let imports = [
             'import org.qore.jni.QoreObject;',
             'import java.util.Map;',
@@ -198,7 +203,7 @@ export class ClassConnectionsCreate {
             'import java.lang.reflect.Method;'
         ];
 
-        if (exists_qore_connector) {
+        if (this.exists_qore_connector) {
             imports.unshift('import org.qore.jni.QoreJavaApi;');
         }
 
