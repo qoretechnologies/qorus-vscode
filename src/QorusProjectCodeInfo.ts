@@ -544,7 +544,8 @@ export class QorusProjectCodeInfo {
     }
 
     getObjects = params => {
-        const {object_type, lang = default_lang, iface_kind, class_name, custom_data } = params;
+        const {object_type, iface_kind, class_name, custom_data } = params;
+        const lang = params.lang || default_lang; // null comes from the frontend
 
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
