@@ -1743,7 +1743,7 @@
     "scripts": {
         "vscode:prepublish": "rm -rf out && rm -rf dist && npm run compile && npm run build",
         "compile": "NODE_ENV=production webpack --mode development --config webpack_backend.config.js",
-        "compile:test": "cd ui-test && tsc -p ./src",
+        "compile:test": "cd ui-test && node_modules/.bin/tsc -p ./src",
         "watch": "node_modules/.bin/tsc -watch -p ./src",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "start": "NODE_ENV=development babel-node server.js",
