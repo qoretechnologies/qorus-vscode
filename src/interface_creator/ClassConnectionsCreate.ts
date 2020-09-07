@@ -368,24 +368,25 @@ export class ClassConnectionsCreate {
             code += ' {\n';
         }
 
-        const some_qore_class = Object.keys(this.classes)
-                                      .some(prefixed_class => this.classes[prefixed_class].class_lang === 'qore');
-
         code += `${indent1}// map of prefixed class names to class instances\n` +
             `${indent1}private final Hash ${CONN_CLASS_MAP.java};\n\n` +
             `${indent1}${this.connClassName()}() ${THROWS} {\n`;
 
-        if (some_qore_class) {
-            code += `${indent2}UserApi.startCapturingObjects();\n`;
-        }
-
         code += `${indent2}${CONN_CLASS_MAP.java} = new Hash();\n`;
+
+        const do_capturing = Object.keys(this.classes).some(prefixed_class =>
+                ['qore', 'python'].includes(this.classes[prefixed_class].class_lang));
+
+        if (do_capturing) {
+            code += `${indent2}UserApi.startCapturingObjects();\n` +
+                `${indent2}try {\n`;
+        }
 
         for (const prefixed_class in this.classes) {
             const class_data = this.classes[prefixed_class];
             const class_name = class_data.connector_class;
 
-            if (class_data.class_lang === 'qore') {
+            if (['qore', 'python'].includes(class_data.class_lang)) {
                 const prefix_arg = class_data.prefix ? `, "${class_data.prefix}"` : '';
                 code += `${indent2}${CONN_CLASS_MAP.java}.put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
             } else {
@@ -394,8 +395,10 @@ export class ClassConnectionsCreate {
             }
         }
 
-        if (some_qore_class) {
-            code += `${indent2}UserApi.stopCapturingObjects();\n`;
+        if (do_capturing) {
+            code += `${indent2}} finally {\n` +
+                `${indent3}UserApi.stopCapturingObjects();\n` +
+                `${indent2}}\n`;
         }
 
         if (event_based_connections.length) {
