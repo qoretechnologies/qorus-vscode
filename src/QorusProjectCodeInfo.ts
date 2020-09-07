@@ -41,6 +41,7 @@ export class QorusProjectCodeInfo {
     private modules: string[] = [];
     private source_directories = [];
     private mapper_types: any[] = [];
+    private java_class_2_package = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -179,6 +180,38 @@ export class QorusProjectCodeInfo {
                 methods
             });
         });
+    }
+
+    javaClassPackage = class_name => {
+        if (this.java_class_2_package[class_name]) {
+            return this.java_class_2_package[class_name];
+        }
+
+        const yaml_data = this.yaml_info.yamlDataByClass('class', class_name) || {};
+
+        const {target_dir, target_file} = yaml_data;
+        if (!target_dir || !target_file) {
+            return class_name;
+        }
+
+        const file_path = path.join(target_dir, target_file);
+        if (!fs.existsSync(file_path)) {
+            return class_name;
+        }
+
+        const file_contents = fs.readFileSync(path.join(target_dir, target_file)).toString() || '';
+        const file_lines = file_contents.split(/\r?\n/);
+
+        for (const line of file_lines) {
+            const match_result = line.match(/^package\s+(\S+);/);
+            if (match_result) {
+                return match_result[1];
+            } else if (line.match(/\S/)) {
+                break;
+            }
+        }
+
+        return class_name;
     }
 
     getObjectsWithStaticData = ({iface_kind}) => {

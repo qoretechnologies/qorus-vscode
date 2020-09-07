@@ -2,6 +2,7 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
 import { triggers, stepTriggerSignatures } from './standard_methods';
 import { default_lang } from '../qorus_constants';
+import * as msg from '../qorus_message';
 
 // =================================================================
 
@@ -57,7 +58,10 @@ export class ClassConnectionsCreate {
     private triggers: any = {};
     private classes: any = {};
     private import_java_api = false;
-    private qore_classes_in_python = {};
+    private classes_to_import_in_python = {
+        'qore': {},
+        'java': {}
+    };
 
     constructor(data, code_info, lang = default_lang) {
         const {
@@ -145,8 +149,8 @@ export class ClassConnectionsCreate {
                 if (this.lang !== 'qore') {
                     class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || default_lang;
                     this.import_java_api = this.import_java_api || ['qore', 'python'].includes(class_lang);
-                    if (class_lang === 'qore') {
-                        this.qore_classes_in_python[connector_class] = true;;
+                    if (this.lang === 'python' && ['qore', 'java'].includes(class_lang)) {
+                        this.classes_to_import_in_python[class_lang][connector_class] = true;;
                     }
                 }
                 this.classes[prefixed_class] = { connector_class, prefix, class_lang };
@@ -192,8 +196,20 @@ export class ClassConnectionsCreate {
 
     protected getImportsQore = () => [];
 
-    protected getImportsPython = () =>
-        Object.keys(this.qore_classes_in_python).map(qore_class => `from qore.__root__ import ${qore_class}`);
+    protected getImportsPython = () => {
+        // qore imports
+        let imports = Object.keys(this.classes_to_import_in_python.qore).map(qore_class =>
+                `from qore.__root__ import ${qore_class}`);
+
+        // add java imports
+        Object.keys(this.classes_to_import_in_python.java).forEach(java_class => {
+            const java_package = this.code_info.javaClassPackage(java_class);
+            imports.push(`qoreloader.load_java('${java_package}')`);
+            imports.push(`from qore.__root__.Jni import ${java_package}`);
+        });
+
+        return imports;
+    }
 
     protected getImportsJava = () => {
         let imports = [
