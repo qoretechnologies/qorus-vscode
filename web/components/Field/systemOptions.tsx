@@ -1,16 +1,21 @@
-import React, { useState, useContext, useEffect } from 'react';
-import useMount from 'react-use/lib/useMount';
-import { TextContext } from '../../context/text';
+import React, {
+    useContext, useState
+} from 'react';
+
 import map from 'lodash/map';
-import size from 'lodash/size';
 import reduce from 'lodash/reduce';
-import AutoField from './auto';
-import SubField from '../SubField';
-import SelectField from './select';
-import { Classes, Icon, Callout } from '@blueprintjs/core';
-import { InitialContext } from '../../context/init';
+import size from 'lodash/size';
+import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
+
+import { Callout, Classes, Icon } from '@blueprintjs/core';
+
+import { InitialContext } from '../../context/init';
+import { TextContext } from '../../context/text';
 import Spacer from '../Spacer';
+import SubField from '../SubField';
+import AutoField from './auto';
+import SelectField from './select';
 
 const Options = ({ name, value, onChange, url, ...rest }) => {
     const t = useContext(TextContext);

@@ -13,9 +13,7 @@ import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import { Messages } from '../../constants/messages';
-import {
-    flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField, rebuildOptions
-} from '../../helpers/mapper';
+import { flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField } from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -337,7 +335,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
         canDrop: () => false,
-        collect: monitor => ({
+        collect: (monitor) => ({
             isDragging: !!monitor.getItem(),
         }),
     });
@@ -345,7 +343,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const [mappingDialog, setMappingDialog] = useState({});
 
     const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
-        setRelations(current => {
+        setRelations((current) => {
             const result = { ...current };
             // Check if this output already exists
             if (!result[outputPath]) {
@@ -398,7 +396,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const removeFieldRelations: (path: string, type: string) => void = (path, type) => {
         // Remove the selected relation
         // @ts-ignore
-        setRelations(current =>
+        setRelations((current) =>
             reduce(
                 current,
                 (newRelations, rel, relationOutput: string) => {
@@ -424,7 +422,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const renameFieldRelation: (oldPath: string, newPath: string, type: string) => void = (oldPath, newPath, type) => {
         // Remove the selected relation
         // @ts-ignore
-        setRelations(current =>
+        setRelations((current) =>
             reduce(
                 current,
                 (newRelations, rel, relationOutput: string) => {
@@ -451,7 +449,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
     };
 
-    const clearInputs: (soft?: boolean) => void = soft => {
+    const clearInputs: (soft?: boolean) => void = (soft) => {
         // Reset all the data to default
         if (!soft) {
             setInputProvider(null);
@@ -464,7 +462,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         setHideInputSelector(false);
     };
 
-    const clearOutputs: (soft?: boolean) => void = soft => {
+    const clearOutputs: (soft?: boolean) => void = (soft) => {
         // Reset all the data to default
         if (!soft) {
             setOutputProvider(null);
@@ -486,20 +484,20 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const flattenedContextInputs = contextInputs && flattenFields(contextInputs);
     const flattenedOutputs = outputs && flattenFields(outputs);
 
-    const hasAvailableRelation: (types: string[]) => boolean = types => {
+    const hasAvailableRelation: (types: string[]) => boolean = (types) => {
         if (flattenedOutputs) {
             let availableOutputsCount = 0;
             // Loop through all the output fields that support this field
             // with the provided types
             flattenedOutputs
                 .filter(
-                    output =>
+                    (output) =>
                         types.includes('any') ||
                         output.type.types_accepted.includes('any') ||
                         (size(types) <= size(output.type.types_accepted) &&
                             output.type.types_accepted.some((type: string) => types.includes(type)))
                 )
-                .forEach(output => {
+                .forEach((output) => {
                     if (isAvailableForDrop(output.path)) {
                         availableOutputsCount++;
                     }
@@ -524,7 +522,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
         // Check if none of the keys roles & a * role isn't
         // yet included
-        if (unique_roles.every(role => !uniqueRoles.includes(role)) && !uniqueRoles.includes('*')) {
+        if (unique_roles.every((role) => !uniqueRoles.includes(role)) && !uniqueRoles.includes('*')) {
             return true;
         }
         return false;
@@ -545,7 +543,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             context: flattenedContextInputs,
         };
         // Find the field
-        const field = fieldTypes[type].find(input => input.path === name);
+        const field = fieldTypes[type].find((input) => input.path === name);
         if (field) {
             // Return the color
             return TYPE_COLORS[field.type.types_returned[0].replace(/</g, '').replace(/>/g, '')];
@@ -553,7 +551,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         return null;
     };
 
-    const handleClick = type => (field?: any, edit?: boolean, remove?: boolean): void => {
+    const handleClick = (type) => (field?: any, edit?: boolean, remove?: boolean): void => {
         if (remove) {
             editField(type, field.path, null, true);
             removeFieldRelations(field.path, type);
@@ -567,7 +565,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 fieldData: edit ? field : null,
                 type,
                 isParentCustom: field?.isCustom,
-                onSubmit: data => {
+                onSubmit: (data) => {
                     if (edit) {
                         editField(type, field.path, data);
                         renameFieldRelation(field.path, data.path, type);
@@ -579,15 +577,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     };
 
-    const handleManageClick = output => {
+    const handleManageClick = (output) => {
         setMappingDialog({
             isOpen: true,
             relationData: relations[output.path],
             inputs: flattenedInputs,
             mapperKeys,
             output,
-            onSubmit: relation => {
-                setRelations(current => {
+            onSubmit: (relation) => {
+                setRelations((current) => {
                     const result = { ...current };
                     result[output.path] = relation;
                     return result;
@@ -596,7 +594,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         });
     };
 
-    const filterEmptyRelations: (relations: any) => any = relations => {
+    const filterEmptyRelations: (relations: any) => any = (relations) => {
         return reduce(
             relations,
             (newRel, rel, name) => {
@@ -612,7 +610,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
     };
 
-    const getCustomFields: (type: string) => any[] = type => {
+    const getCustomFields: (type: string) => any[] = (type) => {
         if (type === 'inputs') {
             return flattenedInputs.reduce((newInputs, input) => {
                 if (input.firstCustomInHierarchy) {
@@ -665,7 +663,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         // Add the relations
         mapper.fields = filterEmptyRelations(relations);
         // Rebuild the mapper options
-        const mapperOptions: { [key: string]: any } = rebuildOptions(mapper.mapper_options);
+        const mapperOptions: { [key: string]: any } = mapper.mapper_options;
         // Add the input & output providers
         mapper.mapper_options = {
             ...mapperOptions,
@@ -681,7 +679,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         // Create the mapper field options type list
         const relationTypeList = [];
         forEach(mapper.fields, (relationData, outputFieldName) => {
-            const outputField = flattenedOutputs.find(o => o.path === outputFieldName);
+            const outputField = flattenedOutputs.find((o) => o.path === outputFieldName);
             // Go through the data in the output field relation
             forEach(relationData, (_, relationName) => {
                 relationTypeList.push({
@@ -701,7 +699,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 orig_data: initialData.mapper,
                 open_file_on_success: !mapperSubmit,
                 iface_id: interfaceId.mapper,
-                no_data_return: !!onSubmitSuccess ||!!mapperSubmit,
+                no_data_return: !!onSubmitSuccess || !!mapperSubmit,
             },
             t('Saving mapper...')
         );
@@ -767,9 +765,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                     padding: 10,
                     flex: 1,
                     overflow: 'auto',
-                    background: `url(${
-                        `${initialData.image_path}/images/tiny_grid.png)`
-                    }`,
+                    background: `url(${`${initialData.image_path}/images/tiny_grid.png)`}`,
                 }}
             >
                 <StyledMapperWrapper>
@@ -924,7 +920,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x1="0"
                                                         y1={
                                                             (flattenedInputs.findIndex(
-                                                                input => input.path === relation.name
+                                                                (input) => input.path === relation.name
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -935,7 +931,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                output => output.path === outputPath
+                                                                (output) => output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -962,7 +958,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     x1={0}
                                                     y1={
                                                         (flattenedInputs.findIndex(
-                                                            input => input.path === relation.name
+                                                            (input) => input.path === relation.name
                                                         ) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -973,7 +969,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     x2={300}
                                                     y2={
                                                         (flattenedOutputs.findIndex(
-                                                            output => output.path === outputPath
+                                                            (output) => output.path === outputPath
                                                         ) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -994,7 +990,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                output => output.path === outputPath
+                                                                (output) => output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1025,7 +1021,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     x2={300}
                                                     y2={
                                                         (flattenedOutputs.findIndex(
-                                                            output => output.path === outputPath
+                                                            (output) => output.path === outputPath
                                                         ) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1050,7 +1046,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                             (size(flattenedInputs) +
                                                                 (inputOptionProvider?.can_manage_fields ? 1 : 0) +
                                                                 flattenedContextInputs.findIndex(
-                                                                    input =>
+                                                                    (input) =>
                                                                         input.path ===
                                                                         getStaticDataFieldname(relation.context)
                                                                 ) +
@@ -1061,7 +1057,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                output => output.path === outputPath
+                                                                (output) => output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1095,7 +1091,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         (size(flattenedInputs) +
                                                             (inputOptionProvider?.can_manage_fields ? 1 : 0) +
                                                             flattenedContextInputs.findIndex(
-                                                                input =>
+                                                                (input) =>
                                                                     input.path ===
                                                                     getStaticDataFieldname(relation.context)
                                                             ) +
@@ -1106,7 +1102,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     x2={300}
                                                     y2={
                                                         (flattenedOutputs.findIndex(
-                                                            output => output.path === outputPath
+                                                            (output) => output.path === outputPath
                                                         ) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1136,7 +1132,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                output => output.path === outputPath
+                                                                (output) => output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1174,7 +1170,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     x2={300}
                                                     y2={
                                                         (flattenedOutputs.findIndex(
-                                                            output => output.path === outputPath
+                                                            (output) => output.path === outputPath
                                                         ) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -

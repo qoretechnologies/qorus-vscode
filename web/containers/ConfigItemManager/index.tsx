@@ -1,4 +1,6 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, {
+    FunctionComponent, useEffect, useState
+} from 'react';
 
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
@@ -10,7 +12,9 @@ import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { Messages } from '../../constants/messages';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+    TMessageListener, TPostMessage
+} from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import InterfaceCreatorPanel from '../InterfaceCreator/panel';
 import GlobalTable from './globalTable';
