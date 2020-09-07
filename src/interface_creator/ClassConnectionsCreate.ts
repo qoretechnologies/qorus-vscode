@@ -204,8 +204,11 @@ export class ClassConnectionsCreate {
         // add java imports
         Object.keys(this.classes_to_import_in_python.java).forEach(java_class => {
             const java_package = this.code_info.javaClassPackage(java_class);
+            const reversed_parts = java_package.split('.').reverse();
+            const [class_name, ...reversed_package_parts] = reversed_parts;
+            const jni_package = [ 'Jni', ...reversed_package_parts.reverse() ].join('.');
             imports.push(`qoreloader.load_java('${java_package}')`);
-            imports.push(`from qore.__root__.Jni import ${java_package}`);
+            imports.push(`from qore.__root__.${jni_package} import ${class_name}`);
         });
 
         return imports;
