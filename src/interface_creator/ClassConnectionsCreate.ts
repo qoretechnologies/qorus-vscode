@@ -2,7 +2,6 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
 import { triggers, stepTriggerSignatures } from './standard_methods';
 import { default_lang } from '../qorus_constants';
-import * as msg from '../qorus_message';
 
 // =================================================================
 
