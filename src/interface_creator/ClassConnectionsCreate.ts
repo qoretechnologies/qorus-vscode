@@ -56,7 +56,7 @@ export class ClassConnectionsCreate {
 
     private triggers: any = {};
     private classes: any = {};
-    private exists_qore_connector = false; // used only for java
+    private import_java_api = false;
     private qore_classes_in_python = {};
 
     constructor(data, code_info, lang = default_lang) {
@@ -144,7 +144,7 @@ export class ClassConnectionsCreate {
                 let class_lang = 'qore';
                 if (this.lang !== 'qore') {
                     class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || default_lang;
-                    this.exists_qore_connector = this.exists_qore_connector || (class_lang === 'qore');
+                    this.import_java_api = this.import_java_api || ['qore', 'python'].includes(class_lang);
                     if (class_lang === 'qore') {
                         this.qore_classes_in_python[connector_class] = true;;
                     }
@@ -203,7 +203,7 @@ export class ClassConnectionsCreate {
             'import java.lang.reflect.Method;'
         ];
 
-        if (this.exists_qore_connector) {
+        if (this.import_java_api) {
             imports.unshift('import org.qore.jni.QoreJavaApi;');
         }
 
