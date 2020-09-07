@@ -1,4 +1,6 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, {
+    useContext, useEffect, useRef, useState
+} from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -14,7 +16,9 @@ import styled from 'styled-components';
 
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
+import Field from '../../../components/Field';
 import FileString from '../../../components/Field/fileString';
+import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
 import { Messages } from '../../../constants/messages';
@@ -31,8 +35,6 @@ import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
-import MultiSelect from '../../../components/Field/multiSelect';
-import Field from '../../../components/Field';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -776,7 +778,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         key={JSON.stringify(wrapperDimensions)}
                         ref={drop}
                         path={image_path}
-                        onClick={() => !isHoldingShiftKey && setSelectedState(null)}
+                        onClick={() => setSelectedState(null)}
                         style={{
                             transform: `scale(${zoom})`,
                             marginLeft: `${calculateMargin()}px`,
