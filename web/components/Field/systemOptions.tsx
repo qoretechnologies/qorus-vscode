@@ -134,22 +134,24 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
 
     return (
         <>
-            {map(selectedOptions, ({ type, desc, ...rest }, optionName) => (
-                <SubField
-                    title={rest.name || optionName}
-                    desc={desc}
-                    onRemove={() => {
-                        confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
-                    }}
-                >
-                    <AutoField
-                        {...getTypeAndCanBeNull(type)}
-                        name={optionName}
-                        onChange={(optionName, val) => handleValueChange(optionName, val, type)}
-                        value={value?.[optionName]?.value}
-                    />
-                </SubField>
-            ))}
+            {map(selectedOptions, ({ type, ...rest }, optionName) =>
+                !!options[optionName] ? (
+                    <SubField
+                        title={rest.name || optionName}
+                        desc={options[optionName].desc}
+                        onRemove={() => {
+                            confirmAction('RemoveSelectedOption', () => removeSelectedOption(optionName));
+                        }}
+                    >
+                        <AutoField
+                            {...getTypeAndCanBeNull(type)}
+                            name={optionName}
+                            onChange={(optionName, val) => handleValueChange(optionName, val, type)}
+                            value={value?.[optionName]?.value}
+                        />
+                    </SubField>
+                ) : null
+            )}
             {size(selectedOptions) === 0 && (
                 <p className={Classes.TEXT_MUTED}>
                     <Icon icon="info-sign" /> {t('NoOptionsSelected')}
