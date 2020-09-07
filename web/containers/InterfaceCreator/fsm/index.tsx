@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -32,15 +32,19 @@ import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
 import MultiSelect from '../../../components/Field/multiSelect';
+import Field from '../../../components/Field';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
     setFsmReset: () => void;
+    embedded?: boolean;
+    defaultStates?: IFSMStates;
+    parentStateName?: string;
 }
 
 export interface IDraggableItem {
     type: 'toolbar-item' | 'state';
-    name: 'fsm' | 'state';
+    name: 'fsm' | 'state' | 'block';
     id?: number;
     stateType?: TAction;
 }
@@ -51,6 +55,7 @@ export interface IFSMTransition {
     condition?: {
         type: string;
     };
+    language: string;
     errors?: string[];
 }
 
@@ -83,8 +88,10 @@ export interface IFSMState {
     'input-type'?: any;
     'output-type'?: any;
     name?: string;
-    type: 'state' | 'fsm';
+    type: 'state' | 'fsm' | 'block';
     desc: string;
+    states?: IFSMStates;
+    fsm?: string;
 }
 
 export interface IFSMStates {
@@ -100,6 +107,7 @@ const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 
 const StyledToolbarWrapper = styled.div`
     margin-bottom: 10px;
+    margin-top: 10px;
 `;
 
 const StyledDiagramWrapper = styled.div`
@@ -137,19 +145,31 @@ const StyledFSMCircle = styled.circle`
     }
 `;
 
-let currentXPan: number;
-let currentYPan: number;
-
-const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext, postMessage }) => {
+const FSMView: React.FC<IFSMViewProps> = ({
+    onSubmitSuccess,
+    setFsmReset,
+    interfaceContext,
+    postMessage,
+    embedded,
+    defaultStates,
+    parentStateName,
+    onStatesChange,
+    onHideMetadataClick,
+    isExternalMetadataHidden,
+}) => {
     const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm } = useContext(InitialContext);
+    const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm, qorus_instance } = useContext(
+        InitialContext
+    );
     const { resetAllInterfaceData } = useContext(GlobalContext);
     const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || shortid.generate());
 
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
+    const currentXPan = useRef<number>();
+    const currentYPan = useRef<number>();
 
-    const [states, setStates] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
+    const [states, setStates] = useState<IFSMStates>(cloneDeep(embedded ? defaultStates : fsm?.states || {}));
     const [metadata, setMetadata] = useState<IFSMMetadata>({
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,
@@ -169,7 +189,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         width: 0,
         height: 0,
     });
-    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
+    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded ? true : false);
     const [zoom, setZoom] = useState<number>(1);
 
     const [, drop] = useDrop({
@@ -188,17 +208,21 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                         ...cur,
                         [id]: {
                             position: {
-                                x: x + calculatePercDiff(currentXPan) - (sidebarOpen ? 333 : 153),
+                                x:
+                                    x +
+                                    calculatePercDiff(currentXPan.current) -
+                                    (!embedded && sidebarOpen ? 333 : embedded ? 233 : 153),
                                 y:
                                     y +
-                                    calculatePercDiff(currentYPan) -
-                                    (fieldsWrapperRef.current.getBoundingClientRect().height + 200),
+                                    calculatePercDiff(currentYPan.current) -
+                                    (fieldsWrapperRef.current.getBoundingClientRect().height + (embedded ? 380 : 200)),
                             },
                             final: false,
                             initial: false,
-                            name: item.name === 'state' ? `State ${id}` : null,
+                            name: getStateName(item, id),
                             desc: '',
                             type: item.name,
+                            states: item.name === 'block' ? {} : undefined,
                             action:
                                 item.name === 'state'
                                     ? {
@@ -215,6 +239,30 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             }
         },
     });
+
+    const getStateName = (item, id) => {
+        if (parentStateName) {
+            return `${parentStateName}.State ${id}`;
+        }
+
+        if (item.name === 'block') {
+            return `State ${id}`;
+        }
+
+        return item.name === 'state' ? `State ${id}` : null;
+    };
+
+    const getStateType = (state: IFSMState) => {
+        if (state.type === 'block') {
+            return 'block';
+        }
+
+        if (state.type === 'fsm') {
+            return 'fsm';
+        }
+
+        return state.action?.type;
+    };
 
     const isFSMValid = () => {
         return (
@@ -244,11 +292,13 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     };
 
     useMount(() => {
-        setFsmReset(() => reset);
+        if (!embedded) {
+            setFsmReset(() => reset);
+        }
         const { width, height } = wrapperRef.current.getBoundingClientRect();
 
-        currentXPan = 1000 - width / 2;
-        currentYPan = 1000 - height / 2;
+        currentXPan.current = 1000 - width / 2;
+        currentYPan.current = 1000 - height / 2;
 
         setWrapperDimensions({ width, height });
 
@@ -258,10 +308,17 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-
-            setFsmReset(null);
+            if (!embedded) {
+                setFsmReset(null);
+            }
         };
     });
+
+    useEffect(() => {
+        if (states && onStatesChange) {
+            onStatesChange(states);
+        }
+    }, [states]);
 
     const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === DIAGRAM_DRAG_KEY) {
@@ -276,8 +333,8 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     };
 
     const setWrapperPan = (x, y) => {
-        currentXPan = x;
-        currentYPan = y;
+        currentXPan.current = x;
+        currentYPan.current = y;
     };
 
     const getTransitionByState = (stateId: string, targetId: string): IFSMTransition | null => {
@@ -306,6 +363,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     ...(newBoxes[selectedState].transitions || []),
                     {
                         state: id.toString(),
+                        language: 'qore',
                     },
                 ];
 
@@ -527,6 +585,10 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     const calculateMargin = () => (zoom - 1) * 1000;
     const { width = 0, height = 0 } = wrapperRef?.current?.getBoundingClientRect() || {};
 
+    const getIsMetadataHidden = () => {
+        return embedded ? isExternalMetadataHidden : isMetadataHidden;
+    };
+
     return (
         <>
             <div ref={fieldsWrapperRef} id="fsm-fields-wrapper">
@@ -569,7 +631,13 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 label={t('field-label-desc')}
                             />
                             <FieldInputWrapper>
-                                <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                                <Field
+                                    type="long-string"
+                                    onChange={handleMetadataChange}
+                                    value={metadata.desc}
+                                    name="desc"
+                                    markdown
+                                />
                             </FieldInputWrapper>
                         </FieldWrapper>
                         <FieldWrapper name="selected-field">
@@ -672,11 +740,22 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     >
                         {t('FSM')}
                     </FSMToolbarItem>
+                    <FSMToolbarItem
+                        name="block"
+                        type="block"
+                        disabled={!qorus_instance}
+                        count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
+                    >
+                        {t('Block')}
+                    </FSMToolbarItem>
+
                     <ButtonGroup style={{ float: 'right' }}>
                         <Button
-                            onClick={() => setIsMetadataHidden((cur) => !cur)}
-                            text={t(isMetadataHidden ? 'ShowMetadata' : 'HideMetadata')}
-                            icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
+                            onClick={() =>
+                                embedded ? onHideMetadataClick((cur) => !cur) : setIsMetadataHidden((cur) => !cur)
+                            }
+                            text={t(getIsMetadataHidden() ? 'ShowMetadata' : 'HideMetadata')}
+                            icon={getIsMetadataHidden() ? 'eye-open' : 'eye-off'}
                         />
                     </ButtonGroup>
                 </StyledToolbarWrapper>
@@ -685,12 +764,15 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 <FSMDiagramWrapper
                     wrapperDimensions={wrapperDimensions}
                     setPan={setWrapperPan}
-                    isHoldingShiftKey={isHoldingShiftKey}
+                    isHoldingShiftKey={isHoldingShiftKey && !selectedState}
                     zoom={zoom}
-                    items={map(states, (state) => ({ x: state.position.x, y: state.position.y }))}
+                    items={map(states, (state) => ({
+                        x: state.position.x,
+                        y: state.position.y,
+                        type: getStateType(state),
+                    }))}
                 >
                     <StyledDiagram
-                        title="Hold [SHIFT] to move the diagram around"
                         key={JSON.stringify(wrapperDimensions)}
                         ref={drop}
                         path={image_path}
@@ -755,7 +837,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                                 }}
                                                 key={index}
                                                 stroke={isError ? 'red' : '#a9a9a9'}
-                                                strokeWidth={isError ? 4 : 2}
+                                                strokeWidth={isError ? 2 : 1}
                                                 strokeDasharray={isError ? '10 2' : undefined}
                                                 id={getTargetStatePosition(x1, y1, x2, y2)}
                                                 markerEnd={isError ? 'url(#arrowheaderror)' : 'url(#arrowhead)'}
@@ -770,35 +852,37 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     </StyledDiagram>
                 </FSMDiagramWrapper>
             </StyledDiagramWrapper>
-            <ActionsWrapper>
-                <div style={{ float: 'right', width: '100%' }}>
-                    <ButtonGroup fill>
-                        <Tooltip content={t('ResetTooltip')}>
+            {!embedded && (
+                <ActionsWrapper>
+                    <div style={{ float: 'right', width: '100%' }}>
+                        <ButtonGroup fill>
+                            <Tooltip content={t('ResetTooltip')}>
+                                <Button
+                                    text={t('Reset')}
+                                    icon={'history'}
+                                    onClick={() => {
+                                        confirmAction(
+                                            'ResetFieldsConfirm',
+                                            () => {
+                                                reset();
+                                            },
+                                            'Reset',
+                                            'warning'
+                                        );
+                                    }}
+                                />
+                            </Tooltip>
                             <Button
-                                text={t('Reset')}
-                                icon={'history'}
-                                onClick={() => {
-                                    confirmAction(
-                                        'ResetFieldsConfirm',
-                                        () => {
-                                            reset();
-                                        },
-                                        'Reset',
-                                        'warning'
-                                    );
-                                }}
+                                text={t('Submit')}
+                                onClick={handleSubmitClick}
+                                disabled={!isFSMValid()}
+                                icon={'tick'}
+                                intent={Intent.SUCCESS}
                             />
-                        </Tooltip>
-                        <Button
-                            text={t('Submit')}
-                            onClick={handleSubmitClick}
-                            disabled={!isFSMValid()}
-                            icon={'tick'}
-                            intent={Intent.SUCCESS}
-                        />
-                    </ButtonGroup>
-                </div>
-            </ActionsWrapper>
+                        </ButtonGroup>
+                    </div>
+                </ActionsWrapper>
+            )}
         </>
     );
 };

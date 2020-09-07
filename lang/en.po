@@ -1066,6 +1066,24 @@ msgstr "Version"
 msgid "field-desc-version"
 msgstr "Version string for the interface object"
 
+msgid "field-label-for"
+msgstr "for"
+
+msgid "field-label-foreach"
+msgstr "foreach"
+
+msgid "field-label-while"
+msgstr "while"
+
+msgid "field-label-block-logic"
+msgstr "Block logic"
+
+msgid "field-label-block-type"
+msgstr "Block type"
+
+msgid "field-label-block-config"
+msgstr "Block config"
+
 msgid "field-label-serviceversion"
 msgstr "Version"
 
@@ -2441,6 +2459,24 @@ msgstr "Error(s)"
 
 msgid "TransitionOrderCondition"
 msgstr "condition"
+
+msgid "LoadingOptions"
+msgstr "Loading options ..."
+
+msgid "NoOptionsSelected"
+msgstr "No options selected. Please select an option below."
+
+msgid "AddNewOption"
+msgstr "Add option"
+
+msgid "ErrorLoadingOptions"
+msgstr "There was an error loading options:"
+
+msgid "OptionsQorusInstanceRequired"
+msgstr "An active instance is required to manage options."
+
+msgid "RemoveSelectedOption"
+msgstr "Are you sure you wish to remove the selected option?"
 
 msgid "ManageTransitions"
 msgstr "Manage transitions"

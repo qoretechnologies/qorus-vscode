@@ -116,7 +116,8 @@ export const workflowFields = ({is_editing, default_target_dir}) => [
     field.statuses,
     {
         name: 'system-options',
-        type: 'system-options',
+        type: 'options',
+        url: 'system',
         mandatory: false,
     }
 ];

@@ -58,18 +58,6 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             // Strings cannot be empty
             return isValid;
         }
-        case 'pipeline-options':
-        case 'mapper-options': {
-            if (!value || isObject(value)) {
-                return false;
-            }
-            // Check if every pair has key & value
-            // assigned properly
-            return value.every(
-                (pair: { [key: string]: string }): boolean =>
-                    pair.name && pair.name !== '' && validateField(pair.type, pair.value, field)
-            );
-        }
         case 'array-of-pairs': {
             let valid = true;
             // Check if every pair has key & value
@@ -233,15 +221,20 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
                 (val: { name: string; triggers?: TTrigger[] }) => validateField('string', val.name) === true
             );
         }
+        case 'options':
+        case 'pipeline-options':
+        case 'mapper-options':
         case 'system-options': {
+            if (!value || size(value) === 0) {
+                return false;
+            }
+
             return every(value, (optionData) => validateField(optionData.type, optionData.value));
         }
         case 'byte-size': {
-            console.log(value);
             let valid = true;
 
             const [bytes, size] = splitByteSize(value);
-            console.log(bytes, size);
 
             if (!validateField('number', bytes)) {
                 valid = false;

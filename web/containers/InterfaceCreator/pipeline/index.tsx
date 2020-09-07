@@ -1,4 +1,6 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, {
+    useContext, useRef, useState
+} from 'react';
 
 import get from 'lodash/get';
 import omit from 'lodash/omit';
@@ -14,8 +16,9 @@ import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core
 
 import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
-import MapperOptions from '../../../components/Field/mapperOptions';
+import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
+import Options from '../../../components/Field/systemOptions';
 import FieldLabel from '../../../components/FieldLabel';
 import { Messages } from '../../../constants/messages';
 import { ContextMenuContext } from '../../../context/contextMenu';
@@ -29,7 +32,6 @@ import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMess
 import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
-import MultiSelect from '../../../components/Field/multiSelect';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -497,11 +499,11 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                     isValid={validateField('pipeline-options', metadata['input-provider-options'])}
                                 />
                                 <FieldInputWrapper>
-                                    <MapperOptions
+                                    <Options
                                         value={metadata?.['input-provider-options']}
                                         onChange={handleMetadataChange}
                                         name="input-provider-options"
-                                        url="/system/pipeline_options"
+                                        url="/pipeline"
                                     />
                                 </FieldInputWrapper>
                             </FieldWrapper>

@@ -1,17 +1,15 @@
-import React, {
-    useContext, useState
-} from 'react';
+import React, { useContext, useState } from 'react';
 
 import { useDrag } from 'react-dnd';
-import styled, {
-    css, keyframes
-} from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 import { Button, ButtonGroup } from '@blueprintjs/core';
 
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { TextContext } from '../../../context/text';
 import { IFSMState, STATE_ITEM_TYPE } from './';
+import { getStateStyle } from './toolbarItem';
+import { InitialContext } from '../../../context/init';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
@@ -60,7 +58,7 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     height: 50px;
     background-color: #fff;
     z-index: 20;
-    border: 2px solid;
+    border: 1px solid;
     transition: all 0.2s linear;
     border-radius: 3px;
     cursor: pointer;
@@ -96,29 +94,7 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
             animation: ${wiggleAnimation(type)} 0.3s linear infinite;
         `}
 
-    ${({ type }) => {
-        switch (type) {
-            case 'connector':
-                return css`
-                    transform: skew(15deg);
-                    > * {
-                        transform: skew(-15deg);
-                    }
-                `;
-            case 'mapper':
-                return null;
-            case 'pipeline':
-                return css`
-                    border-radius: 50px;
-                `;
-            case 'fsm':
-                return css`
-                    border-style: dashed;
-                `;
-            default:
-                return null;
-        }
-    }}
+    ${({ type }) => getStateStyle(type)}
 `;
 
 const StyledStateName = styled.p`
@@ -175,6 +151,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const { addMenu } = useContext(ContextMenuContext);
     const t = useContext(TextContext);
+    const { qorus_instance } = useContext(InitialContext);
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
         event.stopPropagation();
@@ -207,7 +184,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             initial={initial}
             final={final}
             isAvailableForTransition={selectedState ? !getTransitionByState(selectedState, id) : false}
-            type={type === 'fsm' ? 'fsm' : action?.type}
+            type={type === 'fsm' ? 'fsm' : type === 'block' ? 'block' : action?.type}
             onContextMenu={(event) => {
                 event.persist();
                 addMenu({
@@ -253,6 +230,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
                             item: t('Edit'),
                             onClick: () => onEditClick(id),
                             icon: 'edit',
+                            disabled: type === 'block' && !qorus_instance,
                             intent: 'warning',
                         },
                         {
@@ -266,12 +244,17 @@ const FSMState: React.FC<IFSMStateProps> = ({
             }}
         >
             <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
-            {action && (
-                <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>{action.type}</StyledStateAction>
-            )}
+            <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
+                {type === 'block' ? t('block') : action?.type || ''}
+            </StyledStateAction>
             {isHovered && (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
-                    <Button icon="edit" intent="warning" onClick={(e) => handleClick(e, onEditClick)} />
+                    <Button
+                        icon="edit"
+                        disabled={type === 'block' && !qorus_instance}
+                        intent="warning"
+                        onClick={(e) => handleClick(e, onEditClick)}
+                    />
                     <Button icon="cross" intent="danger" onClick={(e) => handleClick(e, onDeleteClick)} />
                 </ButtonGroup>
             )}

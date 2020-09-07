@@ -121,7 +121,8 @@ export const serviceFields = ({ default_target_dir, is_editing }) => [
     },
     {
         name: 'system-options',
-        type: 'system-options',
+        type: 'options',
+        url: 'system',
         mandatory: false,
     }
 ];

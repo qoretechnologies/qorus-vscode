@@ -155,6 +155,33 @@ export const TransitionEditor = ({ onChange, transitionData, errors, qorus_insta
                     {renderErrorsField(transitionData)}
                 </FieldInputWrapper>
             </FieldWrapper>
+            {conditionType === 'custom' && (
+                <FieldWrapper padded>
+                    <FieldLabel
+                        label={t('field-label-lang')}
+                        isValid={validateField('string', transitionData?.language || 'qore')}
+                    />
+                    <FieldInputWrapper>
+                        <RadioField
+                            name="language"
+                            onChange={(name, value) => {
+                                onChange(name, value);
+                            }}
+                            value={transitionData?.language || 'qore'}
+                            items={[
+                                {
+                                    value: 'qore',
+                                    icon_filename: 'qore-106x128.png',
+                                },
+                                {
+                                    value: 'python',
+                                    icon_filename: 'python-129x128.png',
+                                },
+                            ]}
+                        />
+                    </FieldInputWrapper>
+                </FieldWrapper>
+            )}
         </>
     );
 };

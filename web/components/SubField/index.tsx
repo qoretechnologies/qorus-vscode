@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Icon } from '@blueprintjs/core';
+import { Icon, Button } from '@blueprintjs/core';
 
 export interface ISubFieldProps {
     title?: string;
     desc?: string;
     children: any;
+    onRemove: () => any;
 }
 
 const StyledSubFieldTitle = styled.h4`
@@ -18,7 +19,7 @@ const StyledSubFieldTitle = styled.h4`
 
 const StyledSubFieldDesc = styled.p`
     padding: 0;
-    margin: 0 0 10px 0;
+    margin: 5px 0 10px 0;
     color: #a9a9a9;
     font-size: 12px;
 
@@ -28,9 +29,18 @@ const StyledSubFieldDesc = styled.p`
     }
 `;
 
-const SubField: React.FC<ISubFieldProps> = ({ title, desc, children }) => (
+const SubField: React.FC<ISubFieldProps> = ({ title, desc, children, onRemove }) => (
     <>
-        {title && <StyledSubFieldTitle>{title}</StyledSubFieldTitle>}
+        {title && (
+            <StyledSubFieldTitle>
+                {title}{' '}
+                {onRemove ? (
+                    <Button style={{ verticalAlign: 'sub' }} minimal icon="trash" onClick={onRemove} intent="danger" />
+                ) : (
+                    ''
+                )}
+            </StyledSubFieldTitle>
+        )}
         {desc && (
             <StyledSubFieldDesc>
                 <Icon icon="info-sign" iconSize={12.5} /> {desc}

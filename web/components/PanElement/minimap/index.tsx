@@ -1,11 +1,10 @@
-import React, {
-    useEffect, useRef, useState
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import map from 'lodash/map';
 import useMount from 'react-use/lib/useMount';
 import ResizeObserver from 'resize-observer-polyfill';
 import styled, { css } from 'styled-components';
+import { getStateStyle } from '../../../containers/InterfaceCreator/fsm/toolbarItem';
 
 const StyledMinimapWrapper = styled.div<{ show: boolean }>`
     width: 200px;
@@ -16,7 +15,7 @@ const StyledMinimapWrapper = styled.div<{ show: boolean }>`
     cursor: no-drop;
 `;
 
-const StyledMinimapItem = styled.div<{ top: number; left: number }>`
+const StyledMinimapItem = styled.div<{ top: number; left: number; type: string }>`
     ${({ top, left }) => css`
         left: ${left / 10}px;
         top: ${top / 10}px;
@@ -25,6 +24,8 @@ const StyledMinimapItem = styled.div<{ top: number; left: number }>`
         border: 1px solid #a9a9a9;
         position: absolute;
     `}
+
+    ${({ type }) => getStateStyle(type)}
 `;
 
 const StyledMinimapView = styled.div<{ height: number; width: number }>`
@@ -55,11 +56,12 @@ export interface IFSMMinimapProps {
     items?: { y: number; x: number }[];
     onDrag: (x: number, y: number) => void;
     show: boolean;
+    panElementId: string;
 }
 
 const staticPosition = { x: null, y: null };
 
-const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show }) => {
+const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show, panElementId }) => {
     const viewRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState<{ x: number; y: number }>({ x, y });
     const [wrapperSize, setWrapperSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
@@ -71,7 +73,7 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show }) => {
                     return;
                 }
 
-                const el = document.querySelector('#pan-element');
+                const el = document.querySelector(`#panElement${panElementId}`);
 
                 if (el) {
                     const { width, height } = el.getBoundingClientRect();
@@ -84,13 +86,13 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show }) => {
             });
         });
 
-        resizeObserver.observe(document.querySelector('#pan-element'));
+        resizeObserver.observe(document.querySelector(`#panElement${panElementId}`));
 
         staticPosition.x = x || 0;
         staticPosition.y = y || 0;
 
         return () => {
-            resizeObserver.unobserve(document.querySelector('#pan-element'));
+            resizeObserver.unobserve(document.querySelector(`#panElement${panElementId}`));
         };
     });
 
@@ -151,7 +153,7 @@ const Minimap: React.FC<IFSMMinimapProps> = ({ items, x, y, onDrag, show }) => {
             {show && (
                 <>
                     {map(items, (item, index) => (
-                        <StyledMinimapItem key={index} top={item.y} left={item.x} />
+                        <StyledMinimapItem key={index} top={item.y} left={item.x} type={item.type} />
                     ))}
                     <StyledMinimapView
                         width={wrapperSize.width}
