@@ -421,17 +421,15 @@ export class QorusProjectCodeInfo {
 
         fixConfigItems(data['config-items']);
 
-        if (data.type === 'fsm' && data.states) {
-            Object.keys(data.states).forEach(id => {
-                fixConfigItems(data.states[id]['config-items']);
+        const fixStates = (states: any = {}) => {
+            Object.keys(states).forEach(id => {
+                fixConfigItems(states[id]['config-items']);
+                fixStates(states[id].states);
             });
-        }
+        };
+        fixStates(data.states);
 
-        const fixProcessors = (children: any[]) => {
-            if (!children?.length) {
-                return;
-            }
-
+        const fixProcessors = (children: any[] = []) => {
             children.forEach(child => {
                 switch (child.type) {
                     case 'queue':
