@@ -406,7 +406,7 @@ export class ClassConnectionsCreate {
 
             if (['qore', 'python'].includes(class_data.class_lang)) {
                 const prefix_arg = class_data.prefix ? `, "${class_data.prefix}"` : '';
-                code += `${indent2}${CONN_CLASS_MAP.java}.put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
+                code += `${indent3}${CONN_CLASS_MAP.java}.put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
             } else {
                 const prefix_arg = class_data.prefix ? `"${class_data.prefix}"` : '';
                 code += `${indent2}${CONN_CLASS_MAP.java}.put("${prefixed_class}", new ${class_data.connector_class}(${prefix_arg}));\n`;
