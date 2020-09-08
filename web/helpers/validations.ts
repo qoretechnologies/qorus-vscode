@@ -1,10 +1,10 @@
 import jsyaml from 'js-yaml';
+import every from 'lodash/every';
 import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
 import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
-import every from 'lodash/every';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 
@@ -23,6 +23,9 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
     field,
     canBeNull
 ) => {
+    if (!type) {
+        return false;
+    }
     // If the value can be null an is null
     // immediately return true, no matter what type
     if (canBeNull && isNull(value)) {

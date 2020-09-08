@@ -7,6 +7,7 @@ import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
+import { isObject } from 'util';
 
 import { Callout, Classes, Icon } from '@blueprintjs/core';
 
@@ -17,10 +18,30 @@ import SubField from '../SubField';
 import AutoField from './auto';
 import SelectField from './select';
 
+export const fixOptions = (value, options) => {
+    return reduce(
+        value,
+        (newValue, option, optionName) => {
+            if (!isObject(option)) {
+                return {
+                    ...newValue,
+                    [optionName]: {
+                        type: options[optionName].type,
+                        value: option,
+                    },
+                };
+            }
+
+            return { ...newValue, [optionName]: option };
+        },
+        {}
+    );
+};
+
 const Options = ({ name, value, onChange, url, ...rest }) => {
     const t = useContext(TextContext);
     const [options, setOptions] = useState({});
-    const [selectedOptions, setSelectedOptions] = useState(value);
+    const [selectedOptions, setSelectedOptions] = useState(null);
     const { fetchData, confirmAction, qorus_instance } = useContext(InitialContext);
     const [error, setError] = useState<string>(null);
 
@@ -35,7 +56,9 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                     setError(data.error.error);
                     return;
                 }
-
+                // Fix the value for backwards compatibility
+                setSelectedOptions(fixOptions(value, data.data));
+                onChange(name, fixOptions(value, data.data));
                 // Save the new options
                 setOptions(data.data);
             })();
