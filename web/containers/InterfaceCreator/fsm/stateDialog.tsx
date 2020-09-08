@@ -4,6 +4,7 @@ import React, {
 
 import find from 'lodash/find';
 import size from 'lodash/size';
+import shortid from 'shortid';
 
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 
@@ -69,7 +70,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 iface_kind: 'fsm',
                 iface_id: interfaceId,
                 state_data: {
-                    id,
+                    id: newData.cid,
                     class_name: newData.action.value['class'],
                 },
             });
@@ -87,6 +88,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             handleDataUpdate('action', 'none');
             handleDataUpdate('input-type', null);
             handleDataUpdate('output-type', null);
+            handleDataUpdate('cid', undefined);
             handleDataUpdate('initial', false);
             handleDataUpdate('final', false);
             setActionType('none');
@@ -345,6 +347,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                                 name="action"
                                                 onChange={(_name, value) => {
                                                     handleDataUpdate('action', null);
+                                                    handleDataUpdate(
+                                                        'cid',
+                                                        value === 'connector' ? data.cid || shortid.generate() : null
+                                                    );
                                                     setActionType(value);
                                                 }}
                                                 value={actionType}
@@ -472,7 +478,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 >
                     <ConfigItemManager
                         type="fsm"
-                        stateData={{ id, class_name: newData.action?.value?.['class'] }}
+                        stateData={{ id: newData.cid, class_name: newData.action?.value?.['class'] }}
                         interfaceId={interfaceId}
                         disableAdding
                     />

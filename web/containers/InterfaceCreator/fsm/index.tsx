@@ -94,6 +94,7 @@ export interface IFSMState {
     desc: string;
     states?: IFSMStates;
     fsm?: string;
+    cid?: string;
 }
 
 export interface IFSMStates {
@@ -224,6 +225,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                             name: getStateName(item, id),
                             desc: '',
                             type: item.name,
+                            cid: item.stateType === 'connector' ? shortid.generate() : undefined,
                             states: item.name === 'block' ? {} : undefined,
                             action:
                                 item.name === 'state'
