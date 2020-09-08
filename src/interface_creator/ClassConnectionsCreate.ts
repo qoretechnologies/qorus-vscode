@@ -1,6 +1,7 @@
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
 import { triggers, stepTriggerSignatures } from './standard_methods';
+import { default_lang } from '../qorus_constants';
 
 // =================================================================
 
@@ -55,8 +56,13 @@ export class ClassConnectionsCreate {
 
     private triggers: any = {};
     private classes: any = {};
+    private import_java_api = false;
+    private classes_to_import_in_python = {
+        'qore': {},
+        'java': {}
+    };
 
-    constructor(data, code_info, lang = 'qore') {
+    constructor(data, code_info, lang = default_lang) {
         const {
             'class-connections': connections,
             iface_kind,
@@ -123,8 +129,6 @@ export class ClassConnectionsCreate {
             };
         };
 
-        let exists_qore_connector = false; // used only for java
-
         for (const connection in this.connections) {
             const connection_code_name = toValidIdentifier(connection);
             let connectors = [];
@@ -142,8 +146,11 @@ export class ClassConnectionsCreate {
 
                 let class_lang = 'qore';
                 if (this.lang !== 'qore') {
-                    class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || 'qore';
-                    exists_qore_connector = exists_qore_connector || (class_lang === 'qore');
+                    class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || default_lang;
+                    this.import_java_api = this.import_java_api || ['qore', 'python'].includes(class_lang);
+                    if (this.lang === 'python' && ['qore', 'java'].includes(class_lang)) {
+                        this.classes_to_import_in_python[class_lang][connector_class] = true;;
+                    }
                 }
                 this.classes[prefixed_class] = { connector_class, prefix, class_lang };
 
@@ -180,16 +187,33 @@ export class ClassConnectionsCreate {
             trigger_code,
             connections_within_class,
             connections_extra_class,
-            imports: this[`getImports${capitalize(this.lang)}`](exists_qore_connector)
+            imports: this[`getImports${capitalize(this.lang)}`]()
         };
     }
 
     private connClassName = () => `${CONN_CLASS}_${this.class_name}`;
 
     protected getImportsQore = () => [];
-    protected getImportsPython = () => [];
 
-    protected getImportsJava = (exists_qore_connector) => {
+    protected getImportsPython = () => {
+        // qore imports
+        let imports = Object.keys(this.classes_to_import_in_python.qore).map(qore_class =>
+                `from qore.__root__ import ${qore_class}`);
+
+        // add java imports
+        Object.keys(this.classes_to_import_in_python.java).forEach(java_class => {
+            const java_package = this.code_info.javaClassPackage(java_class);
+            const reversed_parts = java_package.split('.').reverse();
+            const [class_name, ...reversed_package_parts] = reversed_parts;
+            const jni_package = [ 'Jni', ...reversed_package_parts.reverse() ].join('.');
+            imports.push(`qoreloader.load_java('${java_package}')`);
+            imports.push(`from qore.__root__.${jni_package} import ${class_name}`);
+        });
+
+        return imports;
+    }
+
+    protected getImportsJava = () => {
         let imports = [
             'import org.qore.jni.QoreObject;',
             'import java.util.Map;',
@@ -197,7 +221,7 @@ export class ClassConnectionsCreate {
             'import java.lang.reflect.Method;'
         ];
 
-        if (exists_qore_connector) {
+        if (this.import_java_api) {
             imports.unshift('import org.qore.jni.QoreJavaApi;');
         }
 
@@ -362,34 +386,37 @@ export class ClassConnectionsCreate {
             code += ' {\n';
         }
 
-        const some_qore_class = Object.keys(this.classes)
-                                      .some(prefixed_class => this.classes[prefixed_class].class_lang === 'qore');
-
         code += `${indent1}// map of prefixed class names to class instances\n` +
             `${indent1}private final Hash ${CONN_CLASS_MAP.java};\n\n` +
             `${indent1}${this.connClassName()}() ${THROWS} {\n`;
 
-        if (some_qore_class) {
-            code += `${indent2}UserApi.startCapturingObjects();\n`;
-        }
-
         code += `${indent2}${CONN_CLASS_MAP.java} = new Hash();\n`;
+
+        const do_capturing = Object.keys(this.classes).some(prefixed_class =>
+                ['qore', 'python'].includes(this.classes[prefixed_class].class_lang));
+
+        if (do_capturing) {
+            code += `${indent2}UserApi.startCapturingObjects();\n` +
+                `${indent2}try {\n`;
+        }
 
         for (const prefixed_class in this.classes) {
             const class_data = this.classes[prefixed_class];
             const class_name = class_data.connector_class;
 
-            if (class_data.class_lang === 'qore') {
+            if (['qore', 'python'].includes(class_data.class_lang)) {
                 const prefix_arg = class_data.prefix ? `, "${class_data.prefix}"` : '';
-                code += `${indent2}${CONN_CLASS_MAP.java}.put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
+                code += `${indent3}${CONN_CLASS_MAP.java}.put("${class_name}", QoreJavaApi.newObjectSave("${class_name}${prefix_arg}"));\n`;
             } else {
                 const prefix_arg = class_data.prefix ? `"${class_data.prefix}"` : '';
                 code += `${indent2}${CONN_CLASS_MAP.java}.put("${prefixed_class}", new ${class_data.connector_class}(${prefix_arg}));\n`;
             }
         }
 
-        if (some_qore_class) {
-            code += `${indent2}UserApi.stopCapturingObjects();\n`;
+        if (do_capturing) {
+            code += `${indent2}} finally {\n` +
+                `${indent3}UserApi.stopCapturingObjects();\n` +
+                `${indent2}}\n`;
         }
 
         if (event_based_connections.length) {

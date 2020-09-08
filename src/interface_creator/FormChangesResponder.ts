@@ -1,4 +1,5 @@
 import { qorus_webview } from '../QorusWebview';
+import { default_lang } from '../qorus_constants';
 import { t } from 'ttag';
 
 
@@ -38,7 +39,7 @@ export class FormChangesResponder {
             });
         }
 
-        const orig_lang = interface_info.getData(iface_id)?.lang || 'qore';
+        const orig_lang = interface_info.getData(iface_id)?.lang || default_lang;
         if (orig_lang !== lang) {
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',

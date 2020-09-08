@@ -9,6 +9,7 @@ import { classTemplate, simple_method_template } from './common_constants';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
 import { ClassConnectionsEdit } from './ClassConnectionsEdit';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
+import { default_lang } from '../qorus_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -29,7 +30,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             request_id
         } = params;
 
-        this.lang = data.lang || 'qore';
+        this.lang = data.lang || default_lang;
 
         let suffix: string;
         let methods_key: string;
