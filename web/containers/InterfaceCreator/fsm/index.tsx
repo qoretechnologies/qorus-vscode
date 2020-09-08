@@ -42,6 +42,7 @@ export interface IFSMViewProps {
     embedded?: boolean;
     defaultStates?: IFSMStates;
     parentStateName?: string;
+    defaultInterfaceId?: string;
 }
 
 export interface IDraggableItem {
@@ -159,13 +160,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
     onStatesChange,
     onHideMetadataClick,
     isExternalMetadataHidden,
+    defaultInterfaceId,
 }) => {
     const t = useContext(TextContext);
     const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm, qorus_instance } = useContext(
         InitialContext
     );
     const { resetAllInterfaceData } = useContext(GlobalContext);
-    const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || shortid.generate());
+    const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || defaultInterfaceId || shortid.generate());
 
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);

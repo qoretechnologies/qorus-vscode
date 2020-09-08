@@ -405,6 +405,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     onHideMetadataClick={setIsMetadataHidden}
                                     defaultStates={newData.states}
                                     parentStateName={newData.name}
+                                    defaultInterfaceId={interfaceId}
                                     onStatesChange={(states) => {
                                         handleDataUpdate('states', states);
                                     }}
