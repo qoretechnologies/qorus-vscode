@@ -7,6 +7,7 @@ import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { simple_method_template } from './common_constants';
 import { triggers } from './standard_methods';
 import { sortRanges, capitalize } from '../qorus_utils';
+import { default_lang } from '../qorus_constants';
 
 
 export class ClassConnectionsEdit {
@@ -49,7 +50,7 @@ export class ClassConnectionsEdit {
             'class-connections': orig_data?.['class-connections']
         };
 
-        this.lang = data.lang || 'qore';
+        this.lang = data.lang || default_lang;
 
         const setFileInfo = async (params = data) => {
             return await edit_info.setFileInfo(file, params);

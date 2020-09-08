@@ -14,7 +14,7 @@ import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
 import { QorusProjectEditInfo} from './QorusProjectEditInfo';
 import * as msg from './qorus_message';
 import { types_with_version, root_steps, root_service, root_job, root_workflow,
-         all_root_classes, root_processor} from './qorus_constants';
+         all_root_classes, root_processor, lang_inheritance, default_lang} from './qorus_constants';
 import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
 import { config_filename, QorusProject } from './QorusProject';
 import { qorus_request } from './QorusRequest';
@@ -41,6 +41,7 @@ export class QorusProjectCodeInfo {
     private modules: string[] = [];
     private source_directories = [];
     private mapper_types: any[] = [];
+    private java_class_2_package = {};
 
     private all_files_watcher: vscode.FileSystemWatcher;
     private yaml_files_watcher: vscode.FileSystemWatcher;
@@ -179,6 +180,38 @@ export class QorusProjectCodeInfo {
                 methods
             });
         });
+    }
+
+    javaClassPackage = class_name => {
+        if (this.java_class_2_package[class_name]) {
+            return this.java_class_2_package[class_name];
+        }
+
+        const yaml_data = this.yaml_info.yamlDataByClass('class', class_name) || {};
+
+        const {target_dir, target_file} = yaml_data;
+        if (!target_dir || !target_file) {
+            return class_name;
+        }
+
+        const file_path = path.join(target_dir, target_file);
+        if (!fs.existsSync(file_path)) {
+            return class_name;
+        }
+
+        const file_contents = fs.readFileSync(path.join(target_dir, target_file)).toString() || '';
+        const file_lines = file_contents.split(/\r?\n/);
+
+        for (const line of file_lines) {
+            const match_result = line.match(/^package\s+(\S+);/);
+            if (match_result) {
+                return match_result[1];
+            } else if (line.match(/\S/)) {
+                break;
+            }
+        }
+
+        return class_name;
     }
 
     getObjectsWithStaticData = ({iface_kind}) => {
@@ -544,7 +577,8 @@ export class QorusProjectCodeInfo {
     }
 
     getObjects = params => {
-        const {object_type, lang, iface_kind, class_name, custom_data } = params;
+        const {object_type, iface_kind, class_name, custom_data } = params;
+        const lang = params.lang || default_lang; // null comes from the frontend
 
         const maybeSortObjects = (objects: any): any => {
             // For now, only arrays will be sorted
@@ -635,7 +669,7 @@ export class QorusProjectCodeInfo {
 
                     let result = this.addDescToClasses(step_classes, root_steps);
                     if (iface_kind === 'step' && class_name) {
-                        result = result.filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                        result = result.filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name, lang));
                     }
 
                     postMessage('objects', result);
@@ -645,14 +679,16 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['yaml']).then(() => {
                     const classes = this.yaml_info.yamlDataByType('class');
 
-                    let user_classes = Object.keys(classes).map(key => ({
+                    let user_classes = Object.keys(classes).filter(key =>
+                        lang_inheritance[lang].includes(classes[key].lang || default_lang)
+                    ).map(key => ({
                         name: key,
                         desc: classes[key].desc
                     }));
 
                     if (iface_kind === 'class' && class_name) {
                         user_classes = user_classes
-                            .filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name));
+                            .filter(({name}) => !this.yaml_info.isDescendantOrSelf(class_name, name, lang));
                     }
 
                     const qorus_root_classes = this.addDescToClasses(all_root_classes, all_root_classes);

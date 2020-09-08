@@ -23,3 +23,13 @@ export const classToPythonModule = (class_name: string): string | undefined => {
         default: return root_steps.includes(class_name) ? 'wf' : undefined;
     }
 };
+
+export const lang_inheritance = {
+    qore: [ 'qore', 'python', 'java' ],
+    python: [ 'qore', 'python', 'java' ],
+    java: [ 'java' ],
+};
+
+export const supported_langs = Object.keys(lang_inheritance);
+
+export const default_lang = 'qore';

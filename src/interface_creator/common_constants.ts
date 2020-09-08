@@ -1,4 +1,4 @@
-import { classToPythonModule } from '../qorus_constants';
+import { classToPythonModule, default_lang } from '../qorus_constants';
 
 export const default_parse_options = {
     qore:
@@ -239,7 +239,7 @@ export const field = {
                 icon_filename: 'java-96x128.png',
             },
         ],
-        default_value: 'qore',
+        default_value: default_lang,
         on_change: 'lang-changed',
     },
     constants: {
