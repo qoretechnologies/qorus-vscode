@@ -679,7 +679,7 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['yaml']).then(() => {
                     const classes = this.yaml_info.yamlDataByType('class');
 
-                    let user_classes = Object.keys(classes).filter(key => 
+                    let user_classes = Object.keys(classes).filter(key =>
                         lang_inheritance[lang].includes(classes[key].lang || default_lang)
                     ).map(key => ({
                         name: key,
