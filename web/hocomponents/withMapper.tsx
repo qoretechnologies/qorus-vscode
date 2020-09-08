@@ -1,4 +1,6 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, {
+    FunctionComponent, useEffect, useState
+} from 'react';
 
 import { forEach, get, reduce, set, size, unset } from 'lodash';
 import compose from 'recompose/compose';
@@ -260,6 +262,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 const outputs = await props.fetchData(outputUrl);
                 // If one of the connections is down
                 if (outputs.error) {
+                    console.log(outputs);
                     setError(outputs.error && 'OutputConnError');
                     return;
                 }
