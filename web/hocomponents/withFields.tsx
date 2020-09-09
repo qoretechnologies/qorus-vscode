@@ -1,4 +1,6 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, {
+    FunctionComponent, useState
+} from 'react';
 
 import { every, reduce } from 'lodash';
 import { isArray } from 'util';
@@ -139,7 +141,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setAsDraft: (type: string) => void = (type) => {
-            if (!props.unfinishedWork[type]) {
+            if (!props.unfinishedWork?.[type]) {
                 props.setUnfinishedWork((current) => {
                     const newResult = { ...current };
                     // Set the interface id to null

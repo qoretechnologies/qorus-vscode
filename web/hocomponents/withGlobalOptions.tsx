@@ -1,16 +1,17 @@
-import React, { useState, useContext } from 'react';
-import { GlobalContext } from '../context/global';
+import React, {
+    useContext, useState
+} from 'react';
+
 import compose from 'recompose/compose';
-import withStepsConsumer from './withStepsConsumer';
+
+import { GlobalContext } from '../context/global';
+import { InitialContext } from '../context/init';
 import withFieldsConsumer from './withFieldsConsumer';
-import withMethodsConsumer from './withMethodsConsumer';
 import withFunctionsConsumer from './withFunctionsConsumer';
 import withMapperConsumer from './withMapperConsumer';
-import useMount from 'react-use/lib/useMount';
-import { Messages } from '../constants/messages';
 import withMessageHandler from './withMessageHandler';
-import { InitialContext } from '../context/init';
-import shortid from 'shortid';
+import withMethodsConsumer from './withMethodsConsumer';
+import withStepsConsumer from './withStepsConsumer';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: any): any => {
@@ -19,31 +20,6 @@ export default () => (Component: any): any => {
         const [fsmReset, setFsmReset] = useState(null);
         const [pipelineReset, setPipelineReset] = useState(null);
         const initialData = useContext(InitialContext);
-
-        useMount(() => {
-            const recreateListener = props.addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (dt) => {
-                initialData.confirmAction(
-                    dt.message,
-                    () => {
-                        props.resetInterfaceData(dt.iface_kind);
-                        props.setInterfaceId(dt.iface_kind, shortid.generate());
-                    },
-                    'Recreate',
-                    undefined,
-                    () => {
-                        if (dt.orig_lang) {
-                            props.updateField(dt.iface_kind, 'lang', dt.orig_lang, dt.iface_id);
-                        } else {
-                            handleInterfaceReset(dt.iface_kind);
-                        }
-                    }
-                );
-            });
-
-            return () => {
-                recreateListener();
-            };
-        });
 
         const handleInterfaceReset: (type: string, soft?: boolean) => void = (type, soft) => {
             // Reset the initial data
