@@ -233,13 +233,15 @@ class QorusWebview {
                             break;
                         case 'get-initial-data':
                             this.postInitialData();
-                            this.checkError(project.code_info.edit_info);
                             break;
                         case 'creator-create-interface':
                             creator.editInterface({ ...message, edit_type: 'create', interface_info });
                             break;
                         case 'creator-edit-interface':
                             creator.editInterface({ ...message, edit_type: 'edit', interface_info });
+                            break;
+                        case 'check-edit-data':
+                            this.checkError(project.code_info.edit_info);
                             break;
                         case 'creator-field-added':
                             FormChangesResponder.fieldAdded(message);
