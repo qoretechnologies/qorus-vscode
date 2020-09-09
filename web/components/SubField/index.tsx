@@ -1,6 +1,9 @@
 import React from 'react';
+
+import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-import { Icon, Button } from '@blueprintjs/core';
+
+import { Button, Icon } from '@blueprintjs/core';
 
 export interface ISubFieldProps {
     title?: string;
@@ -43,7 +46,10 @@ const SubField: React.FC<ISubFieldProps> = ({ title, desc, children, onRemove })
         )}
         {desc && (
             <StyledSubFieldDesc>
-                <Icon icon="info-sign" iconSize={12.5} /> {desc}
+                <Icon icon="info-sign" iconSize={12.5} style={{ display: 'inline-block' }} />{' '}
+                <div style={{ display: 'inline-block' }}>
+                    <ReactMarkdown source={desc} />
+                </div>
             </StyledSubFieldDesc>
         )}
         {children}
