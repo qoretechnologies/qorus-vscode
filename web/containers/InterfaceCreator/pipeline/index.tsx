@@ -25,7 +25,6 @@ import { ContextMenuContext } from '../../../context/contextMenu';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { rebuildOptions } from '../../../helpers/mapper';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
@@ -289,7 +288,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 orig_data: pipeline,
                 data: {
                     ...metadata,
-                    'input-provider-options': rebuildOptions(metadata['input-provider-options']),
+                    'input-provider-options': metadata['input-provider-options'],
                     children: elements[0].children,
                 },
             },
