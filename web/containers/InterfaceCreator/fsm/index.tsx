@@ -1,6 +1,4 @@
-import React, {
-    useContext, useEffect, useRef, useState
-} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -69,10 +67,6 @@ export interface IFSMMetadata {
     desc: string;
     target_dir: string;
     groups?: any[];
-    fsm_options?: {
-        'action-strategy': 'one' | 'all';
-        'max-thread-count': number;
-    };
 }
 
 export interface IFSMState {
@@ -180,10 +174,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
         name: fsm?.name || null,
         desc: fsm?.desc || null,
         groups: fsm?.groups || [],
-        fsm_options: fsm?.fsm_options || {
-            'action-strategy': 'one',
-            'max-thread-count': 1,
-        },
     });
     const [selectedState, setSelectedState] = useState<string | null>(null);
     const [editingState, setEditingState] = useState<string | null>(null);
@@ -537,7 +527,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
             desc: fsm?.desc,
             target_dir: fsm?.target_dir,
             groups: fsm?.groups || [],
-            fsm_options: fsm?.options || { 'action-strategy': 'one', 'max-thread-count': 1 },
         });
     };
 
