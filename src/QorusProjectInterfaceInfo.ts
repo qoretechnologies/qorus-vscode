@@ -140,12 +140,15 @@ export class QorusProjectInterfaceInfo {
                             addStateData(state.states);
                             break;
                         case 'state':
-                            this.maybeInitSpecificDataId(iface_id, state_id);
+                            if (!state.cid) {
+                                break;
+                            }
+                            this.maybeInitSpecificDataId(iface_id, state.cid);
                             if (state.cid && state?.action?.value?.class) {
-                                this.iface_by_id[iface_id].specific_data[state_id].class_name = state.action.value.class;
+                                this.iface_by_id[iface_id].specific_data[state.cid].class_name = state.action.value.class;
                             }
                             if (state['config-items']?.length) {
-                                this.iface_by_id[iface_id].specific_data[state_id]['config-items'] = state['config-items'];
+                                this.iface_by_id[iface_id].specific_data[state.cid]['config-items'] = state['config-items'];
                             }
                             break;
                     }
