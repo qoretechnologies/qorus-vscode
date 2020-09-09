@@ -229,6 +229,7 @@ const Tab: React.FC<ITabProps> = ({
                 message,
                 () => {
                     initialData.resetInterfaceData(iface_kind);
+                    initialData.changeInitialData('isRecreate', true);
                     setInterfaceId(iface_kind, shortid.generate());
                     setRecreateDialog(null);
                 },

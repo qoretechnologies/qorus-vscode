@@ -220,6 +220,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 props.postMessage(getMessage, {
                     request_id: uniqueId,
                     ...data,
+                    recreate: initialData.isRecreate,
                 });
             });
         };
