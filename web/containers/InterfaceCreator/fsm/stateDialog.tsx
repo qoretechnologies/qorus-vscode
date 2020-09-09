@@ -70,7 +70,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 iface_kind: 'fsm',
                 iface_id: interfaceId,
                 state_data: {
-                    id: newData.cid,
+                    id: newData.id,
                     class_name: newData.action.value['class'],
                 },
             });
@@ -88,7 +88,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             handleDataUpdate('action', 'none');
             handleDataUpdate('input-type', null);
             handleDataUpdate('output-type', null);
-            handleDataUpdate('cid', undefined);
+            handleDataUpdate('id', undefined);
             handleDataUpdate('initial', false);
             handleDataUpdate('final', false);
             setActionType('none');
@@ -347,10 +347,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                                 name="action"
                                                 onChange={(_name, value) => {
                                                     handleDataUpdate('action', null);
-                                                    handleDataUpdate(
-                                                        'cid',
-                                                        value === 'connector' ? data.cid || shortid.generate() : null
-                                                    );
+                                                    handleDataUpdate('id', data.id || shortid.generate());
                                                     setActionType(value);
                                                 }}
                                                 value={actionType}
@@ -479,7 +476,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 >
                     <ConfigItemManager
                         type="fsm"
-                        stateData={{ id: newData.cid, class_name: newData.action?.value?.['class'] }}
+                        stateData={{ id: newData.id, class_name: newData.action?.value?.['class'] }}
                         interfaceId={interfaceId}
                         disableAdding
                     />
