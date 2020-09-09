@@ -854,8 +854,8 @@ export abstract class InterfaceCreator {
                             delete cloned_state.states;
                             result += `${indent.repeat(indent_level + 1)}'${id}':\n` +
                                 InterfaceCreator.indentYamlDump(cloned_state, indent_level + 2, true);
-                            if (state.cid && iface_data?.specific_data?.[state.cid]?.['config-items']?.length) {
-                                result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[state.cid]['config-items'], indent_level + 2);
+                            if (state.id && iface_data?.specific_data?.[state.id]?.['config-items']?.length) {
+                                result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[state.id]['config-items'], indent_level + 2);
                             }
                             dumpStates(state.states, indent_level + 2);
                         };
