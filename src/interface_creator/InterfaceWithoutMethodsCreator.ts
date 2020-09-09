@@ -26,7 +26,8 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             iface_kind,
             open_file_on_success,
             no_data_return,
-            request_id
+            request_id,
+            recreate
         } = params;
 
         this.lang = data.lang || default_lang;

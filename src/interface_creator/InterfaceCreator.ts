@@ -258,9 +258,10 @@ export abstract class InterfaceCreator {
             edit_type,
             data: { name, version, type, 'class-name': class_name },
             orig_data,
+            recreate
         } = params;
 
-        if (!['create', 'edit'].includes(edit_type)) {
+        if (recreate || !['create', 'edit'].includes(edit_type)) {
             return { ok: true };
         }
 
