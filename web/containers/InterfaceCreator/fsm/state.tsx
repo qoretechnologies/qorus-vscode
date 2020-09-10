@@ -1,15 +1,20 @@
-import React, { useContext, useState } from 'react';
+import React, {
+    useContext, useState
+} from 'react';
 
+import size from 'lodash/size';
 import { useDrag } from 'react-dnd';
-import styled, { css, keyframes } from 'styled-components';
+import styled, {
+    css, keyframes
+} from 'styled-components';
 
 import { Button, ButtonGroup } from '@blueprintjs/core';
 
 import { ContextMenuContext } from '../../../context/contextMenu';
+import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { IFSMState, STATE_ITEM_TYPE } from './';
 import { getStateStyle } from './toolbarItem';
-import { InitialContext } from '../../../context/init';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
@@ -108,7 +113,8 @@ const StyledStateAction = styled.p`
     padding: 0;
     margin: 0;
     color: #a9a9a9;
-    font-size: 12px;
+    font-size: 11px;
+    text-align: center;
 `;
 
 export const calculateFontSize = (name, isAction?: boolean) => {
@@ -119,7 +125,7 @@ export const calculateFontSize = (name, isAction?: boolean) => {
     const len = name.length;
 
     if (len > 20) {
-        return isAction ? '10px' : '12px';
+        return isAction ? '8px' : '12px';
     }
 
     return undefined;
@@ -143,6 +149,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     selectedState,
     getTransitionByState,
     toggleDragging,
+    ...rest
 }) => {
     const [, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
@@ -168,6 +175,24 @@ const FSMState: React.FC<IFSMStateProps> = ({
     const handleMouseLeave = () => {
         setIsHovered(false);
         toggleDragging(true);
+    };
+
+    const getType = () => {
+        if (type === 'block') {
+            return `${rest['block-type'] || 'for'} block (${size(rest.states)})`;
+        }
+
+        if (type === 'fsm') {
+            return `${rest.fsm} fsm`;
+        }
+
+        if (!action || !action.type || !action.value) {
+            return '';
+        }
+
+        return `${action.value.class ? `${action.value.class}:${action.value.connector}` : action.value} ${
+            action.type
+        }`;
     };
 
     return (
@@ -244,9 +269,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             }}
         >
             <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
-            <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
-                {type === 'block' ? t('block') : action?.type || ''}
-            </StyledStateAction>
+            <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>{getType()}</StyledStateAction>
             {isHovered && (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
                     <Button
