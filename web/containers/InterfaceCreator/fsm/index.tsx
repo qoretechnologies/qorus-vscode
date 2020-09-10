@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+    useContext, useEffect, useRef, useState
+} from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -149,7 +151,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
     interfaceContext,
     postMessage,
     embedded,
-    defaultStates,
+    states,
+    setStates,
     parentStateName,
     onStatesChange,
     onHideMetadataClick,
@@ -168,7 +171,13 @@ const FSMView: React.FC<IFSMViewProps> = ({
     const currentXPan = useRef<number>();
     const currentYPan = useRef<number>();
 
-    const [states, setStates] = useState<IFSMStates>(cloneDeep(embedded ? defaultStates : fsm?.states || {}));
+    if (!embedded) {
+        const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
+
+        states = st;
+        setStates = setSt;
+    }
+
     const [metadata, setMetadata] = useState<IFSMMetadata>({
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,

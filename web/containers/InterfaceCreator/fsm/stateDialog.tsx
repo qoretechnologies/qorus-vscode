@@ -400,7 +400,14 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     embedded
                                     isExternalMetadataHidden={isMetadataHidden}
                                     onHideMetadataClick={setIsMetadataHidden}
-                                    defaultStates={newData.states}
+                                    states={newData.states}
+                                    setStates={(func) => {
+                                        if (typeof func === 'function') {
+                                            handleDataUpdate('states', func(newData.states));
+                                        } else {
+                                            handleDataUpdate('states', func);
+                                        }
+                                    }}
                                     parentStateName={newData.name}
                                     defaultInterfaceId={interfaceId}
                                     onStatesChange={(states) => {

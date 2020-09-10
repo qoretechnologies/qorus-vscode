@@ -41,7 +41,7 @@ export const fixOptions = (value, options) => {
 const Options = ({ name, value, onChange, url, ...rest }) => {
     const t = useContext(TextContext);
     const [options, setOptions] = useState({});
-    const [selectedOptions, setSelectedOptions] = useState(null);
+    //const [selectedOptions, setSelectedOptions] = useState(null);
     const { fetchData, confirmAction, qorus_instance } = useContext(InitialContext);
     const [error, setError] = useState<string>(null);
 
@@ -56,8 +56,6 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                     setError(data.error.error);
                     return;
                 }
-                // Fix the value for backwards compatibility
-                setSelectedOptions(fixOptions(value, data.data));
                 onChange(name, fixOptions(value, data.data));
                 // Save the new options
                 setOptions(data.data);
@@ -70,7 +68,6 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
             (async () => {
                 setOptions(null);
                 setError(null);
-                setSelectedOptions(null);
                 removeValue();
                 // Fetch the options for this mapper type
                 const data = await fetchData(`/options/${url}`);
@@ -80,7 +77,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
         }
     }, [url, qorus_instance]);
 
-    const handleValueChange = (optionName: string, val: any, type: string) => {
+    const handleValueChange = (optionName: string, val?: any, type?: string) => {
         onChange(name, {
             ...value,
             [optionName]: {
@@ -95,20 +92,13 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
     };
 
     const addSelectedOption = (optionName: string) => {
-        setSelectedOptions((current) => ({
-            ...current,
-            [optionName]: options[optionName],
-        }));
+        handleValueChange(optionName, null, options[optionName].type);
     };
 
     const removeSelectedOption = (optionName: string) => {
-        setSelectedOptions((current) => {
-            const result = { ...current };
+        delete value[optionName];
 
-            delete result[optionName];
-
-            return result;
-        });
+        onChange(name, value);
     };
 
     if (!qorus_instance) {
@@ -131,7 +121,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
     const filteredOptions = reduce(
         options,
         (newOptions, option, name) => {
-            if (selectedOptions && selectedOptions[name]) {
+            if (value && value[name]) {
                 return newOptions;
             }
 
@@ -157,7 +147,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
 
     return (
         <>
-            {map(selectedOptions, ({ type, ...rest }, optionName) =>
+            {map(fixOptions(value, options), ({ type, ...rest }, optionName) =>
                 !!options[optionName] ? (
                     <SubField
                         title={rest.name || optionName}
@@ -175,7 +165,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                     </SubField>
                 ) : null
             )}
-            {size(selectedOptions) === 0 && (
+            {size(value) === 0 && (
                 <p className={Classes.TEXT_MUTED}>
                     <Icon icon="info-sign" /> {t('NoOptionsSelected')}
                 </p>
