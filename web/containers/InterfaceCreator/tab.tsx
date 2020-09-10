@@ -1,4 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, {
+    useContext, useState
+} from 'react';
 
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -11,6 +13,7 @@ import Tutorial from '../../components/Tutorial';
 import { TextContext } from '../../context/text';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import { postMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
 export interface ITabProps {
@@ -192,6 +195,21 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
     const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
+    const getFilePath = () => {
+        if (isEditing()) {
+            const ext = initialData[type].target_file.split('.').pop();
+
+            if (ext === 'yaml') {
+                return null;
+            }
+
+            return `${initialData[type].target_dir}/${initialData[type].target_file}`;
+        }
+
+        return null;
+    };
+
+    console.log(initialData[type]);
 
     return (
         <StyledTab>
@@ -225,8 +243,31 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                                     resetAllInterfaceData(type);
                                 }}
                             />
-                            <Button icon="document-share" text="View File" />
-                            <Button icon="trash" text="Delete" intent="danger" />
+                            {getFilePath() && (
+                                <Button
+                                    icon="document-share"
+                                    text="View File"
+                                    onClick={() => {
+                                        postMessage('open-file', {
+                                            file_path: getFilePath(),
+                                        });
+                                    }}
+                                />
+                            )}
+                            <Button
+                                icon="trash"
+                                text="Delete"
+                                intent="danger"
+                                onClick={() => {
+                                    initialData.confirmAction('ConfirmDeleteInterface', () => {
+                                        postMessage('delete-interface', {
+                                            iface_kind: type,
+                                            name: getName(),
+                                        });
+                                        resetAllInterfaceData(type);
+                                    });
+                                }}
+                            />
                         </>
                     )}
                 </ButtonGroup>

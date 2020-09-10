@@ -1005,18 +1005,8 @@ export class QorusProjectCodeInfo {
     }
 
     deleteInterfaceFromWebview = ({iface_kind, name}) => {
-        vscode.window.showWarningMessage(
-            t`ConfirmDeleteInterface ${iface_kind} ${name}`, t`Yes`, t`No`
-        ).then(
-            selection => {
-                if (selection !== t`Yes`) {
-                    return;
-                }
-
-                const iface_data = this.yaml_info.yamlDataByName(iface_kind, name);
-                QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
-            }
-        );
+        const iface_data = this.yaml_info.yamlDataByName(iface_kind, name);
+        QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
     }
 
     static deleteInterface = ({iface_kind, iface_data}) => {
