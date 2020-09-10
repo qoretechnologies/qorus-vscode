@@ -379,7 +379,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         setElements((cur) => {
             let result = [...cur];
 
-            set(result, elementData.path, undefined);
+            set(result, elementData.nodeData.path, undefined);
 
             result = filterRemovedElements(result);
             result = transformNodeData(result, '');
@@ -517,10 +517,14 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         orientation="vertical"
                         pathFunc="straight"
                         translate={{ x: wrapperRef.current.getBoundingClientRect().width / 2, y: 100 }}
-                        nodeSize={{ x: 250, y: 250 }}
+                        nodeSize={{ x: 220, y: 110 }}
                         transitionDuration={0}
                         textLayout={{
                             textAnchor: 'middle',
+                        }}
+                        separation={{
+                            siblings: 1,
+                            nonSiblings: 1,
                         }}
                         allowForeignObjects
                         nodeLabelComponent={{
