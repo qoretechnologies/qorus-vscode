@@ -1069,6 +1069,12 @@ msgstr "Version string for the interface object"
 msgid "field-label-for"
 msgstr "for"
 
+msgid "field-label-true"
+msgstr "True"
+
+msgid "field-label-false"
+msgstr "False"
+
 msgid "field-label-foreach"
 msgstr "foreach"
 
@@ -2334,6 +2340,9 @@ msgstr "Input type"
 msgid "OutputType"
 msgstr "Output type"
 
+msgid "InputOutputType"
+msgstr "Input & output type"
+
 msgid "TransitionErrorsNoInstance"
 msgstr "Active Qorus instance is required to display list of server errors"
 
@@ -2438,6 +2447,9 @@ msgstr "Toggle toolbar"
 
 msgid "Recenter"
 msgstr "Recenter diagram"
+
+msgid "Branch"
+msgstr "Branch"
 
 msgid "EditingTransitionOrder"
 msgstr "Edit transitions order"

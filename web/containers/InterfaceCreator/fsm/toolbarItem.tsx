@@ -11,7 +11,7 @@ export interface IFSMToolbarItemProps {
     disabled?: boolean;
 }
 
-export const getStateStyle = (type) => {
+export const getStateStyle = (type, toolbar?: boolean) => {
     switch (type) {
         case 'connector':
             return css`
@@ -37,6 +37,24 @@ export const getStateStyle = (type) => {
                 border-radius: 10px;
                 background: repeating-linear-gradient(-45deg, #fff, #fff 10px, #f3f3f3 10px, #f3f3f3 20px);
             `;
+        case 'if':
+            if (toolbar) {
+                return null;
+            }
+
+            return css`
+                transform: rotateZ(45deg);
+                span,
+                p {
+                    &:first-child {
+                        margin-right: 10px;
+                    }
+                    &:last-of-type {
+                        margin-left: 15px;
+                    }
+                    transform: rotateZ(-45deg);
+                }
+            `;
         default:
             return null;
     }
@@ -53,7 +71,12 @@ const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
     align-items: center;
     font-weight: 500;
 
-    ${({ type }) => getStateStyle(type)}
+    ${({ type }) => getStateStyle(type, true)}
+    ${({ type }) =>
+        type === 'if' &&
+        css`
+            width: 50px;
+        `}
 
     &:not(.disabled) {
         &:hover {
@@ -74,7 +97,12 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({ children, count, name,
     });
 
     return (
-        <StyledToolbarItem ref={!disabled ? drag : undefined} type={type} className={disabled ? 'disabled' : undefined}>
+        <StyledToolbarItem
+            ref={!disabled ? drag : undefined}
+            type={type}
+            toolbar
+            className={disabled ? 'disabled' : undefined}
+        >
             <span>
                 {children} {count ? `(${count}) ` : ''}
             </span>

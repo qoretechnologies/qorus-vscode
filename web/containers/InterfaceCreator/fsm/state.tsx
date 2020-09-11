@@ -1,19 +1,15 @@
-import React, {
-    useContext, useState
-} from 'react';
+import React, { useContext, useState } from 'react';
 
 import size from 'lodash/size';
 import { useDrag } from 'react-dnd';
-import styled, {
-    css, keyframes
-} from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 import { Button, ButtonGroup } from '@blueprintjs/core';
 
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { IFSMState, STATE_ITEM_TYPE } from './';
+import { IFSMState, STATE_ITEM_TYPE, IF_STATE_SIZE, STATE_HEIGHT, STATE_WIDTH } from './';
 import { getStateStyle } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
@@ -37,21 +33,21 @@ export interface IFSMStateStyleProps {
     selected: boolean;
     initial: boolean;
     final: boolean;
-    type: 'mapper' | 'connector' | 'pipeline' | 'fsm';
+    type: 'mapper' | 'connector' | 'pipeline' | 'fsm' | 'block' | 'if';
     isAvailableForTransition: boolean;
 }
 
 const wiggleAnimation = (type) => keyframes`
     0% {
-        transform: rotate(-2deg) ${type === 'connector' ? 'skew(15deg)' : ''};
+        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${type === 'connector' ? 'skew(15deg)' : ''};
     }
 
     50% {
-        transform: rotate(2deg) ${type === 'connector' ? 'skew(15deg)' : ''};
+        transform: ${type === 'if' ? 'rotate(47deg)' : 'rotate(2deg)'} ${type === 'connector' ? 'skew(15deg)' : ''};
     }
 
     100% {
-        transform: rotate(-2deg) ${type === 'connector' ? 'skew(15deg)' : ''};
+        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${type === 'connector' ? 'skew(15deg)' : ''};
     }
 `;
 
@@ -59,8 +55,8 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     left: ${({ x }) => `${x}px`};
     top: ${({ y }) => `${y}px`};
     position: absolute;
-    width: 180px;
-    height: 50px;
+    width: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_WIDTH)}px;
+    height: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_HEIGHT)}px;
     background-color: #fff;
     z-index: 20;
     border: 1px solid;
@@ -186,6 +182,10 @@ const FSMState: React.FC<IFSMStateProps> = ({
             return `${rest.fsm} fsm`;
         }
 
+        if (type === 'if') {
+            return `if statement`;
+        }
+
         if (!action || !action.type || !action.value) {
             return '';
         }
@@ -209,7 +209,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             initial={initial}
             final={final}
             isAvailableForTransition={selectedState ? !getTransitionByState(selectedState, id) : false}
-            type={type === 'fsm' ? 'fsm' : type === 'block' ? 'block' : action?.type}
+            type={action?.type || type}
             onContextMenu={(event) => {
                 event.persist();
                 addMenu({

@@ -1,6 +1,4 @@
-import React, {
-    useContext, useEffect, useState
-} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import find from 'lodash/find';
 import size from 'lodash/size';
@@ -26,10 +24,9 @@ import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMess
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageConfigItemsButton from '../../ConfigItemManager/manageButton';
 import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
-import FSMView, {
-    IFSMState, IFSMStates
-} from './';
+import FSMView, { IFSMState, IFSMStates } from './';
 import ConnectorSelector from './connectorSelector';
+import { ConditionField, isConditionValid } from './transitionDialog';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -100,9 +97,18 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
     const isDataValid: () => boolean = () => {
         if (newData.type === 'block') {
-            return isNameValid(newData.name) && blockLogicType === 'custom'
-                ? size(newData.states)
-                : validateField('string', newData.fsm);
+            return (
+                isNameValid(newData.name) &&
+                (blockLogicType === 'custom' ? size(newData.states) : validateField('string', newData.fsm))
+            );
+        }
+
+        if (newData.type === 'if') {
+            return (
+                isNameValid(newData.name) &&
+                isConditionValid(newData) &&
+                (!newData['input-output-type'] || validateField('type-selector', newData['input-output-type']))
+            );
         }
 
         return (
@@ -293,6 +299,18 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     )}
                                 </FieldInputWrapper>
                             </FieldWrapper>
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('Initial')} isValid />
+                                <FieldInputWrapper>
+                                    <BooleanField name="initial" onChange={handleDataUpdate} value={newData.initial} />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('Final')} isValid info={t('Optional')} />
+                                <FieldInputWrapper>
+                                    <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
+                                </FieldInputWrapper>
+                            </FieldWrapper>
                             {newData.type === 'block' && blockLogicType === 'fsm' ? (
                                 <FieldWrapper padded>
                                     <FieldLabel label={t('FSM')} isValid={validateField('string', newData?.fsm)} />
@@ -316,26 +334,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                             ) : null}
                             {newData.type === 'state' && (
                                 <>
-                                    <FieldWrapper padded>
-                                        <FieldLabel label={t('Initial')} isValid />
-                                        <FieldInputWrapper>
-                                            <BooleanField
-                                                name="initial"
-                                                onChange={handleDataUpdate}
-                                                value={newData.initial}
-                                            />
-                                        </FieldInputWrapper>
-                                    </FieldWrapper>
-                                    <FieldWrapper padded>
-                                        <FieldLabel label={t('Final')} isValid info={t('Optional')} />
-                                        <FieldInputWrapper>
-                                            <BooleanField
-                                                name="final"
-                                                onChange={handleDataUpdate}
-                                                value={newData.final}
-                                            />
-                                        </FieldInputWrapper>
-                                    </FieldWrapper>
                                     <FieldWrapper padded>
                                         <FieldLabel
                                             label={t('Action')}
@@ -367,7 +365,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     </FieldWrapper>
                                 </>
                             )}
-                            {newData.type !== 'fsm' && (
+                            {newData.type !== 'fsm' && newData.type !== 'if' ? (
                                 <>
                                     <FieldWrapper padded>
                                         <FieldLabel label={t('InputType')} isValid info={t('Optional')} />
@@ -388,6 +386,22 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                                 isInitialEditing={data['output-type']}
                                                 onChange={handleDataUpdate}
                                                 value={newData['output-type']}
+                                            />
+                                        </FieldInputWrapper>
+                                    </FieldWrapper>
+                                </>
+                            ) : null}
+                            {newData.type === 'if' && (
+                                <>
+                                    <ConditionField onChange={handleDataUpdate} data={newData} required />
+                                    <FieldWrapper padded>
+                                        <FieldLabel label={t('InputOutputType')} isValid info={t('Optional')} />
+                                        <FieldInputWrapper>
+                                            <Connectors
+                                                name="input-output-type"
+                                                isInitialEditing={data['input-output-type']}
+                                                onChange={handleDataUpdate}
+                                                value={newData['input-output-type']}
                                             />
                                         </FieldInputWrapper>
                                     </FieldWrapper>

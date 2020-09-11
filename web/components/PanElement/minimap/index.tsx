@@ -5,6 +5,7 @@ import useMount from 'react-use/lib/useMount';
 import ResizeObserver from 'resize-observer-polyfill';
 import styled, { css } from 'styled-components';
 import { getStateStyle } from '../../../containers/InterfaceCreator/fsm/toolbarItem';
+import { IF_STATE_SIZE, STATE_WIDTH, STATE_HEIGHT } from '../../../containers/InterfaceCreator/fsm';
 
 const StyledMinimapWrapper = styled.div<{ show: boolean }>`
     width: 200px;
@@ -16,11 +17,11 @@ const StyledMinimapWrapper = styled.div<{ show: boolean }>`
 `;
 
 const StyledMinimapItem = styled.div<{ top: number; left: number; type: string }>`
-    ${({ top, left }) => css`
+    ${({ top, left, type }) => css`
         left: ${left / 10}px;
         top: ${top / 10}px;
-        width: 18px;
-        height: 5px;
+        width: ${(type === 'if' ? IF_STATE_SIZE : STATE_WIDTH) / 10}px;
+        height: ${(type === 'if' ? IF_STATE_SIZE : STATE_HEIGHT) / 10}px;
         border: 1px solid #a9a9a9;
         position: absolute;
     `}

@@ -1,6 +1,4 @@
-import React, {
-    useContext, useEffect, useRef, useState
-} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
@@ -47,7 +45,7 @@ export interface IFSMViewProps {
 
 export interface IDraggableItem {
     type: 'toolbar-item' | 'state';
-    name: 'fsm' | 'state' | 'block';
+    name: 'fsm' | 'state' | 'block' | 'if';
     id?: number;
     stateType?: TAction;
 }
@@ -60,6 +58,7 @@ export interface IFSMTransition {
     };
     language: string;
     errors?: string[];
+    branch?: 'true' | 'false';
 }
 
 export type TTrigger = { class?: string; connector?: string; method?: string };
@@ -87,11 +86,13 @@ export interface IFSMState {
     'input-type'?: any;
     'output-type'?: any;
     name?: string;
-    type: 'state' | 'fsm' | 'block';
+    type: 'state' | 'fsm' | 'block' | 'if';
     desc: string;
     states?: IFSMStates;
     fsm?: string;
     id?: string;
+    condition?: any;
+    language?: 'qore' | 'python';
 }
 
 export interface IFSMStates {
@@ -102,6 +103,9 @@ export const TOOLBAR_ITEM_TYPE: string = 'toolbar-item';
 export const STATE_ITEM_TYPE: string = 'state';
 
 const DIAGRAM_SIZE: number = 2000;
+export const IF_STATE_SIZE: number = 80;
+export const STATE_WIDTH: number = 180;
+export const STATE_HEIGHT: number = 50;
 const DIAGRAM_DRAG_KEY: string = 'Shift';
 const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 
@@ -228,6 +232,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                             type: item.name,
                             id: shortid.generate(),
                             states: item.name === 'block' ? {} : undefined,
+                            condition: item.name === 'if' ? '' : undefined,
                             action:
                                 item.name === 'state'
                                     ? {
@@ -250,7 +255,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
             return `${parentStateName}.State ${id}`;
         }
 
-        if (item.name === 'block') {
+        if (item.name === 'block' || item.name === 'if') {
             return `State ${id}`;
         }
 
@@ -266,7 +271,19 @@ const FSMView: React.FC<IFSMViewProps> = ({
             return 'fsm';
         }
 
+        if (state.type === 'if') {
+            return 'if';
+        }
+
         return state.action?.type;
+    };
+
+    const getXDiff = (type) => {
+        return type === 'if' ? IF_STATE_SIZE / 2 : STATE_WIDTH / 2;
+    };
+
+    const getYDiff = (type) => {
+        return type === 'if' ? IF_STATE_SIZE / 2 : STATE_HEIGHT / 2;
     };
 
     const isFSMValid = () => {
@@ -356,8 +373,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 return;
             }
 
-            // Also do nothing is the user is trying to transition FSM to itself
-            if (states[id].type === 'fsm' && selectedState === id) {
+            const selectedStateType = states[selectedState].type;
+            const targetStateType = states[id].type;
+
+            // Also do nothing is the user is trying to transition FSM to itself or IF to itself
+            if ((targetStateType === 'fsm' || targetStateType === 'if') && selectedState === id) {
                 return;
             }
 
@@ -368,6 +388,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     ...(newBoxes[selectedState].transitions || []),
                     {
                         state: id.toString(),
+                        branch: selectedStateType === 'if' ? 'true' : undefined,
                         language: 'qore',
                     },
                 ];
@@ -519,6 +540,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 x2: states[transition.state].position.x,
                 y2: states[transition.state].position.y,
                 order: !!transition.errors ? 0 : 1,
+                branch: transition.branch,
             }));
 
             return [...newTransitions, ...stateTransitions];
@@ -539,7 +561,31 @@ const FSMView: React.FC<IFSMViewProps> = ({
         });
     };
 
-    const getTargetStatePosition = (x1, y1, x2, y2) => {
+    const getTransitionColor = (isError, branch) => {
+        if (isError || branch === 'false') {
+            return 'red';
+        }
+
+        if (branch === 'true') {
+            return 'green';
+        }
+
+        return '#a9a9a9';
+    };
+
+    const getTransitionEndMarker = (isError, branch) => {
+        if (isError) {
+            return 'error';
+        }
+
+        if (branch) {
+            return branch;
+        }
+
+        return '';
+    };
+
+    const getTargetStatePosition = (x1, y1, x2, y2, stateType, targetStateType) => {
         const modifiedX1 = x1 + 10000;
         const modifiedX2 = x2 + 10000;
         const modifiedY1 = y1 + 10000;
@@ -566,16 +612,16 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
         switch (side) {
             case 'right': {
-                return { x2, y2: y2 + 25 };
+                return { x2, y2: y2 + getYDiff(targetStateType) };
             }
             case 'left': {
-                return { x2: x2 + 180, y2: y2 + 25 };
+                return { x2: x2 + getXDiff(targetStateType) * 2, y2: y2 + getYDiff(targetStateType) };
             }
             case 'bottom': {
-                return { x2: x2 + 90, y2 };
+                return { x2: x2 + getXDiff(targetStateType), y2 };
             }
             case 'top': {
-                return { x2: x2 + 90, y2: y2 + 50 };
+                return { x2: x2 + getXDiff(targetStateType), y2: y2 + getYDiff(targetStateType) * 2 };
             }
             default: {
                 return {
@@ -752,7 +798,13 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     >
                         {t('Block')}
                     </FSMToolbarItem>
-
+                    <FSMToolbarItem
+                        name="if"
+                        type="if"
+                        count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
+                    >
+                        {t('If')}
+                    </FSMToolbarItem>
                     <ButtonGroup style={{ float: 'right' }}>
                         <Button
                             onClick={() =>
@@ -806,7 +858,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         ))}
                         <svg height="100%" width="100%" style={{ position: 'absolute' }}>
                             {transitions.map(
-                                ({ x1, x2, y1, y2, state, targetState, isError, transitionIndex }, index) =>
+                                ({ x1, x2, y1, y2, state, targetState, isError, branch, transitionIndex }, index) =>
                                     isTransitionToSelf(state, targetState) ? (
                                         <StyledFSMCircle
                                             cx={x1 + 90}
@@ -840,14 +892,21 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                                     });
                                                 }}
                                                 key={index}
-                                                stroke={isError ? 'red' : '#a9a9a9'}
+                                                stroke={getTransitionColor(isError, branch)}
                                                 strokeWidth={isError ? 2 : 1}
                                                 strokeDasharray={isError ? '10 2' : undefined}
                                                 id={getTargetStatePosition(x1, y1, x2, y2)}
-                                                markerEnd={isError ? 'url(#arrowheaderror)' : 'url(#arrowhead)'}
-                                                x1={x1 + 90}
-                                                y1={y1 + 25}
-                                                {...getTargetStatePosition(x1, y1, x2, y2)}
+                                                markerEnd={`url(#arrowhead${getTransitionEndMarker(isError, branch)})`}
+                                                x1={x1 + getXDiff(states[state].type)}
+                                                y1={y1 + getYDiff(states[state].type)}
+                                                {...getTargetStatePosition(
+                                                    x1,
+                                                    y1,
+                                                    x2,
+                                                    y2,
+                                                    states[state].type,
+                                                    states[targetState].type
+                                                )}
                                             />
                                         </>
                                     )
