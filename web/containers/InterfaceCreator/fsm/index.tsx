@@ -816,105 +816,110 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     </ButtonGroup>
                 </StyledToolbarWrapper>
             )}
-            <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
-                <FSMDiagramWrapper
-                    wrapperDimensions={wrapperDimensions}
-                    setPan={setWrapperPan}
-                    isHoldingShiftKey={isHoldingShiftKey && !selectedState}
-                    zoom={zoom}
-                    items={map(states, (state) => ({
-                        x: state.position.x,
-                        y: state.position.y,
-                        type: getStateType(state),
-                    }))}
-                >
-                    <StyledDiagram
-                        key={JSON.stringify(wrapperDimensions)}
-                        ref={drop}
-                        path={image_path}
-                        onClick={() => setSelectedState(null)}
-                        style={{
-                            transform: `scale(${zoom})`,
-                            marginLeft: `${calculateMargin()}px`,
-                            marginTop: `${calculateMargin()}px`,
-                        }}
+            <div style={{ flex: 1, overflow: 'hidden', minHeight: 500 }}>
+                <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
+                    <FSMDiagramWrapper
+                        wrapperDimensions={wrapperDimensions}
+                        setPan={setWrapperPan}
+                        isHoldingShiftKey={isHoldingShiftKey && !selectedState}
+                        zoom={zoom}
+                        items={map(states, (state) => ({
+                            x: state.position.x,
+                            y: state.position.y,
+                            type: getStateType(state),
+                        }))}
                     >
-                        {map(states, (state, id) => (
-                            <FSMState
-                                key={id}
-                                {...state}
-                                id={id}
-                                selected={selectedState === id}
-                                onDblClick={handleStateClick}
-                                onClick={handleStateClick}
-                                onUpdate={updateStateData}
-                                onEditClick={handleStateEditClick}
-                                onDeleteClick={handleStateDeleteClick}
-                                selectedState={selectedState}
-                                getTransitionByState={getTransitionByState}
-                                toggleDragging={setIsHoldingShiftKey}
-                                onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
-                            />
-                        ))}
-                        <svg height="100%" width="100%" style={{ position: 'absolute' }}>
-                            {transitions.map(
-                                ({ x1, x2, y1, y2, state, targetState, isError, branch, transitionIndex }, index) =>
-                                    isTransitionToSelf(state, targetState) ? (
-                                        <StyledFSMCircle
-                                            cx={x1 + 90}
-                                            cy={y1 + 50}
-                                            r={25}
-                                            fill="transparent"
-                                            stroke={isError ? 'red' : '#a9a9a9'}
-                                            strokeWidth={2}
-                                            strokeDasharray={isError ? '10 2' : undefined}
-                                            key={index}
-                                            onClick={() =>
-                                                setEditingTransition([{ stateId: state, index: transitionIndex }])
-                                            }
-                                        />
-                                    ) : (
-                                        <>
-                                            <StyledFSMLine
-                                                onClick={() => {
-                                                    setEditingTransition((cur) => {
-                                                        const result = [...cur];
-
-                                                        result.push({ stateId: state, index: transitionIndex });
-
-                                                        const hasBothWay = hasBothWayTransition(state, targetState);
-
-                                                        if (hasBothWay) {
-                                                            result.push(hasBothWay);
-                                                        }
-
-                                                        return result;
-                                                    });
-                                                }}
-                                                key={index}
-                                                stroke={getTransitionColor(isError, branch)}
-                                                strokeWidth={isError ? 2 : 1}
+                        <StyledDiagram
+                            key={JSON.stringify(wrapperDimensions)}
+                            ref={drop}
+                            path={image_path}
+                            onClick={() => setSelectedState(null)}
+                            style={{
+                                transform: `scale(${zoom})`,
+                                marginLeft: `${calculateMargin()}px`,
+                                marginTop: `${calculateMargin()}px`,
+                            }}
+                        >
+                            {map(states, (state, id) => (
+                                <FSMState
+                                    key={id}
+                                    {...state}
+                                    id={id}
+                                    selected={selectedState === id}
+                                    onDblClick={handleStateClick}
+                                    onClick={handleStateClick}
+                                    onUpdate={updateStateData}
+                                    onEditClick={handleStateEditClick}
+                                    onDeleteClick={handleStateDeleteClick}
+                                    selectedState={selectedState}
+                                    getTransitionByState={getTransitionByState}
+                                    toggleDragging={setIsHoldingShiftKey}
+                                    onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
+                                />
+                            ))}
+                            <svg height="100%" width="100%" style={{ position: 'absolute' }}>
+                                {transitions.map(
+                                    ({ x1, x2, y1, y2, state, targetState, isError, branch, transitionIndex }, index) =>
+                                        isTransitionToSelf(state, targetState) ? (
+                                            <StyledFSMCircle
+                                                cx={x1 + 90}
+                                                cy={y1 + 50}
+                                                r={25}
+                                                fill="transparent"
+                                                stroke={isError ? 'red' : '#a9a9a9'}
+                                                strokeWidth={2}
                                                 strokeDasharray={isError ? '10 2' : undefined}
-                                                id={getTargetStatePosition(x1, y1, x2, y2)}
-                                                markerEnd={`url(#arrowhead${getTransitionEndMarker(isError, branch)})`}
-                                                x1={x1 + getXDiff(states[state].type)}
-                                                y1={y1 + getYDiff(states[state].type)}
-                                                {...getTargetStatePosition(
-                                                    x1,
-                                                    y1,
-                                                    x2,
-                                                    y2,
-                                                    states[state].type,
-                                                    states[targetState].type
-                                                )}
+                                                key={index}
+                                                onClick={() =>
+                                                    setEditingTransition([{ stateId: state, index: transitionIndex }])
+                                                }
                                             />
-                                        </>
-                                    )
-                            )}
-                        </svg>
-                    </StyledDiagram>
-                </FSMDiagramWrapper>
-            </StyledDiagramWrapper>
+                                        ) : (
+                                            <>
+                                                <StyledFSMLine
+                                                    onClick={() => {
+                                                        setEditingTransition((cur) => {
+                                                            const result = [...cur];
+
+                                                            result.push({ stateId: state, index: transitionIndex });
+
+                                                            const hasBothWay = hasBothWayTransition(state, targetState);
+
+                                                            if (hasBothWay) {
+                                                                result.push(hasBothWay);
+                                                            }
+
+                                                            return result;
+                                                        });
+                                                    }}
+                                                    key={index}
+                                                    stroke={getTransitionColor(isError, branch)}
+                                                    strokeWidth={isError ? 2 : 1}
+                                                    strokeDasharray={isError ? '10 2' : undefined}
+                                                    id={getTargetStatePosition(x1, y1, x2, y2)}
+                                                    markerEnd={`url(#arrowhead${getTransitionEndMarker(
+                                                        isError,
+                                                        branch
+                                                    )})`}
+                                                    x1={x1 + getXDiff(states[state].type)}
+                                                    y1={y1 + getYDiff(states[state].type)}
+                                                    {...getTargetStatePosition(
+                                                        x1,
+                                                        y1,
+                                                        x2,
+                                                        y2,
+                                                        states[state].type,
+                                                        states[targetState].type
+                                                    )}
+                                                />
+                                            </>
+                                        )
+                                )}
+                            </svg>
+                        </StyledDiagram>
+                    </FSMDiagramWrapper>
+                </StyledDiagramWrapper>
+            </div>
             {!embedded && (
                 <ActionsWrapper>
                     <div style={{ float: 'right', width: '100%' }}>

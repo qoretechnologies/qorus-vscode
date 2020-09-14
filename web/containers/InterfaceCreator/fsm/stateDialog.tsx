@@ -409,26 +409,24 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                             )}
                         </div>
                         {newData.type === 'block' && blockLogicType === 'custom' ? (
-                            <div style={{ flex: 1, overflow: 'hidden', minHeight: 500 }}>
-                                <FSMView
-                                    embedded
-                                    isExternalMetadataHidden={isMetadataHidden}
-                                    onHideMetadataClick={setIsMetadataHidden}
-                                    states={newData.states}
-                                    setStates={(func) => {
-                                        if (typeof func === 'function') {
-                                            handleDataUpdate('states', func(newData.states));
-                                        } else {
-                                            handleDataUpdate('states', func);
-                                        }
-                                    }}
-                                    parentStateName={newData.name}
-                                    defaultInterfaceId={interfaceId}
-                                    onStatesChange={(states) => {
-                                        handleDataUpdate('states', states);
-                                    }}
-                                />
-                            </div>
+                            <FSMView
+                                embedded
+                                isExternalMetadataHidden={isMetadataHidden}
+                                onHideMetadataClick={setIsMetadataHidden}
+                                states={newData.states}
+                                setStates={(func) => {
+                                    if (typeof func === 'function') {
+                                        handleDataUpdate('states', func(newData.states));
+                                    } else {
+                                        handleDataUpdate('states', func);
+                                    }
+                                }}
+                                parentStateName={newData.name}
+                                defaultInterfaceId={interfaceId}
+                                onStatesChange={(states) => {
+                                    handleDataUpdate('states', states);
+                                }}
+                            />
                         ) : null}
                     </ContentWrapper>
                     <ActionsWrapper style={{ padding: '10px' }}>
