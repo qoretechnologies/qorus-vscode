@@ -27,6 +27,7 @@ import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from 
 import FSMView, { IFSMState, IFSMStates } from './';
 import ConnectorSelector from './connectorSelector';
 import { ConditionField, isConditionValid } from './transitionDialog';
+import FieldGroup from '../../../components/FieldGroup';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -221,47 +222,67 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                 overflow: newData.type === 'block' && blockLogicType === 'custom' ? 'auto' : 'hidden',
                             }}
                         >
-                            <FieldWrapper padded>
-                                <FieldLabel label={t('Type')} isValid />
-                                <FieldInputWrapper>
-                                    <SelectField
-                                        defaultItems={
-                                            qorus_instance
-                                                ? [{ name: 'state' }, { name: 'fsm' }, { name: 'block' }]
-                                                : [{ name: 'state' }, { name: 'fsm' }]
-                                        }
-                                        onChange={handleDataUpdate}
-                                        value={newData.type}
-                                        name="type"
-                                    />
-                                </FieldInputWrapper>
-                            </FieldWrapper>
+                            <FieldGroup>
+                                <FieldWrapper padded>
+                                    <FieldLabel label={t('Type')} isValid />
+                                    <FieldInputWrapper>
+                                        <SelectField
+                                            defaultItems={
+                                                qorus_instance
+                                                    ? [{ name: 'state' }, { name: 'fsm' }, { name: 'block' }]
+                                                    : [{ name: 'state' }, { name: 'fsm' }]
+                                            }
+                                            onChange={handleDataUpdate}
+                                            value={newData.type}
+                                            name="type"
+                                        />
+                                    </FieldInputWrapper>
+                                </FieldWrapper>
+                                <FieldWrapper padded>
+                                    <FieldLabel label={t('Initial')} isValid />
+                                    <FieldInputWrapper>
+                                        <BooleanField
+                                            name="initial"
+                                            onChange={handleDataUpdate}
+                                            value={newData.initial}
+                                        />
+                                    </FieldInputWrapper>
+                                </FieldWrapper>
+                                <FieldWrapper padded>
+                                    <FieldLabel label={t('Final')} isValid info={t('Optional')} />
+                                    <FieldInputWrapper>
+                                        <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
+                                    </FieldInputWrapper>
+                                </FieldWrapper>
+                            </FieldGroup>
                             {newData.type === 'block' && (
                                 <>
-                                    <FieldWrapper padded>
-                                        <FieldLabel label={t('field-label-block-logic')} isValid />
-                                        <FieldInputWrapper>
-                                            <RadioField
-                                                name="block-logic"
-                                                onChange={(_name, value) => {
-                                                    setBlockLogicType(value);
-                                                }}
-                                                value={blockLogicType}
-                                                items={[{ value: 'custom' }, { value: 'fsm' }]}
-                                            />
-                                        </FieldInputWrapper>
-                                    </FieldWrapper>
-                                    <FieldWrapper padded>
-                                        <FieldLabel label={t('field-label-block-type')} isValid />
-                                        <FieldInputWrapper>
-                                            <RadioField
-                                                name="block-type"
-                                                onChange={handleDataUpdate}
-                                                value={newData?.['block-type'] || 'for'}
-                                                items={[{ value: 'for' }, { value: 'foreach' }, { value: 'while' }]}
-                                            />
-                                        </FieldInputWrapper>
-                                    </FieldWrapper>
+                                    <FieldGroup>
+                                        <FieldWrapper padded>
+                                            <FieldLabel label={t('field-label-block-logic')} isValid />
+                                            <FieldInputWrapper>
+                                                <RadioField
+                                                    name="block-logic"
+                                                    onChange={(_name, value) => {
+                                                        setBlockLogicType(value);
+                                                    }}
+                                                    value={blockLogicType}
+                                                    items={[{ value: 'custom' }, { value: 'fsm' }]}
+                                                />
+                                            </FieldInputWrapper>
+                                        </FieldWrapper>
+                                        <FieldWrapper padded>
+                                            <FieldLabel label={t('field-label-block-type')} isValid />
+                                            <FieldInputWrapper>
+                                                <RadioField
+                                                    name="block-type"
+                                                    onChange={handleDataUpdate}
+                                                    value={newData?.['block-type'] || 'for'}
+                                                    items={[{ value: 'for' }, { value: 'foreach' }, { value: 'while' }]}
+                                                />
+                                            </FieldInputWrapper>
+                                        </FieldWrapper>
+                                    </FieldGroup>
                                     <FieldWrapper padded>
                                         <FieldLabel label={t('field-label-block-config')} isValid />
                                         <FieldInputWrapper>
@@ -297,18 +318,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     ) : (
                                         <String name="name" onChange={handleDataUpdate} value={newData.name} />
                                     )}
-                                </FieldInputWrapper>
-                            </FieldWrapper>
-                            <FieldWrapper padded>
-                                <FieldLabel label={t('Initial')} isValid />
-                                <FieldInputWrapper>
-                                    <BooleanField name="initial" onChange={handleDataUpdate} value={newData.initial} />
-                                </FieldInputWrapper>
-                            </FieldWrapper>
-                            <FieldWrapper padded>
-                                <FieldLabel label={t('Final')} isValid info={t('Optional')} />
-                                <FieldInputWrapper>
-                                    <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
                                 </FieldInputWrapper>
                             </FieldWrapper>
                             {newData.type === 'block' && blockLogicType === 'fsm' ? (
