@@ -42,13 +42,12 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
                     }
                 });
 
-                this.previous_lenses = lenses;
                 return lenses;
             },
 
             error => {
                 msg.error(error);
-                return this.previous_lenses;
+                return [];
             }
         );
     }
