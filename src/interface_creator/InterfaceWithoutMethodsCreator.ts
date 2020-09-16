@@ -230,7 +230,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                 ...jsyaml.safeLoad(headers),
                 target_dir: this.target_dir,
                 target_file: this.has_code ? this.rel_file_path : this.yaml_file_name,
-            }, iface_id);
+            }, params);
         }
     }
 }

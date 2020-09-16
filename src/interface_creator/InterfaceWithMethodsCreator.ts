@@ -170,7 +170,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
                 ...jsyaml.safeLoad(headers),
                 target_dir: this.target_dir,
                 target_file: this.rel_file_path,
-            }, iface_id);
+            }, params);
         }
     }
 

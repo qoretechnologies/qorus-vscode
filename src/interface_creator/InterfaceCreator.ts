@@ -215,7 +215,7 @@ export abstract class InterfaceCreator {
         return { ok: true };
     }
 
-    protected returnData = (data: any, iface_id: string) => {
+    protected returnData = (data: any, params) => {
         const fixed_data = this.code_info.fixData(data);
 
         let iface_kind = fixed_data.type;
@@ -224,11 +224,19 @@ export abstract class InterfaceCreator {
             fixed_data.type = capitalize(fixed_data.type);
         }
 
-        qorus_webview.setInitialData({
+        const initial_data = {
             tab: 'CreateInterface',
             subtab: iface_kind,
-            [iface_kind]: { ...fixed_data, iface_id }
-        }, true);
+            [iface_kind]: { ...fixed_data, iface_id: params.iface_id }
+        };
+
+        if (this.file_path) {
+            this.code_info.edit_info.setFileInfo(this.file_path, params.data).then(
+                () => qorus_webview.setInitialData(initial_data, true)
+            );
+        } else {
+            qorus_webview.setInitialData(initial_data, true);
+        }
     }
 
     protected checkData = (params: any): any => {
