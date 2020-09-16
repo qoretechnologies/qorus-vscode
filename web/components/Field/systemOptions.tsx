@@ -160,7 +160,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                             onChange={(optionName, val) => handleValueChange(optionName, val, type)}
                             value={value?.[optionName]?.value}
                             default_value={options[optionName].default}
-                            radioItems={options[optionName].allowed_values?.map((value) => ({ value }))}
+                            radioItems={options[optionName].allowed_values}
                         />
                     </SubField>
                 ) : null
