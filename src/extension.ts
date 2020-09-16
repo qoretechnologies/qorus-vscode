@@ -126,6 +126,14 @@ export async function activate(context: vscode.ExtensionContext) {
             subtab: iface_kind,
             [iface_kind]: { ...data, iface_id }
         });
+
+        const { target_dir, target_file } = data;
+        if (target_dir && target_file) {
+            const file_path = path.join(target_dir, target_file);
+            if (path.extname(file_path) !== '.yaml') {
+                code_info.edit_info.setFileInfo(file_path, data);
+            }
+        }
     });
     context.subscriptions.push(disposable);
 
