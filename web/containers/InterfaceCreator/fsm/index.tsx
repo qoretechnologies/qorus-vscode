@@ -331,10 +331,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
         }
         const { width, height } = wrapperRef.current.getBoundingClientRect();
 
-        updateHistory(cloneDeep(fsm?.states || {}));
+        updateHistory(embedded ? states : cloneDeep(fsm?.states || {}));
 
-        currentXPan.current = 0 - width / 2;
-        currentYPan.current = 0 - height / 2;
+        currentXPan.current = 0;
+        currentYPan.current = 0;
 
         setWrapperDimensions({ width, height });
 
@@ -423,7 +423,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
             changeHistory.current.length = currentHistoryPosition.current + 1;
         }
         changeHistory.current.push(JSON.stringify(data));
-        currentHistoryPosition.current += 1;
+
+        if (changeHistory.current.length > 10) {
+            changeHistory.current.shift();
+        } else {
+            currentHistoryPosition.current += 1;
+        }
     };
 
     const updateStateData = (id: number, data: IFSMState) => {
@@ -509,7 +514,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         return stateId === targetId;
     };
 
-    const handleStateDeleteClick = (id: string): void => {
+    const handleStateDeleteClick = (id: string, unfilled?: boolean): void => {
         setStates((current) => {
             let newStates: IFSMStates = { ...current };
 
@@ -545,7 +550,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 state_id: id,
             });
 
-            updateHistory(newStates);
+            // If this state was deleted because of unfilled data, do not
+            // save history
+            if (!unfilled) {
+                updateHistory(newStates);
+            }
 
             return newStates;
         });

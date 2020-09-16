@@ -8,6 +8,7 @@ import isUndefined from 'lodash/isUndefined';
 import isBoolean from 'lodash/isBoolean';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
+import size from 'lodash/size';
 import forEach from 'lodash/forEach';
 import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
 
@@ -58,6 +59,10 @@ export const insertAtIndex = (array = [], index = 0, value) => {
 };
 
 export const getMaxExecutionOrderFromStates = (states: IFSMStates): number => {
+    if (!states || size(states) === 0) {
+        return 0;
+    }
+
     const { execution_order }: IFSMState = maxBy(
         map(states, (state: IFSMState) => state),
         'execution_order'

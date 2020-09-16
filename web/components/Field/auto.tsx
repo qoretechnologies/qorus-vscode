@@ -18,6 +18,7 @@ import TextareaField from './textarea';
 import withTextContext from '../../hocomponents/withTextContext';
 import SystemOptions from './systemOptions';
 import ByteSizeField from './byteSize';
+import RadioField from './radioField';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -185,6 +186,16 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 );
             case 'byte-size':
                 return <ByteSizeField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
+            case 'enum':
+                return (
+                    <RadioField
+                        items={rest.radioItems}
+                        value={value}
+                        name={name}
+                        onChange={handleChange}
+                        type={currentType}
+                    />
+                );
             case 'any':
                 return null;
             default:

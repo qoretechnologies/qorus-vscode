@@ -38,7 +38,7 @@ export interface IFSMStateDialogProps {
     id: string;
     onSubmit: (id: string, newData: IFSMState) => void;
     otherStates: IFSMStates;
-    deleteState?: (id: string) => any;
+    deleteState?: (id: string, unfilled?: boolean) => any;
     fsmName?: string;
     interfaceId: string;
     postMessage: TPostMessage;
@@ -90,7 +90,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             if (value) {
                 handleDataUpdate(
                     'execution_order',
-                    data.execution_order || getMaxExecutionOrderFromStates(otherStates) + 1
+                    data?.execution_order || getMaxExecutionOrderFromStates(otherStates) + 1
                 );
             } else {
                 handleDataUpdate('execution_order', null);
@@ -215,7 +215,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                         (data.type === 'state' && !data.action?.value) ||
                         (data.type === 'block' && size(data.states) === 0)
                     ) {
-                        deleteState(id);
+                        deleteState(id, true);
                     }
                     onClose();
                 }}

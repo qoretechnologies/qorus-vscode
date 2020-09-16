@@ -1,6 +1,4 @@
-import React, {
-    useContext, useState
-} from 'react';
+import React, { useContext, useState } from 'react';
 
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -161,6 +159,8 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                             name={optionName}
                             onChange={(optionName, val) => handleValueChange(optionName, val, type)}
                             value={value?.[optionName]?.value}
+                            default_value={options[optionName].default}
+                            radioItems={options[optionName].allowed_values?.map((value) => ({ value }))}
                         />
                     </SubField>
                 ) : null
