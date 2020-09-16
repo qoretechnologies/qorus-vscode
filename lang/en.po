@@ -2451,17 +2451,20 @@ msgstr "Recenter diagram"
 msgid "Branch"
 msgstr "Branch"
 
-msgid "EditingTransitionOrder"
+msgid "EditTransitionsOrder"
 msgstr "Edit transitions order"
+
+msgid "EditStatesOrder"
+msgstr "Edit initial states order"
 
 msgid "TransitionToState"
 msgstr "Transition to state"
 
-msgid "TransitionUp"
-msgstr "Move transition up"
+msgid "MoveItemUp"
+msgstr "Move item up"
 
-msgid "TransitionDown"
-msgstr "Move transition down"
+msgid "MoveItemDown"
+msgstr "Move item down"
 
 msgid "Missing"
 msgstr "Missing"

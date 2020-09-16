@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import find from 'lodash/find';
 import size from 'lodash/size';
+import filter from 'lodash/filter';
+import times from 'lodash/times';
 import shortid from 'shortid';
 
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
@@ -28,6 +30,7 @@ import FSMView, { IFSMState, IFSMStates } from './';
 import ConnectorSelector from './connectorSelector';
 import { ConditionField, isConditionValid } from './transitionDialog';
 import FieldGroup from '../../../components/FieldGroup';
+import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -35,10 +38,11 @@ export interface IFSMStateDialogProps {
     id: string;
     onSubmit: (id: string, newData: IFSMState) => void;
     otherStates: IFSMStates;
-    deleteState: (id: string) => any;
+    deleteState?: (id: string) => any;
     fsmName?: string;
     interfaceId: string;
     postMessage: TPostMessage;
+    disableInitial?: boolean;
 }
 
 export type TAction = 'connector' | 'mapper' | 'pipeline' | 'none';
@@ -53,6 +57,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     fsmName,
     interfaceId,
     postMessage,
+    disableInitial,
 }) => {
     const [newData, setNewData] = useState<IFSMState>(data);
     const [actionType, setActionType] = useState<TAction>(data?.action?.type || 'none');
@@ -80,6 +85,17 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             ...cur,
             [name]: value === 'none' ? null : value,
         }));
+
+        if (name === 'initial') {
+            if (value) {
+                handleDataUpdate(
+                    'execution_order',
+                    data.execution_order || getMaxExecutionOrderFromStates(otherStates) + 1
+                );
+            } else {
+                handleDataUpdate('execution_order', null);
+            }
+        }
 
         if (name === 'type') {
             handleDataUpdate('name', null);
@@ -222,6 +238,30 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                 overflow: newData.type === 'block' && blockLogicType === 'custom' ? 'auto' : 'hidden',
                             }}
                         >
+                            <FieldWrapper padded>
+                                <FieldLabel label={t('Name')} isValid={isNameValid(newData.name)} />
+                                <FieldInputWrapper>
+                                    {newData.type === 'fsm' ? (
+                                        <SelectField
+                                            get_message={{
+                                                action: 'creator-get-objects',
+                                                object_type: 'fsm',
+                                            }}
+                                            return_message={{
+                                                action: 'creator-return-objects',
+                                                object_type: 'fsm',
+                                                return_value: 'objects',
+                                            }}
+                                            predicate={(name) => fsmName !== name}
+                                            onChange={handleDataUpdate}
+                                            value={newData?.name}
+                                            name="name"
+                                        />
+                                    ) : (
+                                        <String name="name" onChange={handleDataUpdate} value={newData.name} />
+                                    )}
+                                </FieldInputWrapper>
+                            </FieldWrapper>
                             <FieldGroup>
                                 <FieldWrapper padded>
                                     <FieldLabel label={t('Type')} isValid />
@@ -242,16 +282,11 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     <FieldLabel label={t('Initial')} isValid />
                                     <FieldInputWrapper>
                                         <BooleanField
+                                            disabled={disableInitial}
                                             name="initial"
                                             onChange={handleDataUpdate}
                                             value={newData.initial}
                                         />
-                                    </FieldInputWrapper>
-                                </FieldWrapper>
-                                <FieldWrapper padded>
-                                    <FieldLabel label={t('Final')} isValid info={t('Optional')} />
-                                    <FieldInputWrapper>
-                                        <BooleanField name="final" onChange={handleDataUpdate} value={newData.final} />
                                     </FieldInputWrapper>
                                 </FieldWrapper>
                             </FieldGroup>
@@ -296,30 +331,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     </FieldWrapper>
                                 </>
                             )}
-                            <FieldWrapper padded>
-                                <FieldLabel label={t('Name')} isValid={isNameValid(newData.name)} />
-                                <FieldInputWrapper>
-                                    {newData.type === 'fsm' ? (
-                                        <SelectField
-                                            get_message={{
-                                                action: 'creator-get-objects',
-                                                object_type: 'fsm',
-                                            }}
-                                            return_message={{
-                                                action: 'creator-return-objects',
-                                                object_type: 'fsm',
-                                                return_value: 'objects',
-                                            }}
-                                            predicate={(name) => fsmName !== name}
-                                            onChange={handleDataUpdate}
-                                            value={newData?.name}
-                                            name="name"
-                                        />
-                                    ) : (
-                                        <String name="name" onChange={handleDataUpdate} value={newData.name} />
-                                    )}
-                                </FieldInputWrapper>
-                            </FieldWrapper>
                             {newData.type === 'block' && blockLogicType === 'fsm' ? (
                                 <FieldWrapper padded>
                                     <FieldLabel label={t('FSM')} isValid={validateField('string', newData?.fsm)} />
@@ -381,9 +392,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                         <FieldInputWrapper>
                                             <Connectors
                                                 name="input-type"
-                                                isInitialEditing={data['input-type']}
+                                                isInitialEditing={data?.['input-type']}
                                                 onChange={handleDataUpdate}
-                                                value={newData['input-type']}
+                                                value={newData?.['input-type']}
                                             />
                                         </FieldInputWrapper>
                                     </FieldWrapper>
@@ -392,9 +403,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                         <FieldInputWrapper>
                                             <Connectors
                                                 name="output-type"
-                                                isInitialEditing={data['output-type']}
+                                                isInitialEditing={data?.['output-type']}
                                                 onChange={handleDataUpdate}
-                                                value={newData['output-type']}
+                                                value={newData?.['output-type']}
                                             />
                                         </FieldInputWrapper>
                                     </FieldWrapper>

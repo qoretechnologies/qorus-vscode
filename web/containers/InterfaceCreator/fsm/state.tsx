@@ -11,6 +11,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { IFSMState, STATE_ITEM_TYPE, IF_STATE_SIZE, STATE_HEIGHT, STATE_WIDTH } from './';
 import { getStateStyle } from './toolbarItem';
+import { insertAtIndex } from '../../../helpers/functions';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
@@ -24,7 +25,9 @@ export interface IFSMStateProps extends IFSMState {
     stopTransitionDrag: (id: string) => any;
     selectedState?: boolean;
     getTransitionByState: (stateId: string, id: string) => boolean;
+    onExecutionOrderClick: () => void;
     id: string;
+    isIsolated: boolean;
 }
 
 export interface IFSMStateStyleProps {
@@ -35,6 +38,7 @@ export interface IFSMStateStyleProps {
     final: boolean;
     type: 'mapper' | 'connector' | 'pipeline' | 'fsm' | 'block' | 'if';
     isAvailableForTransition: boolean;
+    isIsolated: boolean;
 }
 
 const wiggleAnimation = (type) => keyframes`
@@ -67,6 +71,7 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     justify-content: center;
     align-items: center;
     flex-flow: column;
+    opacity: ${({ isIsolated }) => (isIsolated ? 0.5 : 1)};
 
     ${({ selected, initial, final }) => {
         let color: string = '#a9a9a9';
@@ -127,6 +132,26 @@ export const calculateFontSize = (name, isAction?: boolean) => {
     return undefined;
 };
 
+export const getStateType = ({ type, action, ...rest }: IFSMState) => {
+    if (type === 'block') {
+        return `${rest['block-type'] || 'for'} block (${size(rest.states)})`;
+    }
+
+    if (type === 'fsm') {
+        return `${rest.fsm} fsm`;
+    }
+
+    if (type === 'if') {
+        return `if statement`;
+    }
+
+    if (!action || !action.type || !action.value) {
+        return '';
+    }
+
+    return `${action.value.class ? `${action.value.class}:${action.value.connector}` : action.value} ${action.type}`;
+};
+
 const FSMState: React.FC<IFSMStateProps> = ({
     position,
     id,
@@ -145,6 +170,8 @@ const FSMState: React.FC<IFSMStateProps> = ({
     selectedState,
     getTransitionByState,
     toggleDragging,
+    onExecutionOrderClick,
+    isIsolated,
     ...rest
 }) => {
     const [, drag] = useDrag({
@@ -173,28 +200,6 @@ const FSMState: React.FC<IFSMStateProps> = ({
         toggleDragging(true);
     };
 
-    const getType = () => {
-        if (type === 'block') {
-            return `${rest['block-type'] || 'for'} block (${size(rest.states)})`;
-        }
-
-        if (type === 'fsm') {
-            return `${rest.fsm} fsm`;
-        }
-
-        if (type === 'if') {
-            return `if statement`;
-        }
-
-        if (!action || !action.type || !action.value) {
-            return '';
-        }
-
-        return `${action.value.class ? `${action.value.class}:${action.value.connector}` : action.value} ${
-            action.type
-        }`;
-    };
-
     return (
         <StyledFSMState
             key={id}
@@ -208,68 +213,75 @@ const FSMState: React.FC<IFSMStateProps> = ({
             onMouseLeave={handleMouseLeave}
             initial={initial}
             final={final}
+            isIsolated={isIsolated}
             isAvailableForTransition={selectedState ? !getTransitionByState(selectedState, id) : false}
             type={action?.type || type}
             onContextMenu={(event) => {
                 event.persist();
+                let menuData = [
+                    {
+                        title: name,
+                    },
+                    {
+                        item: t('Initial'),
+                        onClick: () => {
+                            onUpdate(id, { initial: !initial });
+                        },
+                        icon: 'flow-linear',
+                        rightIcon: initial ? 'small-tick' : undefined,
+                    },
+                    {
+                        title: t('Actions'),
+                    },
+                    {
+                        item: t('ManageTransitions'),
+                        onClick: () => {
+                            onTransitionOrderClick(id);
+                        },
+                        icon: 'property',
+                    },
+                    {
+                        item: t('RemoveAllTransitions'),
+                        onClick: () => {
+                            onUpdate(id, { transitions: null });
+                        },
+                        icon: 'cross',
+                    },
+                    {
+                        item: t('Edit'),
+                        onClick: () => onEditClick(id),
+                        icon: 'edit',
+                        disabled: type === 'block' && !qorus_instance,
+                        intent: 'warning',
+                    },
+                    {
+                        item: t('Delete'),
+                        onClick: () => onDeleteClick(id),
+                        icon: 'trash',
+                        intent: 'danger',
+                    },
+                ];
+
+                if (initial) {
+                    menuData = insertAtIndex(menuData, 3, {
+                        item: t('ManageExecutionOrder'),
+                        onClick: () => {
+                            onExecutionOrderClick();
+                        },
+                        icon: 'property',
+                    });
+                }
+
                 addMenu({
                     event,
-                    data: [
-                        {
-                            title: name,
-                        },
-                        {
-                            item: t('Initial'),
-                            onClick: () => {
-                                onUpdate(id, { initial: !initial });
-                            },
-                            icon: 'flow-linear',
-                            rightIcon: initial ? 'small-tick' : undefined,
-                        },
-                        {
-                            item: t('Final'),
-                            onClick: () => {
-                                onUpdate(id, { final: !final });
-                            },
-                            icon: 'flow-end',
-                            rightIcon: final ? 'small-tick' : undefined,
-                        },
-                        {
-                            item: t('ManageTransitions'),
-                            onClick: () => {
-                                onTransitionOrderClick(id);
-                            },
-                            icon: 'property',
-                        },
-                        {
-                            item: t('RemoveAllTransitions'),
-                            onClick: () => {
-                                onUpdate(id, { transitions: null });
-                            },
-                            icon: 'cross',
-                        },
-                        {
-                            title: t('Actions'),
-                        },
-                        {
-                            item: t('Edit'),
-                            onClick: () => onEditClick(id),
-                            icon: 'edit',
-                            disabled: type === 'block' && !qorus_instance,
-                            intent: 'warning',
-                        },
-                        {
-                            item: t('Delete'),
-                            onClick: () => onDeleteClick(id),
-                            icon: 'trash',
-                            intent: 'danger',
-                        },
-                    ],
+                    data: menuData,
                 });
             }}
         >
             <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
-            <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>{getType()}</StyledStateAction>
+            <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
+                {getStateType({ type, action, ...rest })}
+            </StyledStateAction>
             {isHovered && (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
                     <Button

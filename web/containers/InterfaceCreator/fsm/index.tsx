@@ -5,7 +5,9 @@ import filter from 'lodash/filter';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
+import dropRight from 'lodash/dropRight';
 import size from 'lodash/size';
+import forEach from 'lodash/forEach';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -33,6 +35,9 @@ import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
+import FieldGroup from '../../../components/FieldGroup';
+import FSMInitialOrderDialog from './initialOrderDialog';
+import { isStateIsolated } from '../../../helpers/functions';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -93,6 +98,8 @@ export interface IFSMState {
     id?: string;
     condition?: any;
     language?: 'qore' | 'python';
+    execution_order?: number;
+    keyId?: string;
 }
 
 export interface IFSMStates {
@@ -174,6 +181,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
     const fieldsWrapperRef = useRef(null);
     const currentXPan = useRef<number>();
     const currentYPan = useRef<number>();
+    const changeHistory = useRef<string[]>([]);
+    const currentHistoryPosition = useRef<number>(-1);
 
     if (!embedded) {
         const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
@@ -193,6 +202,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
     const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
     const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(true);
+    const [editingInitialOrder, setEditingInitialOrder] = useState<boolean>(false);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
@@ -309,6 +319,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
             newBoxes[id].position.x += coords.x;
             newBoxes[id].position.y += coords.y;
 
+            updateHistory(newBoxes);
+
             return newBoxes;
         });
     };
@@ -319,8 +331,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
         }
         const { width, height } = wrapperRef.current.getBoundingClientRect();
 
-        currentXPan.current = 1000 - width / 2;
-        currentYPan.current = 1000 - height / 2;
+        updateHistory(cloneDeep(fsm?.states || {}));
+
+        currentXPan.current = 0 - width / 2;
+        currentYPan.current = 0 - height / 2;
 
         setWrapperDimensions({ width, height });
 
@@ -393,6 +407,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     },
                 ];
 
+                updateHistory(newBoxes);
+
                 return newBoxes;
             });
 
@@ -400,6 +416,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
         } else {
             setSelectedState(id);
         }
+    };
+
+    const updateHistory = (data: IFSMStates) => {
+        if (currentHistoryPosition.current >= 0) {
+            changeHistory.current.length = currentHistoryPosition.current + 1;
+        }
+        changeHistory.current.push(JSON.stringify(data));
+        currentHistoryPosition.current += 1;
     };
 
     const updateStateData = (id: number, data: IFSMState) => {
@@ -411,6 +435,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     ...newStates[id],
                     ...data,
                 };
+
+                updateHistory(newStates);
 
                 return newStates;
             }
@@ -519,6 +545,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 state_id: id,
             });
 
+            updateHistory(newStates);
+
             return newStates;
         });
     };
@@ -553,6 +581,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
             iface_id: interfaceId,
         });
         setStates(cloneDeep(fsm?.states || {}));
+        changeHistory.current = [JSON.stringify(cloneDeep(fsm?.states || {}))];
+        currentHistoryPosition.current = 0;
         setMetadata({
             name: fsm?.name,
             desc: fsm?.desc,
@@ -746,6 +776,39 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     onClose={() => setEditingTransitionOrder(null)}
                     getStateData={(id) => states[id]}
                     onSubmit={updateStateData}
+                    states={states}
+                />
+            )}
+            {editingInitialOrder && (
+                <FSMInitialOrderDialog
+                    onClose={() => setEditingInitialOrder(null)}
+                    onSubmit={(data) =>
+                        setStates((cur) => {
+                            const result = { ...cur };
+
+                            forEach(data, (stateData, keyId) => {
+                                result[keyId] = stateData;
+                            });
+
+                            updateHistory(result);
+
+                            return result;
+                        })
+                    }
+                    allStates={states}
+                    states={reduce(
+                        states,
+                        (initialStates, state, stateId) => {
+                            if (state.initial) {
+                                return { ...initialStates, [stateId]: state };
+                            }
+
+                            return initialStates;
+                        },
+                        {}
+                    )}
+                    fsmName={metadata.name}
+                    interfaceId={interfaceId}
                 />
             )}
             {size(editingTransition) ? (
@@ -807,16 +870,33 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     </FSMToolbarItem>
                     <ButtonGroup style={{ float: 'right' }}>
                         <Button
+                            onClick={() => {
+                                currentHistoryPosition.current -= 1;
+                                setStates(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current <= 0}
+                            text={`(${currentHistoryPosition.current})`}
+                            icon="undo"
+                        />
+                        <Button
+                            onClick={() => {
+                                currentHistoryPosition.current += 1;
+                                setStates(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
+                            text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
+                            icon="redo"
+                        />
+                        <Button
                             onClick={() =>
                                 embedded ? onHideMetadataClick((cur) => !cur) : setIsMetadataHidden((cur) => !cur)
                             }
-                            text={t(getIsMetadataHidden() ? 'ShowMetadata' : 'HideMetadata')}
                             icon={getIsMetadataHidden() ? 'eye-open' : 'eye-off'}
                         />
                     </ButtonGroup>
                 </StyledToolbarWrapper>
             )}
-            <div style={{ flex: 1, overflow: 'hidden', minHeight: 500 }}>
+            <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
                 <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
                     <FSMDiagramWrapper
                         wrapperDimensions={wrapperDimensions}
@@ -855,6 +935,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                     getTransitionByState={getTransitionByState}
                                     toggleDragging={setIsHoldingShiftKey}
                                     onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
+                                    onExecutionOrderClick={() => setEditingInitialOrder(true)}
+                                    isIsolated={isStateIsolated(id, states)}
                                 />
                             ))}
                             <svg height="100%" width="100%" style={{ position: 'absolute' }}>

@@ -1,6 +1,4 @@
-import React, {
-    useContext, useState
-} from 'react';
+import React, { useContext, useState } from 'react';
 
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -208,8 +206,6 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
 
         return null;
     };
-
-    console.log(initialData[type]);
 
     return (
         <StyledTab>

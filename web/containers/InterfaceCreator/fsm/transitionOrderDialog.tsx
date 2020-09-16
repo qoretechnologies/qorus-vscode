@@ -1,14 +1,16 @@
 import React, { useState, useContext } from 'react';
-import { IFSMTransition, IFSMState } from '.';
+import { IFSMTransition, IFSMState, IFSMStates } from '.';
 import { TextContext } from '../../../context/text';
 import CustomDialog from '../../../components/CustomDialog';
 import Content from '../../../components/Content';
 import { ContentWrapper, ActionsWrapper } from '../panel';
 import styled from 'styled-components';
 import { ButtonGroup, Button, Classes, Tooltip, Intent, Icon } from '@blueprintjs/core';
-import { TransitionEditor, isConditionValid, getConditionType } from './transitionDialog';
+import FSMTransitionDialog, { TransitionEditor, isConditionValid, getConditionType } from './transitionDialog';
 import cloneDeep from 'lodash/cloneDeep';
 import capitalize from 'lodash/capitalize';
+import { getStateType } from './state';
+import OrderDialog from './orderDialog';
 
 export interface IFSMTransitionOrderDialogProps {
     id: string;
@@ -16,28 +18,9 @@ export interface IFSMTransitionOrderDialogProps {
     onClose: any;
     getStateData: (id: string) => IFSMState;
     onSubmit: (id: string, data: IFSMState) => any;
+    onEditClick: (id: string, index: number) => any;
+    states: IFSMStates;
 }
-
-const StyledTransitionOrderWrapper = styled.div`
-    display: flex;
-    width: 100%;
-    height: 50px;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 15px;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    margin-bottom: 10px;
-
-    > span {
-        font-size: 15px;
-    }
-
-    &:nth-child(even) {
-        background-color: #eee;
-        border-color: #ddd;
-    }
-`;
 
 const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
     id,
@@ -45,6 +28,8 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
     onClose,
     getStateData,
     onSubmit,
+    onEditClick,
+    states,
 }) => {
     const [newTransitions, setNewTransitions] = useState<IFSMTransition[]>(cloneDeep(transitions) || []);
     const [editingTransition, setEditingTransition] = useState<number | null>(null);
@@ -56,17 +41,13 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
 
             [result[from], result[to]] = [result[to], result[from]];
 
-            if (from === editingTransition) {
-                setEditingTransition(to);
-            }
-
             return result;
         });
     };
 
     const renderStateInfo = (id) => {
-        const { name, type, action }: IFSMState = getStateData(id);
-        const realType: string = type === 'fsm' ? type : action?.type;
+        const { name }: IFSMState = getStateData(id);
+        const realType: string = getStateType(getStateData(id));
 
         return (
             <>
@@ -110,11 +91,17 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
         );
     };
 
-    const updateTransitionData = (index, name, value) => {
+    const updateTransitionData = (_stateId, index, data, remove?: boolean) => {
         setNewTransitions((cur) => {
-            const result = [...cur];
+            let result = [...cur];
 
-            result[index][name] = value;
+            if (remove) {
+                delete result[index];
+            } else {
+                result[index] = data;
+            }
+
+            result = result.filter((tr) => tr);
 
             return result;
         });
@@ -130,100 +117,51 @@ const FSMTransitionOrderDialog: React.FC<IFSMTransitionOrderDialogProps> = ({
         });
     };
 
-    const isTransitionValid = (index) => {
-        return isConditionValid(newTransitions[index]);
+    const isTransitionValid = (item: IFSMTransition) => {
+        return isConditionValid(item);
     };
 
     const isDataValid = () => {
         return newTransitions.every((transition) => isConditionValid(transition));
     };
 
+    const renderMetadata = (item: IFSMTransition) => (
+        <>
+            {renderStateInfo(item.state)} {!isTransitionValid(item) && <Icon icon="cross" intent="danger" />}
+            {renderTransitionInfo(item)}
+        </>
+    );
+
     return (
-        <CustomDialog
-            onClose={onClose}
-            isOpen
-            title={t('EditingTransitionOrder')}
-            style={{ width: '80vw', paddingBottom: 0 }}
-        >
-            <Content style={{ backgroundColor: '#fff', borderTop: '1px solid #d7d7d7', padding: '10px' }}>
-                <ContentWrapper style={{ padding: 0 }}>
-                    {newTransitions.map((transition, index) => (
-                        <>
-                            <StyledTransitionOrderWrapper
-                                key={index}
-                                style={{ border: !isTransitionValid(index) ? '1px solid red' : undefined }}
-                            >
-                                <span>
-                                    <strong>{index + 1}.</strong> {t('TransitionToState')}{' '}
-                                    {renderStateInfo(transition.state)}{' '}
-                                    {!isTransitionValid(index) && <Icon icon="cross" intent="danger" />}
-                                    {renderTransitionInfo(transition)}
-                                </span>
-                                <ButtonGroup>
-                                    <Tooltip content={t('TransitionUp')}>
-                                        <Button
-                                            icon="arrow-up"
-                                            disabled={index === 0}
-                                            onClick={() => changeOrder(index, index - 1)}
-                                        />
-                                    </Tooltip>
-                                    <Tooltip content={t('TransitionDown')}>
-                                        <Button
-                                            icon="arrow-down"
-                                            disabled={index === newTransitions.length - 1}
-                                            onClick={() => changeOrder(index, index + 1)}
-                                        />
-                                    </Tooltip>
-                                    <Tooltip content={t('Edit')}>
-                                        <Button
-                                            icon="edit"
-                                            intent="warning"
-                                            onClick={() => setEditingTransition(index)}
-                                        />
-                                    </Tooltip>
-                                    <Tooltip content={t('Delete')}>
-                                        <Button icon="trash" intent="danger" onClick={() => removeTransition(index)} />
-                                    </Tooltip>
-                                </ButtonGroup>
-                            </StyledTransitionOrderWrapper>
-                            {editingTransition === index && (
-                                <TransitionEditor
-                                    onChange={(name, value) => updateTransitionData(index, name, value)}
-                                    transitionData={transition}
-                                    qorus_instance={null}
-                                    errors={null}
-                                />
-                            )}
-                        </>
-                    ))}
-                </ContentWrapper>
-                <ActionsWrapper>
-                    <ButtonGroup fill>
-                        <Tooltip content={t('ResetTooltip')}>
-                            <Button
-                                text={t('Reset')}
-                                icon={'history'}
-                                onClick={() => {
-                                    setNewTransitions(cloneDeep(transitions));
-                                    setEditingTransition(null);
-                                }}
-                            />
-                        </Tooltip>
-                        <Button
-                            text={t('Submit')}
-                            icon={'tick'}
-                            name={`fsn-submit-state`}
-                            intent={Intent.SUCCESS}
-                            disabled={!isDataValid()}
-                            onClick={() => {
-                                onSubmit(id, { transitions: newTransitions });
-                                onClose();
-                            }}
-                        />
-                    </ButtonGroup>
-                </ActionsWrapper>
-            </Content>
-        </CustomDialog>
+        <>
+            <OrderDialog
+                onClose={onClose}
+                data={newTransitions}
+                title="TransitionToState"
+                metadata={renderMetadata}
+                dialogTitle="EditTransitionsOrder"
+                changeOrder={changeOrder}
+                onEditClick={(index) => setEditingTransition(index)}
+                onDeleteClick={removeTransition}
+                onResetClick={() => {
+                    setNewTransitions(cloneDeep(transitions));
+                    setEditingTransition(null);
+                }}
+                onSubmitClick={() => {
+                    onSubmit(id, { transitions: newTransitions });
+                    onClose();
+                }}
+                isDisabled={!isDataValid()}
+            />
+            {editingTransition || editingTransition === 0 ? (
+                <FSMTransitionDialog
+                    onSubmit={updateTransitionData}
+                    onClose={() => setEditingTransition(null)}
+                    states={states}
+                    editingData={[{ stateId: id, index: editingTransition }]}
+                />
+            ) : null}
+        </>
     );
 };
 
