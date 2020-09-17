@@ -1,6 +1,4 @@
-import React, {
-    FormEvent, FunctionComponent, useContext, useEffect, useRef, useState
-} from 'react';
+import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 
 import { camelCase, cloneDeep, filter, find, forEach, includes, map, reduce, size, uniqBy, upperFirst } from 'lodash';
 import isArray from 'lodash/isArray';
@@ -29,9 +27,7 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import withMessageHandler, {
-    TMessageListener, TPostMessage
-} from '../../hocomponents/withMessageHandler';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
@@ -334,7 +330,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Set the new message listener
         setMessageListener(() => messageListenerHandler);
         // Fetch the fields
-        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
+        if (type === 'config-item' && isEditing) {
+            postMessage(Messages.GET_FIELDS, {
+                iface_kind: type,
+                is_editing: isEditing,
+                context,
+                iface_id: interfaceId,
+                name: data.name,
+            });
+        } else {
+            postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
+        }
         // Cleanup on unmount
         return () => {
             // Remove the message listener if it exists
