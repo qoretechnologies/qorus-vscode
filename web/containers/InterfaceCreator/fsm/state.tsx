@@ -70,6 +70,13 @@ const StyledStateAction = styled.p`
     text-align: center;
 `;
 
+export const StyledStateTextWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+`;
+
 const StyledFSMState = styled.div<IFSMStateStyleProps>`
     left: ${({ x }) => `${x}px`};
     top: ${({ y }) => `${y}px`};
@@ -288,10 +295,12 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 });
             }}
         >
-            <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
-            <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
-                {getStateType({ type, action, ...rest })}
-            </StyledStateAction>
+            <StyledStateTextWrapper>
+                <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
+                <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
+                    {getStateType({ type, action, ...rest })}
+                </StyledStateAction>
+            </StyledStateTextWrapper>
             {isHovered && !isDragging ? (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
                     <Button

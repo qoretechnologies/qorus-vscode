@@ -186,6 +186,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                         onChange={(_name, value) => handleDataUpdate('action', { type: 'pipeline', value })}
                         value={newData?.action?.value}
                         name="action"
+                        reference={{
+                            iface_kind: 'pipeline',
+                        }}
                     />
                 );
             }

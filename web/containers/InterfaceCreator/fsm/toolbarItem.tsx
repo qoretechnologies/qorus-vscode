@@ -16,8 +16,9 @@ export const getStateStyle = (type, toolbar?: boolean) => {
         case 'connector':
             return css`
                 transform: skew(15deg);
-                span,
-                p {
+                div,
+                > p,
+                > span {
                     transform: skew(-15deg);
                 }
             `;
@@ -44,14 +45,8 @@ export const getStateStyle = (type, toolbar?: boolean) => {
 
             return css`
                 transform: rotateZ(45deg);
-                span,
-                p {
-                    &:first-child {
-                        margin-right: 10px;
-                    }
-                    &:last-of-type {
-                        margin-left: 15px;
-                    }
+
+                div:first-child {
                     transform: rotateZ(-45deg);
                 }
             `;

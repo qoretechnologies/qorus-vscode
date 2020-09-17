@@ -1,6 +1,4 @@
-import React, {
-    useContext, useRef, useState
-} from 'react';
+import React, { useContext, useRef, useState } from 'react';
 
 import get from 'lodash/get';
 import omit from 'lodash/omit';
@@ -160,7 +158,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
     );
 };
 
-const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset }) => {
+const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset, onSubmitSuccess }) => {
     const wrapperRef = useRef(null);
     const t = useContext(TextContext);
     const { sidebarOpen, path, image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
@@ -286,6 +284,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 iface_kind: 'pipeline',
                 iface_id: interfaceId,
                 orig_data: pipeline,
+                no_data_return: !!onSubmitSuccess,
                 data: {
                     ...metadata,
                     'input-provider-options': metadata['input-provider-options'],
@@ -296,6 +295,13 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         );
 
         if (result.ok) {
+            if (onSubmitSuccess) {
+                onSubmitSuccess({
+                    ...metadata,
+                    'input-provider-options': metadata['input-provider-options'],
+                    children: elements[0].children,
+                });
+            }
             reset();
             resetAllInterfaceData('pipeline');
         }

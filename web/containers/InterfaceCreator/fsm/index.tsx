@@ -649,16 +649,22 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
         switch (side) {
             case 'right': {
-                return { x2, y2: y2 + getYDiff(targetStateType) };
+                return { x2: targetStateType === 'if' ? x2 - 16 : x2, y2: y2 + getYDiff(targetStateType) };
             }
             case 'left': {
-                return { x2: x2 + getXDiff(targetStateType) * 2, y2: y2 + getYDiff(targetStateType) };
+                return {
+                    x2: x2 + getXDiff(targetStateType) * 2 + (targetStateType === 'if' ? 16 : 0),
+                    y2: y2 + getYDiff(targetStateType),
+                };
             }
             case 'bottom': {
-                return { x2: x2 + getXDiff(targetStateType), y2 };
+                return { x2: x2 + getXDiff(targetStateType), y2: targetStateType === 'if' ? y2 - 16 : y2 };
             }
             case 'top': {
-                return { x2: x2 + getXDiff(targetStateType), y2: y2 + getYDiff(targetStateType) * 2 };
+                return {
+                    x2: x2 + getXDiff(targetStateType),
+                    y2: y2 + getYDiff(targetStateType) * 2 + (targetStateType === 'if' ? 16 : 0),
+                };
             }
             default: {
                 return {
