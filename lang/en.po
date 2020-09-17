@@ -2496,6 +2496,9 @@ msgstr "Are you sure you wish to remove the selected option?"
 msgid "ManageTransitions"
 msgstr "Manage transitions"
 
+msgid "ManageExecutionOrder"
+msgstr "Set execution order"
+
 msgid "DuplicateConfigItemName ${ name } ${ prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
 msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""
 

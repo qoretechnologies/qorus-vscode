@@ -83,7 +83,6 @@ export interface IFSMState {
     transitions?: IFSMTransition[];
     'error-transitions'?: IFSMTransition[];
     initial?: boolean;
-    final?: boolean;
     action?: {
         type: TAction;
         value?: string | { class: string; connector: string; prefix?: string };
@@ -235,7 +234,6 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                     calculatePercDiff(currentYPan.current) -
                                     (fieldsWrapperRef.current.getBoundingClientRect().height + (embedded ? 380 : 200)),
                             },
-                            final: false,
                             initial: false,
                             name: getStateName(item, id),
                             desc: '',

@@ -55,6 +55,21 @@ const wiggleAnimation = (type) => keyframes`
     }
 `;
 
+const StyledStateName = styled.p`
+    padding: 0;
+    margin: 0;
+    font-weight: 500;
+    text-align: center;
+`;
+
+const StyledStateAction = styled.p`
+    padding: 0;
+    margin: 0;
+    color: #a9a9a9;
+    font-size: 11px;
+    text-align: center;
+`;
+
 const StyledFSMState = styled.div<IFSMStateStyleProps>`
     left: ${({ x }) => `${x}px`};
     top: ${({ y }) => `${y}px`};
@@ -71,7 +86,10 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     justify-content: center;
     align-items: center;
     flex-flow: column;
-    opacity: ${({ isIsolated }) => (isIsolated ? 0.5 : 1)};
+
+    ${StyledStateName}, ${StyledStateAction} {
+        opacity: ${({ isIsolated }) => (isIsolated ? 0.4 : 1)};
+    }
 
     ${({ selected, initial, final }) => {
         let color: string = '#a9a9a9';
@@ -103,21 +121,6 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     ${({ type }) => getStateStyle(type)}
 `;
 
-const StyledStateName = styled.p`
-    padding: 0;
-    margin: 0;
-    font-weight: 500;
-    text-align: center;
-`;
-
-const StyledStateAction = styled.p`
-    padding: 0;
-    margin: 0;
-    color: #a9a9a9;
-    font-size: 11px;
-    text-align: center;
-`;
-
 export const calculateFontSize = (name, isAction?: boolean) => {
     if (!name) {
         return undefined;
@@ -138,7 +141,7 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
     }
 
     if (type === 'fsm') {
-        return `${rest.fsm} fsm`;
+        return `fsm`;
     }
 
     if (type === 'if') {
@@ -174,9 +177,11 @@ const FSMState: React.FC<IFSMStateProps> = ({
     isIsolated,
     ...rest
 }) => {
-    const [, drag] = useDrag({
+    const [isDragging, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
     });
+
+    console.log(isDragging);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const { addMenu } = useContext(ContextMenuContext);

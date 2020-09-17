@@ -104,7 +104,6 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
             handleDataUpdate('output-type', null);
             handleDataUpdate('id', undefined);
             handleDataUpdate('initial', false);
-            handleDataUpdate('final', false);
             setActionType('none');
         }
     };
@@ -497,6 +496,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                         modifiedData.fsm = undefined;
                                     } else {
                                         modifiedData.states = undefined;
+                                    }
+
+                                    if (modifiedData.execution_order === null) {
+                                        delete modifiedData.execution_order;
                                     }
 
                                     onSubmit(id, modifiedData);

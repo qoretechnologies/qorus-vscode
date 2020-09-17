@@ -63,12 +63,13 @@ export const getMaxExecutionOrderFromStates = (states: IFSMStates): number => {
         return 0;
     }
 
-    const { execution_order }: IFSMState = maxBy(
-        map(states, (state: IFSMState) => state),
-        'execution_order'
-    );
+    const { execution_order }: IFSMState =
+        maxBy(
+            map(states, (state: IFSMState) => state),
+            'execution_order'
+        ) || {};
 
-    return execution_order;
+    return execution_order || 0;
 };
 
 export const isStateIsolated = (stateKey: string, states: IFSMStates, checkedStates: string[] = []): boolean => {
