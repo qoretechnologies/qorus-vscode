@@ -224,11 +224,19 @@ export abstract class InterfaceCreator {
             fixed_data.type = capitalize(fixed_data.type);
         }
 
-        qorus_webview.setInitialData({
+        const initial_data = {
             tab: 'CreateInterface',
             subtab: iface_kind,
             [iface_kind]: { ...fixed_data, iface_id }
-        }, true);
+        };
+
+        if (this.file_path) {
+            this.code_info.edit_info.setFileInfo(this.file_path, fixed_data).then(
+                () => qorus_webview.setInitialData(initial_data, true)
+            );
+        } else {
+            qorus_webview.setInitialData(initial_data, true);
+        }
     }
 
     protected checkData = (params: any): any => {
@@ -258,9 +266,10 @@ export abstract class InterfaceCreator {
             edit_type,
             data: { name, version, type, 'class-name': class_name },
             orig_data,
+            recreate
         } = params;
 
-        if (!['create', 'edit'].includes(edit_type)) {
+        if (recreate || !['create', 'edit'].includes(edit_type)) {
             return { ok: true };
         }
 

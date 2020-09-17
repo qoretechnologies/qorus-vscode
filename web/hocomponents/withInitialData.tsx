@@ -21,6 +21,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [confirmDialog, setConfirmDialog] = useState<{
             isOpen: boolean;
             onSubmit: () => any;
+            onCancel?: () => any;
             text: string;
             btnText?: string;
             btnStyle?: string;
@@ -59,11 +60,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             text,
             action,
             btnText,
-            btnIntent
+            btnIntent,
+            onCancel
         ) => {
             setConfirmDialog({
                 isOpen: true,
                 text,
+                onCancel,
                 onSubmit: action,
                 btnStyle: btnIntent,
                 btnText,
@@ -217,6 +220,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 props.postMessage(getMessage, {
                     request_id: uniqueId,
                     ...data,
+                    recreate: initialData.isRecreate,
                 });
             });
         };

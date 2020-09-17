@@ -17,7 +17,7 @@ export const serviceImports = (lang: string, base_class_name: string) => {
     }
 };
 
-export const serviceFields = ({ default_target_dir, is_editing }) => [
+export const serviceFields = ({ default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -25,7 +25,7 @@ export const serviceFields = ({ default_target_dir, is_editing }) => [
     field.author,
     field.version,
     field.class_name,
-    field.lang(is_editing),
+    field.lang,
     field.constants,
     field.functions,
     field.mappers,

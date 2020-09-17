@@ -25,7 +25,7 @@ export class QorusQoreCodeLensProvider extends QorusCodeLensProviderBase {
 
                 return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
                     if (!symbols.length) {
-                        return this.previous_lenses;
+                        return [];
                     }
 
                     let lenses: CodeLens[] = [];
@@ -53,14 +53,13 @@ export class QorusQoreCodeLensProvider extends QorusCodeLensProviderBase {
                         }
                     });
 
-                    this.previous_lenses = lenses;
                     return lenses;
                 });
             },
 
             error => {
                 msg.error(error);
-                return this.previous_lenses;
+                return [];
             }
         );
     }

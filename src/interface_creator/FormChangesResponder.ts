@@ -1,5 +1,4 @@
 import { qorus_webview } from '../QorusWebview';
-import { default_lang } from '../qorus_constants';
 import { t } from 'ttag';
 
 
@@ -23,7 +22,7 @@ export class FormChangesResponder {
         }
     }
 
-    static langChanged({ lang, iface_id, iface_kind }, interface_info) {
+    static langChanged({ lang, orig_lang, iface_id, iface_kind, send_response }) {
         if (lang === 'java') {
             qorus_webview.postMessage({
                 action: 'creator-remove-field',
@@ -39,11 +38,13 @@ export class FormChangesResponder {
             });
         }
 
-        const orig_lang = interface_info.getData(iface_id)?.lang || default_lang;
-        if (orig_lang !== lang) {
+        if (send_response && orig_lang !== lang) {
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
-                message: t`LangChangeRecreateQuestion`
+                message: t`LangChangeRecreateQuestion`,
+                orig_lang,
+                iface_id,
+                iface_kind
             });
         }
     }

@@ -1,14 +1,17 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
+import shortid from 'shortid';
 import styled from 'styled-components';
 
 import { Button, ButtonGroup } from '@blueprintjs/core';
 
 import { TTranslator } from '../../App';
 import Tutorial from '../../components/Tutorial';
+import { Messages } from '../../constants/messages';
 import { TextContext } from '../../context/text';
+import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import { postMessage } from '../../hocomponents/withMessageHandler';
@@ -189,7 +192,15 @@ const TutorialButton = ({ type, onClick }) => {
     );
 };
 
-const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData }) => {
+const Tab: React.FC<ITabProps> = ({
+    t,
+    initialData,
+    type,
+    children,
+    resetAllInterfaceData,
+    setInterfaceId,
+    updateField,
+}) => {
     const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
@@ -273,4 +284,9 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
     );
 };
 
-export default compose(withInitialDataConsumer(), withTextContext(), withGlobalOptionsConsumer())(Tab);
+export default compose(
+    withFieldsConsumer(),
+    withInitialDataConsumer(),
+    withTextContext(),
+    withGlobalOptionsConsumer()
+)(Tab);

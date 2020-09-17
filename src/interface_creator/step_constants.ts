@@ -17,7 +17,7 @@ export const stepImports = (lang: string, base_class_name: string) => {
     }
 };
 
-export const stepFields = ({ default_target_dir, is_editing }) => [
+export const stepFields = ({ default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -25,7 +25,7 @@ export const stepFields = ({ default_target_dir, is_editing }) => [
     field.author,
     field.version,
     field.class_name,
-    field.lang(is_editing),
+    field.lang,
     field.constants,
     field.classes,
     field.functions,

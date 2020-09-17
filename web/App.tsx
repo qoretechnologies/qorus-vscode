@@ -1,8 +1,4 @@
-import React, {
-    FunctionComponent,
-    useEffect,
-    useState
-} from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 
 import last from 'lodash/last';
 import size from 'lodash/size';
@@ -12,15 +8,7 @@ import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 
-import {
-    AnchorButton,
-    Button,
-    ButtonGroup,
-    Callout,
-    Classes,
-    Navbar,
-    NavbarGroup
-} from '@blueprintjs/core';
+import { AnchorButton, Button, ButtonGroup, Callout, Classes, Navbar, NavbarGroup } from '@blueprintjs/core';
 
 import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
@@ -31,10 +19,7 @@ import { AppToaster } from './components/Toast';
 import { MENU } from './constants/menu';
 import { Messages } from './constants/messages';
 import InterfaceCreator from './containers/InterfaceCreator';
-import {
-    ContextMenuContext,
-    IContextMenu
-} from './context/contextMenu';
+import { ContextMenuContext, IContextMenu } from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
@@ -43,10 +28,7 @@ import withFunctions from './hocomponents/withFunctions';
 import withGlobalOptions from './hocomponents/withGlobalOptions';
 import withInitialData from './hocomponents/withInitialData';
 import withMapper from './hocomponents/withMapper';
-import withMessageHandler, {
-    TMessageListener,
-    TPostMessage
-} from './hocomponents/withMessageHandler';
+import withMessageHandler, { TMessageListener, TPostMessage } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
 import { LoginContainer } from './login/Login';
@@ -279,7 +261,10 @@ const App: FunctionComponent<IApp> = ({
                             isOpen
                             icon="warning-sign"
                             title={t('ConfirmDialogTitle')}
-                            onClose={() => setConfirmDialog({})}
+                            onClose={() => {
+                                confirmDialog.onCancel && confirmDialog.onCancel();
+                                setConfirmDialog({});
+                            }}
                             style={{ backgroundColor: '#fff' }}
                         >
                             <div className={Classes.DIALOG_BODY}>
@@ -290,7 +275,10 @@ const App: FunctionComponent<IApp> = ({
                                     <ButtonGroup>
                                         <Button
                                             text={t('Cancel')}
-                                            onClick={() => setConfirmDialog({})}
+                                            onClick={() => {
+                                                confirmDialog.onCancel && confirmDialog.onCancel();
+                                                setConfirmDialog({});
+                                            }}
                                             id="global-dialog-cancel"
                                         />
                                         <Button

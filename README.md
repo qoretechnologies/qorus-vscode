@@ -126,3 +126,13 @@ Context menus of instances in the *Qorus Instances* tree view contain also the f
 - Login without setting the instance active.
 - Logout (if the instance was active it becomes inactive).
 - Set the instance inactive while staying logged in.
+
+### Hints
+
+- If there can be a heavy filesystem traffic in a part of the project folder, such as running a build with make,
+  exclude that part from file watching otherwise the extension may get frozen:
+
+    - open settings (File -> Preferences -> Settings)
+    - switch to the Workspace tab
+    - search for "watcher exclude"
+    - add a pattern there
