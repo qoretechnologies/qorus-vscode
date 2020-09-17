@@ -177,11 +177,16 @@ const FSMState: React.FC<IFSMStateProps> = ({
     isIsolated,
     ...rest
 }) => {
-    const [isDragging, drag] = useDrag({
+    const [isDragging, setIsDragging] = useState<boolean>(false);
+    const [_, drag] = useDrag({
         item: { name: 'state', type: STATE_ITEM_TYPE, id },
+        begin: () => {
+            setIsDragging(true);
+        },
+        end: () => {
+            setIsDragging(false);
+        },
     });
-
-    console.log(isDragging);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const { addMenu } = useContext(ContextMenuContext);
@@ -287,7 +292,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
                 {getStateType({ type, action, ...rest })}
             </StyledStateAction>
-            {isHovered && (
+            {isHovered && !isDragging ? (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
                     <Button
                         icon="edit"
@@ -297,7 +302,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
                     />
                     <Button icon="cross" intent="danger" onClick={(e) => handleClick(e, onDeleteClick)} />
                 </ButtonGroup>
-            )}
+            ) : null}
         </StyledFSMState>
     );
 };
