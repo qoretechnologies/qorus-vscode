@@ -470,6 +470,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
     };
 
     const handleSubmitClick = async () => {
+        let fixedMetadata = { ...metadata };
+
+        if (size(metadata.groups) === 0) {
+            delete fixedMetadata.groups;
+        }
+
         const result = await callBackend(
             fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
             undefined,
@@ -479,7 +485,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 orig_data: fsm,
                 no_data_return: !!onSubmitSuccess,
                 data: {
-                    ...metadata,
+                    ...fixedMetadata,
                     states,
                 },
             },
