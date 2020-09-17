@@ -1,6 +1,4 @@
-import React, {
-    useContext, useEffect, useState
-} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -229,7 +227,7 @@ const Tab: React.FC<ITabProps> = ({
                 message,
                 () => {
                     initialData.resetInterfaceData(iface_kind);
-                    initialData.changeInitialData('isRecreate', true);
+                    initialData.changeInitialData('isRecreate', orig_lang ? false : true);
                     setInterfaceId(iface_kind, shortid.generate());
                     setRecreateDialog(null);
                 },
