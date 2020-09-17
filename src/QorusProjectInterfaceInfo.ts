@@ -689,6 +689,11 @@ export class QorusProjectInterfaceInfo {
         }
     }
 
+    isConfigItemValueSetByParent = (iface_id, config_item_name, field_name) => {
+        msg.debug({iface_id, config_item_name, field_name});
+        return false;
+    }
+
     getConfigItems = params => {
         this.code_info.waitForPending(['yaml']).then(() => this.getConfigItemsImpl(params));
     }
