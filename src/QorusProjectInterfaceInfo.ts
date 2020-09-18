@@ -518,10 +518,10 @@ export class QorusProjectInterfaceInfo {
         });
     }
 
-    getConfigItem = ({iface_id, name, state_id, processor_id}) => {
+    private findConfigItem = ({iface_id, name, state_id, processor_id}) => {
         const iface = iface_id && this.iface_by_id[iface_id];
         if (!iface) {
-            return;
+            return undefined;
         }
 
         let config_items;
@@ -532,12 +532,16 @@ export class QorusProjectInterfaceInfo {
             config_items = iface['config-items'];
         }
 
-        const config_item = (config_items || []).find(item => item.name === name);
-        if (!config_item) {
+        return (config_items || []).find(item => item.name === name);
+    }
+
+    getConfigItem = params => {
+        const found_item = this.findConfigItem(params);
+        if (!found_item) {
             return;
         }
 
-        let item = { ... config_item };
+        let item = { ...found_item };
         item.type = item.type || defaultValue('type');
         if (item.type[0] === '*') {
             item.type = item.type.substr(1);
@@ -687,6 +691,28 @@ export class QorusProjectInterfaceInfo {
         if (specific_data_id && iface.specific_data?.[specific_data_id]) {
             delete iface.specific_data[specific_data_id];
         }
+    }
+
+    isConfigItemValueSetByParent = (params, field_name) => {
+        const item = this.findConfigItem(params);
+        msg.debug({item});
+        if (!item?.parent) {
+            return false;
+        }
+
+        const parent_name = item.parent['interface-name'];
+        const parent_data = this.yaml_info.yamlDataByName('class', parent_name);
+        if (!parent_data?.['config-items']) {
+            return false;
+        }
+
+        const parent_item = parent_data['config-items'].find(item2 => item.name === item2.name);
+        if (!parent_item) {
+            return false;
+        }
+
+        const inherited_data = this.configItemInheritedData(parent_item);
+        return inherited_data[field_name] !== undefined;
     }
 
     getConfigItems = params => {
