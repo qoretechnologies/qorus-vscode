@@ -518,10 +518,10 @@ export class QorusProjectInterfaceInfo {
         });
     }
 
-    getConfigItem = ({iface_id, name, state_id, processor_id}) => {
+    private findConfigItem = ({iface_id, name, state_id, processor_id}) => {
         const iface = iface_id && this.iface_by_id[iface_id];
         if (!iface) {
-            return;
+            return undefined;
         }
 
         let config_items;
@@ -532,12 +532,16 @@ export class QorusProjectInterfaceInfo {
             config_items = iface['config-items'];
         }
 
-        const config_item = (config_items || []).find(item => item.name === name);
-        if (!config_item) {
+        return (config_items || []).find(item => item.name === name);
+    }
+
+    getConfigItem = params => {
+        const found_item = this.findConfigItem(params);
+        if (!found_item) {
             return;
         }
 
-        let item = { ... config_item };
+        let item = { ...found_item };
         item.type = item.type || defaultValue('type');
         if (item.type[0] === '*') {
             item.type = item.type.substr(1);
@@ -689,8 +693,14 @@ export class QorusProjectInterfaceInfo {
         }
     }
 
-    isConfigItemValueSetByParent = (iface_id, config_item_name, field_name) => {
-        msg.debug({iface_id, config_item_name, field_name});
+    isConfigItemValueSetByParent = (params, field_name) => {
+        const config_item = this.findConfigItem(params);
+        if (config_item) {
+            return false;
+        }
+
+        const {iface_id, name} = params;
+        msg.debug({iface_id, name, field_name});
         return false;
     }
 
