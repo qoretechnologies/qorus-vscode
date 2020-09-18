@@ -4,6 +4,7 @@
 
 #### New features
 
+- extension is now 20 times smaller in size
 - support for Python
 - pipelines
 - finite state machines
@@ -13,12 +14,15 @@
 - re-creation of an interface with another programming language
 - re-creation of an interface with a broken source code
 - forms are no longer cleared on submit
+- view and delete interface directly from the webview
+- new tutorial feature to guide you through some of the more complex interfaces
+- many visual improvements
 
 #### Bug fixes
 
 - behaviour on write file error, e.g. when target directory is invalid
 - saving codeless interfaces
-- managing serving methods
+- fixed service method management
 
 ## 1.3.0
 
