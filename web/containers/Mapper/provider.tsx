@@ -1,9 +1,8 @@
-import React, {
-    FC, useCallback, useContext, useState
-} from 'react';
+import React, { FC, useCallback, useContext, useState } from 'react';
 
 import map from 'lodash/map';
 import size from 'lodash/size';
+import nth from 'lodash/nth';
 import styled, { css } from 'styled-components';
 
 import { Button, ButtonGroup, Callout, Classes, Spinner } from '@blueprintjs/core';
@@ -225,6 +224,39 @@ const MapperProvider: FC<IProviderProps> = ({
                     return newItem;
                 })
                 .filter((item) => item);
+            if (data.has_type) {
+                (async () => {
+                    setIsLoading(true);
+                    if (type === 'outputs' && data.mapper_keys) {
+                        // Save the mapper keys
+                        setMapperKeys && setMapperKeys(data.mapper_keys);
+                    }
+                    // Fetch the record
+                    const record = await fetchData(
+                        `${url}/${value}${suffix}${providers[provider].recordSuffix}${
+                            type === 'outputs' ? '?soft=true' : ''
+                        }`
+                    );
+                    // Remove loading
+                    setIsLoading(false);
+                    // Save the name by pulling the 3rd item from the split
+                    // url (same for every provider type)
+                    const name = `${url}/${value}`.split('/')[2];
+                    // Set the provider option
+                    setOptionProvider({
+                        type: providers[provider].type,
+                        name,
+                        can_manage_fields: record.data.can_manage_fields,
+                        path: `${url}/${value}`
+                            .replace(`${name}`, '')
+                            .replace(`${providers[provider].url}/`, '')
+                            .replace('provider/', ''),
+                    });
+                    // Set the record data
+                    setRecord && setRecord(!providers[provider].requiresRecord ? record.data.fields : record.data);
+                    //
+                })();
+            }
             // If this provider has children
             if (size(data.children)) {
                 // Return the updated items and add
@@ -288,7 +320,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     setRecord && setRecord(data.fields);
                 }
                 // Check if there is a record
-                else if (data.has_record || data.has_type || !providers[provider].requiresRecord) {
+                else if (data.has_record || !providers[provider].requiresRecord) {
                     (async () => {
                         setIsLoading(true);
                         if (type === 'outputs' && data.mapper_keys) {
@@ -407,6 +439,39 @@ const MapperProvider: FC<IProviderProps> = ({
                         />
                     ))}
                     {isLoading && <Spinner size={15} />}
+                    {nodes.length > 0 && (
+                        <Button
+                            intent="danger"
+                            icon="step-backward"
+                            onClick={() => {
+                                setChildren((cur) => {
+                                    const result = [...cur];
+
+                                    result.pop();
+
+                                    const lastChild = nth(result, -2);
+                                    const index = size(result) - 2;
+                                    const { value, values } = lastChild;
+                                    const { url, suffix } = values.find((val) => val.name === value);
+
+                                    // If the value is a wildcard present a dialog that the user has to fill
+                                    if (value === '*') {
+                                        setWildcardDiagram({
+                                            index,
+                                            isOpen: true,
+                                            url,
+                                            suffix,
+                                        });
+                                    } else {
+                                        // Change the child
+                                        handleChildFieldChange(value, url, index, suffix);
+                                    }
+
+                                    return result;
+                                });
+                            }}
+                        />
+                    )}
                     {record && (
                         <Button
                             intent="success"
