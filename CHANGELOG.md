@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.99.0
+
+#### New features
+
+- support for Python
+- pipelines
+- finite state machines
+- code sharing among different languages (Qore, Python, Java):
+    everything is possible except that a Java class cannot inherit another language class
+- remember last target directory and use it as default for next new interface
+- re-creation of an interface with another programming language
+- re-creation of an interface with a broken source code
+- forms are no longer cleared on submit
+
+#### Bug fixes
+
+- behaviour on write file error, e.g. when target directory is invalid
+- saving codeless interfaces
+- managing serving methods
+
 ## 1.3.0
 
 #### New features
