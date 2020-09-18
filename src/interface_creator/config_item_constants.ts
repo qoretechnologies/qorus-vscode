@@ -24,20 +24,20 @@ export const configItemFields = (params) => {
         },
         {
             name: 'can_be_undefined',
-            mandatory: iface_info?.isConfigItemValueSetByParent(params, 'can_be_undefined'),
+            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'can_be_undefined'),
             type: 'boolean',
             default_value: false,
         },
         {
             name: 'default_value',
-            mandatory: iface_info?.isConfigItemValueSetByParent(params, 'default_value'),
+            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'default_value'),
             type: 'auto',
             'type-depends-on': 'type',
             'allowed-types': types,
         },
         {
             name: 'strictly_local',
-            mandatory: iface_info?.isConfigItemValueSetByParent(params, 'strictly_local'),
+            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'strictly_local'),
             type: 'boolean',
             default_value: false,
         },
@@ -47,14 +47,14 @@ export const configItemFields = (params) => {
         },
         {
             name: 'allowed_values',
-            mandatory: iface_info?.isConfigItemValueSetByParent(params, 'allowed_values'),
+            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'allowed_values'),
             type: 'array-auto',
             'type-depends-on': 'type',
             'allowed-types': types,
         },
         {
             name: 'sensitive',
-            mandatory: iface_info?.isConfigItemValueSetByParent(params, 'sensitive'),
+            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'sensitive'),
             type: 'boolean',
             default_value: false
         },

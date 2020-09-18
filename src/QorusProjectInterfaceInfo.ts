@@ -707,9 +707,18 @@ export class QorusProjectInterfaceInfo {
         }
     }
 
-    isConfigItemValueSetByParent = (params, field_name) => {
+    isConfigItemAttributeSet = (params, field_name) => {
         const item = this.findConfigItem(params);
-        msg.debug({item});
+        if (!item) {
+            return false;
+        }
+
+        const inherited_data = this.configItemInheritedData(item);
+        return inherited_data[field_name] !== undefined;
+    }
+
+    isConfigItemAttributeSetByParent = (params, field_name) => {
+        const item = this.findConfigItem(params);
         if (!item?.parent) {
             return false;
         }
