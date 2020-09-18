@@ -237,11 +237,9 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             return every(value, (optionData) => validateField(optionData.type, optionData.value));
         }
         case 'byte-size': {
-            console.log(value);
             let valid = true;
 
             const [bytes, size] = splitByteSize(value);
-            console.log(bytes, size);
 
             if (!validateField('number', bytes)) {
                 valid = false;

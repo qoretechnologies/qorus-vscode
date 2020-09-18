@@ -5,6 +5,7 @@ import * as map from 'lodash/map';
 import * as msg from './qorus_message';
 import { instance_tree } from './QorusInstanceTree';
 import { projects, QorusProject, config_filename } from './QorusProject';
+import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
@@ -41,6 +42,16 @@ class QorusWebview {
                 ...other_data,
             },
         });
+    }
+
+    private checkError = (edit_info: QorusProjectEditInfo) => {
+        const iface_kind = this.initial_data.subtab;
+        if (iface_kind && this.initial_data[iface_kind]) {
+            const { target_dir, target_file, iface_id } = this.initial_data[iface_kind];
+            if (target_dir && target_file) {
+                edit_info.checkError(path.join(target_dir, target_file), iface_id, iface_kind);
+            }
+        }
     }
 
     open(initial_data: any = {}) {
@@ -229,6 +240,9 @@ class QorusWebview {
                         case 'creator-edit-interface':
                             creator.editInterface({ ...message, edit_type: 'edit', interface_info });
                             break;
+                        case 'check-edit-data':
+                            this.checkError(project.code_info.edit_info);
+                            break;
                         case 'creator-field-added':
                             FormChangesResponder.fieldAdded(message);
                             break;
@@ -276,7 +290,7 @@ class QorusWebview {
                             interface_info.removeSpecificData(message);
                             break;
                         case 'lang-changed':
-                            FormChangesResponder.langChanged(message, interface_info);
+                            FormChangesResponder.langChanged(message);
                             break;
                         case 'target-dir-changed':
                             interface_info.last_target_directory = message.target_dir;

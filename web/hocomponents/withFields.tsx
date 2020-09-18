@@ -1,10 +1,13 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, {
+    FunctionComponent, useState
+} from 'react';
 
 import { every, reduce } from 'lodash';
 import { isArray } from 'util';
 
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
+import { maybeSendOnChangeEvent } from '../helpers/common';
 
 const getInterfaceCollectionType: (type: string) => [] | {} = (type) => {
     switch (type) {
@@ -138,7 +141,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setAsDraft: (type: string) => void = (type) => {
-            if (!props.unfinishedWork[type]) {
+            if (!props.unfinishedWork?.[type]) {
                 props.setUnfinishedWork((current) => {
                     const newResult = { ...current };
                     // Set the interface id to null
@@ -172,6 +175,30 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 } else {
                     newResult[type] = typeof value === 'function' ? value(current[type]) : value;
                 }
+                return newResult;
+            });
+        };
+
+        const updateField = (type, field, value, iface_id) => {
+            setLocalSelectedFields((current) => {
+                const newResult = { ...current };
+
+                newResult[type] = newResult[type].reduce((fields, currentField) => {
+                    if (currentField.name === field) {
+                        maybeSendOnChangeEvent(currentField, value, type, iface_id);
+
+                        return [
+                            ...fields,
+                            {
+                                ...currentField,
+                                value,
+                            },
+                        ];
+                    }
+
+                    return [...fields, currentField];
+                }, []);
+
                 return newResult;
             });
         };
@@ -259,6 +286,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     unfinishedWork: props.unfinishedWork,
                     setAsDraft,
                     requestInterfaceData,
+                    updateField,
                 }}
             >
                 <Component {...props} />

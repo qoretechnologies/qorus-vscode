@@ -1,19 +1,8 @@
-import React, { FormEvent, FunctionComponent, useEffect, useRef, useState } from 'react';
+import React, {
+    FormEvent, FunctionComponent, useContext, useEffect, useRef, useState
+} from 'react';
 
-import {
-    camelCase,
-    cloneDeep,
-    filter,
-    find,
-    forEach,
-    includes,
-    map,
-    omit,
-    reduce,
-    size,
-    uniqBy,
-    upperFirst,
-} from 'lodash';
+import { camelCase, cloneDeep, filter, find, forEach, includes, map, reduce, size, uniqBy, upperFirst } from 'lodash';
 import isArray from 'lodash/isArray';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
@@ -33,12 +22,16 @@ import FieldSelector from '../../components/FieldSelector';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
+import { InitialContext } from '../../context/init';
+import { maybeSendOnChangeEvent } from '../../helpers/common';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+    TMessageListener, TPostMessage
+} from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
@@ -194,7 +187,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     forceSubmit,
     resetFields,
     openFileOnSubmit,
-    initialData,
     hasConfigManager,
     parent,
     interfaceId,
@@ -225,6 +217,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
+    const initialData = useContext(InitialContext);
 
     const getClasses = () => {
         const classes = selectedFields?.find((field: IField) => field.name === 'classes');
@@ -603,22 +596,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             // Change the method name in the side panel
                             onNameChange(activeId, value, metadata?.originalName);
                         }
-                        // Check if this field has an on_change message
-                        if (currentField.on_change) {
-                            // Check if on_change is a list
-                            const onChange: string[] = isArray(currentField.on_change)
-                                ? currentField.on_change
-                                : [currentField.on_change];
-                            // Post all the actions
-                            onChange.forEach((action) => {
-                                // Post the message with this handler
-                                postMessage(action, {
-                                    [currentField.name]: value,
-                                    iface_kind: type,
-                                    iface_id: interfaceId,
-                                });
-                            });
-                        }
+                        // On change events
+                        maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
                         // Add the value
                         return [
                             ...newFields,

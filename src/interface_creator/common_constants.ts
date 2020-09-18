@@ -111,7 +111,7 @@ export const classImports = (lang: string, base_class_name: string) => {
 
 // ================================================================
 
-export const classFields = ({ is_editing, default_target_dir }) => [
+export const classFields = ({ default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.desc,
@@ -121,7 +121,7 @@ export const classFields = ({ is_editing, default_target_dir }) => [
         name: 'class-class-name',
         has_to_be_valid_identifier: true,
     },
-    field.lang(is_editing),
+    field.lang,
     {
         name: 'base-class-name',
         mandatory: false,
@@ -222,7 +222,7 @@ export const field = {
         has_to_be_valid_identifier: true,
         style: 'PascalCase',
     },
-    lang: is_editing => ({
+    lang: {
         name: 'lang',
         type: 'enum',
         items: [
@@ -240,9 +240,8 @@ export const field = {
             },
         ],
         default_value: default_lang,
-        disabled: is_editing,
         on_change: 'lang-changed',
-    }),
+    },
     constants: {
         name: 'constants',
         mandatory: false,

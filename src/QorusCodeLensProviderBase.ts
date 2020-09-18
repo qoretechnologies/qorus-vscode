@@ -9,7 +9,6 @@ import { dash2Pascal, expectsYamlFile, isTest, suffixToIfaceKind } from './qorus
 
 export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
     protected code_info: QorusProjectCodeInfo = undefined;
-    protected previous_lenses: CodeLens[] = [];
 
     public provideCodeLenses(document: TextDocument): Promise<CodeLens[]> {
         if (!expectsYamlFile(document.uri.fsPath)) {

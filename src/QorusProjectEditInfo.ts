@@ -21,12 +21,14 @@ export class QorusProjectEditInfo {
         return error;
     }
 
-    checkError = (file: string) => {
+    checkError = (file: string, iface_id: string, iface_kind: string) => {
         if (this.edit_info?.[file]?.error) {
             msg.error(this.edit_info[file].error);
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
-                message: t`BadEditDataRecreateQuestion`
+                message: t`BadEditDataRecreateQuestion`,
+                iface_id,
+                iface_kind
             });
         }
     }

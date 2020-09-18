@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
-import { GlobalContext } from '../context/global';
+import React, {
+    useContext, useState
+} from 'react';
+
 import compose from 'recompose/compose';
-import withStepsConsumer from './withStepsConsumer';
+
+import { GlobalContext } from '../context/global';
+import { InitialContext } from '../context/init';
 import withFieldsConsumer from './withFieldsConsumer';
-import withMethodsConsumer from './withMethodsConsumer';
 import withFunctionsConsumer from './withFunctionsConsumer';
 import withMapperConsumer from './withMapperConsumer';
+import withMessageHandler from './withMessageHandler';
+import withMethodsConsumer from './withMethodsConsumer';
+import withStepsConsumer from './withStepsConsumer';
 
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: any): any => {
@@ -13,6 +19,7 @@ export default () => (Component: any): any => {
         const [typeReset, setTypeReset] = useState(null);
         const [fsmReset, setFsmReset] = useState(null);
         const [pipelineReset, setPipelineReset] = useState(null);
+        const initialData = useContext(InitialContext);
 
         const handleInterfaceReset: (type: string, soft?: boolean) => void = (type, soft) => {
             // Reset the initial data
@@ -93,6 +100,7 @@ export default () => (Component: any): any => {
         withStepsConsumer(),
         withMethodsConsumer(),
         withFunctionsConsumer(),
-        withMapperConsumer()
+        withMapperConsumer(),
+        withMessageHandler()
     )(EnhancedComponent);
 };
