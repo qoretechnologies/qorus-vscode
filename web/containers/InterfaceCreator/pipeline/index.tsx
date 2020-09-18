@@ -29,6 +29,7 @@ import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMess
 import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
+import { StyledToolbarWrapper } from '../fsm';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -91,6 +92,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 
     return (
         <StyledNodeLabel
+            onClick={() => onEditClick({ nodeData })}
             onContextMenu={(event) => {
                 event.persist();
 
@@ -98,16 +100,16 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 
                 if (nodeData.type !== 'start') {
                     menu.data.unshift({
-                        item: t('Edit'),
-                        onClick: () => onEditClick({ nodeData }),
-                        icon: 'edit',
-                        intent: 'warning',
-                    });
-                    menu.data.unshift({
                         item: t('Delete'),
                         onClick: () => onDeleteClick({ nodeData }),
                         icon: 'trash',
                         intent: 'danger',
+                    });
+                    menu.data.unshift({
+                        item: t('Edit'),
+                        onClick: () => onEditClick({ nodeData }),
+                        icon: 'edit',
+                        intent: 'warning',
                     });
                 }
 
@@ -161,16 +163,43 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset, onSubmitSuccess }) => {
     const wrapperRef = useRef(null);
     const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
+    const { image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
+    const changeHistory = useRef<string[]>([]);
+    const currentHistoryPosition = useRef<number>(-1);
 
     useMount(() => {
         setPipelineReset(() => reset);
+
+        updateHistory(
+            transformNodeData(
+                [
+                    {
+                        type: 'start',
+                        children: pipeline?.children || [],
+                    },
+                ],
+                ''
+            )
+        );
 
         return () => {
             setPipelineReset(null);
         };
     });
+
+    const updateHistory = (data: IPipelineElement[]) => {
+        if (currentHistoryPosition.current >= 0) {
+            changeHistory.current.length = currentHistoryPosition.current + 1;
+        }
+        changeHistory.current.push(JSON.stringify(data));
+
+        if (changeHistory.current.length > 10) {
+            changeHistory.current.shift();
+        } else {
+            currentHistoryPosition.current += 1;
+        }
+    };
 
     const transformNodeData = (data, path) => {
         return data.reduce((newData, item, index) => {
@@ -357,13 +386,19 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             // We are adding a child to a queue
             if (data.parentPath) {
                 const children = get(result, `${data.parentPath}.children`);
-                // Push the new item
-                children.push(omit(data, ['parentPath']));
+                if (!children) {
+                    set(result, `${data.parentPath}.children`, [omit(data, ['parentPath'])]);
+                } else {
+                    // Push the new item
+                    children.push(omit(data, ['parentPath']));
+                }
             } else {
                 set(result, data.path, data);
             }
 
             result = transformNodeData(result, '');
+
+            updateHistory(result);
 
             return result;
         });
@@ -395,6 +430,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
 
             result = filterRemovedElements(result);
             result = transformNodeData(result, '');
+
+            updateHistory(result);
 
             return result;
         });
@@ -522,6 +559,32 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     </>
                 )}
             </div>
+            <StyledToolbarWrapper id="pipeline-toolbar">
+                <ButtonGroup style={{ float: 'right' }}>
+                    <Button
+                        onClick={() => {
+                            currentHistoryPosition.current -= 1;
+                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                        }}
+                        disabled={currentHistoryPosition.current <= 0}
+                        text={`(${currentHistoryPosition.current})`}
+                        icon="undo"
+                    />
+                    <Button
+                        onClick={() => {
+                            currentHistoryPosition.current += 1;
+                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                        }}
+                        disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
+                        text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
+                        icon="redo"
+                    />
+                    <Button
+                        onClick={() => setIsMetadataHidden((cur) => !cur)}
+                        icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
+                    />
+                </ButtonGroup>
+            </StyledToolbarWrapper>
             <StyledDiagramWrapper ref={wrapperRef} id="pipeline-diagram" path={image_path}>
                 {wrapperRef.current && (
                     <Tree

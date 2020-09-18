@@ -115,7 +115,7 @@ export const STATE_HEIGHT: number = 50;
 const DIAGRAM_DRAG_KEY: string = 'Shift';
 const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 
-const StyledToolbarWrapper = styled.div`
+export const StyledToolbarWrapper = styled.div`
     margin-bottom: 10px;
     margin-top: 10px;
 `;
