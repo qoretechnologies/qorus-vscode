@@ -421,17 +421,15 @@ export class QorusProjectCodeInfo {
 
         fixConfigItems(data['config-items']);
 
-        if (data.type === 'fsm' && data.states) {
-            Object.keys(data.states).forEach(id => {
-                fixConfigItems(data.states[id]['config-items']);
+        const fixStates = (states: any = {}) => {
+            Object.keys(states).forEach(id => {
+                fixConfigItems(states[id]['config-items']);
+                fixStates(states[id].states);
             });
-        }
+        };
+        fixStates(data.states);
 
-        const fixProcessors = (children: any[]) => {
-            if (!children?.length) {
-                return;
-            }
-
+        const fixProcessors = (children: any[] = []) => {
             children.forEach(child => {
                 switch (child.type) {
                     case 'queue':
@@ -1007,18 +1005,8 @@ export class QorusProjectCodeInfo {
     }
 
     deleteInterfaceFromWebview = ({iface_kind, name}) => {
-        vscode.window.showWarningMessage(
-            t`ConfirmDeleteInterface ${iface_kind} ${name}`, t`Yes`, t`No`
-        ).then(
-            selection => {
-                if (selection !== t`Yes`) {
-                    return;
-                }
-
-                const iface_data = this.yaml_info.yamlDataByName(iface_kind, name);
-                QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
-            }
-        );
+        const iface_data = this.yaml_info.yamlDataByName(iface_kind, name);
+        QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
     }
 
     static deleteInterface = ({iface_kind, iface_data}) => {

@@ -2,12 +2,7 @@ import React from 'react';
 
 import styled from 'styled-components';
 
-import {
-    Icon,
-    Menu,
-    MenuDivider,
-    MenuItem
-} from '@blueprintjs/core';
+import { Icon, Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
 
 import { IContextMenu } from '../../context/contextMenu';
 
@@ -21,7 +16,7 @@ const StyledContextMenuWrapper = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1000;
+    z-index: 10000;
 `;
 
 const ContextMenu: React.FC<IContextMenuProps> = ({ event, data, onClick }) => {
@@ -49,6 +44,7 @@ const ContextMenu: React.FC<IContextMenuProps> = ({ event, data, onClick }) => {
                             text={datum.item}
                             icon={datum.icon}
                             intent={datum.intent}
+                            disabled={datum.disabled}
                             labelElement={datum.rightIcon ? <Icon icon={datum.rightIcon} /> : undefined}
                         />
                     )

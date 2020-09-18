@@ -780,7 +780,7 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'children':
-                        const dumpChildren = (children: any, indent_level: number) => {
+                        const dumpChildren = (children: any[] | undefined, indent_level: number) => {
                             if (!children?.length) {
                                 return;
                             }
@@ -844,18 +844,32 @@ export abstract class InterfaceCreator {
                             InterfaceCreator.indentYamlDump(value, 1, true);
                         break;
                     case 'states':
-                        result += `${tag}:\n`;
-                        Object.keys(value).forEach(id => {
-                            let cloned_value = deepCopy(value[id]);
-                            delete cloned_value['config-items'];
-                            delete cloned_value['orig-config-items'];
-                            delete cloned_value.class_name;
-                            result += `${indent}'${id}':\n` +
-                                InterfaceCreator.indentYamlDump(cloned_value, 2, true);
-                            if (iface_data?.specific_data?.[id]?.['config-items']?.length) {
-                                result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[id]['config-items'], 2);
+                        const dumpStates = (states: any = {}, indent_level: number) => {
+                            const ids = Object.keys(states);
+                            if (!ids.length) {
+                                return;
                             }
-                        });
+
+                            result += `${indent.repeat(indent_level)}states:\n`;
+                            ids.forEach(id => {
+                                dumpState(id, states[id], indent_level);
+                            });
+                        };
+                        const dumpState = (id: string, state: any, indent_level: number) => {
+                            const cloned_state = deepCopy(state);
+                            delete cloned_state['config-items'];
+                            delete cloned_state['orig-config-items'];
+                            delete cloned_state.class_name;
+                            delete cloned_state.states;
+                            result += `${indent.repeat(indent_level + 1)}'${id}':\n` +
+                                InterfaceCreator.indentYamlDump(cloned_state, indent_level + 2, true);
+                            if (state.id && iface_data?.specific_data?.[state.id]?.['config-items']?.length) {
+                                result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[state.id]['config-items'], indent_level + 2);
+                            }
+                            dumpStates(state.states, indent_level + 2);
+                        };
+
+                        dumpStates(value, 0);
                         break;
                     case 'desc':
                     case 'description':

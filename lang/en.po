@@ -1066,6 +1066,30 @@ msgstr "Version"
 msgid "field-desc-version"
 msgstr "Version string for the interface object"
 
+msgid "field-label-for"
+msgstr "for"
+
+msgid "field-label-true"
+msgstr "True"
+
+msgid "field-label-false"
+msgstr "False"
+
+msgid "field-label-foreach"
+msgstr "foreach"
+
+msgid "field-label-while"
+msgstr "while"
+
+msgid "field-label-block-logic"
+msgstr "Block logic"
+
+msgid "field-label-block-type"
+msgstr "Block type"
+
+msgid "field-label-block-config"
+msgstr "Block config"
+
 msgid "field-label-serviceversion"
 msgstr "Version"
 
@@ -2316,6 +2340,9 @@ msgstr "Input type"
 msgid "OutputType"
 msgstr "Output type"
 
+msgid "InputOutputType"
+msgstr "Input & output type"
+
 msgid "TransitionErrorsNoInstance"
 msgstr "Active Qorus instance is required to display list of server errors"
 
@@ -2421,17 +2448,23 @@ msgstr "Toggle toolbar"
 msgid "Recenter"
 msgstr "Recenter diagram"
 
-msgid "EditingTransitionOrder"
+msgid "Branch"
+msgstr "Branch"
+
+msgid "EditTransitionsOrder"
 msgstr "Edit transitions order"
+
+msgid "EditStatesOrder"
+msgstr "Edit initial states order"
 
 msgid "TransitionToState"
 msgstr "Transition to state"
 
-msgid "TransitionUp"
-msgstr "Move transition up"
+msgid "MoveItemUp"
+msgstr "Move item up"
 
-msgid "TransitionDown"
-msgstr "Move transition down"
+msgid "MoveItemDown"
+msgstr "Move item down"
 
 msgid "Missing"
 msgstr "Missing"
@@ -2442,8 +2475,29 @@ msgstr "Error(s)"
 msgid "TransitionOrderCondition"
 msgstr "condition"
 
+msgid "LoadingOptions"
+msgstr "Loading options ..."
+
+msgid "NoOptionsSelected"
+msgstr "No options selected. Please select an option below."
+
+msgid "AddNewOption"
+msgstr "Add option"
+
+msgid "ErrorLoadingOptions"
+msgstr "There was an error loading options:"
+
+msgid "OptionsQorusInstanceRequired"
+msgstr "An active instance is required to manage options."
+
+msgid "RemoveSelectedOption"
+msgstr "Are you sure you wish to remove the selected option?"
+
 msgid "ManageTransitions"
 msgstr "Manage transitions"
+
+msgid "ManageExecutionOrder"
+msgstr "Set execution order"
 
 msgid "DuplicateConfigItemName ${ name } ${ prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
 msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""

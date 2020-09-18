@@ -14,22 +14,22 @@ import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core
 
 import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
-import MapperOptions from '../../../components/Field/mapperOptions';
+import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
+import Options from '../../../components/Field/systemOptions';
 import FieldLabel from '../../../components/FieldLabel';
 import { Messages } from '../../../constants/messages';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { rebuildOptions } from '../../../helpers/mapper';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
-import MultiSelect from '../../../components/Field/multiSelect';
+import { StyledToolbarWrapper } from '../fsm';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -92,6 +92,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 
     return (
         <StyledNodeLabel
+            onClick={() => onEditClick({ nodeData })}
             onContextMenu={(event) => {
                 event.persist();
 
@@ -99,16 +100,16 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 
                 if (nodeData.type !== 'start') {
                     menu.data.unshift({
-                        item: t('Edit'),
-                        onClick: () => onEditClick({ nodeData }),
-                        icon: 'edit',
-                        intent: 'warning',
-                    });
-                    menu.data.unshift({
                         item: t('Delete'),
                         onClick: () => onDeleteClick({ nodeData }),
                         icon: 'trash',
                         intent: 'danger',
+                    });
+                    menu.data.unshift({
+                        item: t('Edit'),
+                        onClick: () => onEditClick({ nodeData }),
+                        icon: 'edit',
+                        intent: 'warning',
                     });
                 }
 
@@ -159,19 +160,46 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
     );
 };
 
-const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset }) => {
+const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset, onSubmitSuccess }) => {
     const wrapperRef = useRef(null);
     const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
+    const { image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
+    const changeHistory = useRef<string[]>([]);
+    const currentHistoryPosition = useRef<number>(-1);
 
     useMount(() => {
         setPipelineReset(() => reset);
+
+        updateHistory(
+            transformNodeData(
+                [
+                    {
+                        type: 'start',
+                        children: pipeline?.children || [],
+                    },
+                ],
+                ''
+            )
+        );
 
         return () => {
             setPipelineReset(null);
         };
     });
+
+    const updateHistory = (data: IPipelineElement[]) => {
+        if (currentHistoryPosition.current >= 0) {
+            changeHistory.current.length = currentHistoryPosition.current + 1;
+        }
+        changeHistory.current.push(JSON.stringify(data));
+
+        if (changeHistory.current.length > 10) {
+            changeHistory.current.shift();
+        } else {
+            currentHistoryPosition.current += 1;
+        }
+    };
 
     const transformNodeData = (data, path) => {
         return data.reduce((newData, item, index) => {
@@ -278,6 +306,12 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
     };
 
     const handleSubmitClick = async () => {
+        let fixedMetadata = { ...metadata };
+
+        if (size(metadata.groups) === 0) {
+            delete fixedMetadata.groups;
+        }
+
         const result = await callBackend(
             pipeline ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
             undefined,
@@ -285,9 +319,10 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 iface_kind: 'pipeline',
                 iface_id: interfaceId,
                 orig_data: pipeline,
+                no_data_return: !!onSubmitSuccess,
                 data: {
-                    ...metadata,
-                    'input-provider-options': rebuildOptions(metadata['input-provider-options']),
+                    ...fixedMetadata,
+                    'input-provider-options': metadata['input-provider-options'],
                     children: elements[0].children,
                 },
             },
@@ -295,6 +330,13 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         );
 
         if (result.ok) {
+            if (onSubmitSuccess) {
+                onSubmitSuccess({
+                    ...metadata,
+                    'input-provider-options': metadata['input-provider-options'],
+                    children: elements[0].children,
+                });
+            }
             reset();
             resetAllInterfaceData('pipeline');
         }
@@ -344,13 +386,19 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             // We are adding a child to a queue
             if (data.parentPath) {
                 const children = get(result, `${data.parentPath}.children`);
-                // Push the new item
-                children.push(omit(data, ['parentPath']));
+                if (!children) {
+                    set(result, `${data.parentPath}.children`, [omit(data, ['parentPath'])]);
+                } else {
+                    // Push the new item
+                    children.push(omit(data, ['parentPath']));
+                }
             } else {
                 set(result, data.path, data);
             }
 
             result = transformNodeData(result, '');
+
+            updateHistory(result);
 
             return result;
         });
@@ -378,10 +426,12 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         setElements((cur) => {
             let result = [...cur];
 
-            set(result, elementData.path, undefined);
+            set(result, elementData.nodeData.path, undefined);
 
             result = filterRemovedElements(result);
             result = transformNodeData(result, '');
+
+            updateHistory(result);
 
             return result;
         });
@@ -497,11 +547,11 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                     isValid={validateField('pipeline-options', metadata['input-provider-options'])}
                                 />
                                 <FieldInputWrapper>
-                                    <MapperOptions
+                                    <Options
                                         value={metadata?.['input-provider-options']}
                                         onChange={handleMetadataChange}
                                         name="input-provider-options"
-                                        url="/system/pipeline_options"
+                                        url="/pipeline"
                                     />
                                 </FieldInputWrapper>
                             </FieldWrapper>
@@ -509,6 +559,32 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     </>
                 )}
             </div>
+            <StyledToolbarWrapper id="pipeline-toolbar">
+                <ButtonGroup style={{ float: 'right' }}>
+                    <Button
+                        onClick={() => {
+                            currentHistoryPosition.current -= 1;
+                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                        }}
+                        disabled={currentHistoryPosition.current <= 0}
+                        text={`(${currentHistoryPosition.current})`}
+                        icon="undo"
+                    />
+                    <Button
+                        onClick={() => {
+                            currentHistoryPosition.current += 1;
+                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                        }}
+                        disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
+                        text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
+                        icon="redo"
+                    />
+                    <Button
+                        onClick={() => setIsMetadataHidden((cur) => !cur)}
+                        icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
+                    />
+                </ButtonGroup>
+            </StyledToolbarWrapper>
             <StyledDiagramWrapper ref={wrapperRef} id="pipeline-diagram" path={image_path}>
                 {wrapperRef.current && (
                     <Tree
@@ -516,10 +592,14 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         orientation="vertical"
                         pathFunc="straight"
                         translate={{ x: wrapperRef.current.getBoundingClientRect().width / 2, y: 100 }}
-                        nodeSize={{ x: 250, y: 250 }}
+                        nodeSize={{ x: 220, y: 110 }}
                         transitionDuration={0}
                         textLayout={{
                             textAnchor: 'middle',
+                        }}
+                        separation={{
+                            siblings: 1,
+                            nonSiblings: 1,
                         }}
                         allowForeignObjects
                         nodeLabelComponent={{

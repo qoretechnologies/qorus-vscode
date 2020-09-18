@@ -1,10 +1,10 @@
 import jsyaml from 'js-yaml';
+import every from 'lodash/every';
 import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
 import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
-import every from 'lodash/every';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
 
@@ -23,6 +23,9 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
     field,
     canBeNull
 ) => {
+    if (!type) {
+        return false;
+    }
     // If the value can be null an is null
     // immediately return true, no matter what type
     if (canBeNull && isNull(value)) {
@@ -57,18 +60,6 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
 
             // Strings cannot be empty
             return isValid;
-        }
-        case 'pipeline-options':
-        case 'mapper-options': {
-            if (!value || isObject(value)) {
-                return false;
-            }
-            // Check if every pair has key & value
-            // assigned properly
-            return value.every(
-                (pair: { [key: string]: string }): boolean =>
-                    pair.name && pair.name !== '' && validateField(pair.type, pair.value, field)
-            );
         }
         case 'array-of-pairs': {
             let valid = true;
@@ -233,7 +224,14 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
                 (val: { name: string; triggers?: TTrigger[] }) => validateField('string', val.name) === true
             );
         }
+        case 'options':
+        case 'pipeline-options':
+        case 'mapper-options':
         case 'system-options': {
+            if (!value || size(value) === 0) {
+                return false;
+            }
+
             return every(value, (optionData) => validateField(optionData.type, optionData.value));
         }
         case 'byte-size': {

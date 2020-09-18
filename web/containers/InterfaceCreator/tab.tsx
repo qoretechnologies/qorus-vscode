@@ -14,7 +14,7 @@ import { TextContext } from '../../context/text';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
+import { postMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
 export interface ITabProps {
@@ -204,46 +204,19 @@ const Tab: React.FC<ITabProps> = ({
     const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
-    const [recreateDialog, setRecreateDialog] = useState<any>(null);
+    const getFilePath = () => {
+        if (isEditing()) {
+            const ext = initialData[type].target_file.split('.').pop();
 
-    useMount(() => {
-        const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
-            setRecreateDialog(() => data);
-        });
+            if (ext === 'yaml') {
+                return null;
+            }
 
-        // Ask for recreation dialog
-        postMessage('check-edit-data', {});
-
-        return () => {
-            recreateListener();
-        };
-    });
-
-    useEffect(() => {
-        if (recreateDialog) {
-            const { message, iface_kind, orig_lang, iface_id } = recreateDialog;
-
-            initialData.confirmAction(
-                message,
-                () => {
-                    initialData.resetInterfaceData(iface_kind);
-                    initialData.changeInitialData('isRecreate', orig_lang ? false : true);
-                    setInterfaceId(iface_kind, shortid.generate());
-                    setRecreateDialog(null);
-                },
-                'Recreate',
-                undefined,
-                () => {
-                    if (orig_lang) {
-                        updateField(iface_kind, 'lang', orig_lang, iface_id);
-                    } else {
-                        resetAllInterfaceData(iface_kind);
-                    }
-                    setRecreateDialog(null);
-                }
-            );
+            return `${initialData[type].target_dir}/${initialData[type].target_file}`;
         }
-    }, [recreateDialog]);
+
+        return null;
+    };
 
     return (
         <StyledTab>
@@ -277,8 +250,31 @@ const Tab: React.FC<ITabProps> = ({
                                     resetAllInterfaceData(type);
                                 }}
                             />
-                            <Button icon="document-share" text="View File" />
-                            <Button icon="trash" text="Delete" intent="danger" />
+                            {getFilePath() && (
+                                <Button
+                                    icon="document-share"
+                                    text="View File"
+                                    onClick={() => {
+                                        postMessage('open-file', {
+                                            file_path: getFilePath(),
+                                        });
+                                    }}
+                                />
+                            )}
+                            <Button
+                                icon="trash"
+                                text="Delete"
+                                intent="danger"
+                                onClick={() => {
+                                    initialData.confirmAction('ConfirmDeleteInterface', () => {
+                                        postMessage('delete-interface', {
+                                            iface_kind: type,
+                                            name: getName(),
+                                        });
+                                        resetAllInterfaceData(type);
+                                    });
+                                }}
+                            />
                         </>
                     )}
                 </ButtonGroup>

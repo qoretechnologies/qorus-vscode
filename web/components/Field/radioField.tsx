@@ -34,6 +34,11 @@ const LangIcon = styled.img`
     vertical-align: sub;
 `;
 
+const icons = {
+    qore: 'qore-106x128.png',
+    python: 'python-129x128.png',
+};
+
 const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
     t,
     items,
@@ -51,35 +56,31 @@ const RadioField: FunctionComponent<IRadioField & IField & IFieldChange> = ({
         }
     });
 
-    const handleValueChange: (value: string) => void = value => {
+    const handleValueChange: (value: string) => void = (value) => {
         // Send the change
         onChange(name, value);
     };
 
     return (
         <div>
-            {items.map((v: { value: string; icon_filename: string }) => (
-                <StyledRadio name={`field-${name}-radio-${v.value}`} onClick={() => !disabled && handleValueChange(v.value)}>
+            {items.map((v: { value: string; icon_filename: string; icon?: string }) => (
+                <StyledRadio
+                    name={`field-${name}-radio-${v.value}`}
+                    onClick={() => !disabled && handleValueChange(v.value)}
+                >
                     <Icon
                         icon={value === v.value ? 'selection' : 'circle'}
                         intent={value === v.value ? Intent.PRIMARY : Intent.NONE}
                         color={disabled ? '#d7d7d7' : '#333'}
                     />
                     <p>{t(`field-label-${v.value}`)}</p>
-                    {v.icon_filename && (
-                        <LangIcon
-                            src={
-                                `${initialData.image_path}/images/${v.icon_filename}`
-                            }
-                        />
-                    )}
+                    {v.icon_filename || v.icon ? (
+                        <LangIcon src={`${initialData.image_path}/images/${v.icon_filename || icons[v.icon]}`} />
+                    ) : null}
                 </StyledRadio>
             ))}
         </div>
     );
 };
 
-export default compose(
-    withInitialDataConsumer(),
-    withTextContext()
-)(RadioField);
+export default compose(withInitialDataConsumer(), withTextContext())(RadioField);

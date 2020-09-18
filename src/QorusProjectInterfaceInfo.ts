@@ -128,26 +128,39 @@ export class QorusProjectInterfaceInfo {
         };
 
         if (iface_kind === 'fsm') {
-            (Object.keys(data.states) || []).forEach(state_id => {
-                const state = data.states[state_id];
-                this.maybeInitSpecificDataId(iface_id, state_id);
-                if (state?.action?.value?.class) {
-                    this.iface_by_id[iface_id].specific_data[state_id].class_name = state.action.value.class;
-                }
-                if (state['config-items']?.length) {
-                    this.iface_by_id[iface_id].specific_data[state_id]['config-items'] = state['config-items'];
-                }
-            });
-        } else if (iface_kind === 'pipeline') {
-            const addProcessorClasses = (children: any[]) => {
-                if (!children?.length) {
-                    return;
-                }
 
+            const addStateData = (states: {} = {}) => {
+                Object.keys(states).forEach(state_id => {
+                    const state = states[state_id];
+
+                    switch (state.type) {
+                        case 'block':
+                            addStateData(state.states);
+                            break;
+                        case 'state':
+                            if (!state.id) {
+                                break;
+                            }
+                            this.maybeInitSpecificDataId(iface_id, state.id);
+                            if (state.id && state?.action?.value?.class) {
+                                this.iface_by_id[iface_id].specific_data[state.id].class_name = state.action.value.class;
+                            }
+                            if (state['config-items']?.length) {
+                                this.iface_by_id[iface_id].specific_data[state.id]['config-items'] = state['config-items'];
+                            }
+                            break;
+                    }
+                });
+            };
+            addStateData(data.states);
+
+        } else if (iface_kind === 'pipeline') {
+
+            const addChildrenData = (children: any[] = []) => {
                 children.forEach(child => {
                     switch (child.type) {
                         case 'queue':
-                            addProcessorClasses(child.children);
+                            addChildrenData(child.children);
                             break;
                         case 'processor':
                             if (child.pid) {
@@ -161,7 +174,8 @@ export class QorusProjectInterfaceInfo {
                     }
                 });
             };
-            addProcessorClasses(data.children);
+            addChildrenData(data.children);
+
         }
 
         this.setOrigConfigItems({iface_id});

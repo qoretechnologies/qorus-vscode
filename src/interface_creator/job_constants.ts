@@ -86,7 +86,8 @@ export const jobFields = ({ default_target_dir }) => [
     },
     {
         name: 'system-options',
-        type: 'system-options',
+        type: 'options',
+        url: 'system',
         mandatory: false,
     }
 ];

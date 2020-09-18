@@ -1,11 +1,13 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
+import dropRight from 'lodash/dropRight';
 import size from 'lodash/size';
+import forEach from 'lodash/forEach';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -14,7 +16,9 @@ import styled from 'styled-components';
 
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 
+import Field from '../../../components/Field';
 import FileString from '../../../components/Field/fileString';
+import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
 import { Messages } from '../../../constants/messages';
@@ -31,16 +35,22 @@ import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
-import MultiSelect from '../../../components/Field/multiSelect';
+import FieldGroup from '../../../components/FieldGroup';
+import FSMInitialOrderDialog from './initialOrderDialog';
+import { isStateIsolated } from '../../../helpers/functions';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
     setFsmReset: () => void;
+    embedded?: boolean;
+    defaultStates?: IFSMStates;
+    parentStateName?: string;
+    defaultInterfaceId?: string;
 }
 
 export interface IDraggableItem {
     type: 'toolbar-item' | 'state';
-    name: 'fsm' | 'state';
+    name: 'fsm' | 'state' | 'block' | 'if';
     id?: number;
     stateType?: TAction;
 }
@@ -51,7 +61,9 @@ export interface IFSMTransition {
     condition?: {
         type: string;
     };
+    language: string;
     errors?: string[];
+    branch?: 'true' | 'false';
 }
 
 export type TTrigger = { class?: string; connector?: string; method?: string };
@@ -61,10 +73,6 @@ export interface IFSMMetadata {
     desc: string;
     target_dir: string;
     groups?: any[];
-    fsm_options?: {
-        'action-strategy': 'one' | 'all';
-        'max-thread-count': number;
-    };
 }
 
 export interface IFSMState {
@@ -75,7 +83,6 @@ export interface IFSMState {
     transitions?: IFSMTransition[];
     'error-transitions'?: IFSMTransition[];
     initial?: boolean;
-    final?: boolean;
     action?: {
         type: TAction;
         value?: string | { class: string; connector: string; prefix?: string };
@@ -83,8 +90,15 @@ export interface IFSMState {
     'input-type'?: any;
     'output-type'?: any;
     name?: string;
-    type: 'state' | 'fsm';
+    type: 'state' | 'fsm' | 'block' | 'if';
     desc: string;
+    states?: IFSMStates;
+    fsm?: string;
+    id?: string;
+    condition?: any;
+    language?: 'qore' | 'python';
+    execution_order?: number;
+    keyId?: string;
 }
 
 export interface IFSMStates {
@@ -95,11 +109,15 @@ export const TOOLBAR_ITEM_TYPE: string = 'toolbar-item';
 export const STATE_ITEM_TYPE: string = 'state';
 
 const DIAGRAM_SIZE: number = 2000;
+export const IF_STATE_SIZE: number = 80;
+export const STATE_WIDTH: number = 180;
+export const STATE_HEIGHT: number = 50;
 const DIAGRAM_DRAG_KEY: string = 'Shift';
 const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 
-const StyledToolbarWrapper = styled.div`
+export const StyledToolbarWrapper = styled.div`
     margin-bottom: 10px;
+    margin-top: 10px;
 `;
 
 const StyledDiagramWrapper = styled.div`
@@ -137,39 +155,58 @@ const StyledFSMCircle = styled.circle`
     }
 `;
 
-let currentXPan: number;
-let currentYPan: number;
-
-const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interfaceContext, postMessage }) => {
+const FSMView: React.FC<IFSMViewProps> = ({
+    onSubmitSuccess,
+    setFsmReset,
+    interfaceContext,
+    postMessage,
+    embedded,
+    states,
+    setStates,
+    parentStateName,
+    onStatesChange,
+    onHideMetadataClick,
+    isExternalMetadataHidden,
+    defaultInterfaceId,
+}) => {
     const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm } = useContext(InitialContext);
+    const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm, qorus_instance } = useContext(
+        InitialContext
+    );
     const { resetAllInterfaceData } = useContext(GlobalContext);
-    const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || shortid.generate());
+    const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || defaultInterfaceId || shortid.generate());
 
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
+    const currentXPan = useRef<number>();
+    const currentYPan = useRef<number>();
+    const changeHistory = useRef<string[]>([]);
+    const currentHistoryPosition = useRef<number>(-1);
 
-    const [states, setStates] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
+    if (!embedded) {
+        const [st, setSt] = useState<IFSMStates>(cloneDeep(fsm?.states || {}));
+
+        states = st;
+        setStates = setSt;
+    }
+
     const [metadata, setMetadata] = useState<IFSMMetadata>({
         target_dir: fsm?.target_dir || null,
         name: fsm?.name || null,
         desc: fsm?.desc || null,
         groups: fsm?.groups || [],
-        fsm_options: fsm?.fsm_options || {
-            'action-strategy': 'one',
-            'max-thread-count': 1,
-        },
     });
     const [selectedState, setSelectedState] = useState<string | null>(null);
     const [editingState, setEditingState] = useState<string | null>(null);
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
     const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
     const [isHoldingShiftKey, setIsHoldingShiftKey] = useState<boolean>(true);
+    const [editingInitialOrder, setEditingInitialOrder] = useState<boolean>(false);
     const [wrapperDimensions, setWrapperDimensions] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
     });
-    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
+    const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(embedded ? true : false);
     const [zoom, setZoom] = useState<number>(1);
 
     const [, drop] = useDrop({
@@ -188,17 +225,22 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                         ...cur,
                         [id]: {
                             position: {
-                                x: x + calculatePercDiff(currentXPan) - (sidebarOpen ? 333 : 153),
+                                x:
+                                    x +
+                                    calculatePercDiff(currentXPan.current) -
+                                    (!embedded && sidebarOpen ? 333 : embedded ? 233 : 153),
                                 y:
                                     y +
-                                    calculatePercDiff(currentYPan) -
-                                    (fieldsWrapperRef.current.getBoundingClientRect().height + 200),
+                                    calculatePercDiff(currentYPan.current) -
+                                    (fieldsWrapperRef.current.getBoundingClientRect().height + (embedded ? 380 : 200)),
                             },
-                            final: false,
                             initial: false,
-                            name: item.name === 'state' ? `State ${id}` : null,
+                            name: getStateName(item, id),
                             desc: '',
                             type: item.name,
+                            id: shortid.generate(),
+                            states: item.name === 'block' ? {} : undefined,
+                            condition: item.name === 'if' ? '' : undefined,
                             action:
                                 item.name === 'state'
                                     ? {
@@ -215,6 +257,42 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             }
         },
     });
+
+    const getStateName = (item, id) => {
+        if (parentStateName) {
+            return `${parentStateName}.State ${id}`;
+        }
+
+        if (item.name === 'block' || item.name === 'if') {
+            return `State ${id}`;
+        }
+
+        return item.name === 'state' ? `State ${id}` : null;
+    };
+
+    const getStateType = (state: IFSMState) => {
+        if (state.type === 'block') {
+            return 'block';
+        }
+
+        if (state.type === 'fsm') {
+            return 'fsm';
+        }
+
+        if (state.type === 'if') {
+            return 'if';
+        }
+
+        return state.action?.type;
+    };
+
+    const getXDiff = (type) => {
+        return type === 'if' ? IF_STATE_SIZE / 2 : STATE_WIDTH / 2;
+    };
+
+    const getYDiff = (type) => {
+        return type === 'if' ? IF_STATE_SIZE / 2 : STATE_HEIGHT / 2;
+    };
 
     const isFSMValid = () => {
         return (
@@ -239,16 +317,22 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             newBoxes[id].position.x += coords.x;
             newBoxes[id].position.y += coords.y;
 
+            updateHistory(newBoxes);
+
             return newBoxes;
         });
     };
 
     useMount(() => {
-        setFsmReset(() => reset);
+        if (!embedded) {
+            setFsmReset(() => reset);
+        }
         const { width, height } = wrapperRef.current.getBoundingClientRect();
 
-        currentXPan = 1000 - width / 2;
-        currentYPan = 1000 - height / 2;
+        updateHistory(embedded ? states : cloneDeep(fsm?.states || {}));
+
+        currentXPan.current = 0;
+        currentYPan.current = 0;
 
         setWrapperDimensions({ width, height });
 
@@ -258,10 +342,17 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-
-            setFsmReset(null);
+            if (!embedded) {
+                setFsmReset(null);
+            }
         };
     });
+
+    useEffect(() => {
+        if (states && onStatesChange) {
+            onStatesChange(states);
+        }
+    }, [states]);
 
     const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === DIAGRAM_DRAG_KEY) {
@@ -276,8 +367,8 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     };
 
     const setWrapperPan = (x, y) => {
-        currentXPan = x;
-        currentYPan = y;
+        currentXPan.current = x;
+        currentYPan.current = y;
     };
 
     const getTransitionByState = (stateId: string, targetId: string): IFSMTransition | null => {
@@ -294,8 +385,11 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 return;
             }
 
-            // Also do nothing is the user is trying to transition FSM to itself
-            if (states[id].type === 'fsm' && selectedState === id) {
+            const selectedStateType = states[selectedState].type;
+            const targetStateType = states[id].type;
+
+            // Also do nothing is the user is trying to transition FSM to itself or IF to itself
+            if ((targetStateType === 'fsm' || targetStateType === 'if') && selectedState === id) {
                 return;
             }
 
@@ -306,8 +400,12 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     ...(newBoxes[selectedState].transitions || []),
                     {
                         state: id.toString(),
+                        branch: selectedStateType === 'if' ? 'true' : undefined,
+                        language: 'qore',
                     },
                 ];
+
+                updateHistory(newBoxes);
 
                 return newBoxes;
             });
@@ -315,6 +413,19 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             setSelectedState(null);
         } else {
             setSelectedState(id);
+        }
+    };
+
+    const updateHistory = (data: IFSMStates) => {
+        if (currentHistoryPosition.current >= 0) {
+            changeHistory.current.length = currentHistoryPosition.current + 1;
+        }
+        changeHistory.current.push(JSON.stringify(data));
+
+        if (changeHistory.current.length > 10) {
+            changeHistory.current.shift();
+        } else {
+            currentHistoryPosition.current += 1;
         }
     };
 
@@ -327,6 +438,8 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     ...newStates[id],
                     ...data,
                 };
+
+                updateHistory(newStates);
 
                 return newStates;
             }
@@ -357,6 +470,12 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
     };
 
     const handleSubmitClick = async () => {
+        let fixedMetadata = { ...metadata };
+
+        if (size(metadata.groups) === 0) {
+            delete fixedMetadata.groups;
+        }
+
         const result = await callBackend(
             fsm ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
             undefined,
@@ -366,7 +485,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 orig_data: fsm,
                 no_data_return: !!onSubmitSuccess,
                 data: {
-                    ...metadata,
+                    ...fixedMetadata,
                     states,
                 },
             },
@@ -399,7 +518,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
         return stateId === targetId;
     };
 
-    const handleStateDeleteClick = (id: string): void => {
+    const handleStateDeleteClick = (id: string, unfilled?: boolean): void => {
         setStates((current) => {
             let newStates: IFSMStates = { ...current };
 
@@ -435,6 +554,12 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 state_id: id,
             });
 
+            // If this state was deleted because of unfilled data, do not
+            // save history
+            if (!unfilled) {
+                updateHistory(newStates);
+            }
+
             return newStates;
         });
     };
@@ -456,6 +581,7 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                 x2: states[transition.state].position.x,
                 y2: states[transition.state].position.y,
                 order: !!transition.errors ? 0 : 1,
+                branch: transition.branch,
             }));
 
             return [...newTransitions, ...stateTransitions];
@@ -468,16 +594,41 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
             iface_id: interfaceId,
         });
         setStates(cloneDeep(fsm?.states || {}));
+        changeHistory.current = [JSON.stringify(cloneDeep(fsm?.states || {}))];
+        currentHistoryPosition.current = 0;
         setMetadata({
             name: fsm?.name,
             desc: fsm?.desc,
             target_dir: fsm?.target_dir,
             groups: fsm?.groups || [],
-            fsm_options: fsm?.options || { 'action-strategy': 'one', 'max-thread-count': 1 },
         });
     };
 
-    const getTargetStatePosition = (x1, y1, x2, y2) => {
+    const getTransitionColor = (isError, branch) => {
+        if (isError || branch === 'false') {
+            return 'red';
+        }
+
+        if (branch === 'true') {
+            return 'green';
+        }
+
+        return '#a9a9a9';
+    };
+
+    const getTransitionEndMarker = (isError, branch) => {
+        if (isError) {
+            return 'error';
+        }
+
+        if (branch) {
+            return branch;
+        }
+
+        return '';
+    };
+
+    const getTargetStatePosition = (x1, y1, x2, y2, stateType, targetStateType) => {
         const modifiedX1 = x1 + 10000;
         const modifiedX2 = x2 + 10000;
         const modifiedY1 = y1 + 10000;
@@ -504,16 +655,22 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
 
         switch (side) {
             case 'right': {
-                return { x2, y2: y2 + 25 };
+                return { x2: targetStateType === 'if' ? x2 - 16 : x2, y2: y2 + getYDiff(targetStateType) };
             }
             case 'left': {
-                return { x2: x2 + 180, y2: y2 + 25 };
+                return {
+                    x2: x2 + getXDiff(targetStateType) * 2 + (targetStateType === 'if' ? 16 : 0),
+                    y2: y2 + getYDiff(targetStateType),
+                };
             }
             case 'bottom': {
-                return { x2: x2 + 90, y2 };
+                return { x2: x2 + getXDiff(targetStateType), y2: targetStateType === 'if' ? y2 - 16 : y2 };
             }
             case 'top': {
-                return { x2: x2 + 90, y2: y2 + 50 };
+                return {
+                    x2: x2 + getXDiff(targetStateType),
+                    y2: y2 + getYDiff(targetStateType) * 2 + (targetStateType === 'if' ? 16 : 0),
+                };
             }
             default: {
                 return {
@@ -526,6 +683,10 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
 
     const calculateMargin = () => (zoom - 1) * 1000;
     const { width = 0, height = 0 } = wrapperRef?.current?.getBoundingClientRect() || {};
+
+    const getIsMetadataHidden = () => {
+        return embedded ? isExternalMetadataHidden : isMetadataHidden;
+    };
 
     return (
         <>
@@ -569,7 +730,13 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                                 label={t('field-label-desc')}
                             />
                             <FieldInputWrapper>
-                                <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                                <Field
+                                    type="long-string"
+                                    onChange={handleMetadataChange}
+                                    value={metadata.desc}
+                                    name="desc"
+                                    markdown
+                                />
                             </FieldInputWrapper>
                         </FieldWrapper>
                         <FieldWrapper name="selected-field">
@@ -628,6 +795,39 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     onClose={() => setEditingTransitionOrder(null)}
                     getStateData={(id) => states[id]}
                     onSubmit={updateStateData}
+                    states={states}
+                />
+            )}
+            {editingInitialOrder && (
+                <FSMInitialOrderDialog
+                    onClose={() => setEditingInitialOrder(null)}
+                    onSubmit={(data) =>
+                        setStates((cur) => {
+                            const result = { ...cur };
+
+                            forEach(data, (stateData, keyId) => {
+                                result[keyId] = stateData;
+                            });
+
+                            updateHistory(result);
+
+                            return result;
+                        })
+                    }
+                    allStates={states}
+                    states={reduce(
+                        states,
+                        (initialStates, state, stateId) => {
+                            if (state.initial) {
+                                return { ...initialStates, [stateId]: state };
+                            }
+
+                            return initialStates;
+                        },
+                        {}
+                    )}
+                    fsmName={metadata.name}
+                    interfaceId={interfaceId}
                 />
             )}
             {size(editingTransition) ? (
@@ -672,133 +872,186 @@ const FSMView: React.FC<IFSMViewProps> = ({ onSubmitSuccess, setFsmReset, interf
                     >
                         {t('FSM')}
                     </FSMToolbarItem>
+                    <FSMToolbarItem
+                        name="block"
+                        type="block"
+                        disabled={!qorus_instance}
+                        count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
+                    >
+                        {t('Block')}
+                    </FSMToolbarItem>
+                    <FSMToolbarItem
+                        name="if"
+                        type="if"
+                        count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
+                    >
+                        {t('If')}
+                    </FSMToolbarItem>
                     <ButtonGroup style={{ float: 'right' }}>
                         <Button
-                            onClick={() => setIsMetadataHidden((cur) => !cur)}
-                            text={t(isMetadataHidden ? 'ShowMetadata' : 'HideMetadata')}
-                            icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
+                            onClick={() => {
+                                currentHistoryPosition.current -= 1;
+                                setStates(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current <= 0}
+                            text={`(${currentHistoryPosition.current})`}
+                            icon="undo"
+                        />
+                        <Button
+                            onClick={() => {
+                                currentHistoryPosition.current += 1;
+                                setStates(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
+                            text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
+                            icon="redo"
+                        />
+                        <Button
+                            onClick={() =>
+                                embedded ? onHideMetadataClick((cur) => !cur) : setIsMetadataHidden((cur) => !cur)
+                            }
+                            icon={getIsMetadataHidden() ? 'eye-open' : 'eye-off'}
                         />
                     </ButtonGroup>
                 </StyledToolbarWrapper>
             )}
-            <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
-                <FSMDiagramWrapper
-                    wrapperDimensions={wrapperDimensions}
-                    setPan={setWrapperPan}
-                    isHoldingShiftKey={isHoldingShiftKey}
-                    zoom={zoom}
-                    items={map(states, (state) => ({ x: state.position.x, y: state.position.y }))}
-                >
-                    <StyledDiagram
-                        title="Hold [SHIFT] to move the diagram around"
-                        key={JSON.stringify(wrapperDimensions)}
-                        ref={drop}
-                        path={image_path}
-                        onClick={() => !isHoldingShiftKey && setSelectedState(null)}
-                        style={{
-                            transform: `scale(${zoom})`,
-                            marginLeft: `${calculateMargin()}px`,
-                            marginTop: `${calculateMargin()}px`,
-                        }}
+            <div style={{ flex: 1, overflow: 'hidden', minHeight: 100 }}>
+                <StyledDiagramWrapper ref={wrapperRef} id="fsm-diagram">
+                    <FSMDiagramWrapper
+                        wrapperDimensions={wrapperDimensions}
+                        setPan={setWrapperPan}
+                        isHoldingShiftKey={isHoldingShiftKey && !selectedState}
+                        zoom={zoom}
+                        items={map(states, (state) => ({
+                            x: state.position.x,
+                            y: state.position.y,
+                            type: getStateType(state),
+                        }))}
                     >
-                        {map(states, (state, id) => (
-                            <FSMState
-                                key={id}
-                                {...state}
-                                id={id}
-                                selected={selectedState === id}
-                                onDblClick={handleStateClick}
-                                onClick={handleStateClick}
-                                onUpdate={updateStateData}
-                                onEditClick={handleStateEditClick}
-                                onDeleteClick={handleStateDeleteClick}
-                                selectedState={selectedState}
-                                getTransitionByState={getTransitionByState}
-                                toggleDragging={setIsHoldingShiftKey}
-                                onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
-                            />
-                        ))}
-                        <svg height="100%" width="100%" style={{ position: 'absolute' }}>
-                            {transitions.map(
-                                ({ x1, x2, y1, y2, state, targetState, isError, transitionIndex }, index) =>
-                                    isTransitionToSelf(state, targetState) ? (
-                                        <StyledFSMCircle
-                                            cx={x1 + 90}
-                                            cy={y1 + 50}
-                                            r={25}
-                                            fill="transparent"
-                                            stroke={isError ? 'red' : '#a9a9a9'}
-                                            strokeWidth={2}
-                                            strokeDasharray={isError ? '10 2' : undefined}
-                                            key={index}
-                                            onClick={() =>
-                                                setEditingTransition([{ stateId: state, index: transitionIndex }])
-                                            }
-                                        />
-                                    ) : (
-                                        <>
-                                            <StyledFSMLine
-                                                onClick={() => {
-                                                    setEditingTransition((cur) => {
-                                                        const result = [...cur];
-
-                                                        result.push({ stateId: state, index: transitionIndex });
-
-                                                        const hasBothWay = hasBothWayTransition(state, targetState);
-
-                                                        if (hasBothWay) {
-                                                            result.push(hasBothWay);
-                                                        }
-
-                                                        return result;
-                                                    });
-                                                }}
-                                                key={index}
+                        <StyledDiagram
+                            key={JSON.stringify(wrapperDimensions)}
+                            ref={drop}
+                            path={image_path}
+                            onClick={() => setSelectedState(null)}
+                            style={{
+                                transform: `scale(${zoom})`,
+                                marginLeft: `${calculateMargin()}px`,
+                                marginTop: `${calculateMargin()}px`,
+                            }}
+                        >
+                            {map(states, (state, id) => (
+                                <FSMState
+                                    key={id}
+                                    {...state}
+                                    id={id}
+                                    selected={selectedState === id}
+                                    onDblClick={handleStateClick}
+                                    onClick={handleStateClick}
+                                    onUpdate={updateStateData}
+                                    onEditClick={handleStateEditClick}
+                                    onDeleteClick={handleStateDeleteClick}
+                                    selectedState={selectedState}
+                                    getTransitionByState={getTransitionByState}
+                                    toggleDragging={setIsHoldingShiftKey}
+                                    onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
+                                    onExecutionOrderClick={() => setEditingInitialOrder(true)}
+                                    isIsolated={isStateIsolated(id, states)}
+                                />
+                            ))}
+                            <svg height="100%" width="100%" style={{ position: 'absolute' }}>
+                                {transitions.map(
+                                    ({ x1, x2, y1, y2, state, targetState, isError, branch, transitionIndex }, index) =>
+                                        isTransitionToSelf(state, targetState) ? (
+                                            <StyledFSMCircle
+                                                cx={x1 + 90}
+                                                cy={y1 + 50}
+                                                r={25}
+                                                fill="transparent"
                                                 stroke={isError ? 'red' : '#a9a9a9'}
-                                                strokeWidth={isError ? 4 : 2}
+                                                strokeWidth={2}
                                                 strokeDasharray={isError ? '10 2' : undefined}
-                                                id={getTargetStatePosition(x1, y1, x2, y2)}
-                                                markerEnd={isError ? 'url(#arrowheaderror)' : 'url(#arrowhead)'}
-                                                x1={x1 + 90}
-                                                y1={y1 + 25}
-                                                {...getTargetStatePosition(x1, y1, x2, y2)}
+                                                key={index}
+                                                onClick={() =>
+                                                    setEditingTransition([{ stateId: state, index: transitionIndex }])
+                                                }
                                             />
-                                        </>
-                                    )
-                            )}
-                        </svg>
-                    </StyledDiagram>
-                </FSMDiagramWrapper>
-            </StyledDiagramWrapper>
-            <ActionsWrapper>
-                <div style={{ float: 'right', width: '100%' }}>
-                    <ButtonGroup fill>
-                        <Tooltip content={t('ResetTooltip')}>
+                                        ) : (
+                                            <>
+                                                <StyledFSMLine
+                                                    onClick={() => {
+                                                        setEditingTransition((cur) => {
+                                                            const result = [...cur];
+
+                                                            result.push({ stateId: state, index: transitionIndex });
+
+                                                            const hasBothWay = hasBothWayTransition(state, targetState);
+
+                                                            if (hasBothWay) {
+                                                                result.push(hasBothWay);
+                                                            }
+
+                                                            return result;
+                                                        });
+                                                    }}
+                                                    key={index}
+                                                    stroke={getTransitionColor(isError, branch)}
+                                                    strokeWidth={isError ? 2 : 1}
+                                                    strokeDasharray={isError ? '10 2' : undefined}
+                                                    id={getTargetStatePosition(x1, y1, x2, y2)}
+                                                    markerEnd={`url(#arrowhead${getTransitionEndMarker(
+                                                        isError,
+                                                        branch
+                                                    )})`}
+                                                    x1={x1 + getXDiff(states[state].type)}
+                                                    y1={y1 + getYDiff(states[state].type)}
+                                                    {...getTargetStatePosition(
+                                                        x1,
+                                                        y1,
+                                                        x2,
+                                                        y2,
+                                                        states[state].type,
+                                                        states[targetState].type
+                                                    )}
+                                                />
+                                            </>
+                                        )
+                                )}
+                            </svg>
+                        </StyledDiagram>
+                    </FSMDiagramWrapper>
+                </StyledDiagramWrapper>
+            </div>
+            {!embedded && (
+                <ActionsWrapper>
+                    <div style={{ float: 'right', width: '100%' }}>
+                        <ButtonGroup fill>
+                            <Tooltip content={t('ResetTooltip')}>
+                                <Button
+                                    text={t('Reset')}
+                                    icon={'history'}
+                                    onClick={() => {
+                                        confirmAction(
+                                            'ResetFieldsConfirm',
+                                            () => {
+                                                reset();
+                                            },
+                                            'Reset',
+                                            'warning'
+                                        );
+                                    }}
+                                />
+                            </Tooltip>
                             <Button
-                                text={t('Reset')}
-                                icon={'history'}
-                                onClick={() => {
-                                    confirmAction(
-                                        'ResetFieldsConfirm',
-                                        () => {
-                                            reset();
-                                        },
-                                        'Reset',
-                                        'warning'
-                                    );
-                                }}
+                                text={t('Submit')}
+                                onClick={handleSubmitClick}
+                                disabled={!isFSMValid()}
+                                icon={'tick'}
+                                intent={Intent.SUCCESS}
                             />
-                        </Tooltip>
-                        <Button
-                            text={t('Submit')}
-                            onClick={handleSubmitClick}
-                            disabled={!isFSMValid()}
-                            icon={'tick'}
-                            intent={Intent.SUCCESS}
-                        />
-                    </ButtonGroup>
-                </div>
-            </ActionsWrapper>
+                        </ButtonGroup>
+                    </div>
+                </ActionsWrapper>
+            )}
         </>
     );
 };

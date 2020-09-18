@@ -1,9 +1,6 @@
 import React, { createContext } from 'react';
 
-import {
-    IconName,
-    Intent
-} from '@blueprintjs/core';
+import { IconName, Intent } from '@blueprintjs/core';
 
 export interface IContextMenu {
     event: React.MouseEvent<HTMLElement>;
@@ -14,6 +11,7 @@ export interface IContextMenu {
         rightIcon?: IconName;
         title?: string;
         intent?: Intent;
+        disabled?: boolean;
     }[];
     onClose?: () => any;
 }
