@@ -694,14 +694,25 @@ export class QorusProjectInterfaceInfo {
     }
 
     isConfigItemValueSetByParent = (params, field_name) => {
-        const config_item = this.findConfigItem(params);
-        if (config_item) {
+        const item = this.findConfigItem(params);
+        msg.debug({item});
+        if (!item?.parent) {
             return false;
         }
 
-        const {iface_id, name} = params;
-        msg.debug({iface_id, name, field_name});
-        return false;
+        const parent_name = item.parent['interface-name'];
+        const parent_data = this.yaml_info.yamlDataByName('class', parent_name);
+        if (!parent_data?.['config-items']) {
+            return false;
+        }
+
+        const parent_item = parent_data['config-items'].find(item2 => item.name === item2.name);
+        if (!parent_item) {
+            return false;
+        }
+
+        const inherited_data = this.configItemInheritedData(parent_item);
+        return inherited_data[field_name] !== undefined;
     }
 
     getConfigItems = params => {
