@@ -1,12 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
-
+import { Button, ButtonGroup, Callout, ControlGroup, Icon, Tooltip } from '@blueprintjs/core';
 import omit from 'lodash/omit';
 import size from 'lodash/size';
+import React, { useContext, useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Callout, ControlGroup, Icon, Tooltip } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
@@ -103,7 +100,7 @@ const Connector: React.FC<IConnectorProps> = ({
                                 defaultItems={connectors}
                                 predicate={(name: string) => {
                                     // Get the connector
-                                    const conn = connectors.find(c => c.name === name);
+                                    const conn = connectors.find((c) => c.name === name);
                                     // Check if we should include this method
                                     if (manageDialog.isFirst) {
                                         // Filter out input only methods
@@ -122,12 +119,12 @@ const Connector: React.FC<IConnectorProps> = ({
                                 onChange={(_name, value) => {
                                     setManageDialog(
                                         (current: IManageDialog): IManageDialog => {
-                                            const isEvent = connectors.find(c => c.name === value).type === 'event';
+                                            const isEvent = connectors.find((c) => c.name === value).type === 'event';
 
                                             const result = {
                                                 ...current,
                                                 connector: value,
-                                                isLast: connectors.find(c => c.name === value).type === 'input',
+                                                isLast: connectors.find((c) => c.name === value).type === 'input',
                                                 isEvent,
                                                 trigger: isEvent ? null : current.trigger,
                                             };
@@ -238,9 +235,9 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
             // Get the class
             const class_name_parts = connectionData.class.split(':'); // possibly with prefix
             const class_name = class_name_parts[1] || class_name_parts[0];
-            const connClass = Object.values(classesData).find(class_data => class_data.name === class_name);
+            const connClass = Object.values(classesData).find((class_data) => class_data.name === class_name);
             // Get the connector data
-            const connectorData = connClass['class-connectors'].find(conn => conn.name === connectionData.connector);
+            const connectorData = connClass['class-connectors'].find((conn) => conn.name === connectionData.connector);
             // Return updated data
             return {
                 ...connectionData,
@@ -255,7 +252,12 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
         mapperListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
             if (data.iface_kind === 'mapper') {
                 resetAllInterfaceData('mapper');
-                setMapper({ ...data.mapper, isFromConnectors: true });
+                setMapper({
+                    ...data.mapper,
+                    isFromConnectors: true,
+                    previous_context: data.mapper?.context,
+                    context: interfaceContext,
+                });
                 handleMapperSubmitSet((mapperName, mapperVersion) => {
                     resetAllInterfaceData('mapper');
                     setManageDialog(
@@ -277,9 +279,9 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
     }, [manageDialog]);
 
     const getConnectorData = (className: string, connectorName: string) =>
-        classesData?.[className]?.['class-connectors']?.find(c => c.name === connectorName);
+        classesData?.[className]?.['class-connectors']?.find((c) => c.name === connectorName);
 
-    const methodsCount = methods.filter(m => m.name).length;
+    const methodsCount = methods.filter((m) => m.name).length;
     const canHaveTrigger =
         manageDialog.isFirst && getConnectorData(manageDialog.class, manageDialog.connector)?.type !== 'event';
 
@@ -364,7 +366,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                             intent="danger"
                                                             onClick={() => {
                                                                 initContext.confirmAction('ConfirmRemoveMapper', () =>
-                                                                    setManageDialog(current => ({
+                                                                    setManageDialog((current) => ({
                                                                         ...current,
                                                                         mapper: null,
                                                                     }))
@@ -383,7 +385,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                                 isFromConnectors: true,
                                                                 hasInitialInput: !!manageDialog.outputProvider,
                                                                 hasInitialOutput: !!manageDialog.inputProvider,
-                                                                'context-selector': interfaceContext,
+                                                                context: interfaceContext,
                                                                 mapper_options: {
                                                                     'mapper-input': manageDialog.outputProvider,
                                                                     'mapper-output': manageDialog.inputProvider,
@@ -416,7 +418,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                             <FieldInputWrapper>
                                                 <SelectField
                                                     autoSelect
-                                                    defaultItems={classes.map(clss => ({
+                                                    defaultItems={classes.map((clss) => ({
                                                         name: clss.prefix ? `${clss.prefix}:${clss.name}` : clss.name,
                                                     }))}
                                                     value={manageDialog.class}
@@ -490,7 +492,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                                                                     initContext.confirmAction(
                                                                         'ConfirmRemoveTrigger',
                                                                         () =>
-                                                                            setManageDialog(current => ({
+                                                                            setManageDialog((current) => ({
                                                                                 ...current,
                                                                                 trigger: null,
                                                                             }))

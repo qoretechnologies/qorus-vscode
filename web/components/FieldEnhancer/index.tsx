@@ -1,14 +1,13 @@
+import capitalize from 'lodash/capitalize';
 import React, { useContext, useState } from 'react';
-
 import { Messages } from '../../constants/messages';
 import { CreateInterface } from '../../containers/InterfaceCreator';
 import { FieldContext } from '../../context/fields';
 import { InitialContext } from '../../context/init';
+import { MapperContext } from '../../context/mapper';
+import { TextContext } from '../../context/text';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import CustomDialog from '../CustomDialog';
-import { TextContext } from '../../context/text';
-import capitalize from 'lodash/capitalize';
-import { MapperContext } from '../../context/mapper';
 
 export interface IFieldEnhancerProps {
     children: (onEditClick: any, onCreateClick: any) => any;
@@ -39,7 +38,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
         // mapper interface
         if (reference.iface_kind === 'mapper' && context?.static_data) {
             mapperContext.setMapper({
-                'context-selector': {
+                context: {
                     static_data: context.static_data,
                 },
             });

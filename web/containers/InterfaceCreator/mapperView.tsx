@@ -1,13 +1,10 @@
-import React, { FunctionComponent } from 'react';
-
+import { Callout } from '@blueprintjs/core';
 import { omit } from 'lodash';
+import React, { FunctionComponent } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
-
-import { Callout } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import { AppToaster } from '../../components/Toast';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -101,7 +98,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                     }}
                     isFormValid={isFormValid('mapper')}
                     methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
-                    context={selectedFields.mapper.find((field: IField) => field.name === 'context-selector')?.value}
+                    context={selectedFields.mapper.find((field: IField) => field.name === 'context')?.value}
                     isEditing={isEditing || !!mapper}
                     onSubmitSuccess={onSubmitSuccess}
                 />

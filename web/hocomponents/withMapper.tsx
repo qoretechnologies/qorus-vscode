@@ -1,11 +1,7 @@
-import React, {
-    FunctionComponent, useEffect, useState
-} from 'react';
-
 import { forEach, get, reduce, set, size, unset } from 'lodash';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
-
 import { Messages } from '../constants/messages';
 import { providers } from '../containers/Mapper/provider';
 import { MapperContext } from '../context/mapper';
@@ -297,11 +293,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             const url = getUrlFromProvider(null, staticData);
 
             // Send the URL to backend
-            props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
+            const listener = props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
                 if (data) {
                     // Save the inputs if the data exist
                     setContextInputs(data.fields || data);
                 }
+
+                listener();
             });
             // Ask backend for the fields for this particular type
             props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
@@ -312,7 +310,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         useEffect(() => {
             if (qorus_instance) {
-                props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+                const listener = props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
                     if (
                         data?.custom_data?.event === 'context' &&
                         data[data.custom_data.iface_kind]['staticdata-type']
@@ -321,6 +319,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         const staticData = data[data.custom_data.iface_kind]['staticdata-type'];
                         // Get all the needed data from static data
                         getFieldsFromStaticData(staticData);
+
+                        listener();
                     }
                 });
                 let mapperKeys;
@@ -340,23 +340,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     if (mapper.mapper_options?.['mapper-output']) {
                         getOutputsData(mapperKeys);
                     }
+                    const mapperContext = mapper['context-selector'] || mapper.context;
                     // If this mapper has context
-                    if (mapper['context-selector']) {
-                        // If the context also has the static data
-                        // do not ask the backend for the interface info
-                        if (mapper['context-selector'].static_data) {
-                            getFieldsFromStaticData(mapper['context-selector'].static_data);
-                        } else {
-                            // Ask backend for the context interface
-                            props.postMessage(Messages.GET_INTERFACE_DATA, {
-                                iface_kind: mapper['context-selector'].iface_kind,
-                                name: mapper['context-selector'].name,
-                                custom_data: {
-                                    event: 'context',
-                                    iface_kind: mapper['context-selector'].iface_kind,
-                                },
-                            });
-                        }
+                    if (mapperContext) {
+                        getFieldsFromStaticData(mapperContext.static_data);
                     }
                 }
             }
@@ -521,6 +508,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     handleMapperSubmitSet,
                     removeCodeFromRelations,
                     contextInputs,
+                    defaultMapper: mapper,
                 }}
             >
                 <Component {...props} />

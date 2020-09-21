@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
-
+import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
 import forEach from 'lodash/forEach';
+import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import React, { useState } from 'react';
 import { useDrop } from 'react-dnd';
+import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
-
-import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import { Messages } from '../../constants/messages';
 import { flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField } from '../../helpers/mapper';
@@ -331,6 +330,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     hasInitialInput,
     hasInitialOutput,
     onSubmitSuccess,
+    defaultMapper,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -341,6 +341,36 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     });
     const [addDialog, setAddDialog] = useState({});
     const [mappingDialog, setMappingDialog] = useState({});
+
+    useMount(() => {
+        // Fix relations
+        // If the context and previous context are different
+        // remove all the context fields
+        if (
+            defaultMapper &&
+            defaultMapper.previous_context &&
+            !isEqual(defaultMapper.context, defaultMapper.previous_context)
+        ) {
+            setRelations((cur) => {
+                let result = { ...cur };
+
+                result = reduce(
+                    result,
+                    (newResult, relation, outputField) => {
+                        return {
+                            ...newResult,
+                            [outputField]: {
+                                ...omit(relation, ['context']),
+                            },
+                        };
+                    },
+                    {}
+                );
+
+                return result;
+            });
+        }
+    });
 
     const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
         setRelations((current) => {
@@ -689,14 +719,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 });
             });
         });
+
         mapper.output_field_option_types = relationTypeList;
+
         const result = await initialData.callBackend(
             !isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE,
             undefined,
             {
                 iface_kind: 'mapper',
                 data: mapper,
-                orig_data: initialData.mapper,
+                orig_data: defaultMapper || initialData.mapper,
                 open_file_on_success: !mapperSubmit,
                 iface_id: interfaceId.mapper,
                 no_data_return: !!onSubmitSuccess || !!mapperSubmit,
