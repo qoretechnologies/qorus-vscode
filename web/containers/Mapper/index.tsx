@@ -1,6 +1,5 @@
 import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
 import forEach from 'lodash/forEach';
-import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
@@ -346,30 +345,38 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         // Fix relations
         // If the context and previous context are different
         // remove all the context fields
-        if (
-            defaultMapper &&
-            defaultMapper.previous_context &&
-            !isEqual(defaultMapper.context, defaultMapper.previous_context)
-        ) {
-            setRelations((cur) => {
-                let result = { ...cur };
+        const contextFields = contextInputs && flattenFields(contextInputs);
 
-                result = reduce(
-                    result,
-                    (newResult, relation, outputField) => {
+        setRelations((cur) => {
+            let result = { ...cur };
+
+            result = reduce(
+                result,
+                (newResult, relation, outputField) => {
+                    if (relation.context) {
+                        // check if the field exists in inputs
+                        const contextInputFieldName = getStaticDataFieldname(relation.context);
+
+                        if (!contextFields || !contextFields.find((cF) => cF.name === contextInputFieldName)) {
+                            return {
+                                ...newResult,
+                                [outputField]: {
+                                    ...omit(relation, ['context']),
+                                },
+                            };
+                        }
+
                         return {
                             ...newResult,
-                            [outputField]: {
-                                ...omit(relation, ['context']),
-                            },
+                            [outputField]: relation,
                         };
-                    },
-                    {}
-                );
+                    }
+                },
+                {}
+            );
 
-                return result;
-            });
-        }
+            return result;
+        });
     });
 
     const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
@@ -721,6 +728,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         });
 
         mapper.output_field_option_types = relationTypeList;
+
+        if (mapper.context) {
+            delete mapper.context.static_data;
+        }
 
         const result = await initialData.callBackend(
             !isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE,

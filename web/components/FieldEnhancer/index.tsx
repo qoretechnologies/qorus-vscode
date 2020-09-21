@@ -38,9 +38,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
         // mapper interface
         if (reference.iface_kind === 'mapper' && context?.static_data) {
             mapperContext.setMapper({
-                context: {
-                    static_data: context.static_data,
-                },
+                interfaceContext: context,
             });
         }
         // Open the dialog
@@ -65,6 +63,13 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
             fields.resetFields(reference.iface_kind);
             // Set the new data
             initialData.changeInitialData(reference.iface_kind, data[iface_kind]);
+            // Set the context for the mapper if this is
+            // mapper interface
+            if (reference.iface_kind === 'mapper' && context?.static_data) {
+                mapperContext.setMapper({
+                    interfaceContext: context,
+                });
+            }
             // Open the dialog
             setEditManager({
                 isOpen: true,

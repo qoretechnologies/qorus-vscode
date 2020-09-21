@@ -340,10 +340,24 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     if (mapper.mapper_options?.['mapper-output']) {
                         getOutputsData(mapperKeys);
                     }
-                    const mapperContext = mapper['context-selector'] || mapper.context;
+                    const mapperContext = mapper.interfaceContext || mapper.context;
                     // If this mapper has context
                     if (mapperContext) {
-                        getFieldsFromStaticData(mapperContext.static_data);
+                        // If the context also has the static data
+                        // do not ask the backend for the interface info
+                        if (mapperContext.static_data) {
+                            getFieldsFromStaticData(mapperContext.static_data);
+                        } else {
+                            // Ask backend for the context interface
+                            props.postMessage(Messages.GET_INTERFACE_DATA, {
+                                iface_kind: mapperContext.iface_kind,
+                                name: mapperContext.name,
+                                custom_data: {
+                                    event: 'context',
+                                    iface_kind: mapperContext.iface_kind,
+                                },
+                            });
+                        }
                     }
                 }
             }

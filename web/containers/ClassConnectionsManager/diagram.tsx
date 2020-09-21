@@ -255,8 +255,7 @@ const ClassConnectionsDiagram: React.FC<IClassConnectionsDiagramProps> = ({
                 setMapper({
                     ...data.mapper,
                     isFromConnectors: true,
-                    previous_context: data.mapper?.context,
-                    context: interfaceContext,
+                    context: interfaceContext || data.mapper?.context,
                 });
                 handleMapperSubmitSet((mapperName, mapperVersion) => {
                     resetAllInterfaceData('mapper');
