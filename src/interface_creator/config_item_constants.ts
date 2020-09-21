@@ -56,9 +56,13 @@ export const configItemFields = (params) => {
             name: 'sensitive',
             mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'sensitive'),
             type: 'boolean',
-            default_value: false
+            default_value: false,
         },
-    ];
+    ].map(field => ({
+        ...field,
+        'is-set': iface_info?.isConfigItemAttributeSet(params, field.name),
+        'is-set-by-parent': iface_info?.isConfigItemAttributeSetByParent(params, field.name),
+    }));
 };
 
 export const defaultValue = name => (configItemFields({}).find(field => field.name === name) || {}).default_value;
