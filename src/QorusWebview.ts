@@ -302,7 +302,7 @@ class QorusWebview {
                             project.code_info.getFieldsFromType(message);
                             break;
                         case 'set-active-instance':
-                            qorus_request.setActiveInstance(message.url);
+                            qorus_request.setActiveInstance(QorusProject.modifyUrl(message.url, 'encrypt-pwd'));
                             break;
                         case 'unset-active-instance':
                             qorus_request.unsetActiveInstance();

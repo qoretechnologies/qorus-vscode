@@ -259,8 +259,8 @@ export class QorusProject {
                 qorus_instances[env_id].qoruses.push({
                     id: qorus_id,
                     name: qorus.name,
-                    url: QorusProject.safeUrl(qorus.url, 'decrypt'),
-                    safe_url: QorusProject.safeUrl(qorus.url, 'remove'),
+                    url: QorusProject.modifyUrl(qorus.url, 'decrypt-pwd'),
+                    safe_url: QorusProject.modifyUrl(qorus.url, 'remove-pwd'),
                     version: qorus.version,
                     urls: [],
                 });
@@ -271,8 +271,8 @@ export class QorusProject {
                         qorus_instances[env_id].qoruses[qorus_id].urls.push({
                             id: url_id,
                             name: url.name,
-                            url: QorusProject.safeUrl(url.url, 'decrypt'),
-                            safe_url: QorusProject.safeUrl(url.url, 'remove'),
+                            url: QorusProject.modifyUrl(url.url, 'decrypt-pwd'),
+                            safe_url: QorusProject.modifyUrl(url.url, 'remove-pwd'),
                         });
                     }
                 }
@@ -306,7 +306,7 @@ export class QorusProject {
                 const qorus: any = env.qoruses[qorus_id];
                 let qorus_data: any = {
                     name: qorus.name,
-                    url: QorusProject.safeUrl(qorus.url, 'encrypt'),
+                    url: QorusProject.modifyUrl(qorus.url, 'encrypt-pwd'),
                     custom_urls: [],
                 };
                 if (qorus.version) {
@@ -316,7 +316,7 @@ export class QorusProject {
                     const url = qorus.urls[url_id];
                     qorus_data.custom_urls.push({
                         name: url.name,
-                        url: QorusProject.safeUrl(url.url, 'encrypt'),
+                        url: QorusProject.modifyUrl(url.url, 'encrypt-pwd'),
                     });
                 }
                 file_data.qorus_instances[env.name].push(qorus_data);
@@ -325,22 +325,20 @@ export class QorusProject {
         return file_data;
     }
 
-    // pwd_action can be one of: 'encrypt', 'decrypt', 'remove' (anything else acts as 'remove')
-    static safeUrl(url: string, pwd_action: string = 'remove'): string {
+    // modification: 'encrypt-pwd', 'decrypt-pwd', 'remove-user', 'remove-pwd'
+    // (actually, anything else works as 'remove-pwd')
+    static modifyUrl(url: string, modification: string): string {
         const { protocol, slashes, host, query, pathname, username, password, hash } = urlParse(url);
 
         let safe_url = `${protocol}${slashes ? '//' : ''}`;
 
-        if (username) {
+        if (username && modification !== 'remove-user') {
             safe_url += `${username}`;
             if (password) {
-                switch (pwd_action) {
-                    case 'encrypt':
-                        safe_url += `:${CryptoJS.AES.encrypt(password, crypto_key).toString()}`;
-                        break;
-                    case 'decrypt':
-                        safe_url += `:${CryptoJS.AES.decrypt(password, crypto_key).toString(CryptoJS.enc.Utf8) || password}`;
-                        break;
+                if (modification === 'encrypt-pwd') {
+                    safe_url += `:${CryptoJS.AES.encrypt(password, crypto_key).toString()}`;
+                } else if (modification === 'decrypt-pwd') {
+                    safe_url += `:${CryptoJS.AES.decrypt(password, crypto_key).toString(CryptoJS.enc.Utf8) || password}`;
                 }
             }
             safe_url += '@';

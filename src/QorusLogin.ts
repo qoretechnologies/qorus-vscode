@@ -83,7 +83,7 @@ export class QorusLogin extends QorusAuth {
     loginQorusInstance(): any {
         return {
             ...this.current_login_params.qorus_instance,
-            safe_url: QorusProject.safeUrl(this.current_login_params.qorus_instance.url, 'remove'),
+            safe_url: QorusProject.modifyUrl(this.current_login_params.qorus_instance.url, 'remove-pwd'),
         };
     }
 
@@ -202,7 +202,7 @@ export class QorusLogin extends QorusAuth {
             this.startConnectionCheck();
             return;
         }
-        QorusLogin.checkNoAuth(url).then(
+        QorusLogin.checkNoAuth(QorusProject.modifyUrl(url, 'remove-user')).then(
             (no_auth: boolean) => {
                 if (no_auth) {
                     this.addNoAuth(url);
