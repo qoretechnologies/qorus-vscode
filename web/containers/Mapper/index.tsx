@@ -361,7 +361,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                         // check if the field exists in inputs
                         const contextInputFieldName = getStaticDataFieldname(relation.context);
 
-                        if (!contextFields || !contextFields.find((cF) => cF.name === contextInputFieldName)) {
+                        if (!contextFields || !contextFields.find((cF) => cF.path === contextInputFieldName)) {
                             hasFixedContext = true;
                             return {
                                 ...newResult,
@@ -382,7 +382,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
 
             if (hasFixedContext) {
                 AppToaster.show({
-                    message: 'RemovedIncompatibleContext',
+                    message: t('RemovedIncompatibleContext'),
                     intent: 'warning',
                     timeout: 3000,
                     icon: 'warning-sign',
