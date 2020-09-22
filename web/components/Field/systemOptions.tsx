@@ -1,14 +1,11 @@
-import React, { useContext, useState } from 'react';
-
+import { Callout, Classes, Icon } from '@blueprintjs/core';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import useUpdateEffect from 'react-use/lib/useUpdateEffect';
 import { isObject } from 'util';
-
-import { Callout, Classes, Icon } from '@blueprintjs/core';
-
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import Spacer from '../Spacer';
@@ -112,7 +109,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
         );
     }
 
-    if (!options) {
+    if (!options || !size(options)) {
         return <p>{t('LoadingOptions')}</p>;
     }
 
@@ -158,7 +155,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                             {...getTypeAndCanBeNull(type)}
                             name={optionName}
                             onChange={(optionName, val) => handleValueChange(optionName, val, type)}
-                            value={value?.[optionName]?.value}
+                            value={rest.value}
                             default_value={options[optionName].default}
                             radioItems={options[optionName].allowed_values}
                         />

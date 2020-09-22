@@ -2508,6 +2508,9 @@ msgstr "Config item with name \"${ name }\" and prefix \"${ prefix }\" already e
 msgid "AddElement"
 msgstr "Add child element"
 
+msgid "RemovedIncompatibleContext"
+msgstr "The current context for this mapper is incompatible with the stored context. Context relations were removed."
+
 msgid "AddQueue"
 msgstr "Add queue"
 
