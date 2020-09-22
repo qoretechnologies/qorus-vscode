@@ -83,7 +83,7 @@ export class QorusLogin extends QorusAuth {
     loginQorusInstance(): any {
         return {
             ...this.current_login_params.qorus_instance,
-            safe_url: QorusProject.createSafeUrl(this.current_login_params.qorus_instance.url),
+            safe_url: QorusProject.safeUrl(this.current_login_params.qorus_instance.url, 'remove'),
         };
     }
 

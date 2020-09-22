@@ -1817,6 +1817,7 @@
         "compressjs": "^1.0.3",
         "cron-validator": "^1.0.2",
         "cronstrue": "^1.81.0",
+        "crypto-js": "^4.0.0",
         "eventlistener": "0.0.1",
         "fs-extra": "^8.1.0",
         "gettext-parser": "^2.0.0",
