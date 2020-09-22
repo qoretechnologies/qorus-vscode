@@ -4,12 +4,12 @@ import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
-import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
+import { AppToaster } from '../../components/Toast';
 import { Messages } from '../../constants/messages';
 import { flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField } from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -330,6 +330,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     hasInitialOutput,
     onSubmitSuccess,
     defaultMapper,
+    setShowMapperConnections,
+    context,
+    isContextLoaded,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -341,11 +344,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const [addDialog, setAddDialog] = useState({});
     const [mappingDialog, setMappingDialog] = useState({});
 
-    useMount(() => {
+    useEffect(() => {
         // Fix relations
         // If the context and previous context are different
         // remove all the context fields
         const contextFields = contextInputs && flattenFields(contextInputs);
+        let hasFixedContext = false;
 
         setRelations((cur) => {
             let result = { ...cur };
@@ -358,6 +362,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                         const contextInputFieldName = getStaticDataFieldname(relation.context);
 
                         if (!contextFields || !contextFields.find((cF) => cF.name === contextInputFieldName)) {
+                            hasFixedContext = true;
                             return {
                                 ...newResult,
                                 [outputField]: {
@@ -365,19 +370,32 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                 },
                             };
                         }
-
-                        return {
-                            ...newResult,
-                            [outputField]: relation,
-                        };
                     }
+
+                    return {
+                        ...newResult,
+                        [outputField]: relation,
+                    };
                 },
                 {}
             );
 
+            if (hasFixedContext) {
+                AppToaster.show({
+                    message: 'RemovedIncompatibleContext',
+                    intent: 'warning',
+                    timeout: 3000,
+                    icon: 'warning-sign',
+                });
+            }
+
             return result;
         });
-    });
+    }, [outputs, contextInputs]);
+
+    if (!isContextLoaded || (isEditing && !outputs && !size(relations))) {
+        return <p> Loading... </p>;
+    }
 
     const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
         setRelations((current) => {

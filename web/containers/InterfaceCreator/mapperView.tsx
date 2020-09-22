@@ -1,7 +1,7 @@
 import { Callout } from '@blueprintjs/core';
 import { omit } from 'lodash';
 import React, { FunctionComponent } from 'react';
-import useMount from 'react-use/lib/useMount';
+import { useLifecycles } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
@@ -54,14 +54,19 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
         );
     }
 
-    useMount(() => {
-        if (wrongKeysCount) {
-            AppToaster.show({
-                message: `${wrongKeysCount} ${t('IncorrectKeysRemoved')}`,
-                intent: 'danger',
-            });
+    useLifecycles(
+        () => {
+            if (wrongKeysCount) {
+                AppToaster.show({
+                    message: `${wrongKeysCount} ${t('IncorrectKeysRemoved')}`,
+                    intent: 'danger',
+                });
+            }
+        },
+        () => {
+            setShowMapperConnections(false);
         }
-    });
+    );
 
     return error ? (
         <Callout intent="danger">{t(error)}</Callout>
@@ -78,13 +83,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                         }}
                         data={mapper && omit(mapper, ['connections'])}
                         isEditing={isEditing || !!mapper}
-                        onDataFinishLoading={
-                            mapper && mapper.show_diagram
-                                ? () => {
-                                      setShowMapperConnections(true);
-                                  }
-                                : null
-                        }
                     />
                 </CreatorWrapper>
             )}

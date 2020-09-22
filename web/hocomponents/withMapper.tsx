@@ -65,6 +65,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [error, setError] = useState<any>(null);
         const [wrongKeysCount, setWrongKeysCount] = useState<number>(0);
         const [mapperSubmit, setMapperSubmit] = useState<any>(null);
+        const [isContextLoaded, setIsContextLoaded] = useState<boolean>(false);
 
         const handleMapperSubmitSet = (callback) => {
             setMapperSubmit(() => callback);
@@ -206,7 +207,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             );
         };
 
-        const getInputsData = () => {
+        const getInputsData = async () => {
             // Set loading of inputs and outputs
             setInputsLoading(true);
             // Hide input and output selectors
@@ -217,6 +218,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setInputRecord(inputUrl);
             // Check if this input is a factory
             const { type } = mapper.mapper_options[`mapper-input`];
+
             if (type === 'factory') {
                 // Cancel loading
                 setInputsLoading(false);
@@ -225,26 +227,21 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 // Stop
                 return;
             }
-            // Fetch the input and output fields
-            (async () => {
-                const inputs = await props.fetchData(inputUrl);
-                // If one of the connections is down
-                if (inputs.error) {
-                    setError(inputs.error && 'InputConnError');
-                    return;
-                }
-                // Save the fields
-                const inputFields = inputs.data.fields || inputs.data;
-                // Save the inputs & outputs
-                setInputs(
-                    insertCustomFields(inputFields, mapper.mapper_options['mapper-input']['custom-fields'] || {})
-                );
-                // Cancel loading
-                setInputsLoading(false);
-            })();
+            const inputs = await props.fetchData(inputUrl);
+            // If one of the connections is down
+            if (inputs.error) {
+                setError(inputs.error && 'InputConnError');
+                return;
+            }
+            // Save the fields
+            const inputFields = inputs.data.fields || inputs.data;
+            // Save the inputs & outputs
+            setInputs(insertCustomFields(inputFields, mapper.mapper_options['mapper-input']['custom-fields'] || {}));
+            // Cancel loading
+            setInputsLoading(false);
         };
 
-        const getOutputsData = (mapperKeys: any) => {
+        const getOutputsData = async (mapperKeys: any) => {
             // Set loading of inputs and outputs
             setOutputsLoading(true);
             // Hide input and output selectors
@@ -254,38 +251,34 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             // Save the url as a record, to be accessible
             setOutputRecord(outputUrl);
             // Fetch the input and output fields
-            (async () => {
-                const outputs = await props.fetchData(outputUrl);
-                // If one of the connections is down
-                if (outputs.error) {
-                    console.log(outputs);
-                    setError(outputs.error && 'OutputConnError');
+            const outputs = await props.fetchData(outputUrl);
+            // If one of the connections is down
+            if (outputs.error) {
+                console.log(outputs);
+                setError(outputs.error && 'OutputConnError');
+                return;
+            }
+            // Do not fetch mapper keys for types
+            if (mapper.mapper_options['mapper-output'].type !== 'type') {
+                const mapperKeysUrl = getMapperKeysUrl('output');
+                // Fetch the mapper keys
+                const resp = await props.fetchData(mapperKeysUrl);
+                // Check if mapper keys call was good
+                if (resp.error) {
+                    console.log(resp);
+                    setError('MapperKeysFail');
                     return;
                 }
-                // Do not fetch mapper keys for types
-                if (mapper.mapper_options['mapper-output'].type !== 'type') {
-                    const mapperKeysUrl = getMapperKeysUrl('output');
-                    // Fetch the mapper keys
-                    const resp = await props.fetchData(mapperKeysUrl);
-                    // Check if mapper keys call was good
-                    if (resp.error) {
-                        console.log(resp);
-                        setError('MapperKeysFail');
-                        return;
-                    }
-                    // Save the mapper keys
-                    setMapperKeys(resp.data);
-                    mapperKeys = resp.data;
-                }
-                // Save the fields
-                const outputFields = outputs.data.fields || outputs.data;
-                setOutputs(
-                    insertCustomFields(outputFields, mapper.mapper_options['mapper-output']['custom-fields'] || {})
-                );
-                setRelations(checkMapperKeys(mapper.fields, mapperKeys) || {});
-                // Cancel loading
-                setOutputsLoading(false);
-            })();
+                // Save the mapper keys
+                setMapperKeys(resp.data);
+                mapperKeys = resp.data;
+            }
+            // Save the fields
+            const outputFields = outputs.data.fields || outputs.data;
+            setOutputs(insertCustomFields(outputFields, mapper.mapper_options['mapper-output']['custom-fields'] || {}));
+            setRelations(checkMapperKeys(mapper.fields, mapperKeys) || {});
+            // Cancel loading
+            setOutputsLoading(false);
         };
 
         const getFieldsFromStaticData = (staticData) => {
@@ -309,6 +302,12 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         useEffect(() => {
+            if (contextInputs) {
+                setIsContextLoaded(true);
+            }
+        }, [contextInputs]);
+
+        useEffect(() => {
             if (qorus_instance) {
                 const listener = props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
                     if (
@@ -329,37 +328,40 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     const response = await props.fetchData('system/default_mapper_keys');
                     setMapperKeys(response.data);
                     mapperKeys = response.data;
-                })();
-                // Check if user is editing a mapper
-                if (mapper) {
-                    // Process input fields
-                    if (mapper.mapper_options?.['mapper-input']) {
-                        getInputsData();
-                    }
-                    // Process output fields
-                    if (mapper.mapper_options?.['mapper-output']) {
-                        getOutputsData(mapperKeys);
-                    }
-                    const mapperContext = mapper.interfaceContext || mapper.context;
-                    // If this mapper has context
-                    if (mapperContext) {
-                        // If the context also has the static data
-                        // do not ask the backend for the interface info
-                        if (mapperContext.static_data) {
-                            getFieldsFromStaticData(mapperContext.static_data);
-                        } else {
-                            // Ask backend for the context interface
-                            props.postMessage(Messages.GET_INTERFACE_DATA, {
-                                iface_kind: mapperContext.iface_kind,
-                                name: mapperContext.name,
-                                custom_data: {
-                                    event: 'context',
+
+                    // Check if user is editing a mapper
+                    if (mapper) {
+                        // Process input fields
+                        if (mapper.mapper_options?.['mapper-input']) {
+                            await getInputsData();
+                        }
+                        // Process output fields
+                        if (mapper.mapper_options?.['mapper-output']) {
+                            await getOutputsData(mapperKeys);
+                        }
+                        const mapperContext = mapper.interfaceContext || mapper.context;
+                        // If this mapper has context
+                        if (mapperContext) {
+                            // If the context also has the static data
+                            // do not ask the backend for the interface info
+                            if (mapperContext.static_data) {
+                                getFieldsFromStaticData(mapperContext.static_data);
+                            } else {
+                                // Ask backend for the context interface
+                                props.postMessage(Messages.GET_INTERFACE_DATA, {
                                     iface_kind: mapperContext.iface_kind,
-                                },
-                            });
+                                    name: mapperContext.name,
+                                    custom_data: {
+                                        event: 'context',
+                                        iface_kind: mapperContext.iface_kind,
+                                    },
+                                });
+                            }
+                        } else {
+                            setIsContextLoaded(true);
                         }
                     }
-                }
+                })();
             }
         }, [qorus_instance, mapper]);
 
@@ -473,6 +475,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         return (
             <MapperContext.Provider
                 value={{
+                    isContextLoaded,
                     inputs,
                     setInputs,
                     outputs,
