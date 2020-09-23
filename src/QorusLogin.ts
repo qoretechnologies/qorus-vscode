@@ -6,7 +6,8 @@ import * as request from 'request-promise';
 import { QorusAuth, AuthNeeded } from './QorusAuth';
 import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
-import { QorusProject, projects } from './QorusProject';
+import { projects } from './QorusProject';
+import { modifyUrl } from './qorus_utils';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
@@ -38,7 +39,7 @@ export class QorusLogin extends QorusAuth {
             set_active,
         };
 
-        const { username, password } = urlParse(QorusProject.modifyUrl(url, 'decrypt-pwd'));
+        const { username, password } = urlParse(modifyUrl(url, 'decrypt-pwd'));
 
         if (username && password) {
             this.loginPost(username, password, (error) => {
@@ -100,7 +101,7 @@ export class QorusLogin extends QorusAuth {
     loginQorusInstance(): any {
         return {
             ...this.current_login_params.qorus_instance,
-            safe_url: QorusProject.modifyUrl(this.current_login_params.qorus_instance.url, 'remove-pwd'),
+            safe_url: modifyUrl(this.current_login_params.qorus_instance.url, 'remove-pwd'),
         };
     }
 
@@ -220,7 +221,7 @@ export class QorusLogin extends QorusAuth {
             return;
         }
 
-        const modified_url = QorusProject.modifyUrl(url, 'remove-user');
+        const modified_url = modifyUrl(url, 'remove-user');
         QorusLogin.checkNoAuth(modified_url).then(
             (no_auth: boolean) => {
                 if (no_auth) {
