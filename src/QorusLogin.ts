@@ -44,7 +44,7 @@ export class QorusLogin extends QorusAuth {
         if (username && password) {
             this.loginPost(username, password, (error) => {
                 this.requestError(error, t`LoginError`);
-                qorus_webview.open({ tab: 'Login' });
+                qorus_webview.open({ tab: 'Login', username });
             });
         } else {
             qorus_webview.open({ tab: 'Login' });

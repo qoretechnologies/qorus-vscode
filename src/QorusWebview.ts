@@ -160,6 +160,7 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'login-return-data',
                                 login_instance: qorus_request.loginQorusInstance(),
+                                username: this.initial_data.username,
                             });
                             break;
                         case 'login-submit':
