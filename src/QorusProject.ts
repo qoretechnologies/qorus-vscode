@@ -329,25 +329,25 @@ export class QorusProject {
 
     // modification: 'encrypt-pwd', 'decrypt-pwd', 'remove-user', 'remove-pwd'
     // (actually, anything else works as 'remove-pwd')
-    static modifyUrl(url: string, modification: string): string {
-        const { protocol, slashes, host, query, pathname, username, password, hash } = urlParse(url);
+    static modifyUrl(orig_url: string, modification: string): string {
+        const { protocol, slashes, host, query, pathname, username, password, hash } = urlParse(orig_url);
 
-        let safe_url = `${protocol}${slashes ? '//' : ''}`;
+        let url = `${protocol}${slashes ? '//' : ''}`;
 
         if (username && modification !== 'remove-user') {
-            safe_url += `${username}`;
+            url += `${username}`;
             if (password) {
                 if (modification === 'encrypt-pwd') {
-                    safe_url += `:${urlencode(CryptoJS.AES.encrypt(password, crypto_key).toString())}`;
+                    url += `:${urlencode(CryptoJS.AES.encrypt(password, crypto_key).toString())}`;
                 } else if (modification === 'decrypt-pwd') {
-                    safe_url += `:${CryptoJS.AES.decrypt(urldecode(password), crypto_key).toString(CryptoJS.enc.Utf8) || password}`;
+                    url += `:${CryptoJS.AES.decrypt(urldecode(password), crypto_key).toString(CryptoJS.enc.Utf8) || password}`;
                 }
             }
-            safe_url += '@';
+            url += '@';
         }
 
-        safe_url += `${host}${pathname}${query}${hash}`;
-        return safe_url;
+        url += `${host}${pathname}${query}${hash}`;
+        return url;
     }
 }
 
