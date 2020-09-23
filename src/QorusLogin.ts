@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as urlJoin from 'url-join';
+import * as urlParse from 'url-parse';
 import * as request from 'request-promise';
 
 import { QorusAuth, AuthNeeded } from './QorusAuth';
@@ -37,10 +38,19 @@ export class QorusLogin extends QorusAuth {
             set_active,
         };
 
-        qorus_webview.open({ tab: 'Login' });
+        const { username, password } = urlParse(QorusProject.modifyUrl(url, 'decrypt-pwd'));
+
+        if (username && password) {
+            this.loginPost(username, password, (error) => {
+                this.requestError(error, t`LoginError`);
+                qorus_webview.open({ tab: 'Login' });
+            });
+        } else {
+            qorus_webview.open({ tab: 'Login' });
+        }
     }
 
-    loginPost(username: string, password: string) {
+    loginPost(username: string, password: string, onError?: Function) {
         if (!this.current_login_params.qorus_instance) {
             return;
         }
@@ -61,21 +71,28 @@ export class QorusLogin extends QorusAuth {
                 this.addToken(qorus_instance.url, token, set_active);
                 instance_tree.refresh();
                 msg.info(t`LoginSuccessful`);
+
                 qorus_webview.setInitialData({ tab: 'ProjectConfig' });
                 qorus_webview.postMessage({
                     action: 'close-login',
                     qorus_instance: set_active ? qorus_instance : null,
                 });
+
                 const code_info = projects.currentProjectCodeInfo();
                 code_info && code_info.setCurrentQorusData();
+
                 this.startConnectionCheck();
             },
             error => {
-                this.requestError(error, t`LoginError`);
-                qorus_webview.postMessage({
-                    action: 'login-error',
-                    error: t`AuthFailed`,
-                });
+                if (onError) {
+                    onError(error);
+                } else {
+                    this.requestError(error, t`LoginError`);
+                    qorus_webview.postMessage({
+                        action: 'login-error',
+                        error: t`AuthFailed`,
+                    });
+                }
             }
         );
     }
@@ -202,14 +219,15 @@ export class QorusLogin extends QorusAuth {
             this.startConnectionCheck();
             return;
         }
-        QorusLogin.checkNoAuth(QorusProject.modifyUrl(url, 'remove-user')).then(
+
+        const modified_url = QorusProject.modifyUrl(url, 'remove-user');
+        QorusLogin.checkNoAuth(modified_url).then(
             (no_auth: boolean) => {
                 if (no_auth) {
                     this.addNoAuth(url);
                     instance_tree.refresh();
-                    msg.info(t`AuthNotNeeded ${url}`);
+                    msg.info(t`AuthNotNeeded ${modified_url}`);
                 } else {
-                    msg.info(t`AuthNeeded ${url}`);
                     this.login(url);
                 }
             },
