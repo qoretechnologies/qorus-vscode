@@ -834,13 +834,14 @@ export abstract class InterfaceCreator {
                     case 'mapper_options':
                     case 'input-provider-options':
                     case 'fsm_options':
+                    case 'connection_options':
                     case 'system-options':
                     case 'typeinfo':
                     case 'staticdata-type':
                     case 'input-provider':
                     case 'context':
                         result +=
-                            `${['mapper_options', 'fsm_options'].includes(tag) ? 'options' : tag}:\n` +
+                            `${['mapper_options', 'fsm_options', 'connection_options'].includes(tag) ? 'options' : tag}:\n` +
                             InterfaceCreator.indentYamlDump(value, 1, true);
                         break;
                     case 'states':
