@@ -4,6 +4,8 @@ import { t } from 'ttag';
 import * as urlParse from 'url-parse';
 import * as CryptoJS from 'crypto-js';
 import * as vscode from 'vscode';
+import * as urlencode from 'urlencode';
+import * as urldecode from 'urldecode';
 
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { instance_tree } from './QorusInstanceTree';
@@ -336,9 +338,9 @@ export class QorusProject {
             safe_url += `${username}`;
             if (password) {
                 if (modification === 'encrypt-pwd') {
-                    safe_url += `:${CryptoJS.AES.encrypt(password, crypto_key).toString()}`;
+                    safe_url += `:${urlencode(CryptoJS.AES.encrypt(password, crypto_key).toString())}`;
                 } else if (modification === 'decrypt-pwd') {
-                    safe_url += `:${CryptoJS.AES.decrypt(password, crypto_key).toString(CryptoJS.enc.Utf8) || password}`;
+                    safe_url += `:${CryptoJS.AES.decrypt(urldecode(password), crypto_key).toString(CryptoJS.enc.Utf8) || password}`;
                 }
             }
             safe_url += '@';

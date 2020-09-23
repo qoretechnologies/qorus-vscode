@@ -1845,6 +1845,8 @@
         "ttag": "^1.7.18",
         "url-join": "^4.0.1",
         "url-parse": "^1.4.7",
+        "urldecode": "^1.0.1",
+        "urlencode": "^1.1.0",
         "vscode-languageserver-types": "^3.14",
         "xml-js": "^1.6.11",
         "yamljs": "^0.3.0"
