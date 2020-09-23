@@ -1,13 +1,10 @@
-import React, { FunctionComponent } from 'react';
-
+import { Callout } from '@blueprintjs/core';
 import { omit } from 'lodash';
-import useMount from 'react-use/lib/useMount';
+import React, { FunctionComponent } from 'react';
+import { useLifecycles } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
-
-import { Callout } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import { AppToaster } from '../../components/Toast';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -57,14 +54,19 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
         );
     }
 
-    useMount(() => {
-        if (wrongKeysCount) {
-            AppToaster.show({
-                message: `${wrongKeysCount} ${t('IncorrectKeysRemoved')}`,
-                intent: 'danger',
-            });
+    useLifecycles(
+        () => {
+            if (wrongKeysCount) {
+                AppToaster.show({
+                    message: `${wrongKeysCount} ${t('IncorrectKeysRemoved')}`,
+                    intent: 'danger',
+                });
+            }
+        },
+        () => {
+            setShowMapperConnections(false);
         }
-    });
+    );
 
     return error ? (
         <Callout intent="danger">{t(error)}</Callout>
@@ -81,13 +83,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                         }}
                         data={mapper && omit(mapper, ['connections'])}
                         isEditing={isEditing || !!mapper}
-                        onDataFinishLoading={
-                            mapper && mapper.show_diagram
-                                ? () => {
-                                      setShowMapperConnections(true);
-                                  }
-                                : null
-                        }
                     />
                 </CreatorWrapper>
             )}
@@ -101,7 +96,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                     }}
                     isFormValid={isFormValid('mapper')}
                     methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
-                    context={selectedFields.mapper.find((field: IField) => field.name === 'context-selector')?.value}
+                    context={selectedFields.mapper.find((field: IField) => field.name === 'context')?.value}
                     isEditing={isEditing || !!mapper}
                     onSubmitSuccess={onSubmitSuccess}
                 />

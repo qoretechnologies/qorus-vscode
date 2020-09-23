@@ -17,6 +17,17 @@ $green5: lighten($qore-green, 20);
 
 @import '~@blueprintjs/core/src/blueprint.scss';
 
+#toastContainer {
+    position: absolute;
+    z-index: 12000;
+
+    .bp3-toast-container,
+    .bp3-toast,
+    .bp3-toast-container-top {
+        z-index: 12001;
+    }
+}
+
 html,
 body,
 #root {
@@ -786,7 +797,10 @@ div.configItemsEditor {
 }
 
 .bp3-overlay,
-.bp3-transition-container {
+.bp3-transition-container,
+.bp3-toast-container,
+.bp3-toast,
+.bp3-toast-container-top {
     z-index: 9999;
 }
 

@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
-
+import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
-
-import { Button, ButtonGroup, Icon, Intent, Tooltip } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
+import { AppToaster } from '../../components/Toast';
 import { Messages } from '../../constants/messages';
 import { flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField } from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -331,6 +329,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     hasInitialInput,
     hasInitialOutput,
     onSubmitSuccess,
+    defaultMapper,
+    setShowMapperConnections,
+    context,
+    isContextLoaded,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -341,6 +343,59 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     });
     const [addDialog, setAddDialog] = useState({});
     const [mappingDialog, setMappingDialog] = useState({});
+
+    useEffect(() => {
+        // Fix relations
+        // If the context and previous context are different
+        // remove all the context fields
+        const contextFields = contextInputs && flattenFields(contextInputs);
+        let hasFixedContext = false;
+
+        setRelations((cur) => {
+            let result = { ...cur };
+
+            result = reduce(
+                result,
+                (newResult, relation, outputField) => {
+                    if (relation.context) {
+                        // check if the field exists in inputs
+                        const contextInputFieldName = getStaticDataFieldname(relation.context);
+
+                        if (!contextFields || !contextFields.find((cF) => cF.path === contextInputFieldName)) {
+                            hasFixedContext = true;
+                            return {
+                                ...newResult,
+                                [outputField]: {
+                                    ...omit(relation, ['context']),
+                                },
+                            };
+                        }
+                    }
+
+                    return {
+                        ...newResult,
+                        [outputField]: relation,
+                    };
+                },
+                {}
+            );
+
+            if (hasFixedContext) {
+                AppToaster.show({
+                    message: t('RemovedIncompatibleContext'),
+                    intent: 'warning',
+                    timeout: 3000,
+                    icon: 'warning-sign',
+                });
+            }
+
+            return result;
+        });
+    }, [outputs, contextInputs]);
+
+    if (!isContextLoaded || (isEditing && !outputs && !size(relations))) {
+        return <p> Loading... </p>;
+    }
 
     const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
         setRelations((current) => {
@@ -689,14 +744,20 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                 });
             });
         });
+
         mapper.output_field_option_types = relationTypeList;
+
+        if (mapper.context) {
+            delete mapper.context.static_data;
+        }
+
         const result = await initialData.callBackend(
             !isEditing ? Messages.CREATE_INTERFACE : Messages.EDIT_INTERFACE,
             undefined,
             {
                 iface_kind: 'mapper',
                 data: mapper,
-                orig_data: initialData.mapper,
+                orig_data: defaultMapper || initialData.mapper,
                 open_file_on_success: !mapperSubmit,
                 iface_id: interfaceId.mapper,
                 no_data_return: !!onSubmitSuccess || !!mapperSubmit,
