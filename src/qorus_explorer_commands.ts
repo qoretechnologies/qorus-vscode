@@ -78,6 +78,11 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
         context.subscriptions.push(disposable);
     });
 
+    disposable = vscode.commands.registerCommand('qorus.explorer.multiDeploy', (_resource: any, resources: any) => {
+        msg.debug({resources});
+    });
+    context.subscriptions.push(disposable);
+
     disposable = vscode.commands.registerCommand('qorus.explorer.deployDir', (uri: vscode.Uri) => {
         vscode.window.showWarningMessage(
             t`ConfirmDeployDirectory ${uri.fsPath}`, t`Yes`, t`No`
