@@ -645,15 +645,6 @@
                 }
             },
             {
-                "command": "qorus.views.deployConnection",
-                "title": "Deploy Connection",
-                "category": "Qorus",
-                "icon": {
-                    "dark": "images/icons/dark/cloud-upload.svg",
-                    "light": "images/icons/light/cloud-upload.svg"
-                }
-            },
-            {
                 "command": "qorus.views.deployConstant",
                 "title": "Deploy Constants",
                 "category": "Qorus",
@@ -1054,10 +1045,6 @@
                 },
                 {
                     "command": "qorus.views.deployPipeline",
-                    "when": "false"
-                },
-                {
-                    "command": "qorus.views.deployConnection",
                     "when": "false"
                 },
                 {
@@ -1591,11 +1578,6 @@
                 {
                     "command": "qorus.views.deployPipeline",
                     "when": "view == qorusInterfaces && viewItem == pipeline",
-                    "group": "inline"
-                },
-                {
-                    "command": "qorus.views.deployConnection",
-                    "when": "view == qorusInterfaces && viewItem == connection",
                     "group": "inline"
                 },
                 {
