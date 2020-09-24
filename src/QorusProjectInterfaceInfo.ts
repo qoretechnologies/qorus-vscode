@@ -709,7 +709,17 @@ export class QorusProjectInterfaceInfo {
 
     isConfigItemFieldSet = (params, field_name) => {
         const item = this.findConfigItem(params);
-        return item && item[field_name] !== undefined;
+        if (!item) {
+            return false;
+        }
+
+        const field_value = this.configItemInheritedData(item)[field_name];
+        if (field_value === undefined) {
+            return false;
+        }
+
+        const parent_field_value = this.parentConfigItemFieldValue(params, field_name);
+        return field_value !== parent_field_value;
     }
 
     isConfigItemFieldSetByParent = (params, field_name) => {
