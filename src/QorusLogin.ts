@@ -47,7 +47,7 @@ export class QorusLogin extends QorusAuth {
                 qorus_webview.open({ tab: 'Login', username });
             });
         } else {
-            qorus_webview.open({ tab: 'Login' });
+            qorus_webview.open({ tab: 'Login', username });
         }
     }
 
