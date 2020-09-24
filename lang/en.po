@@ -2220,6 +2220,12 @@ msgstr "Are you sure you want to remove this option?"
 msgid "ConfirmRemoveField"
 msgstr "Are you sure you want to remove this field?"
 
+msgid "RemoveField"
+msgstr "Remove field"
+
+msgid "ResetFieldToOriginal"
+msgstr "Reset field to original value"
+
 msgid "ConfirmRemoveTrigger"
 msgstr "Are you sure you want to remove this trigger?"
 
@@ -2423,6 +2429,9 @@ msgstr "All transitions were removed"
 
 msgid "RemoveAllTransitions"
 msgstr "Remove all transitions"
+
+msgid "ConfirmResetField"
+msgstr "Are you sure you want to reset this field to it's original value? Note: The original value may have been inherited."
 
 msgid "PleaseSelectFSM"
 msgstr " - Please select an FSM to add triggers"
