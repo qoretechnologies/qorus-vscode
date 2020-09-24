@@ -64,23 +64,9 @@ export abstract class InterfaceCreator {
                 if (target_file) {
                     this.file_base = target_file;
                     // remove all possible suffixes
-                    [
-                        'py',
-                        'yaml',
-                        'qjob',
-                        'qstep',
-                        'qwf',
-                        'qclass',
-                        'qmapper',
-                        'qtype',
-                        'qsd',
-                        'qmc',
-                        'qevent',
-                        'qgroup',
-                        'qqueue',
-                        'qfsm',
-                        'qpipe',
-                    ].forEach((suffix) => {
+                    ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype', 'qsd',
+                     'qmc', 'qevent', 'qgroup', 'qqueue', 'qfsm', 'qpipe', 'qconn', ].forEach((suffix) =>
+                    {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
                 } else {

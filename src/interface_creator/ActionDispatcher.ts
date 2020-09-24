@@ -80,6 +80,7 @@ export class ActionDispatcher {
             case 'type':
             case 'fsm':
             case 'pipeline':
+            case 'connection':
                 interface_without_methods_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':
