@@ -12,6 +12,7 @@ import { deleter } from './QorusDelete';
 import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
 import { FormChangesResponder } from './interface_creator/FormChangesResponder';
 import { triggers } from './interface_creator/standard_methods';
+import { modifyUrl } from './qorus_utils';
 import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
@@ -159,6 +160,7 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'login-return-data',
                                 login_instance: qorus_request.loginQorusInstance(),
+                                username: this.initial_data.username,
                             });
                             break;
                         case 'login-submit':
@@ -302,7 +304,7 @@ class QorusWebview {
                             project.code_info.getFieldsFromType(message);
                             break;
                         case 'set-active-instance':
-                            qorus_request.setActiveInstance(message.url);
+                            qorus_request.setActiveInstance(modifyUrl(message.url, 'encrypt-pwd'));
                             break;
                         case 'unset-active-instance':
                             qorus_request.unsetActiveInstance();

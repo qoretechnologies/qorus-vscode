@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { t } from 'ttag';
-import * as urlParser from 'url-parse';
 import * as vscode from 'vscode';
 
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
@@ -11,6 +10,7 @@ import { qorus_webview } from './QorusWebview';
 import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import * as msg from './qorus_message';
 import { project_template } from './qorus_project_template';
+import { modifyUrl } from './qorus_utils';
 
 export const config_filename = 'qorusproject.json';
 
@@ -257,8 +257,8 @@ export class QorusProject {
                 qorus_instances[env_id].qoruses.push({
                     id: qorus_id,
                     name: qorus.name,
-                    url: qorus.url,
-                    safe_url: this.createSafeUrl(qorus.url),
+                    url: modifyUrl(qorus.url, 'decrypt-pwd'),
+                    safe_url: modifyUrl(qorus.url, 'remove-pwd'),
                     version: qorus.version,
                     urls: [],
                 });
@@ -269,8 +269,8 @@ export class QorusProject {
                         qorus_instances[env_id].qoruses[qorus_id].urls.push({
                             id: url_id,
                             name: url.name,
-                            url: url.url,
-                            safe_url: this.createSafeUrl(url.url),
+                            url: modifyUrl(url.url, 'decrypt-pwd'),
+                            safe_url: modifyUrl(url.url, 'remove-pwd'),
                         });
                     }
                 }
@@ -278,7 +278,7 @@ export class QorusProject {
         }
 
         return {
-            qorus_instances: qorus_instances,
+            qorus_instances,
             source_directories: file_data.source_directories,
         };
     }
@@ -304,7 +304,7 @@ export class QorusProject {
                 const qorus: any = env.qoruses[qorus_id];
                 let qorus_data: any = {
                     name: qorus.name,
-                    url: qorus.url,
+                    url: modifyUrl(qorus.url, 'encrypt-pwd'),
                     custom_urls: [],
                 };
                 if (qorus.version) {
@@ -314,25 +314,13 @@ export class QorusProject {
                     const url = qorus.urls[url_id];
                     qorus_data.custom_urls.push({
                         name: url.name,
-                        url: url.url,
+                        url: modifyUrl(url.url, 'encrypt-pwd'),
                     });
                 }
                 file_data.qorus_instances[env.name].push(qorus_data);
             }
         }
         return file_data;
-    }
-
-    static createSafeUrl(url: string): string {
-        if (!url) {
-            return t`WrongUrl`;
-        }
-        // Parse the URL
-        const { protocol, slashes, host, query, pathname, username, hash }: any = urlParser(url);
-        // Build the safe URL without password
-        return `${protocol}${slashes ? '//' : ''}${username || ''}${
-            username ? '@' : ''
-        }${host}${pathname}${query}${hash}`;
     }
 }
 

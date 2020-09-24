@@ -1817,6 +1817,7 @@
         "compressjs": "^1.0.3",
         "cron-validator": "^1.0.2",
         "cronstrue": "^1.81.0",
+        "crypto-js": "^4.0.0",
         "eventlistener": "0.0.1",
         "fs-extra": "^8.1.0",
         "gettext-parser": "^2.0.0",
@@ -1844,6 +1845,8 @@
         "ttag": "^1.7.18",
         "url-join": "^4.0.1",
         "url-parse": "^1.4.7",
+        "urldecode": "^1.0.1",
+        "urlencode": "^1.1.0",
         "vscode-languageserver-types": "^3.14",
         "xml-js": "^1.6.11",
         "yamljs": "^0.3.0"
