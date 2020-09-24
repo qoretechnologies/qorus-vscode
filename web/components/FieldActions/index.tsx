@@ -4,6 +4,7 @@ import React, { FunctionComponent, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
 import { InitialContext } from '../../context/init';
+import { TextContext } from '../../context/text';
 
 const StyledFieldLabel = styled.div`
     padding: 0px 0 0 10px;
@@ -38,33 +39,43 @@ const FieldActions: FunctionComponent<IFieldActions> = ({
     disabled,
 }) => {
     const initContext = useContext(InitialContext);
+    const t = useContext(TextContext);
 
     return (
         <StyledFieldLabel>
             <ButtonGroup minimal>
                 {isSet && parentValue !== undefined && !disabled ? (
-                    <Button
-                        icon={'history'}
-                        intent="warning"
-                        onClick={() => {
-                            initContext.confirmAction('ConfirmResetField', () => onResetClick(), 'Reset', 'warning');
-                        }}
-                    />
+                    <Tooltip content={t('ResetFieldToOriginal')}>
+                        <Button
+                            icon={'history'}
+                            intent="warning"
+                            onClick={() => {
+                                initContext.confirmAction(
+                                    'ConfirmResetField',
+                                    () => onResetClick(),
+                                    'Reset',
+                                    'warning'
+                                );
+                            }}
+                        />
+                    </Tooltip>
                 ) : null}
                 {removable && (
-                    <Button
-                        icon={'trash'}
-                        intent="danger"
-                        onClick={() => {
-                            if (onClick) {
-                                if (size(value)) {
-                                    initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
-                                } else {
-                                    onClick(name);
+                    <Tooltip content={t('RemoveField')}>
+                        <Button
+                            icon={'trash'}
+                            intent="danger"
+                            onClick={() => {
+                                if (onClick) {
+                                    if (size(value)) {
+                                        initContext.confirmAction('ConfirmRemoveField', () => onClick(name));
+                                    } else {
+                                        onClick(name);
+                                    }
                                 }
-                            }
-                        }}
-                    />
+                            }}
+                        />
+                    </Tooltip>
                 )}
                 {desc && (
                     <Tooltip content={<ReactMarkdown source={desc} />}>
