@@ -1,14 +1,11 @@
-import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
-
+import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
 import { camelCase, cloneDeep, filter, find, forEach, includes, map, reduce, size, uniqBy, upperFirst } from 'lodash';
 import isArray from 'lodash/isArray';
+import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
@@ -1075,10 +1072,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                             context={getContext()}
                                         />
                                     </FieldInputWrapper>
+                                    {console.log(field)}
                                     <FieldActions
                                         value={field.value}
+                                        parentValue={field['parent-value']}
                                         desc={t(`field-desc-${field.name}`)}
                                         name={field.name}
+                                        onResetClick={() => {
+                                            handleFieldChange(field.name, field['parent-value']);
+                                        }}
+                                        isSet={field['is-set']}
+                                        disabled={isFieldDisabled(field)}
                                         onClick={removeField}
                                         removable={field.mandatory === false}
                                     />

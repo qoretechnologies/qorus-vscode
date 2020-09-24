@@ -24,20 +24,20 @@ export const configItemFields = (params) => {
         },
         {
             name: 'can_be_undefined',
-            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'can_be_undefined'),
+            mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'can_be_undefined'),
             type: 'boolean',
             default_value: false,
         },
         {
             name: 'default_value',
-            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'default_value'),
+            mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'default_value'),
             type: 'auto',
             'type-depends-on': 'type',
             'allowed-types': types,
         },
         {
             name: 'strictly_local',
-            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'strictly_local'),
+            mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'strictly_local'),
             type: 'boolean',
             default_value: false,
         },
@@ -47,18 +47,22 @@ export const configItemFields = (params) => {
         },
         {
             name: 'allowed_values',
-            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'allowed_values'),
+            mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'allowed_values'),
             type: 'array-auto',
             'type-depends-on': 'type',
             'allowed-types': types,
         },
         {
             name: 'sensitive',
-            mandatory: iface_info?.isConfigItemAttributeSetByParent(params, 'sensitive'),
+            mandatory: iface_info?.isConfigItemFieldSetByParent(params, 'sensitive'),
             type: 'boolean',
-            default_value: false
+            default_value: false,
         },
-    ];
+    ].map(field => ({
+        ...field,
+        'is-set': iface_info?.isConfigItemFieldSet(params, field.name),
+        'parent-value': iface_info?.parentConfigItemFieldValue(params, field.name),
+    }));
 };
 
 export const defaultValue = name => (configItemFields({}).find(field => field.name === name) || {}).default_value;

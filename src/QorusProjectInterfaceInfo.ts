@@ -707,35 +707,44 @@ export class QorusProjectInterfaceInfo {
         }
     }
 
-    isConfigItemAttributeSet = (params, field_name) => {
+    isConfigItemFieldSet = (params, field_name) => {
         const item = this.findConfigItem(params);
         if (!item) {
             return false;
         }
 
-        const inherited_data = this.configItemInheritedData(item);
-        return inherited_data[field_name] !== undefined;
+        const field_value = this.configItemInheritedData(item)[field_name];
+        if (field_value === undefined) {
+            return false;
+        }
+
+        const parent_field_value = this.parentConfigItemFieldValue(params, field_name);
+        return field_value !== parent_field_value;
     }
 
-    isConfigItemAttributeSetByParent = (params, field_name) => {
+    isConfigItemFieldSetByParent = (params, field_name) => {
+        return this.parentConfigItemFieldValue(params, field_name) !== undefined;
+    }
+
+    parentConfigItemFieldValue = (params, field_name) => {
         const item = this.findConfigItem(params);
         if (!item?.parent) {
-            return false;
+            return undefined;
         }
 
         const parent_name = item.parent['interface-name'];
         const parent_data = this.yaml_info.yamlDataByName('class', parent_name);
         if (!parent_data?.['config-items']) {
-            return false;
+            return undefined;
         }
 
         const parent_item = parent_data['config-items'].find(item2 => item.name === item2.name);
         if (!parent_item) {
-            return false;
+            return undefined;
         }
 
         const inherited_data = this.configItemInheritedData(parent_item);
-        return inherited_data[field_name] !== undefined;
+        return inherited_data[field_name];
     }
 
     getConfigItems = params => {
