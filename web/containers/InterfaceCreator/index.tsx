@@ -1,20 +1,18 @@
 import React, { FunctionComponent } from 'react';
-
 import compose from 'recompose/compose';
-
 import Box from '../../components/Box';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
+import FSMView from './fsm';
 import LibraryView from './libraryView';
 import MapperView from './mapperView';
 import InterfaceCreatorPanel from './panel';
+import Pipeline from './pipeline';
 import ServicesView from './servicesView';
 import Tab from './tab';
 import TypeView from './typeView';
 import WorkflowsView, { CreatorWrapper } from './workflowsView';
-import FSMView from './fsm';
-import Pipeline from './pipeline';
 
 export interface ICreateInterface {
     initialData: any;
@@ -29,6 +27,17 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                 <Tab type={initialData.subtab}>
                     {initialData.subtab === 'fsm' && (
                         <FSMView fsm={initialData.fsm} onSubmitSuccess={onSubmit} interfaceContext={context} />
+                    )}
+                    {initialData.subtab === 'connection' && (
+                        <CreatorWrapper>
+                            <InterfaceCreatorPanel
+                                context={context}
+                                onSubmitSuccess={onSubmit}
+                                type={'connection'}
+                                data={initialData.connection}
+                                isEditing={!!initialData.connection}
+                            />
+                        </CreatorWrapper>
                     )}
                     {initialData.subtab === 'pipeline' && (
                         <Pipeline

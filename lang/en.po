@@ -2223,6 +2223,9 @@ msgstr "Are you sure you want to remove this field?"
 msgid "RemoveField"
 msgstr "Remove field"
 
+msgid "Connection"
+msgstr "Connection"
+
 msgid "ResetFieldToOriginal"
 msgstr "Reset field to original value"
 
@@ -2363,6 +2366,12 @@ msgstr "Manage pipeline element"
 
 msgid "field-label-triggers"
 msgstr "Triggers"
+
+msgid "field-label-connection_options"
+msgstr "Options"
+
+msgid "field-label-url"
+msgstr "URL"
 
 msgid "field-desc-triggers"
 msgstr "Indicates how the associated actions will be triggered"
