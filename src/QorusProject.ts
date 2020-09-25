@@ -234,7 +234,7 @@ export class QorusProject {
         });
     }
 
-    static file2data(file_data?: any): any {
+    private static file2data(file_data?: any): any {
         if (!file_data) {
             return {
                 qorus_instances: [],

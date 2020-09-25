@@ -30,7 +30,7 @@ export class QorusLogin extends QorusAuth {
 
         const qorus_instance = instance_tree.getQorusInstance(url);
         if (!qorus_instance) {
-            msg.error(t`NoQorusWithGivenUrlFound ${url}`);
+            msg.error(t`NoQorusWithGivenUrlFound ${modifyUrl(url, 'remove-pwd')}`);
             return;
         }
 
@@ -39,7 +39,7 @@ export class QorusLogin extends QorusAuth {
             set_active,
         };
 
-        const { username, password } = urlParse(modifyUrl(url, 'decrypt-pwd'));
+        const { username, password } = urlParse(url);
 
         if (username && password) {
             this.loginPost(username, password, (error) => {
@@ -110,7 +110,7 @@ export class QorusLogin extends QorusAuth {
 
         const token = this.getToken(url);
         if (!token) {
-            msg.log(t`NoTokenForUrl ${url}`);
+            msg.log(t`NoTokenForUrl ${modifyUrl(url, 'remove-pwd')}`);
             this.doLogout(url);
             return;
         }
@@ -145,6 +145,9 @@ export class QorusLogin extends QorusAuth {
 
     requestError(error_data: any, default_error: string) {
         let url: string = error_data.options ? error_data.options.uri || '' : '';
+        if (url) {
+            url = modifyUrl(url, 'remove-pwd');
+        }
 
         const params_pos = url.indexOf('?');
         if (params_pos > -1) {
