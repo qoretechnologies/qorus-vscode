@@ -1,13 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-
+import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 import find from 'lodash/find';
 import size from 'lodash/size';
-import filter from 'lodash/filter';
-import times from 'lodash/times';
+import React, { useContext, useEffect, useState } from 'react';
 import shortid from 'shortid';
-
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
-
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import BooleanField from '../../../components/Field/boolean';
@@ -16,11 +11,13 @@ import RadioField from '../../../components/Field/radioField';
 import SelectField from '../../../components/Field/select';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
+import FieldGroup from '../../../components/FieldGroup';
 import FieldLabel from '../../../components/FieldLabel';
 import Spacer from '../../../components/Spacer';
 import { Messages } from '../../../constants/messages';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
@@ -29,8 +26,6 @@ import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from 
 import FSMView, { IFSMState, IFSMStates } from './';
 import ConnectorSelector from './connectorSelector';
 import { ConditionField, isConditionValid } from './transitionDialog';
-import FieldGroup from '../../../components/FieldGroup';
-import { getMaxExecutionOrderFromStates } from '../../../helpers/functions';
 
 export interface IFSMStateDialogProps {
     onClose: () => any;
@@ -167,6 +162,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                         onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
                         value={newData?.action?.value}
                         name="action"
+                        reference={{
+                            iface_kind: 'mapper',
+                        }}
                     />
                 );
             }
