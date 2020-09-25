@@ -168,7 +168,7 @@
             },
             {
                 "command": "qorus.explorer.multiDeploy",
-                "title": "Deploy Selected Files",
+                "title": "Deploy Selected Files And Directories",
                 "category": "Qorus"
             },
             {

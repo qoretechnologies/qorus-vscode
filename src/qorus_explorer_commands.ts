@@ -71,15 +71,23 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
                     if (selection !== t`Yes`) {
                         return;
                     }
-                    deployer.deployFile(vscode.Uri.file(resource.fsPath));
+                    deployer.deployFile(resource.fsPath);
                 }
             );
         });
         context.subscriptions.push(disposable);
     });
 
-    disposable = vscode.commands.registerCommand('qorus.explorer.multiDeploy', (_resource: any, resources: any) => {
-        msg.debug({resources});
+    disposable = vscode.commands.registerCommand('qorus.explorer.multiDeploy', (_uri: vscode.Uri, uris: vscode.Uri[]) => {
+        vscode.window.showWarningMessage(
+            t`ConfirmDeployFilesAndDirs`, t`Yes`, t`No`
+        ).then(
+            selection => {
+                if (selection === t`Yes`) {
+                    deployer.deployFilesAndDirs(uris.map(uri => uri.fsPath));
+                }
+            }
+        );
     });
     context.subscriptions.push(disposable);
 
@@ -89,7 +97,7 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
         ).then(
             selection => {
                 if (selection === t`Yes`) {
-                    deployer.deployDir(uri);
+                    deployer.deployDir(uri.fsPath);
                 }
             }
         );

@@ -22,6 +22,8 @@ export interface QorusRequestTexts {
 const log_request_messages = false;
 
 export class QorusRequest extends QorusLogin {
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
     doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
         return request(options).then(
             (response: any) => {
