@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import SelectField from '../../../components/Field/select';
-import useMount from 'react-use/lib/useMount';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../../hocomponents/withMessageHandler';
 import { ButtonGroup, Spinner } from '@blueprintjs/core';
+import React, { useState } from 'react';
+import useMount from 'react-use/lib/useMount';
+import SelectField from '../../../components/Field/select';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../../hocomponents/withMessageHandler';
 
 export interface IConnectorSelectorProps {
     value: {
@@ -55,6 +55,12 @@ const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, t
 
         if (name === 'class' && newValue) {
             newValue.connector = null;
+            postMessage('creator-get-objects', {
+                object_type: 'class-with-connectors',
+                custom_data: {
+                    connector_type: types,
+                },
+            });
         }
 
         onChange({
@@ -69,7 +75,15 @@ const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, t
 
     return (
         <ButtonGroup>
-            <SelectField onChange={handleChange} value={value?.['class']} name="class" defaultItems={classes} />
+            <SelectField
+                onChange={handleChange}
+                value={value?.['class']}
+                name="class"
+                defaultItems={classes}
+                reference={{
+                    iface_kind: 'class',
+                }}
+            />
             {value?.['class'] && (
                 <SelectField
                     defaultItems={getConnectors()}

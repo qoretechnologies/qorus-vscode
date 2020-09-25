@@ -360,6 +360,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         } else {
                             setIsContextLoaded(true);
                         }
+                    } else {
+                        setIsContextLoaded(true);
                     }
                 })();
             }
