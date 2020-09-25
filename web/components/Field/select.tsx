@@ -1,35 +1,12 @@
-import React, {
-    FunctionComponent,
-    useEffect,
-    useState
-} from 'react';
-
-import {
-    get,
-    includes
-} from 'lodash';
+import { Button, Callout, Classes, ControlGroup, MenuItem, Tooltip } from '@blueprintjs/core';
+import { Select } from '@blueprintjs/select';
+import { get, includes } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { compose } from 'recompose';
-
-import {
-    Button,
-    Callout,
-    Classes,
-    ControlGroup,
-    MenuItem,
-    Tooltip
-} from '@blueprintjs/core';
-import { Select } from '@blueprintjs/select';
-
 import { TTranslator } from '../../App';
-import {
-    IField,
-    IFieldChange
-} from '../../containers/InterfaceCreator/panel';
-import withMessageHandler, {
-    TMessageListener,
-    TPostMessage
-} from '../../hocomponents/withMessageHandler';
+import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import FieldEnhancer from '../FieldEnhancer';
 import StringField from './string';
@@ -50,7 +27,7 @@ export interface ISelectField {
     autoSelect?: boolean;
 }
 
-const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
+const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     get_message,
     return_message,
     addMessageListener,
@@ -199,10 +176,6 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         filteredItems = filteredItems.filter((item) => predicate(item.name));
     }
 
-    if (!filteredItems || filteredItems.length === 0) {
-        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
-    }
-
     if (autoSelect && filteredItems.length === 1) {
         // Automaticaly select the first item
         if (filteredItems[0].name !== value) {
@@ -212,50 +185,58 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         return <StringField value={value || filteredItems[0].name} read_only name={name} onChange={() => {}} />;
     }
 
-    // Filter the items
-    filteredItems =
-        query === ''
-            ? filteredItems
-            : filteredItems.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
+    if (!reference && (!filteredItems || filteredItems.length === 0)) {
+        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
+    }
 
     return (
         <FieldEnhancer context={{ iface_kind, ...context }}>
             {(onEditClick, onCreateClick) => (
                 <ControlGroup fill={fill}>
-                    <Select
-                        items={filteredItems}
-                        itemRenderer={(item, data) => (
-                            <MenuItem
-                                name={`field-${name}-item`}
-                                title={item.desc}
-                                icon={value && item.name === value ? 'tick' : 'blank'}
-                                text={item.name}
-                                onClick={data.handleClick}
+                    {!filteredItems || filteredItems.length === 0 ? (
+                        <StringField value={t('NothingToSelect')} read_only disabled name={name} onChange={() => {}} />
+                    ) : (
+                        <Select
+                            items={
+                                query === ''
+                                    ? filteredItems
+                                    : filteredItems.filter((item: any) =>
+                                          includes(item.name.toLowerCase(), query.toLowerCase())
+                                      )
+                            }
+                            itemRenderer={(item, data) => (
+                                <MenuItem
+                                    name={`field-${name}-item`}
+                                    title={item.desc}
+                                    icon={value && item.name === value ? 'tick' : 'blank'}
+                                    text={item.name}
+                                    onClick={data.handleClick}
+                                />
+                            )}
+                            inputProps={{
+                                placeholder: t('Filter'),
+                                name: 'select-filter',
+                            }}
+                            popoverProps={{
+                                popoverClassName: 'custom-popover',
+                                targetClassName: fill ? 'select-popover' : '',
+                                position: 'left',
+                            }}
+                            className={fill ? Classes.FILL : ''}
+                            onItemSelect={(item: any) => handleSelectClick(item)}
+                            query={query}
+                            onQueryChange={(newQuery: string) => setQuery(newQuery)}
+                            disabled={disabled}
+                        >
+                            <Button
+                                name={`field-${name}`}
+                                fill={fill}
+                                text={value ? value : placeholder || t('PleaseSelect')}
+                                rightIcon={'caret-down'}
+                                onClick={handleClick}
                             />
-                        )}
-                        inputProps={{
-                            placeholder: t('Filter'),
-                            name: 'select-filter',
-                        }}
-                        popoverProps={{
-                            popoverClassName: 'custom-popover',
-                            targetClassName: fill ? 'select-popover' : '',
-                            position: 'left',
-                        }}
-                        className={fill ? Classes.FILL : ''}
-                        onItemSelect={(item: any) => handleSelectClick(item)}
-                        query={query}
-                        onQueryChange={(newQuery: string) => setQuery(newQuery)}
-                        disabled={disabled}
-                    >
-                        <Button
-                            name={`field-${name}`}
-                            fill={fill}
-                            text={value ? value : placeholder || t('PleaseSelect')}
-                            rightIcon={'caret-down'}
-                            onClick={handleClick}
-                        />
-                    </Select>
+                        </Select>
+                    )}
                     {reference && (
                         <>
                             {value && (

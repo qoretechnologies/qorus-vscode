@@ -2415,6 +2415,9 @@ msgstr "Max thread count"
 msgid "ShowMetadata"
 msgstr "Show metadata"
 
+msgid "NothingToSelect"
+msgstr "Nothing to select"
+
 msgid "HideMetadata"
 msgstr "Hide metadata"
 
