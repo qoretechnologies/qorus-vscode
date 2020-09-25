@@ -364,7 +364,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                             <RadioField
                                                 name="action"
                                                 onChange={(_name, value) => {
-                                                    handleDataUpdate('action', null);
+                                                    handleDataUpdate(
+                                                        'action',
+                                                        value === data?.action?.type ? data?.action : null
+                                                    );
                                                     handleDataUpdate('id', data.id || shortid.generate());
                                                     setActionType(value);
                                                 }}
