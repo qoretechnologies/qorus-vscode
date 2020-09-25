@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { AuthNeeded } from './QorusAuth';
 import { qorus_request as auth } from './QorusRequest';
-import { isVersion3 } from './qorus_utils';
+import { isVersion3, modifyUrl } from './qorus_utils';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
 
@@ -20,6 +20,7 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
         this.qorus_instances = {};
         for (let env_name in this.data) {
             for (let instance of this.data[env_name]) {
+                instance.url = modifyUrl(instance.url, 'decrypt-pwd');
                 this.qorus_instances[instance.url] = instance;
             }
         }
