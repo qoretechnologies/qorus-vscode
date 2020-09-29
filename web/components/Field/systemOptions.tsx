@@ -126,7 +126,8 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
     );
 
     const getTypeAndCanBeNull = (type: string) => {
-        if (type.startsWith('*')) {
+        console.log(type);
+        if (type?.startsWith('*')) {
             return {
                 type: type.replace('*', ''),
                 defaultType: type.replace('*', ''),

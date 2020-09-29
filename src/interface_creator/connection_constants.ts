@@ -7,6 +7,7 @@ export const connectionFields = ({ default_target_dir }) => [
     field.desc,
     {
         name: 'url',
+        type: 'connection-url',
     },
     {
         name: 'connection_options',

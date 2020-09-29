@@ -17,7 +17,7 @@ const StyledFieldLabel = styled.div`
 
 export interface IFieldActions {
     desc?: string;
-    name: string;
+    name?: string;
     onClick: (name: string) => any;
     removable: boolean;
     value: any;

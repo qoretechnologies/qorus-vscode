@@ -4,6 +4,7 @@ import Box from '../../components/Box';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
+import { ConnectionView } from './connection';
 import FSMView from './fsm';
 import LibraryView from './libraryView';
 import MapperView from './mapperView';
@@ -29,15 +30,11 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                         <FSMView fsm={initialData.fsm} onSubmitSuccess={onSubmit} interfaceContext={context} />
                     )}
                     {initialData.subtab === 'connection' && (
-                        <CreatorWrapper>
-                            <InterfaceCreatorPanel
-                                context={context}
-                                onSubmitSuccess={onSubmit}
-                                type={'connection'}
-                                data={initialData.connection}
-                                isEditing={!!initialData.connection}
-                            />
-                        </CreatorWrapper>
+                        <ConnectionView
+                            context={context}
+                            onSubmitSuccess={onSubmit}
+                            isEditing={!!initialData.connection}
+                        />
                     )}
                     {initialData.subtab === 'pipeline' && (
                         <Pipeline

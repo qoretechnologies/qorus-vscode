@@ -1,3 +1,4 @@
+import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 import jsyaml from 'js-yaml';
 import every from 'lodash/every';
 import isArray from 'lodash/isArray';
@@ -7,10 +8,8 @@ import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
-
-import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
-
 import { transformArgs } from '../components/Field/processor';
+import { getAddress, getProtocol } from '../components/Field/urlField';
 import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
 import { splitByteSize } from './functions';
@@ -248,6 +247,12 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             }
 
             return valid;
+        }
+        case 'url': {
+            return (
+                validateField('string', getProtocol(value)) &&
+                validateField('string', getAddress(value?.replace(/\//g, '')))
+            );
         }
         case 'nothing':
             return false;

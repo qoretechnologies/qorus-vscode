@@ -1,12 +1,7 @@
-import React, {
-    FunctionComponent, useContext
-} from 'react';
-
-import isArray from 'lodash/isArray';
-import useMount from 'react-use/lib/useMount';
-
 import { Callout } from '@blueprintjs/core';
-
+import isArray from 'lodash/isArray';
+import React, { FunctionComponent, useContext } from 'react';
+import useMount from 'react-use/lib/useMount';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { TextContext } from '../../context/text';
 import { postMessage } from '../../hocomponents/withMessageHandler';
@@ -33,6 +28,7 @@ import SelectField from './select';
 import StringField from './string';
 import Options from './systemOptions';
 import TypeSelector from './typeSelector';
+import URLField from './urlField';
 
 export interface IFieldProps extends IField {
     onChange: IFieldChange;
@@ -88,6 +84,7 @@ const Field: FunctionComponent<IFieldProps> = ({ type, interfaceId, interfaceKin
             {type === 'class-connectors' && <ClassConnectors {...rest} type={type} />}
             {type === 'fsm-list' && <FSMListField {...rest} type={type} />}
             {type === 'options' && <Options {...rest} />}
+            {type === 'url' && <URLField {...rest} type={type} />}
             {rest.markdown && <MarkdownPreview value={rest.value} />}
         </>
     );
