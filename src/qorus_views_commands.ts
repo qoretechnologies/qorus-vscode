@@ -62,7 +62,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
                         msg.error(t`MissingDeploymentData`);
                     }
 
-                    deployer.deployFile(Uri.file(data.data.yaml_file));
+                    deployer.deployFile(data.data.yaml_file);
                 }
             );
         });

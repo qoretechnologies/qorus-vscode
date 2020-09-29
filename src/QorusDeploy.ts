@@ -9,19 +9,31 @@ import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { qorus_request, QorusRequestTexts } from './QorusRequest';
 import * as msg from './qorus_message';
 import { t } from 'ttag';
-import { filesInDir, isDeployable, isVersion3 } from './qorus_utils';
+import { filesInDir, isDeployable, isVersion3, removeDuplicates } from './qorus_utils';
 
 
 class QorusDeploy {
 
     private code_info: QorusProjectCodeInfo | undefined = undefined;
 
-    private setCodeInfo = (uri: vscode.Uri): boolean => {
-        this.code_info = projects.projectCodeInfo(uri);
-        if (!this.code_info) {
-            msg.error(t`QorusProjectNotSet`);
+    private setCodeInfo = (paths: string[]): boolean => {
+        if (!paths.length) {
+            msg.error(t`NoFilesOrDirsSelected`);
             return false;
         }
+
+        const folder0 = projects.getProjectFolder(paths[0]);
+        if (!folder0) {
+            msg.error(t`ProjectNotFound ${paths[0]}`);
+            return false;
+        }
+
+        if (paths.some(file_or_dir => projects.getProjectFolder(file_or_dir) !== folder0)) {
+            msg.error(t`SelectedFilesAndDirsNotFromOneProject`);
+            return false;
+        }
+
+        this.code_info = projects.projectCodeInfo(paths[0]);
         return true;
     }
 
@@ -47,47 +59,60 @@ class QorusDeploy {
             return;
         }
 
-        this.deployFileAndPairFile(editor.document.uri);
+        this.deployFileAndPairFile(editor.document.uri.fsPath);
     }
 
-    // returns true if the process got to the stage of checking the result
-    // returns false if the process failed earlier
-    deployFile(uri: vscode.Uri): Thenable<boolean> {
-        const file_path: string = uri.fsPath;
+    deployFile(file_path: string) {
         if (!isDeployable(file_path)) {
             msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
-            return Promise.resolve(false);
-        }
-
-        return this.deployFileAndPairFile(uri);
-    }
-
-    private deployFileAndPairFile(uri: vscode.Uri): Thenable<boolean> {
-        if (!this.setCodeInfo(uri)) {
-            return Promise.resolve(false);
-        }
-
-        const file_path: string = uri.fsPath;
-        const pair_file_path = this.code_info.pairFile(file_path);
-
-        if (pair_file_path) {
-            return this.doDeploy([file_path, pair_file_path]);
-        }
-        else {
-            return this.doDeploy([file_path]);
-        }
-    }
-
-    deployDir(uri: vscode.Uri) {
-        if (!this.setCodeInfo(uri)) {
             return;
         }
 
-        const dir: string = uri.fsPath;
+        this.deployFileAndPairFile(file_path);
+    }
+
+    private deployFileAndPairFile(file_path: string) {
+        if (!this.setCodeInfo([file_path])) {
+            return;
+        }
+
+        const pair_file_path = this.code_info.pairFile(file_path);
+
+        if (pair_file_path) {
+            this.doDeploy([file_path, pair_file_path]);
+        }
+        else {
+            this.doDeploy([file_path]);
+        }
+    }
+
+    deployDir(dir: string) {
+        if (!this.setCodeInfo([dir])) {
+            return;
+        }
+
         msg.log(t`DeployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
         const files: string[] = filesInDir(dir, isDeployable);
-        this.doDeploy(files);
+        const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
+        this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
+    }
+
+    deployFilesAndDirs = (paths: string[]) => {
+        if (!this.setCodeInfo(paths)) {
+            return;
+        }
+
+        let files = [];
+        paths.forEach(file_or_dir => {
+            if (fs.lstatSync(file_or_dir).isDirectory()) {
+                files = [ ...files, ...filesInDir(file_or_dir, isDeployable)];
+            } else {
+                files.push(file_or_dir);
+            }
+        });
+        const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
+        this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
     }
 
     // returns true if the process got to the stage of checking the result
@@ -104,7 +129,7 @@ class QorusDeploy {
         }
 
         const ifaceKinds = [
-            'connection', 'error', 'group', 'constant', 'event', 'function', 'queue',
+            'connection', 'error', 'group', 'constant', 'event', 'function', 'queue', 'fsm', 'pipeline',
             'value-map', 'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
         ];
 
@@ -113,7 +138,7 @@ class QorusDeploy {
                 const interfaces = code_info.interfaceDataByType(ifaceKind);
                 for (const iface of interfaces) {
                     if (iface.data.yaml_file) {
-                        this.deployFile(vscode.Uri.file(iface.data.yaml_file));
+                        this.deployFile(iface.data.yaml_file);
                     }
                 }
             }

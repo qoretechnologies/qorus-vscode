@@ -172,6 +172,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.multiDeploy",
+                "title": "Deploy Selected Files And Directories",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editJob",
                 "title": "Edit Job",
                 "category": "Qorus"
@@ -1262,12 +1267,17 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createOther",
-                    "group": "2_workspace@12"
+                    "group": "2_workspace12"
+                },
+                {
+                    "when": "explorerResourceIsFolder && !listMultiSelection",
+                    "command": "qorus.explorer.deployDir",
+                    "group": "2_workspace@13"
                 },
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.explorer.deployDir",
-                    "group": "2_workspace@13"
+                    "group": "2_workspace@14"
                 },
                 {
                     "when": "explorerResourceIsFolder",
@@ -1285,7 +1295,7 @@
                     "group": "2_workspace@2"
                 },
                 {
-                    "when": "resourceExtname == .qsd",
+                    "when": "resourceExtname == .qsd && !listMultiSelection",
                     "command": "qorus.explorer.deployService",
                     "group": "2_workspace@11"
                 },
@@ -1295,7 +1305,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qclass",
+                    "when": "resourceExtname == .qclass && !listMultiSelection",
                     "command": "qorus.explorer.deployClass",
                     "group": "2_workspace@11"
                 },
@@ -1305,7 +1315,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qjob",
+                    "when": "resourceExtname == .qjob && !listMultiSelection",
                     "command": "qorus.explorer.deployJob",
                     "group": "2_workspace@11"
                 },
@@ -1315,7 +1325,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qmapper",
+                    "when": "resourceExtname == .qmapper && !listMultiSelection",
                     "command": "qorus.explorer.deployMapper",
                     "group": "2_workspace@11"
                 },
@@ -1330,7 +1340,7 @@
                     "group": "2_workspace@2"
                 },
                 {
-                    "when": "resourceExtname == .qmc",
+                    "when": "resourceExtname == .qmc && !listMultiSelection",
                     "command": "qorus.explorer.deployMapperCode",
                     "group": "2_workspace@11"
                 },
@@ -1340,7 +1350,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qstep",
+                    "when": "resourceExtname == .qstep && !listMultiSelection",
                     "command": "qorus.explorer.deployStep",
                     "group": "2_workspace@11"
                 },
@@ -1355,7 +1365,7 @@
                     "group": "2_workspace@2"
                 },
                 {
-                    "when": "resourceExtname == .qwf",
+                    "when": "resourceExtname == .qwf && !listMultiSelection",
                     "command": "qorus.explorer.deployWorkflow",
                     "group": "2_workspace@11"
                 },
@@ -1365,7 +1375,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname =~ /^\\.(yaml|java|py)$/",
+                    "when": "resourceExtname =~ /^\\.(yaml|java|py)$/ && !listMultiSelection",
                     "command": "qorus.explorer.deployInterface",
                     "group": "2_workspace@11"
                 },
@@ -1373,6 +1383,11 @@
                     "when": "resourceExtname == .qtest || resourceFilename =~ /Test\\.java$/",
                     "command": "qorus.explorer.testFile",
                     "group": "2_workspace@21"
+                },
+                {
+                    "when": "listMultiSelection",
+                    "command": "qorus.explorer.multiDeploy",
+                    "group": "2_workspace@50"
                 }
             ],
             "view/item/context": [

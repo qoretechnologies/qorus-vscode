@@ -234,7 +234,7 @@ export class QorusProject {
         });
     }
 
-    static file2data(file_data?: any): any {
+    private static file2data(file_data?: any): any {
         if (!file_data) {
             return {
                 qorus_instances: [],
@@ -377,7 +377,11 @@ class QorusProjects {
         return code_info && code_info.interface_info;
     }
 
-    private getProjectFolder(uri?: vscode.Uri, use_current: boolean = true): string | undefined {
+    getProjectFolder(uri?: vscode.Uri | string, use_current: boolean = true): string | undefined {
+        if (typeof uri === 'string') {
+            uri = vscode.Uri.file(uri);
+        }
+
         if (!uri && use_current && this.current_project_folder) {
             return this.current_project_folder;
         }

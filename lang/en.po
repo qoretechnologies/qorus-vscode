@@ -43,8 +43,14 @@ msgstr "Opening ${ name } (${ url }) in an external browser"
 msgid "OpenUrlInExternalBrowserError ${ error }"
 msgstr "Error in opening URL in an external browser: ${ error }"
 
-msgid "NoQorusWithGivenUrlFound { url }"
+msgid "NoQorusWithGivenUrlFound ${ url }"
 msgstr "No Qorus instance with URL ${ url } found"
+
+msgid "SelectedFilesAndDirsNotFromOneProject"
+msgstr "Selected files and directories are not from the same project"
+
+msgid "NoFilesOrDirsSelected"
+msgstr "No files or directories selected"
 
 msgid "LoginSuccessful"
 msgstr "Login successful"
@@ -480,6 +486,9 @@ msgstr "Do you really want to deploy all interfaces?"
 
 msgid "ConfirmDeployDirectory ${ dir }"
 msgstr "Do you really want to deploy directory ${ dir }?"
+
+msgid "ConfirmDeployFilesAndDirs"
+msgstr "Do you really want to deploy selected files and directories?"
 
 msgid "ConfirmDeletion"
 msgstr "Confirm deletion"
