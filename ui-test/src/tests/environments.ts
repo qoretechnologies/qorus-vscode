@@ -56,8 +56,8 @@ export const addInstance = async (webview: WebView) => {
     const instances = await webview.findWebElements(By.name('instance-item'));
     const links = await webview.findWebElements(By.name('instance-link'));
 
-    expect(instances).to.have.length(9);
-    expect(links).to.have.length(9);
+    expect(instances).to.have.length(10);
+    expect(links).to.have.length(10);
     expect(await links[4].getText()).to.equal('test');
     expect(await links[4].getAttribute('href')).to.equal('https://google.com/');
 };
@@ -73,8 +73,8 @@ export const editInstance = async (webview: WebView) => {
     const instances = await webview.findWebElements(By.name('instance-item'));
     const links = await webview.findWebElements(By.name('instance-link'));
 
-    expect(instances).to.have.length(9);
-    expect(links).to.have.length(9);
+    expect(instances).to.have.length(10);
+    expect(links).to.have.length(10);
     expect(await links[5].getText()).to.equal('new instance');
     expect(await links[5].getAttribute('href')).to.equal('https://synthax.io/');
 };
@@ -86,8 +86,8 @@ export const deleteInstance = async (webview: WebView) => {
     const instances = await webview.findWebElements(By.name('instance-item'));
     const links = await webview.findWebElements(By.name('instance-link'));
 
-    expect(instances).to.have.length(8);
-    expect(links).to.have.length(8);
+    expect(instances).to.have.length(9);
+    expect(links).to.have.length(9);
     expect(await links[0].getText()).to.equal('greybeard-1');
 };
 
