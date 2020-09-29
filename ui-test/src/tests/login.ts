@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { WebView } from 'vscode-extension-tester';
+import { By, WebView } from 'vscode-extension-tester';
 import { sleep, clickElement } from '../common/utils';
 
 export const login = async (webview: WebView) => {
