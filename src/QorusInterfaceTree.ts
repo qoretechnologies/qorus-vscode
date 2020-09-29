@@ -69,6 +69,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
             children.push(new QorusTreeMapperCodeCategoryNode(this.code_info));
             children.push(new QorusTreeFSMCategoryNode(this.code_info));
             children.push(new QorusTreePipelineCategoryNode(this.code_info));
+            children.push(new QorusTreeConnectionCategoryNode(this.code_info));
             children.push(new QorusTreeOtherCategoriesNode(this.code_info));
         }
 
@@ -457,7 +458,6 @@ class QorusTreeOtherCategoriesNode extends QorusInterfaceTreeNode {
 
     async getChildren(_node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
         let children = [];
-        children.push(new QorusTreeConnectionCategoryNode(this.code_info));
         //children.push(new QorusTreeConstantCategoryNode(this.code_info));
         //children.push(new QorusTreeFunctionCategoryNode(this.code_info));
         children.push(new QorusTreeQueueCategoryNode(this.code_info));
