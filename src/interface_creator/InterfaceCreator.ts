@@ -655,6 +655,7 @@ export abstract class InterfaceCreator {
         for (const tag of ordered_tags) {
             if (
                 [
+                    'iface_id',
                     'target_dir',
                     'target_file',
                     'methods',
