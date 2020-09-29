@@ -137,6 +137,7 @@ const QorusInstance: FunctionComponent<IQorusInstanceProps> = ({
                                 name="instance-expand"
                             />
                             <Button
+                                name="set-active-instance"
                                 icon="power"
                                 intent={isActive ? 'success' : 'none'}
                                 small
