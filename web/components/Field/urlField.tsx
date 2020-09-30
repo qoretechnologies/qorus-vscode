@@ -33,7 +33,7 @@ export const getAddress = (v) => {
 
 const URLField: React.FC<IURLFieldProps> = ({ url, value, name, onChange }) => {
     const { fetchData, qorus_instance } = useContext(InitialContext);
-    const [protocols, setProtocols] = useState<string[]>(['http', 'https']);
+    const [protocols, setProtocols] = useState<string[]>(['http', 'https', 'rest', 'rests']);
     const [protocol, setProtocol] = useState<string>(getProtocol(value));
     const [address, setAddress] = useState<string>(getAddress(value));
 

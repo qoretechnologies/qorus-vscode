@@ -2493,6 +2493,9 @@ msgstr "Transition to state"
 msgid "MoveItemUp"
 msgstr "Move item up"
 
+msgid "NoOptionsAvailable"
+msgstr "There are no options available for the selected criteria."
+
 msgid "MoveItemDown"
 msgstr "Move item down"
 

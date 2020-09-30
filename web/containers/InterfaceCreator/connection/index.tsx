@@ -22,7 +22,7 @@ export interface IConnection {
     target_file?: string;
     name: string;
     desc: string;
-    connection_url: string;
+    url: string;
     connection_options?: { [key: string]: any };
 }
 
@@ -62,10 +62,9 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
     const isDataValid = () => {
         return (
             validateField('string', data.target_dir) &&
-            validateField('string', data.target_file) &&
             validateField('string', data.name) &&
             validateField('string', data.desc) &&
-            validateField('url', data.connection_url) &&
+            validateField('url', data.url) &&
             (!data.connection_options ||
                 size(data.connection_options) === 0 ||
                 validateField('options', data.connection_options))
@@ -75,8 +74,8 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
     const handleSubmitClick = async () => {
         let fixedMetadata = { ...data };
 
-        if (size(fixedMetadata.options) === 0) {
-            delete fixedMetadata.options;
+        if (size(fixedMetadata.connection_options) === 0) {
+            delete fixedMetadata.connection_options;
         }
 
         const result = await callBackend(
@@ -132,25 +131,25 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                     </FieldWrapper>
                 ))}
                 <FieldWrapper>
-                    <FieldLabel label={t('field-label-url')} isValid={validateField('url', data.connection_url)} />
+                    <FieldLabel label={t('field-label-url')} isValid={validateField('url', data.url)} />
                     <FieldInputWrapper>
                         <Field
                             type="url"
-                            value={data.connection_url}
+                            value={data.url}
                             url="options/remote?list"
                             onChange={handleDataChange}
-                            name="connection_url"
+                            name="url"
                         />
                     </FieldInputWrapper>
-                    <FieldActions desc={t(`field-desc-connection_url`)} />
+                    <FieldActions desc={t(`field-desc-url`)} />
                 </FieldWrapper>
-                {getProtocol(data.connection_url) && (
+                {getProtocol(data.url) && (
                     <FieldWrapper>
                         <FieldLabel
                             label={t('field-label-options')}
                             info={t('Optional')}
                             isValid={
-                                data.options && size(data.options)
+                                data.connection_options && size(data.connection_options)
                                     ? validateField('options', data.connection_options)
                                     : true
                             }
@@ -159,7 +158,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                             <Field
                                 type="options"
                                 value={data.connection_options}
-                                url={`remote/user/${getProtocol(data.connection_url)}`}
+                                url={`remote/${getProtocol(data.url)}`}
                                 onChange={handleDataChange}
                                 name="connection_options"
                             />

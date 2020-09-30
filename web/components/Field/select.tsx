@@ -233,6 +233,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                 fill={fill}
                                 text={value ? value : placeholder || t('PleaseSelect')}
                                 rightIcon={'caret-down'}
+                                icon="list"
                                 onClick={handleClick}
                             />
                         </Select>
