@@ -2490,6 +2490,12 @@ msgstr "Edit initial states order"
 msgid "TransitionToState"
 msgstr "Transition to state"
 
+msgid "NoDescription"
+msgstr "No description available"
+
+msgid "SelectItem"
+msgstr "Select item"
+
 msgid "MoveItemUp"
 msgstr "Move item up"
 
