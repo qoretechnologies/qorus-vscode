@@ -1,11 +1,8 @@
+import { Button, ButtonGroup, Classes, InputGroup } from '@blueprintjs/core';
 import React, { ChangeEvent, FunctionComponent } from 'react';
-
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import { isNull } from 'util';
-
-import { Button, ButtonGroup, Classes, InputGroup } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { getValueOrDefaultValue } from '../../helpers/validations';
@@ -20,6 +17,7 @@ export interface IStringField {
     read_only?: boolean;
     placeholder?: string;
     canBeNull?: boolean;
+    sensitive?: boolean;
 }
 
 const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
@@ -36,6 +34,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     disabled,
     placeholder,
     canBeNull,
+    sensitive,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -71,6 +70,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
             className={fill && Classes.FILL}
             value={canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value}
             onChange={handleInputChange}
+            type={sensitive ? 'password' : 'text'}
             rightElement={
                 value &&
                 value !== '' &&

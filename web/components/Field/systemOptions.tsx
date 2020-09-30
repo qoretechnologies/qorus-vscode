@@ -68,6 +68,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                 const data = await fetchData(`/options/${url}`);
                 // Save the new options
                 setOptions(data.data);
+                onChange(name, fixOptions(value, data.data));
             })();
         }
     }, [url, qorus_instance]);
@@ -163,6 +164,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                             name={optionName}
                             onChange={(optionName, val) => handleValueChange(optionName, val, type)}
                             value={rest.value}
+                            sensitive={options[optionName].sensitive}
                             default_value={options[optionName].default}
                             allowed_values={options[optionName].allowed_values}
                         />
