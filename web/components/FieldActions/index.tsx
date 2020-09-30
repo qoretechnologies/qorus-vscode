@@ -9,7 +9,6 @@ import { TextContext } from '../../context/text';
 const StyledFieldLabel = styled.div`
     padding: 0px 0 0 10px;
     flex: 0 1 auto;
-    min-width: 80px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -17,7 +16,7 @@ const StyledFieldLabel = styled.div`
 
 export interface IFieldActions {
     desc?: string;
-    name: string;
+    name?: string;
     onClick: (name: string) => any;
     removable: boolean;
     value: any;

@@ -92,7 +92,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     });
 
     // edit commands
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps',
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps', 'connection',
         'workflow', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command_part = dash2Pascal(iface_kind);

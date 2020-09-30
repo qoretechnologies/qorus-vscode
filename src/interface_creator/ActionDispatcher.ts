@@ -7,6 +7,7 @@ import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
 import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_constants';
+import { connectionFields } from './connection_constants';
 import { configItemFields } from './config_item_constants';
 import { otherFields } from './other_constants';
 import { gettext } from 'ttag';
@@ -29,6 +30,8 @@ export class ActionDispatcher {
                 return stepFields(params);
             case 'mapper':
                 return mapperFields(params);
+            case 'connection':
+                return connectionFields(params);
             case 'config-item':
                 return configItemFields(params);
             case 'mapper-code':
@@ -77,6 +80,7 @@ export class ActionDispatcher {
             case 'type':
             case 'fsm':
             case 'pipeline':
+            case 'connection':
                 interface_without_methods_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':

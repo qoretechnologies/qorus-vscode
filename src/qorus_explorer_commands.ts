@@ -11,7 +11,7 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     let disposable;
 
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow', 'workflow-steps',
-        'service-methods', 'mapper-code-methods', 'fsm', 'pipeline'].forEach(iface_kind =>
+        'service-methods', 'mapper-code-methods', 'fsm', 'pipeline', 'connection'].forEach(iface_kind =>
     {
         const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
@@ -54,7 +54,9 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     });
     context.subscriptions.push(disposable);
 
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow', 'fsm', 'interface'].forEach(iface_kind => {
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow',
+        'fsm', 'interface', 'connection'].forEach(iface_kind =>
+    {
         const command = 'qorus.explorer.deploy' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
             const code_info = projects.projectCodeInfo(resource.fsPath);

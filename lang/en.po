@@ -2232,6 +2232,9 @@ msgstr "Are you sure you want to remove this field?"
 msgid "RemoveField"
 msgstr "Remove field"
 
+msgid "Connection"
+msgstr "Connection"
+
 msgid "ResetFieldToOriginal"
 msgstr "Reset field to original value"
 
@@ -2373,6 +2376,12 @@ msgstr "Manage pipeline element"
 msgid "field-label-triggers"
 msgstr "Triggers"
 
+msgid "field-label-connection_options"
+msgstr "Options"
+
+msgid "field-label-url"
+msgstr "URL"
+
 msgid "field-desc-triggers"
 msgstr "Indicates how the associated actions will be triggered"
 
@@ -2481,8 +2490,17 @@ msgstr "Edit initial states order"
 msgid "TransitionToState"
 msgstr "Transition to state"
 
+msgid "NoDescription"
+msgstr "No description available"
+
+msgid "SelectItem"
+msgstr "Select item"
+
 msgid "MoveItemUp"
 msgstr "Move item up"
+
+msgid "NoOptionsAvailable"
+msgstr "There are no options available for the selected criteria."
 
 msgid "MoveItemDown"
 msgstr "Move item down"

@@ -66,6 +66,9 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             case 'pipeline':
                 suffix = `.qpipe`;
                 break;
+            case 'connection':
+                suffix = `.qconn`;
+                break;
             case 'other':
                 suffix = `.q${data.type.toLowerCase()}`;
                 break;

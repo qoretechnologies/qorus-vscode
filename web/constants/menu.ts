@@ -36,6 +36,7 @@ export const MENU = {
                 { name: 'Type', icon: 'asterisk', tab: 'CreateInterface', subtab: 'type' },
                 { name: 'Pipeline', icon: 'graph', tab: 'CreateInterface', subtab: 'pipeline' },
                 { name: 'FiniteStateMachine', icon: 'layout', tab: 'CreateInterface', subtab: 'fsm' },
+                { name: 'Connection', icon: 'link', tab: 'CreateInterface', subtab: 'connection' },
                 { name: 'Other', icon: 'more', tab: 'CreateInterface', subtab: 'other' },
             ],
         },
