@@ -1,12 +1,9 @@
-import React, { FC, useCallback, useContext, useState } from 'react';
-
-import map from 'lodash/map';
-import size from 'lodash/size';
-import nth from 'lodash/nth';
-import styled, { css } from 'styled-components';
-
 import { Button, ButtonGroup, Callout, Classes, Spinner } from '@blueprintjs/core';
-
+import map from 'lodash/map';
+import nth from 'lodash/nth';
+import size from 'lodash/size';
+import React, { FC, useCallback, useContext, useState } from 'react';
+import styled, { css } from 'styled-components';
 import CustomDialog from '../../components/CustomDialog';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
@@ -405,7 +402,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 {compact && title && <span>{title}: </span>}{' '}
                 <ButtonGroup>
                     <SelectField
-                        name="input"
+                        name={`provider-${type ? `${type}` : ''}`}
                         disabled={isLoading}
                         defaultItems={getDefaultItems()}
                         onChange={(_name, value) => {
@@ -416,7 +413,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     {nodes.map((child, index) => (
                         <SelectField
                             key={`${title}-${index}`}
-                            name="smth"
+                            name={`provider-${type ? `${type}-` : ''}${index}`}
                             disabled={isLoading}
                             defaultItems={child.values}
                             onChange={(_name, value) => {
@@ -442,6 +439,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     {nodes.length > 0 && (
                         <Button
                             intent="danger"
+                            name={`provider-${type ? `${type}-` : ''}back`}
                             icon="step-backward"
                             onClick={() => {
                                 setChildren((cur) => {
@@ -475,6 +473,7 @@ const MapperProvider: FC<IProviderProps> = ({
                     {record && (
                         <Button
                             intent="success"
+                            name={`provider-${type ? `${type}-` : ''}submit`}
                             icon="small-tick"
                             onClick={() => {
                                 setFields(record);
