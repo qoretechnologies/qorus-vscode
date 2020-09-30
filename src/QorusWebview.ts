@@ -147,7 +147,7 @@ class QorusWebview {
                             });
                             break;
                         case 'get-active-tab':
-                            this.setActiveTab(initial_data.tab);
+                            this.setActiveTab(this.initial_data.tab);
                             break;
                         case 'get-current-project-folder':
                             this.panel.webview.postMessage({
@@ -220,7 +220,7 @@ class QorusWebview {
                                 fields: creator.getSortedFields({
                                     ... message,
                                     interface_info,
-                                    default_target_dir: initial_data.uri?.fsPath || interface_info.last_target_directory
+                                    default_target_dir: this.initial_data.uri?.fsPath || interface_info.last_target_directory
                                 }),
                             });
                             break;
