@@ -5,13 +5,4 @@ export const connectionFields = ({ default_target_dir }) => [
     field.targetFile,
     field.name,
     field.desc,
-    {
-        name: 'url',
-        type: 'connection-url',
-    },
-    {
-        name: 'connection_options',
-        type: 'options',
-        mandatory: false,
-    },
 ];

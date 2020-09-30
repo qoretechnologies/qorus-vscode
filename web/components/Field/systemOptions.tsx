@@ -126,7 +126,6 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
     );
 
     const getTypeAndCanBeNull = (type: string) => {
-        console.log(type);
         if (type?.startsWith('*')) {
             return {
                 type: type.replace('*', ''),
@@ -158,7 +157,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                             onChange={(optionName, val) => handleValueChange(optionName, val, type)}
                             value={rest.value}
                             default_value={options[optionName].default}
-                            radioItems={options[optionName].allowed_values}
+                            allowed_values={options[optionName].allowed_values}
                         />
                     </SubField>
                 ) : null

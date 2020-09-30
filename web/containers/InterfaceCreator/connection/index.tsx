@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import map from 'lodash/map';
 import size from 'lodash/size';
 import React, { useContext, useState } from 'react';
 import { useMount } from 'react-use';
@@ -7,12 +8,14 @@ import Field from '../../../components/Field';
 import { getProtocol } from '../../../components/Field/urlField';
 import FieldActions from '../../../components/FieldActions';
 import FieldLabel from '../../../components/FieldLabel';
+import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
-import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
+import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
+import { ActionsWrapper, FieldInputWrapper, FieldWrapper, IField } from '../panel';
 
 export interface IConnection {
     target_dir: string;
@@ -30,6 +33,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
 
     const [data, setData] = useState<IConnection>(connection || {});
     const [interfaceId, setInterfaceId] = useState(connection?.iface_id || shortid.generate());
+    const [fields, setFields] = useState(undefined);
 
     const handleDataChange = (name: string, value: any) => {
         setData((cur) => {
@@ -43,6 +47,12 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
 
     useMount(() => {
         setConnectionReset(() => () => setData({}));
+
+        addMessageListener(Messages.FIELDS_FETCHED, ({ fields }) => {
+            setFields(fields);
+        });
+
+        postMessage(Messages.GET_FIELDS, { iface_kind: 'connection', is_editing: !!connection });
     });
 
     const reset = () => {
@@ -91,64 +101,43 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
         }
     };
 
+    if (!size(fields)) {
+        return <Loader text={t('LoadingFields')} />;
+    }
+
     return (
         <>
             <div style={{ flex: 1 }}>
-                <FieldWrapper>
-                    <FieldLabel
-                        label={t('field-label-target_dir')}
-                        isValid={validateField('string', data.target_dir)}
-                    />
-                    <FieldInputWrapper>
-                        <Field
-                            type="file-string"
-                            value={data.target_dir}
-                            onChange={handleDataChange}
-                            name="target_dir"
-                            get_message={{
-                                action: 'creator-get-directories',
-                                object_type: 'target_dir',
-                            }}
-                            return_message={{
-                                action: 'creator-return-directories',
-                                object_type: 'target_dir',
-                                return_value: 'directories',
-                            }}
+                {map(fields, (field: IField) => (
+                    <FieldWrapper>
+                        <FieldLabel
+                            label={t(`field-label-${field.name}`)}
+                            info={
+                                field.markdown
+                                    ? t('MarkdownSupported')
+                                    : field.mandatory === false
+                                    ? t('Optional')
+                                    : undefined
+                            }
+                            isValid={
+                                field.mandatory !== false || data[field.name]
+                                    ? validateField(field.type || 'string', data[field.name])
+                                    : true
+                            }
                         />
-                    </FieldInputWrapper>
-                    <FieldActions desc={t(`field-desc-target_dir`)} />
-                </FieldWrapper>
-                <FieldWrapper>
-                    <FieldLabel
-                        label={t('field-label-target_file')}
-                        isValid={validateField('string', data.target_file)}
-                    />
-                    <FieldInputWrapper>
-                        <Field type="string" value={data.target_file} onChange={handleDataChange} name="target_file" />
-                    </FieldInputWrapper>
-                    <FieldActions desc={t(`field-desc-target_file`)} />
-                </FieldWrapper>
-                <FieldWrapper>
-                    <FieldLabel label={t('field-label-name')} isValid={validateField('string', data.name)} />
-                    <FieldInputWrapper>
-                        <Field type="string" value={data.name} onChange={handleDataChange} name="name" />
-                    </FieldInputWrapper>
-                    <FieldActions desc={t(`field-desc-name`)} />
-                </FieldWrapper>
-                <FieldWrapper>
-                    <FieldLabel label={t('field-label-desc')} isValid={validateField('string', data.desc)} />
-                    <FieldInputWrapper>
-                        <Field type="long-string" value={data.desc} markdown onChange={handleDataChange} name="desc" />
-                    </FieldInputWrapper>
-                    <FieldActions desc={t(`field-desc-desc`)} />
-                </FieldWrapper>
+                        <FieldInputWrapper>
+                            <Field {...field} value={data[field.name]} onChange={handleDataChange} />
+                        </FieldInputWrapper>
+                        <FieldActions desc={t(`field-desc-${field.name}`)} />
+                    </FieldWrapper>
+                ))}
                 <FieldWrapper>
                     <FieldLabel label={t('field-label-url')} isValid={validateField('url', data.connection_url)} />
                     <FieldInputWrapper>
                         <Field
                             type="url"
                             value={data.connection_url}
-                            url="options/remote/user?list"
+                            url="options/remote?list"
                             onChange={handleDataChange}
                             name="connection_url"
                         />
