@@ -139,15 +139,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             case 'data':
             case 'binary':
                 return (
-                    <StringField
-                        fill
-                        {...rest}
-                        name={name}
-                        onChange={handleChange}
-                        value={value}
-                        type={currentType}
-                        sensitive
-                    />
+                    <StringField fill {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
                 );
             case 'bool':
                 return (
