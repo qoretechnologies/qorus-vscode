@@ -270,8 +270,9 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
     if (isNumber(yaml)) {
         return yaml;
     }
+
     // Leave dates
-    if (isDateValid(yaml)) {
+    if (isDateValid(parsedData)) {
         return yaml;
     }
     // Check if the value isn't empty
@@ -334,14 +335,14 @@ export const getTypeFromValue = (value: any) => {
     if (value === 0 || value === 0.0 || (Number(value) === value && value % 1 !== 0)) {
         return 'float';
     }
-    if (new Date(value).toString() !== 'Invalid Date') {
-        return 'date';
-    }
     if (isObject(value)) {
         return 'hash';
     }
     if (isArray(value)) {
         return 'list';
+    }
+    if (new Date(value).toString() !== 'Invalid Date') {
+        return 'date';
     }
     if (isString(value)) {
         return 'string';
