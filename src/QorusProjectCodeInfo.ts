@@ -109,7 +109,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data }) => {
+    getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data, request_id }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
             const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
 
@@ -127,6 +127,7 @@ export class QorusProjectCodeInfo {
             qorus_webview.postMessage({
                 action: 'return-interface-data',
                 data: {
+                    request_id,
                     iface_kind,
                     custom_data,
                     [iface_kind]: { ...data, iface_id },
