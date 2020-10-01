@@ -272,7 +272,7 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
     }
 
     // Leave dates
-    if (isDateValid(parsedData)) {
+    if (isDateValid(yaml)) {
         return yaml;
     }
     // Check if the value isn't empty
