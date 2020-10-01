@@ -1,0 +1,21 @@
+# This is a generated file, don't edit!
+type: mapper
+name: test-mapper
+desc: Test mapper
+mappertype: Mapper
+version: "3.45"
+fields:
+    name:
+        constant: mapped-constant-name
+options:
+    mapper-input:
+        type: factory
+        name: 'null'
+        path: /
+        custom-fields: {}
+    mapper-output:
+        type: type
+        name: qoretechnologies
+        can_manage_fields: false
+        path: /qorus-api/jobs/context
+        custom-fields: {}

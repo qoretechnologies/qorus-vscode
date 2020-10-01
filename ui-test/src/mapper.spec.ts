@@ -2,7 +2,7 @@ import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-ext
 
 import { setupWebview } from './common/utils';
 import { login } from './tests/login';
-import { createMapper } from './tests/mapper';
+import { createMapper, checkFile } from './tests/mapper';
 
 describe('Mapper Tests', function () {
     this.timeout(1800000);
@@ -19,6 +19,7 @@ describe('Mapper Tests', function () {
 
     it('Login', () => login(webview));
     it('Create mapper', () => createMapper(webview));
+    it('Check file', () => checkFile(project_folder));
 
     this.afterAll(async () => {
         webview.switchBack();

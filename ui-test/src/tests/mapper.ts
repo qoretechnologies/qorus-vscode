@@ -11,11 +11,8 @@ import {
     fillTextField,
     selectNthFolder,
     selectField,
-    getNthElement,
     submitInterface,
-    selectNthDropdownItem,
     selectNthFilteredDropdownItem,
-    confirmDialog,
 } from '../common/utils';
 
 export const createMapper = async (webview: WebView) => {
@@ -51,5 +48,22 @@ export const createMapper = async (webview: WebView) => {
     await selectNthFilteredDropdownItem(webview, 'provider-outputs-3', 'context');
     await sleep(1000);
     await clickElement(webview, 'provider-outputs-submit');
-    await sleep(4000);
+    await sleep(1000);
+
+    await clickElement(webview, 'mapper-output-code-button-name');
+    await sleep(1000);
+    await selectField(webview, 'constant');
+    await sleep(1000);
+    await fillTextField(webview, 'field-constant', 'mapped-constant-name');
+    await sleep(1000);
+    await clickElement(webview, 'submit-mapping-modal');
+    await sleep(1000);
+    await submitInterface(webview, 'mapper');
+    await sleep(1000);
+};
+
+export const checkFile = async (project_folder: string) => {
+    compareWithGoldFiles(path.join(project_folder, 'arpm'), [
+        'test-mapper-3.45.qmapper.yaml',
+    ]);
 };

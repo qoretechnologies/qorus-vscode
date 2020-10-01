@@ -336,6 +336,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                         <ButtonGroup fill>
                             <Button text="Reset" icon="history" onClick={() => setRelation(relationData || {})} />
                             <Button
+                                name="submit-mapping-modal"
                                 intent="success"
                                 text="Submit"
                                 icon="small-tick"

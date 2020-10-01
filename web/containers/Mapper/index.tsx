@@ -1334,6 +1334,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             />
                         </Tooltip>
                         <Button
+                            name={'interface-creator-submit-mapper'}
                             text={t('Submit')}
                             onClick={handleSubmitClick}
                             disabled={!isMapperValid()}
