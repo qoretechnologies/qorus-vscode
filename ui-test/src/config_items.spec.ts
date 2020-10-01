@@ -13,12 +13,7 @@ describe('Config Items Tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-
-        const extestHelpers = await setupWebview();
-
-        workbench = extestHelpers.workbench;
-        editorView = extestHelpers.editorView;
-        webview = extestHelpers.webview;
+        ({ workbench, editorView, webview } = await setupWebview());
     });
 
     it('Create service class', () => createServiceClass(webview));
