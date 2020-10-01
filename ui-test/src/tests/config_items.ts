@@ -1,9 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { expect } from 'chai';
-import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
+import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
 import {
     sleep,
+    openInterface,
     compareWithGoldFiles,
     clickElement,
     getSelectedFields,
@@ -17,6 +18,8 @@ import {
     selectNthFilteredDropdownItem,
     confirmDialog,
 } from '../common/utils';
+
+const target_dir = 'arpm';
 
 export const createServiceClass = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
@@ -96,7 +99,7 @@ export const createClass = async (webview: WebView, editorView: EditorView) => {
 };
 
 // service that inherits the service class and uses the other class
-export const createService = async (webview: WebView, editorView: EditorView, folder: string) => {
+export const createService = async (webview: WebView, editorView: EditorView) => {
     await webview.switchBack();
     await editorView.openEditor('Qorus Webview');
     await webview.switchToFrame();
@@ -158,7 +161,7 @@ export const createService = async (webview: WebView, editorView: EditorView, fo
 };
 
 export const checkFiles = async (project_folder: string) => {
-    compareWithGoldFiles(path.join(project_folder, 'arpm'), [
+    compareWithGoldFiles(path.join(project_folder, target_dir), [
         'ServiceClassWithConfigItems-1.2.qclass',
         'ServiceClassWithConfigItems-1.2.qclass.yaml',
         'ClassWithConfigItems-1.3.qclass',
@@ -168,20 +171,11 @@ export const checkFiles = async (project_folder: string) => {
     ]);
 };
 
-export const openFile = async (webview: WebView, workbench: Workbench, input: InputBox, project_folder: string) => {
-    await webview.switchBack();
-    await workbench.executeCommand('Extest: Open File');
-
+export const editInterface = async (webview: WebView, workbench: Workbench, project_folder: string) => {
     await sleep(1000);
-
-    await input.wait();
-    await input.setText(path.join(project_folder, 'arpm', 'ClassWithConfigItems-1.3.qclass.yaml'));
-    await input.confirm();
-    await sleep(1000);
-    await workbench.executeCommand('Qorus: Edit Current Interface');
-    await sleep(5000);
-    await webview.switchToFrame();
-    await sleep(2000);
+    openInterface(webview, workbench, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
+    await sleep(4000);
+    // more to do
 };
 
 const openConfigItemManager = async (webview: WebView) => {

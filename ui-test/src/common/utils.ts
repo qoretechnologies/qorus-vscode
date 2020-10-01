@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
+import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
 
 type TSelector = 'id' | 'name' | 'className';
 
@@ -35,6 +35,24 @@ export const setupWebview = async () => {
         editorView,
         webview,
     };
+};
+
+// file_path: absolute path of the interface's yaml file or source file
+export const openInterface = async (webview: WebView, workbench: Workbench, file_path: string) => {
+    await webview.switchBack();
+    await workbench.executeCommand('Extest: Open File');
+
+    await sleep(1000);
+
+    const input: InputBox = await new InputBox();
+    await input.wait();
+    await input.setText(file_path);
+    await input.confirm();
+    await sleep(1000);
+    await workbench.executeCommand('Qorus: Edit Current Interface');
+    await sleep(5000);
+    await webview.switchToFrame();
+    await sleep(2000);
 };
 
 export const sleep = (ms: number) => {

@@ -1,7 +1,7 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 
 import { setupWebview } from './common/utils';
-import { checkFiles, createClass, createService, createServiceClass } from './tests/config_items';
+import { checkFiles, createClass, createService, createServiceClass, editInterface } from './tests/config_items';
 
 describe('Config Items Tests', function () {
     this.timeout(1800000);
@@ -23,9 +23,9 @@ describe('Config Items Tests', function () {
 
     it('Create service class', () => createServiceClass(webview));
     it('Create class', () => createClass(webview, editorView));
-    it('Create service', () => createService(webview, editorView, project_folder));
+    it('Create service', () => createService(webview, editorView));
     it('Check files', () => checkFiles(project_folder));
-    //it('Open file', () => openFile(webview, workbench, input, project_folder));
+    it('Edit interface', () => editInterface(webview, workbench, project_folder));
 
     // Reset the workbench
     this.afterAll(async () => {
