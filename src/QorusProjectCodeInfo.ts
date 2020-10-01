@@ -125,7 +125,7 @@ export class QorusProjectCodeInfo {
             const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
 
             qorus_webview.postMessage({
-                action: 'return-interface-data',
+                action: `return-interface-data${request_id ? '-complete' : ''}`,
                 data: {
                     request_id,
                     iface_kind,
