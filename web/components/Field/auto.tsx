@@ -1,24 +1,20 @@
+import { Button, Callout, ControlGroup } from '@blueprintjs/core';
 import React, { FunctionComponent, useEffect, useState } from 'react';
-
 import useMount from 'react-use/lib/useMount';
 import { isNull } from 'util';
-
-import { Button, Callout, ControlGroup } from '@blueprintjs/core';
-
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { getTypeFromValue, getValueOrDefaultValue, maybeParseYaml } from '../../helpers/validations';
+import withTextContext from '../../hocomponents/withTextContext';
 import { IField } from './';
 import BooleanField from './boolean';
+import ByteSizeField from './byteSize';
 import DateField from './date';
 import NumberField from './number';
 import OptionHashField from './optionHash';
+import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
 import TextareaField from './textarea';
-import withTextContext from '../../hocomponents/withTextContext';
-import SystemOptions from './systemOptions';
-import ByteSizeField from './byteSize';
-import RadioField from './radioField';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -189,13 +185,24 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             case 'enum':
                 return (
                     <RadioField
-                        items={rest.radioItems}
+                        items={rest.allowed_values}
                         value={value}
                         name={name}
                         onChange={handleChange}
                         type={currentType}
                     />
                 );
+            case 'select-string': {
+                return (
+                    <SelectField
+                        defaultItems={rest.allowed_values}
+                        value={value}
+                        name={name}
+                        onChange={handleChange}
+                        type={currentType}
+                    />
+                );
+            }
             case 'any':
                 return null;
             default:

@@ -1072,7 +1072,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                             context={getContext()}
                                         />
                                     </FieldInputWrapper>
-                                    {console.log(field)}
                                     <FieldActions
                                         value={field.value}
                                         parentValue={field['parent-value']}

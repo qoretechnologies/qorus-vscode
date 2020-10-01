@@ -1,7 +1,7 @@
-import { By, WebView, Workbench, EditorView } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
+import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
 
 type TSelector = 'id' | 'name' | 'className';
 
@@ -105,7 +105,7 @@ export const selectNthFilteredDropdownItem = async (
 ) => {
     await clickElement(webview, `field-${name}`, element_position);
     await sleep(500);
-    await fillTextField(webview, 'select-filter', filter);
+    await fillTextField(webview, 'field-select-filter', filter);
     await sleep(500);
     await clickElement(webview, `field-${name}-item`, item_position);
 };

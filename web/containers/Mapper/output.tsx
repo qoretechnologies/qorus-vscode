@@ -91,6 +91,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
             </p>
             <Tooltip content={t('ManageMapperFieldOptions')} position="right">
                 <Button
+                    name={`mapper-output-code-button-${name}`}
                     style={{
                         position: 'absolute',
                         top: '50%',

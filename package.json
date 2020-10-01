@@ -167,6 +167,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editConnection",
+                "title": "Edit Connection",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.multiDeploy",
                 "title": "Deploy Selected Files And Directories",
                 "category": "Qorus"
@@ -247,6 +252,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.deployConnection",
+                "title": "Deploy Connection",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.deployFsm",
                 "title": "Deploy Finite State Machine",
                 "category": "Qorus"
@@ -304,6 +314,15 @@
             {
                 "command": "qorus.createClass",
                 "title": "Create New Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createConnection",
+                "title": "Create New Connection",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/create-new.svg",
@@ -604,6 +623,15 @@
                 }
             },
             {
+                "command": "qorus.views.deployConnection",
+                "title": "Deploy Connection",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deployFsm",
                 "title": "Deploy Finite State Machine",
                 "category": "Qorus",
@@ -615,15 +643,6 @@
             {
                 "command": "qorus.views.deployPipeline",
                 "title": "Deploy Pipeline",
-                "category": "Qorus",
-                "icon": {
-                    "dark": "images/icons/dark/cloud-upload.svg",
-                    "light": "images/icons/light/cloud-upload.svg"
-                }
-            },
-            {
-                "command": "qorus.views.deployConnection",
-                "title": "Deploy Connection",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/cloud-upload.svg",
@@ -768,6 +787,15 @@
             {
                 "command": "qorus.views.editClass",
                 "title": "Edit Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editConnection",
+                "title": "Edit Connection",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -1013,15 +1041,15 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.deployConnection",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.deployFsm",
                     "when": "false"
                 },
                 {
                     "command": "qorus.views.deployPipeline",
-                    "when": "false"
-                },
-                {
-                    "command": "qorus.views.deployConnection",
                     "when": "false"
                 },
                 {
@@ -1086,6 +1114,10 @@
                 },
                 {
                     "command": "qorus.views.editClass",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editConnection",
                     "when": "false"
                 },
                 {
@@ -1214,28 +1246,38 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createType",
+                    "command": "qorus.createConnection",
                     "group": "2_workspace@8"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createFsm",
+                    "command": "qorus.createType",
                     "group": "2_workspace@9"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createPipeline",
+                    "command": "qorus.createFsm",
                     "group": "2_workspace@10"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createPipeline",
                     "group": "2_workspace@11"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createOther",
+                    "group": "2_workspace12"
                 },
                 {
                     "when": "explorerResourceIsFolder && !listMultiSelection",
                     "command": "qorus.explorer.deployDir",
-                    "group": "2_workspace@12"
+                    "group": "2_workspace@13"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.explorer.deployDir",
+                    "group": "2_workspace@14"
                 },
                 {
                     "when": "explorerResourceIsFolder",
@@ -1376,6 +1418,11 @@
                 {
                     "command": "qorus.createClass",
                     "when": "view == qorusInterfaces && viewItem == class-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createConnection",
+                    "when": "view == qorusInterfaces && viewItem == connection-category",
                     "group": "inline"
                 },
                 {
@@ -1534,6 +1581,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.views.deployConnection",
+                    "when": "view == qorusInterfaces && viewItem == connection",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.views.deployFsm",
                     "when": "view == qorusInterfaces && viewItem == fsm",
                     "group": "inline"
@@ -1541,11 +1593,6 @@
                 {
                     "command": "qorus.views.deployPipeline",
                     "when": "view == qorusInterfaces && viewItem == pipeline",
-                    "group": "inline"
-                },
-                {
-                    "command": "qorus.views.deployConnection",
-                    "when": "view == qorusInterfaces && viewItem == connection",
                     "group": "inline"
                 },
                 {
@@ -1626,6 +1673,11 @@
                 {
                     "command": "qorus.views.editClass",
                     "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editConnection",
+                    "when": "view == qorusInterfaces && viewItem == connection",
                     "group": "inline"
                 },
                 {

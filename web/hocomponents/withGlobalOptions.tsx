@@ -1,9 +1,5 @@
-import React, {
-    useContext, useState
-} from 'react';
-
+import React, { useContext, useState } from 'react';
 import compose from 'recompose/compose';
-
 import { GlobalContext } from '../context/global';
 import { InitialContext } from '../context/init';
 import withFieldsConsumer from './withFieldsConsumer';
@@ -19,6 +15,7 @@ export default () => (Component: any): any => {
         const [typeReset, setTypeReset] = useState(null);
         const [fsmReset, setFsmReset] = useState(null);
         const [pipelineReset, setPipelineReset] = useState(null);
+        const [connectionReset, setConnectionReset] = useState(null);
         const initialData = useContext(InitialContext);
 
         const handleInterfaceReset: (type: string, soft?: boolean) => void = (type, soft) => {
@@ -76,6 +73,9 @@ export default () => (Component: any): any => {
                 case 'pipeline':
                     props.resetInterfaceData('pipeline');
                     pipelineReset && pipelineReset(true);
+                case 'connection':
+                    props.resetInterfaceData('connection');
+                    connectionReset && connectionReset();
                 default:
                     break;
             }
@@ -88,6 +88,7 @@ export default () => (Component: any): any => {
                     setTypeReset,
                     setFsmReset,
                     setPipelineReset,
+                    setConnectionReset,
                 }}
             >
                 <Component {...props} />

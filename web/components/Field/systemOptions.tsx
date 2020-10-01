@@ -68,6 +68,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                 const data = await fetchData(`/options/${url}`);
                 // Save the new options
                 setOptions(data.data);
+                onChange(name, fixOptions(value, data.data));
             })();
         }
     }, [url, qorus_instance]);
@@ -109,8 +110,12 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
         );
     }
 
-    if (!options || !size(options)) {
+    if (!options) {
         return <p>{t('LoadingOptions')}</p>;
+    }
+
+    if (!size(options)) {
+        return <p>{t('NoOptionsAvailable')}</p>;
     }
 
     const filteredOptions = reduce(
@@ -125,18 +130,21 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
         {}
     );
 
-    const getTypeAndCanBeNull = (type: string) => {
-        if (type.startsWith('*')) {
-            return {
-                type: type.replace('*', ''),
-                defaultType: type.replace('*', ''),
-                canBeNull: true,
-            };
+    const getTypeAndCanBeNull = (type: string, allowed_values: any[]) => {
+        let canBeNull = false;
+        let realType = type;
+
+        if (type?.startsWith('*')) {
+            realType = type.replace('*', '');
+            canBeNull = true;
         }
 
+        realType = realType === 'string' && allowed_values ? 'select-string' : realType;
+
         return {
-            type,
-            defaultType: type,
+            type: realType,
+            defaultType: realType,
+            canBeNull,
         };
     };
 
@@ -152,12 +160,13 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                         }}
                     >
                         <AutoField
-                            {...getTypeAndCanBeNull(type)}
+                            {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
                             name={optionName}
                             onChange={(optionName, val) => handleValueChange(optionName, val, type)}
                             value={rest.value}
+                            sensitive={options[optionName].sensitive}
                             default_value={options[optionName].default}
-                            radioItems={options[optionName].allowed_values}
+                            allowed_values={options[optionName].allowed_values}
                         />
                     </SubField>
                 ) : null
@@ -171,7 +180,10 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
             {size(filteredOptions) >= 1 && (
                 <SelectField
                     name="options"
-                    defaultItems={Object.keys(filteredOptions).map((option) => ({ name: option }))}
+                    defaultItems={Object.keys(filteredOptions).map((option) => ({
+                        name: option,
+                        desc: options[option].desc,
+                    }))}
                     onChange={(_name, value) => addSelectedOption(value)}
                     placeholder={`${t('AddNewOption')} (${size(filteredOptions)})`}
                 />

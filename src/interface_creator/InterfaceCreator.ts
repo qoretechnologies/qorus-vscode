@@ -64,23 +64,9 @@ export abstract class InterfaceCreator {
                 if (target_file) {
                     this.file_base = target_file;
                     // remove all possible suffixes
-                    [
-                        'py',
-                        'yaml',
-                        'qjob',
-                        'qstep',
-                        'qwf',
-                        'qclass',
-                        'qmapper',
-                        'qtype',
-                        'qsd',
-                        'qmc',
-                        'qevent',
-                        'qgroup',
-                        'qqueue',
-                        'qfsm',
-                        'qpipe',
-                    ].forEach((suffix) => {
+                    ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype', 'qsd',
+                     'qmc', 'qevent', 'qgroup', 'qqueue', 'qfsm', 'qpipe', 'qconn', ].forEach((suffix) =>
+                    {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
                 } else {
@@ -669,6 +655,7 @@ export abstract class InterfaceCreator {
         for (const tag of ordered_tags) {
             if (
                 [
+                    'iface_id',
                     'target_dir',
                     'target_file',
                     'methods',
@@ -834,13 +821,14 @@ export abstract class InterfaceCreator {
                     case 'mapper_options':
                     case 'input-provider-options':
                     case 'fsm_options':
+                    case 'connection_options':
                     case 'system-options':
                     case 'typeinfo':
                     case 'staticdata-type':
                     case 'input-provider':
                     case 'context':
                         result +=
-                            `${['mapper_options', 'fsm_options'].includes(tag) ? 'options' : tag}:\n` +
+                            `${['mapper_options', 'fsm_options', 'connection_options'].includes(tag) ? 'options' : tag}:\n` +
                             InterfaceCreator.indentYamlDump(value, 1, true);
                         break;
                     case 'states':
