@@ -1,9 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { expect } from 'chai';
-import { WebView } from 'vscode-extension-tester';
+import { WebView, Workbench } from 'vscode-extension-tester';
 import {
     sleep,
+    openInterface,
     compareWithGoldFiles,
     clickElement,
     getSelectedFields,
@@ -14,6 +15,9 @@ import {
     submitInterface,
     selectNthFilteredDropdownItem,
 } from '../common/utils';
+
+const target_dir = 'arpm';
+const target_file = 'test-mapper-3.45.qmapper.yaml';
 
 export const createMapper = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
@@ -63,7 +67,12 @@ export const createMapper = async (webview: WebView) => {
 };
 
 export const checkFile = async (project_folder: string) => {
-    compareWithGoldFiles(path.join(project_folder, 'arpm'), [
-        'test-mapper-3.45.qmapper.yaml',
-    ]);
+    compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file ]);
+};
+
+export const editMapper = async (webview: WebView, workbench: Workbench, project_folder: string) => {
+    await sleep(1000);
+    openInterface(webview, workbench, path.join(project_folder, target_dir, target_file));
+    await sleep(4000);
+    // more to do
 };

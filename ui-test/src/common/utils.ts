@@ -48,9 +48,9 @@ export const openInterface = async (webview: WebView, workbench: Workbench, file
     await input.wait();
     await input.setText(file_path);
     await input.confirm();
-    await sleep(1000);
+    await sleep(4000);
     await workbench.executeCommand('Qorus: Edit Current Interface');
-    await sleep(5000);
+    await sleep(2000);
     await webview.switchToFrame();
     await sleep(2000);
 };
