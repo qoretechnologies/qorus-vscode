@@ -364,6 +364,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                 <Tooltip content={t('EditThisItem')}>
                                     <Button
                                         icon="edit"
+                                        name={`field-${name}-edit-reference`}
                                         onClick={() => onEditClick(value, reference, handleEditSubmit)}
                                     />
                                 </Tooltip>
@@ -372,6 +373,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                 <Button
                                     icon="add"
                                     intent="success"
+                                    name={`field-${name}-reference-add-new`}
                                     onClick={() => onCreateClick(reference, handleEditSubmit)}
                                 />
                             </Tooltip>
