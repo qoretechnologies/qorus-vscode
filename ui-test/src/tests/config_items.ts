@@ -1,22 +1,20 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { expect } from 'chai';
+import * as path from 'path';
 import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
 import {
-    sleep,
-    openInterface,
-    compareWithGoldFiles,
     clickElement,
-    getSelectedFields,
-    getElementAttribute,
-    fillTextField,
-    selectNthFolder,
-    selectField,
-    getNthElement,
-    submitInterface,
-    selectNthDropdownItem,
-    selectNthFilteredDropdownItem,
+    compareWithGoldFiles,
     confirmDialog,
+    fillTextField,
+    getElementAttribute,
+    getNthElement,
+    getSelectedFields,
+    openInterface,
+    selectField,
+    selectNthFilteredDropdownItem,
+    selectNthFolder,
+    sleep,
+    submitInterface,
 } from '../common/utils';
 
 const target_dir = 'arpm';
@@ -52,6 +50,10 @@ export const createServiceClass = async (webview: WebView) => {
     await selectField(webview, 'default_value');
     await sleep(500);
     await fillTextField(webview, 'field-default_value', 54);
+    await sleep(500);
+    await selectField(webview, 'allowed_values');
+    await sleep(1000);
+    await fillTextField(webview, 'field-allowed_values-1', 54);
     await sleep(500);
     await submitInterface(webview, 'config-item');
 

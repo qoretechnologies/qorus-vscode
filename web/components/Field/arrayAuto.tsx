@@ -1,14 +1,15 @@
-import React, { FunctionComponent, useState, useEffect, useContext } from 'react';
+import { Button, ButtonGroup, Callout, Classes, ControlGroup } from '@blueprintjs/core';
+import map from 'lodash/map';
+import reduce from 'lodash/reduce';
+import size from 'lodash/size';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import { IField } from '.';
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
-import { Callout, ButtonGroup, Button, ControlGroup, Classes } from '@blueprintjs/core';
-import reduce from 'lodash/reduce';
-import map from 'lodash/map';
-import size from 'lodash/size';
+import { InitialContext } from '../../context/init';
+import { TextContext } from '../../context/text';
 import AutoField from './auto';
 import { StyledPairField } from './multiPair';
-import { InitialContext } from '../../context/init';
 
 export const allowedTypes: string[] = ['string', 'int', 'float', 'date'];
 
@@ -36,6 +37,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
         }
     };
 
+    const t = useContext(TextContext);
     const [values, setValues] = useState<{ [id: number]: string | number | null }>(transformValues(true, value));
     const [type, setType] = useState<string>(null);
     const [lastId, setLastId] = useState<number>(1);
@@ -82,7 +84,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
 
     const addValue: () => void = () => {
         setLastId((current: number) => {
-            setValues(currentValues => ({
+            setValues((currentValues) => ({
                 ...currentValues,
                 [current + 1]: '',
             }));
@@ -91,8 +93,8 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
         });
     };
 
-    const handleRemoveClick: (name: number) => void = name => {
-        setValues(current => {
+    const handleRemoveClick: (name: number) => void = (name) => {
+        setValues((current) => {
             const newValues = { ...current };
             delete newValues[name];
             return newValues;
@@ -101,7 +103,7 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
 
     const handleChange: (name: string, value: any) => void = (name, value) => {
         // Set the new values
-        setValues(current => {
+        setValues((current) => {
             const newValues = { ...current };
             newValues[name] = value;
             return newValues;
@@ -112,24 +114,29 @@ const ArrayAutoField: FunctionComponent<IField & IFieldChange> = ({
     // allowed values
     if (!allowedTypes.includes(type)) {
         // Show the error message
-        return <Callout intent="danger">{rest.t('AllowedValuesWarningType')}</Callout>;
+        return <Callout intent="danger">{t('AllowedValuesWarningType')}</Callout>;
     }
 
     // Render list of auto fields
     return (
         <>
-            {map(values, (val: string | number, name: number) => (
+            {map(values, (val: string | number, idx: string) => (
                 <StyledPairField>
                     <ControlGroup fill>
-                        <Button text={`${name}.`} className={Classes.FIXED} />
-                        <AutoField {...rest} name={name} value={val} onChange={handleChange} />
+                        <Button text={`${idx}.`} className={Classes.FIXED} />
+                        <AutoField
+                            {...rest}
+                            name={`${name}-${idx}`}
+                            value={val}
+                            onChange={(_name, value) => handleChange(idx, value)}
+                        />
                         {size(values) !== 1 && (
                             <Button
                                 className={Classes.FIXED}
                                 icon={'trash'}
                                 intent="danger"
                                 onClick={() =>
-                                    initContext.confirmAction('ConfirmRemoveItem', () => handleRemoveClick(name))
+                                    initContext.confirmAction('ConfirmRemoveItem', () => handleRemoveClick(idx))
                                 }
                             />
                         )}
