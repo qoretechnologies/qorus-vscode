@@ -38,6 +38,7 @@ rm -rf ${HOME}/.vscode
 
 # install
 cd ${rootdir}
+npm install -g yarn
 npm install
 npm install --save-dev vsce
 cd ui-test
