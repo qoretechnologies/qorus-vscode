@@ -14,9 +14,8 @@ uitest:
         when: on_failure
         expire_in: 2 day
     script:
-        - npm install -g yarn
         - export rootdir=`pwd`
-        - apk add openssh-client git gzip curl
+        - apk add openssh-client git gzip curl yarn
 
         - |
             curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
