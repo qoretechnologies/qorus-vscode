@@ -1,28 +1,30 @@
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
+import * as filter from 'lodash/filter';
+import * as flattenDeep from 'lodash/flattenDeep';
 import * as lodashIsArray from 'lodash/isArray';
 import * as lodashIsObject from 'lodash/isObject';
-import * as sortBy from 'lodash/sortBy';
-import * as filter from 'lodash/filter';
 import * as size from 'lodash/size';
-import * as flattenDeep from 'lodash/flattenDeep';
+import * as sortBy from 'lodash/sortBy';
 import * as path from 'path';
-import { t, gettext } from 'ttag';
+import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
-
-import { QorusProjectYamlInfo} from './QorusProjectYamlInfo';
-import { QorusProjectEditInfo} from './QorusProjectEditInfo';
-import * as msg from './qorus_message';
-import { types_with_version, root_steps, root_service, root_job, root_workflow,
-         all_root_classes, root_processor, lang_inheritance, default_lang} from './qorus_constants';
-import { filesInDir, hasSuffix, capitalize, isObject } from './qorus_utils';
+import * as globals from './global_config_item_values';
+import { field } from './interface_creator/common_constants';
+import { interface_tree } from './QorusInterfaceTree';
 import { config_filename, QorusProject } from './QorusProject';
+import { QorusProjectEditInfo } from './QorusProjectEditInfo';
+import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
+import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
 import { qorus_request } from './QorusRequest';
 import { qorus_webview } from './QorusWebview';
-import { field } from './interface_creator/common_constants';
-import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
-import * as globals from './global_config_item_values';
-import { interface_tree } from './QorusInterfaceTree';
+import {
+    all_root_classes, default_lang, lang_inheritance, root_job,
+    root_processor, root_service, root_steps, root_workflow, types_with_version
+} from './qorus_constants';
+import * as msg from './qorus_message';
+import { capitalize, filesInDir, hasSuffix, isObject } from './qorus_utils';
+
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
 
@@ -126,8 +128,9 @@ export class QorusProjectCodeInfo {
 
             qorus_webview.postMessage({
                 action: `return-interface-data${request_id ? '-complete' : ''}`,
+                request_id,
+                ok: true,
                 data: {
-                    request_id,
                     iface_kind,
                     custom_data,
                     [iface_kind]: { ...data, iface_id },

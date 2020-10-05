@@ -388,7 +388,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     </FieldWrapper>
                                 </>
                             )}
-                            {newData.type !== 'fsm' && newData.type !== 'if' ? (
+                            {newData.type === 'block' ? (
                                 <>
                                     <FieldWrapper padded>
                                         <FieldLabel label={t('InputType')} isValid info={t('Optional')} />

@@ -2496,6 +2496,12 @@ msgstr "No description available"
 msgid "SelectItem"
 msgstr "Select item"
 
+msgid "CannotManageBlock"
+msgstr "Blocks can only be managed with an active Qorus instance."
+
+msgid "LoadingCompatibilityCheck"
+msgstr "Checking compatibility..."
+
 msgid "MoveItemUp"
 msgstr "Move item up"
 

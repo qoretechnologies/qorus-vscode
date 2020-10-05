@@ -1,43 +1,39 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-
+import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
+import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
-import dropRight from 'lodash/dropRight';
 import size from 'lodash/size';
-import forEach from 'lodash/forEach';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-
 import Field from '../../../components/Field';
 import FileString from '../../../components/Field/fileString';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
+import Spacer from '../../../components/Spacer';
 import { Messages } from '../../../constants/messages';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { areTypesCompatible, isStateIsolated, ITypeComparatorData } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import FSMDiagramWrapper from './diagramWrapper';
+import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
 import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
-import FieldGroup from '../../../components/FieldGroup';
-import FSMInitialOrderDialog from './initialOrderDialog';
-import { isStateIsolated } from '../../../helpers/functions';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -375,6 +371,42 @@ const FSMView: React.FC<IFSMViewProps> = ({
         const { transitions } = states[stateId];
 
         return transitions?.find((transition) => transition.state === targetId);
+    };
+
+    const getStateDataForComparison = (
+        state: IFSMState,
+        providerType: 'input' | 'output'
+    ): ITypeComparatorData | null => {
+        if (state.action) {
+            const { type, value } = state.action;
+
+            return {
+                interfaceName: type === 'connector' ? value.class : value,
+                interfaceKind: type,
+                connectorName: type === 'connector' ? value.connector : undefined,
+                typeData: state[`${providerType}-type`] || state['input-output-type'],
+            };
+        }
+
+        if (!state[`${providerType}-type`] && !state['input-output-type']) {
+            return null;
+        }
+
+        return {
+            typeData: state[`${providerType}-type`] || state['input-output-type'],
+        };
+    };
+
+    const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
+        const outputState = states[stateId];
+        const inputState = states[targetId];
+
+        const compatible = await areTypesCompatible(
+            getStateDataForComparison(outputState, 'output'),
+            getStateDataForComparison(inputState, 'input')
+        );
+
+        return compatible && !getTransitionByState(stateId, targetId);
     };
 
     const handleStateClick = (id: string): void => {
@@ -839,9 +871,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 />
             ) : null}
             {selectedState ? (
-                <Callout icon="info-sign" intent="primary">
-                    {t('FSMSelectTargetState')}
-                </Callout>
+                <>
+                    <Callout icon="info-sign" intent="primary">
+                        {t('FSMSelectTargetState')}
+                    </Callout>
+                    <Spacer size={10} />
+                </>
             ) : (
                 <StyledToolbarWrapper id="fsm-toolbar">
                     <FSMToolbarItem
@@ -951,7 +986,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                     onEditClick={handleStateEditClick}
                                     onDeleteClick={handleStateDeleteClick}
                                     selectedState={selectedState}
-                                    getTransitionByState={getTransitionByState}
+                                    isAvailableForTransition={isAvailableForTransition}
                                     toggleDragging={setIsHoldingShiftKey}
                                     onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
                                     onExecutionOrderClick={() => setEditingInitialOrder(true)}

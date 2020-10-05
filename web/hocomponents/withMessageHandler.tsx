@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from 'react';
-
 import { vscode } from '../common/vscode';
 
 export type TPostMessage = (action: string, data?: any) => void;
