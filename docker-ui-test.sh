@@ -5,6 +5,7 @@ set -x
 
 export rootdir=`pwd`
 export PATH=${rootdir}/node_modules/.bin:${PATH}
+export PATH="$PATH:/usr/lib/node_modules/yarn/bin"
 export DISPLAY=:0
 export XAUTHORITY=${HOME}/.Xauthority
 export PROJECT_FOLDER=${rootdir}/ui-test/test_project
