@@ -72,7 +72,7 @@ export const checkFile = async (project_folder: string) => {
 
 export const editMapper = async (webview: WebView, workbench: Workbench, project_folder: string) => {
     await sleep(1000);
-    openInterface(webview, workbench, path.join(project_folder, target_dir, target_file));
+    await openInterface(webview, workbench, path.join(project_folder, target_dir, target_file));
     await sleep(4000);
     // more to do
 };
