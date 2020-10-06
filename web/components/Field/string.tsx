@@ -77,7 +77,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
                 !read_only &&
                 !disabled && (
                     <ButtonGroup minimal>
-                        <Button onClick={handleResetClick} icon={'cross'} />
+                        <Button name={`reset-field-${name}`} onClick={handleResetClick} icon={'cross'} />
                     </ButtonGroup>
                 )
             }
