@@ -161,7 +161,7 @@ export const getElementAttribute = async (
     return await (await getNthElement(webview, elementName, position, selector)).getAttribute(attribute);
 };
 
-export const compareWithGoldFiles = async (folder: string, files: string[]) => {
+export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
     await sleep(500);
 
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
@@ -173,7 +173,7 @@ export const compareWithGoldFiles = async (folder: string, files: string[]) => {
         if (!file_exists) {
             return;
         }
-        const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, file_name));
+        const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, gold_files_subfolder, file_name));
         const true_file_contents = fs.readFileSync(file_path);
         expect(true_file_contents).to.eql(expected_file_contents);
     };
