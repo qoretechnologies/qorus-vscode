@@ -10,6 +10,7 @@ import {
     getSelectedFields,
     getElementAttribute,
     fillTextField,
+    resetAndFillTextField,
     selectNthFolder,
     selectField,
     submitInterface,
@@ -17,7 +18,10 @@ import {
 } from '../common/utils';
 
 const target_dir = 'arpm';
-const target_file = 'test-mapper-3.45.qmapper.yaml';
+const target_file = [
+    'test-mapper-3.45.qmapper.yaml',
+    'test-mapper-3.4.5.qmapper.yaml'
+];
 
 export const createMapper = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
@@ -66,13 +70,21 @@ export const createMapper = async (webview: WebView) => {
     await sleep(1000);
 };
 
-export const checkFile = async (project_folder: string) => {
-    compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file ]);
+export const checkFile = async (project_folder: string, file_index: number) => {
+    compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file[file_index] ]);
 };
 
 export const editMapper = async (webview: WebView, workbench: Workbench, project_folder: string) => {
     await sleep(1000);
-    await openInterface(webview, workbench, path.join(project_folder, target_dir, target_file));
-    await sleep(4000);
-    // more to do
+    await openInterface(webview, workbench, path.join(project_folder, target_dir, target_file[0]));
+
+    await sleep(1000);
+    await resetAndFillTextField(webview, 'field-version', '3.4.5');
+    await sleep(1000);
+    await resetAndFillTextField(webview, 'field-target_file', target_file[1]);
+    await sleep(1000);
+    await submitInterface(webview, 'mapper');
+    await sleep(2000);
+    await submitInterface(webview, 'mapper');
+    await sleep(2000);
 };
