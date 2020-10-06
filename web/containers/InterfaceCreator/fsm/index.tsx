@@ -336,37 +336,41 @@ const FSMView: React.FC<IFSMViewProps> = ({
         if (!embedded) {
             setFsmReset(() => reset);
         }
-
-        let newStates = embedded ? states : cloneDeep(fsm?.states || {});
-
-        (async () => {
-            for await (const [stateId] of Object.entries(states)) {
-                newStates = await fixIncomptibleStates(stateId, newStates);
-            }
-
-            updateHistory(newStates);
-            setStates(newStates);
-            setCompatibilityChecked(true);
-        })();
-
-        const { width, height } = wrapperRef.current.getBoundingClientRect();
-
-        currentXPan.current = 0;
-        currentYPan.current = 0;
-
-        setWrapperDimensions({ width, height });
-
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-            if (!embedded) {
-                setFsmReset(null);
-            }
-        };
     });
+
+    useEffect(() => {
+        if (qorus_instance) {
+            let newStates = embedded ? states : cloneDeep(fsm?.states || {});
+
+            (async () => {
+                for await (const [stateId] of Object.entries(states)) {
+                    newStates = await fixIncomptibleStates(stateId, newStates);
+                }
+
+                updateHistory(newStates);
+                setStates(newStates);
+                setCompatibilityChecked(true);
+            })();
+
+            const { width, height } = wrapperRef.current.getBoundingClientRect();
+
+            currentXPan.current = 0;
+            currentYPan.current = 0;
+
+            setWrapperDimensions({ width, height });
+
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('keyup', handleKeyUp);
+
+            return () => {
+                window.removeEventListener('keydown', handleKeyDown);
+                window.removeEventListener('keyup', handleKeyUp);
+                if (!embedded) {
+                    setFsmReset(null);
+                }
+            };
+        }
+    }, [qorus_instance]);
 
     useEffect(() => {
         if (states && onStatesChange) {
