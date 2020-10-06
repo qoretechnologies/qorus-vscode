@@ -48,9 +48,9 @@ export const openInterface = async (webview: WebView, workbench: Workbench, file
     await input.setText(file_path);
     await input.confirm();
 
-    await sleep(8000);
+    await sleep(2000);
     await workbench.executeCommand('Qorus: Edit Current Interface');
-    await sleep(4000);
+    await sleep(2000);
     await webview.switchToFrame();
     await sleep(2000);
 };
@@ -83,6 +83,15 @@ export const clickElement = async (
 
 export const fillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1) => {
     await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
+};
+
+export const resetTextField = async (webview: WebView, name: string, position: number = 1) => {
+    await clickElement(webview, `reset-${name}`, position);
+};
+
+export const resetAndFillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1) => {
+    await resetTextField(webview, name, position);
+    await fillTextField(webview, name, value, position);
 };
 
 export const getElementText = async (

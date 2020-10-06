@@ -175,7 +175,7 @@ export const checkFiles = async (project_folder: string) => {
 
 export const editInterface = async (webview: WebView, workbench: Workbench, project_folder: string) => {
     await sleep(1000);
-    openInterface(webview, workbench, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
+    await openInterface(webview, workbench, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
     await sleep(4000);
     // more to do
 };

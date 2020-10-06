@@ -15,10 +15,7 @@ uitest:
         expire_in: 2 day
     script:
         - export rootdir=`pwd`
-        - apk add openssh-client git gzip curl nodejs npm
-        - npm install -g yarn
-        - yarn -v
-
+        - apk add openssh-client git gzip curl
         - |
             curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
             -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \

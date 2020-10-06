@@ -39,6 +39,7 @@ export const indent = ' '.repeat(4);
 const indent1 = indent;
 const indent2 = indent.repeat(2);
 const indent3 = indent.repeat(3);
+const indent4 = indent.repeat(4);
 
 const isArray = trigger => trigger.signature.indexOf('array(') > -1;
 const isValidation = trigger => trigger.signature.indexOf('validation(') > -1;
@@ -218,7 +219,8 @@ export class ClassConnectionsCreate {
             'import org.qore.jni.QoreObject;',
             'import java.util.Map;',
             'import org.qore.jni.Hash;',
-            'import java.lang.reflect.Method;'
+            'import java.lang.reflect.Method;',
+            'import java.lang.reflect.InvocationTargetException;'
         ];
 
         if (this.import_java_api) {
@@ -436,8 +438,11 @@ export class ClassConnectionsCreate {
             `${indent3}return qoreObject.callMethod(methodName, ${CONN_DATA});\n` +
             `${indent2}} else {\n` +
             `${indent3}final Method method = object.getClass().getMethod(methodName, Object.class);\n` +
-            `${indent3}return method.invoke(object, ${CONN_DATA});\n` +
-            `${indent2}}\n${indent1}}\n`;
+            `${indent3}try {\n` +
+            `${indent4}return method.invoke(object, ${CONN_DATA});\n` +
+            `${indent3}} catch (InvocationTargetException ex) {\n` +
+            `${indent4}throw ex.getCause();\n` +
+            `${indent3}}\n${indent2}}\n${indent1}}\n`;
 
         if (event_based_connections.length) {
             code += '\n' +
