@@ -2493,6 +2493,12 @@ msgstr "Transition to state"
 msgid "NoDescription"
 msgstr "No description available"
 
+msgid "CheckingCompatibility"
+msgstr "Checking states compatibility..."
+
+msgid "IncompatibleTransitionsRemoved"
+msgstr "incompatible transitions removed. This is most likely due to a type change in affected states."
+
 msgid "SelectItem"
 msgstr "Select item"
 

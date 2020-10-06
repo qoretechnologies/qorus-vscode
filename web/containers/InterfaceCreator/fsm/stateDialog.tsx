@@ -59,6 +59,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>('custom');
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const t = useContext(TextContext);
     const { confirmAction, qorus_instance } = useContext(InitialContext);
 
@@ -486,9 +487,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                 text={t('Submit')}
                                 disabled={!isDataValid()}
                                 icon={'tick'}
+                                loading={isLoading}
                                 name={`fsn-submit-state`}
-                                intent={Intent.SUCCESS}
+                                intent={isLoading ? Intent.WARNING : Intent.SUCCESS}
                                 onClick={() => {
+                                    setIsLoading(true);
+
                                     postMessage('submit-fsm-state', {
                                         iface_id: interfaceId,
                                         state_id: id,

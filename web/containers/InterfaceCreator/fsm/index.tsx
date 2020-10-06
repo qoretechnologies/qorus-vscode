@@ -2,6 +2,7 @@ import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import forEach from 'lodash/forEach';
+import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
@@ -17,7 +18,9 @@ import FileString from '../../../components/Field/fileString';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
+import Loader from '../../../components/Loader';
 import Spacer from '../../../components/Spacer';
+import { AppToaster } from '../../../components/Toast';
 import { Messages } from '../../../constants/messages';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
@@ -133,6 +136,14 @@ const StyledDiagram = styled.div<{ path: string }>`
     box-shadow: inset 10px 10px 80px -50px red, inset -10px -10px 80px -50px red;
 `;
 
+const StyledCompatibilityLoader = styled.div`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 2000;
+`;
+
 const StyledFSMLine = styled.line`
     transition: all 0.2s linear;
     cursor: pointer;
@@ -174,6 +185,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
+    const showTransitionsToaster = useRef(0);
     const currentXPan = useRef<number>();
     const currentYPan = useRef<number>();
     const changeHistory = useRef<string[]>([]);
@@ -193,6 +205,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         groups: fsm?.groups || [],
     });
     const [selectedState, setSelectedState] = useState<string | null>(null);
+    const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
     const [editingState, setEditingState] = useState<string | null>(null);
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
     const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
@@ -323,9 +336,20 @@ const FSMView: React.FC<IFSMViewProps> = ({
         if (!embedded) {
             setFsmReset(() => reset);
         }
-        const { width, height } = wrapperRef.current.getBoundingClientRect();
 
-        updateHistory(embedded ? states : cloneDeep(fsm?.states || {}));
+        let newStates = embedded ? states : cloneDeep(fsm?.states || {});
+
+        (async () => {
+            for await (const [stateId] of Object.entries(states)) {
+                newStates = await fixIncomptibleStates(stateId, newStates);
+            }
+
+            updateHistory(newStates);
+            setStates(newStates);
+            setCompatibilityChecked(true);
+        })();
+
+        const { width, height } = wrapperRef.current.getBoundingClientRect();
 
         currentXPan.current = 0;
         currentYPan.current = 0;
@@ -397,16 +421,24 @@ const FSMView: React.FC<IFSMViewProps> = ({
         };
     };
 
-    const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
-        const outputState = states[stateId];
-        const inputState = states[targetId];
+    const areStatesCompatible = async (
+        stateId: string,
+        targetId: string,
+        localStates: IFSMStates = states
+    ): Promise<boolean> => {
+        const outputState = localStates[stateId];
+        const inputState = localStates[targetId];
 
         const compatible = await areTypesCompatible(
             getStateDataForComparison(outputState, 'output'),
             getStateDataForComparison(inputState, 'input')
         );
 
-        return compatible && !getTransitionByState(stateId, targetId);
+        return compatible;
+    };
+
+    const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
+        return (await areStatesCompatible(stateId, targetId)) && !getTransitionByState(stateId, targetId);
     };
 
     const handleStateClick = (id: string): void => {
@@ -461,21 +493,65 @@ const FSMView: React.FC<IFSMViewProps> = ({
         }
     };
 
-    const updateStateData = (id: number, data: IFSMState) => {
-        setStates(
-            (cur: IFSMStates): IFSMStates => {
-                const newStates = { ...cur };
+    const fixIncomptibleStates = async (id: string, localStates: IFSMStates, onFinish?: () => any) => {
+        const newStates = { ...localStates };
 
-                newStates[id] = {
-                    ...newStates[id],
-                    ...data,
-                };
-
-                updateHistory(newStates);
-
-                return newStates;
+        for await (const [stateId, state] of Object.entries(newStates)) {
+            if (
+                !state.transitions ||
+                size(state.transitions) === 0 ||
+                !state.transitions.find((transitions) => transitions.state === id)
+            ) {
+                Promise.resolve();
+            } else {
+                // Check if this state is compatible with the modified state
+                const isCompatible = await areStatesCompatible(stateId, id, newStates);
+                // Is compatible no change needed
+                if (!isCompatible) {
+                    showTransitionsToaster.current += 1;
+                    // Filter out any transitions
+                    newStates[stateId].transitions = state.transitions.filter((transition) => transition.state !== id);
+                }
             }
-        );
+        }
+
+        if (onFinish) {
+            onFinish();
+        }
+
+        return newStates;
+    };
+
+    const updateStateData = async (id: string, data: IFSMState) => {
+        let fixedStates: IFSMStates = { ...states };
+
+        fixedStates[id] = {
+            ...fixedStates[id],
+            ...data,
+        };
+
+        if (data.type !== states[id].type || !isEqual(data.action, states[id].action)) {
+            if (size(fixedStates[id].transitions)) {
+                const newTransitions = [];
+
+                for await (const transition of fixedStates[id].transitions) {
+                    const isCompatible = await areStatesCompatible(id, transition.state, fixedStates);
+
+                    if (isCompatible) {
+                        newTransitions.push(transition);
+                    } else {
+                        showTransitionsToaster.current += 1;
+                    }
+                }
+
+                fixedStates[id].transitions = newTransitions;
+            }
+
+            fixedStates = await fixIncomptibleStates(id, fixedStates);
+        }
+
+        updateHistory(fixedStates);
+        setStates(fixedStates);
         setEditingState(null);
     };
 
@@ -714,14 +790,33 @@ const FSMView: React.FC<IFSMViewProps> = ({
     };
 
     const calculateMargin = () => (zoom - 1) * 1000;
-    const { width = 0, height = 0 } = wrapperRef?.current?.getBoundingClientRect() || {};
-
     const getIsMetadataHidden = () => {
         return embedded ? isExternalMetadataHidden : isMetadataHidden;
     };
 
+    if (!qorus_instance) {
+        return (
+            <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+                {t('NoInstance')}
+            </Callout>
+        );
+    }
+
+    if (showTransitionsToaster.current) {
+        AppToaster.show({
+            message: `${showTransitionsToaster.current} ${t('IncompatibleTransitionsRemoved')}`,
+            intent: 'warning',
+        });
+        showTransitionsToaster.current = 0;
+    }
+
     return (
         <>
+            {!compatibilityChecked && (
+                <StyledCompatibilityLoader>
+                    <Loader text={t('CheckingCompatibility')} />
+                </StyledCompatibilityLoader>
+            )}
             <div ref={fieldsWrapperRef} id="fsm-fields-wrapper">
                 {!isMetadataHidden && (
                     <>

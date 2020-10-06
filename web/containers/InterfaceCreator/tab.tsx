@@ -1,15 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
-
+import { Button, ButtonGroup } from '@blueprintjs/core';
+import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
-import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Tutorial from '../../components/Tutorial';
-import { Messages } from '../../constants/messages';
 import { TextContext } from '../../context/text';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -53,6 +48,7 @@ const StyledContent = styled.div`
     flex: 1;
     overflow: hidden;
     flex-flow: column;
+    position: relative;
 `;
 
 const StyledSeparator = styled.div`
