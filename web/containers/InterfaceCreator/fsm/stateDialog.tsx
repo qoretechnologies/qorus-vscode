@@ -231,7 +231,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 }}
             >
                 <Content style={{ padding: 10, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
-                    <ContentWrapper style={{ display: 'flex', flexFlow: 'column', paddingRight: 0 }}>
+                    <ContentWrapper
+                        style={{ display: 'flex', flexFlow: 'column', paddingRight: 0, position: 'relative' }}
+                    >
                         <div
                             style={{
                                 display: isMetadataHidden ? 'none' : 'block',
