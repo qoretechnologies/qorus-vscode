@@ -1,17 +1,14 @@
-import React, { useContext, useRef, useState } from 'react';
-
+import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
 import size from 'lodash/size';
+import React, { useContext, useRef, useState } from 'react';
 import Tree from 'react-d3-tree';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core';
-
 import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
 import MultiSelect from '../../../components/Field/multiSelect';
@@ -26,10 +23,10 @@ import { TextContext } from '../../../context/text';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import { StyledToolbarWrapper } from '../fsm';
 import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
-import { StyledToolbarWrapper } from '../fsm';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -92,7 +89,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 
     return (
         <StyledNodeLabel
-            onClick={() => onEditClick({ nodeData })}
+            onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
             onContextMenu={(event) => {
                 event.persist();
 

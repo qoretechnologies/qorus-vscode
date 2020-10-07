@@ -1,11 +1,6 @@
-import React, {
-    useContext, useEffect, useState
-} from 'react';
-
-import shortid from 'shortid';
-
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
-
+import React, { useContext, useEffect, useState } from 'react';
+import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import SelectField from '../../../components/Field/select';
@@ -22,6 +17,8 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
     const t = useContext(TextContext);
     const [newData, setNewData] = useState(data);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
+
+    console.log(parentData);
 
     useEffect(() => {
         if (newData.type === 'processor' && newData.name) {
@@ -55,6 +52,9 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
                 } else {
                     result.pid = shortid.generate();
                 }
+            }
+
+            if (name === 'name' && result.type !== 'queue') {
             }
 
             return { ...result, [name]: value };
