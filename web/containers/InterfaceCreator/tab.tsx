@@ -1,12 +1,9 @@
+import { Button, ButtonGroup } from '@blueprintjs/core';
 import React, { useContext, useEffect, useState } from 'react';
-
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Tutorial from '../../components/Tutorial';
 import { Messages } from '../../constants/messages';
@@ -14,7 +11,7 @@ import { TextContext } from '../../context/text';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { postMessage } from '../../hocomponents/withMessageHandler';
+import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
 export interface ITabProps {
@@ -217,6 +214,45 @@ const Tab: React.FC<ITabProps> = ({
 
         return null;
     };
+    const [recreateDialog, setRecreateDialog] = useState<any>(null);
+
+    useMount(() => {
+        const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
+            setRecreateDialog(() => data);
+        });
+
+        // Ask for recreation dialog
+        postMessage('check-edit-data', {});
+
+        return () => {
+            recreateListener();
+        };
+    });
+
+    useEffect(() => {
+        if (recreateDialog) {
+            const { message, iface_kind, orig_lang, iface_id } = recreateDialog;
+
+            initialData.confirmAction(
+                message,
+                () => {
+                    initialData.resetInterfaceData(iface_kind);
+                    setInterfaceId(iface_kind, shortid.generate());
+                    setRecreateDialog(null);
+                },
+                'Recreate',
+                undefined,
+                () => {
+                    if (orig_lang) {
+                        updateField(iface_kind, 'lang', orig_lang, iface_id);
+                    } else {
+                        resetAllInterfaceData(iface_kind);
+                    }
+                    setRecreateDialog(null);
+                }
+            );
+        }
+    }, [recreateDialog]);
 
     return (
         <StyledTab>
