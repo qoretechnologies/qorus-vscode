@@ -71,7 +71,7 @@ export const createMapper = async (webview: WebView) => {
 };
 
 export const checkFile = async (project_folder: string, file_index: number) => {
-    compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file[file_index] ]);
+    await compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file[file_index] ]);
 };
 
 export const editMapper = async (webview: WebView, workbench: Workbench, project_folder: string) => {
