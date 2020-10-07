@@ -16,6 +16,7 @@ export class QorusLogin extends QorusAuth {
     private current_login_params: any = {
         qorus_instance: undefined,
         set_active: true,
+        username: undefined
     };
 
     private active_instance_ping_interval_id: any;
@@ -34,12 +35,13 @@ export class QorusLogin extends QorusAuth {
             return;
         }
 
+        const { username, password } = urlParse(url);
+
         this.current_login_params = {
             qorus_instance: (({ name, url }) => ({ name, url }))(qorus_instance),
             set_active,
+            username
         };
-
-        const { username, password } = urlParse(url);
 
         if (username && password) {
             this.loginPost(username, password, (error) => {
@@ -101,6 +103,7 @@ export class QorusLogin extends QorusAuth {
         return {
             ...this.current_login_params.qorus_instance,
             safe_url: modifyUrl(this.current_login_params.qorus_instance.url, 'remove-pwd'),
+            username: this.current_login_params.username,
         };
     }
 
