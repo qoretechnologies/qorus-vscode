@@ -33,6 +33,10 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
         }
     }, [newData.type, newData.name]);
 
+    const getParentOutput = (item: any) => {
+
+    }
+
     const handleDataUpdate = (name: string, value: any) => {
         setNewData((cur) => {
             const result = { ...cur };
@@ -55,6 +59,8 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
             }
 
             if (name === 'name' && result.type !== 'queue') {
+
+
             }
 
             return { ...result, [name]: value };
