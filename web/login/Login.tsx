@@ -20,7 +20,7 @@ class Login extends Component {
             switch (event.data.action) {
                 case 'login-return-data':
                     this.setState({ loginInstance: event.data.login_instance });
-                    this.props.setUsername(event.data.username);
+                    this.props.setUsername(event.data.login_instance.username);
                     break;
                 case 'login-error':
                     this.props.setLoginError(event.data.error);
