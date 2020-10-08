@@ -5,13 +5,14 @@ import { checkFiles, editJob } from './tests/job';
 
 describe('Edit job test', function () {
     this.timeout(1800000);
-
+    let driver: WebDriver;
     let workbench: Workbench;
     let editorView: EditorView;
     let webview: WebView;
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
+        driver = VSBrowser.instance.driver;
         workbench = new Workbench();
         editorView = new EditorView();
     });

@@ -8,7 +8,7 @@ describe('@ Setup tests', function () {
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
-
+        const driver = VSBrowser.instance.driver;
         const workbench = new Workbench();
         await sleep(8000);
         await workbench.executeCommand('Extest: Open Folder');
