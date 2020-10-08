@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as jsyaml from 'js-yaml';
 import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
 
 type TSelector = 'id' | 'name' | 'className';
@@ -161,7 +162,30 @@ export const getElementAttribute = async (
     return await (await getNthElement(webview, elementName, position, selector)).getAttribute(attribute);
 };
 
+const isObject = (obj: any): boolean => obj && typeof obj === 'object' && !Array.isArray(obj);
+
+const deepEqual = (obj1: any, obj2: any): boolean => {
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    if (keys1.length !== keys2.length) {
+        return false;
+    }
+
+    for (const key of keys1) {
+        const val1 = obj1[key];
+        const val2 = obj2[key];
+        const areObjects = isObject(val1) && isObject(val2);
+        if ( (areObjects && !deepEqual(val1, val2)) || (!areObjects && val1 !== val2) ) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
 export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
+
     await sleep(500);
 
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
@@ -173,10 +197,18 @@ export const compareWithGoldFiles = async (folder: string, files: string[], gold
         if (!file_exists) {
             return;
         }
+
         const gold_file_path = path.join(gold_files_folder, gold_files_subfolder, file_name);
-        const expected_file_contents = fs.readFileSync(gold_file_path);
-        const true_file_contents = fs.readFileSync(file_path);
-        expect(true_file_contents).to.eql(expected_file_contents);
+
+        if (path.extname(file_name) === '.yaml') {
+            const expected_file_contents = jsyaml.safeLoad(fs.readFileSync(gold_file_path).toString());
+            const true_file_contents = jsyaml.safeLoad(fs.readFileSync(file_path).toString());
+            expect(deepEqual(expected_file_contents, true_file_contents)).to.be.true;
+        } else {
+            const expected_file_contents = fs.readFileSync(gold_file_path);
+            const true_file_contents = fs.readFileSync(file_path);
+            expect(true_file_contents).to.eql(expected_file_contents);
+        }
     };
 
     files.forEach((file) => compare(file));
