@@ -17,7 +17,7 @@ describe('Edit job test', function () {
         editorView = new EditorView();
     });
 
-    it('Edit job', () => editJob(workbench, project_folder));
+    it('Edit job', () => editJob(workbench, editorView, project_folder));
     it('Check changed files', () => checkFiles(project_folder, 'changed_interfaces'));
 
     this.afterAll(async () => {
