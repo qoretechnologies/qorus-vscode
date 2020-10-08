@@ -173,7 +173,8 @@ export const compareWithGoldFiles = async (folder: string, files: string[], gold
         if (!file_exists) {
             return;
         }
-        const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, gold_files_subfolder, file_name));
+        const gold_file_path = path.join(gold_files_folder, gold_files_subfolder, file_name);
+        const expected_file_contents = fs.readFileSync(gold_file_path);
         const true_file_contents = fs.readFileSync(file_path);
         expect(true_file_contents).to.eql(expected_file_contents);
     };
