@@ -32,8 +32,5 @@
 		"typescript": "^3.5.1",
 		"vscode-extension-tester": "^3.0.0",
 		"vscode-extension-tester-native": "^3.0.0"
-	},
-	"dependencies": {
-		"js-yaml": "^3.14.0"
 	}
 }
