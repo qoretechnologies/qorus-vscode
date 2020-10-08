@@ -10,17 +10,16 @@ export const setupWebview = async () => {
     const workbench = new Workbench();
     const editorView = new EditorView();
 
-    await sleep(3000);
+    await sleep(8000);
 
     await workbench.executeCommand('Qorus: Open Webview');
 
     let isWebviewOpen = false;
 
     while (!isWebviewOpen) {
+        await sleep(1000);
         isWebviewOpen = (await editorView.getOpenEditorTitles()).includes('Qorus Webview');
     }
-
-    await sleep(1000);
 
     const webview = await new WebView(editorView, 'Qorus Webview');
     const notificationsCenter = await workbench.openNotificationsCenter();
@@ -45,7 +44,7 @@ export const openInterface = async (webview: WebView, workbench: Workbench, file
     await workbench.executeCommand('Extest: Open File');
     await sleep(1000);
     const input: InputBox = await new InputBox();
-    await input.wait();
+    await input.wait(20000);
     await input.setText(file_path);
     await input.confirm();
 
