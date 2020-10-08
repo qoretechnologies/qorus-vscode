@@ -8,7 +8,7 @@ import FieldLabel from '../../../components/FieldLabel';
 import Spacer from '../../../components/Spacer';
 import { Messages } from '../../../constants/messages';
 import { TextContext } from '../../../context/text';
-import { areTypesCompatible, ITypeComparatorData } from '../../../helpers/functions';
+import { areTypesCompatible, getPipelineClosestParentOutputData } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
@@ -31,8 +31,6 @@ const PipelineElementDialog = ({
     const [isCompatible, setIsCompatible] = useState<boolean>(true);
     const [isCheckingCompatibility, setIsCheckingCompatibility] = useState<boolean>(false);
 
-    console.log(parentData);
-
     useEffect(() => {
         if (newData.type === 'processor' && newData.name) {
             postMessage(Messages.GET_CONFIG_ITEMS, {
@@ -46,27 +44,9 @@ const PipelineElementDialog = ({
         }
     }, [newData.type, newData.name]);
 
-    const getClosestParentOutputData = (item: any): ITypeComparatorData => {
-        if (!item || item.type === 'start') {
-            return {
-                typeData: inputProvider,
-            };
-        }
-
-        if (item.type === 'queue') {
-            return getClosestParentOutputData(item.parent);
-        }
-
-        return {
-            interfaceName: item.name,
-            interfaceKind: item.type,
-        };
-    };
-
     const handleDataUpdate = async (name: string, value: any) => {
         let result = { ...newData };
 
-        console.log(result);
         //* If the user is changing type, remove children and name
         if (name === 'type') {
             result.children = [];
@@ -88,12 +68,10 @@ const PipelineElementDialog = ({
         if (name === 'name' && result.type !== 'queue') {
             setIsCheckingCompatibility(true);
 
-            const compatible = await areTypesCompatible(getClosestParentOutputData(parentData), {
+            const compatible = await areTypesCompatible(getPipelineClosestParentOutputData(parentData, inputProvider), {
                 interfaceName: value,
                 interfaceKind: result.type,
             });
-
-            console.log(compatible);
             setIsCheckingCompatibility(false);
             setIsCompatible(compatible);
         }

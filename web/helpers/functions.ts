@@ -9,6 +9,8 @@ import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
+import omit from 'lodash/omit';
+import set from 'lodash/set';
 import size from 'lodash/size';
 import shortid from 'shortid';
 import { AppToaster } from '../components/Toast';
@@ -128,8 +130,12 @@ export const getProviderFromInterfaceObject = (data, type: 'input' | 'output', c
 };
 
 export const getStateProvider = async (data: ITypeComparatorData, providerType: 'input' | 'output') => {
+    if ('typeData' in data && !data.typeData) {
+        return Promise.resolve(null);
+    }
+
     if (data.typeData) {
-        return data.typeData;
+        return Promise.resolve(data.typeData);
     }
 
     const interfaceKind =
@@ -150,15 +156,12 @@ export const areTypesCompatible = async (
     outputTypeData?: ITypeComparatorData,
     inputTypeData?: ITypeComparatorData
 ): Promise<boolean> => {
-    console.log(outputTypeData, inputTypeData);
     if (!outputTypeData || !inputTypeData) {
         return true;
     }
 
     let output = await getStateProvider(outputTypeData, 'output');
     let input = await getStateProvider(inputTypeData, 'input');
-
-    console.log('OUTPUT INPUT', output, input);
 
     if (!input || !output) {
         return true;
@@ -239,6 +242,70 @@ const callBackendBasic: (
             ...data,
         });
     });
+};
+
+export const getPipelineClosestParentOutputData = (item: any, pipelineInputProvider?: any): ITypeComparatorData => {
+    if (!item || item.type === 'start') {
+        return {
+            typeData: pipelineInputProvider,
+        };
+    }
+
+    if (item.type === 'queue') {
+        return getPipelineClosestParentOutputData(item.parent, pipelineInputProvider);
+    }
+
+    return {
+        interfaceName: item.name,
+        interfaceKind: item.type,
+    };
+};
+
+const flattenPipeline = (data, parent?: any) => {
+    return data.reduce((newData, element) => {
+        const newElement = { ...element };
+
+        if (parent) {
+            newElement.parent = parent;
+        }
+
+        if (size(newElement.children) === 0) {
+            return [...newData, newElement];
+        }
+
+        return [...newData, newElement, ...flattenPipeline(newElement.children, newElement)];
+    }, []);
+};
+
+export const checkPipelineCompatibility = async (elements, inputProvider) => {
+    const flattened = flattenPipeline(elements);
+    const newElements = [...elements];
+
+    for await (const element of flattened) {
+        if (element.type === 'queue') {
+            Promise.resolve();
+        } else {
+            const isCompatibleWithParent = await areTypesCompatible(
+                getPipelineClosestParentOutputData(element.parent, inputProvider),
+                element.type === 'start'
+                    ? {
+                          typeData: inputProvider,
+                      }
+                    : {
+                          interfaceKind: element.type,
+                          interfaceName: element.name,
+                      }
+            );
+
+            if (!isCompatibleWithParent) {
+                set(newElements, element.path, { ...omit(element, ['parent']), isCompatible: false });
+            } else {
+                set(newElements, element.path, { ...omit(element, ['parent', 'isCompatible']) });
+            }
+        }
+    }
+
+    return newElements;
 };
 
 const fetchData: (url: string, method: string, body?: { [key: string]: any }) => Promise<any> = async (

@@ -136,12 +136,13 @@ const StyledDiagram = styled.div<{ path: string }>`
     box-shadow: inset 10px 10px 80px -50px red, inset -10px -10px 80px -50px red;
 `;
 
-const StyledCompatibilityLoader = styled.div`
+export const StyledCompatibilityLoader = styled.div`
     position: absolute;
     width: 100%;
     height: 100%;
     background: white;
     z-index: 2000;
+    opacity: 0.6;
 `;
 
 const StyledFSMLine = styled.line`
