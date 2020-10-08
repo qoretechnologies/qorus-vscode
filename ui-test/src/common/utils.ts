@@ -175,9 +175,24 @@ const deepEqual = (obj1: any, obj2: any): boolean => {
     for (const key of keys1) {
         const val1 = obj1[key];
         const val2 = obj2[key];
-        const areObjects = isObject(val1) && isObject(val2);
-        if ( (areObjects && !deepEqual(val1, val2)) || (!areObjects && val1 !== val2) ) {
-            return false;
+
+        if (isObject(val1)) {
+            if (!isObject(val2) || !deepEqual(val1, val2)) {
+                return false;
+            }
+        } else if (Array.isArray(val1)) {
+            if (!Array.isArray(val2) || val2.length !== val1.length) {
+                return false;
+            }
+            for (let i = 0; i < val1.length; i++) {
+                if (!deepEqual(val1[i], val2[i])) {
+                    return false;
+                }
+            }
+        } else {
+            if (val1 !== val2) {
+                return false;
+            }
         }
     }
 
@@ -199,14 +214,14 @@ export const compareWithGoldFiles = async (folder: string, files: string[], gold
         }
 
         const gold_file_path = path.join(gold_files_folder, gold_files_subfolder, file_name);
+        const expected_file_contents = fs.readFileSync(gold_file_path);
+        const true_file_contents = fs.readFileSync(file_path);
 
         if (path.extname(file_name) === '.yaml') {
-            const expected_file_contents = jsyaml.safeLoad(fs.readFileSync(gold_file_path).toString());
-            const true_file_contents = jsyaml.safeLoad(fs.readFileSync(file_path).toString());
-            expect(deepEqual(expected_file_contents, true_file_contents)).to.be.true;
+            const expected_file_data = jsyaml.safeLoad(expected_file_contents.toString());
+            const true_file_data = jsyaml.safeLoad(true_file_contents.toString());
+            expect(deepEqual(expected_file_data, true_file_data)).to.be.true;
         } else {
-            const expected_file_contents = fs.readFileSync(gold_file_path);
-            const true_file_contents = fs.readFileSync(file_path);
             expect(true_file_contents).to.eql(expected_file_contents);
         }
     };
