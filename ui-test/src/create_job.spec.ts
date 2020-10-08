@@ -3,7 +3,7 @@ import { EditorView, VSBrowser, WebDriver, WebView } from 'vscode-extension-test
 import { setupWebview } from './common/utils';
 import { createJob, checkFiles } from './tests/job';
 
-describe('Mapper Tests', function () {
+describe('Create job test', function () {
     this.timeout(1800000);
     let driver: WebDriver;
     let editorView: EditorView;

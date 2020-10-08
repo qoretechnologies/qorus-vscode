@@ -24,7 +24,7 @@ describe('@ Setup tests', function () {
         await input.setText(project_folder);
         await input.confirm();
 
-        await sleep(5000);
+        await sleep(8000);
     });
 
     it('Adds a folder to workspace', () => {
