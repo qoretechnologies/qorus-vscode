@@ -74,9 +74,9 @@ export const checkFile = async (project_folder: string, file_index: number) => {
     await compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file[file_index] ]);
 };
 
-export const editMapper = async (webview: WebView, workbench: Workbench, project_folder: string) => {
+export const editMapper = async (workbench: Workbench, project_folder: string) => {
     await sleep(1000);
-    await openInterface(webview, workbench, path.join(project_folder, target_dir, target_file[0]));
+    const webview = await openInterface(workbench, path.join(project_folder, target_dir, target_file[0]));
 
     await sleep(1000);
     await resetAndFillTextField(webview, 'field-version', '3.4.5');

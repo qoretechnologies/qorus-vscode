@@ -6,14 +6,8 @@ import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-t
 
 type TSelector = 'id' | 'name' | 'className';
 
-export const setupWebview = async () => {
-    const workbench = new Workbench();
+const getWebview = async () => {
     const editorView = new EditorView();
-
-    await sleep(8000);
-
-    await workbench.executeCommand('Qorus: Open Webview');
-
     let isWebviewOpen = false;
 
     while (!isWebviewOpen) {
@@ -21,7 +15,16 @@ export const setupWebview = async () => {
         isWebviewOpen = (await editorView.getOpenEditorTitles()).includes('Qorus Webview');
     }
 
-    const webview = await new WebView(editorView, 'Qorus Webview');
+    const webview =  await new WebView(editorView, 'Qorus Webview');
+    return { editorView, webview };
+};
+
+export const setupWebview = async (openWebview: boolean = true) => {
+    const workbench = new Workbench();
+
+    await sleep(8000);
+
+    const { editorView, webview } = await getWebview();
     const notificationsCenter = await workbench.openNotificationsCenter();
     await notificationsCenter.clearAllNotifications();
 
@@ -38,9 +41,7 @@ export const setupWebview = async () => {
 };
 
 // file_path: absolute path of the interface's yaml file or source file
-export const openInterface = async (webview: WebView, workbench: Workbench, file_path: string) => {
-    await webview.switchBack();
-
+export const openInterface = async (workbench: Workbench, file_path: string) => {
     await workbench.executeCommand('Extest: Open File');
     await sleep(1000);
     const input: InputBox = await InputBox.create();
@@ -50,8 +51,8 @@ export const openInterface = async (webview: WebView, workbench: Workbench, file
     await sleep(2000);
     await workbench.executeCommand('Qorus: Edit Current Interface');
     await sleep(2000);
-    await webview.switchToFrame();
-    await sleep(2000);
+    const { webview } = await getWebview();
+    return webview;
 };
 
 export const sleep = (ms: number) => {
