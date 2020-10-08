@@ -1,22 +1,35 @@
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 import React, { useContext, useEffect, useState } from 'react';
 import shortid from 'shortid';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import SelectField from '../../../components/Field/select';
 import FieldLabel from '../../../components/FieldLabel';
+import Spacer from '../../../components/Spacer';
 import { Messages } from '../../../constants/messages';
 import { TextContext } from '../../../context/text';
+import { areTypesCompatible, ITypeComparatorData } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import ConfigItemManager from '../../ConfigItemManager';
 import ManageButton from '../../ConfigItemManager/manageButton';
 import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 
-const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceId, postMessage, onlyQueue }) => {
+const PipelineElementDialog = ({
+    onClose,
+    data,
+    parentData,
+    onSubmit,
+    interfaceId,
+    postMessage,
+    onlyQueue,
+    inputProvider,
+}) => {
     const t = useContext(TextContext);
     const [newData, setNewData] = useState(data);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
+    const [isCompatible, setIsCompatible] = useState<boolean>(true);
+    const [isCheckingCompatibility, setIsCheckingCompatibility] = useState<boolean>(false);
 
     console.log(parentData);
 
@@ -33,38 +46,61 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
         }
     }, [newData.type, newData.name]);
 
-    const getParentOutput = (item: any) => {
+    const getClosestParentOutputData = (item: any): ITypeComparatorData => {
+        if (!item || item.type === 'start') {
+            return {
+                typeData: inputProvider,
+            };
+        }
 
-    }
+        if (item.type === 'queue') {
+            return getClosestParentOutputData(item.parent);
+        }
 
-    const handleDataUpdate = (name: string, value: any) => {
-        setNewData((cur) => {
-            const result = { ...cur };
-            //* If the user is changing type, remove children and name
-            if (name === 'type') {
-                result.children = [];
-                result._children = [];
-                result.name = null;
-                result.pid = undefined;
+        return {
+            interfaceName: item.name,
+            interfaceKind: item.type,
+        };
+    };
+
+    const handleDataUpdate = async (name: string, value: any) => {
+        let result = { ...newData };
+
+        console.log(result);
+        //* If the user is changing type, remove children and name
+        if (name === 'type') {
+            result.children = [];
+            result._children = [];
+            result.name = null;
+            result.pid = undefined;
+        }
+
+        if (result.type === 'processor' && name === 'name') {
+            // If the name matches the original name, use the original id
+            // otherwise create a new unique id
+            if (value === data?.name) {
+                result.pid = data.pid;
+            } else {
+                result.pid = shortid.generate();
             }
+        }
 
-            if (result.type === 'processor' && name === 'name') {
-                // If the name matches the original name, use the original id
-                // otherwise create a new unique id
-                if (value === data?.name) {
-                    result.pid = data.pid;
-                } else {
-                    result.pid = shortid.generate();
-                }
-            }
+        if (name === 'name' && result.type !== 'queue') {
+            setIsCheckingCompatibility(true);
 
-            if (name === 'name' && result.type !== 'queue') {
+            const compatible = await areTypesCompatible(getClosestParentOutputData(parentData), {
+                interfaceName: value,
+                interfaceKind: result.type,
+            });
 
+            console.log(compatible);
+            setIsCheckingCompatibility(false);
+            setIsCompatible(compatible);
+        }
 
-            }
+        result = { ...result, [name]: value };
 
-            return { ...result, [name]: value };
-        });
+        setNewData(result);
     };
 
     const isDataValid = () => {
@@ -72,7 +108,7 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
             return true;
         }
 
-        return validateField('string', newData.type) && validateField('string', newData.name);
+        return validateField('string', newData.type) && validateField('string', newData.name) && isCompatible;
     };
 
     return (
@@ -102,9 +138,38 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
                         </FieldWrapper>
                         {newData?.type && newData.type !== 'queue' ? (
                             <FieldWrapper padded>
-                                <FieldLabel label={t('Name')} isValid={validateField('string', newData.name)} />
+                                <FieldLabel
+                                    label={t('Name')}
+                                    isValid={validateField('string', newData.name) && isCompatible}
+                                />
                                 <FieldInputWrapper>
+                                    {newData.name || isCheckingCompatibility ? (
+                                        <>
+                                            <Callout
+                                                intent={
+                                                    isCheckingCompatibility
+                                                        ? 'warning'
+                                                        : isCompatible
+                                                        ? 'success'
+                                                        : 'danger'
+                                                }
+                                            >
+                                                {isCheckingCompatibility
+                                                    ? t('CheckingCompatibility')
+                                                    : t(
+                                                          `PipelineElement${
+                                                              isCompatible ? 'Compatible' : 'Incompatible'
+                                                          }`
+                                                      )}
+                                            </Callout>
+                                            <Spacer size={8} />
+                                        </>
+                                    ) : null}
                                     <SelectField
+                                        disabled={!isCompatible}
+                                        reference={{
+                                            iface_kind: newData.type === 'processor' ? 'class' : newData.type,
+                                        }}
                                         key={newData.type}
                                         onChange={handleDataUpdate}
                                         value={newData.name}
@@ -146,6 +211,7 @@ const PipelineElementDialog = ({ onClose, data, parentData, onSubmit, interfaceI
                                 <ManageButton
                                     type="pipeline"
                                     key={newData.type}
+                                    disabled={!isCompatible}
                                     onClick={() => setShowConfigItemsManager(true)}
                                 />
                             ) : null}

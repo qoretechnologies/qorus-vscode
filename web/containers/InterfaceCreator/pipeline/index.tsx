@@ -443,6 +443,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     onlyQueue={selectedElement.onlyQueue}
                     onClose={() => setSelectedElement(null)}
                     onSubmit={handleDataSubmit}
+                    inputProvider={metadata['input-provider']}
                     interfaceId={interfaceId}
                 />
             )}

@@ -2494,7 +2494,13 @@ msgid "NoDescription"
 msgstr "No description available"
 
 msgid "CheckingCompatibility"
-msgstr "Checking states compatibility..."
+msgstr "Checking compatibility..."
+
+msgid "PipelineElementIncompatible"
+msgstr "Parent element is not compatible!"
+
+msgid "PipelineElementCompatible"
+msgstr "Elements are compatible."
 
 msgid "IncompatibleTransitionsRemoved"
 msgstr "incompatible transitions removed. This is most likely due to a type change in affected states."

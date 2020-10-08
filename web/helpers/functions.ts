@@ -103,7 +103,7 @@ export const isStateIsolated = (stateKey: string, states: IFSMStates, checkedSta
 export interface ITypeComparatorData {
     interfaceName?: string;
     connectorName?: string;
-    interfaceKind?: 'mapper' | 'pipeline' | 'connector';
+    interfaceKind?: 'mapper' | 'pipeline' | 'connector' | 'processor' | 'if' | 'block';
     typeData?: any;
 }
 
@@ -113,9 +113,13 @@ export const getProviderFromInterfaceObject = (data, type: 'input' | 'output', c
             return data?.mapper_options?.[`mapper-${type}`];
         }
         case 'class': {
-            return data?.['class-connectors']?.find((connector) => connector.name === connectorName)?.[
-                `${type}-provider`
-            ];
+            if (connectorName) {
+                return data?.['class-connectors']?.find((connector) => connector.name === connectorName)?.[
+                    `${type}-provider`
+                ];
+            }
+
+            return data?.processor?.[`processor-${type}-type`];
         }
         case 'pipeline': {
             return data?.[`${type}-provider`];
@@ -128,7 +132,8 @@ export const getStateProvider = async (data: ITypeComparatorData, providerType: 
         return data.typeData;
     }
 
-    const interfaceKind = data.interfaceKind === 'connector' ? 'class' : data.interfaceKind;
+    const interfaceKind =
+        data.interfaceKind === 'connector' || data.interfaceKind === 'processor' ? 'class' : data.interfaceKind;
     const interfaceData = await callBackendBasic(Messages.GET_INTERFACE_DATA, 'return-interface-data-complete', {
         name: data.interfaceName,
         iface_kind: interfaceKind,
@@ -145,12 +150,15 @@ export const areTypesCompatible = async (
     outputTypeData?: ITypeComparatorData,
     inputTypeData?: ITypeComparatorData
 ): Promise<boolean> => {
+    console.log(outputTypeData, inputTypeData);
     if (!outputTypeData || !inputTypeData) {
         return true;
     }
 
     let output = await getStateProvider(outputTypeData, 'output');
     let input = await getStateProvider(inputTypeData, 'input');
+
+    console.log('OUTPUT INPUT', output, input);
 
     if (!input || !output) {
         return true;
