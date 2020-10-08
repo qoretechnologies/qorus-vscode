@@ -18,9 +18,7 @@ describe('@ Setup tests', function () {
 
         await sleep(1000);
 
-        input = await new InputBox();
-
-        await input.wait();
+        input = InputBox.create();
         await input.setText(project_folder);
         await input.confirm();
 

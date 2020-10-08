@@ -43,8 +43,7 @@ export const openInterface = async (webview: WebView, workbench: Workbench, file
 
     await workbench.executeCommand('Extest: Open File');
     await sleep(1000);
-    const input: InputBox = await new InputBox();
-    await input.wait(20000);
+    const input: InputBox = InputBox.create();
     await input.setText(file_path);
     await input.confirm();
 
