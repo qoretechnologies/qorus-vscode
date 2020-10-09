@@ -29,7 +29,7 @@ const read = (): any => {
     }
 
     try {
-        const parsed_contents = jsyaml.safeLoad(fs.readFileSync(file));
+        const parsed_contents = jsyaml.safeLoad(fs.readFileSync(file).toString());
         return parsed_contents['global-config-item-values'] || [];
     } catch (error) {
         msg.error(t`ErrorReadingGlobalConfigItemValues`);
