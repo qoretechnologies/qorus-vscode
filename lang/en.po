@@ -2493,8 +2493,26 @@ msgstr "Transition to state"
 msgid "NoDescription"
 msgstr "No description available"
 
+msgid "CheckingCompatibility"
+msgstr "Checking compatibility..."
+
+msgid "PipelineElementIncompatible"
+msgstr "Parent element is not compatible!"
+
+msgid "PipelineElementCompatible"
+msgstr "Elements are compatible."
+
+msgid "IncompatibleTransitionsRemoved"
+msgstr "incompatible transitions removed. This is most likely due to a type change in affected states."
+
 msgid "SelectItem"
 msgstr "Select item"
+
+msgid "CannotManageBlock"
+msgstr "Blocks can only be managed with an active Qorus instance."
+
+msgid "LoadingCompatibilityCheck"
+msgstr "Checking compatibility..."
 
 msgid "MoveItemUp"
 msgstr "Move item up"

@@ -253,6 +253,11 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                             {hasItemsWithDesc(items) ? (
                                 <>
                                     <Tooltip
+                                        targetProps={{
+                                            style: {
+                                                width: '100%',
+                                            },
+                                        }}
                                         content={
                                             <ReactMarkdown
                                                 source={
@@ -361,7 +366,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                     {reference && (
                         <>
                             {value && (
-                                <Tooltip content={t('EditThisItem')}>
+                                <Tooltip content={t('EditThisItem')} className={Classes.FIXED}>
                                     <Button
                                         icon="edit"
                                         name={`field-${name}-edit-reference`}

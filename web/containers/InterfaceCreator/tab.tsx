@@ -50,6 +50,7 @@ const StyledContent = styled.div`
     flex: 1;
     overflow: hidden;
     flex-flow: column;
+    position: relative;
 `;
 
 const StyledSeparator = styled.div`

@@ -28,6 +28,10 @@ $green5: lighten($qore-green, 20);
     }
 }
 
+* {
+    outline: none !important;
+}
+
 html,
 body,
 #root {
