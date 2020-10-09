@@ -446,8 +446,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             result = filterRemovedElements(result);
             result = transformNodeData(result, '');
 
-            console.log(result);
-
             updateHistory(result);
 
             return result;
