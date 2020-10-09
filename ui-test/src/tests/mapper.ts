@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { expect } from 'chai';
-import { WebView, Workbench } from 'vscode-extension-tester';
+import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
 import {
     sleep,
     openInterface,
@@ -24,6 +24,7 @@ const target_file = [
 ];
 
 export const createMapper = async (webview: WebView) => {
+    await sleep(2000);
     await clickElement(webview, 'CreateInterface');
     await clickElement(webview, 'Mapper');
 
@@ -52,11 +53,11 @@ export const createMapper = async (webview: WebView) => {
     await selectNthFilteredDropdownItem(webview, 'provider-outputs-1', 'qorus-api');
     await sleep(1000);
     await selectNthFilteredDropdownItem(webview, 'provider-outputs-2', 'jobs');
-    await sleep(1000);
+    await sleep(2000);
     await selectNthFilteredDropdownItem(webview, 'provider-outputs-3', 'context');
-    await sleep(1000);
+    await sleep(2000);
     await clickElement(webview, 'provider-outputs-submit');
-    await sleep(1000);
+    await sleep(2000);
 
     await clickElement(webview, 'mapper-output-code-button-name');
     await sleep(1000);
@@ -74,9 +75,9 @@ export const checkFile = async (project_folder: string, file_index: number) => {
     await compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file[file_index] ]);
 };
 
-export const editMapper = async (workbench: Workbench, project_folder: string) => {
+export const editMapper = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
     await sleep(1000);
-    const webview = await openInterface(workbench, path.join(project_folder, target_dir, target_file[0]));
+    const webview = await openInterface(workbench, editorView, path.join(project_folder, target_dir, target_file[0]));
 
     await sleep(1000);
     await resetAndFillTextField(webview, 'field-version', '3.4.5');
@@ -87,4 +88,5 @@ export const editMapper = async (workbench: Workbench, project_folder: string) =
     await sleep(2000);
     await submitInterface(webview, 'mapper');
     await sleep(2000);
+    return webview;
 };

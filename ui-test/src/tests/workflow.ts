@@ -82,5 +82,10 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView, p
 
     expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
 
-    await compareWithGoldFiles(path.join(project_folder, 'arpm'), ['Workflow test-1.0.qwf', 'Workflow test-1.0.qwf.yaml']);
+    await compareWithGoldFiles(path.join(project_folder, 'arpm'), [
+        'Step test-1.0.qstep.yaml',
+        'Step test-1.0.qstep',
+        'Workflow test-1.0.qwf.yaml',
+        'Workflow test-1.0.qwf'
+    ]);
 };

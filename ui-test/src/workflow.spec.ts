@@ -1,6 +1,6 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 
-import { setupWebview } from './common/utils';
+import { setupExtest } from './common/utils';
 import { createWorkflow, openCreateWorkflow } from './tests/workflow';
 
 describe('Workflow tests', function () {
@@ -13,12 +13,7 @@ describe('Workflow tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-
-        const extestHelpers = await setupWebview();
-
-        workbench = extestHelpers.workbench;
-        editorView = extestHelpers.editorView;
-        webview = extestHelpers.webview;
+        ({ workbench, editorView, webview } = await setupExtest(true));
     });
 
     // create workflow tests

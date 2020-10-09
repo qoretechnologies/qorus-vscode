@@ -55,7 +55,7 @@ export const createJob = async (webview: WebView) => {
 
 export const editJob = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
     await sleep(1000);
-    const webview = await openInterface(workbench, path.join(project_folder, target_dir, target_file));
+    const webview = await openInterface(workbench, editorView, path.join(project_folder, target_dir, target_file));
 
     await sleep(8000);
     await resetAndFillTextField(webview, 'field-class-name', 'ModifiedTestJob');
@@ -65,6 +65,7 @@ export const editJob = async (workbench: Workbench, editorView: EditorView, proj
     await sleep(2000);
     await submitInterface(webview, 'job');
     await sleep(2000);
+    return webview;
 };
 
 export const checkFiles = async (project_folder: string, gold_files_subfolder?: string) => {
