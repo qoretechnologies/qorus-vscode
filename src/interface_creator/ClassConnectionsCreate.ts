@@ -150,7 +150,7 @@ export class ClassConnectionsCreate {
                     class_lang = this.code_info.yaml_info.yamlDataByName('class', connector_class)?.lang || default_lang;
                     this.import_java_api = this.import_java_api || ['qore', 'python'].includes(class_lang);
                     if (this.lang === 'python' && ['qore', 'java'].includes(class_lang)) {
-                        this.classes_to_import_in_python[class_lang][connector_class] = true;;
+                        this.classes_to_import_in_python[class_lang][connector_class] = true;
                     }
                 }
                 this.classes[prefixed_class] = { connector_class, prefix, class_lang };

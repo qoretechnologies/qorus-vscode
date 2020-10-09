@@ -166,8 +166,9 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
         }
 
         if (!no_data_return) {
+            const headers_data: any = jsyaml.safeLoad(headers);
             this.returnData({
-                ...jsyaml.safeLoad(headers),
+                ...headers_data,
                 target_dir: this.target_dir,
                 target_file: this.rel_file_path,
             }, iface_id);
