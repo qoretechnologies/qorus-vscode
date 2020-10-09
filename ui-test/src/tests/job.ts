@@ -5,6 +5,7 @@ import {
     sleep,
     compareWithGoldFiles,
     clickElement,
+    eraseTextField,
     getSelectedFields,
     getElementAttribute,
     fillTextField,
@@ -58,8 +59,9 @@ export const editJob = async (workbench: Workbench, editorView: EditorView, proj
 
     await sleep(8000);
     await resetAndFillTextField(webview, 'field-class-name', 'ModifiedTestJob');
-    await sleep(1000);
-    await resetAndFillTextField(webview, 'field-desc', 'Edit job test');
+    await sleep(2000);
+    await eraseTextField(webview, 'field-desc');
+    await fillTextField(webview, 'field-desc', 'Edit job test');
     await sleep(2000);
     await submitInterface(webview, 'job');
     await sleep(2000);

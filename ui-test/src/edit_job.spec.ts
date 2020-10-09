@@ -8,7 +8,6 @@ describe('Edit job test', function () {
     let driver: WebDriver;
     let workbench: Workbench;
     let editorView: EditorView;
-    let webview: WebView;
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
@@ -21,7 +20,6 @@ describe('Edit job test', function () {
     it('Check changed files', () => checkFiles(project_folder, 'changed_interfaces'));
 
     this.afterAll(async () => {
-        webview.switchBack();
         editorView.closeAllEditors();
     });
 });
