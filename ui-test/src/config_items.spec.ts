@@ -11,7 +11,8 @@ describe('Config Items Tests', function () {
     let webview: WebView;
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
-    before(async () => {
+    before(async function() {
+        this.timeout(12000);
         driver = VSBrowser.instance.driver;
         ({ workbench, editorView, webview } = await setupExtest());
     });
@@ -21,8 +22,8 @@ describe('Config Items Tests', function () {
     it('Create service', async () => createService(webview, editorView));
 
     it('Check files', async () => {
-        checkFiles(project_folder);
-        webview.switchBack();
+        await checkFiles(project_folder);
+        await webview.switchBack();
     });
 
     it('Edit interface', async () => {
@@ -30,8 +31,8 @@ describe('Config Items Tests', function () {
     });
 
     // Reset the workbench
-    this.afterAll(async () => {
-        webview.switchBack();
-        editorView.closeAllEditors();
+    this.afterEach(async () => {
+        await webview.switchBack();
+        await editorView.closeAllEditors();
     });
 });

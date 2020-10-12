@@ -23,16 +23,16 @@ const getWebview = async (editorView: EditorView) => {
 
 export const setupExtest = async (): Promise<any> => {
     const workbench = new Workbench();
-    const editorView = new EditorView();
-
     await workbench.executeCommand('Qorus: Open Webview');
+    await sleep(3000);
+
+    const editorView = new EditorView();
+    const webview = await getWebview(editorView);
+    await sleep(3000);
 
     const notificationsCenter = await workbench.openNotificationsCenter();
     await notificationsCenter.clearAllNotifications();
 
-    await sleep(3000);
-    const webview = await getWebview(editorView);
-    await sleep(3000);
     return { workbench, editorView, webview };
 };
 

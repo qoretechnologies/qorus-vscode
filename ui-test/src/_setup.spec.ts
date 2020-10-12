@@ -10,6 +10,7 @@ describe('@ Setup tests', function () {
     before(async () => {
         const driver = VSBrowser.instance.driver;
         const workbench = new Workbench();
+        await sleep(3000);
         await workbench.executeCommand('Extest: Open Folder');
         const input: InputBox = await InputBox.create();
         await input.setText(project_folder);
