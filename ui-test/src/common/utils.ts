@@ -49,7 +49,7 @@ export const openInterface = async (workbench: Workbench, editorView: EditorView
     await input.setText(file_path);
     await input.confirm();
 
-    await sleep(2000);
+    await sleep(8000);
     await workbench.executeCommand('Qorus: Edit Current Interface');
     await sleep(2000);
     const webview = await getWebview(editorView);
