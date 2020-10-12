@@ -29,6 +29,7 @@ export const setupExtest = async (): Promise<any> => {
     await sleep(8000);
 
     await workbench.executeCommand('Qorus: Open Webview');
+    await sleep(3000);
     const notificationsCenter = await workbench.openNotificationsCenter();
     await notificationsCenter.clearAllNotifications();
 
