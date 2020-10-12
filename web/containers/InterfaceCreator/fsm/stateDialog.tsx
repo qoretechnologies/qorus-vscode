@@ -238,7 +238,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                             style={{
                                 display: isMetadataHidden ? 'none' : 'block',
                                 height: newData.type === 'block' && blockLogicType === 'custom' ? 300 : 'auto',
-                                overflow: newData.type === 'block' && blockLogicType === 'custom' ? 'auto' : 'hidden',
+                                overflow: 'auto',
                             }}
                         >
                             <FieldWrapper padded>
@@ -510,6 +510,10 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
 
                                     if (modifiedData.execution_order === null) {
                                         delete modifiedData.execution_order;
+                                    }
+
+                                    if (modifiedData.type === 'block' && !modifiedData['block-type']) {
+                                        modifiedData['block-type'] = 'for';
                                     }
 
                                     onSubmit(id, modifiedData);
