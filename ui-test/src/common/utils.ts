@@ -42,8 +42,10 @@ export const setupExtest = async (): Promise<any> => {
 // file_path: absolute path of the interface's yaml file or source file
 export const openInterface = async (workbench: Workbench, editorView: EditorView, file_path: string) => {
     await workbench.executeCommand('Extest: Open File');
-    await sleep(1000);
-    const input: InputBox = await InputBox.create();
+    await sleep(5000);
+//    const input: InputBox = await InputBox.create();
+    const input: InputBox = new InputBox();
+    await input.wait(30000);
     await input.setText(file_path);
     await input.confirm();
 
