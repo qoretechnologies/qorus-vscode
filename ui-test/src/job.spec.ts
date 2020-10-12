@@ -1,4 +1,4 @@
-import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
+import { EditorView, InputBox, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 
 import { setupExtest } from './common/utils';
 import { createJob, editJob, checkFiles } from './tests/job';
@@ -6,6 +6,7 @@ import { createJob, editJob, checkFiles } from './tests/job';
 describe('Job test', function () {
     this.timeout(1800000);
     let driver: WebDriver;
+    let inputBox: InputBox;
     let workbench: Workbench;
     let editorView: EditorView;
     let webview: WebView;
@@ -13,7 +14,7 @@ describe('Job test', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupExtest());
+        ({ inputBox, workbench, editorView, webview } = await setupExtest());
     });
 
     it('Create job', () => createJob(webview));
@@ -24,7 +25,7 @@ describe('Job test', function () {
     });
 
     it('Edit job', async () => {
-        webview = await editJob(workbench, editorView, project_folder);
+        webview = await editJob(inputBox, workbench, editorView, project_folder);
     });
 
     it('Check changed files', () => checkFiles(project_folder, 'changed_interfaces'));
