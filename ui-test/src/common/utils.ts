@@ -7,7 +7,6 @@ import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-t
 type TSelector = 'id' | 'name' | 'className';
 
 const getWebview = async (editorView: EditorView) => {
-    const titles = await editorView.getOpenEditorTitles();
     let isWebviewOpen = false;
 
     while (!isWebviewOpen) {
@@ -53,7 +52,7 @@ export const openInterface = async (workbench: Workbench, editorView: EditorView
     return webview;
 };
 
-export const sleep = (ms: number) => {
+export const sleep = async (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 

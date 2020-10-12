@@ -17,8 +17,8 @@ describe('Workflow tests', function () {
     });
 
     // create workflow tests
-    it('Opens workflow create page', () => openCreateWorkflow(webview));
-    it('Can create workflow', () => createWorkflow(webview, editorView, project_folder));
+    it('Opens workflow create page', async () => openCreateWorkflow(webview));
+    it('Can create workflow', async () => createWorkflow(webview, editorView, project_folder));
 
     // Reset the workbench
     this.afterAll(async () => {

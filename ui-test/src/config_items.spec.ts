@@ -16,11 +16,11 @@ describe('Config Items Tests', function () {
         ({ workbench, editorView, webview } = await setupExtest());
     });
 
-    it('Create service class', () => createServiceClass(webview));
-    it('Create class', () => createClass(webview, editorView));
-    it('Create service', () => createService(webview, editorView));
+    it('Create service class', async () => createServiceClass(webview));
+    it('Create class', async () => createClass(webview, editorView));
+    it('Create service', async () => createService(webview, editorView));
 
-    it('Check files', () => {
+    it('Check files', async () => {
         checkFiles(project_folder);
         webview.switchBack();
     });

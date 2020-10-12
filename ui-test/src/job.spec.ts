@@ -16,9 +16,9 @@ describe('Job test', function () {
         ({ workbench, editorView, webview } = await setupExtest());
     });
 
-    it('Create job', () => createJob(webview));
+    it('Create job', async () => createJob(webview));
 
-    it('Check files', () => {
+    it('Check files', async () => {
         checkFiles(project_folder);
         webview.switchBack();
     });
@@ -27,7 +27,7 @@ describe('Job test', function () {
         webview = await editJob(workbench, editorView, project_folder);
     });
 
-    it('Check changed files', () => checkFiles(project_folder, 'changed_interfaces'));
+    it('Check changed files', async () => checkFiles(project_folder, 'changed_interfaces'));
 
     this.afterAll(async () => {
         webview.switchBack();

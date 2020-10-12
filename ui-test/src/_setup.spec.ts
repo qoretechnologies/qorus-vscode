@@ -18,7 +18,7 @@ describe('@ Setup tests', function () {
         await sleep(8000);
     });
 
-    it('Adds a folder to workspace', () => {
+    it('Adds a folder to workspace', async () => {
         expect(true).to.be.true;
     });
 });

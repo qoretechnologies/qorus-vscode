@@ -17,10 +17,10 @@ describe('Mapper Tests', function () {
         ({ workbench, editorView, webview } = await setupExtest());
     });
 
-    it('Login', () => login(webview));
-    it('Create mapper', () => createMapper(webview));
+    it('Login', async () => login(webview));
+    it('Create mapper', async () => createMapper(webview));
 
-    it('Check file', () => {
+    it('Check file', async () => {
         checkFile(project_folder, 0);
         webview.switchBack();
     });
@@ -29,7 +29,7 @@ describe('Mapper Tests', function () {
         webview = await editMapper(workbench, editorView, project_folder);
     });
 
-    it('Check changed file', () => checkFile(project_folder, 1));
+    it('Check changed file', async () => checkFile(project_folder, 1));
 
     this.afterAll(async () => {
         webview.switchBack();
