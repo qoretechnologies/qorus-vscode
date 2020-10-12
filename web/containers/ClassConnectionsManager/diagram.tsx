@@ -319,7 +319,7 @@ const Connector: React.FC<IConnectorProps> = ({
                 name: name,
             });
         }
-    }, [manageDialog]);
+    }, [manageDialog.class]);
 
     return (
         <FieldWrapper>
@@ -344,7 +344,6 @@ const Connector: React.FC<IConnectorProps> = ({
                         ) : null}
                         {connectors.length > 0 ? (
                             <SelectField
-                                autoSelect
                                 defaultItems={connectors}
                                 predicate={(name: string) => {
                                     // Get the connector
