@@ -15,6 +15,21 @@ import ConfigItemManager from '../../ConfigItemManager';
 import ManageButton from '../../ConfigItemManager/manageButton';
 import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 
+export const CompatibilityCheckIndicator = ({ isCompatible, isCheckingCompatibility, title }) => {
+    const t = useContext(TextContext);
+
+    return (
+        <>
+            <Callout intent={isCheckingCompatibility ? 'warning' : isCompatible ? 'success' : 'danger'}>
+                {isCheckingCompatibility
+                    ? t('CheckingCompatibility')
+                    : t(`${title || 'PipelineElement'}${isCompatible ? 'Compatible' : 'Incompatible'}`)}
+            </Callout>
+            <Spacer size={8} />
+        </>
+    );
+};
+
 const PipelineElementDialog = ({
     onClose,
     data,
@@ -122,26 +137,10 @@ const PipelineElementDialog = ({
                                 />
                                 <FieldInputWrapper>
                                     {newData.name || isCheckingCompatibility ? (
-                                        <>
-                                            <Callout
-                                                intent={
-                                                    isCheckingCompatibility
-                                                        ? 'warning'
-                                                        : isCompatible
-                                                        ? 'success'
-                                                        : 'danger'
-                                                }
-                                            >
-                                                {isCheckingCompatibility
-                                                    ? t('CheckingCompatibility')
-                                                    : t(
-                                                          `PipelineElement${
-                                                              isCompatible ? 'Compatible' : 'Incompatible'
-                                                          }`
-                                                      )}
-                                            </Callout>
-                                            <Spacer size={8} />
-                                        </>
+                                        <CompatibilityCheckIndicator
+                                            isCompatible={isCompatible}
+                                            isCheckingCompatibility={isCheckingCompatibility}
+                                        />
                                     ) : null}
                                     <SelectField
                                         disabled={!isCompatible}

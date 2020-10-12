@@ -1,17 +1,14 @@
-import React, { useContext, useState } from 'react';
-
+import { Button, ButtonGroup, Classes, ControlGroup, NonIdealState } from '@blueprintjs/core';
 import every from 'lodash/every';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
 import omit from 'lodash/omit';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import React, { useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Classes, ControlGroup, NonIdealState } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
@@ -20,12 +17,14 @@ import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
+import { areConnectorsCompatible } from '../../helpers/functions';
 import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMessageHandler, { TMessageListener } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
+import { StyledCompatibilityLoader } from '../InterfaceCreator/fsm';
 import { ActionsWrapper, ContentWrapper, IField } from '../InterfaceCreator/panel';
 import { MethodSelector, PanelWrapper } from '../InterfaceCreator/servicesView';
 import ClassConnectionsDiagram from './diagram';
@@ -103,6 +102,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
     const [lastConnectorId, setLastConnectorId] = useState<number>(getConnectorsCount(initialConnections));
     const [lastConnectionId, setLastConnectionId] = useState<number>(initialConnections ? size(initialConnections) : 0);
+    const [isCheckingCompatibility, setIsCheckingCompatibility] = useState<boolean>(false);
     const classes = selectedFields[ifaceType].find((field: IField) => field.name === 'classes').value;
     const initContext = useContext(InitialContext);
 
@@ -130,77 +130,133 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         });
     });
 
-    const handleAddConnector: (name: string, data: IClassConnection, changedConnector?: boolean) => void = (
+    const checkConnectionCompatibility = async (connection: IClassConnection[]) => {
+        setIsCheckingCompatibility(true);
+
+        const data = [...connection];
+        const newData = [];
+
+        for await (const [index, connData] of data.entries()) {
+            connData.previousItemData = data[index - 1];
+            connData.nextItemData = data[index + 1];
+
+            const isInputCompatible = await areConnectorsCompatible('input', connData.connector, connData);
+            const isOutputCompatible = await areConnectorsCompatible('output', connData.connector, connData);
+
+            newData[index] = {
+                ...connData,
+                isInputCompatible,
+                isOutputCompatible,
+            };
+        }
+
+        setIsCheckingCompatibility(false);
+
+        return newData;
+    };
+
+    useEffect(() => {
+        if (selectedConnection) {
+            (async () => {
+                const newData = await checkConnectionCompatibility(connections[selectedConnection]);
+                setConnections((cur) => ({
+                    ...cur,
+                    [selectedConnection]: newData,
+                }));
+            })();
+        }
+    }, [selectedConnection]);
+
+    const handleAddConnector: (name: string, data: IClassConnection, changedConnector?: boolean) => void = async (
         name,
         data,
         changedConnector
     ) => {
-        setConnections(
-            (current: IClassConnections): IClassConnections => ({
-                ...current,
-                [name]:
-                    !data.index && data.index !== 0
-                        ? [{ ...data, id: lastConnectorId }]
-                        : current[name].reduce((newConnectors, connector, index) => {
-                              // Check if the index matches the passed index
-                              if (index === data.index) {
-                                  if (data.isEditing) {
-                                      if (changedConnector) {
-                                          // Replace the current data and remove the mapper
-                                          return [...newConnectors, omit({ ...connector, ...data }, ['mapper'])];
-                                      }
-                                      // Replace data without removing the mapper
-                                      return [...newConnectors, { ...connector, ...data }];
-                                  }
-                                  const id = lastConnectorId;
-                                  // Add new connector
-                                  return [...newConnectors, connector, { ...data, id }];
+        let modifiedConnection: IClassConnection[] =
+            !data.index && data.index !== 0
+                ? [{ ...data, id: lastConnectorId }]
+                : connections[name].reduce((newConnectors, connector, index) => {
+                      // Check if the index matches the passed index
+                      if (index === data.index) {
+                          if (data.isEditing) {
+                              if (changedConnector) {
+                                  // Replace the current data and remove the mapper
+                                  return [...newConnectors, omit({ ...connector, ...data }, ['mapper'])];
                               }
-                              // If the user changed connector, we need to remove
-                              // the mapper from the actual connector and from the connector
-                              // before
-                              if (changedConnector && index === data.index - 1) {
-                                  return [...newConnectors, omit({ ...connector }, ['mapper'])];
-                              }
-                              // Return unchanged
-                              return [...newConnectors, connector];
-                          }, []),
-            })
-        );
+                              // Replace data without removing the mapper
+                              return [...newConnectors, { ...connector, ...data }];
+                          }
+                          const id = lastConnectorId;
+                          // Add new connector
+                          return [...newConnectors, connector, { ...data, id }];
+                      }
+                      // If the user changed connector, we need to remove
+                      // the mapper from the actual connector and from the connector
+                      // before
+                      if (changedConnector && index === data.index - 1) {
+                          return [...newConnectors, omit({ ...connector }, ['mapper'])];
+                      }
+                      // Return unchanged
+                      return [...newConnectors, connector];
+                  }, []);
+
+        modifiedConnection = await checkConnectionCompatibility(modifiedConnection);
+
+        setConnections((cur) => ({
+            ...cur,
+            [name]: modifiedConnection,
+        }));
+
         if (!data.isEditing) {
             // Increase the ID
             setLastConnectorId((current) => current + 1);
         }
     };
 
-    const handleDeleteConnector: (name: string, id: number) => void = (name, id) => {
+    const handleDeleteConnector: (name: string, id: number) => void = async (name, id) => {
+        let modifiedConnection: IClassConnection[] = connections[name].reduce((newConnectors, connector, index) => {
+            // Check if the index matches the passed index
+            if (index === id) {
+                // Add new connector
+                return [...newConnectors];
+            }
+            // Return unchanged
+            return [...newConnectors, connector];
+        }, []);
+
+        modifiedConnection = await checkConnectionCompatibility(modifiedConnection);
+
         setConnections(
             (current: IClassConnections): IClassConnections => ({
                 ...current,
-                [name]: current[name].reduce((newConnectors, connector, index) => {
-                    // Check if the index matches the passed index
-                    if (index === id) {
-                        // Add new connector
-                        return [...newConnectors];
-                    }
-                    // Return unchanged
-                    return [...newConnectors, connector];
-                }, []),
+                [name]: modifiedConnection,
             })
         );
     };
 
     const isConnectionValid = (name: string) => {
-        if (connections[name].length > 1) {
-            return true;
+        let isValid = true;
+
+        // Check if any of the item is incompatible
+        for (const [name, conn] of Object.entries(connections)) {
+            conn.forEach((connData) => {
+                if (connData.isInputCompatible === false || connData.isOutputCompatible === false) {
+                    isValid = false;
+                    return;
+                }
+            });
+        }
+
+        if (connections[name].length === 0) {
+            isValid = false;
         }
         // Check if there is only one connector
         // and has a trigger
-        if (connections[name].length === 1) {
-            return !!connections[name][0].trigger;
+        if (connections[name].length === 1 && !connections[name][0].trigger) {
+            isValid = false;
         }
 
-        return false;
+        return isValid;
     };
 
     const areAllConnectionsValid = () => {
@@ -346,30 +402,37 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                         style={{
                             background: `url(${`${initialData.image_path}/images/tiny_grid.png)`}`,
                             padding: 10,
+                            position: 'relative',
                         }}
                     >
-                        <div style={{ width: '100%', display: 'flex', flex: '1 1 auto', justifyContent: 'center' }}>
-                            {selectedConnection ? (
-                                <ClassConnectionsDiagram
-                                    t={t}
-                                    classes={classes}
-                                    classesData={classesData}
-                                    onAddConnector={handleAddConnector}
-                                    onDeleteConnector={handleDeleteConnector}
-                                    connection={connections[selectedConnection]}
-                                    connectionName={selectedConnection}
-                                    ifaceType={ifaceType}
-                                    baseClassName={baseClassName}
-                                    interfaceContext={interfaceContext}
-                                />
-                            ) : (
-                                <NonIdealState
-                                    title={t('NoConnectionSelected')}
-                                    description={t('NoConnectionSelectedDescription')}
-                                    icon="diagram-tree"
-                                />
-                            )}
-                        </div>
+                        {isCheckingCompatibility ? (
+                            <StyledCompatibilityLoader>
+                                <Loader text={t('CheckingCompatibility')} />
+                            </StyledCompatibilityLoader>
+                        ) : (
+                            <div style={{ width: '100%', display: 'flex', flex: '1 1 auto', justifyContent: 'center' }}>
+                                {selectedConnection ? (
+                                    <ClassConnectionsDiagram
+                                        t={t}
+                                        classes={classes}
+                                        classesData={classesData}
+                                        onAddConnector={handleAddConnector}
+                                        onDeleteConnector={handleDeleteConnector}
+                                        connection={connections[selectedConnection]}
+                                        connectionName={selectedConnection}
+                                        ifaceType={ifaceType}
+                                        baseClassName={baseClassName}
+                                        interfaceContext={interfaceContext}
+                                    />
+                                ) : (
+                                    <NonIdealState
+                                        title={t('NoConnectionSelected')}
+                                        description={t('NoConnectionSelectedDescription')}
+                                        icon="diagram-tree"
+                                    />
+                                )}
+                            </div>
+                        )}
                     </ContentWrapper>
                     <ActionsWrapper>
                         <ButtonGroup fill>
