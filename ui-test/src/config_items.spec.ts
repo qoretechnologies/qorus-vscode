@@ -4,7 +4,6 @@ import { setupExtest } from './common/utils';
 import { checkFiles, createClass, createService, createServiceClass, editInterface } from './tests/config_items';
 
 describe('Config Items Tests', function () {
-    this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
     let editorView: EditorView;
@@ -12,14 +11,23 @@ describe('Config Items Tests', function () {
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async function() {
-        this.timeout(12000);
+        this.timeout(18000);
         driver = VSBrowser.instance.driver;
         ({ workbench, editorView, webview } = await setupExtest());
     });
 
-    it('Create service class', async () => createServiceClass(webview));
-    it('Create class', async () => createClass(webview, editorView));
-    it('Create service', async () => createService(webview, editorView));
+    it('Create service class', async () => {
+        this.timeout(18000);
+        createServiceClass(webview)
+    });
+    it('Create class', async () => {
+        this.timeout(18000);
+        createClass(webview, editorView)
+    });
+    it('Create service', async () => {
+        this.timeout(18000);
+        createService(webview, editorView)
+    });
 
     it('Check files', async () => {
         await checkFiles(project_folder);
@@ -31,7 +39,7 @@ describe('Config Items Tests', function () {
     });
 
     // Reset the workbench
-    this.afterEach(async () => {
+    after(async () => {
         await webview.switchBack();
         await editorView.closeAllEditors();
     });
