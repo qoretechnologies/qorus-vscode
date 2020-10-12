@@ -13,7 +13,7 @@ describe('Workflow tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupExtest(true));
+        ({ workbench, editorView, webview } = await setupExtest());
     });
 
     // create workflow tests

@@ -22,7 +22,7 @@ const getWebview = async (editorView: EditorView) => {
     return webview;
 };
 
-export const setupExtest = async (openWebview: boolean): Promise<any> => {
+export const setupExtest = async (): Promise<any> => {
     const workbench = new Workbench();
     const editorView = new EditorView();
 
@@ -33,14 +33,9 @@ export const setupExtest = async (openWebview: boolean): Promise<any> => {
     await notificationsCenter.clearAllNotifications();
 
     await sleep(3000);
-
-    if (openWebview) {
-        const webview = await getWebview(editorView);
-        await sleep(3000);
-        return { workbench, editorView, webview };
-    } else {
-        return { workbench, editorView };
-    }
+    const webview = await getWebview(editorView);
+    await sleep(3000);
+    return { workbench, editorView, webview };
 };
 
 // file_path: absolute path of the interface's yaml file or source file
