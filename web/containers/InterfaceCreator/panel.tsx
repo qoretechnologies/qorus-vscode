@@ -1097,7 +1097,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                     <Button
                                         icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
                                         intent={areClassConnectionsValid() ? 'none' : 'warning'}
-                                        disabled={!isClassConnectionsManagerEnabled()}
+                                        disabled={!isClassConnectionsManagerEnabled() || !initialData.qorus_instance}
                                         onClick={() => setShowClassConnectionsManager(true)}
                                     >
                                         {t('ManageClassConnections')} ({size(classConnectionsData)})
@@ -1152,7 +1152,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     </div>
                 </ActionsWrapper>
             </Content>
-            {showClassConnectionsManager && hasClassConnections && (
+            {showClassConnectionsManager && hasClassConnections && initialData.qorus_instance && (
                 <CustomDialog
                     isOpen
                     title={t('ClassConnectionsManager')}

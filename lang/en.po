@@ -2485,16 +2485,16 @@ msgid "EditTransitionsOrder"
 msgstr "Edit transitions order"
 
 msgid "PreviousOutputElementCompatible"
-msgid "Previous element is compatible"
+msgstr "Previous element is compatible"
 
 msgid "PreviousOutputElementIncompatible"
-msgid "Previous element is incompatible!"
+msgstr "Previous element is incompatible!"
 
 msgid "NextInputElementCompatible"
-msgid "Next element is compatible"
+msgstr "Next element is compatible"
 
 msgid "NextInputElementIncompatible"
-msgid "Next element is incompatible!"
+msgstr "Next element is incompatible!"
 
 msgid "EditStatesOrder"
 msgstr "Edit initial states order"
