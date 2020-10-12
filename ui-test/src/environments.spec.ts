@@ -8,6 +8,7 @@ import {
 
 describe('Environments page test', function () {
     this.timeout(1800000);
+    let browser: VSBrowser;
     let driver: WebDriver;
     let workbench: Workbench;
     let editorView: EditorView;
@@ -15,7 +16,8 @@ describe('Environments page test', function () {
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
-        driver = VSBrowser.instance.driver;
+        browser = VSBrowser.instance;
+        driver = browser.driver;
         ({ workbench, editorView, webview } = await setupExtest());
     });
 
