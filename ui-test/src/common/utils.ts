@@ -25,30 +25,25 @@ const getWebview = async (editorView: EditorView) => {
 export const setupExtest = async (): Promise<any> => {
     const workbench = new Workbench();
     const editorView = new EditorView();
-    const inputBox = await InputBox.create();
-
-    await sleep(8000);
 
     await workbench.executeCommand('Qorus: Open Webview');
-    await sleep(3000);
+
     const notificationsCenter = await workbench.openNotificationsCenter();
     await notificationsCenter.clearAllNotifications();
 
     await sleep(3000);
     const webview = await getWebview(editorView);
     await sleep(3000);
-    return { inputBox, workbench, editorView, webview };
+    return { workbench, editorView, webview };
 };
 
 // file_path: absolute path of the interface's yaml file or source file
-export const openInterface = async (inputBox: InputBox, workbench: Workbench, editorView: EditorView, file_path: string) => {
+export const openInterface = async (workbench: Workbench, editorView: EditorView, file_path: string) => {
     await workbench.executeCommand('Extest: Open File');
-    await sleep(5000);
-//    const input: InputBox = await InputBox.create();
-//    const input: InputBox = new InputBox();
-//    await inputBox.wait(30000);
-    await inputBox.setText(file_path);
-    await inputBox.confirm();
+//    await sleep(5000);
+    const input: InputBox = await InputBox.create();
+    await input.setText(file_path);
+    await input.confirm();
 
     await sleep(8000);
     await workbench.executeCommand('Qorus: Edit Current Interface');

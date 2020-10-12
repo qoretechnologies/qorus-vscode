@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
+import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
 import {
     clickElement,
     compareWithGoldFiles,
@@ -173,9 +173,9 @@ export const checkFiles = async (project_folder: string) => {
     ]);
 };
 
-export const editInterface = async (inputBox: InputBox, workbench: Workbench, editorView: EditorView, project_folder: string) => {
+export const editInterface = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
     await sleep(1000);
-    const webview = await openInterface(inputBox, workbench, editorView, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
+    const webview = await openInterface(workbench, editorView, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
     await sleep(4000);
     return webview;
     // more to do

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { expect } from 'chai';
-import { EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
+import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
 import {
     sleep,
     openInterface,
@@ -75,9 +75,9 @@ export const checkFile = async (project_folder: string, file_index: number) => {
     await compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file[file_index] ]);
 };
 
-export const editMapper = async (inputBox: InputBox, workbench: Workbench, editorView: EditorView, project_folder: string) => {
+export const editMapper = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
     await sleep(1000);
-    const webview = await openInterface(inputBox, workbench, editorView, path.join(project_folder, target_dir, target_file[0]));
+    const webview = await openInterface(workbench, editorView, path.join(project_folder, target_dir, target_file[0]));
 
     await sleep(1000);
     await resetAndFillTextField(webview, 'field-version', '3.4.5');

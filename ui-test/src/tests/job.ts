@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { expect } from 'chai';
-import { EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
+import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
 import {
     sleep,
     compareWithGoldFiles,
@@ -53,9 +53,9 @@ export const createJob = async (webview: WebView) => {
     await sleep(2000);
 };
 
-export const editJob = async (inputBox: InputBox , workbench: Workbench, editorView: EditorView, project_folder: string) => {
+export const editJob = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
     await sleep(1000);
-    const webview = await openInterface(inputBox, workbench, editorView, path.join(project_folder, target_dir, target_file));
+    const webview = await openInterface(workbench, editorView, path.join(project_folder, target_dir, target_file));
 
     await sleep(8000);
     await resetAndFillTextField(webview, 'field-class-name', 'ModifiedTestJob');
