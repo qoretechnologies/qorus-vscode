@@ -1,7 +1,9 @@
-import React from 'react';
+import { Tooltip } from '@blueprintjs/core';
+import React, { useContext } from 'react';
 import { useDrag } from 'react-dnd';
-import { TOOLBAR_ITEM_TYPE } from '.';
 import styled, { css } from 'styled-components';
+import { TOOLBAR_ITEM_TYPE } from '.';
+import { TextContext } from '../../../context/text';
 
 export interface IFSMToolbarItemProps {
     children: any;
@@ -16,7 +18,7 @@ export const getStateStyle = (type, toolbar?: boolean) => {
         case 'connector':
             return css`
                 transform: skew(15deg);
-                div,
+                > div,
                 > p,
                 > span {
                     transform: skew(-15deg);
@@ -87,21 +89,24 @@ const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
 `;
 
 const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({ children, count, name, type, disabled }) => {
+    const t = useContext(TextContext);
     const [, drag] = useDrag({
         item: { name, type: TOOLBAR_ITEM_TYPE, stateType: type },
     });
 
     return (
-        <StyledToolbarItem
-            ref={!disabled ? drag : undefined}
-            type={type}
-            toolbar
-            className={disabled ? 'disabled' : undefined}
-        >
-            <span>
-                {children} {count ? `(${count}) ` : ''}
-            </span>
-        </StyledToolbarItem>
+        <Tooltip intent="warning" content={disabled ? t('CannotManageBlock') : undefined}>
+            <StyledToolbarItem
+                ref={!disabled ? drag : undefined}
+                type={type}
+                toolbar
+                className={disabled ? 'disabled' : undefined}
+            >
+                <span>
+                    {children} {count ? `(${count}) ` : ''}
+                </span>
+            </StyledToolbarItem>
+        </Tooltip>
     );
 };
 

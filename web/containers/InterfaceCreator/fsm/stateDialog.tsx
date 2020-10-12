@@ -59,6 +59,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     const [blockLogicType, setBlockLogicType] = useState<'fsm' | 'custom'>('custom');
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const t = useContext(TextContext);
     const { confirmAction, qorus_instance } = useContext(InitialContext);
 
@@ -230,7 +231,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 }}
             >
                 <Content style={{ padding: 10, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
-                    <ContentWrapper style={{ display: 'flex', flexFlow: 'column', paddingRight: 0 }}>
+                    <ContentWrapper
+                        style={{ display: 'flex', flexFlow: 'column', paddingRight: 0, position: 'relative' }}
+                    >
                         <div
                             style={{
                                 display: isMetadataHidden ? 'none' : 'block',
@@ -388,7 +391,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                     </FieldWrapper>
                                 </>
                             )}
-                            {newData.type !== 'fsm' && newData.type !== 'if' ? (
+                            {newData.type === 'block' ? (
                                 <>
                                     <FieldWrapper padded>
                                         <FieldLabel label={t('InputType')} isValid info={t('Optional')} />
@@ -486,9 +489,12 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                                 text={t('Submit')}
                                 disabled={!isDataValid()}
                                 icon={'tick'}
+                                loading={isLoading}
                                 name={`fsn-submit-state`}
-                                intent={Intent.SUCCESS}
+                                intent={isLoading ? Intent.WARNING : Intent.SUCCESS}
                                 onClick={() => {
+                                    setIsLoading(true);
+
                                     postMessage('submit-fsm-state', {
                                         iface_id: interfaceId,
                                         state_id: id,

@@ -128,8 +128,9 @@ export class QorusProjectCodeInfo {
 
             qorus_webview.postMessage({
                 action: `return-interface-data${request_id ? '-complete' : ''}`,
+                request_id,
+                ok: true,
                 data: {
-                    request_id,
                     iface_kind,
                     custom_data,
                     [iface_kind]: { ...data, iface_id },

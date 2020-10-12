@@ -1,35 +1,34 @@
-import React, { useContext, useRef, useState } from 'react';
-
+import { Button, ButtonGroup, Callout, Classes, Intent, Tooltip } from '@blueprintjs/core';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
 import size from 'lodash/size';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Tree from 'react-d3-tree';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Classes, Intent, Tooltip } from '@blueprintjs/core';
-
 import ConnectorField from '../../../components/Field/connectors';
 import FileString from '../../../components/Field/fileString';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import Options from '../../../components/Field/systemOptions';
 import FieldLabel from '../../../components/FieldLabel';
+import Loader from '../../../components/Loader';
 import { Messages } from '../../../constants/messages';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { checkPipelineCompatibility } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
+import { StyledCompatibilityLoader, StyledToolbarWrapper } from '../fsm';
 import { calculateFontSize } from '../fsm/state';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import PipelineElementDialog from './elementDialog';
-import { StyledToolbarWrapper } from '../fsm';
 
 export interface IPipelineViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -73,13 +72,15 @@ const StyledDiagramWrapper = styled.div<{ path: string }>`
     background: ${({ path }) => `url(${`${path}/images/tiny_grid.png`})`};
 `;
 
-const StyledNodeLabel = styled.div`
+const StyledNodeLabel = styled.div<{ isValid?: boolean }>`
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-flow: column;
+
+    background-color: ${({ isValid }) => (isValid === false ? '#d13913' : 'transparent')};
 
     span {
         text-align: center;
@@ -92,7 +93,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 
     return (
         <StyledNodeLabel
-            onClick={() => onEditClick({ nodeData })}
+            onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
             onContextMenu={(event) => {
                 event.persist();
 
@@ -161,83 +162,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 };
 
 const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset, onSubmitSuccess }) => {
-    const wrapperRef = useRef(null);
-    const t = useContext(TextContext);
-    const { image_path, confirmAction, callBackend, pipeline } = useContext(InitialContext);
-    const { resetAllInterfaceData } = useContext(GlobalContext);
-    const changeHistory = useRef<string[]>([]);
-    const currentHistoryPosition = useRef<number>(-1);
-
-    useMount(() => {
-        setPipelineReset(() => reset);
-
-        updateHistory(
-            transformNodeData(
-                [
-                    {
-                        type: 'start',
-                        children: pipeline?.children || [],
-                    },
-                ],
-                ''
-            )
-        );
-
-        return () => {
-            setPipelineReset(null);
-        };
-    });
-
-    const updateHistory = (data: IPipelineElement[]) => {
-        if (currentHistoryPosition.current >= 0) {
-            changeHistory.current.length = currentHistoryPosition.current + 1;
-        }
-        changeHistory.current.push(JSON.stringify(data));
-
-        if (changeHistory.current.length > 10) {
-            changeHistory.current.shift();
-        } else {
-            currentHistoryPosition.current += 1;
-        }
-    };
-
-    const transformNodeData = (data, path) => {
-        return data.reduce((newData, item, index) => {
-            const newItem = { ...item };
-
-            newItem.nodeSvgShape = getNodeShapeData(item.type, item.children);
-            newItem.path = `${path}[${index}]`;
-
-            if (item.children) {
-                newItem.children = transformNodeData(newItem.children, `${newItem.path}.children`);
-            }
-
-            return [...newData, newItem];
-        }, []);
-    };
-
-    const isDataValid = (data) => {
-        return (
-            data.reduce((isValid, item) => {
-                if (item.type === 'queue' || item.type === 'start') {
-                    if (item.children && item.children.length > 0) {
-                        if (!isDataValid(item.children)) {
-                            isValid = false;
-                        }
-                    } else {
-                        isValid = false;
-                    }
-                }
-
-                return isValid;
-            }, true) &&
-            validateField('string', metadata.name) &&
-            validateField('string', metadata.desc) &&
-            validateField('string', metadata.target_dir)
-        );
-    };
-
-    const getNodeShapeData = (type: string, children: any[]) => {
+    const getNodeShapeData = ({ type, children, isCompatible }) => {
         switch (type) {
             case 'mapper':
             case 'processor':
@@ -248,8 +173,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         height: '60px',
                         x: -100,
                         y: -30,
-                        fill: '#fff',
-                        stroke: '#a9a9a9',
+                        fill: isCompatible === false ? '#fddcd4' : '#fff',
+                        stroke: isCompatible === false ? '#d13913' : '#a9a9a9',
                     },
                 };
             case 'queue':
@@ -258,11 +183,11 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     shapeProps: {
                         rx: 100,
                         ry: 30,
-                        fill: children.length === 0 ? '#fddcd4' : '#fff',
-                        stroke: children?.length === 0 ? '#d13913' : '#a9a9a9',
+                        fill: children.length === 0 || isCompatible === false ? '#fddcd4' : '#fff',
+                        stroke: children?.length === 0 || isCompatible === false ? '#d13913' : '#a9a9a9',
                     },
                 };
-            case 'start':
+            default:
                 return {
                     shape: 'circle',
                     shapeProps: {
@@ -274,7 +199,28 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                 };
         }
     };
+    const transformNodeData = (data, path) => {
+        return data.reduce((newData, item, index) => {
+            const newItem = { ...item };
 
+            newItem.nodeSvgShape = getNodeShapeData(item);
+            newItem.path = `${path}[${index}]`;
+
+            if (item.children) {
+                newItem.children = transformNodeData(newItem.children, `${newItem.path}.children`);
+            }
+
+            return [...newData, newItem];
+        }, []);
+    };
+
+    const wrapperRef = useRef(null);
+    const t = useContext(TextContext);
+    const { image_path, confirmAction, callBackend, pipeline, qorus_instance } = useContext(InitialContext);
+    const { resetAllInterfaceData } = useContext(GlobalContext);
+    const changeHistory = useRef<string[]>([]);
+    const currentHistoryPosition = useRef<number>(-1);
+    const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
     const [selectedElement, setSelectedElement] = useState<IPipelineElement | null>(null);
     const [interfaceId, setInterfaceId] = useState(pipeline?.iface_id || shortid.generate());
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
@@ -297,6 +243,75 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             ''
         )
     );
+
+    useMount(() => {
+        setPipelineReset(() => reset);
+
+        updateHistory(
+            transformNodeData(
+                [
+                    {
+                        type: 'start',
+                        children: pipeline?.children || [],
+                    },
+                ],
+                ''
+            )
+        );
+
+        return () => {
+            setPipelineReset(null);
+        };
+    });
+
+    useEffect(() => {
+        (async () => {
+            if (!metadata['input-provider'] || validateField('type-selector', metadata['input-provider'])) {
+                setCompatibilityChecked(false);
+
+                const newElements = await checkPipelineCompatibility(elements, metadata['input-provider']);
+
+                setCompatibilityChecked(true);
+                setElements(transformNodeData(newElements, ''));
+            } else {
+                Promise.resolve();
+            }
+        })();
+    }, [metadata['input-provider']]);
+
+    const updateHistory = (data: IPipelineElement[]) => {
+        if (currentHistoryPosition.current >= 0) {
+            changeHistory.current.length = currentHistoryPosition.current + 1;
+        }
+        changeHistory.current.push(JSON.stringify(data));
+
+        if (changeHistory.current.length > 10) {
+            changeHistory.current.shift();
+        } else {
+            currentHistoryPosition.current += 1;
+        }
+    };
+
+    const isDataValid = (data) => {
+        return (
+            data.reduce((isValid, item) => {
+                if (item.type === 'queue' || item.type === 'start') {
+                    if (item.children && item.children.length > 0) {
+                        if (!isDataValid(item.children)) {
+                            isValid = false;
+                        }
+                    } else {
+                        isValid = false;
+                    }
+                }
+
+                return isValid;
+            }, true) &&
+            validateField('string', metadata.name) &&
+            validateField('string', metadata.desc) &&
+            validateField('string', metadata.target_dir)
+        );
+    };
 
     const handleMetadataChange: (name: string, value: any) => void = (name, value) => {
         setMetadata((cur) => ({
@@ -387,13 +402,13 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             if (data.parentPath) {
                 const children = get(result, `${data.parentPath}.children`);
                 if (!children) {
-                    set(result, `${data.parentPath}.children`, [omit(data, ['parentPath'])]);
+                    set(result, `${data.parentPath}.children`, [omit(data, ['parentPath', 'parent', 'isCompatible'])]);
                 } else {
                     // Push the new item
-                    children.push(omit(data, ['parentPath']));
+                    children.push(omit(data, ['parentPath', 'parent', 'isCompatible']));
                 }
             } else {
-                set(result, data.path, data);
+                set(result, data.path, omit(data, ['parent', 'isCompatible']));
             }
 
             result = transformNodeData(result, '');
@@ -437,8 +452,21 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         });
     };
 
+    if (!qorus_instance) {
+        return (
+            <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+                {t('NoInstance')}
+            </Callout>
+        );
+    }
+
     return (
         <>
+            {!compatibilityChecked && (
+                <StyledCompatibilityLoader>
+                    <Loader text={t('CheckingCompatibility')} />
+                </StyledCompatibilityLoader>
+            )}
             {selectedElement && (
                 <PipelineElementDialog
                     data={selectedElement.nodeData}
@@ -446,6 +474,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     onlyQueue={selectedElement.onlyQueue}
                     onClose={() => setSelectedElement(null)}
                     onSubmit={handleDataSubmit}
+                    inputProvider={metadata['input-provider']}
                     interfaceId={interfaceId}
                 />
             )}

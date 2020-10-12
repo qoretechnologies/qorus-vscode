@@ -1,16 +1,22 @@
+import forEach from 'lodash/forEach';
 import isArray from 'lodash/isArray';
-import isString from 'lodash/isString';
-import isNumber from 'lodash/isNumber';
-import isObject from 'lodash/isObject';
+import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import isNull from 'lodash/isNull';
+import isNumber from 'lodash/isNumber';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
-import isBoolean from 'lodash/isBoolean';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
+import omit from 'lodash/omit';
+import set from 'lodash/set';
 import size from 'lodash/size';
-import forEach from 'lodash/forEach';
+import shortid from 'shortid';
+import { AppToaster } from '../components/Toast';
+import { Messages } from '../constants/messages';
 import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
+import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
 
 const functionOrStringExp: Function = (item: Function | string, ...itemArguments) =>
     typeof item === 'function' ? item(...itemArguments) : item;
@@ -94,6 +100,250 @@ export const isStateIsolated = (stateKey: string, states: IFSMStates, checkedSta
     });
 
     return isIsolated;
+};
+
+export interface ITypeComparatorData {
+    interfaceName?: string;
+    connectorName?: string;
+    interfaceKind?: 'mapper' | 'pipeline' | 'connector' | 'processor' | 'if' | 'block';
+    typeData?: any;
+}
+
+export const getProviderFromInterfaceObject = (data, type: 'input' | 'output', connectorName?: string) => {
+    switch (data.type) {
+        case 'mapper': {
+            return data?.mapper_options?.[`mapper-${type}`];
+        }
+        case 'class': {
+            if (connectorName) {
+                return data?.['class-connectors']?.find((connector) => connector.name === connectorName)?.[
+                    `${type}-provider`
+                ];
+            }
+
+            return data?.processor?.[`processor-${type}-type`];
+        }
+        case 'pipeline': {
+            return data?.[`${type}-provider`];
+        }
+    }
+};
+
+export const getStateProvider = async (data: ITypeComparatorData, providerType: 'input' | 'output') => {
+    if ('typeData' in data && !data.typeData) {
+        return Promise.resolve(null);
+    }
+
+    if (data.typeData) {
+        return Promise.resolve(data.typeData);
+    }
+
+    const interfaceKind =
+        data.interfaceKind === 'connector' || data.interfaceKind === 'processor' ? 'class' : data.interfaceKind;
+    const interfaceData = await callBackendBasic(Messages.GET_INTERFACE_DATA, 'return-interface-data-complete', {
+        name: data.interfaceName,
+        iface_kind: interfaceKind,
+    });
+
+    if (!interfaceData.ok) {
+        return null;
+    }
+
+    return getProviderFromInterfaceObject(interfaceData.data[interfaceKind], providerType, data.connectorName);
+};
+
+export const areTypesCompatible = async (
+    outputTypeData?: ITypeComparatorData,
+    inputTypeData?: ITypeComparatorData
+): Promise<boolean> => {
+    if (!outputTypeData || !inputTypeData) {
+        return true;
+    }
+
+    let output = await getStateProvider(outputTypeData, 'output');
+    let input = await getStateProvider(inputTypeData, 'input');
+
+    if (!input || !output) {
+        return true;
+    }
+
+    const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
+        base_type: output,
+        type: input,
+    });
+
+    return comparison.data;
+};
+
+const callBackendBasic: (
+    getMessage: string,
+    returnMessage: string,
+    data: any,
+    toastMessage?: string
+) => Promise<any> = async (getMessage, returnMessage, data, toastMessage) => {
+    // Create the unique ID for this request
+    const uniqueId: string = shortid.generate();
+    // Create new toast
+    if (toastMessage) {
+        AppToaster.show(
+            {
+                message: toastMessage || 'Request in progress',
+                intent: 'warning',
+                timeout: 30000,
+                icon: 'info-sign',
+            },
+            uniqueId
+        );
+    }
+
+    return new Promise((resolve, reject) => {
+        // Create a timeout that will reject the request
+        // after 2 minutes
+        let timeout: NodeJS.Timer | null = setTimeout(() => {
+            AppToaster.show(
+                {
+                    message: `Request ${getMessage} timed out`,
+                    intent: 'danger',
+                    timeout: 3000,
+                    icon: 'error',
+                },
+                uniqueId
+            );
+            resolve({
+                ok: false,
+                message: 'Request timed out',
+            });
+        }, 30000);
+        // Watch for the request to complete
+        // if the ID matches then resolve
+        addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
+            if (data.request_id === uniqueId) {
+                if (toastMessage || !data.ok) {
+                    AppToaster.show(
+                        {
+                            message: data.message || `Request ${getMessage} failed!`,
+                            intent: data.ok ? 'success' : 'danger',
+                            timeout: 3000,
+                            icon: data.ok ? 'small-tick' : 'error',
+                        },
+                        uniqueId
+                    );
+                }
+
+                clearTimeout(timeout);
+                timeout = null;
+                resolve(data);
+            }
+        });
+
+        // Fetch the data
+        postMessage(getMessage, {
+            request_id: uniqueId,
+            ...data,
+        });
+    });
+};
+
+export const getPipelineClosestParentOutputData = (item: any, pipelineInputProvider?: any): ITypeComparatorData => {
+    if (!item || item.type === 'start') {
+        return {
+            typeData: pipelineInputProvider,
+        };
+    }
+
+    if (item.type === 'queue') {
+        return getPipelineClosestParentOutputData(item.parent, pipelineInputProvider);
+    }
+
+    return {
+        interfaceName: item.name,
+        interfaceKind: item.type,
+    };
+};
+
+const flattenPipeline = (data, parent?: any) => {
+    return data.reduce((newData, element) => {
+        const newElement = { ...element };
+
+        if (parent) {
+            newElement.parent = parent;
+        }
+
+        if (size(newElement.children) === 0) {
+            return [...newData, newElement];
+        }
+
+        return [...newData, newElement, ...flattenPipeline(newElement.children, newElement)];
+    }, []);
+};
+
+export const checkPipelineCompatibility = async (elements, inputProvider) => {
+    const flattened = flattenPipeline(elements);
+    const newElements = [...elements];
+
+    for await (const element of flattened) {
+        if (element.type === 'queue') {
+            Promise.resolve();
+        } else {
+            const isCompatibleWithParent = await areTypesCompatible(
+                getPipelineClosestParentOutputData(element.parent, inputProvider),
+                element.type === 'start'
+                    ? {
+                          typeData: inputProvider,
+                      }
+                    : {
+                          interfaceKind: element.type,
+                          interfaceName: element.name,
+                      }
+            );
+
+            if (!isCompatibleWithParent) {
+                set(newElements, element.path, { ...omit(element, ['parent']), isCompatible: false });
+            } else {
+                set(newElements, element.path, { ...omit(element, ['parent', 'isCompatible']) });
+            }
+        }
+    }
+
+    return newElements;
+};
+
+const fetchData: (url: string, method: string, body?: { [key: string]: any }) => Promise<any> = async (
+    url,
+    method = 'GET',
+    body
+) => {
+    // Create the unique ID for this request
+    const uniqueId: string = shortid.generate();
+
+    return new Promise((resolve, reject) => {
+        // Create a timeout that will reject the request
+        // after 2 minutes
+        let timeout: NodeJS.Timer | null = setTimeout(() => {
+            reject({
+                error: true,
+                msg: 'Request timed out',
+            });
+        }, 120000);
+        // Watch for the request to complete
+        // if the ID matches then resolve
+        const listener = addMessageListener('fetch-data-complete', (data) => {
+            if (data.id === uniqueId) {
+                clearTimeout(timeout);
+                timeout = null;
+                resolve(data);
+                //* Remove the listener after the call is done
+                listener();
+            }
+        });
+        // Fetch the data
+        postMessage('fetch-data', {
+            id: uniqueId,
+            url,
+            method,
+            body,
+        });
+    });
 };
 
 export { functionOrStringExp, getType };

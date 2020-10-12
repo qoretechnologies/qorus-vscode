@@ -1,17 +1,15 @@
-import React, { useContext, useState } from 'react';
-
+import { Button, ButtonGroup, ProgressBar, Tooltip } from '@blueprintjs/core';
 import size from 'lodash/size';
+import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css, keyframes } from 'styled-components';
-
-import { Button, ButtonGroup } from '@blueprintjs/core';
-
+import Spacer from '../../../components/Spacer';
 import { ContextMenuContext } from '../../../context/contextMenu';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { IFSMState, STATE_ITEM_TYPE, IF_STATE_SIZE, STATE_HEIGHT, STATE_WIDTH } from './';
-import { getStateStyle } from './toolbarItem';
 import { insertAtIndex } from '../../../helpers/functions';
+import { IFSMState, IF_STATE_SIZE, STATE_HEIGHT, STATE_ITEM_TYPE, STATE_WIDTH } from './';
+import { getStateStyle } from './toolbarItem';
 
 export interface IFSMStateProps extends IFSMState {
     selected?: boolean;
@@ -23,8 +21,8 @@ export interface IFSMStateProps extends IFSMState {
     onTransitionOrderClick: (id: string) => any;
     startTransitionDrag: (id: string) => any;
     stopTransitionDrag: (id: string) => any;
-    selectedState?: boolean;
-    getTransitionByState: (stateId: string, id: string) => boolean;
+    selectedState?: number;
+    isAvailableForTransition: (stateId: string, id: string) => boolean;
     onExecutionOrderClick: () => void;
     id: string;
     isIsolated: boolean;
@@ -39,6 +37,7 @@ export interface IFSMStateStyleProps {
     type: 'mapper' | 'connector' | 'pipeline' | 'fsm' | 'block' | 'if';
     isAvailableForTransition: boolean;
     isIsolated: boolean;
+    isIncompatible?: boolean;
 }
 
 const wiggleAnimation = (type) => keyframes`
@@ -98,10 +97,12 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
         opacity: ${({ isIsolated }) => (isIsolated ? 0.4 : 1)};
     }
 
-    ${({ selected, initial, final }) => {
+    ${({ selected, initial, final, isIncompatible }) => {
         let color: string = '#a9a9a9';
 
-        if (selected) {
+        if (isIncompatible) {
+            color = '#d13913';
+        } else if (selected) {
             color = '#277fba';
         } else if (final) {
             color = '#81358a';
@@ -178,7 +179,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     type,
     onUpdate,
     selectedState,
-    getTransitionByState,
+    isAvailableForTransition,
     toggleDragging,
     onExecutionOrderClick,
     isIsolated,
@@ -196,9 +197,25 @@ const FSMState: React.FC<IFSMStateProps> = ({
     });
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [shouldWiggle, setShouldWiggle] = useState<boolean>(false);
+    const [isLoadingCheck, setIsLoadingCheck] = useState<boolean>(false);
     const { addMenu } = useContext(ContextMenuContext);
     const t = useContext(TextContext);
     const { qorus_instance } = useContext(InitialContext);
+
+    useEffect(() => {
+        (async () => {
+            if (selectedState) {
+                setIsLoadingCheck(true);
+                const isAvailable = await isAvailableForTransition(selectedState, id);
+                setIsLoadingCheck(false);
+                setShouldWiggle(isAvailable);
+            } else {
+                setShouldWiggle(false);
+                setIsLoadingCheck(false);
+            }
+        })();
+    }, [selectedState]);
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>, func: (id: string) => any) => {
         event.stopPropagation();
@@ -224,14 +241,15 @@ const FSMState: React.FC<IFSMStateProps> = ({
             x={position.x}
             y={position.y}
             onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
-            onClick={!selectedState ? undefined : (e) => handleClick(e, onClick)}
+            onClick={!selectedState || !shouldWiggle ? undefined : (e) => handleClick(e, onClick)}
             selected={selected}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             initial={initial}
             final={final}
             isIsolated={isIsolated}
-            isAvailableForTransition={selectedState ? !getTransitionByState(selectedState, id) : false}
+            isAvailableForTransition={shouldWiggle}
+            isIncompatible={selectedState && !shouldWiggle}
             type={action?.type || type}
             onContextMenu={(event) => {
                 event.persist();
@@ -295,17 +313,35 @@ const FSMState: React.FC<IFSMStateProps> = ({
                 });
             }}
         >
-            <StyledStateTextWrapper>
-                <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
-                <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
-                    {getStateType({ type, action, ...rest })}
-                </StyledStateAction>
-            </StyledStateTextWrapper>
+            <Tooltip
+                intent="warning"
+                content={type === 'block' && !qorus_instance ? t('CannotManageBlock') : undefined}
+            >
+                <StyledStateTextWrapper>
+                    {isLoadingCheck ? (
+                        <>
+                            <StyledStateName style={{ fontSize: '12px' }}>
+                                {t('LoadingCompatibilityCheck')}
+                            </StyledStateName>
+                            <Spacer size={6} />
+                            <ProgressBar intent="primary" />
+                        </>
+                    ) : (
+                        <>
+                            <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
+                            <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
+                                {getStateType({ type, action, ...rest })}
+                            </StyledStateAction>
+                        </>
+                    )}
+                </StyledStateTextWrapper>
+            </Tooltip>
             {isHovered && !isDragging ? (
                 <ButtonGroup minimal style={{ position: 'absolute', top: '-30px' }}>
                     <Button
                         icon="edit"
                         disabled={type === 'block' && !qorus_instance}
+                        title={type === 'block' && !qorus_instance ? t('CannotManageBlock') : t('Edit')}
                         intent="warning"
                         onClick={(e) => handleClick(e, onEditClick)}
                     />

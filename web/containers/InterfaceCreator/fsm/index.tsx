@@ -1,43 +1,42 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-
+import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
+import forEach from 'lodash/forEach';
+import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import maxBy from 'lodash/maxBy';
 import reduce from 'lodash/reduce';
-import dropRight from 'lodash/dropRight';
 import size from 'lodash/size';
-import forEach from 'lodash/forEach';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDrop, XYCoord } from 'react-dnd';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-
 import Field from '../../../components/Field';
 import FileString from '../../../components/Field/fileString';
 import MultiSelect from '../../../components/Field/multiSelect';
 import String from '../../../components/Field/string';
 import FieldLabel from '../../../components/FieldLabel';
+import Loader from '../../../components/Loader';
+import Spacer from '../../../components/Spacer';
+import { AppToaster } from '../../../components/Toast';
 import { Messages } from '../../../constants/messages';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
+import { areTypesCompatible, isStateIsolated, ITypeComparatorData } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
 import FSMDiagramWrapper from './diagramWrapper';
+import FSMInitialOrderDialog from './initialOrderDialog';
 import FSMState from './state';
 import FSMStateDialog, { TAction } from './stateDialog';
 import FSMToolbarItem from './toolbarItem';
 import FSMTransitionDialog from './transitionDialog';
 import FSMTransitionOrderDialog from './transitionOrderDialog';
-import FieldGroup from '../../../components/FieldGroup';
-import FSMInitialOrderDialog from './initialOrderDialog';
-import { isStateIsolated } from '../../../helpers/functions';
 
 export interface IFSMViewProps {
     onSubmitSuccess: (data: any) => any;
@@ -137,6 +136,15 @@ const StyledDiagram = styled.div<{ path: string }>`
     box-shadow: inset 10px 10px 80px -50px red, inset -10px -10px 80px -50px red;
 `;
 
+export const StyledCompatibilityLoader = styled.div`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 2000;
+    opacity: 0.6;
+`;
+
 const StyledFSMLine = styled.line`
     transition: all 0.2s linear;
     cursor: pointer;
@@ -178,6 +186,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
 
     const wrapperRef = useRef(null);
     const fieldsWrapperRef = useRef(null);
+    const showTransitionsToaster = useRef(0);
     const currentXPan = useRef<number>();
     const currentYPan = useRef<number>();
     const changeHistory = useRef<string[]>([]);
@@ -197,6 +206,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
         groups: fsm?.groups || [],
     });
     const [selectedState, setSelectedState] = useState<string | null>(null);
+    const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
     const [editingState, setEditingState] = useState<string | null>(null);
     const [editingTransition, setEditingTransition] = useState<{ stateId: number; index: number }[] | null>([]);
     const [editingTransitionOrder, setEditingTransitionOrder] = useState<number | null>(null);
@@ -327,17 +337,32 @@ const FSMView: React.FC<IFSMViewProps> = ({
         if (!embedded) {
             setFsmReset(() => reset);
         }
-        const { width, height } = wrapperRef.current.getBoundingClientRect();
+    });
 
-        updateHistory(embedded ? states : cloneDeep(fsm?.states || {}));
+    useEffect(() => {
+        if (qorus_instance) {
+            let newStates = embedded ? states : cloneDeep(fsm?.states || {});
 
-        currentXPan.current = 0;
-        currentYPan.current = 0;
+            (async () => {
+                for await (const [stateId] of Object.entries(states)) {
+                    newStates = await fixIncomptibleStates(stateId, newStates);
+                }
 
-        setWrapperDimensions({ width, height });
+                updateHistory(newStates);
+                setStates(newStates);
+                setCompatibilityChecked(true);
+            })();
 
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
+            const { width, height } = wrapperRef.current.getBoundingClientRect();
+
+            currentXPan.current = 0;
+            currentYPan.current = 0;
+
+            setWrapperDimensions({ width, height });
+
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('keyup', handleKeyUp);
+        }
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
@@ -346,7 +371,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 setFsmReset(null);
             }
         };
-    });
+    }, [qorus_instance]);
 
     useEffect(() => {
         if (states && onStatesChange) {
@@ -375,6 +400,50 @@ const FSMView: React.FC<IFSMViewProps> = ({
         const { transitions } = states[stateId];
 
         return transitions?.find((transition) => transition.state === targetId);
+    };
+
+    const getStateDataForComparison = (
+        state: IFSMState,
+        providerType: 'input' | 'output'
+    ): ITypeComparatorData | null => {
+        if (state.action) {
+            const { type, value } = state.action;
+
+            return {
+                interfaceName: type === 'connector' ? value.class : value,
+                interfaceKind: type,
+                connectorName: type === 'connector' ? value.connector : undefined,
+                typeData: state[`${providerType}-type`] || state['input-output-type'],
+            };
+        }
+
+        if (!state[`${providerType}-type`] && !state['input-output-type']) {
+            return null;
+        }
+
+        return {
+            typeData: state[`${providerType}-type`] || state['input-output-type'],
+        };
+    };
+
+    const areStatesCompatible = async (
+        stateId: string,
+        targetId: string,
+        localStates: IFSMStates = states
+    ): Promise<boolean> => {
+        const outputState = localStates[stateId];
+        const inputState = localStates[targetId];
+
+        const compatible = await areTypesCompatible(
+            getStateDataForComparison(outputState, 'output'),
+            getStateDataForComparison(inputState, 'input')
+        );
+
+        return compatible;
+    };
+
+    const isAvailableForTransition = async (stateId: string, targetId: string): Promise<boolean> => {
+        return (await areStatesCompatible(stateId, targetId)) && !getTransitionByState(stateId, targetId);
     };
 
     const handleStateClick = (id: string): void => {
@@ -429,21 +498,65 @@ const FSMView: React.FC<IFSMViewProps> = ({
         }
     };
 
-    const updateStateData = (id: number, data: IFSMState) => {
-        setStates(
-            (cur: IFSMStates): IFSMStates => {
-                const newStates = { ...cur };
+    const fixIncomptibleStates = async (id: string, localStates: IFSMStates, onFinish?: () => any) => {
+        const newStates = { ...localStates };
 
-                newStates[id] = {
-                    ...newStates[id],
-                    ...data,
-                };
-
-                updateHistory(newStates);
-
-                return newStates;
+        for await (const [stateId, state] of Object.entries(newStates)) {
+            if (
+                !state.transitions ||
+                size(state.transitions) === 0 ||
+                !state.transitions.find((transitions) => transitions.state === id)
+            ) {
+                Promise.resolve();
+            } else {
+                // Check if this state is compatible with the modified state
+                const isCompatible = await areStatesCompatible(stateId, id, newStates);
+                // Is compatible no change needed
+                if (!isCompatible) {
+                    showTransitionsToaster.current += 1;
+                    // Filter out any transitions
+                    newStates[stateId].transitions = state.transitions.filter((transition) => transition.state !== id);
+                }
             }
-        );
+        }
+
+        if (onFinish) {
+            onFinish();
+        }
+
+        return newStates;
+    };
+
+    const updateStateData = async (id: string, data: IFSMState) => {
+        let fixedStates: IFSMStates = { ...states };
+
+        fixedStates[id] = {
+            ...fixedStates[id],
+            ...data,
+        };
+
+        if (data.type !== states[id].type || !isEqual(data.action, states[id].action)) {
+            if (size(fixedStates[id].transitions)) {
+                const newTransitions = [];
+
+                for await (const transition of fixedStates[id].transitions) {
+                    const isCompatible = await areStatesCompatible(id, transition.state, fixedStates);
+
+                    if (isCompatible) {
+                        newTransitions.push(transition);
+                    } else {
+                        showTransitionsToaster.current += 1;
+                    }
+                }
+
+                fixedStates[id].transitions = newTransitions;
+            }
+
+            fixedStates = await fixIncomptibleStates(id, fixedStates);
+        }
+
+        updateHistory(fixedStates);
+        setStates(fixedStates);
         setEditingState(null);
     };
 
@@ -682,14 +795,33 @@ const FSMView: React.FC<IFSMViewProps> = ({
     };
 
     const calculateMargin = () => (zoom - 1) * 1000;
-    const { width = 0, height = 0 } = wrapperRef?.current?.getBoundingClientRect() || {};
-
     const getIsMetadataHidden = () => {
         return embedded ? isExternalMetadataHidden : isMetadataHidden;
     };
 
+    if (!qorus_instance) {
+        return (
+            <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
+                {t('NoInstance')}
+            </Callout>
+        );
+    }
+
+    if (showTransitionsToaster.current) {
+        AppToaster.show({
+            message: `${showTransitionsToaster.current} ${t('IncompatibleTransitionsRemoved')}`,
+            intent: 'warning',
+        });
+        showTransitionsToaster.current = 0;
+    }
+
     return (
         <>
+            {!compatibilityChecked && (
+                <StyledCompatibilityLoader>
+                    <Loader text={t('CheckingCompatibility')} />
+                </StyledCompatibilityLoader>
+            )}
             <div ref={fieldsWrapperRef} id="fsm-fields-wrapper">
                 {!isMetadataHidden && (
                     <>
@@ -839,9 +971,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
                 />
             ) : null}
             {selectedState ? (
-                <Callout icon="info-sign" intent="primary">
-                    {t('FSMSelectTargetState')}
-                </Callout>
+                <>
+                    <Callout icon="info-sign" intent="primary">
+                        {t('FSMSelectTargetState')}
+                    </Callout>
+                    <Spacer size={10} />
+                </>
             ) : (
                 <StyledToolbarWrapper id="fsm-toolbar">
                     <FSMToolbarItem
@@ -951,7 +1086,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                     onEditClick={handleStateEditClick}
                                     onDeleteClick={handleStateDeleteClick}
                                     selectedState={selectedState}
-                                    getTransitionByState={getTransitionByState}
+                                    isAvailableForTransition={isAvailableForTransition}
                                     toggleDragging={setIsHoldingShiftKey}
                                     onTransitionOrderClick={(id) => setEditingTransitionOrder(id)}
                                     onExecutionOrderClick={() => setEditingInitialOrder(true)}
