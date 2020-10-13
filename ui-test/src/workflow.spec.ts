@@ -1,7 +1,7 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 
 import { setupWebview } from './common/utils';
-import { createWorkflow, openCreateWorkflow } from './tests/workflow';
+import { createWorkflow, openCreateWorkflow, checkFiles } from './tests/workflow';
 
 describe('Workflow tests', function () {
     this.timeout(1800000);
@@ -18,7 +18,8 @@ describe('Workflow tests', function () {
 
     // create workflow tests
     it('Opens workflow create page', () => openCreateWorkflow(webview));
-    it('Can create workflow', () => createWorkflow(webview, editorView, project_folder));
+    it('Can create workflow', () => createWorkflow(webview, editorView));
+    it('Check files', () => checkFiles(project_folder));
 
     // Reset the workbench
     this.afterAll(async () => {

@@ -28,7 +28,7 @@ export const openCreateWorkflow = async (webview: WebView) => {
     expect(await getSelectedFields(webview)).to.have.length(4);
 };
 
-export const createWorkflow = async (webview: WebView, editorView: EditorView, project_folder: string) => {
+export const createWorkflow = async (webview: WebView, editorView: EditorView) => {
     // Submit disabled by default
     expect(await getElementAttribute(webview, 'interface-creator-submit-workflow', 'disabled')).to.equal('true');
 
@@ -79,10 +79,11 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView, p
     await webview.switchBack();
 
     const titles = await editorView.getOpenEditorTitles();
-
     expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
+};
 
-    await compareWithGoldFiles(path.join(project_folder, 'arpm'), [
+export const checkFiles = async (project_folder: string) => {
+    compareWithGoldFiles(path.join(project_folder, 'arpm'), [
         'Step test-1.0.qstep.yaml',
         'Step test-1.0.qstep',
         'Workflow test-1.0.qwf.yaml',
