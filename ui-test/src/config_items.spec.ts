@@ -23,7 +23,7 @@ describe('Config Items Tests', function() {
 //    it('Edit interface', () => editInterface(webview, workbench, project_folder));
 
     this.afterAll(async () => {
-        await webview.switchBack();
-        await editorView.closeAllEditors();
+        webview.switchBack();
+        editorView.closeAllEditors();
     });
 });

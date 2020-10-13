@@ -19,11 +19,10 @@ describe('FSM tests', function() {
 
     it('Login', () => login(webview));
     it('Opens FSM create page', () => openFSMPage(webview));
-    //it('Can create an FSM', () => createWorkflow(webview, editorView, project_folder));
 
     // Reset the workbench
     this.afterAll(async () => {
-        await webview.switchBack();
-        await editorView.closeAllEditors();
+        webview.switchBack();
+        editorView.closeAllEditors();
     });
 });

@@ -20,8 +20,8 @@ describe('Mapper Tests', function () {
     it('Login', () => login(webview));
     it('Create mapper', () => createMapper(webview));
     it('Check file', () => checkFile(project_folder, 0));
-    it('Edit mapper', () => editMapper(webview, workbench, project_folder));
-    it('Check changed file', () => checkFile(project_folder, 1));
+//    it('Edit mapper', () => editMapper(webview, workbench, project_folder));
+//    it('Check changed file', () => checkFile(project_folder, 1));
 
     this.afterAll(async () => {
         webview.switchBack();
