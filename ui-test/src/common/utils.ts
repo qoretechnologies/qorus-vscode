@@ -162,6 +162,7 @@ export const getElementAttribute = async (
 };
 
 export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
+
     await sleep(500);
 
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
@@ -173,9 +174,18 @@ export const compareWithGoldFiles = async (folder: string, files: string[], gold
         if (!file_exists) {
             return;
         }
-        const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, gold_files_subfolder, file_name));
+
+        const gold_file_path = path.join(gold_files_folder, gold_files_subfolder, file_name);
+        const expected_file_contents = fs.readFileSync(gold_file_path);
         const true_file_contents = fs.readFileSync(file_path);
-        expect(true_file_contents).to.eql(expected_file_contents);
+
+        if (path.extname(file_name) === '.yaml') {
+            const expected_file_data = jsyaml.safeLoad(expected_file_contents.toString());
+            const true_file_data = jsyaml.safeLoad(true_file_contents.toString());
+            expect(deepEqual(expected_file_data, true_file_data)).to.be.true;
+        } else {
+            expect(true_file_contents).to.eql(expected_file_contents);
+        }
     };
 
     files.forEach((file) => compare(file));
