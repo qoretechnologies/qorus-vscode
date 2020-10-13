@@ -175,6 +175,61 @@ export const areTypesCompatible = async (
     return comparison.data;
 };
 
+export const areConnectorsCompatible = async (
+    type: 'input' | 'output',
+    value: string,
+    data: any,
+    isMapper?: boolean
+) => {
+    // First check if this input is compatible with previous output
+    const currentInputOutput: ITypeComparatorData = isMapper
+        ? {
+              interfaceKind: 'mapper',
+              interfaceName: value,
+          }
+        : {
+              interfaceKind: 'connector',
+              interfaceName: data.class,
+              connectorName: value,
+          };
+
+    let item;
+    let mapper;
+
+    if (isMapper) {
+        item = type === 'input' ? data.previousItemData : data.nextItemData;
+        mapper = null;
+    } else {
+        item = type === 'input' ? data.previousItemData : data.nextItemData;
+        mapper = type === 'input' ? data.mapper : data.nextItemData?.mapper;
+    }
+
+    let isCompatibleWithItem;
+
+    if (item) {
+        const comparator: ITypeComparatorData = mapper
+            ? {
+                  interfaceKind: 'mapper',
+                  interfaceName: mapper,
+              }
+            : {
+                  interfaceKind: 'connector',
+                  interfaceName: item.class,
+                  connectorName: item.connector,
+              };
+
+        isCompatibleWithItem = await areTypesCompatible(
+            type === 'input' ? comparator : currentInputOutput,
+            type === 'input' ? currentInputOutput : comparator
+        );
+    } else {
+        isCompatibleWithItem = true;
+        Promise.resolve();
+    }
+
+    return isCompatibleWithItem ? true : false;
+};
+
 const callBackendBasic: (
     getMessage: string,
     returnMessage: string,

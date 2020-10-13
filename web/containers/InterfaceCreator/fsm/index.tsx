@@ -409,12 +409,18 @@ const FSMView: React.FC<IFSMViewProps> = ({
         if (state.action) {
             const { type, value } = state.action;
 
-            return {
+            const obj = {
                 interfaceName: type === 'connector' ? value.class : value,
                 interfaceKind: type,
                 connectorName: type === 'connector' ? value.connector : undefined,
                 typeData: state[`${providerType}-type`] || state['input-output-type'],
             };
+
+            if (!obj.typeData) {
+                delete obj.typeData;
+            }
+
+            return obj;
         }
 
         if (!state[`${providerType}-type`] && !state['input-output-type']) {
