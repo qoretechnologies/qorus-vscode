@@ -10,22 +10,20 @@ export const setupWebview = async () => {
     const workbench = new Workbench();
     const editorView = new EditorView();
 
-    await sleep(3000);
+    await sleep(8000);
 
     await workbench.executeCommand('Qorus: Open Webview');
 
     let isWebviewOpen = false;
 
     while (!isWebviewOpen) {
+        await sleep(1000);
         isWebviewOpen = (await editorView.getOpenEditorTitles()).includes('Qorus Webview');
     }
 
     await sleep(1000);
 
     const webview = await new WebView(editorView, 'Qorus Webview');
-    const notificationsCenter = await workbench.openNotificationsCenter();
-    await notificationsCenter.clearAllNotifications();
-
     await webview.wait();
     await webview.switchToFrame();
 

@@ -16,12 +16,7 @@ describe('Environments page test', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-
-        const extestHelpers = await setupWebview();
-
-        workbench = extestHelpers.workbench;
-        editorView = extestHelpers.editorView;
-        webview = extestHelpers.webview;
+        ({ workbench, editorView, webview } = await setupWebview());
     });
 
     it('Shows environment page', () => openEnvironmentPage(webview));
