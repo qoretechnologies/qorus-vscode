@@ -161,6 +161,43 @@ export const getElementAttribute = async (
     return await (await getNthElement(webview, elementName, position, selector)).getAttribute(attribute);
 };
 
+const isObject = (obj: any): boolean => obj && typeof obj === 'object' && !Array.isArray(obj);
+
+const deepEqual = (obj1: any, obj2: any): boolean => {
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    if (keys1.length !== keys2.length) {
+        return false;
+    }
+
+    for (const key of keys1) {
+        const val1 = obj1[key];
+        const val2 = obj2[key];
+
+        if (isObject(val1)) {
+            if (!isObject(val2) || !deepEqual(val1, val2)) {
+                return false;
+            }
+        } else if (Array.isArray(val1)) {
+            if (!Array.isArray(val2) || val2.length !== val1.length) {
+                return false;
+            }
+            for (let i = 0; i < val1.length; i++) {
+                if (!deepEqual(val1[i], val2[i])) {
+                    return false;
+                }
+            }
+        } else {
+            if (val1 !== val2) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+};
+
 export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
 
     await sleep(500);
