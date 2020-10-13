@@ -4,7 +4,7 @@ import { setupWebview } from './common/utils';
 import { login } from './tests/login';
 import { openFSMPage } from './tests/fsm';
 
-describe('FSM tests', function () {
+describe('FSM tests', function() {
     this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
@@ -14,9 +14,7 @@ describe('FSM tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-
         ({ workbench, editorView, webview } = await setupWebview());
-        const extestHelpers = await setupWebview();
     });
 
     it('Login', () => login(webview));
@@ -25,7 +23,7 @@ describe('FSM tests', function () {
 
     // Reset the workbench
     this.afterAll(async () => {
-        webview.switchBack();
-        editorView.closeAllEditors();
+        await webview.switchBack();
+        await editorView.closeAllEditors();
     });
 });
