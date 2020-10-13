@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as jsyaml from 'js-yaml';
 import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
 
 type TSelector = 'id' | 'name' | 'className';
