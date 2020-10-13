@@ -10,16 +10,24 @@ describe('@ Setup tests', function () {
     before(async () => {
         const driver = VSBrowser.instance.driver;
         const workbench = new Workbench();
-        await sleep(3000);
+        let input: InputBox;
+
+        await sleep(8000);
+
         await workbench.executeCommand('Extest: Open Folder');
-        const input: InputBox = await InputBox.create();
+
+        await sleep(1000);
+
+        input = await new InputBox();
+
+        await input.wait();
         await input.setText(project_folder);
         await input.confirm();
 
-        await sleep(8000);
+        await sleep(5000);
     });
 
-    it('Adds a folder to workspace', async () => {
+    it('Adds a folder to workspace', () => {
         expect(true).to.be.true;
     });
 });

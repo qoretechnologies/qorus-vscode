@@ -9,5 +9,5 @@ config-items:
   - name: test-config-item-2
     default_value:
         "default text"
-    description: test config item of a base class
     config_group: test
+    description: test config item of a base class

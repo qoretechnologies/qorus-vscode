@@ -1,7 +1,7 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 
-import { setupExtest } from './common/utils';
-import { login } from './tests/login';
+import { setupWebview } from './common/utils';
+import { createWorkflow, openCreateWorkflow } from './tests/workflow';
 import { openFSMPage } from './tests/fsm';
 
 describe('FSM tests', function () {
@@ -14,11 +14,17 @@ describe('FSM tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupExtest());
+
+        const extestHelpers = await setupWebview();
+
+        workbench = extestHelpers.workbench;
+        editorView = extestHelpers.editorView;
+        webview = extestHelpers.webview;
     });
 
-    it('Login', async () => login(webview));
-    it('Opens FSM create page', async () => openFSMPage(webview));
+    // create workflow tests
+    it('Opens FSM create page', () => openFSMPage(webview));
+    //it('Can create an FSM', () => createWorkflow(webview, editorView, project_folder));
 
     // Reset the workbench
     this.afterAll(async () => {

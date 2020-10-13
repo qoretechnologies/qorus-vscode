@@ -1,59 +1,61 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as jsyaml from 'js-yaml';
 import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
 
 type TSelector = 'id' | 'name' | 'className';
 
-const getWebview = async (editorView: EditorView) => {
+export const setupWebview = async () => {
+    const workbench = new Workbench();
+    const editorView = new EditorView();
+
+    await sleep(3000);
+
+    await workbench.executeCommand('Qorus: Open Webview');
+
     let isWebviewOpen = false;
 
     while (!isWebviewOpen) {
-        await sleep(1000);
         isWebviewOpen = (await editorView.getOpenEditorTitles()).includes('Qorus Webview');
     }
 
-    await sleep(3000);
+    await sleep(1000);
+
     const webview = await new WebView(editorView, 'Qorus Webview');
+    const notificationsCenter = await workbench.openNotificationsCenter();
+    await notificationsCenter.clearAllNotifications();
+
     await webview.wait();
     await webview.switchToFrame();
 
-    return webview;
-};
-
-export const setupExtest = async (): Promise<any> => {
-    const workbench = new Workbench();
-    await workbench.executeCommand('Qorus: Open Webview');
     await sleep(3000);
 
-    const editorView = new EditorView();
-    const webview = await getWebview(editorView);
-    await sleep(3000);
-
-//    const notificationsCenter = await workbench.openNotificationsCenter();
-//    await notificationsCenter.clearAllNotifications();
-
-    return { workbench, editorView, webview };
+    return {
+        workbench,
+        editorView,
+        webview,
+    };
 };
 
 // file_path: absolute path of the interface's yaml file or source file
-export const openInterface = async (workbench: Workbench, editorView: EditorView, file_path: string) => {
+export const openInterface = async (webview: WebView, workbench: Workbench, file_path: string) => {
+    await webview.switchBack();
+
     await workbench.executeCommand('Extest: Open File');
-//    await sleep(5000);
-    const input: InputBox = await InputBox.create();
+    await sleep(1000);
+    const input: InputBox = await new InputBox();
+    await input.wait();
     await input.setText(file_path);
     await input.confirm();
 
-    await sleep(8000);
+    await sleep(2000);
     await workbench.executeCommand('Qorus: Edit Current Interface');
     await sleep(2000);
-    const webview = await getWebview(editorView);
     await webview.switchToFrame();
-    return webview;
+    await sleep(2000);
 };
 
-export const sleep = async (ms: number) => {
+export const sleep = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
@@ -81,10 +83,6 @@ export const clickElement = async (
 
 export const fillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1) => {
     await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
-};
-
-export const eraseTextField = async (webview: WebView, name: string, position: number = 1, length: number = 50) => {
-    await fillTextField(webview, name, '\b'.repeat(length), position);
 };
 
 export const resetTextField = async (webview: WebView, name: string, position: number = 1) => {
@@ -163,45 +161,7 @@ export const getElementAttribute = async (
     return await (await getNthElement(webview, elementName, position, selector)).getAttribute(attribute);
 };
 
-const isObject = (obj: any): boolean => obj && typeof obj === 'object' && !Array.isArray(obj);
-
-const deepEqual = (obj1: any, obj2: any): boolean => {
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-
-    if (keys1.length !== keys2.length) {
-        return false;
-    }
-
-    for (const key of keys1) {
-        const val1 = obj1[key];
-        const val2 = obj2[key];
-
-        if (isObject(val1)) {
-            if (!isObject(val2) || !deepEqual(val1, val2)) {
-                return false;
-            }
-        } else if (Array.isArray(val1)) {
-            if (!Array.isArray(val2) || val2.length !== val1.length) {
-                return false;
-            }
-            for (let i = 0; i < val1.length; i++) {
-                if (!deepEqual(val1[i], val2[i])) {
-                    return false;
-                }
-            }
-        } else {
-            if (val1 !== val2) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-};
-
 export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
-
     await sleep(500);
 
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
@@ -213,18 +173,9 @@ export const compareWithGoldFiles = async (folder: string, files: string[], gold
         if (!file_exists) {
             return;
         }
-
-        const gold_file_path = path.join(gold_files_folder, gold_files_subfolder, file_name);
-        const expected_file_contents = fs.readFileSync(gold_file_path);
+        const expected_file_contents = fs.readFileSync(path.join(gold_files_folder, gold_files_subfolder, file_name));
         const true_file_contents = fs.readFileSync(file_path);
-
-        if (path.extname(file_name) === '.yaml') {
-            const expected_file_data = jsyaml.safeLoad(expected_file_contents.toString());
-            const true_file_data = jsyaml.safeLoad(true_file_contents.toString());
-            expect(deepEqual(expected_file_data, true_file_data)).to.be.true;
-        } else {
-            expect(true_file_contents).to.eql(expected_file_contents);
-        }
+        expect(true_file_contents).to.eql(expected_file_contents);
     };
 
     files.forEach((file) => compare(file));

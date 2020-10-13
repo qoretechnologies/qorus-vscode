@@ -163,7 +163,7 @@ export const createService = async (webview: WebView, editorView: EditorView) =>
 };
 
 export const checkFiles = async (project_folder: string) => {
-    await compareWithGoldFiles(path.join(project_folder, target_dir), [
+    compareWithGoldFiles(path.join(project_folder, target_dir), [
         'ServiceClassWithConfigItems-1.2.qclass',
         'ServiceClassWithConfigItems-1.2.qclass.yaml',
         'ClassWithConfigItems-1.3.qclass',
@@ -173,11 +173,10 @@ export const checkFiles = async (project_folder: string) => {
     ]);
 };
 
-export const editInterface = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
+export const editInterface = async (webview: WebView, workbench: Workbench, project_folder: string) => {
     await sleep(1000);
-    const webview = await openInterface(workbench, editorView, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
+    await openInterface(webview, workbench, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
     await sleep(4000);
-    return webview;
     // more to do
 };
 
