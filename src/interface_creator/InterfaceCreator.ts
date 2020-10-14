@@ -158,16 +158,12 @@ export abstract class InterfaceCreator {
     protected writeYamlFile(headers: string, file_path?: string): any  {
         const generated_file_info = "# This is a generated file, don't edit!\n";
         file_path = file_path || this.yaml_file_path;
-        msg.log('writeYamlFile ' + file_path);
-        console.log('writeYamlFile ' + file_path);
 
         try {
             fs.writeFileSync(file_path, generated_file_info + headers);
         } catch (err) {
             const message = t`WriteFileError ${file_path} ${err.toString()}`;
             msg.error(message);
-            console.log('error ' + message);
-            msg.log('error ' + message);
             return { ok: false, message };
         }
 
@@ -175,7 +171,6 @@ export abstract class InterfaceCreator {
     }
 
     protected writeFiles(contents: string, headers: string): any {
-        msg.log('aaaaaaaaaaaaaa');
         contents = contents.replace(/(\t| )+\n/g, '\n');
         while (contents.match(/\n\n\n/)) {
             contents = contents.replace(/\n\n\n/g, '\n\n');
@@ -192,8 +187,6 @@ export abstract class InterfaceCreator {
 
         try {
             const true_target_dir = path.join(this.target_dir, this.target_subdir);
-            console.log('true_target_dir ' + true_target_dir);
-            msg.log('true_target_dir ' + true_target_dir);
             if (!fs.existsSync(true_target_dir)) {
                 fs.mkdirSync(true_target_dir);
             }

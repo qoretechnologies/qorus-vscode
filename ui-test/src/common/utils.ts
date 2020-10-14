@@ -203,13 +203,9 @@ export const compareWithGoldFiles = async (folder: string, files: string[], gold
 
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
 
-    console.log('gold_files_folder: ' + gold_files_folder);
     const compare = (file_name: string) => {
-        console.log('file_name: ' + file_name);
         const file_path = path.join(folder, file_name);
-        console.log('file_path: ' + file_path);
         const file_exists = fs.existsSync(file_path);
-        console.log('file_exists: ' + file_exists.toString());
         expect(file_exists).to.be.true;
         if (!file_exists) {
             return;

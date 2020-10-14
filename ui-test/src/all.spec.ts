@@ -19,7 +19,6 @@ describe('Qorus IDE Tests', function() {
 
 
     before(async () => {
-        console.log('project_folder ' + project_folder);
         browser = VSBrowser.instance;
         driver = browser.driver;
         workbench = new Workbench();
