@@ -163,6 +163,7 @@ export const createService = async (webview: WebView, editorView: EditorView) =>
 };
 
 export const checkFiles = async (project_folder: string) => {
+    await webview.switchBack();
     await sleep(3000);
     await compareWithGoldFiles(path.join(project_folder, target_dir), [
         'ServiceClassWithConfigItems-1.2.qclass',

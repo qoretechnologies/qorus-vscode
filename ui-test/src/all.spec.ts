@@ -54,7 +54,7 @@ describe('Qorus IDE Tests', function() {
     it('Create service class', async () => createServiceClass(webview));
     it('Create class', async () => createClass(webview, editorView));
     it('Create service', async () => createService(webview, editorView));
-    it('Check files', async () => checkFiles(project_folder));
+//    it('Check files', async () => checkFiles(project_folder));
     it('Edit interface', async () => editInterface(webview, workbench, project_folder));
 
     // environments

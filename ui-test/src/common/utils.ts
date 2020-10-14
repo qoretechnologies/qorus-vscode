@@ -198,9 +198,6 @@ const deepEqual = (obj1: any, obj2: any): boolean => {
 };
 
 export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
-
-    await sleep(500);
-
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
 
     const compare = (file_name: string) => {
