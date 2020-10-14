@@ -158,12 +158,14 @@ export abstract class InterfaceCreator {
     protected writeYamlFile(headers: string, file_path?: string): any  {
         const generated_file_info = "# This is a generated file, don't edit!\n";
         file_path = file_path || this.yaml_file_path;
+        console.log('writeYamlFile ' + file_path);
 
         try {
             fs.writeFileSync(file_path, generated_file_info + headers);
         } catch (err) {
             const message = t`WriteFileError ${file_path} ${err.toString()}`;
             msg.error(message);
+            console.log('error ' + message);
             return { ok: false, message };
         }
 
