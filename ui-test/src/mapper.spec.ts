@@ -2,9 +2,9 @@ import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-ext
 
 import { setupWebview } from './common/utils';
 import { login } from './tests/login';
-import { openFSMPage } from './tests/fsm';
+import { createMapper, checkFile, editMapper } from './tests/mapper';
 
-describe('FSM tests', function () {
+describe('Mapper Tests', function () {
     this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
@@ -17,10 +17,12 @@ describe('FSM tests', function () {
         ({ workbench, editorView, webview } = await setupWebview());
     });
 
-    it('Login', async () => login(webview));
-    it('Opens FSM create page', () => openFSMPage(webview));
+    it('Login', () => login(webview));
+    it('Create mapper', () => createMapper(webview));
+    it('Check file', () => checkFile(project_folder, 0));
+//    it('Edit mapper', () => editMapper(webview, workbench, project_folder));
+//    it('Check changed file', () => checkFile(project_folder, 1));
 
-    // Reset the workbench
     this.afterAll(async () => {
         webview.switchBack();
         editorView.closeAllEditors();
