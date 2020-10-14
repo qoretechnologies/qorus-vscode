@@ -16,10 +16,10 @@ describe('Qorus IDE Tests', function() {
     let editorView: EditorView;
     let webview: WebView;
     const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
-    console.log('project_folder ' + project_folder);
 
 
     before(async () => {
+        console.log('project_folder ' + project_folder);
         browser = VSBrowser.instance;
         driver = browser.driver;
         workbench = new Workbench();
