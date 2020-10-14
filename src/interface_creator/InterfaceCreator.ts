@@ -187,6 +187,7 @@ export abstract class InterfaceCreator {
 
         try {
             const true_target_dir = path.join(this.target_dir, this.target_subdir);
+            console.log('true_target_dir ' + true_target_dir);
             if (!fs.existsSync(true_target_dir)) {
                 fs.mkdirSync(true_target_dir);
             }
