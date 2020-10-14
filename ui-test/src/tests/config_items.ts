@@ -164,7 +164,7 @@ export const createService = async (webview: WebView, editorView: EditorView) =>
 
 export const checkFiles = async (project_folder: string) => {
     await sleep(3000);
-    compareWithGoldFiles(path.join(project_folder, target_dir), [
+    await compareWithGoldFiles(path.join(project_folder, target_dir), [
         'ServiceClassWithConfigItems-1.2.qclass',
         'ServiceClassWithConfigItems-1.2.qclass.yaml',
         'ClassWithConfigItems-1.3.qclass',
