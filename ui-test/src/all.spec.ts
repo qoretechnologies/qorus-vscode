@@ -7,7 +7,7 @@ import {
     editInstance, openEnvironmentPage, renameEnvironment
 } from './tests/environments';
 
-describe('Config Items Tests', function() {
+describe('Qorus IDE Tests', function() {
     this.timeout(1800000);
     let browser: VSBrowser;
     let driver: WebDriver;
