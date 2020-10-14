@@ -43,7 +43,7 @@ describe('Qorus IDE Tests', function() {
 
         await sleep(1000);
 
-        const webview = await new WebView(editorView, 'Qorus Webview');
+        webview = await new WebView(editorView, 'Qorus Webview');
         await webview.wait();
         await webview.switchToFrame();
 
