@@ -17,8 +17,8 @@ describe('FSM tests', function () {
         ({ workbench, editorView, webview } = await setupWebview());
     });
 
-    it('Login', async () => login(webview));
-    it('Opens FSM create page', () => openFSMPage(webview));
+    it('Login', () => login(webview));
+//    it('Opens FSM create page', () => openFSMPage(webview));
 
     // Reset the workbench
     this.afterAll(async () => {
