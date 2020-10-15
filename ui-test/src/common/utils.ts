@@ -36,9 +36,7 @@ export const setupWebview = async (): Promise<any> => {
 };
 
 // file_path: absolute path of the interface's yaml file or source file
-export const openInterface = async (webview: WebView, workbench: Workbench, file_path: string) => {
-    await webview.switchBack();
-
+export const openInterface = async (workbench: Workbench, editorView: EditorView, file_path: string) => {
     await workbench.executeCommand('Extest: Open File');
     await sleep(1000);
     const input: InputBox = await new InputBox();
@@ -48,9 +46,10 @@ export const openInterface = async (webview: WebView, workbench: Workbench, file
 
     await sleep(5000);
     await workbench.executeCommand('Qorus: Edit Current Interface');
+    await sleep(4000);
+    const webview: WebView = await getWebview(editorView);
     await sleep(2000);
-    await webview.switchToFrame();
-    await sleep(2000);
+    return webview;
 };
 
 export const sleep = (ms: number) => {

@@ -19,7 +19,7 @@ describe('Config Items Tests', function () {
     it('Create class', () => createClass(webview, editorView));
     it('Create service', () => createService(webview, editorView));
     it('Check files', () => checkFiles(project_folder));
-    it('Edit interface', () => editInterface(webview, workbench, project_folder));
+    it('Edit interface', () => editInterface(workbench, editorView, project_folder));
 
     this.afterAll(async () => {
         await webview.switchBack();

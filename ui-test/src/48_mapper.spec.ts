@@ -17,7 +17,7 @@ describe('Mapper Tests', function () {
 
     it('Create mapper', () => createMapper(webview));
     it('Check file', () => checkFile(project_folder, 0));
-//    it('Edit mapper', () => editMapper(webview, workbench, project_folder));
+//    it('Edit mapper', () => editMapper(workbench, editorView, project_folder));
 //    it('Check changed file', () => checkFile(project_folder, 1));
 
     this.afterAll(async () => {
