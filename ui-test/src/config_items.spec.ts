@@ -1,9 +1,8 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-
 import { setupWebview } from './common/utils';
 import { checkFiles, createClass, createService, createServiceClass, editInterface } from './tests/config_items';
 
-describe('Config Items Tests', function() {
+describe('Config Items Tests', function () {
     this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;
@@ -23,7 +22,7 @@ describe('Config Items Tests', function() {
     it('Edit interface', () => editInterface(webview, workbench, project_folder));
 
     this.afterAll(async () => {
-        webview.switchBack();
-        editorView.closeAllEditors();
+        await webview.switchBack();
+        await editorView.closeAllEditors();
     });
 });

@@ -1,20 +1,19 @@
-import * as path from 'path';
 import { expect } from 'chai';
-import { WebView, EditorView } from 'vscode-extension-tester';
+import * as path from 'path';
+import { EditorView, WebView } from 'vscode-extension-tester';
 import {
-    sleep,
-    compareWithGoldFiles,
     clickElement,
-    getSelectedFields,
-    getElementAttribute,
+    compareWithGoldFiles,
     fillTextField,
+    getElementAttribute,
+    getElements,
+    getNthElement,
+    getSelectedFields,
+    selectField,
     selectNthDropdownItem,
     selectNthFolder,
-    getElementText,
-    selectField,
-    getNthElement,
+    sleep,
     submitInterface,
-    getElements,
 } from '../common/utils';
 
 export const openCreateWorkflow = async (webview: WebView) => {
@@ -71,9 +70,6 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView) =
     expect(await getElementAttribute(webview, 'interface-creator-submit-workflow-steps', 'disabled')).to.equal(null);
 
     await sleep(5000);
-
-    expect(await getElementText(webview, 'stepList-name', 1, 'name')).to.eql('Step test:1.0');
-
     await submitInterface(webview, 'workflow-steps');
     await sleep(2000);
     await webview.switchBack();
@@ -87,6 +83,6 @@ export const checkFiles = async (project_folder: string) => {
         'Step test-1.0.qstep.yaml',
         'Step test-1.0.qstep',
         'Workflow test-1.0.qwf.yaml',
-        'Workflow test-1.0.qwf'
+        'Workflow test-1.0.qwf',
     ]);
 };

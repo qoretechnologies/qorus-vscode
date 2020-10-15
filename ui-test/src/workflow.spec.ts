@@ -1,7 +1,6 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-
 import { setupWebview } from './common/utils';
-import { createWorkflow, openCreateWorkflow, checkFiles } from './tests/workflow';
+import { checkFiles, createWorkflow, openCreateWorkflow } from './tests/workflow';
 
 describe('Workflow tests', function () {
     this.timeout(1800000);
@@ -23,7 +22,7 @@ describe('Workflow tests', function () {
 
     // Reset the workbench
     this.afterAll(async () => {
-        webview.switchBack();
-        editorView.closeAllEditors();
+        await webview.switchBack();
+        await editorView.closeAllEditors();
     });
 });

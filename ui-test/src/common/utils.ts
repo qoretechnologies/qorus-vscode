@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as jsyaml from 'js-yaml';
+import * as path from 'path';
 import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
 
 type TSelector = 'id' | 'name' | 'className';
@@ -23,7 +23,7 @@ export const setupWebview = async () => {
 
     await sleep(1000);
 
-    const webview = await new WebView(editorView, 'Qorus Webview');
+    const webview = await new WebView(editorView);
     await webview.wait();
     await webview.switchToFrame();
 
@@ -88,7 +88,12 @@ export const resetTextField = async (webview: WebView, name: string, position: n
     await clickElement(webview, `reset-${name}`, position);
 };
 
-export const resetAndFillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1) => {
+export const resetAndFillTextField = async (
+    webview: WebView,
+    name: string,
+    value: string | number,
+    position: number = 1
+) => {
     await resetTextField(webview, name, position);
     await fillTextField(webview, name, value, position);
 };

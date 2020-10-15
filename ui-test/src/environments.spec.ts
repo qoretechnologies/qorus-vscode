@@ -1,9 +1,16 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-
 import { setupWebview } from './common/utils';
 import {
-    addAndRemoveSourceDirectory, addEnvironment, addInstance, addUrl, deleteEnvironment, deleteInstance, deleteUrl,
-    editInstance, openEnvironmentPage, renameEnvironment
+    addAndRemoveSourceDirectory,
+    addEnvironment,
+    addInstance,
+    addUrl,
+    deleteEnvironment,
+    deleteInstance,
+    deleteUrl,
+    editInstance,
+    openEnvironmentPage,
+    renameEnvironment,
 } from './tests/environments';
 
 describe('Environments page test', function () {
@@ -32,7 +39,7 @@ describe('Environments page test', function () {
 
     // Reset the workbench
     this.afterAll(async () => {
-        webview.switchBack();
-        editorView.closeAllEditors();
+        await webview.switchBack();
+        await editorView.closeAllEditors();
     });
 });
