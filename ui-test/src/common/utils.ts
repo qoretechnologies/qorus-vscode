@@ -82,6 +82,10 @@ export const fillTextField = async (webview: WebView, name: string, value: strin
     await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
 };
 
+export const eraseTextField = async (webview: WebView, name: string, position: number = 1, length: number = 50) => {
+    await fillTextField(webview, name, '\b'.repeat(length), position);
+};
+
 export const resetTextField = async (webview: WebView, name: string, position: number = 1) => {
     await clickElement(webview, `reset-${name}`, position);
 };
