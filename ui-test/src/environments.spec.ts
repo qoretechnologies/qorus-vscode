@@ -32,7 +32,7 @@ describe('Environments page test', function () {
 
     // Reset the workbench
     this.afterAll(async () => {
-        webview.switchBack();
-        editorView.closeAllEditors();
+        await webview.switchBack();
+        await editorView.closeAllEditors();
     });
 });

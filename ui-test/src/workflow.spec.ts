@@ -23,7 +23,7 @@ describe('Workflow tests', function () {
 
     // Reset the workbench
     this.afterAll(async () => {
-        webview.switchBack();
-        editorView.closeAllEditors();
+        await webview.switchBack();
+        await editorView.closeAllEditors();
     });
 });
