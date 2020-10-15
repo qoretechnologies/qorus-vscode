@@ -36,11 +36,11 @@ export const setupWebview = async (): Promise<any> => {
 };
 
 // file_path: absolute path of the interface's yaml file or source file
-export const openInterface = async (workbench: Workbench, editorView: EditorView, file_path: string) => {
+export const openInterface = async (workbench: Workbench, editorView: EditorView, file_path: string): Promise<WebView> => {
     await workbench.executeCommand('Extest: Open File');
     await sleep(1000);
     const input: InputBox = await new InputBox();
-    await input.wait();
+    await input.wait(20000);
     await input.setText(file_path);
     await input.confirm();
 
