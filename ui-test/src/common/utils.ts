@@ -6,16 +6,8 @@ import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-t
 
 type TSelector = 'id' | 'name' | 'className';
 
-export const setupWebview = async () => {
-    const workbench = new Workbench();
-    const editorView = new EditorView();
-
-    await sleep(8000);
-
-    await workbench.executeCommand('Qorus: Open Webview');
-
+export const getWebview = async (editorView: EditorView): Promise<WebView> => {
     let isWebviewOpen = false;
-
     while (!isWebviewOpen) {
         await sleep(1000);
         isWebviewOpen = (await editorView.getOpenEditorTitles()).includes('Qorus Webview');
@@ -26,14 +18,21 @@ export const setupWebview = async () => {
     const webview = await new WebView(editorView);
     await webview.wait();
     await webview.switchToFrame();
+    await sleep(2000);
 
-    await sleep(3000);
+    return webview;
+};
 
-    return {
-        workbench,
-        editorView,
-        webview,
-    };
+export const setupWebview = async (): Promise<any> => {
+    const workbench = new Workbench();
+    const editorView = new EditorView();
+
+    await sleep(8000);
+    await workbench.executeCommand('Qorus: Open Webview');
+
+    const webview = await getWebview(editorView);
+
+    return { workbench, editorView, webview };
 };
 
 // file_path: absolute path of the interface's yaml file or source file
