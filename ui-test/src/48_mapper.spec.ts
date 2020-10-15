@@ -1,6 +1,5 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 import { setupWebview } from './common/utils';
-//import { login } from './tests/login';
 import { checkFile, createMapper, editMapper } from './tests/mapper';
 
 describe('Mapper Tests', function () {
@@ -16,8 +15,6 @@ describe('Mapper Tests', function () {
         ({ workbench, editorView, webview } = await setupWebview());
     });
 
-//    login already is in the fsm test ... should be put in an extra test at the beginning
-//    it('Login', () => login(webview));
     it('Create mapper', () => createMapper(webview));
     it('Check file', () => checkFile(project_folder, 0));
 //    it('Edit mapper', () => editMapper(webview, workbench, project_folder));
