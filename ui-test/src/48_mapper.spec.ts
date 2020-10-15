@@ -20,7 +20,7 @@ describe('Mapper Tests', function () {
     it('Edit mapper', async () => {
         webview = await editMapper(workbench, editorView, project_folder);
     });
-//    it('Check changed file', () => checkFile(project_folder, 1));
+    it('Check changed file', () => checkFile(project_folder, 1));
 
     this.afterAll(async () => {
         await webview.switchBack();
