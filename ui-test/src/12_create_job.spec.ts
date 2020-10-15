@@ -16,7 +16,7 @@ describe('Job test', function () {
     });
 
     it('Create job', () => createJob(webview));
-    it('Check files', () => checkFiles(project_folder));
+//    it('Check files', () => checkFiles(project_folder));
 
     this.afterAll(async () => {
         await webview.switchBack();
