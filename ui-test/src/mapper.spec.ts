@@ -13,7 +13,7 @@ describe('Mapper Tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview('rippy main'));
+        ({ workbench, editorView, webview } = await setupWebview('rippy IP'));
     });
 
     it('Create mapper', () => createMapper(webview));
@@ -25,6 +25,6 @@ describe('Mapper Tests', function () {
     it('Check changed file', () => checkFile(project_folder, 1));
 
     this.afterAll(async () => {
-        await cleanup(editorView, webview, 'rippy main');
+        await cleanup(editorView, webview, 'rippy IP');
     });
 });

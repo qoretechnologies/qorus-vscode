@@ -13,13 +13,13 @@ describe('FSM tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview('rippy main'));
+        ({ workbench, editorView, webview } = await setupWebview('rippy IP'));
     });
 
     it('Opens FSM create page', () => openFSMPage(webview));
 
     // Reset the workbench
     this.afterAll(async () => {
-        await cleanup(editorView, webview, 'rippy main');
+        await cleanup(editorView, webview, 'rippy IP');
     });
 });
