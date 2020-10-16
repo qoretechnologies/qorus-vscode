@@ -1,7 +1,7 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 import { editJob, checkFiles } from './tests/job';
 
-describe('Job test', function () {
+describe('Edit job test', function () {
     this.timeout(1800000);
     let driver: WebDriver;
     let workbench: Workbench;

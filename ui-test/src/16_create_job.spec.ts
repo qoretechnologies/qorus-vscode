@@ -3,7 +3,7 @@ import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-ext
 import { setupWebview } from './common/utils';
 import { createJob, checkFiles } from './tests/job';
 
-describe('Job test', function () {
+describe('Create job test', function () {
     this.timeout(1800000);
     let driver: WebDriver;
     let editorView: EditorView;
