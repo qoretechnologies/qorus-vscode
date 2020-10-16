@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { By, WebView } from 'vscode-extension-tester';
-import { sleep, confirmDialog } from '../common/utils';
+import { sleep } from '../utils/common';
+import { confirmDialog } from '../utils/webview';
 
 export const openEnvironmentPage = async (webview: WebView) => {
     await sleep(3000);
@@ -63,7 +64,7 @@ export const addInstance = async (webview: WebView) => {
 };
 
 export const editInstance = async (webview: WebView) => {
-    await (await webview.findWebElements(By.name('instance-edit')))[5].click();
+    await (await webview.findWebElements(By.name('instance-edit')))[6].click();
     await (await webview.findWebElement(By.name('instance'))).clear();
     await (await webview.findWebElement(By.name('instance'))).sendKeys('new instance');
     await (await webview.findWebElement(By.name('instance-url'))).clear();
@@ -75,12 +76,12 @@ export const editInstance = async (webview: WebView) => {
 
     expect(instances).to.have.length(10);
     expect(links).to.have.length(10);
-    expect(await links[5].getText()).to.equal('new instance');
-    expect(await links[5].getAttribute('href')).to.equal('https://synthax.io/');
+    expect(await links[6].getText()).to.equal('new instance');
+    expect(await links[6].getAttribute('href')).to.equal('https://synthax.io/');
 };
 
 export const deleteInstance = async (webview: WebView) => {
-    await (await webview.findWebElements(By.name('instance-delete')))[5].click();
+    await (await webview.findWebElements(By.name('instance-delete')))[4].click();
     await confirmDialog(webview);
 
     const instances = await webview.findWebElements(By.name('instance-item'));

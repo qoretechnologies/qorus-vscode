@@ -1,27 +1,23 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { expect } from 'chai';
+import * as path from 'path';
 import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
+import { sleep } from '../utils/common';
+import { compareWithGoldFiles } from '../utils/files';
 import {
-    sleep,
-    openInterface,
-    compareWithGoldFiles,
     clickElement,
-    getSelectedFields,
-    getElementAttribute,
     fillTextField,
+    getElementAttribute,
+    getSelectedFields,
+    openInterface,
     resetAndFillTextField,
-    selectNthFolder,
     selectField,
-    submitInterface,
     selectNthFilteredDropdownItem,
-} from '../common/utils';
+    selectNthFolder,
+    submitInterface,
+} from '../utils/webview';
 
 const target_dir = 'arpm';
-const target_file = [
-    'test-mapper-3.45.qmapper.yaml',
-    'test-mapper-3.4.5.qmapper.yaml'
-];
+const target_file = ['test-mapper-3.45.qmapper.yaml', 'test-mapper-3.4.5.qmapper.yaml'];
 
 export const createMapper = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
@@ -71,12 +67,16 @@ export const createMapper = async (webview: WebView) => {
 };
 
 export const checkFile = async (project_folder: string, file_index: number) => {
-    compareWithGoldFiles(path.join(project_folder, target_dir), [ target_file[file_index] ]);
+    compareWithGoldFiles(path.join(project_folder, target_dir), [target_file[file_index]]);
 };
 
 export const editMapper = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
     await sleep(1000);
-    const webview: WebView = await openInterface(workbench, editorView, path.join(project_folder, target_dir, target_file[0]));
+    const webview: WebView = await openInterface(
+        workbench,
+        editorView,
+        path.join(project_folder, target_dir, target_file[0])
+    );
 
     await sleep(1000);
     await resetAndFillTextField(webview, 'field-version', '3.4.5');

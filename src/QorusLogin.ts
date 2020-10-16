@@ -1,15 +1,15 @@
-import * as vscode from 'vscode';
+import * as request from 'request-promise';
+import { t } from 'ttag';
 import * as urlJoin from 'url-join';
 import * as urlParse from 'url-parse';
-import * as request from 'request-promise';
-
-import { QorusAuth, AuthNeeded } from './QorusAuth';
+import * as vscode from 'vscode';
+import { AuthNeeded, QorusAuth } from './QorusAuth';
 import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
-import { qorus_webview } from './QorusWebview';
 import { projects } from './QorusProject';
-import { modifyUrl } from './qorus_utils';
+import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
-import { t } from 'ttag';
+import { modifyUrl } from './qorus_utils';
+
 
 
 export class QorusLogin extends QorusAuth {
@@ -108,7 +108,7 @@ export class QorusLogin extends QorusAuth {
     }
 
     logout(tree_item: vscode.TreeItem) {
-        const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
+        const url: string = typeof tree_item === 'string' ? tree_item : (<QorusTreeInstanceNode>tree_item).getUrl();
 
         const token = this.getToken(url);
         if (!token) {

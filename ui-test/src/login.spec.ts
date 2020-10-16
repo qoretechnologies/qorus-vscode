@@ -1,6 +1,7 @@
-import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { setupWebview } from './common/utils';
+import { EditorView, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
 import { login } from './tests/login';
+import { cleanup } from './utils/common';
+import { setupWebview } from './utils/webview';
 
 describe('Mapper Tests', function () {
     this.timeout(1800000);
@@ -16,7 +17,6 @@ describe('Mapper Tests', function () {
     it('Login', () => login(webview));
 
     this.afterAll(async () => {
-        await webview.switchBack();
-        await editorView.closeAllEditors();
+        await cleanup(editorView, webview);
     });
 });

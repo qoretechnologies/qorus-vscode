@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import { InputBox, VSBrowser, Workbench } from 'vscode-extension-tester';
-
-import { sleep } from './common/utils';
+import { InputBox, Workbench } from 'vscode-extension-tester';
+import { sleep } from './utils/common';
 
 describe('@ Setup tests', function () {
     this.timeout(1800000);

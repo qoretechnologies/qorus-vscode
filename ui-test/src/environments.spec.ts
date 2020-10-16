@@ -1,5 +1,4 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { setupWebview } from './common/utils';
 import {
     addAndRemoveSourceDirectory,
     addEnvironment,
@@ -12,6 +11,8 @@ import {
     openEnvironmentPage,
     renameEnvironment,
 } from './tests/environments';
+import { cleanup } from './utils/common';
+import { setupWebview } from './utils/webview';
 
 describe('Environments page test', function () {
     this.timeout(1800000);
@@ -39,7 +40,6 @@ describe('Environments page test', function () {
 
     // Reset the workbench
     this.afterAll(async () => {
-        await webview.switchBack();
-        await editorView.closeAllEditors();
+        await cleanup(editorView, webview);
     });
 });

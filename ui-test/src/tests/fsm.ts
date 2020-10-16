@@ -1,21 +1,21 @@
-import * as path from 'path';
 import { expect } from 'chai';
-import { WebView, EditorView } from 'vscode-extension-tester';
+import * as path from 'path';
+import { EditorView, WebView } from 'vscode-extension-tester';
+import { sleep } from '../utils/common';
+import { compareWithGoldFiles } from '../utils/files';
 import {
-    sleep,
-    compareWithGoldFiles,
     clickElement,
-    getSelectedFields,
-    getElementAttribute,
     fillTextField,
+    getElementAttribute,
+    getElements,
+    getElementText,
+    getNthElement,
+    getSelectedFields,
+    selectField,
     selectNthDropdownItem,
     selectNthFolder,
-    getElementText,
-    selectField,
-    getNthElement,
     submitInterface,
-    getElements,
-} from '../common/utils';
+} from '../utils/webview';
 
 export const openFSMPage = async (webview: WebView) => {
     await sleep(4000);

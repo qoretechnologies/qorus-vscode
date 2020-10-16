@@ -1,6 +1,7 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { setupWebview } from './common/utils';
 import { openFSMPage } from './tests/fsm';
+import { cleanup } from './utils/common';
+import { setupWebview } from './utils/webview';
 
 describe('FSM tests', function () {
     this.timeout(1800000);
@@ -12,14 +13,13 @@ describe('FSM tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview());
+        ({ workbench, editorView, webview } = await setupWebview('rippy main'));
     });
 
     it('Opens FSM create page', () => openFSMPage(webview));
 
     // Reset the workbench
     this.afterAll(async () => {
-        await webview.switchBack();
-        await editorView.closeAllEditors();
+        await cleanup(editorView, webview, 'rippy main');
     });
 });

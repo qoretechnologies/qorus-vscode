@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { EditorView, WebView } from 'vscode-extension-tester';
+import { sleep } from '../utils/common';
+import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
-    compareWithGoldFiles,
     fillTextField,
     getElementAttribute,
     getElements,
@@ -12,9 +13,8 @@ import {
     selectField,
     selectNthDropdownItem,
     selectNthFolder,
-    sleep,
     submitInterface,
-} from '../common/utils';
+} from '../utils/webview';
 
 export const openCreateWorkflow = async (webview: WebView) => {
     await sleep(4000);

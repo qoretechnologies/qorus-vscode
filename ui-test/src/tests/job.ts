@@ -1,20 +1,20 @@
-import * as path from 'path';
 import { expect } from 'chai';
+import * as path from 'path';
 import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
+import { sleep } from '../utils/common';
+import { compareWithGoldFiles } from '../utils/files';
 import {
-    sleep,
-    compareWithGoldFiles,
     clickElement,
     eraseTextField,
-    getSelectedFields,
-    getElementAttribute,
     fillTextField,
+    getElementAttribute,
+    getSelectedFields,
     openInterface,
     resetAndFillTextField,
+    selectNthFilteredDropdownItem,
     selectNthFolder,
     submitInterface,
-    selectNthFilteredDropdownItem,
-} from '../common/utils';
+} from '../utils/webview';
 
 const target_dir = 'arpm';
 const target_file = 'test-job-3.14.qjob.py';
@@ -71,10 +71,7 @@ export const editJob = async (workbench: Workbench, editorView: EditorView, proj
 export const checkFiles = async (project_folder: string, gold_files_subfolder?: string) => {
     await compareWithGoldFiles(
         path.join(project_folder, target_dir),
-        [
-            'test-job-3.14.qjob.yaml',
-            target_file
-        ],
+        ['test-job-3.14.qjob.yaml', target_file],
         gold_files_subfolder
     );
 };

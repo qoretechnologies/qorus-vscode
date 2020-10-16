@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
+import { sleep } from '../utils/common';
+import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
-    compareWithGoldFiles,
     confirmDialog,
     fillTextField,
     getElementAttribute,
@@ -13,9 +14,8 @@ import {
     selectField,
     selectNthFilteredDropdownItem,
     selectNthFolder,
-    sleep,
     submitInterface,
-} from '../common/utils';
+} from '../utils/webview';
 
 const target_dir = 'arpm';
 
@@ -178,7 +178,11 @@ export const checkFiles = async (project_folder: string) => {
 
 export const editInterface = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
     await sleep(1000);
-    const webview: WebView = await openInterface(workbench, editorView, path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml'));
+    const webview: WebView = await openInterface(
+        workbench,
+        editorView,
+        path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml')
+    );
     await sleep(8000);
     await submitInterface(webview, 'class');
     await sleep(2000);

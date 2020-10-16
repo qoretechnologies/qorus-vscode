@@ -1,6 +1,7 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { setupWebview } from './common/utils';
 import { checkFile, createMapper, editMapper } from './tests/mapper';
+import { cleanup } from './utils/common';
+import { setupWebview } from './utils/webview';
 
 describe('Mapper Tests', function () {
     this.timeout(1800000);
@@ -12,18 +13,18 @@ describe('Mapper Tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview());
+        ({ workbench, editorView, webview } = await setupWebview('rippy main'));
     });
 
     it('Create mapper', () => createMapper(webview));
     it('Check file', () => checkFile(project_folder, 0));
     it('Edit mapper', async () => {
+        await cleanup(editorView, webview);
         webview = await editMapper(workbench, editorView, project_folder);
     });
     it('Check changed file', () => checkFile(project_folder, 1));
 
     this.afterAll(async () => {
-        await webview.switchBack();
-        await editorView.closeAllEditors();
+        await cleanup(editorView, webview, 'rippy main');
     });
 });
