@@ -17,6 +17,6 @@ describe('Mapper Tests', function () {
     it('Login', () => login(webview));
 
     this.afterAll(async () => {
-        await cleanup(editorView, webview);
+        await cleanup(editorView, webview, 'rippy IP');
     });
 });
