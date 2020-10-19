@@ -964,6 +964,9 @@ msgstr "Webview cannot be opened since there's no open workspace folder"
 msgid "field-label-target_dir"
 msgstr "Target directory"
 
+msgid "field-label-newDir"
+msgstr "New subdirectory"
+
 msgid "field-label-processor"
 msgstr "Processor"
 
@@ -2277,6 +2280,9 @@ msgstr "${ iface } with class ${ name } already exists"
 msgid "FileAlreadyExists ${ file }"
 msgstr "File ${ file } already exists"
 
+msgid "DirAlreadyExists ${ dir }"
+msgstr "Directory ${ dir } already exists"
+
 msgid "IfaceSavedSuccessfully ${ iface } ${ name }"
 msgstr "${ iface } ${ name } has been saved successfully"
 
@@ -2503,10 +2509,10 @@ msgid "CreateNewDir"
 msgstr "Create new directory"
 
 msgid "AddingNewDirectoryTo"
-msgstr "Directory will be created in - "
+msgstr "Subdirectory will be created in "
 
 msgid "MultipleSubdirectoriesNewDir"
-msgstr "You can also add new subdirectories by simply following the path structure (ex: /my/new/dir)."
+msgstr "It can contain further subdirectories that will be created as well (ex: my/new/dir)."
 
 msgid "CreateFolder"
 msgstr "Create"
