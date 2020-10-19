@@ -1,5 +1,18 @@
 import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
-import { camelCase, cloneDeep, filter, find, forEach, includes, map, reduce, size, uniqBy, upperFirst } from 'lodash';
+import {
+    camelCase,
+    cloneDeep,
+    filter,
+    find,
+    forEach,
+    includes,
+    map,
+    omit,
+    reduce,
+    size,
+    uniqBy,
+    upperFirst,
+} from 'lodash';
 import isArray from 'lodash/isArray';
 import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 import compose from 'recompose/compose';
@@ -681,17 +694,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         {}
                     );
                 });
-                // Add missing methods
-                /*if (allMethodsData) {
-                    allMethodsData.forEach((method) => {
-                        // Check if this method exists in the
-                        // data hash also check if the method has been deleted
-                        if (!newData[subItemType].find((m) => m.orig_name === method.name)) {
-                            // Add this method
-                            //newData[subItemType].push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
-                        }
-                    });
-                }*/
                 // Filter deleted methods
                 if (methodsList) {
                     newData[subItemType] = newData[subItemType].filter((m) =>
@@ -1165,8 +1167,35 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         interfaceContext={getContext()}
                         initialConnections={classConnectionsData}
                         onSubmit={(classConnections) => {
-                            modifyMappers(classConnections);
-                            setClassConnectionsData(classConnections);
+                            const modifiedConnections = reduce(
+                                classConnections,
+                                (newConnections, connection, name) => {
+                                    return {
+                                        ...newConnections,
+                                        [name]: connection.reduce(
+                                            (newConnection, item) => [
+                                                ...newConnection,
+                                                omit(item, [
+                                                    'nextItemData',
+                                                    'previousItemData',
+                                                    'isInputCompatible',
+                                                    'isOutputCompatible',
+                                                    'index',
+                                                    'isBetween',
+                                                    'isEditing',
+                                                    'isEvent',
+                                                    'isLast',
+                                                ]),
+                                            ],
+                                            []
+                                        ),
+                                    };
+                                },
+                                {}
+                            );
+                            console.log(modifiedConnections);
+                            modifyMappers(modifiedConnections);
+                            setClassConnectionsData(modifiedConnections);
                             setShowClassConnectionsManager(false);
                         }}
                     />
