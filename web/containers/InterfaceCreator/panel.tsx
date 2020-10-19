@@ -1167,7 +1167,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         interfaceContext={getContext()}
                         initialConnections={classConnectionsData}
                         onSubmit={(classConnections) => {
-                            console.log(classConnections);
                             const modifiedConnections = reduce(
                                 classConnections,
                                 (newConnections, connection, name) => {
