@@ -1,18 +1,18 @@
-import React, { FunctionComponent, useState } from 'react';
-import { Button, Popover, Icon, ButtonGroup, Callout, Position } from '@blueprintjs/core';
-import compose from 'recompose/compose';
-import withTextContext from '../hocomponents/withTextContext';
-import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../hocomponents/withMessageHandler';
-import { TTranslator } from '../App';
-import { Messages } from '../constants/messages';
-import styled from 'styled-components';
+import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
 import map from 'lodash/map';
-import EnvironmentPanel from './environment';
-import Add from './add';
-import SourceDirsDialog from './sourceDirs';
+import React, { FunctionComponent, useState } from 'react';
+import useEffectOnce from 'react-use/lib/useEffectOnce';
+import compose from 'recompose/compose';
+import styled from 'styled-components';
+import { TTranslator } from '../App';
 import Loader from '../components/Loader';
+import { Messages } from '../constants/messages';
+import withInitialDataConsumer from '../hocomponents/withInitialDataConsumer';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../hocomponents/withMessageHandler';
+import withTextContext from '../hocomponents/withTextContext';
+import Add from './add';
+import EnvironmentPanel from './environment';
+import SourceDirsDialog from './sourceDirs';
 
 export interface IProject {
     addMessageListener: TMessageListener;
@@ -91,7 +91,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         postMessage(Messages.CONFIG_GET_DATA);
     });
 
-    const isEnvironmentActive: (qoruses: IQorusInstance[]) => boolean = qoruses => {
+    const isEnvironmentActive: (qoruses: IQorusInstance[]) => boolean = (qoruses) => {
         const { qorus_instance } = initialData;
         // Check if there is any active instance
         if (!qorus_instance) {
@@ -130,7 +130,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         );
     };
 
-    const handleEnvironmentDelete: (id: number) => void = id => {
+    const handleEnvironmentDelete: (id: number) => void = (id) => {
         // Filter the deleted instance
         setProjectData(
             (current: IProjectData): IProjectData => {
@@ -146,7 +146,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         );
     };
 
-    const handleEnvironmentAdd: (name: string) => void = name => {
+    const handleEnvironmentAdd: (name: string) => void = (name) => {
         // Filter the deleted instance
         setProjectData(
             (current: IProjectData): IProjectData => {
@@ -214,7 +214,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                         if (envId === qorusEnv.id) {
                             // Filter out the deleted instance
                             newInstance.qoruses = newInstance.qoruses.filter(
-                                qorusInstance => qorusInstance.id !== instanceId
+                                (qorusInstance) => qorusInstance.id !== instanceId
                             );
                         }
                         // Return new data
@@ -314,7 +314,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                                     // Check if the ID matches
                                     if (newInstance.id === instanceId) {
                                         // Remove the URL
-                                        newInstance.urls = newInstance.urls.filter(url => url.name !== name);
+                                        newInstance.urls = newInstance.urls.filter((url) => url.name !== name);
                                     }
                                     // Return new instances
                                     return [...newInstances, newInstance];
@@ -335,38 +335,6 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         );
     };
 
-    const handleAddDirectory: (dirs: string) => void = dirs => {
-        // Filter the deleted instance
-        setProjectData(
-            (current: IProjectData): IProjectData => {
-                // Create new instance
-                const newData: IProjectData = { ...current };
-                // Add new directory
-                newData.source_directories = [...dirs];
-                // Update backend data
-                updateBackendData(newData);
-                // Update local state
-                return newData;
-            }
-        );
-    };
-
-    const handleDeleteDirectory: (name: string) => void = name => {
-        // Filter the deleted instance
-        setProjectData(
-            (current: IProjectData): IProjectData => {
-                // Create new instance
-                const newData: IProjectData = { ...current };
-                // Remove directory
-                newData.source_directories = newData.source_directories.filter(dir => dir !== name);
-                // Update backend data
-                updateBackendData(newData);
-                // Update local state
-                return newData;
-            }
-        );
-    };
-
     const handleSetInstanceActive: (url: string, set: boolean) => void = (url, set = true) => {
         // Set / unset the active instance
         postMessage(set ? Messages.SET_ACTIVE_INSTANCE : Messages.UNSET_ACTIVE_INSTANCE, {
@@ -374,7 +342,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
         });
     };
 
-    const updateBackendData: (data: IProjectData) => void = data => {
+    const updateBackendData: (data: IProjectData) => void = (data) => {
         // Update the data on the backend
         postMessage(Messages.CONFIG_UPDATE_DATA, {
             data,
@@ -385,13 +353,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
 
     return (
         <>
-            {isDirsDialogOpen && (
-                <SourceDirsDialog
-                    onSubmitClick={handleAddDirectory}
-                    onDeleteClick={handleDeleteDirectory}
-                    onClose={() => setIsDirsDialogOpen(false)}
-                />
-            )}
+            {isDirsDialogOpen && <SourceDirsDialog onClose={() => setIsDirsDialogOpen(false)} />}
             <StyledWrapper>
                 {changedOnDisk && (
                     <Callout intent="warning" title={t('ConfigChangedOnDisk')}>
@@ -439,7 +401,7 @@ const Project: FunctionComponent<IProject> = ({ addMessageListener, postMessage,
                             />
                         </StyledProjectHeader>
                         <StyledMasonryWrapper>
-                            {map(projectData.qorus_instances, data => (
+                            {map(projectData.qorus_instances, (data) => (
                                 <EnvironmentPanel
                                     {...data}
                                     path={initialData.path}

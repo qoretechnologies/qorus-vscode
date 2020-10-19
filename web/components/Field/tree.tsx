@@ -16,6 +16,7 @@ import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
 import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import SourceDirs from '../../project_config/sourceDirs';
 import Content from '../Content';
 import CustomDialog from '../CustomDialog';
 import FieldLabel from '../FieldLabel';
@@ -64,6 +65,8 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     single,
     useRelativePath,
     notFixed,
+    onFolderCreated,
+    canManageSourceDirs,
 }) => {
     const t = useContext(TextContext);
     const { callBackend } = useContext(InitialContext);
@@ -71,6 +74,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     const [expanded, setExpanded] = useState<string[]>([]);
     const [items, setItems] = useState<any>([]);
     const [folderDialog, setFolderDialog] = useState<any>(undefined);
+    const [manageSourceDirs, setManageSourceDirs] = useState<any>(false);
 
     useMount(() => {
         addMessageListener(return_message.action, (data: any) => {
@@ -132,6 +136,9 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
         if (data.ok) {
             setFolderDialog(undefined);
             postMessage(get_message.action, { object_type: get_message.object_type });
+            if (onFolderCreated) {
+                onFolderCreated();
+            }
         } else {
             setFolderDialog((cur) => ({
                 ...cur,
@@ -250,9 +257,28 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                     </Content>
                 </CustomDialog>
             )}
+            {manageSourceDirs && (
+                <SourceDirs
+                    onClose={() => {
+                        setManageSourceDirs(false);
+                        postMessage(get_message.action, { object_type: get_message.object_type });
+                    }}
+                />
+            )}
             <StyledTreeWrapper onClick={() => setRootExpanded((cur) => !cur)} name={`folder-expander-${name}`}>
                 <Icon icon={isRootExpanded ? 'folder-open' : 'folder-close'} /> {isRootExpanded ? 'Hide' : 'Show'}{' '}
                 folders{' '}
+                {canManageSourceDirs && (
+                    <p
+                        style={{ float: 'right', padding: 0, margin: 0 }}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            setManageSourceDirs(true);
+                        }}
+                    >
+                        Manage <Icon icon="cog" />
+                    </p>
+                )}
             </StyledTreeWrapper>
             {notFixed ? (
                 <>
