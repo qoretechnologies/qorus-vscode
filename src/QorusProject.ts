@@ -179,10 +179,10 @@ export class QorusProject {
         if (add_source) {
             this.validateConfigFileAndDo(file_data => {
                 this.addSourceDir(file_data, dir);
-                postMessage(true, t`DirHasBeenCreatedAndAddedToSourceDirs ${full_dir}`);
+                postMessage(true, t`SubdirHasBeenCreatedAndAddedToSourceDirs ${dir}`);
             });
         } else {
-            postMessage(true, t`DirHasBeenCreated ${full_dir}`);
+            postMessage(true, t`SubdirHasBeenCreated ${dir}`);
         }
     }
 

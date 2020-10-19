@@ -1639,6 +1639,12 @@ msgstr "Directory ${ dir } in project configuration is not valid and will be rem
 msgid "FixedDirInConfig ${ dir } ${ fixed_dir }"
 msgstr "Directory ${ dir } in project configuration has been renamed to ${ fixed_dir }"
 
+msgid "SubdirHasBeenCreated ${ dir }"
+msgstr "Subdirectory ${ dir } has been created"
+
+msgid "SubdirHasBeenCreatedAndAddedToSourceDirs ${ dir }"
+msgstr "Subdirectory ${ dir } has been created and added to the source directories"
+
 msgid "AddMethod"
 msgstr "Add Method"
 
