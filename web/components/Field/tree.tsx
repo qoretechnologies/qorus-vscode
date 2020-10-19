@@ -122,7 +122,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     const handleCreateDirSubmit = async (addSource?: boolean) => {
         setFolderDialog({ ...folderDialog, loading: true });
 
-        const data = await callBackend('create-directory', {
+        const data = await callBackend('create-directory', undefined, {
             path: `${folderDialog.abs_path}${
                 folderDialog.newPath.startsWith('/') ? folderDialog.newPath : `/${folderDialog.newPath}`
             }`,
@@ -174,7 +174,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                             style={{ cursor: 'pointer' }}
                             onClick={(event) => {
                                 event.stopPropagation();
-                                setFolderDialog({ ...item, newPath: '/' });
+                                setFolderDialog({ ...item, newPath: '' });
                             }}
                         />
                     ),
