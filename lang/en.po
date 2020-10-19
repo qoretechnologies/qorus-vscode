@@ -2499,6 +2499,21 @@ msgstr "Next element is incompatible!"
 msgid "EditStatesOrder"
 msgstr "Edit initial states order"
 
+msgid "CreateNewDir"
+msgstr "Create new directory"
+
+msgid "AddingNewDirectoryTo"
+msgstr "Directory will be created in - "
+
+msgid "MultipleSubdirectoriesNewDir"
+msgstr "You can also add new subdirectories by simply following the path structure (ex: /my/new/dir)."
+
+msgid "CreateFolder"
+msgstr "Create"
+
+msgid "CreateFolderAndAddSource"
+msgstr "Create and add to sources"
+
 msgid "TransitionToState"
 msgstr "Transition to state"
 

@@ -1,12 +1,9 @@
-import React, { FunctionComponent, useContext, useState } from 'react';
-
+import { Button, Icon } from '@blueprintjs/core';
 import size from 'lodash/size';
+import React, { FunctionComponent, useContext, useState } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { Button, Icon } from '@blueprintjs/core';
-
 import { TTranslator } from '../App';
 import CustomDialog from '../components/CustomDialog';
 import TreeField from '../components/Field/tree';
@@ -90,7 +87,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                     </StyledDirHeader>
                     <StyledDirWrapper>
                         {size(sourceDirs) ? (
-                            sourceDirs.map(dir => (
+                            sourceDirs.map((dir) => (
                                 <p key={dir} name="source-dir">
                                     <Icon icon="folder-close" />
                                     {dir}
@@ -120,8 +117,8 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                     </StyledDirHeader>
                     <StyledDirWrapper>
                         <TreeField
-                            onChange={(_name, value) => onSubmitClick(value.map(path => path.name || path))}
-                            value={sourceDirs.map(dir => ({ name: dir }))}
+                            onChange={(_name, value) => onSubmitClick(value.map((path) => path.name || path))}
+                            value={sourceDirs.map((dir) => ({ name: dir }))}
                             useRelativePath
                             name="source-dirs"
                             get_message={{
@@ -131,6 +128,7 @@ const SourceDirectories: FunctionComponent<ISourceDirectoriesProps> = ({
                                 action: Messages.RETURN_PROJECT_DIRS,
                                 return_value: 'directories',
                             }}
+                            notFixed
                         />
                     </StyledDirWrapper>
                 </>
