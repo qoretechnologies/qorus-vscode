@@ -51,6 +51,27 @@ export class QorusProject {
     relativeDirPath = dir =>
         dir === this.project_folder ? '.' : vscode.workspace.asRelativePath(dir, false)
 
+    isInSourceDirs = (fs_path: string): boolean => {
+        let file_data: any = {};
+        try {
+            const file_content = fs.readFileSync(this.config_file);
+            file_data = JSON.parse(file_content.toString());
+        } catch (error) {
+            msg.error(JSON.stringify(error, null, 4));
+            return false;
+        }
+
+        const dir = path.dirname(fs_path);
+
+        for (let source_dir of file_data.source_directories || []) {
+            if (path.join(this.folder, source_dir).search(dir) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
         if (!this.configFileExists()) {
             this.createConfigFileIfNotExists();
@@ -254,10 +275,10 @@ export class QorusProject {
     }
 
     private writeConfig(file_data: any) {
-        const removeSubdirs = dirs => {
-            const isSubdir = (dir1, dir2) =>
-                dir1.search(dir2) === 0 && ['/', '\\'].includes(dir1[dir2.length]);
+        const isSubdir = (dir1, dir2) =>
+            dir1.search(dir2) === 0 && ['/', '\\'].includes(dir1[dir2.length]);
 
+        const removeSubdirs = dirs => {
             for (let i = 0; i < dirs.length - 1; i++) {
                 for (let ii = i + 1; ii < dirs.length; ii++) {
                     if (isSubdir(dirs[i], dirs[ii])) {

@@ -664,6 +664,9 @@ msgstr "Source directories"
 msgid "AddRemoveDir"
 msgstr "Add / Remove directory"
 
+msgid "FileNotInSourceDirs ${ file }"
+msgstr "File ${ file } is not in any of the configured source directories"
+
 msgid "NotProjectSubdir ${ dir }"
 msgstr "Selected directory ${ dir } is not a project subdirectory"
 
