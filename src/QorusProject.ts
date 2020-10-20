@@ -64,7 +64,7 @@ export class QorusProject {
         const dir = path.dirname(fs_path);
 
         for (let source_dir of file_data.source_directories || []) {
-            if (path.join(this.folder, source_dir).search(dir) === 0) {
+            if (dir.search(path.join(this.folder, source_dir)) === 0) {
                 return true;
             }
         }
