@@ -540,7 +540,7 @@ export class QorusProjectCodeInfo {
 
     async waitForPending(info_list: string[], sleep_before: number = 0, timeout: number = 30000): Promise<void> {
         // "waiting for pending" need not be enough, specifically in cases when the updated info is required
-        // before the update process has even started (before the pending flag has bee set),
+        // before the update process has even started (before the pending flag has been set),
         // this can happen when the update process is triggered by a file watcher
         if (sleep_before) {
             await new Promise(resolve => setTimeout(resolve, sleep_before));
