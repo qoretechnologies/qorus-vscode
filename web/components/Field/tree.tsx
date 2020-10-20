@@ -176,6 +176,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                     childNodes,
                     secondaryLabel: isFile ? undefined : (
                         <Icon
+                            name={`create-new-dir-${item.basename}`}
                             icon="folder-new"
                             intent="success"
                             style={{ cursor: 'pointer' }}
@@ -224,10 +225,10 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                                     <Field
                                         type="string"
                                         value={folderDialog.newPath}
-                                        onChange={(name, value) =>
-                                            setFolderDialog((cur) => ({ ...cur, [name]: value }))
+                                        onChange={(_name, value) =>
+                                            setFolderDialog((cur) => ({ ...cur, newPath: value }))
                                         }
-                                        name="newPath"
+                                        name="new-directory"
                                     />
                                 </FieldInputWrapper>
                             </FieldWrapper>
@@ -247,7 +248,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                                     text={t('CreateFolderAndAddSource')}
                                     disabled={!validateField('string', folderDialog.newPath)}
                                     icon={'tick'}
-                                    name={`submit-new-folder`}
+                                    name={`submit-new-folder-add-source`}
                                     intent={Intent.SUCCESS}
                                     onClick={() => handleCreateDirSubmit(true)}
                                     loading={folderDialog.loading}
