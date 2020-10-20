@@ -574,7 +574,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getObjects = params => {
+    getObjects = async (params: any) => {
         const {object_type, iface_kind, class_name, custom_data } = params;
         const lang = params.lang || default_lang; // null comes from the frontend
 
@@ -731,6 +731,7 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['file_tree']).then(() => postMessage('directories', this.dir_tree, false));
                 break;
             case 'all_dirs':
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 this.waitForPending(['file_tree']).then(() => qorus_webview.postMessage({
                     action: 'return-all-directories',
                     directories: this.all_dir_tree
