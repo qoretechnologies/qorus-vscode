@@ -4,6 +4,7 @@ import {
     addEnvironment,
     addInstance,
     addUrl,
+    createNewSourceDir,
     deleteEnvironment,
     deleteInstance,
     deleteUrl,
@@ -37,6 +38,7 @@ describe('Environments page test', function () {
     it('Adds new url', () => addUrl(webview));
     it('Deletes url', () => deleteUrl(webview));
     it('Adds and removes source directory', () => addAndRemoveSourceDirectory(webview));
+    it('Creates new directory and adds it to sources', () => createNewSourceDir(webview));
 
     // Reset the workbench
     this.afterAll(async () => {

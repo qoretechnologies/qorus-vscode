@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { By, WebView } from 'vscode-extension-tester';
 import { sleep } from '../utils/common';
-import { clickElement, closeLastDialog, confirmDialog } from '../utils/webview';
+import { clickElement, closeLastDialog, confirmDialog, fillTextField } from '../utils/webview';
 
 export const openEnvironmentPage = async (webview: WebView) => {
     await sleep(3000);
@@ -127,14 +127,50 @@ export const addAndRemoveSourceDirectory = async (webview: WebView) => {
     await clickElement(webview, 'folder-expander-source-dirs');
     await clickElement(webview, 'bp3-tree-node-caret', 1, 'className');
 
-    await sleep(500);
+    await sleep(100);
 
     await clickElement(webview, 'bp3-tree-node-content', 14, 'className');
 
-    await sleep(500);
+    await sleep(100);
 
     await clickElement(webview, 'source-dir-remove');
     await confirmDialog(webview);
+
+    await sleep(300);
+
+    await closeLastDialog(webview);
+
+    await sleep(2000);
+};
+
+export const createNewSourceDir = async (webview: WebView) => {
+    await sleep(3000);
+
+    await clickElement(webview, 'manage-source-dirs');
+
+    await sleep(500);
+
+    await clickElement(webview, 'folder-expander-source-dirs');
+
+    await clickElement(webview, 'bp3-tree-node-caret', 1, 'className');
+
+    expect(await (await webview.findWebElements(By.className('bp3-tree-node-content-1'))).length).to.eq(21);
+    expect(await (await webview.findWebElements(By.name('source-dir'))).length).to.eq(19);
+
+    await clickElement(webview, 'create-new-dir');
+
+    await sleep(500);
+
+    await fillTextField(webview, 'field-new-directory', 'mydir');
+
+    await sleep(200);
+
+    await clickElement(webview, 'submit-new-folder-add-source');
+
+    await sleep(4000);
+
+    expect(await (await webview.findWebElements(By.className('bp3-tree-node-content-1'))).length).to.eq(22);
+    expect(await (await webview.findWebElements(By.name('source-dir'))).length).to.eq(20);
 
     await closeLastDialog(webview);
 
