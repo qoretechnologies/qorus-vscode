@@ -162,6 +162,10 @@ export const confirmDialog = async (webview: WebView) => {
     await sleep(1000);
 };
 
+export const closeLastDialog = async (webview: WebView) => {
+    await (await webview.findWebElement(By.className('bp3-dialog-close-button'))).click();
+};
+
 export const getSelectedFields = async (webview: WebView) => {
     return await getElements(webview, 'selected-field');
 };

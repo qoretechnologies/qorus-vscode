@@ -1,11 +1,11 @@
 import React, { FunctionComponent } from 'react';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
-import { IField } from '.';
-import { IFieldChange } from '../../containers/InterfaceCreator/panel';
-import { TTranslator } from '../../App';
-import TreeField from './tree';
 import styled from 'styled-components';
+import { IField } from '.';
+import { TTranslator } from '../../App';
+import { IFieldChange } from '../../containers/InterfaceCreator/panel';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import String from './string';
+import TreeField from './tree';
 
 export interface IFileField {
     get_message?: { action: string; object_type: string };
@@ -26,7 +26,8 @@ const FileField: FunctionComponent<IFileField & IField & IFieldChange> = ({
     name,
     value,
     default_value,
-    includeInputField = true,
+    canManageSourceDirs = true,
+    includeInputField = false,
     ...rest
 }) => {
     return (
@@ -37,7 +38,14 @@ const FileField: FunctionComponent<IFileField & IField & IFieldChange> = ({
                     <Spacer />
                 </>
             )}
-            <TreeField single onChange={onChange} name={name} value={value} {...rest} />
+            <TreeField
+                single
+                onChange={onChange}
+                name={name}
+                value={value}
+                canManageSourceDirs={canManageSourceDirs}
+                {...rest}
+            />
         </>
     );
 };

@@ -51,6 +51,27 @@ export class QorusProject {
     relativeDirPath = dir =>
         dir === this.project_folder ? '.' : vscode.workspace.asRelativePath(dir, false)
 
+    isInSourceDirs = (fs_path: string): boolean => {
+        let file_data: any = {};
+        try {
+            const file_content = fs.readFileSync(this.config_file);
+            file_data = JSON.parse(file_content.toString());
+        } catch (error) {
+            msg.error(JSON.stringify(error, null, 4));
+            return false;
+        }
+
+        const dir = path.dirname(fs_path);
+
+        for (let source_dir of file_data.source_directories || []) {
+            if (dir.search(path.join(this.folder, source_dir)) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
         if (!this.configFileExists()) {
             this.createConfigFileIfNotExists();
@@ -130,6 +151,60 @@ export class QorusProject {
         }
     }
 
+    createDirectory({action, request_id, path: full_dir, add_source}) {
+        const postMessage = (ok: boolean, message?: string) => {
+            qorus_webview.postMessage({ action: `${action}-complete`, request_id, ok, message });
+        };
+
+        const dir = this.projectSubdir(full_dir);
+        if (dir === undefined) {
+            postMessage(false, t`NotProjectSubdir ${full_dir}`);
+            return;
+        }
+
+        if (fs.existsSync(full_dir)) {
+            msg.info(t`DirAlreadyExists ${full_dir}`);
+        } else {
+            try {
+                fs.mkdirSync(full_dir, {recursive: true, mode: 0o755});
+            }
+            catch (e) {
+                msg.error(t`FailedCreateDir ${full_dir}`);
+                msg.log(e);
+                postMessage(false, t`FailedCreateDir ${full_dir}`);
+                return;
+            }
+        }
+
+        if (add_source) {
+            this.validateConfigFileAndDo(file_data => {
+                this.addSourceDir(file_data, dir);
+                postMessage(true, t`SubdirHasBeenCreatedAndAddedToSourceDirs ${dir}`);
+            });
+        } else {
+            postMessage(true, t`SubdirHasBeenCreated ${dir}`);
+        }
+    }
+
+    private projectSubdir(full_dir: string): string | undefined {
+        const dir = vscode.workspace.asRelativePath(full_dir, false);
+        if (dir === full_dir) {
+            msg.error(t`NotProjectSubdir ${dir}`);
+            return undefined;
+        }
+        return dir;
+    }
+
+    private addSourceDir(file_data: any, dir: string) {
+        if (file_data.source_directories.indexOf(dir) > -1) {
+            msg.info(t`DirAlreadyInConfig ${dir}`);
+            return;
+        }
+
+        file_data.source_directories.push(dir);
+        this.writeConfig(file_data);
+    }
+
     addSourceDirWithFilePicker() {
         this.validateConfigFileAndDo(file_data => {
             vscode.window
@@ -142,18 +217,12 @@ export class QorusProject {
                     if (!uris || !uris.length) {
                         return;
                     }
-                    const full_dir = uris[0].fsPath;
-                    const dir = vscode.workspace.asRelativePath(full_dir, false);
-                    if (dir == full_dir) {
-                        msg.error(t`NotProjectSubdir ${dir}`);
+
+                    const dir = this.projectSubdir(uris[0].fsPath);
+                    if (dir === undefined) {
                         return;
                     }
-                    if (file_data.source_directories.indexOf(dir) > -1) {
-                        msg.error(t`DirAlreadyInConfig ${dir}`);
-                        return;
-                    }
-                    file_data.source_directories.push(dir);
-                    this.writeConfig(file_data);
+                    this.addSourceDir(file_data, dir);
                 });
         });
     }
@@ -206,10 +275,10 @@ export class QorusProject {
     }
 
     private writeConfig(file_data: any) {
-        const removeSubdirs = dirs => {
-            const isSubdir = (dir1, dir2) =>
-                dir1.search(dir2) === 0 && ['/', '\\'].includes(dir1[dir2.length]);
+        const isSubdir = (dir1, dir2) =>
+            dir1.search(dir2) === 0 && ['/', '\\'].includes(dir1[dir2.length]);
 
+        const removeSubdirs = dirs => {
             for (let i = 0; i < dirs.length - 1; i++) {
                 for (let ii = i + 1; ii < dirs.length; ii++) {
                     if (isSubdir(dirs[i], dirs[ii])) {

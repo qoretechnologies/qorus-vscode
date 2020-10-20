@@ -172,6 +172,10 @@ class QorusWebview {
                                 action: 'close-login',
                             });
                             break;
+                        case 'create-directory':
+                            this.message_on_config_file_change = false;
+                            project.createDirectory(message);
+                            break;
                         case 'config-get-data':
                             project.getConfigForWebview();
                             break;

@@ -664,6 +664,9 @@ msgstr "Source directories"
 msgid "AddRemoveDir"
 msgstr "Add / Remove directory"
 
+msgid "FileNotInSourceDirs ${ file }"
+msgstr "File ${ file } is not in any of the configured source directories"
+
 msgid "NotProjectSubdir ${ dir }"
 msgstr "Selected directory ${ dir } is not a project subdirectory"
 
@@ -963,6 +966,9 @@ msgstr "Webview cannot be opened since there's no open workspace folder"
 
 msgid "field-label-target_dir"
 msgstr "Target directory"
+
+msgid "field-label-newDir"
+msgstr "New subdirectory"
 
 msgid "field-label-processor"
 msgstr "Processor"
@@ -1633,6 +1639,12 @@ msgstr "Directory ${ dir } in project configuration is not valid and will be rem
 msgid "FixedDirInConfig ${ dir } ${ fixed_dir }"
 msgstr "Directory ${ dir } in project configuration has been renamed to ${ fixed_dir }"
 
+msgid "SubdirHasBeenCreated ${ dir }"
+msgstr "Subdirectory ${ dir } has been created"
+
+msgid "SubdirHasBeenCreatedAndAddedToSourceDirs ${ dir }"
+msgstr "Subdirectory ${ dir } has been created and added to the source directories"
+
 msgid "AddMethod"
 msgstr "Add Method"
 
@@ -2277,6 +2289,9 @@ msgstr "${ iface } with class ${ name } already exists"
 msgid "FileAlreadyExists ${ file }"
 msgstr "File ${ file } already exists"
 
+msgid "DirAlreadyExists ${ dir }"
+msgstr "Directory ${ dir } already exists"
+
 msgid "IfaceSavedSuccessfully ${ iface } ${ name }"
 msgstr "${ iface } ${ name } has been saved successfully"
 
@@ -2498,6 +2513,21 @@ msgstr "Next element is incompatible!"
 
 msgid "EditStatesOrder"
 msgstr "Edit initial states order"
+
+msgid "CreateNewDir"
+msgstr "Create new directory"
+
+msgid "AddingNewDirectoryTo"
+msgstr "Subdirectory will be created in "
+
+msgid "MultipleSubdirectoriesNewDir"
+msgstr "It can contain further subdirectories that will be created as well (ex: my/new/dir)."
+
+msgid "CreateFolder"
+msgstr "Create"
+
+msgid "CreateFolderAndAddSource"
+msgstr "Create and add to sources"
 
 msgid "TransitionToState"
 msgstr "Transition to state"

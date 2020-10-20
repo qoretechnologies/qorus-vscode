@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { By, WebView } from 'vscode-extension-tester';
 import { sleep } from '../utils/common';
-import { confirmDialog } from '../utils/webview';
+import { clickElement, closeLastDialog, confirmDialog } from '../utils/webview';
 
 export const openEnvironmentPage = async (webview: WebView) => {
     await sleep(3000);
@@ -120,25 +120,23 @@ export const deleteUrl = async (webview: WebView) => {
 export const addAndRemoveSourceDirectory = async (webview: WebView) => {
     await sleep(3000);
 
-    await (await webview.findWebElement(By.name('manage-source-dirs'))).click();
+    await clickElement(webview, 'manage-source-dirs');
 
     await sleep(500);
 
-    await (await webview.findWebElement(By.name('folder-expander-source-dirs'))).click();
-    await (await webview.findWebElements(By.className('bp3-tree-node-caret')))[0].click();
+    await clickElement(webview, 'folder-expander-source-dirs');
+    await clickElement(webview, 'bp3-tree-node-caret', 1, 'className');
 
     await sleep(500);
 
-    await (await webview.findWebElements(By.className('bp3-tree-node-content')))[13].click();
+    await clickElement(webview, 'bp3-tree-node-content', 14, 'className');
 
     await sleep(500);
 
-    await (await webview.findWebElements(By.name('source-dir-remove')))[0].click();
+    await clickElement(webview, 'source-dir-remove');
     await confirmDialog(webview);
 
-    //expect(await webview.findWebElements(By.name('source-dir'))).to.have.length(19);
-
-    await (await webview.findWebElement(By.className('bp3-dialog-close-button'))).click();
+    await closeLastDialog(webview);
 
     await sleep(2000);
 };

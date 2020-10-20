@@ -7,6 +7,21 @@ import { deployer } from './QorusDeploy';
 import { tester } from './QorusTest';
 import * as msg from './qorus_message';
 
+const checkPathIsInSourceDirs = (fs_path: string): boolean => {
+    const project = projects.getProject(vscode.Uri.file(fs_path));
+    if (!project) {
+        // cannot happen, actually, so no message
+        return false;
+    }
+
+    if (!project.isInSourceDirs(fs_path)) {
+        msg.error(t`FileNotInSourceDirs ${fs_path}`);
+        return false;
+    }
+
+    return true;
+};
+
 export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) => {
     let disposable;
 
@@ -15,6 +30,10 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     {
         const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
+            if (!checkPathIsInSourceDirs(resource.fsPath)) {
+                return;
+            }
+
             const code_info = projects.projectCodeInfo(resource.fsPath);
             const data = code_info?.yaml_info.yamlDataBySrcFile(resource.fsPath);
             const fixed_data = code_info?.fixData(data);
@@ -43,6 +62,10 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     });
 
     disposable = vscode.commands.registerCommand('qorus.explorer.editInterface', (resource: any) => {
+        if (!checkPathIsInSourceDirs(resource.fsPath)) {
+            return;
+        }
+
         const code_info = projects.projectCodeInfo(resource.fsPath);
         const data = code_info?.yaml_info.yamlDataByFile(resource.fsPath);
         if (!data?.type) {
@@ -59,6 +82,10 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     {
         const command = 'qorus.explorer.deploy' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
+            if (!checkPathIsInSourceDirs(resource.fsPath)) {
+                return;
+            }
+
             const code_info = projects.projectCodeInfo(resource.fsPath);
             const data = code_info?.yaml_info.yamlDataByFile(resource.fsPath);
             if (!data?.type) {
