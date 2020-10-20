@@ -1,4 +1,6 @@
+import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
 import jsyaml from 'js-yaml';
+import every from 'lodash/every';
 import isArray from 'lodash/isArray';
 import isNaN from 'lodash/isNaN';
 import isNumber from 'lodash/isNumber';
@@ -6,11 +8,10 @@ import isObject from 'lodash/isPlainObject';
 import size from 'lodash/size';
 import uniqWith from 'lodash/uniqWith';
 import { isBoolean, isNull, isString, isUndefined } from 'util';
-
-import { isDateValid } from '@blueprintjs/datetime/lib/esm/common/dateUtils';
-
+import { getAddress, getProtocol } from '../components/Field/urlField';
+import { TTrigger } from '../containers/InterfaceCreator/fsm';
 import { IField } from '../containers/InterfaceCreator/panel';
-import { transformArgs } from '../components/Field/processor';
+import { splitByteSize } from './functions';
 
 const cron = require('cron-validator');
 
@@ -20,6 +21,9 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
     field,
     canBeNull
 ) => {
+    if (!type) {
+        return false;
+    }
     // If the value can be null an is null
     // immediately return true, no matter what type
     if (canBeNull && isNull(value)) {
@@ -55,24 +59,26 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             // Strings cannot be empty
             return isValid;
         }
-        case 'mapper-options': {
-            if (isObject(value)) {
-                return false;
-            }
-            // Check if every pair has key & value
-            // assigned properly
-            return value.every(
-                (pair: { [key: string]: string }): boolean =>
-                    pair.name && pair.name !== '' && validateField(pair.type, pair.value, field)
-            );
-        }
         case 'array-of-pairs': {
+            let valid = true;
             // Check if every pair has key & value
             // assigned properly
-            return value.every(
-                (pair: { [key: string]: string }): boolean =>
-                    pair[field.fields[0]] !== '' && pair[field.fields[1]] !== ''
-            );
+            if (
+                !value.every(
+                    (pair: { [key: string]: string }): boolean =>
+                        pair[field.fields[0]] !== '' && pair[field.fields[1]] !== ''
+                )
+            ) {
+                valid = false;
+            }
+            // Get a list of unique values
+            const uniqueValues: any[] = uniqWith(value, (cur, prev) => cur[field.fields[0]] === prev[field.fields[0]]);
+            // Check if there are any duplicates
+            if (size(uniqueValues) !== size(value)) {
+                valid = false;
+            }
+
+            return valid;
         }
         case 'class-connectors': {
             let valid = true;
@@ -119,7 +125,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'file-tree':
             // Check if there is atleast one value
             // selected
-            return value.length !== 0;
+            return value && value.length !== 0;
         case 'cron':
             // Check if the cron is valid
             return cron.isValidCron(value, { alias: true });
@@ -153,7 +159,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
                 return false;
             }
             // Split the value
-            const [code, method] = value.split('.');
+            const [code, method] = value.split('::');
             // Both fields need to be strings & filled
             return validateField('string', code) && validateField('string', method);
         case 'type-selector':
@@ -193,10 +199,6 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'processor': {
             let valid = true;
 
-            // Validate the arguments
-            if (value?.args && !validateField('class-array', transformArgs(value.args, true))) {
-                valid = false;
-            }
             // Validate the input and output types
             if (value?.['processor-input-type'] && !validateField('type-selector', value?.['processor-input-type'])) {
                 valid = false;
@@ -204,12 +206,44 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             if (value?.['processor-output-type'] && !validateField('type-selector', value?.['processor-output-type'])) {
                 valid = false;
             }
-            // Validate the options
-            if (value?.options && !validateField('hash', value?.options)) {
+
+            return valid;
+        }
+        case 'fsm-list': {
+            return value?.every(
+                (val: { name: string; triggers?: TTrigger[] }) => validateField('string', val.name) === true
+            );
+        }
+        case 'options':
+        case 'pipeline-options':
+        case 'mapper-options':
+        case 'system-options': {
+            if (!value || size(value) === 0) {
+                return false;
+            }
+
+            return every(value, (optionData) => validateField(optionData.type, optionData.value));
+        }
+        case 'byte-size': {
+            let valid = true;
+
+            const [bytes, size] = splitByteSize(value);
+
+            if (!validateField('number', bytes)) {
+                valid = false;
+            }
+
+            if (!validateField('string', size)) {
                 valid = false;
             }
 
             return valid;
+        }
+        case 'url': {
+            return (
+                validateField('string', getProtocol(value)) &&
+                validateField('string', getAddress(value?.replace(/\//g, '')))
+            );
         }
         case 'nothing':
             return false;
@@ -227,6 +261,7 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
     if (isNumber(yaml)) {
         return yaml;
     }
+
     // Leave dates
     if (isDateValid(yaml)) {
         return yaml;
@@ -291,14 +326,14 @@ export const getTypeFromValue = (value: any) => {
     if (value === 0 || value === 0.0 || (Number(value) === value && value % 1 !== 0)) {
         return 'float';
     }
-    if (new Date(value).toString() !== 'Invalid Date') {
-        return 'date';
-    }
     if (isObject(value)) {
         return 'hash';
     }
     if (isArray(value)) {
         return 'list';
+    }
+    if (new Date(value).toString() !== 'Invalid Date') {
+        return 'date';
     }
     if (isString(value)) {
         return 'string';

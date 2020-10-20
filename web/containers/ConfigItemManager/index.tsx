@@ -1,4 +1,6 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, {
+    FunctionComponent, useEffect, useState
+} from 'react';
 
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
@@ -10,7 +12,9 @@ import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { Messages } from '../../constants/messages';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+    TMessageListener, TPostMessage
+} from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import InterfaceCreatorPanel from '../InterfaceCreator/panel';
 import GlobalTable from './globalTable';
@@ -24,6 +28,7 @@ export interface IConfigItemManager {
     baseClassName: string;
     interfaceId: string;
     definitionsOnly?: boolean;
+    disableAdding?: boolean;
 }
 
 const StyledConfigManagerWrapper = styled.div`
@@ -57,13 +62,16 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     resetFields,
     steps,
     definitionsOnly,
+    stateData,
+    disableAdding,
+    processorData,
 }) => {
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<any>(false);
     const [configItems, setConfigItems] = useState<any>({});
 
     useEffectOnce(() => {
-        addMessageListener(Messages.RETURN_CONFIG_ITEMS, data => {
+        addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
             setConfigItems(data);
         });
         // Listen for config items data request
@@ -84,6 +92,8 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             iface_id: interfaceId,
             iface_kind: type,
             steps,
+            state_data: stateData,
+            processor_data: processorData,
         });
     });
 
@@ -94,7 +104,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             setShowConfigItemPanel(true);
         } else {
             setShowConfigItemPanel(false);
-            resetFields('config-item');
+            resetFields && resetFields('config-item');
         }
     }, [configItemData]);
 
@@ -117,31 +127,37 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
             parent_class: parent,
             iface_kind: type,
             is_templated_string: isTemplatedString,
+            state_id: stateData?.id,
+            processor_id: processorData?.pid,
         });
     };
 
-    const handleEditStructureClick: (configItemName: string) => void = configItemName => {
+    const handleEditStructureClick: (configItemName: string) => void = (configItemName) => {
         // Request the config item data
         postMessage(Messages.GET_CONFIG_ITEM, {
             iface_id: interfaceId,
             name: configItemName,
             iface_kind: type,
+            state_id: stateData?.id,
+            processor_id: processorData?.pid,
         });
     };
 
-    const handleDeleteStructureClick: (configItemName: string) => void = configItemName => {
+    const handleDeleteStructureClick: (configItemName: string) => void = (configItemName) => {
         // Request the config item data
         postMessage(Messages.DELETE_CONFIG_ITEM, {
             iface_id: interfaceId,
             name: configItemName,
             iface_kind: type,
+            state_id: stateData?.id,
+            processor_id: processorData?.pid,
         });
     };
 
     return (
         <>
             <StyledConfigManagerWrapper>
-                {type !== 'workflow' && (
+                {type !== 'workflow' && !disableAdding ? (
                     <Button
                         name={'add-config-item'}
                         text={t('AddConfigItem')}
@@ -149,7 +165,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                         icon="add"
                         onClick={() => setShowConfigItemPanel(true)}
                     />
-                )}
+                ) : null}
                 <StyledSeparator />
                 <div>
                     {configItems.global_items && (
@@ -176,6 +192,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             onEditStructureClick={handleEditStructureClick}
                             onDeleteStructureClick={handleDeleteStructureClick}
                             onSubmit={handleSubmit}
+                            disableAdding={disableAdding}
                             type={type}
                         />
                     ) : null}
@@ -189,7 +206,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                     onClose={() => {
                         setConfigItemData(null);
                         setShowConfigItemPanel(false);
-                        resetFields('config-item');
+                        resetFields && resetFields('config-item');
                     }}
                 >
                     <StyledConfigWrapper>
@@ -204,7 +221,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             onSubmitSuccess={() => {
                                 setConfigItemData(null);
                                 setShowConfigItemPanel(false);
-                                resetFields('config-item');
+                                resetFields && resetFields('config-item');
                             }}
                             forceSubmit
                         />

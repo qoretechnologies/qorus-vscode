@@ -1,5 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import * as urlParse from 'url-parse';
+import * as CryptoJS from 'crypto-js';
+import * as urlencode from 'urlencode';
+import * as urldecode from 'urldecode';
 import { Uri, Range } from 'vscode';
 
 export const isDeployable = (file_path: string): boolean =>
@@ -26,6 +30,9 @@ export const isTest = (file_path: string): boolean => {
     }
     if (suffix === 'java') {
         return path.basename(file_path, '.java').endsWith('Test');
+    }
+    if (suffix === 'py') {
+        return path.basename(file_path, '.py').toLowerCase().endsWith('test');
     }
 
     return false;
@@ -123,7 +130,7 @@ export const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
 export const capitalize = str => str[0].toUpperCase() + str.substr(1);
 
-export const isObject = x => x && typeof x === 'object' && !Array.isArray(x);
+export const isObject = (obj: any): boolean => obj && typeof obj === 'object' && !Array.isArray(obj);
 
 export const compareVersion = (v1, v2) => {
     if (typeof v1 !== 'string' || typeof v2 !== 'string') {
@@ -160,3 +167,27 @@ export const sortRanges = (ranges: Range[]): Range[] => ranges.sort((a, b) => {
     }
     return 0;
 });
+
+// modification: 'encrypt-pwd', 'decrypt-pwd', 'remove-user', 'remove-pwd'
+// (actually, anything else works as 'remove-pwd')
+export const modifyUrl = (orig_url: string, modification: string): string => {
+    const crypto_key = 'jDYm&nr$8mh3K';
+    const { protocol, slashes, host, query, pathname, username, password, hash } = urlParse(orig_url);
+
+    let url = `${protocol}${slashes ? '//' : ''}`;
+
+    if (username && modification !== 'remove-user') {
+        url += `${username}`;
+        if (password) {
+            if (modification === 'encrypt-pwd') {
+                url += `:${urlencode(CryptoJS.AES.encrypt(password, crypto_key).toString())}`;
+            } else if (modification === 'decrypt-pwd') {
+                url += `:${CryptoJS.AES.decrypt(urldecode(password), crypto_key).toString(CryptoJS.enc.Utf8) || password}`;
+            }
+        }
+        url += '@';
+    }
+
+    url += `${host}${pathname}${query}${hash}`;
+    return url;
+};

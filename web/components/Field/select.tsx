@@ -1,16 +1,19 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
+import { Button, Callout, Classes, ControlGroup, Icon, MenuItem, Tooltip } from '@blueprintjs/core';
 import { Select } from '@blueprintjs/select';
-import { MenuItem, Button, Tooltip, ControlGroup, Classes, Callout } from '@blueprintjs/core';
+import { get, includes } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import useMount from 'react-use/lib/useMount';
-import { includes, get, size } from 'lodash';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import { TTranslator } from '../../App';
-import withTextContext from '../../hocomponents/withTextContext';
 import { compose } from 'recompose';
-import StringField from './string';
+import styled from 'styled-components';
+import { TTranslator } from '../../App';
+import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
-import { Messages } from '../../constants/messages';
+import Spacer from '../Spacer';
+import StringField from './string';
 
 export interface ISelectField {
     addMessageListener: TMessageListener;
@@ -28,7 +31,43 @@ export interface ISelectField {
     autoSelect?: boolean;
 }
 
-const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
+const StyledDialogSelectItem = styled.div`
+    &:not(:last-child) {
+        margin-bottom: 10px;
+    }
+
+    background-color: #fff;
+
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    transition: all 0.2s;
+
+    &:hover,
+    &.selected {
+        cursor: pointer;
+        transform: scale(1.02);
+        box-shadow: 0 0 10px -6px #555;
+    }
+
+    &.selected {
+        border: 1px solid #7fba27;
+    }
+
+    h5 {
+        margin: 0;
+        padding: 0;
+        font-size: 14px;
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+        font-size: 12px;
+    }
+`;
+
+const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     get_message,
     return_message,
     addMessageListener,
@@ -47,9 +86,11 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
     autoSelect,
     reference,
     iface_kind,
+    context,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
+    const [isSelectDialogOpen, setSelectDialogOpen] = useState<boolean>(false);
     const [listener, setListener] = useState(null);
     const [hasProcessor, setHasProcessor] = useState<boolean>(
         requestFieldData ? requestFieldData('processor', 'selected') : false
@@ -176,10 +217,6 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         filteredItems = filteredItems.filter((item) => predicate(item.name));
     }
 
-    if (!filteredItems || filteredItems.length === 0) {
-        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
-    }
-
     if (autoSelect && filteredItems.length === 1) {
         // Automaticaly select the first item
         if (filteredItems[0].name !== value) {
@@ -189,56 +226,150 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
         return <StringField value={value || filteredItems[0].name} read_only name={name} onChange={() => {}} />;
     }
 
-    // Filter the items
-    filteredItems =
-        query === ''
-            ? filteredItems
-            : filteredItems.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
+    if (!reference && (!filteredItems || filteredItems.length === 0)) {
+        return <Callout intent="warning">{warningMessageOnEmpty || t('SelectNoItems')}</Callout>;
+    }
+
+    const hasItemsWithDesc = (data) => {
+        return data.some((item) => item.desc);
+    };
+
+    const filterItems = (items) => {
+        return items.filter((item: any) => includes(item.name.toLowerCase(), query.toLowerCase()));
+    };
+
+    const getItemDescription = (itemName) => {
+        return items.find((item) => item.name === itemName)?.desc;
+    };
 
     return (
-        <FieldEnhancer>
+        <FieldEnhancer context={{ iface_kind, ...context }}>
             {(onEditClick, onCreateClick) => (
-                <ControlGroup fill>
-                    <Select
-                        items={filteredItems}
-                        itemRenderer={(item, data) => (
-                            <MenuItem
-                                name={`field-${name}-item`}
-                                title={item.desc}
-                                icon={value && item.name === value ? 'tick' : 'blank'}
-                                text={item.name}
-                                onClick={data.handleClick}
-                            />
-                        )}
-                        inputProps={{
-                            placeholder: t('Filter'),
-                            name: 'select-filter',
-                        }}
-                        popoverProps={{
-                            popoverClassName: 'custom-popover',
-                            targetClassName: fill ? 'select-popover' : '',
-                            position: 'left',
-                        }}
-                        className={Classes.FILL}
-                        onItemSelect={(item: any) => handleSelectClick(item)}
-                        query={query}
-                        onQueryChange={(newQuery: string) => setQuery(newQuery)}
-                        disabled={disabled}
-                    >
-                        <Button
-                            name={`field-${name}`}
-                            fill
-                            text={value ? value : placeholder || t('PleaseSelect')}
-                            rightIcon={'caret-down'}
-                            onClick={handleClick}
-                        />
-                    </Select>
+                <ControlGroup fill={fill}>
+                    {!filteredItems || filteredItems.length === 0 ? (
+                        <StringField value={t('NothingToSelect')} read_only disabled name={name} onChange={() => {}} />
+                    ) : (
+                        <>
+                            {hasItemsWithDesc(items) ? (
+                                <>
+                                    <Tooltip
+                                        targetProps={{
+                                            style: {
+                                                width: '100%',
+                                            },
+                                        }}
+                                        content={
+                                            <ReactMarkdown
+                                                source={
+                                                    value
+                                                        ? getItemDescription(value) || t('NoDescription')
+                                                        : t('PleaseSelect')
+                                                }
+                                            />
+                                        }
+                                    >
+                                        <Button
+                                            name={`field-${name}`}
+                                            fill={fill}
+                                            text={value ? value : placeholder || t('PleaseSelect')}
+                                            rightIcon="widget-header"
+                                            onClick={() => setSelectDialogOpen(true)}
+                                        />
+                                    </Tooltip>
+                                    {isSelectDialogOpen && (
+                                        <CustomDialog
+                                            isOpen
+                                            icon="list"
+                                            onClose={() => {
+                                                setSelectDialogOpen(false);
+                                                setQuery('');
+                                            }}
+                                            title={t('SelectItem')}
+                                            style={{
+                                                maxHeight: '50vh',
+                                                overflow: 'auto',
+                                                padding: 0,
+                                            }}
+                                        >
+                                            <div className={Classes.DIALOG_BODY}>
+                                                <StringField
+                                                    onChange={(_name, value) => setQuery(value)}
+                                                    value={query}
+                                                    name="select-filter"
+                                                    placeholder={t('Filter')}
+                                                />
+                                                <Spacer size={10} />
+                                                {filterItems(filteredItems).map((item) => (
+                                                    <StyledDialogSelectItem
+                                                        className={item.name === value ? 'selected' : ''}
+                                                        name={`field-${name}-item`}
+                                                        onClick={() => {
+                                                            handleSelectClick(item);
+                                                            setSelectDialogOpen(false);
+                                                            setQuery('');
+                                                        }}
+                                                    >
+                                                        <h5>
+                                                            {item.name === value && (
+                                                                <Icon icon="small-tick" style={{ color: '#7fba27' }} />
+                                                            )}{' '}
+                                                            {item.name}
+                                                        </h5>
+
+                                                        <p className={Classes.TEXT_MUTED}>
+                                                            <ReactMarkdown source={item.desc || t('NoDescription')} />
+                                                        </p>
+                                                    </StyledDialogSelectItem>
+                                                ))}
+                                            </div>
+                                        </CustomDialog>
+                                    )}
+                                </>
+                            ) : (
+                                <Select
+                                    items={query === '' ? filteredItems : filterItems(filteredItems)}
+                                    itemRenderer={(item, data) => (
+                                        <MenuItem
+                                            name={`field-${name}-item`}
+                                            title={item.desc}
+                                            icon={value && item.name === value ? 'tick' : 'blank'}
+                                            text={item.name}
+                                            onClick={data.handleClick}
+                                        />
+                                    )}
+                                    inputProps={{
+                                        placeholder: t('Filter'),
+                                        name: 'field-select-filter',
+                                    }}
+                                    popoverProps={{
+                                        popoverClassName: 'custom-popover',
+                                        targetClassName: fill ? 'select-popover' : '',
+                                        position: 'left',
+                                    }}
+                                    className={fill ? Classes.FILL : ''}
+                                    onItemSelect={(item: any) => handleSelectClick(item)}
+                                    query={query}
+                                    onQueryChange={(newQuery: string) => setQuery(newQuery)}
+                                    disabled={disabled}
+                                >
+                                    <Button
+                                        name={`field-${name}`}
+                                        fill={fill}
+                                        text={value ? value : placeholder || t('PleaseSelect')}
+                                        rightIcon={'caret-down'}
+                                        onClick={handleClick}
+                                    />
+                                </Select>
+                            )}
+                        </>
+                    )}
                     {reference && (
                         <>
                             {value && (
-                                <Tooltip content={t('EditThisItem')}>
+                                <Tooltip content={t('EditThisItem')} className={Classes.FIXED}>
                                     <Button
                                         icon="edit"
+                                        name={`field-${name}-edit-reference`}
                                         onClick={() => onEditClick(value, reference, handleEditSubmit)}
                                     />
                                 </Tooltip>
@@ -247,6 +378,7 @@ const SelectField: FunctionComponent<ISelectField & IField & IFieldChange> = ({
                                 <Button
                                     icon="add"
                                     intent="success"
+                                    name={`field-${name}-reference-add-new`}
                                     onClick={() => onCreateClick(reference, handleEditSubmit)}
                                 />
                             </Tooltip>

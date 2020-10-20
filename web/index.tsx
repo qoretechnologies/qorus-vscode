@@ -39,13 +39,13 @@ window.onerror = (msg, url, line, col) => {
                 <br />
                 {process.env.NODE_ENV === 'production' && (
                     <p>
-                        Ooops the application has encoutered an error it was not able to recover from. Please click the
+                        Ooops the application has encountered an error it was not able to recover from. Please click the
                         button below to reload the webview.
                     </p>
                 )}
                 {process.env.NODE_ENV !== 'production' && (
                     <>
-                        <p>The application encoutered an error</p>
+                        <p>The application encountered an error</p>
                         <pre>
                             <strong>Error: </strong>
                             {msg}

@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import * as urlJoin from 'url-join';
 import * as request from 'request-promise';
-
+import { t } from 'ttag';
+import * as urlJoin from 'url-join';
+import * as vscode from 'vscode';
 import { QorusLogin } from './QorusLogin';
 import { qorus_webview } from './QorusWebview';
 import * as msg from './qorus_message';
-import { t } from 'ttag';
+
 
 export interface QorusRequestTexts {
     error: string;
@@ -22,6 +22,8 @@ export interface QorusRequestTexts {
 const log_request_messages = false;
 
 export class QorusRequest extends QorusLogin {
+    // returns true if the process got to the stage of checking the result
+    // returns false if the process failed earlier
     doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
         return request(options).then(
             (response: any) => {
@@ -130,7 +132,7 @@ export class QorusRequest extends QorusLogin {
         );
     }
 
-    doRequest = (url: string , method: string, onSuccess: Function, onError?: Function, id?: string) => {
+    doRequest = (url: string , method: string, onSuccess: Function, onError?: Function, id?: string, body?: { [key: string]: any}) => {
         const { ok, active_instance, token } = this.activeQorusInstanceAndToken();
         if (!ok) {
             msg.error(t`UnableGetActiveQorusInstanceData`);
@@ -145,14 +147,21 @@ export class QorusRequest extends QorusLogin {
             msg.log(t`SendingRequest ${id} ${uri}`);
         }
 
-        request({
+        let requestOptions = {
             method,
             uri,
             strictSSL: false,
             headers: {
                 'qorus-token': token,
             },
-        }).then(
+        }
+
+        if (method !== 'GET') {
+            // @ts-ignore
+            requestOptions = {...requestOptions, body: body || {}, json: true };
+        }
+
+        request(requestOptions).then(
             response => {
                 if (log_request_messages) {
                     msg.log(t`GettingResponse ${id} ${JSON.stringify(JSON.parse(response), null, 4)}`);
@@ -160,6 +169,7 @@ export class QorusRequest extends QorusLogin {
                 onSuccess(response);
             },
             error => {
+                console.log(error);
                 if (onError) {
                     onError(error);
                 }
@@ -167,7 +177,7 @@ export class QorusRequest extends QorusLogin {
         );
     }
 
-    fetchData = ({id, method, url}) => {
+    fetchData = ({id, method, url, body}) => {
         const onSuccess = response => {
             qorus_webview.postMessage({
                 action: 'fetch-data-complete',
@@ -185,7 +195,7 @@ export class QorusRequest extends QorusLogin {
             });
         };
 
-        this.doRequest(url, method , onSuccess, onError, id);
+        this.doRequest(url, method , onSuccess, onError, id, body);
     }
 }
 

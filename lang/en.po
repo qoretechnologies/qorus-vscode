@@ -43,8 +43,14 @@ msgstr "Opening ${ name } (${ url }) in an external browser"
 msgid "OpenUrlInExternalBrowserError ${ error }"
 msgstr "Error in opening URL in an external browser: ${ error }"
 
-msgid "NoQorusWithGivenUrlFound { url }"
+msgid "NoQorusWithGivenUrlFound ${ url }"
 msgstr "No Qorus instance with URL ${ url } found"
+
+msgid "SelectedFilesAndDirsNotFromOneProject"
+msgstr "Selected files and directories are not from the same project"
+
+msgid "NoFilesOrDirsSelected"
+msgstr "No files or directories selected"
 
 msgid "LoginSuccessful"
 msgstr "Login successful"
@@ -370,6 +376,12 @@ msgstr "Project configuration file has changed on disk"
 msgid "ConfigChangedOnDiskDialogQuestion"
 msgstr "Project configuration file has changed on disk. Do you want to reload or overwrite it?"
 
+msgid "BadEditDataRecreateQuestion"
+msgstr "The source code cannot be parsed or is inconsistent with the metadata. Do you want to re-create the interface as new? Any custom code will be lost."
+
+msgid "LangChangeRecreateQuestion"
+msgstr "Do you want to re-create the interface as new with another language? Any custom code will be lost."
+
 msgid "OpenUi"
 msgstr "Open UI"
 
@@ -474,6 +486,9 @@ msgstr "Do you really want to deploy all interfaces?"
 
 msgid "ConfirmDeployDirectory ${ dir }"
 msgstr "Do you really want to deploy directory ${ dir }?"
+
+msgid "ConfirmDeployFilesAndDirs"
+msgstr "Do you really want to deploy selected files and directories?"
 
 msgid "ConfirmDeletion"
 msgstr "Confirm deletion"
@@ -648,6 +663,9 @@ msgstr "Source directories"
 
 msgid "AddRemoveDir"
 msgstr "Add / Remove directory"
+
+msgid "FileNotInSourceDirs ${ file }"
+msgstr "File ${ file } is not in any of the configured source directories"
 
 msgid "NotProjectSubdir ${ dir }"
 msgstr "Selected directory ${ dir } is not a project subdirectory"
@@ -937,20 +955,59 @@ msgstr "N/A"
 msgid "WorkspaceFolderChangedResetWebview"
 msgstr "Webview has been reset because current workspace folder has changed"
 
-msgid "WorkspaceFolderChangedCloseWebview"
-msgstr "Webview has been closed because current workspace folder has changed"
-
 msgid "WorkspaceFolderChangedOrUnsetCloseWebview"
-msgstr "Webview has been closed because current workspace has changed or has not been set"
+msgstr "Webview has been closed because current workspace folder has changed or has not been set"
 
 msgid "WorkspaceFolderUnsetCloseWebview"
-msgstr "Webview has been closed because current workspace has not been set"
+msgstr "Webview has been closed because current workspace folder has not been set"
+
+msgid "WorkspaceFolderUnsetCannotOpenWebview"
+msgstr "Webview cannot be opened since there's no open workspace folder"
 
 msgid "field-label-target_dir"
 msgstr "Target directory"
 
+msgid "field-label-newDir"
+msgstr "New subdirectory"
+
 msgid "field-label-processor"
 msgstr "Processor"
+
+msgid "field-label-mapper"
+msgstr "Mapper"
+
+msgid "field-label-pipeline"
+msgstr "Pipeline"
+
+msgid "field-desc-pipeline"
+msgstr "Any data pipelines accessible and used by the interface"
+
+msgid "field-label-input-provider"
+msgstr "Input provider"
+
+msgid "field-label-input-provider-options"
+msgstr "Input provider options"
+
+msgid "field-desc-input-provider"
+msgstr "Input provider"
+
+msgid "field-label-system-options"
+msgstr "System options"
+
+msgid "field-desc-system-options"
+msgstr "System options DESCRIPTION PLEASE FILL ME"
+
+msgid "field-label-connector"
+msgstr "Connector"
+
+msgid "field-desc-connector"
+msgstr "Connectors used for building blocks"
+
+msgid "field-label-custom"
+msgstr "Custom expression"
+
+msgid "field-desc-custom"
+msgstr "A custom expression for the transtion; must return a boolean True (= make the transition) or False (= do not make the transition)"
 
 msgid "field-desc-processor"
 msgstr "Determines whether this class is used as a processor class"
@@ -1024,6 +1081,30 @@ msgstr "Version"
 msgid "field-desc-version"
 msgstr "Version string for the interface object"
 
+msgid "field-label-for"
+msgstr "for"
+
+msgid "field-label-true"
+msgstr "True"
+
+msgid "field-label-false"
+msgstr "False"
+
+msgid "field-label-foreach"
+msgstr "foreach"
+
+msgid "field-label-while"
+msgstr "while"
+
+msgid "field-label-block-logic"
+msgstr "Block logic"
+
+msgid "field-label-block-type"
+msgstr "Block type"
+
+msgid "field-label-block-config"
+msgstr "Block config"
+
 msgid "field-label-serviceversion"
 msgstr "Version"
 
@@ -1038,6 +1119,9 @@ msgstr "Description of the service object"
 
 msgid "field-label-author"
 msgstr "Author"
+
+msgid "field-desc-author"
+msgstr "The author of the object for display and tracking purposes"
 
 msgid "field-label-serviceauthor"
 msgstr "Author"
@@ -1061,7 +1145,7 @@ msgid "field-label-groups"
 msgstr "Groups"
 
 msgid "field-desc-groups"
-msgstr "One or more interface groups that the service is a member of"
+msgstr "One or more interface groups that the object is a member of"
 
 msgid "field-label-event"
 msgstr "Event"
@@ -1102,6 +1186,12 @@ msgstr "Mapper options"
 msgid "field-label-functions"
 msgstr "Functions"
 
+msgid "field-label-fsm"
+msgstr "Finite State Machine"
+
+msgid "field-desc-fsm"
+msgstr "Any Finite State Machines accessible and used by this interface"
+
 msgid "field-desc-functions"
 msgstr "An optional list of functions to load into the service program object"
 
@@ -1110,6 +1200,9 @@ msgstr "Service modules"
 
 msgid "field-label-modules"
 msgstr "Modules"
+
+msgid "field-desc-modules"
+msgstr "Qore-language modules to be loaded into the program container automatically"
 
 msgid "field-desc-service_modules"
 msgstr "lists modules providing base classes for class-based services"
@@ -1231,6 +1324,9 @@ msgstr "Defines the periodicity for running the job"
 msgid "field-label-name"
 msgstr "Name"
 
+msgid "field-desc-name"
+msgstr "The name of the object"
+
 msgid "field-label-sla_threshold"
 msgstr "SLA threshold"
 
@@ -1290,6 +1386,9 @@ msgstr "Statuses"
 
 msgid "field-label-any"
 msgstr "Any"
+
+msgid "field-desc-any"
+msgstr "Means that there are no type restrictions for the value; a value of any type can be provided to a field this type"
 
 msgid "field-desc-statuses"
 msgstr "A hash defining extended custom statuses descriptions as a single character key - string description"
@@ -1372,50 +1471,98 @@ msgstr "Description"
 msgid "field-label-label"
 msgstr "Label"
 
+msgid "field-desc-label"
+msgstr "The label"
+
 msgid "field-label-key"
 msgstr "Key"
+
+msgid "field-desc-key"
+msgstr "The key for the key-value pair"
 
 msgid "field-label-value"
 msgstr "Value"
 
+msgid "field-desc-value"
+msgstr "The value for the key-value pair"
+
 msgid "field-label-qore"
 msgstr "Qore"
+
+msgid "field-desc-qore"
+msgstr "Indicates that the code is written in Qore"
 
 msgid "field-label-python"
 msgstr "Python"
 
+msgid "field-desc-python"
+msgstr "Indicates that the code is written in Python"
+
 msgid "field-label-java"
 msgstr "Java"
 
+msgid "field-desc-java"
+msgstr "Indicates that the code is written in Java"
+
 msgid "field-label-none"
+msgstr "None"
+
+msgid "field-desc-none"
 msgstr "None"
 
 msgid "field-label-read"
 msgstr "Read"
 
+msgid "field-desc-read"
+msgstr "Indicates that the service method's read lock will be acquired during method execution"
+
 msgid "field-label-write"
 msgstr "Write"
+
+msgid "field-write-read"
+msgstr "Indicates that the service method's write lock will be acquired during method execution"
 
 msgid "field-label-string"
 msgstr "string"
 
+msgid "field-desc-string"
+msgstr "Restricts the value to strings"
+
 msgid "field-label-int"
 msgstr "int"
+
+msgid "field-desc-int"
+msgstr "Restricts the value to integers"
 
 msgid "field-label-bool"
 msgstr "bool"
 
+msgid "field-desc-bool"
+msgstr "Restricts the value to True and False"
+
 msgid "field-label-float"
 msgstr "float"
+
+msgid "field-desc-float"
+msgstr "Restricts the value to floating-point values"
 
 msgid "field-label-date"
 msgstr "date"
 
+msgid "field-desc-date"
+msgstr "Restricts the value to date/time values"
+
 msgid "field-label-hash"
 msgstr "hash"
 
+msgid "field-desc-hash"
+msgstr "Restricts the value to hash values"
+
 msgid "field-label-list"
 msgstr "list"
+
+msgid "field-desc-list"
+msgstr "Restricts the value to list values"
 
 msgid "field-label-class-connectors"
 msgstr "Connectors"
@@ -1491,6 +1638,12 @@ msgstr "Directory ${ dir } in project configuration is not valid and will be rem
 
 msgid "FixedDirInConfig ${ dir } ${ fixed_dir }"
 msgstr "Directory ${ dir } in project configuration has been renamed to ${ fixed_dir }"
+
+msgid "SubdirHasBeenCreated ${ dir }"
+msgstr "Subdirectory ${ dir } has been created"
+
+msgid "SubdirHasBeenCreatedAndAddedToSourceDirs ${ dir }"
+msgstr "Subdirectory ${ dir } has been created and added to the source directories"
 
 msgid "AddMethod"
 msgstr "Add Method"
@@ -2028,6 +2181,9 @@ msgstr "Invalid date provided"
 msgid "TriggerNoMethodsAvailable"
 msgstr "No service methods available. To add a trigger to a service building block, please create at least one method."
 
+msgid "StepBaseClassMissing"
+msgstr "The base class of the step is missing, please add base class first."
+
 msgid "NoMapperFieldsAvailable"
 msgstr "No fields available for factory type"
 
@@ -2085,6 +2241,15 @@ msgstr "Are you sure you want to remove this option?"
 msgid "ConfirmRemoveField"
 msgstr "Are you sure you want to remove this field?"
 
+msgid "RemoveField"
+msgstr "Remove field"
+
+msgid "Connection"
+msgstr "Connection"
+
+msgid "ResetFieldToOriginal"
+msgstr "Reset field to original value"
+
 msgid "ConfirmRemoveTrigger"
 msgstr "Are you sure you want to remove this trigger?"
 
@@ -2123,6 +2288,9 @@ msgstr "${ iface } with class ${ name } already exists"
 
 msgid "FileAlreadyExists ${ file }"
 msgstr "File ${ file } already exists"
+
+msgid "DirAlreadyExists ${ dir }"
+msgstr "Directory ${ dir } already exists"
 
 msgid "IfaceSavedSuccessfully ${ iface } ${ name }"
 msgstr "${ iface } ${ name } has been saved successfully"
@@ -2205,8 +2373,416 @@ msgstr "Input type"
 msgid "OutputType"
 msgstr "Output type"
 
+msgid "InputOutputType"
+msgstr "Input & output type"
+
+msgid "TransitionErrorsNoInstance"
+msgstr "Active Qorus instance is required to display list of server errors"
+
+msgid "EditingTransition"
+msgstr "Editing transition(s)"
+
+msgid "EditingState"
+msgstr "Editing state"
+
+msgid "ManagePipeElement"
+msgstr "Manage pipeline element"
+
+msgid "field-label-triggers"
+msgstr "Triggers"
+
+msgid "field-label-connection_options"
+msgstr "Options"
+
+msgid "field-label-url"
+msgstr "URL"
+
+msgid "field-desc-triggers"
+msgstr "Indicates how the associated actions will be triggered"
+
+msgid "field-label-event-connector"
+msgstr "Event connector"
+
+msgid "field-desc-event-connector"
+msgstr "An event-driven connector"
+
+msgid "field-label-trigger"
+msgstr "Trigger"
+
+msgid "field-desc-trigger"
+msgstr "Indicates how the associated action will be triggered"
+
+msgid "TriggerManager"
+msgstr "Manage trigger"
+
+msgid "FSMs"
+msgstr "Finite State Machines"
+
+msgid "FiniteStateMachine"
+msgstr "Finite State Machine"
+
+msgid "Pipelines"
+msgstr "Pipelines"
+
+msgid "field-label-options"
+msgstr "Options"
+
+msgid "field-desc-options"
+msgstr "Options for the object"
+
+msgid "ActionStrategy"
+msgstr "Action strategy"
+
+msgid "MaxThreadCount"
+msgstr "Max thread count"
+
+msgid "ShowMetadata"
+msgstr "Show metadata"
+
+msgid "NothingToSelect"
+msgstr "Nothing to select"
+
+msgid "HideMetadata"
+msgstr "Hide metadata"
+
 msgid "OrigIfaceFileDoesNotExist ${ file }"
 msgstr "The original interface file ${ file } does not exist"
 
 msgid "ErrorParsingFile ${ file }"
 msgstr "Error in parsing file ${ file }"
+
+msgid "ErrorParsingFileOrNoSymbolsFound ${ file }"
+msgstr "Error in parsing file ${ file } or no symbols found"
+
+msgid "Initial"
+msgstr "Initial"
+
+msgid "Final"
+msgstr "Final"
+
+msgid "AllTransitionsRemoved"
+msgstr "All transitions were removed"
+
+msgid "RemoveAllTransitions"
+msgstr "Remove all transitions"
+
+msgid "ConfirmResetField"
+msgstr "Are you sure you want to reset this field to it's original value? Note: The original value may have been inherited."
+
+msgid "PleaseSelectFSM"
+msgstr " - Please select an FSM to add triggers"
+
+msgid "NoTriggersYet"
+msgstr "No triggers added yet"
+
+msgid "FSMSelectTargetState"
+msgstr "Please select the target state by left clicking, or click anywhere else to cancel."
+
+msgid "Minimap"
+msgstr "Minimap"
+
+msgid "ToggleMinimap"
+msgstr "Toggle minimap"
+
+msgid "Toolbar"
+msgstr "Toolbar"
+
+msgid "ToggleToolbar"
+msgstr "Toggle toolbar"
+
+msgid "Recenter"
+msgstr "Recenter diagram"
+
+msgid "Branch"
+msgstr "Branch"
+
+msgid "EditTransitionsOrder"
+msgstr "Edit transitions order"
+
+msgid "PreviousOutputElementCompatible"
+msgstr "Previous element is compatible"
+
+msgid "PreviousOutputElementIncompatible"
+msgstr "Previous element is incompatible!"
+
+msgid "NextInputElementCompatible"
+msgstr "Next element is compatible"
+
+msgid "NextInputElementIncompatible"
+msgstr "Next element is incompatible!"
+
+msgid "EditStatesOrder"
+msgstr "Edit initial states order"
+
+msgid "CreateNewDir"
+msgstr "Create new directory"
+
+msgid "AddingNewDirectoryTo"
+msgstr "Subdirectory will be created in "
+
+msgid "MultipleSubdirectoriesNewDir"
+msgstr "It can contain further subdirectories that will be created as well (ex: my/new/dir)."
+
+msgid "CreateFolder"
+msgstr "Create"
+
+msgid "CreateFolderAndAddSource"
+msgstr "Create and add to sources"
+
+msgid "TransitionToState"
+msgstr "Transition to state"
+
+msgid "NoDescription"
+msgstr "No description available"
+
+msgid "CheckingCompatibility"
+msgstr "Checking compatibility..."
+
+msgid "PipelineElementIncompatible"
+msgstr "Parent element is not compatible!"
+
+msgid "PipelineElementCompatible"
+msgstr "Elements are compatible."
+
+msgid "IncompatibleTransitionsRemoved"
+msgstr "incompatible transitions removed. This is most likely due to a type change in affected states."
+
+msgid "SelectItem"
+msgstr "Select item"
+
+msgid "CannotManageBlock"
+msgstr "Blocks can only be managed with an active Qorus instance."
+
+msgid "LoadingCompatibilityCheck"
+msgstr "Checking compatibility..."
+
+msgid "MoveItemUp"
+msgstr "Move item up"
+
+msgid "NoOptionsAvailable"
+msgstr "There are no options available for the selected criteria."
+
+msgid "MoveItemDown"
+msgstr "Move item down"
+
+msgid "Missing"
+msgstr "Missing"
+
+msgid "TransitionErrors"
+msgstr "Error(s)"
+
+msgid "TransitionOrderCondition"
+msgstr "condition"
+
+msgid "LoadingOptions"
+msgstr "Loading options ..."
+
+msgid "NoOptionsSelected"
+msgstr "No options selected. Please select an option below."
+
+msgid "AddNewOption"
+msgstr "Add option"
+
+msgid "ErrorLoadingOptions"
+msgstr "There was an error loading options:"
+
+msgid "OptionsQorusInstanceRequired"
+msgstr "An active instance is required to manage options."
+
+msgid "RemoveSelectedOption"
+msgstr "Are you sure you wish to remove the selected option?"
+
+msgid "ManageTransitions"
+msgstr "Manage transitions"
+
+msgid "ManageExecutionOrder"
+msgstr "Set execution order"
+
+msgid "DuplicateConfigItemName ${ name } ${ prefix } ${ iface_type_1 } ${ iface_name_1 } ${ iface_type_2 } ${ iface_name_2 }"
+msgstr "Duplicate config item name \"${ name }\", prefix \"${ prefix }\": ${ iface_type_1 } \"${ iface_name_1 }\" and ${ iface_type_2 } \"${ iface_name_2 }\""
+
+msgid "ConfigItemAlreadyExists ${ name } ${ prefix } ${ iface_type } ${ iface_name }"
+msgstr "Config item with name \"${ name }\" and prefix \"${ prefix }\" already exists in ${ iface_type } \"${ iface_name }\""
+
+msgid "AddElement"
+msgstr "Add child element"
+
+msgid "RemovedIncompatibleContext"
+msgstr "The current context for this mapper is incompatible with the stored context. Context relations were removed."
+
+msgid "AddQueue"
+msgstr "Add queue"
+
+msgid "tutorial-controls"
+msgstr "Tutorial controls"
+
+msgid "PrevStep"
+msgstr "Previous step"
+
+msgid "NextStep"
+msgstr "Next step"
+
+msgid "RestartTutorial"
+msgstr "Restart tutorial"
+
+msgid "PlayTutorial"
+msgstr "Play tutorial automatically"
+
+msgid "PauseTutorial"
+msgstr "Pause tutorial"
+
+msgid "CloseTutorial"
+msgstr "Close tutorial"
+
+msgid "tutorial-controls-content"
+msgstr "
+  ### Welcome to the tutorial
+
+  Move between tips by clicking on the **arrows above** or use **[LEFT]** and **[RIGHT]** keys.
+
+  Click on the **X** or press the **[ESC]** to close the tutorial at any time.
+
+  The tutorial can also be set to _play_ through all it's steps automatically by clicking on the **play** icon or pressing the **[SPACE]** key.
+"
+
+
+
+
+#
+# TUTORIALS SECTION
+# !ADD NEW TRANSLATIONS NOT RELATED TO TUTORIAL BEFORE THIS!
+#
+
+# * Finite State Machine
+# The FSM title and description of what an FSM is
+msgid "tutorial-fsm-title"
+msgstr "Finite State Machine"
+msgid "tutorial-fsm-content"
+msgstr "Finite State Machines allow for arbitrary logic to be implemented in Qorus.
+
+Each state implements some logic or data processing, and then the execution of the Finite State Machine can move to
+one or more states until the execution is completed.
+
+Each transition from one state to another can be conditional on logic attached to the transition, which can use any
+available data to decide to move to the next state or not.
+
+Finite State Machines can be attached to service methods, workflow steps, and jobs, allowing for arbitrary logic to
+be implemented without the need for explicit coding.
+"
+# The Fields of an FSM (target dir, name, description)
+msgid "tutorial-fsm-fields-title"
+msgstr "Finite State Machine Fields"
+msgid "tutorial-fsm-fields-content"
+msgstr "
+ ### Target Directory
+ This will give the directory where the Finite State Machine configuration is stored on the file system.
+
+ ### Name
+ The Finite State Machine must have a unique name that is used as the label or reference from interfaces or other
+ Finite State Machines.
+
+ ### Description
+ The description should explain to other users what the Finite State Machine does and also describe any data input
+ requirements or output data produced.
+"
+# The state boxes toolbar - should explain what each state represents
+msgid "tutorial-fsm-tools-title"
+msgstr "Finite State Machine Toolbar"
+msgid "tutorial-fsm-tools-content"
+msgstr "
+ Drag and drop these boxes on the diagram below. These boxes represent the states of the Finite State Machine.
+
+ There are 4 types of states:
+
+ ### Mapper
+ Drag a mapper element to the diagram to add a data mapper to the Finite State Machine.
+
+ ### Pipeline
+ Pipelines provide more complex processing for record-based data, supporting multiple streams and record filters /
+ generators / grouping.
+
+ ### Connector
+ Connectors allow building-block-specific functionality to be employed in a Finite State Machine.
+
+ ### FSM
+ The FSM element allows a Finite State Machine to be called from another Finite State Machine.
+ "
+# The diagram
+msgid "tutorial-fsm-diagram-title"
+msgstr "Finite State Machine Diagram"
+msgid "tutorial-fsm-diagram-content"
+msgstr "
+This area is the design area where the logic flow is implement and where individual elements can be customized.
+
+**Moving states:** Drag and move a state around to change it's position.
+
+**Connecting states:** Double click on a state and select the target available state. State will indicate it's availability as a valid target by wiggling.
+
+**Managing state:** Hovering on a state provides the controls for _editing_ and _deleting_ a state. Right clicking on a state provides even more actions.
+
+To move around the diagram, hold the **[SHIFT]** key and drag the view around. You can also use the minimap (described in the next tip).
+"
+# The toolbar with minimap
+msgid "tutorial-fsm-toolbar-title"
+msgstr "Finite State Machine Minimap"
+msgid "tutorial-fsm-toolbar-content"
+msgstr "
+  Use this IDE element to see where you are in the context of the entire Finite State Machine diagram; the
+  minimap can also be used to quickly navigate to any part of the diagram, or to locate elements that are outside the
+  current viewing area in the main diagram area.
+
+  Simply drag and move the visible area to position yourself anywhere available on the diagram.
+
+  Both the minimap and whole toolbar can be closed for your convenience.
+"
+
+msgid "tutorial-pipeline-title"
+msgstr "Data Pipeline"
+msgid "tutorial-pipeline-content"
+msgstr "Data pipelines allow for simple or complex data processing logic to be defined graphically.
+
+The data processed in data pipelines is typically record-based data, such as from a database or as processed from a
+text file or other data source.  Each stage in a pipeline is a processor, which can transform, filter, or even
+generate new data to be processed by the next step.
+
+Data can be split multiple times, so multiple different outputs can be produced from a single input source.  To split
+data processing, multiple queues can be added as the last step in a queue.
+
+The input data is taken from the Finite State Machine context that triggers the pipeline, or from the input data
+provider configured here.
+
+Data pipelines are only used as elements in a Finite State Machine.
+"
+
+msgid "tutorial-pipeline-fields-title"
+msgstr "Data Pipeline Fields"
+msgid "tutorial-pipeline-fields-content"
+msgstr "
+### Target Directory
+This will give the directory where the data pipeline configuration is stored on the file system.
+
+### Name
+The data pipeline must have a unique name that is used as the label or reference from Finite State Machines.
+
+### Description
+The description should explain to other users what the data pipeline does and also describe any data input
+requirements or output data produced.
+"
+
+msgid "tutorial-pipeline-diagram-title"
+msgstr "Data Pipeline Diagram"
+msgid "tutorial-pipeline-diagram-content"
+msgstr "
+This area is the design area where the data pipeline flow is implement and where individual elements can be customized.
+
+**Adding an element:** Right-click on the start element or on a queue and select `Add child element`
+
+**Editing or deleting elements:** Right-click on an element and select the desired operation
+
+To move around the diagram, drag the view around with the mouse.
+"
+
+msgid "pipeline-start-title"
+msgstr "Data Pipeline Start Element"
+msgid "pipeline-start-content"
+msgstr "This element is the initial start which provides a control for adding elements to the pipeline"

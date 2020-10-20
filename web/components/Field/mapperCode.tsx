@@ -30,7 +30,7 @@ const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
     const [method, setMethod] = useState<string>(defaultMethod);
 
     useMount(() => {
-        addMessageListener(Messages.RETURN_MAPPER_CODE_METHODS, data => {
+        addMessageListener(Messages.RETURN_MAPPER_CODE_METHODS, (data) => {
             setMethods(data.methods);
         });
         // Check if default code exists
@@ -40,11 +40,11 @@ const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
         }
     });
 
-    const onCodeChange = newCode => {
+    const onCodeChange = (newCode) => {
         // Clear the methods
         setMethods(null);
         setMethod(null);
-        onChange('code', `${newCode}.`);
+        onChange('code', `${newCode}`);
         // Fetch the methods
         fetchMethods(newCode);
     };
@@ -69,7 +69,7 @@ const MapperCodeField: FunctionComponent<IMapperCodeFieldProps> = ({
                     value={method}
                     onChange={(_name, value) => {
                         setMethod(value);
-                        onChange('code', `${defaultCode}.${value}`);
+                        onChange('code', `${defaultCode}::${value}`);
                     }}
                     defaultItems={methods}
                 />

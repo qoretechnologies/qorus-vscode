@@ -22,7 +22,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [showSteps, setShowSteps] = useState<boolean>(false);
         const [steps, setSteps] = useState<any[]>(initialSteps);
         const [stepsData, setStepsData] = useState(props.initialStepsData);
-        const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(props.initialSteps));
+        const [parsedSteps, setParsedSteps] = useState<any[]>(stepsParser.processSteps(initialSteps));
         const [highlightedSteps, setHighlightedSteps] = useState<{ level: number; groupId: string }>(null);
         const [highlightedStepGroupIds, setHighlightedStepGroupIds] = useState<number[]>(null);
         const [lastStepId, setLastStepId] = useState<number>(1);
@@ -125,10 +125,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return filterEmptySteps(newSteps);
         };
 
-        const filterEmptySteps = steps => {
+        const filterEmptySteps = (steps) => {
             const newSteps = [];
             if (isArray(steps)) {
-                steps.forEach(step => {
+                steps.forEach((step) => {
                     if (isArray(step)) {
                         if (size(step)) {
                             newSteps.push(filterEmptySteps(size(step) === 1 ? step[0] : step));
@@ -144,7 +144,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const handleStepUpdate: (stepId: number, data: any) => void = (stepId, data) => {
-            setStepsData(current => {
+            setStepsData((current) => {
                 current[stepId] = data;
 
                 return current;
@@ -156,7 +156,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             setLastStepId((current: number) => {
                 const stepId = current + 10;
 
-                setSteps(current => {
+                setSteps((current) => {
                     let steps;
                     // If target step is not defined, simply
                     // push the step at the end of the list
@@ -172,7 +172,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setParsedSteps(stepsParser.processSteps(steps));
                     return steps;
                 });
-                setStepsData(current => ({
+                setStepsData((current) => ({
                     ...current,
                     [stepId]: data,
                 }));
@@ -182,11 +182,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const handleStepRemove = (stepId: number) => {
-            setSteps(current => {
+            setSteps((current) => {
                 const steps = removeStep(stepId, current);
 
                 setParsedSteps(() => {
-                    setStepsData(current => {
+                    setStepsData((current) => {
                         const stepsdata = reduce(
                             current,
                             (newStepsData, item, key) =>

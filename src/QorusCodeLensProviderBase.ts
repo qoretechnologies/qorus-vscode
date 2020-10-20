@@ -9,7 +9,6 @@ import { dash2Pascal, expectsYamlFile, isTest, suffixToIfaceKind } from './qorus
 
 export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
     protected code_info: QorusProjectCodeInfo = undefined;
-    protected previous_lenses: CodeLens[] = [];
 
     public provideCodeLenses(document: TextDocument): Promise<CodeLens[]> {
         if (!expectsYamlFile(document.uri.fsPath)) {
@@ -28,7 +27,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
         if (!yaml_info) {
             if (!isTest(file_path)) {
-                msg.error(t`UnableFindYamlForSrc ${file_name}`);
+                msg.log(t`UnableFindYamlForSrc ${file_name}`);
             }
             return Promise.resolve([]);
         }
@@ -120,7 +119,9 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         const method_index = (data[methods_key] || []).findIndex(method => method.name === method_name);
 
         if (method_index === -1) {
-            msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
+            if (data.lang !== 'python') {
+                msg.error(t`SrcMethodNotInYaml ${method_name} ${data.code || ''}`);
+            }
             return;
         }
 

@@ -1,14 +1,15 @@
 import React, { FunctionComponent } from 'react';
-
 import compose from 'recompose/compose';
-
 import Box from '../../components/Box';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
+import { ConnectionView } from './connection';
+import FSMView from './fsm';
 import LibraryView from './libraryView';
 import MapperView from './mapperView';
 import InterfaceCreatorPanel from './panel';
+import Pipeline from './pipeline';
 import ServicesView from './servicesView';
 import Tab from './tab';
 import TypeView from './typeView';
@@ -25,6 +26,23 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
+                    {initialData.subtab === 'fsm' && (
+                        <FSMView fsm={initialData.fsm} onSubmitSuccess={onSubmit} interfaceContext={context} />
+                    )}
+                    {initialData.subtab === 'connection' && (
+                        <ConnectionView
+                            context={context}
+                            onSubmitSuccess={onSubmit}
+                            isEditing={!!initialData.connection}
+                        />
+                    )}
+                    {initialData.subtab === 'pipeline' && (
+                        <Pipeline
+                            pipeline={initialData.pipeline}
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                        />
+                    )}
                     {initialData.subtab === 'service' && (
                         <ServicesView
                             service={initialData.service}
@@ -49,7 +67,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
                             <ClassConnectionsStateProvider type="job">
-                                {classConnectionsProps => (
+                                {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         hasClassConnections
                                         hasConfigManager
@@ -80,7 +98,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     {initialData.subtab === 'step' && (
                         <CreatorWrapper>
                             <ClassConnectionsStateProvider type="step">
-                                {classConnectionsProps => (
+                                {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         type={'step'}
                                         data={initialData.step}
@@ -91,7 +109,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                         isEditing={!!initialData.step}
                                         onSubmitSuccess={
                                             initialData.stepCallback
-                                                ? data => {
+                                                ? (data) => {
                                                       initialData.stepCallback(
                                                           data.name,
                                                           data.version,

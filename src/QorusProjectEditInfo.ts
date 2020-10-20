@@ -6,13 +6,32 @@ import { QorusJavaParser }  from './QorusJavaParser';
 import { QorusPythonParser }  from './QorusPythonParser';
 import { qoreLoc2Range, pythonLoc2Range, javaLoc2Range,
          pythonNameRange, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
+import { qorus_webview } from './QorusWebview';
 import { qore_vscode } from './qore_vscode';
+import { default_lang } from './qorus_constants';
 import * as msg from './qorus_message';
-import { CONN_CALL_METHOD, GENERATED_TEXT } from './qorus_creator/ClassConnectionsCreate';
+import { CONN_CALL_METHOD, GENERATED_TEXT } from './interface_creator/ClassConnectionsCreate';
 
 export class QorusProjectEditInfo {
     private edit_info: any = {};
-    getInfo = file => this.edit_info[file]
+    getInfo = file => this.edit_info[file];
+
+    private setError = (file: string, error: string): string => {
+        this.edit_info[file] = {error};
+        return error;
+    }
+
+    checkError = (file: string, iface_id: string, iface_kind: string) => {
+        if (this.edit_info?.[file]?.error) {
+            msg.error(this.edit_info[file].error);
+            qorus_webview.postMessage({
+                action: 'maybe-recreate-interface',
+                message: t`BadEditDataRecreateQuestion`,
+                iface_id,
+                iface_kind
+            });
+        }
+    }
 
     private addTextLines = (file: string, contents: string) => {
         if (!this.edit_info[file]) {
@@ -238,18 +257,8 @@ export class QorusProjectEditInfo {
 
     setFileInfo(file: string, data: any): Promise<any> {
         if (!existsSync(file)) {
-            return Promise.reject(t`OrigIfaceFileDoesNotExist ${file}`);
+            return Promise.reject(this.setError(file, t`OrigIfaceFileDoesNotExist ${file}`));
         }
-
-        switch (data.lang || 'qore') {
-            case 'python': return this.setPythonFileInfo(file, data);
-            case 'java': return this.setJavaFileInfo(file, data);
-            default: return this.setQoreFileInfo(file, data);
-        }
-    }
-
-    private setQoreFileInfo(file: string, data: any): Promise<any> {
-        this.edit_info[file] = undefined;
 
         const {
             iface_kind = data.type,
@@ -259,9 +268,21 @@ export class QorusProjectEditInfo {
         } = data;
 
         if (!iface_kind) {
-            return Promise.resolve();
+            return Promise.reject(this.setError(file, t`DataTypeUnknown`));
         }
 
+        this.edit_info[file] = undefined;
+
+        switch (data.lang || default_lang) {
+            case 'python': return this.setPythonFileInfo(file, class_name, base_class_name, class_connections);
+            case 'java': return this.setJavaFileInfo(file, class_name, base_class_name, class_connections);
+            case 'qore': return this.setQoreFileInfo(file, class_name, base_class_name, class_connections);
+        }
+
+        return Promise.resolve(undefined);
+    }
+
+    private setQoreFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
@@ -343,6 +364,10 @@ export class QorusProjectEditInfo {
         };
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+            if (!symbols.length) {
+                return Promise.reject(this.setError(file, t`ErrorParsingFileOrNoSymbolsFound ${file}`));
+            }
+
             if (class_connections) {
                 addClassConnectionClass(symbols);
             }
@@ -375,20 +400,7 @@ export class QorusProjectEditInfo {
         });
     }
 
-    private setJavaFileInfo(file: string, data: any): Promise<any> {
-        this.edit_info[file] = undefined;
-
-        const {
-            iface_kind = data.type,
-            'class-name': class_name,
-            'base-class-name': base_class_name,
-            'class-connections': class_connections
-        } = data;
-
-        if (!iface_kind) {
-            return Promise.resolve();
-        }
-
+    private setJavaFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
         let expected_trigger_names = [];
         Object.keys(class_connections || {}).forEach(connection => {
             class_connections[connection].forEach(connector => {
@@ -427,7 +439,7 @@ export class QorusProjectEditInfo {
                     }
                 }
             }
-        }
+        };
 
         const maybeAddClassConnectionMemberDeclaration = decl => {
             if (decl.type.identifier !== this.edit_info[file].class_connections_class_name) {
@@ -596,7 +608,13 @@ export class QorusProjectEditInfo {
             ];
         };
 
-        const parsed_data: any = QorusJavaParser.parseFileNoExcept(file);
+        let parsed_data: any;
+        try {
+            parsed_data = QorusJavaParser.parseFile(file);
+        } catch (error) {
+            msg.debug({error});
+            return Promise.reject(this.setError(file, t`ErrorParsingFile ${file}`));
+        }
 
         if (class_connections) {
             addClassConnectionClass(parsed_data.classes);
@@ -640,20 +658,7 @@ export class QorusProjectEditInfo {
         return Promise.resolve(this.edit_info[file]);
     }
 
-    private setPythonFileInfo(file: string, data: any): Promise<any> {
-        this.edit_info[file] = undefined;
-
-        const {
-            iface_kind = data.type,
-            'class-name': class_name,
-            'base-class-name': base_class_name,
-            'class-connections': class_connections
-        } = data;
-
-        if (!iface_kind) {
-            return Promise.resolve();
-        }
-
+    private setPythonFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
         let expected_trigger_names = [];
         Object.keys(class_connections || {}).forEach(connection => {
             class_connections[connection].forEach(connector => {
@@ -751,9 +756,8 @@ export class QorusProjectEditInfo {
         try {
             parsed_data = QorusPythonParser.parseFile(file);
         } catch (error) {
-            msg.error(t`ErrorParsingFile ${file}`);
             msg.debug({error});
-            return Promise.resolve();
+            return Promise.reject(this.setError(file, t`ErrorParsingFile ${file}`));
         }
 
         if (class_connections) {

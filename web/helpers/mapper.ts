@@ -1,6 +1,5 @@
-import { reduce, size, findIndex, omit } from 'lodash';
-import { providers } from '../containers/Mapper/provider';
-import { addTrailingSlash } from '../hocomponents/withMapper';
+import { findIndex, omit, reduce, size } from 'lodash';
+
 // This functions flattens the fields, by taking all the
 // deep fields from `type` and adds them right after their
 // respective parent field
@@ -79,3 +78,15 @@ export const hasStaticDataField = (context: string) =>
 export const getStaticDataFieldname = (context: string) => {
     return context.match(/\{([^}]+)\}/)?.[1];
 };
+
+export const rebuildOptions = (options) => {
+    return options
+            ? options.reduce(
+                  (newOptions, opt) => ({
+                      ...newOptions,
+                      [opt.name]: opt.value,
+                  }),
+                  {}
+              )
+            : {}
+}

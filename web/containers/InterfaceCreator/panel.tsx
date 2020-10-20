@@ -1,5 +1,4 @@
-import React, { FormEvent, FunctionComponent, useEffect, useRef, useState } from 'react';
-
+import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
 import {
     camelCase,
     cloneDeep,
@@ -15,13 +14,11 @@ import {
     upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
+import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import shortid from 'shortid';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Classes, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
@@ -33,6 +30,8 @@ import FieldSelector from '../../components/FieldSelector';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
+import { InitialContext } from '../../context/init';
+import { maybeSendOnChangeEvent } from '../../helpers/common';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -79,6 +78,7 @@ export interface IInterfaceCreatorPanel {
     allSelectedFields: { [type: string]: IField[] };
     data?: any;
     onDataFinishLoading?: () => any;
+    onDataFinishLoadingRecur?: (activeId: number) => any;
     isEditing?: boolean;
     allMethodsData?: any[];
     initialData?: any;
@@ -132,13 +132,10 @@ export declare interface IFieldChange {
     onChange: (fieldName: string, value: any) => void;
 }
 
-export const FieldWrapper = styled.div`
+export const FieldWrapper = styled.div<{ padded?: boolean }>`
     display: flex;
     flex-flow: row;
-    &:not(:first-child) {
-        margin-top: 20px;
-    }
-    padding: 8px 0;
+    padding: 15px ${({ padded }) => (padded ? '20px' : 0)};
     flex: none;
 
     &:nth-child(even) {
@@ -196,7 +193,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     forceSubmit,
     resetFields,
     openFileOnSubmit,
-    initialData,
     hasConfigManager,
     parent,
     interfaceId,
@@ -220,12 +216,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     context,
     onSubmitSuccess,
     setAsDraft,
+    onDataFinishLoadingRecur,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
     const [messageListener, setMessageListener] = useState(null);
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
+    const initialData = useContext(InitialContext);
 
     const getClasses = () => {
         const classes = selectedFields?.find((field: IField) => field.name === 'classes');
@@ -319,6 +317,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         // Set the mount to false
                         isInitialMount.current = false;
                     }
+
+                    // Check if onDataFinishRecur function is set
+                    if (onDataFinishLoadingRecur) {
+                        // Run the callback
+                        onDataFinishLoadingRecur(activeId);
+                    }
                     const currentInterfaceId = data ? clonedData.iface_id : shortid.generate();
                     // Check if the interface id exists, which means user
                     // has already been on this view
@@ -336,7 +340,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Set the new message listener
         setMessageListener(() => messageListenerHandler);
         // Fetch the fields
-        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
+        if (type === 'config-item' && isEditing) {
+            postMessage(Messages.GET_FIELDS, {
+                iface_kind: type,
+                is_editing: isEditing,
+                context,
+                iface_id: interfaceId,
+                name: data.name,
+            });
+        } else {
+            postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
+        }
         // Cleanup on unmount
         return () => {
             // Remove the message listener if it exists
@@ -598,22 +612,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             // Change the method name in the side panel
                             onNameChange(activeId, value, metadata?.originalName);
                         }
-                        // Check if this field has an on_change message
-                        if (currentField.on_change) {
-                            // Check if on_change is a list
-                            const onChange: string[] = isArray(currentField.on_change)
-                                ? currentField.on_change
-                                : [currentField.on_change];
-                            // Post all the actions
-                            onChange.forEach((action) => {
-                                // Post the message with this handler
-                                postMessage(action, {
-                                    [currentField.name]: value,
-                                    iface_kind: type,
-                                    iface_id: interfaceId,
-                                });
-                            });
-                        }
+                        // On change events
+                        maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
                         // Add the value
                         return [
                             ...newFields,
@@ -694,17 +694,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         {}
                     );
                 });
-                // Add missing methods
-                if (allMethodsData) {
-                    allMethodsData.forEach((method) => {
-                        // Check if this method exists in the
-                        // data hash also check if the method has been deleted
-                        if (!newData[subItemType].find((m) => m.orig_name === method.name)) {
-                            // Add this method
-                            newData[subItemType].push(omit({ ...method, orig_name: method.name }, ['id', 'internal']));
-                        }
-                    });
-                }
                 // Filter deleted methods
                 if (methodsList) {
                     newData[subItemType] = newData[subItemType].filter((m) =>
@@ -754,6 +743,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         orig_data: data,
                         workflow,
                         open_file_on_success: openFileOnSubmit !== false,
+                        no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
                     t(`Saving ${type}...`)
@@ -783,6 +773,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 ? initialData['mapper-code']
                                 : data,
                         open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
+                        no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
                     t(`Saving ${type}...`)
@@ -1084,8 +1075,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                         />
                                     </FieldInputWrapper>
                                     <FieldActions
+                                        value={field.value}
+                                        parentValue={field['parent-value']}
                                         desc={t(`field-desc-${field.name}`)}
                                         name={field.name}
+                                        onResetClick={() => {
+                                            handleFieldChange(field.name, field['parent-value']);
+                                        }}
+                                        isSet={field['is-set']}
+                                        disabled={isFieldDisabled(field)}
                                         onClick={removeField}
                                         removable={field.mandatory === false}
                                     />
@@ -1101,7 +1099,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                     <Button
                                         icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
                                         intent={areClassConnectionsValid() ? 'none' : 'warning'}
-                                        disabled={!isClassConnectionsManagerEnabled()}
+                                        disabled={!isClassConnectionsManagerEnabled() || !initialData.qorus_instance}
                                         onClick={() => setShowClassConnectionsManager(true)}
                                     >
                                         {t('ManageClassConnections')} ({size(classConnectionsData)})
@@ -1156,7 +1154,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     </div>
                 </ActionsWrapper>
             </Content>
-            {showClassConnectionsManager && hasClassConnections && (
+            {showClassConnectionsManager && hasClassConnections && initialData.qorus_instance && (
                 <CustomDialog
                     isOpen
                     title={t('ClassConnectionsManager')}
@@ -1169,8 +1167,35 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         interfaceContext={getContext()}
                         initialConnections={classConnectionsData}
                         onSubmit={(classConnections) => {
-                            modifyMappers(classConnections);
-                            setClassConnectionsData(classConnections);
+                            const modifiedConnections = reduce(
+                                classConnections,
+                                (newConnections, connection, name) => {
+                                    return {
+                                        ...newConnections,
+                                        [name]: connection.reduce(
+                                            (newConnection, item) => [
+                                                ...newConnection,
+                                                omit(item, [
+                                                    'nextItemData',
+                                                    'previousItemData',
+                                                    'isInputCompatible',
+                                                    'isOutputCompatible',
+                                                    'index',
+                                                    'isBetween',
+                                                    'isEditing',
+                                                    'isEvent',
+                                                    'isLast',
+                                                ]),
+                                            ],
+                                            []
+                                        ),
+                                    };
+                                },
+                                {}
+                            );
+                            console.log(modifiedConnections);
+                            modifyMappers(modifiedConnections);
+                            setClassConnectionsData(modifiedConnections);
                             setShowClassConnectionsManager(false);
                         }}
                     />

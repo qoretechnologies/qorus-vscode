@@ -6,7 +6,7 @@ import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { getValueOrDefaultValue } from '../../helpers/validations';
 import { isUndefined } from 'util';
 
-const BooleanField: FunctionComponent<IField & IFieldChange> = ({ name, onChange, value, default_value }) => {
+const BooleanField: FunctionComponent<IField & IFieldChange> = ({ name, onChange, value, default_value, disabled }) => {
     useMount(() => {
         // Set the default value
         onChange(name, getValueOrDefaultValue(value, default_value || false, false));
@@ -23,7 +23,7 @@ const BooleanField: FunctionComponent<IField & IFieldChange> = ({ name, onChange
         return null;
     }
 
-    return <Switch checked={value || false} large onChange={handleEnabledChange} />;
+    return <Switch disabled={disabled} checked={value || false} large onChange={handleEnabledChange} />;
 };
 
 export default BooleanField;

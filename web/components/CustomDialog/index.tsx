@@ -9,9 +9,10 @@ import { DialogsContext } from '../../context/dialogs';
 
 export interface ICustomDialogProps extends IDialogProps {
     children: any;
+    noBottomPad?: boolean;
 }
 
-const CustomDialog: React.FC<ICustomDialogProps> = ({ children, ...rest }) => {
+const CustomDialog: React.FC<ICustomDialogProps> = ({ children, noBottomPad, ...rest }) => {
     const dialogContext = useContext(DialogsContext);
 
     useEffectOnce(() => {

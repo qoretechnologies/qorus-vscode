@@ -4,12 +4,13 @@ name: ServiceClassWithConfigItems
 desc: Test service class with config items
 base-class-name: QorusService
 lang: qore
-version: "1.2"
+version: '1.2'
 code: ServiceClassWithConfigItems-1.2.qclass
 config-items:
-  - name: test-config-item-1
-    default_value:
-        54
-    config_group: test
-    description: test config item of a base class
-    type: int
+    - name: test-config-item-1
+      default_value: 54
+      allowed_values:
+          - 54
+      config_group: test
+      description: test config item of a base class
+      type: int

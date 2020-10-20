@@ -1,19 +1,22 @@
-import * as vscode from 'vscode';
-import * as urlJoin from 'url-join';
 import * as request from 'request-promise';
-
-import { QorusAuth, AuthNeeded } from './QorusAuth';
-import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
-import { qorus_webview } from './QorusWebview';
-import { QorusProject, projects } from './QorusProject';
-import * as msg from './qorus_message';
 import { t } from 'ttag';
+import * as urlJoin from 'url-join';
+import * as urlParse from 'url-parse';
+import * as vscode from 'vscode';
+import { AuthNeeded, QorusAuth } from './QorusAuth';
+import { instance_tree, QorusTreeInstanceNode } from './QorusInstanceTree';
+import { projects } from './QorusProject';
+import { qorus_webview } from './QorusWebview';
+import * as msg from './qorus_message';
+import { modifyUrl } from './qorus_utils';
+
 
 
 export class QorusLogin extends QorusAuth {
     private current_login_params: any = {
         qorus_instance: undefined,
         set_active: true,
+        username: undefined
     };
 
     private active_instance_ping_interval_id: any;
@@ -28,19 +31,29 @@ export class QorusLogin extends QorusAuth {
 
         const qorus_instance = instance_tree.getQorusInstance(url);
         if (!qorus_instance) {
-            msg.error(t`NoQorusWithGivenUrlFound ${url}`);
+            msg.error(t`NoQorusWithGivenUrlFound ${modifyUrl(url, 'remove-pwd')}`);
             return;
         }
+
+        const { username, password } = urlParse(url);
 
         this.current_login_params = {
             qorus_instance: (({ name, url }) => ({ name, url }))(qorus_instance),
             set_active,
+            username
         };
 
-        qorus_webview.open({ tab: 'Login' });
+        if (username && password) {
+            this.loginPost(username, password, (error) => {
+                this.requestError(error, t`LoginError`);
+                qorus_webview.open({ tab: 'Login', username });
+            });
+        } else {
+            qorus_webview.open({ tab: 'Login', username });
+        }
     }
 
-    loginPost(username: string, password: string) {
+    loginPost(username: string, password: string, onError?: Function) {
         if (!this.current_login_params.qorus_instance) {
             return;
         }
@@ -61,21 +74,27 @@ export class QorusLogin extends QorusAuth {
                 this.addToken(qorus_instance.url, token, set_active);
                 instance_tree.refresh();
                 msg.info(t`LoginSuccessful`);
-                qorus_webview.opening_data = { tab: 'ProjectConfig' };
+
                 qorus_webview.postMessage({
                     action: 'close-login',
                     qorus_instance: set_active ? qorus_instance : null,
                 });
+
                 const code_info = projects.currentProjectCodeInfo();
                 code_info && code_info.setCurrentQorusData();
+
                 this.startConnectionCheck();
             },
             error => {
-                this.requestError(error, t`LoginError`);
-                qorus_webview.postMessage({
-                    action: 'login-error',
-                    error: t`AuthFailed`,
-                });
+                if (onError) {
+                    onError(error);
+                } else {
+                    this.requestError(error, t`LoginError`);
+                    qorus_webview.postMessage({
+                        action: 'login-error',
+                        error: t`AuthFailed`,
+                    });
+                }
             }
         );
     }
@@ -83,16 +102,17 @@ export class QorusLogin extends QorusAuth {
     loginQorusInstance(): any {
         return {
             ...this.current_login_params.qorus_instance,
-            safe_url: QorusProject.createSafeUrl(this.current_login_params.qorus_instance.url),
+            safe_url: modifyUrl(this.current_login_params.qorus_instance.url, 'remove-pwd'),
+            username: this.current_login_params.username,
         };
     }
 
     logout(tree_item: vscode.TreeItem) {
-        const url: string = (<QorusTreeInstanceNode>tree_item).getUrl();
+        const url: string = typeof tree_item === 'string' ? tree_item : (<QorusTreeInstanceNode>tree_item).getUrl();
 
         const token = this.getToken(url);
         if (!token) {
-            msg.log(t`NoTokenForUrl ${url}`);
+            msg.log(t`NoTokenForUrl ${modifyUrl(url, 'remove-pwd')}`);
             this.doLogout(url);
             return;
         }
@@ -127,6 +147,9 @@ export class QorusLogin extends QorusAuth {
 
     requestError(error_data: any, default_error: string) {
         let url: string = error_data.options ? error_data.options.uri || '' : '';
+        if (url) {
+            url = modifyUrl(url, 'remove-pwd');
+        }
 
         const params_pos = url.indexOf('?');
         if (params_pos > -1) {
@@ -202,14 +225,15 @@ export class QorusLogin extends QorusAuth {
             this.startConnectionCheck();
             return;
         }
-        QorusLogin.checkNoAuth(url).then(
+
+        const modified_url = modifyUrl(url, 'remove-user');
+        QorusLogin.checkNoAuth(modified_url).then(
             (no_auth: boolean) => {
                 if (no_auth) {
                     this.addNoAuth(url);
                     instance_tree.refresh();
-                    msg.info(t`AuthNotNeeded ${url}`);
+                    msg.info(t`AuthNotNeeded ${modified_url}`);
                 } else {
-                    msg.info(t`AuthNeeded ${url}`);
                     this.login(url);
                 }
             },

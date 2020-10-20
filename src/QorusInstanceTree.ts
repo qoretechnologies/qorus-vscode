@@ -1,11 +1,10 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
+import { t } from 'ttag';
+import * as vscode from 'vscode';
 import { AuthNeeded } from './QorusAuth';
 import { qorus_request as auth } from './QorusRequest';
-import { isVersion3 } from './qorus_utils';
 import * as msg from './qorus_message';
-import { t } from 'ttag';
-
+import { isVersion3, modifyUrl } from './qorus_utils';
 
 class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
 
@@ -20,6 +19,7 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
         this.qorus_instances = {};
         for (let env_name in this.data) {
             for (let instance of this.data[env_name]) {
+                instance.url = modifyUrl(instance.url, 'decrypt-pwd');
                 this.qorus_instances[instance.url] = instance;
             }
         }
@@ -35,6 +35,7 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
         = this.onTreeDataChanged.event;
 
     refresh() {
+        // @ts-ignore
         this.onTreeDataChanged.fire();
     }
 
@@ -150,6 +151,9 @@ export class QorusTreeInstanceNode extends QorusTreeNode {
                 children.push(new QorusTreeCustomUrlNode(custom_url));
             }
         }
+        if (this.is_active) {
+            children.push(new QorusTreeLogoutNode(this.instance));
+        }
         return children;
     }
 
@@ -178,6 +182,19 @@ class QorusTreeUrlNode extends QorusTreeNode {
             command: 'qorus.openUrlInExternalBrowser',
             title: t`OpenUi`,
             arguments: [url.url, url.name]
+        };
+    }
+}
+
+
+class QorusTreeLogoutNode extends QorusTreeNode {
+    constructor(url) {
+        super(t`Logout`, vscode.TreeItemCollapsibleState.None);
+        this.tooltip = t`Logout`;
+        this.command = {
+            command: 'qorus.logout',
+            title: t`Logout`,
+            arguments: [url.url, url.name],
         };
     }
 }

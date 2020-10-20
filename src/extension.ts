@@ -22,8 +22,8 @@ import { qorus_request } from './QorusRequest';
 import { tester } from './QorusTest';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_webview } from './QorusWebview';
-import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
-import { InterfaceInfo } from './qorus_creator/InterfaceInfo';
+import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
+import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { registerQorusExplorerCommands } from './qorus_explorer_commands';
 import { registerQorusViewsCommands } from './qorus_views_commands';
 
@@ -76,21 +76,21 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.webview', () => qorus_webview.open());
+    disposable = vscode.commands.registerCommand('qorus.openWebview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.closeWebview', () => qorus_webview.dispose());
     context.subscriptions.push(disposable);
 
-    ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code',
-        'class', 'other', 'group', 'event', 'queue', 'type'].forEach(iface_kind =>
+    ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class', 'connection',
+        'other', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {
             const uri = data instanceof vscode.Uri ? data : undefined;
 
             if (['group', 'event', 'queue'].includes(iface_kind)) {
-                const iface_info: InterfaceInfo = projects.currentInterfaceInfo();
+                const iface_info: QorusProjectInterfaceInfo = projects.currentInterfaceInfo();
                 iface_info.last_other_iface_kind = iface_kind;
                 iface_kind = 'other';
             }
@@ -107,7 +107,12 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.editInterface',
                                                  (data: any, iface_kind: string) =>
     {
-        const iface_info: InterfaceInfo = projects.currentInterfaceInfo();
+        const code_info = projects.currentProjectCodeInfo();
+        if (!code_info) {
+            return;
+        }
+
+        const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
         if (['group', 'event', 'queue'].includes(iface_kind)) {
@@ -121,6 +126,14 @@ export async function activate(context: vscode.ExtensionContext) {
             subtab: iface_kind,
             [iface_kind]: { ...data, iface_id }
         });
+
+        const { target_dir, target_file } = data;
+        if (target_dir && target_file) {
+            const file_path = path.join(target_dir, target_file);
+            if (path.extname(file_path) !== '.yaml') {
+                code_info.edit_info.setFileInfo(file_path, data);
+            }
+        }
     });
     context.subscriptions.push(disposable);
 

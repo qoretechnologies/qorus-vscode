@@ -57,7 +57,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
         ]);
     };
 
-    const handleRemoveClick: (id: number) => void = id => {
+    const handleRemoveClick: (id: number) => void = (id) => {
         // Remove the selected pair
         onChange(
             name,
@@ -89,7 +89,9 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                     { name: 'output' },
                                     { name: 'input-output' },
                                     { name: 'event' },
+                                    { name: 'condition' },
                                 ]}
+                                fill
                                 value={pair.type}
                                 name="type"
                                 onChange={(fieldName: string, val: string) => {
@@ -131,11 +133,13 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                     <div>
                         {initialData.qorus_instance ? (
                             <>
-                                {(pair.type === 'input' || pair.type === 'input-output') && (
+                                {(pair.type === 'input' ||
+                                    pair.type === 'input-output' ||
+                                    pair.type === 'condition') && (
                                     <ConnectorField
                                         value={pair['input-provider']}
                                         isInitialEditing={!!initialData.class}
-                                        title="Input provider"
+                                        title={t('InputType')}
                                         name="input-provider"
                                         onChange={(fieldName, val) => changePairData(index, fieldName, val)}
                                     />
@@ -144,7 +148,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                     <ConnectorField
                                         value={pair['output-provider']}
                                         isInitialEditing={!!initialData.class}
-                                        title="Output provider"
+                                        title={t('OutputType')}
                                         name="output-provider"
                                         onChange={(fieldName, val) => changePairData(index, fieldName, val)}
                                     />

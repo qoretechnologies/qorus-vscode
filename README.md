@@ -4,6 +4,17 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
+## Version 2.0.0 overview - What's new:
+* Python is now a supported language
+* The extension is now 20x smaller
+* New Flow Designer (Finite State Machines): supports building arbitrary logic for any interface object with a mouse and configuration of building blocks instead of coding
+* Support for pipelines added: build high-performance data flow processing solutions using a mouse
+* Support for connections added
+* You can now deploy multiple files and directories
+* Code can now be shared between Qore, Java and Python; interfaces can also be regenerated from configuration in another language
+* New tutorial feature to guide you through some of the more complex interfaces
+...and many more new features and bug fixes, for a complete list please check the changelog.
+
 ## Version 1.3.0 overview - What's new:
 * Support for editing Java interfaces
 * Added the commands 'Close Webview' and 'Edit current interface'
@@ -126,3 +137,13 @@ Context menus of instances in the *Qorus Instances* tree view contain also the f
 - Login without setting the instance active.
 - Logout (if the instance was active it becomes inactive).
 - Set the instance inactive while staying logged in.
+
+### Hints
+
+- If there can be a heavy filesystem traffic in a part of the project folder, such as running a build with make,
+  exclude that part from file watching otherwise the extension may get frozen:
+
+    - open settings (File -> Preferences -> Settings)
+    - switch to the Workspace tab
+    - search for "watcher exclude"
+    - add a pattern there

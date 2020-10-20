@@ -152,6 +152,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             {
                 iface_kind: 'type',
                 orig_data: initialData.type,
+                no_data_return: !!onSubmitSuccess,
                 data: {
                     target_dir: !targetDir || targetDir === '' ? undefined : targetDir,
                     target_file: !targetFile || targetFile === '' ? undefined : targetFile,
@@ -228,9 +229,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     flex: 1,
                     overflow: 'auto',
                     background: `url(${
-                        process.env.NODE_ENV === 'development'
-                            ? `http://localhost:9876/images/tiny_grid.png`
-                            : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
+                        `${initialData.image_path}/images/tiny_grid.png)`
                     }`,
                 }}
             >

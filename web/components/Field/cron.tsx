@@ -82,6 +82,7 @@ const CronField: FunctionComponent<ICronField & IField & IFieldChange> = ({
         <>
             <ControlGroup fill>
                 <InputGroup
+                    name={'field-cron-minute'}
                     value={minute}
                     placeholder={'Minute'}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +90,7 @@ const CronField: FunctionComponent<ICronField & IField & IFieldChange> = ({
                     }}
                 />
                 <InputGroup
+                    name={'field-cron-hour'}
                     value={hour}
                     placeholder={'Hour'}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -96,6 +98,7 @@ const CronField: FunctionComponent<ICronField & IField & IFieldChange> = ({
                     }}
                 />
                 <InputGroup
+                    name={'field-cron-day'}
                     value={day}
                     placeholder={'Day'}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -103,6 +106,7 @@ const CronField: FunctionComponent<ICronField & IField & IFieldChange> = ({
                     }}
                 />
                 <InputGroup
+                    name={'field-cron-month'}
                     value={month}
                     placeholder={'Month'}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => {
@@ -110,6 +114,7 @@ const CronField: FunctionComponent<ICronField & IField & IFieldChange> = ({
                     }}
                 />
                 <InputGroup
+                    name={'field-cron-weekday'}
                     value={weekday}
                     placeholder={'Weekday'}
                     onChange={(event: ChangeEvent<HTMLInputElement>) => {

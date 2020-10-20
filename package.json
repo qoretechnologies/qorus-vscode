@@ -2,14 +2,14 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "1.3.1",
+    "version": "2.0.0",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
         "email": "vscode@qoretechnologies.com"
     },
     "engines": {
-        "vscode": "^1.25.0"
+        "vscode": "^1.47.0"
     },
     "extensionDependencies": [
         "qoretechnologies.qore-vscode"
@@ -42,7 +42,7 @@
     "activationEvents": [
         "*"
     ],
-    "main": "out/extension",
+    "main": "out/extension.js",
     "contributes": {
         "languages": [
             {
@@ -151,7 +151,7 @@
                 "category": "Qorus"
             },
             {
-                "command": "qorus.webview",
+                "command": "qorus.openWebview",
                 "title": "Open Webview",
                 "category": "Qorus",
                 "icon": "images/qorus_logo_28.png"
@@ -167,8 +167,28 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editConnection",
+                "title": "Edit Connection",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.multiDeploy",
+                "title": "Deploy Selected Files And Directories",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editJob",
                 "title": "Edit Job",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editFsm",
+                "title": "Edit Finite State Machine",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editPipeline",
+                "title": "Edit Pipeline",
                 "category": "Qorus"
             },
             {
@@ -207,6 +227,16 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editFsm",
+                "title": "Edit Finite State Machine",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editPipeline",
+                "title": "Edit Pipeline",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editWorkflowSteps",
                 "title": "Edit Workflow Steps",
                 "category": "Qorus"
@@ -219,6 +249,21 @@
             {
                 "command": "qorus.explorer.deployClass",
                 "title": "Deploy Class",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployConnection",
+                "title": "Deploy Connection",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployFsm",
+                "title": "Deploy Finite State Machine",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.deployPipeline",
+                "title": "Deploy Pipeline",
                 "category": "Qorus"
             },
             {
@@ -276,8 +321,35 @@
                 }
             },
             {
+                "command": "qorus.createConnection",
+                "title": "Create New Connection",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
                 "command": "qorus.createJob",
                 "title": "Create New Job",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createFsm",
+                "title": "Create New Finite State Machine",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createPipeline",
+                "title": "Create New Pipeline",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/create-new.svg",
@@ -443,6 +515,24 @@
                 }
             },
             {
+                "command": "qorus.views.deleteFsm",
+                "title": "Delete Finite State Machine",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deletePipeline",
+                "title": "Delete Pipeline",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
                 "command": "qorus.views.deleteMapper",
                 "title": "Delete Mapper",
                 "category": "Qorus",
@@ -535,6 +625,24 @@
             {
                 "command": "qorus.views.deployConnection",
                 "title": "Deploy Connection",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployFsm",
+                "title": "Deploy Finite State Machine",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/cloud-upload.svg",
+                    "light": "images/icons/light/cloud-upload.svg"
+                }
+            },
+            {
+                "command": "qorus.views.deployPipeline",
+                "title": "Deploy Pipeline",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/cloud-upload.svg",
@@ -679,6 +787,33 @@
             {
                 "command": "qorus.views.editClass",
                 "title": "Edit Class",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editConnection",
+                "title": "Edit Connection",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editFsm",
+                "title": "Edit Finite State Machine",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
+                "command": "qorus.views.editPipeline",
+                "title": "Edit Pipeline",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/edit.svg",
@@ -858,6 +993,14 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.deleteFsm",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deletePipeline",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.deleteMapper",
                     "when": "false"
                 },
@@ -899,6 +1042,14 @@
                 },
                 {
                     "command": "qorus.views.deployConnection",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployFsm",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.deployPipeline",
                     "when": "false"
                 },
                 {
@@ -966,6 +1117,18 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.editConnection",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editFsm",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editPipeline",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.editGroup",
                     "when": "false"
                 },
@@ -1020,7 +1183,7 @@
             ],
             "view/title": [
                 {
-                    "command": "qorus.webview",
+                    "command": "qorus.openWebview",
                     "group": "navigation"
                 },
                 {
@@ -1041,7 +1204,7 @@
             ],
             "editor/title": [
                 {
-                    "command": "qorus.webview",
+                    "command": "qorus.openWebview",
                     "group": "navigation"
                 }
             ],
@@ -1083,18 +1246,38 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createType",
+                    "command": "qorus.createConnection",
                     "group": "2_workspace@8"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createType",
                     "group": "2_workspace@9"
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.explorer.deployDir",
+                    "command": "qorus.createFsm",
+                    "group": "2_workspace@10"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createPipeline",
                     "group": "2_workspace@11"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createOther",
+                    "group": "2_workspace12"
+                },
+                {
+                    "when": "explorerResourceIsFolder && !listMultiSelection",
+                    "command": "qorus.explorer.deployDir",
+                    "group": "2_workspace@13"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.explorer.deployDir",
+                    "group": "2_workspace@14"
                 },
                 {
                     "when": "explorerResourceIsFolder",
@@ -1112,7 +1295,7 @@
                     "group": "2_workspace@2"
                 },
                 {
-                    "when": "resourceExtname == .qsd",
+                    "when": "resourceExtname == .qsd && !listMultiSelection",
                     "command": "qorus.explorer.deployService",
                     "group": "2_workspace@11"
                 },
@@ -1122,7 +1305,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qclass",
+                    "when": "resourceExtname == .qclass && !listMultiSelection",
                     "command": "qorus.explorer.deployClass",
                     "group": "2_workspace@11"
                 },
@@ -1132,7 +1315,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qjob",
+                    "when": "resourceExtname == .qjob && !listMultiSelection",
                     "command": "qorus.explorer.deployJob",
                     "group": "2_workspace@11"
                 },
@@ -1142,7 +1325,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qmapper",
+                    "when": "resourceExtname == .qmapper && !listMultiSelection",
                     "command": "qorus.explorer.deployMapper",
                     "group": "2_workspace@11"
                 },
@@ -1157,7 +1340,7 @@
                     "group": "2_workspace@2"
                 },
                 {
-                    "when": "resourceExtname == .qmc",
+                    "when": "resourceExtname == .qmc && !listMultiSelection",
                     "command": "qorus.explorer.deployMapperCode",
                     "group": "2_workspace@11"
                 },
@@ -1167,7 +1350,7 @@
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname == .qstep",
+                    "when": "resourceExtname == .qstep && !listMultiSelection",
                     "command": "qorus.explorer.deployStep",
                     "group": "2_workspace@11"
                 },
@@ -1182,17 +1365,17 @@
                     "group": "2_workspace@2"
                 },
                 {
-                    "when": "resourceExtname == .qwf",
+                    "when": "resourceExtname == .qwf && !listMultiSelection",
                     "command": "qorus.explorer.deployWorkflow",
                     "group": "2_workspace@11"
                 },
                 {
-                    "when": "resourceExtname =~ /^\\.(yaml|java)$/",
+                    "when": "resourceExtname =~ /^\\.(yaml|java|py)$/",
                     "command": "qorus.explorer.editInterface",
                     "group": "2_workspace@1"
                 },
                 {
-                    "when": "resourceExtname =~ /^\\.(yaml|java)$/",
+                    "when": "resourceExtname =~ /^\\.(yaml|java|py)$/ && !listMultiSelection",
                     "command": "qorus.explorer.deployInterface",
                     "group": "2_workspace@11"
                 },
@@ -1200,6 +1383,11 @@
                     "when": "resourceExtname == .qtest || resourceFilename =~ /Test\\.java$/",
                     "command": "qorus.explorer.testFile",
                     "group": "2_workspace@21"
+                },
+                {
+                    "when": "listMultiSelection",
+                    "command": "qorus.explorer.multiDeploy",
+                    "group": "2_workspace@50"
                 }
             ],
             "view/item/context": [
@@ -1230,6 +1418,21 @@
                 {
                     "command": "qorus.createClass",
                     "when": "view == qorusInterfaces && viewItem == class-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createConnection",
+                    "when": "view == qorusInterfaces && viewItem == connection-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createPipeline",
+                    "when": "view == qorusInterfaces && viewItem == pipeline-category",
                     "group": "inline"
                 },
                 {
@@ -1285,6 +1488,16 @@
                 {
                     "command": "qorus.views.deleteClass",
                     "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deleteFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deletePipeline",
+                    "when": "view == qorusInterfaces && viewItem == pipeline",
                     "group": "inline"
                 },
                 {
@@ -1373,6 +1586,16 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.views.deployFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.deployPipeline",
+                    "when": "view == qorusInterfaces && viewItem == pipeline",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.views.deployConstant",
                     "when": "view == qorusInterfaces && viewItem == constant",
                     "group": "inline"
@@ -1450,6 +1673,21 @@
                 {
                     "command": "qorus.views.editClass",
                     "when": "view == qorusInterfaces && viewItem == class",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editConnection",
+                    "when": "view == qorusInterfaces && viewItem == connection",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editFsm",
+                    "when": "view == qorusInterfaces && viewItem == fsm",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editPipeline",
+                    "when": "view == qorusInterfaces && viewItem == pipeline",
                     "group": "inline"
                 },
                 {
@@ -1565,16 +1803,16 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile && npm run build",
-        "compile": "tsc -p ./src",
-        "compile:test": "cd ui-test && tsc -p ./src",
-        "watch": "tsc -watch -p ./src",
-        "postinstall": "node ./node_modules/vscode/bin/install",
+        "vscode:prepublish": "rm -rf out && rm -rf dist && npm run compile && npm run build",
+        "compile": "NODE_ENV=production webpack --mode development --config webpack_backend.config.js",
+        "compile:test": "cd ui-test && node_modules/.bin/tsc -p ./src",
+        "watch": "node_modules/.bin/tsc -watch -p ./src",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "start": "NODE_ENV=development babel-node server.js",
-        "build": "NODE_ENV=production webpack",
+        "build": "NODE_ENV=production webpack --config webpack.config.js",
         "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
-        "ui-run-tests": "rm -rf ui-test/test_project && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && cp ui-test/tests.code-workspace ui-test/test_project/ && npm run compile:test && ui-test/node_modules/.bin/extest run-tests ui-test/out/*.js && rm -rf ui-test/test_project"
+        "ui-run-tests": "rm -rf ui-test/test_project && rm -rf ui-test/out && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ 'ui-test/out/*.js' && rm -rf ui-test/test_project && rm -rf ui-test/out",
+        "ui-run-single-test": "rm -rf ui-test/test_project && rm -rf ui-test/out && git clone -b develop --single-branch --depth 1 https://$GLAB_USER:$GLAB_PW@git.qoretechnologies.com/qorus/demos.git ui-test/test_project && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ \"ui-test/out/{_setup,$TEST_NAME}.spec.js\" && rm -rf ui-test/test_project && rm -rf ui-test/out"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",
@@ -1584,6 +1822,7 @@
         "@babel/plugin-proposal-decorators": "^7.6.0",
         "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
         "@babel/plugin-proposal-optional-chaining": "^7.6.0",
+        "@babel/plugin-transform-runtime": "^7.11.0",
         "@babel/preset-env": "^7.6.0",
         "@babel/preset-react": "^7.0.0",
         "@babel/preset-typescript": "^7.6.0",
@@ -1609,8 +1848,8 @@
         "node-sass": "^4.12.0",
         "optimize-css-assets-webpack-plugin": "^5.0.1",
         "prettier": "^2.0.5",
-        "react": "^16.9.0",
-        "react-dom": "^16.9.0",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1",
         "react-hot-loader": "^4.8.4",
         "react-redux": "^7.1.1",
         "redux": "^4.0.4",
@@ -1618,10 +1857,9 @@
         "serve-static": "^1.14.1",
         "style-loader": "^0.23.1",
         "tslint": "^5.19.0",
-        "typescript": "^3.7.0-beta",
+        "typescript": "^4.0.2",
         "url-loader": "^1.1.2",
-        "vsce": "^1.66.0",
-        "vscode": "^1.1.36",
+        "vsce": "^1.81.1",
         "webpack": "^4.39.3",
         "webpack-cli": "^3.3.8",
         "webpack-dev-middleware": "^3.7.1",
@@ -1635,22 +1873,31 @@
         "@blueprintjs/datetime": "^3.9.2",
         "@blueprintjs/select": "^3.8.0",
         "@blueprintjs/table": "^3.7.1",
+        "@types/js-yaml": "^3.12.5",
         "@types/styled-components": "^4.1.19",
+        "@types/vscode": "^1.47.0",
         "archiver": "^3.1.1",
         "compressjs": "^1.0.3",
         "cron-validator": "^1.0.2",
         "cronstrue": "^1.81.0",
+        "crypto-js": "^4.0.0",
+        "eventlistener": "0.0.1",
         "fs-extra": "^8.1.0",
         "gettext-parser": "^2.0.0",
         "java-parser": "^0.8.0",
         "js-yaml": "^3.13.1",
+        "markdown-it": "^11.0.0",
         "moment": "^2.24.0",
         "react-autocomplete": "^1.8.1",
+        "react-d3-tree": "^1.16.1",
         "react-dnd": "^9.4.0",
         "react-dnd-html5-backend": "^9.4.0",
+        "react-dnd-mouse-backend": "^1.0.0-rc.2",
+        "react-element-pan": "^2.0.0",
+        "react-hierarchy-tree-graph": "^1.0.3",
         "react-markdown": "^4.2.2",
         "react-scrollbar": "^0.5.6",
-        "react-use": "^8.4.0",
+        "react-use": "^15.3.4",
         "recompose": "^0.30.0",
         "request": "^2.88.0",
         "request-promise": "^4.2.4",
@@ -1661,6 +1908,8 @@
         "ttag": "^1.7.18",
         "url-join": "^4.0.1",
         "url-parse": "^1.4.7",
+        "urldecode": "^1.0.1",
+        "urlencode": "^1.1.0",
         "vscode-languageserver-types": "^3.14",
         "xml-js": "^1.6.11",
         "yamljs": "^0.3.0"

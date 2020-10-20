@@ -31,7 +31,9 @@ const ClassArrayField: FunctionComponent<
     showClassesWarning,
     defaultSelectItems,
     reference,
+    iface_kind,
     withTextField,
+    requestFieldData,
     canRemoveLast,
 }) => {
     const changePairData: (index: number, key: string, val: any) => void = (index, key, val) => {
@@ -85,7 +87,9 @@ const ClassArrayField: FunctionComponent<
                         get_message={get_message}
                         defaultSelectItems={defaultSelectItems}
                         reference={reference}
+                        iface_kind={iface_kind}
                         return_message={return_message}
+                        requestFieldData={requestFieldData}
                         onChange={(fieldName: string, value: any) => {
                             changePairData(index, fieldName, value);
                         }}

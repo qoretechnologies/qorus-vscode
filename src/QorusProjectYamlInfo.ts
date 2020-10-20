@@ -4,8 +4,9 @@ import * as path from 'path';
 import { t } from 'ttag';
 
 import * as msg from './qorus_message';
-import { root_steps, root_job, root_service, root_workflow,
-         types, types_with_version, default_version, root_processor } from './qorus_constants';
+import { root_steps, root_job, root_service, root_workflow, root_processor,
+         types, types_with_version, default_version,
+         lang_inheritance, supported_langs, default_lang } from './qorus_constants';
 
 
 export class QorusProjectYamlInfo {
@@ -35,81 +36,75 @@ export class QorusProjectYamlInfo {
 
     private authors: any = {};
     getAuthors = () => Object.keys(this.authors).map(name => ({name}));
-
+/*
+    private config_items: any = {};
+    getConfigItem = ({name, prefix = ''}) => this.config_items[name]?.[prefix];
+*/
     private inheritance_pairs: any = {};
-    private java_inheritance_pairs: any = {};
 
-    private service_classes = {};
-    private job_classes = {};
-    private workflow_classes = {};
-    private step_classes = {};
-    private processor_classes = {};
+    private service_classes: any = {};
+    private job_classes: any = {};
+    private workflow_classes: any = {};
+    private processor_classes: any = {};
+    private step_classes: any = {};
 
-    private java_job_classes = {};
-    private java_service_classes = {};
-    private java_step_classes = {};
-    private java_workflow_classes = {};
-    private java_processor_classes = {};
-
-    private python_job_classes = {};
-    private python_service_classes = {};
-    private python_step_classes = {};
-    private python_workflow_classes = {};
-    private python_processor_classes = {};
-
-    serviceClasses = lang => {
-        switch (lang) {
-            case 'python': return { ...this.python_service_classes };
-            case 'java': return { ...this.java_service_classes };
-            default: return { ...this.service_classes };
+    serviceClasses = (lang = default_lang) => {
+        let ret_val = {};
+        for (const supported_lang of supported_langs) {
+            if (lang_inheritance[lang].includes(supported_lang)) {
+                ret_val = { ...ret_val, ...this.service_classes[supported_lang] };
+            }
         }
+        return ret_val;
     }
 
-    jobClasses = lang => {
-        switch (lang) {
-            case 'python': return { ...this.python_job_classes };
-            case 'java': return { ...this.java_job_classes };
-            default: return { ...this.job_classes };
+    jobClasses = (lang = default_lang) => {
+        let ret_val = {};
+        for (const supported_lang of supported_langs) {
+            if (lang_inheritance[lang].includes(supported_lang)) {
+                ret_val = { ...ret_val, ...this.job_classes[supported_lang] };
+            }
         }
+        return ret_val;
     }
 
-    workflowClasses = lang => {
-        switch (lang) {
-            case 'python': return { ...this.python_workflow_classes };
-            case 'java': return { ...this.java_workflow_classes };
-            default: return { ...this.workflow_classes };
+    workflowClasses = (lang = default_lang) => {
+        let ret_val = {};
+        for (const supported_lang of supported_langs) {
+            if (lang_inheritance[lang].includes(supported_lang)) {
+                ret_val = { ...ret_val, ...this.workflow_classes[supported_lang] };
+            }
         }
+        return ret_val;
     }
 
-    processorClasses = lang => {
-        switch (lang) {
-            case 'python': return { ...this.python_processor_classes };
-            case 'java': return { ...this.java_processor_classes };
-            default: return { ...this.processor_classes };
+    processorClasses = (lang = default_lang) => {
+        let ret_val = {};
+        for (const supported_lang of supported_langs) {
+            if (lang_inheritance[lang].includes(supported_lang)) {
+                ret_val = { ...ret_val, ...this.processor_classes[supported_lang] };
+            }
         }
+        return ret_val;
     }
 
-    stepClasses = (step_type, lang = 'qore') => {
-        switch (lang) {
-            case 'python': return { ...this.python_step_classes[step_type] };
-            case 'java': return { ...this.java_step_classes[step_type] };
-            default: return { ...this.step_classes[step_type] };
+    stepClasses = (step_type, lang = default_lang) => {
+        let ret_val = {};
+        for (const supported_lang of supported_langs) {
+            if (lang_inheritance[lang].includes(supported_lang)) {
+                ret_val = { ...ret_val, ...this.step_classes[supported_lang][step_type] };
+            }
         }
+        return ret_val;
     }
 
     allStepClasses = lang => {
         let ret_val = {};
-        for (const step_type of root_steps) {
-            switch (lang) {
-                case 'python':
-                    Object.assign(ret_val, this.python_step_classes[step_type]);
-                    break;
-                case 'java':
-                    Object.assign(ret_val, this.java_step_classes[step_type]);
-                    break;
-                default:
-                    Object.assign(ret_val, this.step_classes[step_type]);
-                    break;
+        for (const supported_lang of supported_langs) {
+            if (lang_inheritance[lang].includes(supported_lang)) {
+                for (const step_type of root_steps) {
+                    ret_val = { ...ret_val, ...this.step_classes[supported_lang][step_type] };
+                }
             }
         }
         return ret_val;
@@ -131,28 +126,19 @@ export class QorusProjectYamlInfo {
         });
 
         this.inheritance_pairs = {};
-        this.java_inheritance_pairs = {};
+        supported_langs.forEach(lang => {
+            this.inheritance_pairs[lang] = {};
 
-        this.job_classes = { [root_job]: true };
-        this.service_classes = { [root_service]: true };
-        this.workflow_classes = { [root_workflow]: true };
-        this.processor_classes = { [root_processor]: true };
+            this.job_classes[lang] = { [root_job]: true };
+            this.service_classes[lang] = { [root_service]: true };
+            this.workflow_classes[lang] = { [root_workflow]: true };
+            this.processor_classes[lang] = { [root_processor]: true };
 
-        this.java_job_classes = { [root_job]: true };
-        this.java_service_classes = { [root_service]: true };
-        this.java_workflow_classes = { [root_workflow]: true };
-        this.java_processor_classes = { [root_processor]: true };
-
-        this.python_job_classes = { [root_job]: true };
-        this.python_service_classes = { [root_service]: true };
-        this.python_workflow_classes = { [root_workflow]: true };
-        this.python_processor_classes = { [root_processor]: true };
-
-        for (const step_type of root_steps) {
-            this.step_classes[step_type] = { [step_type]: true };
-            this.java_step_classes[step_type] = { [step_type]: true };
-            this.python_step_classes[step_type] = { [step_type]: true };
-        }
+            this.step_classes[lang] = {};
+            root_steps.forEach(step_type => {
+                this.step_classes[lang][step_type] = { [step_type]: true };
+            });
+        });
     }
 
     addSingleYamlInfo(file: string) {
@@ -166,7 +152,7 @@ export class QorusProjectYamlInfo {
             return;
         }
 
-        if (!data?.type) {
+        if (!types.includes(data?.type)) {
             return;
         }
 
@@ -242,11 +228,33 @@ export class QorusProjectYamlInfo {
         const base_class_name = yaml_data['base-class-name'];
 
         if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
-            this.inheritance_pairs[class_name] = [base_class_name];
-            if (yaml_data.lang === 'java') {
-                this.java_inheritance_pairs[class_name] = [base_class_name];
-            }
+            this.inheritance_pairs[yaml_data.lang || default_lang][class_name] = [base_class_name];
         }
+/*
+        (yaml_data['config-items'] || []).forEach(item => {
+            if (item.parent || !item.name) {
+                return;
+            }
+
+            if (!this.config_items[item.name]) {
+                this.config_items[item.name] = {};
+            }
+
+            const existing_item = this.getConfigItem(item);
+            if (existing_item &&
+                (existing_item.iface_type !== yaml_data.type ||
+                 existing_item.iface_name !== yaml_data.name))
+            {
+                msg.error(t`DuplicateConfigItemName ${existing_item.name} ${existing_item.prefix || ''} ${existing_item.iface_type} ${existing_item.iface_name} ${yaml_data.type} ${yaml_data.name}`);
+            }
+
+            this.config_items[item.name][item.prefix || ''] = {
+                ...item,
+                iface_type: yaml_data.type,
+                iface_name: yaml_data.name,
+            };
+        });
+*/
     }
 
     private baseClasses = (base_classes: any, inheritance_pairs: any): any => {
@@ -266,28 +274,23 @@ export class QorusProjectYamlInfo {
         return base_classes;
     }
 
-    isDescendantOrSelf = (class_name: string, possible_descendant_class_name: string): boolean => {
+    isDescendantOrSelf = (class_name: string, possible_descendant_class_name: string, lang: string): boolean => {
         let descendants_and_self = { [class_name]: true };
-        this.baseClasses(descendants_and_self, { ...this.inheritance_pairs });
+        this.baseClasses(descendants_and_self, { ...this.inheritance_pairs[lang] });
         return Object.keys(descendants_and_self).includes(possible_descendant_class_name);
     }
 
     baseClassesFromInheritancePairs() {
-        this.baseClasses(this.service_classes, { ...this.inheritance_pairs });
-        this.baseClasses(this.job_classes, { ...this.inheritance_pairs });
-        this.baseClasses(this.workflow_classes, { ...this.inheritance_pairs });
-        this.baseClasses(this.processor_classes, { ...this.inheritance_pairs });
+        supported_langs.forEach(lang => {
+            this.baseClasses(this.service_classes[lang], { ...this.inheritance_pairs[lang] });
+            this.baseClasses(this.job_classes[lang], { ...this.inheritance_pairs[lang] });
+            this.baseClasses(this.workflow_classes[lang], { ...this.inheritance_pairs[lang] });
+            this.baseClasses(this.processor_classes[lang], { ...this.inheritance_pairs[lang] });
 
-        this.baseClasses(this.java_service_classes, { ...this.java_inheritance_pairs });
-        this.baseClasses(this.java_job_classes, { ...this.java_inheritance_pairs });
-        this.baseClasses(this.java_workflow_classes, { ...this.java_inheritance_pairs });
-        this.baseClasses(this.java_processor_classes, { ...this.java_inheritance_pairs });
-
-        for (const step_type of root_steps) {
-            this.step_classes[step_type] =
-                this.baseClasses(this.step_classes[step_type], { ...this.inheritance_pairs });
-            this.java_step_classes[step_type] =
-                this.baseClasses(this.java_step_classes[step_type], { ...this.java_inheritance_pairs });
-        }
+            root_steps.forEach(step_type => {
+                this.step_classes[lang][step_type] =
+                    this.baseClasses(this.step_classes[lang][step_type], { ...this.inheritance_pairs[lang] });
+            });
+        });
     }
 }

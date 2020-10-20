@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 
 import styled, { css } from 'styled-components';
 
-import { Icon, Intent } from '@blueprintjs/core';
+import { Icon, Intent, Colors } from '@blueprintjs/core';
 
 const StyledFieldLabel = styled.div<{ fluid?: boolean }>`
     padding: 0px 10px 0 0;
@@ -19,10 +19,12 @@ const StyledFieldLabel = styled.div<{ fluid?: boolean }>`
     align-items: center;
 `;
 
-const FieldLabelName = styled.h4`
+const FieldLabelName = styled.h4<{ isValid?: boolean }>`
     margin: 0;
     padding: 0;
     flex: 1;
+
+    color: ${({ isValid }) => (isValid ? 'initial' : Colors.RED2)};
 `;
 
 const FieldLabelValid = styled.div`
@@ -47,7 +49,7 @@ export interface IFieldLabel {
 const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) => (
     <StyledFieldLabel fluid={!label}>
         {label && (
-            <FieldLabelName>
+            <FieldLabelName isValid={isValid}>
                 {label}
                 {info && <FieldLabelInfo>{info}</FieldLabelInfo>}
             </FieldLabelName>

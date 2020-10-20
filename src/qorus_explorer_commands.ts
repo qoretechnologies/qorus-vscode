@@ -7,14 +7,33 @@ import { deployer } from './QorusDeploy';
 import { tester } from './QorusTest';
 import * as msg from './qorus_message';
 
+const checkPathIsInSourceDirs = (fs_path: string): boolean => {
+    const project = projects.getProject(vscode.Uri.file(fs_path));
+    if (!project) {
+        // cannot happen, actually, so no message
+        return false;
+    }
+
+    if (!project.isInSourceDirs(fs_path)) {
+        msg.error(t`FileNotInSourceDirs ${fs_path}`);
+        return false;
+    }
+
+    return true;
+};
+
 export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) => {
     let disposable;
 
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow',
-        'workflow-steps', 'service-methods', 'mapper-code-methods'].forEach(iface_kind =>
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow', 'workflow-steps',
+        'service-methods', 'mapper-code-methods', 'fsm', 'pipeline', 'connection'].forEach(iface_kind =>
     {
         const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
+            if (!checkPathIsInSourceDirs(resource.fsPath)) {
+                return;
+            }
+
             const code_info = projects.projectCodeInfo(resource.fsPath);
             const data = code_info?.yaml_info.yamlDataBySrcFile(resource.fsPath);
             const fixed_data = code_info?.fixData(data);
@@ -43,6 +62,10 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     });
 
     disposable = vscode.commands.registerCommand('qorus.explorer.editInterface', (resource: any) => {
+        if (!checkPathIsInSourceDirs(resource.fsPath)) {
+            return;
+        }
+
         const code_info = projects.projectCodeInfo(resource.fsPath);
         const data = code_info?.yaml_info.yamlDataByFile(resource.fsPath);
         if (!data?.type) {
@@ -54,9 +77,15 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     });
     context.subscriptions.push(disposable);
 
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow', 'interface'].forEach(iface_kind => {
+    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow',
+        'fsm', 'interface', 'connection'].forEach(iface_kind =>
+    {
         const command = 'qorus.explorer.deploy' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
+            if (!checkPathIsInSourceDirs(resource.fsPath)) {
+                return;
+            }
+
             const code_info = projects.projectCodeInfo(resource.fsPath);
             const data = code_info?.yaml_info.yamlDataByFile(resource.fsPath);
             if (!data?.type) {
@@ -71,12 +100,25 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
                     if (selection !== t`Yes`) {
                         return;
                     }
-                    deployer.deployFile(vscode.Uri.file(resource.fsPath));
+                    deployer.deployFile(resource.fsPath);
                 }
             );
         });
         context.subscriptions.push(disposable);
     });
+
+    disposable = vscode.commands.registerCommand('qorus.explorer.multiDeploy', (_uri: vscode.Uri, uris: vscode.Uri[]) => {
+        vscode.window.showWarningMessage(
+            t`ConfirmDeployFilesAndDirs`, t`Yes`, t`No`
+        ).then(
+            selection => {
+                if (selection === t`Yes`) {
+                    deployer.deployFilesAndDirs(uris.map(uri => uri.fsPath));
+                }
+            }
+        );
+    });
+    context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.explorer.deployDir', (uri: vscode.Uri) => {
         vscode.window.showWarningMessage(
@@ -84,7 +126,7 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
         ).then(
             selection => {
                 if (selection === t`Yes`) {
-                    deployer.deployDir(uri);
+                    deployer.deployDir(uri.fsPath);
                 }
             }
         );

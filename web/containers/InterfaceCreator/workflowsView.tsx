@@ -135,9 +135,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                             scrollX
                             style={{
                                 background: `url(${
-                                    process.env.NODE_ENV === 'development'
-                                        ? `http://localhost:9876/images/tiny_grid.png`
-                                        : `vscode-resource:${initialData.path}/images/tiny_grid.png)`
+                                    `${initialData.image_path}/images/tiny_grid.png)`
                                 }`,
                             }}
                         >
@@ -198,6 +196,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     data: newData,
                                                     iface_id: workflow?.iface_id || interfaceId.workflow,
                                                     open_file_on_success: !onSubmitSuccess,
+                                                    no_data_return: !!onSubmitSuccess,
                                                 },
                                                 t('Saving workflow...')
                                             );

@@ -5,11 +5,13 @@ import * as map from 'lodash/map';
 import * as msg from './qorus_message';
 import { instance_tree } from './QorusInstanceTree';
 import { projects, QorusProject, config_filename } from './QorusProject';
+import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
-import { InterfaceCreatorDispatcher as creator } from './qorus_creator/InterfaceCreatorDispatcher';
-import { triggers } from './qorus_creator/standard_methods';
+import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
+import { FormChangesResponder } from './interface_creator/FormChangesResponder';
+import { triggers } from './interface_creator/standard_methods';
 import { qorus_locale } from './QorusLocale';
 
 const web_path = path.join(__dirname, '..', 'dist');
@@ -20,24 +22,38 @@ class QorusWebview {
     private message_on_config_file_change: boolean = true;
     private initial_data: any = {};
 
-    get opening_data(): any {
-        return this.initial_data;
-    }
-
-    set opening_data(data: any) {
+    setInitialData(data: any, do_post: boolean = false) {
         this.initial_data = data;
+        if (do_post) {
+            this.postInitialData();
+        }
     }
 
     private postInitialData = () => {
         const { uri, ...other_data } = this.initial_data;
+        const { authority, path, scheme } = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
+
         this.postMessage({
             action: 'return-initial-data',
             data: {
                 path: web_path,
+                image_path: `${scheme}://${authority}${path}`,
                 qorus_instance: qorus_request.activeQorusInstance(),
                 ...other_data,
             },
         });
+
+        this.initial_data = {};
+    }
+
+    private checkError = (edit_info: QorusProjectEditInfo) => {
+        const iface_kind = this.initial_data.subtab;
+        if (iface_kind && this.initial_data[iface_kind]) {
+            const { target_dir, target_file, iface_id } = this.initial_data[iface_kind];
+            if (target_dir && target_file) {
+                edit_info.checkError(path.join(target_dir, target_file), iface_id, iface_kind);
+            }
+        }
     }
 
     open(initial_data: any = {}) {
@@ -62,6 +78,11 @@ class QorusWebview {
             return;
         }
 
+        if (!projects.getProject()) {
+            msg.error(t`WorkspaceFolderUnsetCannotOpenWebview`);
+            return;
+        }
+
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
             doc => {
                 this.panel = vscode.window.createWebviewPanel(
@@ -74,7 +95,10 @@ class QorusWebview {
                         enableCommandUris: true,
                     }
                 );
-                this.panel.webview.html = doc.getText().replace(/{{ path }}/g, web_path);
+
+                const uri = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path)) as unknown;
+                let html = doc.getText().replace(/{{ path }}/g, uri as string);
+                this.panel.webview.html = html.replace(/{{ csp }}/g, this.panel.webview.cspSource);
 
                 this.config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
                 this.message_on_config_file_change = true;
@@ -125,7 +149,7 @@ class QorusWebview {
                             });
                             break;
                         case 'get-active-tab':
-                            this.setActiveTab(initial_data.tab);
+                            this.setActiveTab(this.initial_data.tab);
                             break;
                         case 'get-current-project-folder':
                             this.panel.webview.postMessage({
@@ -147,6 +171,10 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'close-login',
                             });
+                            break;
+                        case 'create-directory':
+                            this.message_on_config_file_change = false;
+                            project.createDirectory(message);
                             break;
                         case 'config-get-data':
                             project.getConfigForWebview();
@@ -197,7 +225,7 @@ class QorusWebview {
                                 fields: creator.getSortedFields({
                                     ... message,
                                     interface_info,
-                                    default_target_dir: initial_data.uri && initial_data.uri.fsPath,
+                                    default_target_dir: this.initial_data.uri?.fsPath || interface_info.last_target_directory
                                 }),
                             });
                             break;
@@ -218,11 +246,14 @@ class QorusWebview {
                         case 'creator-edit-interface':
                             creator.editInterface({ ...message, edit_type: 'edit', interface_info });
                             break;
+                        case 'check-edit-data':
+                            this.checkError(project.code_info.edit_info);
+                            break;
                         case 'creator-field-added':
-                            creator.fieldAdded(message);
+                            FormChangesResponder.fieldAdded(message);
                             break;
                         case 'creator-field-removed':
-                            creator.fieldRemoved({ ...message, interface_info });
+                            FormChangesResponder.fieldRemoved({ ...message, interface_info });
                             break;
                         case 'creator-set-fields':
                             project.code_info.setFields(message);
@@ -249,16 +280,26 @@ class QorusWebview {
                             interface_info.updateConfigItemValue(message);
                             break;
                         case 'reset-config-items':
-                            interface_info.resetConfigItemsToOrig(message.iface_id);
+                            interface_info.resetConfigItemsToOrig(message);
+                            break;
+                        case 'submit-fsm-state':
+                        case 'submit-processor':
+                            interface_info.setOrigConfigItems(message);
                             break;
                         case 'delete-config-item':
                             interface_info.deleteConfigItem(message);
                             break;
                         case 'config-item-type-changed':
-                            creator.configItemTypeChanged(message);
+                            FormChangesResponder.configItemTypeChanged(message);
+                            break;
+                        case 'remove-fsm-state':
+                            interface_info.removeSpecificData(message);
                             break;
                         case 'lang-changed':
-                            creator.langChanged(message);
+                            FormChangesResponder.langChanged(message);
+                            break;
+                        case 'target-dir-changed':
+                            interface_info.last_target_directory = message.target_dir;
                             break;
                         case 'get-objects-with-static-data':
                             project.code_info.getObjectsWithStaticData(message);

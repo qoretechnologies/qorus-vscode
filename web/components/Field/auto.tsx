@@ -1,21 +1,20 @@
+import { Button, Callout, ControlGroup } from '@blueprintjs/core';
 import React, { FunctionComponent, useEffect, useState } from 'react';
-
 import useMount from 'react-use/lib/useMount';
 import { isNull } from 'util';
-
-import { Button, Callout, ControlGroup } from '@blueprintjs/core';
-
 import { IFieldChange } from '../../containers/InterfaceCreator/panel';
 import { getTypeFromValue, getValueOrDefaultValue, maybeParseYaml } from '../../helpers/validations';
+import withTextContext from '../../hocomponents/withTextContext';
 import { IField } from './';
 import BooleanField from './boolean';
+import ByteSizeField from './byteSize';
 import DateField from './date';
 import NumberField from './number';
 import OptionHashField from './optionHash';
+import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
 import TextareaField from './textarea';
-import withTextContext from '../../hocomponents/withTextContext';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -73,7 +72,9 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 if (!currentType) {
                     handleChange(name, value === undefined ? undefined : value);
                 } else if (typeValue !== 'any') {
-                    handleChange(name, undefined);
+                    const typeFromValue = value ? getTypeFromValue(maybeParseYaml(value)) : 'any';
+
+                    handleChange(name, value === null ? null : typeValue === typeFromValue ? value : undefined);
                 }
             }
         }
@@ -107,9 +108,12 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     const handleNullToggle = () => {
         setType(defaultType || 'any');
         setInternalType(defaultType || 'any');
-        setIsSetToNull((current) => !current);
+        setIsSetToNull((current) => {
+            return !current;
+        });
+
         // Handle change
-        handleChange(name, null);
+        handleChange(name, isSetToNull ? undefined : null);
     };
 
     const renderField = (currentType: string) => {
@@ -176,6 +180,29 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                         type={currentType}
                     />
                 );
+            case 'byte-size':
+                return <ByteSizeField {...rest} name={name} onChange={handleChange} value={value} type={currentType} />;
+            case 'enum':
+                return (
+                    <RadioField
+                        items={rest.allowed_values}
+                        value={value}
+                        name={name}
+                        onChange={handleChange}
+                        type={currentType}
+                    />
+                );
+            case 'select-string': {
+                return (
+                    <SelectField
+                        defaultItems={rest.allowed_values}
+                        value={value}
+                        name={name}
+                        onChange={handleChange}
+                        type={currentType}
+                    />
+                );
+            }
             case 'any':
                 return null;
             default:
