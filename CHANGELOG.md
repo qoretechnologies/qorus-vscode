@@ -2,24 +2,22 @@
 
 ## 2.0.0
 
+#### Requires
+
+  Qorus 5.0.0
+
 #### New features
 
-- connections - new type of interfaces
+- support for Python
+- pipelines
+- finite state machines
+- connections
 - deployment of multiple files or directories
 - in the config item form it's now clear whether a field value has been inherited or overwritten or is new and it's possible to reset the field to the parent value
 - possibility to create subdirectories from the environment manager in the webview
 - encrypted passwords in the qorus instances configuration
 - use username and passwords in the qorus instances configuration for automatic login or at least for prefilling the username in the login form
-- more tests
-
-## 1.99.0
-
-#### New features
-
 - extension is now 20 times smaller in size
-- support for Python
-- pipelines
-- finite state machines
 - code sharing among different languages (Qore, Python, Java):
     everything is possible except that a Java class cannot inherit another language class
 - remember last target directory and use it as default for next new interface
