@@ -191,7 +191,7 @@ export const createNewSourceDir = async (webview: WebView) => {
 
     await clickElement(webview, 'submit-new-folder-add-source');
 
-    await sleep(4000);
+    await sleep(8000);
 
     expect(await getElementsCount(webview, 'bp3-tree-node-content-1', 'className')).to.eq(dirs + 1);
     expect(await getElementsCount(webview, 'source-dir')).to.eq(sourceDirs + 1);
