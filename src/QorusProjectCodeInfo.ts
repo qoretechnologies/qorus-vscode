@@ -574,7 +574,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getObjects = params => {
+    getObjects = async (params: any) => {
         const {object_type, iface_kind, class_name, custom_data } = params;
         const lang = params.lang || default_lang; // null comes from the frontend
 
