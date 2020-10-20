@@ -174,6 +174,8 @@ export const createNewSourceDir = async (webview: WebView) => {
 
     await clickElement(webview, 'folder-expander-source-dirs');
 
+    await sleep(1000);
+
     await clickElement(webview, 'bp3-tree-node-caret', 1, 'className');
 
     const sourceDirs = await getElementsCount(webview, 'source-dir');
