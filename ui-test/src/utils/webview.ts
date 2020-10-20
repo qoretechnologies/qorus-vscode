@@ -78,6 +78,10 @@ export const getElements = async (webview: WebView, name: string, selector: TSel
     return await webview.findWebElements(By[selector](name));
 };
 
+export const getElementsCount = async (webview: WebView, name: string, selector: TSelector = 'name') => {
+    return await (await getElements(webview, name, selector)).length;
+};
+
 export const clickElement = async (
     webview: WebView,
     name: string,

@@ -1,17 +1,5 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import {
-    addAndRemoveSourceDirectory,
-    addEnvironment,
-    addInstance,
-    addUrl,
-    createNewSourceDir,
-    deleteEnvironment,
-    deleteInstance,
-    deleteUrl,
-    editInstance,
-    openEnvironmentPage,
-    renameEnvironment,
-} from './tests/environments';
+import { addAndRemoveSourceDirectory, createNewSourceDir } from './tests/environments';
 import { cleanup } from './utils/common';
 import { setupWebview } from './utils/webview';
 
@@ -28,7 +16,7 @@ describe('Environments page test', function () {
         ({ workbench, editorView, webview } = await setupWebview());
     });
 
-    it('Shows environment page', () => openEnvironmentPage(webview));
+    /*it('Shows environment page', () => openEnvironmentPage(webview));
     it('Adds new environment', () => addEnvironment(webview));
     it('Deletes an environment', () => deleteEnvironment(webview));
     it('Renames an environment', () => renameEnvironment(webview));
@@ -36,7 +24,7 @@ describe('Environments page test', function () {
     it('Edits an instance', () => editInstance(webview));
     it('Deletes an instance', () => deleteInstance(webview));
     it('Adds new url', () => addUrl(webview));
-    it('Deletes url', () => deleteUrl(webview));
+    it('Deletes url', () => deleteUrl(webview));*/
     it('Adds and removes source directory', () => addAndRemoveSourceDirectory(webview));
     it('Creates new directory and adds it to sources', () => createNewSourceDir(webview));
 

@@ -1,7 +1,14 @@
 import { expect } from 'chai';
 import { By, WebView } from 'vscode-extension-tester';
 import { sleep } from '../utils/common';
-import { clickElement, closeLastDialog, confirmDialog, fillTextField } from '../utils/webview';
+import {
+    clickElement,
+    closeLastDialog,
+    confirmDialog,
+    fillTextField,
+    getElements,
+    getElementsCount,
+} from '../utils/webview';
 
 export const openEnvironmentPage = async (webview: WebView) => {
     await sleep(3000);
@@ -122,21 +129,36 @@ export const addAndRemoveSourceDirectory = async (webview: WebView) => {
 
     await clickElement(webview, 'manage-source-dirs');
 
-    await sleep(500);
+    await sleep(1500);
 
     await clickElement(webview, 'folder-expander-source-dirs');
     await clickElement(webview, 'bp3-tree-node-caret', 1, 'className');
 
     await sleep(100);
 
-    await clickElement(webview, 'bp3-tree-node-content', 14, 'className');
+    const sourceDirs = await getElementsCount(webview, 'source-dir');
+    const els = await getElements(webview, 'bp3-tree-node-content-1', 'className');
 
-    await sleep(100);
+    for await (const element of els) {
+        const text = await element.getText();
+
+        if (text === 'building-blocks') {
+            await element.click();
+            await sleep(200);
+            expect(await getElementsCount(webview, 'source-dir')).to.eq(sourceDirs - 1);
+            await element.click();
+            await sleep(200);
+            expect(await getElementsCount(webview, 'source-dir')).to.eq(sourceDirs);
+            break;
+        }
+    }
 
     await clickElement(webview, 'source-dir-remove');
     await confirmDialog(webview);
 
     await sleep(300);
+
+    expect(await getElementsCount(webview, 'source-dir')).to.eq(sourceDirs - 1);
 
     await closeLastDialog(webview);
 
@@ -154,10 +176,10 @@ export const createNewSourceDir = async (webview: WebView) => {
 
     await clickElement(webview, 'bp3-tree-node-caret', 1, 'className');
 
-    expect(await (await webview.findWebElements(By.className('bp3-tree-node-content-1'))).length).to.eq(21);
-    expect(await (await webview.findWebElements(By.name('source-dir'))).length).to.eq(19);
+    const sourceDirs = await getElementsCount(webview, 'source-dir');
+    const dirs = await getElementsCount(webview, 'bp3-tree-node-content-1', 'className');
 
-    await clickElement(webview, 'create-new-dir');
+    await clickElement(webview, 'create-new-dir-test_project');
 
     await sleep(500);
 
@@ -169,8 +191,8 @@ export const createNewSourceDir = async (webview: WebView) => {
 
     await sleep(4000);
 
-    expect(await (await webview.findWebElements(By.className('bp3-tree-node-content-1'))).length).to.eq(22);
-    expect(await (await webview.findWebElements(By.name('source-dir'))).length).to.eq(20);
+    expect(await getElementsCount(webview, 'bp3-tree-node-content-1', 'className')).to.eq(dirs + 1);
+    expect(await getElementsCount(webview, 'source-dir')).to.eq(sourceDirs + 1);
 
     await closeLastDialog(webview);
 

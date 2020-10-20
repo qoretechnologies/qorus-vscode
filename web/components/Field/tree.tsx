@@ -176,7 +176,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                     childNodes,
                     secondaryLabel: isFile ? undefined : (
                         <Icon
-                            name="create-new-dir"
+                            name={`create-new-dir-${item.basename}`}
                             icon="folder-new"
                             intent="success"
                             style={{ cursor: 'pointer' }}
