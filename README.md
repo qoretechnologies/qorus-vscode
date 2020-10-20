@@ -6,10 +6,12 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 ## Version 2.0.0 overview - What's new:
 * Python is now a supported language
-* The extension is now 20 times smaller in size
-* New interfaces - Finite State Machine and Pipeline - allow for complicated data flow management in a graphical way
-* You can now deploy mutliple files and directories
-* Code can now be shared between Qore, Java and Python
+* The extension is now 20x smaller
+* New Flow Designer (Finite State Machines): supports building arbitrary logic for any interface object with a mouse and configuration of building blocks instead of coding
+* Support for pipelines added: build high-performance data flow processing solutions using a mouse
+* Support for connections added
+* You can now deploy multiple files and directories
+* Code can now be shared between Qore, Java and Python; interfaces can also be regenerated from configuration in another language
 * New tutorial feature to guide you through some of the more complex interfaces
 ...and many more new features and bug fixes, for a complete list please check the changelog.
 
