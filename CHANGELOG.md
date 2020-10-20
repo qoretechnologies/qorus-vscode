@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+
+#### New features
+
+- connections - new type of interfaces
+- deployment of multiple files or directories
+- in the config item form it's now clear whether a field value has been inherited or overwritten or is new and it's possible to reset the field to the parent value
+- possibility to create subdirectories from the environment manager in the webview
+- encrypted passwords in the qorus instances configuration
+- use username and passwords in the qorus instances configuration for automatic login or at least for prefilling the username in the login form
+- more tests
+
 ## 1.99.0
 
 #### New features
