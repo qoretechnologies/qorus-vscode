@@ -538,7 +538,14 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    waitForPending(info_list: string[], timeout: number = 30000): Promise<void> {
+    async waitForPending(info_list: string[], sleep_before: number = 0, timeout: number = 30000): Promise<void> {
+        // "waiting for pending" need not be enough, specifically in cases when the updated info is required
+        // before the update process has even started (before the pending flag has bee set),
+        // this can happen when the update process is triggered by a file watcher
+        if (sleep_before) {
+            await new Promise(resolve => setTimeout(resolve, sleep_before));
+        }
+
         let interval_id: any;
         const interval = 100;
         let n = timeout / interval;
@@ -574,7 +581,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    getObjects = async (params: any) => {
+    getObjects = (params: any) => {
         const {object_type, iface_kind, class_name, custom_data } = params;
         const lang = params.lang || default_lang; // null comes from the frontend
 
@@ -731,8 +738,7 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['file_tree']).then(() => postMessage('directories', this.dir_tree, false));
                 break;
             case 'all_dirs':
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                this.waitForPending(['file_tree']).then(() => qorus_webview.postMessage({
+                this.waitForPending(['file_tree'], 1000).then(() => qorus_webview.postMessage({
                     action: 'return-all-directories',
                     directories: this.all_dir_tree
                 }));
