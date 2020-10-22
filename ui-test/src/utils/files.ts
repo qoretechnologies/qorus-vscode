@@ -5,17 +5,20 @@ import { isEqual } from 'lodash';
 import * as path from 'path';
 
 export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
+    console.log(folder, files, gold_files_subfolder);
     const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
 
     const compare = (file_name: string) => {
         const file_path = path.join(folder, file_name);
         const file_exists = fs.existsSync(file_path);
+        console.log(file_path);
         expect(file_exists).to.be.true;
         if (!file_exists) {
             return;
         }
 
         const gold_file_path = path.join(gold_files_folder, gold_files_subfolder, file_name);
+        console.log(gold_file_path);
         const expected_file_contents = fs.readFileSync(gold_file_path);
         const true_file_contents = fs.readFileSync(file_path);
 
