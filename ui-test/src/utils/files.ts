@@ -12,8 +12,8 @@ export const compareWithGoldFiles = async (folder: string, files: string[], gold
         const file_path = path.join(folder, file_name);
         const file_exists = fs.existsSync(file_path);
         console.log(file_path);
-        expect(file_exists).to.be.true;
         console.log('FILE EXISTS?', file_exists);
+
         if (!file_exists) {
             throw new Error(`File ${file_name} not found!`);
         }
