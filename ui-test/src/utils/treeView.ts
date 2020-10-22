@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { CustomTreeSection, Notification, SideBarView, TreeItem, Workbench } from 'vscode-extension-tester';
-import { openQorusActivityBar, sleep } from './common';
+import { closeQorusActivityBar, openQorusActivityBar, sleep } from './common';
 
 export const getQorusTreeSection = async (sectionName: string): Promise<CustomTreeSection> => {
     return (await new SideBarView().getContent().getSection(sectionName)) as CustomTreeSection;
@@ -26,7 +26,8 @@ export const logoutFromTreeView = async (instanceName: string) => {
 
     if (logoutAction) {
         await logoutAction.click();
-        await sleep(1500);
+        await sleep(2000);
+        await closeQorusActivityBar();
     } else {
         throw new Error('Logout action not found');
     }
@@ -43,6 +44,8 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
     await toggleQorusTreeSection('Interfaces', true);
 
     const instance: TreeItem = await getQorusTreeItem('Instances', instanceName);
+
+    await instance.wait(60000);
 
     if (instance) {
         const loginAction: TreeItem = (await instance.findChildItem('Set as active Qorus instance')) as TreeItem;
@@ -75,4 +78,6 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
     }
 
     expect(loggedIn).to.be.true;
+
+    await closeQorusActivityBar();
 };

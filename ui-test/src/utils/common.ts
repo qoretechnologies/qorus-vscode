@@ -51,9 +51,16 @@ export const openQorusActivityBar = async () => {
     const title: ViewTitlePart = await sidebar.getTitlePart();
 
     if (title && (await title.getText()) === 'QORUS DEVELOPMENT') {
-        return;
+        return Promise.resolve();
     }
 
+    const activityBar: ActivityBar = new ActivityBar();
+    const control: ViewControl = await activityBar.getViewControl('Qorus Development');
+    await control.click();
+    await sleep(20000);
+};
+
+export const closeQorusActivityBar = async () => {
     const activityBar: ActivityBar = new ActivityBar();
     const control: ViewControl = await activityBar.getViewControl('Qorus Development');
     await control.click();
