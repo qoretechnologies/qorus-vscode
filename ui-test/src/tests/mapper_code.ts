@@ -41,6 +41,8 @@ export const createMapperCode = async (webview: WebView) => {
     await sleep(500);
     await selectMultiselectItemsByNumbers(webview, [2, 4], 1);
     await sleep(500);
+    await selectField(webview, 'lang');
+    await sleep(500);
     await submitInterface(webview, 'mapper-code');
     await sleep(2000);
 
