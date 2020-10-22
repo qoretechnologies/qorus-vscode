@@ -193,6 +193,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                             )}
                             itemRenderer={(item, { handleClick }) => (
                                 <MenuItem
+                                    name={'multiselect-menu-item'}
                                     icon={includes(value, item) ? 'tick' : 'blank'}
                                     text={item.name}
                                     onClick={handleClick}

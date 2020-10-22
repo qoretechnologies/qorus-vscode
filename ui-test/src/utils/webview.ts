@@ -157,6 +157,18 @@ export const selectNthFilteredDropdownItem = async (
     await clickElement(webview, `field-${name}-item`, item_position);
 };
 
+export const selectMultiselectItemsByNumbers = async (
+    webview: WebView,
+    item_positions: number[],
+    element_position: number = 1
+) => {
+    await clickElement(webview, 'bp3-input-ghost', element_position, 'className');
+    for (const item_position of item_positions) {
+        await sleep(500);
+        await clickElement(webview, 'multiselect-menu-item', item_position);
+    };
+};
+
 export const submitInterface = async (webview: WebView, iface: string) => {
     await clickElement(webview, `interface-creator-submit-${iface}`);
 };
