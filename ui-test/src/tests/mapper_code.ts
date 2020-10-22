@@ -8,6 +8,8 @@ import {
     fillTextField,
     getElementAttribute,
     getSelectedFields,
+    selectField,
+    selectMultiselectItemsByNumbers,
     selectNthFolder,
     submitInterface,
 } from '../utils/webview';
@@ -27,19 +29,25 @@ export const createMapperCode = async (webview: WebView) => {
 
     await selectNthFolder(webview, 'target_dir', 1);
 
-    await sleep(1000);
+    await sleep(500);
     await fillTextField(webview, 'field-class-class-name', 'TestMapperCode');
-    await sleep(1000);
     await fillTextField(webview, 'field-version', 'v3.1.2');
-    await sleep(1000);
+    await sleep(500);
+    await selectField(webview, 'desc');
+    await sleep(500);
+    await fillTextField(webview, 'field-desc', 'test mapper code');
+    await sleep(500);
+    await selectField(webview, 'author');
+    await sleep(500);
+    await selectMultiselectItemsByNumbers(webview, [2, 4], 1);
+    await sleep(500);
     await submitInterface(webview, 'mapper-code');
     await sleep(2000);
 
     // methods page
     await fillTextField(webview, 'field-name', 'someMapperCodeMethod');
-    await sleep(1000);
     await fillTextField(webview, 'field-desc', 'some mapper code method');
-    await sleep(1000);
+    await sleep(500);
     await submitInterface(webview, 'mapper-methods');
     await sleep(2000);
 };
