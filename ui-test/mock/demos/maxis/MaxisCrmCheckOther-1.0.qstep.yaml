@@ -11,5 +11,8 @@ base-class-name: QorusNormalStep
 class-name: MaxisCrmCheckOther
 lang: qore
 version: "1.0"
+author:
+  - yet another author
+  - well-known author
 steptype: NORMAL
 code: MaxisCrmCheckOther-1.0.qstep

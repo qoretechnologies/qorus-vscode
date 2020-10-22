@@ -4,6 +4,7 @@ name: arpm-rest-server
 desc: "**ARPM** integration service"
 author:
   - Qore Technologies, s.r.o.
+  - well-known author
 base-class-name: BBM_RestServiceBase
 class-name: ArpmRestServer
 classes:
