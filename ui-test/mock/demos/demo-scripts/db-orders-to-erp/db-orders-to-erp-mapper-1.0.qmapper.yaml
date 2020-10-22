@@ -1,0 +1,42 @@
+# This is a generated file, don't edit!
+type: mapper
+name: db-orders-to-erp-mapper
+desc: Create new orders in the ERP system from the `orders` table
+author:
+  - Qore Technologies, s.r.o.
+fields:
+    body.account:
+        name: account
+    body.assigneduser:
+        constant: 3
+    body.currency:
+        name: currency_code
+    body.items:
+        submapper: db-orders-to-erp-item-mapper
+        submapper_auto_input: true
+        submapper_options:
+            input_provider_search:
+                order_id: '$local:input.order_id'
+    body.shippingrecipient:
+        name: ext_account_id
+    body.status:
+        constant: 0
+    body.transactionnum:
+        name: order_id
+    body.type:
+        constant: 6
+options:
+    mapper-input:
+        custom-fields: {}
+        name: omquser
+        path: /orders
+        type: datasource
+    mapper-output:
+        can_manage_fields: false
+        custom-fields: {}
+        name: zeyosrests-iot-demo
+        path: /api/v1/transactions/PUT/
+        subtype: request
+        type: connection
+mappertype: Mapper
+version: "1.0"

@@ -1,0 +1,87 @@
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#table-properties" data-toggle="tab">Structure</a></li>
+  <li><a href="#table-data" data-toggle="tab">Data</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane active" id="table-properties">
+      <p><strong>Name:</strong> <%= table.name %></p>
+      <p><strong>Sqlname:</strong> <%= table.sqlname %></p>
+      <h4>Columns</h4>
+      <table class="table table-striped text-left">
+          <thead>
+              <tr>
+                  <th>Primary</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Size</th>
+                  <th>Null</th>
+                  <th>Default</th>
+                  <th>Comment</th>
+              </tr>
+          </thead>
+          <tbody>
+              <% _.each(table.columns, function (col) { %>
+              <tr>
+                  <td><%= _.find(table.pk, function (i) { return i.name == col.name; }) ? '<i class="icon-check-sign"></i>' : '' %></td>
+                  <td><%= col.name %></td>
+                  <td><%= col.type %></td>
+                  <td class="text-right"><%= col.size %></td>
+                  <td><%= col.nullable %></td>
+                  <td><%= col.default %></td>
+                  <td><%= col.comment %></td>
+              </tr>
+              <% }) %>
+          </tbody>
+      </table>
+
+      <h4>Indexes</h4>
+      <table class="table table-striped text-left">
+
+      <% _.each(table.indexes, function (ix) { %>
+        <% if (ix.columns.length > 0) { %>
+          <thead>
+               <tr><th colspan="6"><h5><%= ix.name %></b> <%= ix.unique ? 'unique' : 'non-unique' %> <%= ix.native %></h5></th></tr>
+              <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Size</th>
+                  <th>Null</th>
+                  <th>Default</th>
+                  <th>Comment</th>
+              </tr>
+          </thead>
+          <tbody>
+              <% _.each(ix.columns, function (col) { %>
+              <tr>
+                  <td><%= col.name %></td>
+                  <td><%= col.type %></td>
+                  <td class="text-right"><%= col.size %></td>
+                  <td><%= col.nullable %></td>
+                  <td><%= col.default %></td>
+                  <td><%= col.comment %></td>
+              </tr>
+              <% }) %>
+          </tbody>
+        <% } %>
+      <% }) %>
+
+      </table>
+
+      <h4>Triggers</h4>
+      <% if (table.triggers) { %>
+      <% if (table.triggers.length == 0) { %>
+          <p>No triggers</p>
+      <% } else { %>
+        <% _.each(table.triggers, function (trg) { %>
+            <p><b><%= trg.name %></b></p>
+            <pre><code class="language-sql"><%= trg.src %></code></pre>
+        <% }) %>
+      <% } %>
+      <% } %>
+
+  </div>
+  <div class="tab-pane active" id="table-data">
+  </div>
+</div>
+ 

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
-import { sleep } from '../utils/common';
+import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -17,7 +17,7 @@ import {
     submitInterface,
 } from '../utils/webview';
 
-const target_dir = 'arpm';
+const target_dir = '_tests';
 
 export const createServiceClass = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
@@ -164,9 +164,9 @@ export const createService = async (webview: WebView, editorView: EditorView) =>
     await sleep(1000);
 };
 
-export const checkFiles = async (project_folder: string) => {
+export const checkFiles = async () => {
     await sleep(3000);
-    await compareWithGoldFiles(path.join(project_folder, target_dir), [
+    await compareWithGoldFiles(path.join(projectFolder, target_dir), [
         'ServiceClassWithConfigItems-1.2.qclass',
         'ServiceClassWithConfigItems-1.2.qclass.yaml',
         'ClassWithConfigItems-1.3.qclass',
@@ -176,12 +176,12 @@ export const checkFiles = async (project_folder: string) => {
     ]);
 };
 
-export const editInterface = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
+export const editInterface = async (workbench: Workbench, editorView: EditorView) => {
     await sleep(1000);
     const webview: WebView = await openInterface(
         workbench,
         editorView,
-        path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml')
+        path.join(projectFolder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml')
     );
     await sleep(8000);
     await submitInterface(webview, 'class');

@@ -1,0 +1,27 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+our string format_version = "2.6";
+
+our hash<auto> groups = {
+    "demo": {"desc": "demo interfaces"},
+    "ZeyosArpmDemoGroup": {"desc": "Zeyos arpm demo group"},
+};
+
+const Steps = (
+    "class:ZeyosUploadActionStep:1.0"
+);
+
+our hash<auto> workflows."ZEYOS-ACTION-STEP-UPLOAD"."1.0" = {
+    "desc": "Upload action step to Zeyos workflow",
+    "author": "Qore Technologies, s.r.o.",
+    "steps": Steps,
+    "groups": ("demo", "ZeyosArpmDemoGroup"),
+    "mappers": "zeyos-action-step-create-request:1.0",
+    "remote": False,
+    "autostart": 1,
+};

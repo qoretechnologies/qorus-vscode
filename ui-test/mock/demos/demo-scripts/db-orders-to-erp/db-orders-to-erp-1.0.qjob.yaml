@@ -1,0 +1,79 @@
+# This is a generated file, don't edit!
+type: job
+name: db-orders-to-erp
+desc: Create new orders in the ERP system from the `orders` table
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusJob
+class-name: DbOrdersToErp
+classes:
+  - BBM_OutputData
+  - BBM_AutoMapper
+lang: qore
+mappers:
+  - db-orders-to-erp-mapper:1.0
+  - db-orders-to-erp-item-mapper:1.0
+schedule:
+    minutes: "*/10"
+    hours: "*"
+    days: "*"
+    months: "*"
+    dow: "*"
+version: "1.0"
+code: db-orders-to-erp-1.0.qjob
+class-connections:
+    Connection_1:
+      - class: BBM_AutoMapper
+        connector: runMapper
+        trigger: run
+      - class: BBM_OutputData
+        connector: writeOutputData
+config-items:
+  - name: output-data-hash
+    value:
+        '$info:started': '$pstate:last_executed'
+    parent:
+        interface-type: class
+        interface-name: BBM_OutputData
+        interface-version: "1.0"
+  - name: automapper-mapper-name
+    value:
+        "db-orders-to-erp-mapper"
+    parent:
+        interface-type: class
+        interface-name: BBM_AutoMapper
+        interface-version: "1.0"
+  - name: automapper-input-request
+    parent:
+        interface-type: class
+        interface-name: BBM_AutoMapper
+        interface-version: "1.0"
+  - name: automapper-input-request-options
+    parent:
+        interface-type: class
+        interface-name: BBM_AutoMapper
+        interface-version: "1.0"
+  - name: automapper-input-search
+    value:
+        creation_date:
+            op: '>'
+            arg: '$pstate:last_executed??{$parse-value:{1970-01-01}}'
+    parent:
+        interface-type: class
+        interface-name: BBM_AutoMapper
+        interface-version: "1.0"
+  - name: automapper-input-search-options
+    parent:
+        interface-type: class
+        interface-name: BBM_AutoMapper
+        interface-version: "1.0"
+  - name: automapper-output-upsert
+    parent:
+        interface-type: class
+        interface-name: BBM_AutoMapper
+        interface-version: "1.0"
+  - name: automapper-output-request-options
+    parent:
+        interface-type: class
+        interface-name: BBM_AutoMapper
+        interface-version: "1.0"

@@ -1,0 +1,75 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class MaxisPerformSpeedTest inherits QorusNormalStep {
+    primary() {
+        int status;
+        string msg;
+        if (*softint dd_status = getStaticData("speed_status")) {
+            status = dd_status;
+        } else {
+            switch ((rand() % 10)) {
+                case < 1:
+                    status = 3;
+                    break;
+
+                case < 3:
+                    status = 2;
+                    break;
+
+                default:
+                    status = 1;
+                    break;
+            }
+        }
+
+        hash<auto> info;
+        switch (status) {
+            case 1:
+                msg = "OK: Throughput test reported completed with no warnings or errors";
+                int dl_bw = 1024 * 1024 * ((rand() % 124) + 900);
+                int ul_bw = 1024 * 1024 * ((rand() % 62) + 450);
+                info = {
+                    "speed-test": {
+                        "title": "Throughput Test",
+                        "detail": sprintf("OK: download: %s/s upload: %s/s", get_marketing_byte_size(dl_bw), get_marketing_byte_size(ul_bw)),
+                    },
+                };
+                break;
+
+            case 2:
+                msg = "WARNING: Throughput test detected speeds below thresholds indicating degraded performance";
+                int dl_bw = 1024 * 1024 * ((rand() % 124) + 400);
+                int ul_bw = 1024 * 1024 * ((rand() % 62) + 250);
+                info = {
+                    "speed-test": {
+                        "title": "Throughput Test",
+                        "detail": sprintf("WARNING: download: %s/s upload: %s/s", get_marketing_byte_size(dl_bw), get_marketing_byte_size(ul_bw)),
+                    },
+                };
+                break;
+
+            case 3:
+                msg = "ERROR: Throughput test detected speeds below minimum thresholds";
+                int dl_bw = 1024 * 1024 * ((rand() % 124) + 100);
+                int ul_bw = 1024 * 1024 * ((rand() % 62) + 50);
+                info = {
+                    "speed-test": {
+                        "title": "Throughput Test",
+                        "detail": sprintf("ERROR: download: %s/s upload: %s/s", get_marketing_byte_size(dl_bw), get_marketing_byte_size(ul_bw)),
+                    },
+                };
+                break;
+        }
+
+        updateDynamicData({
+            ("step" + getStepInfo().stepid): {
+                "status": status,
+                "message": msg,
+                "metadata": info,
+            },
+        });
+    }
+}

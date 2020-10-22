@@ -1,0 +1,4 @@
+smtps-demo = (
+    desc = Demo gmail SMTPS Connection,
+    url = esmtptls://username:password@smtp.gmail.com,
+)

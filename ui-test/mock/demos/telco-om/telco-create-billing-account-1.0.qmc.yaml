@@ -1,0 +1,9 @@
+# This is a generated file, don't edit!
+type: mapper-code
+name: TelcoCreateBillingAccount
+version: "1.0"
+class-name: TelcoCreateBillingAccount
+code: telco-create-billing-account-1.0.qmc
+methods:
+  - name: getName
+    desc: retrieve the name

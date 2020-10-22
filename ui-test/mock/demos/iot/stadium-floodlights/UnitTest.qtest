@@ -1,0 +1,31 @@
+#!/usr/bin/env qore
+%new-style
+%enable-all-warnings
+%strict-args
+%require-types
+
+%requires QUnit
+%requires QorusClientCore
+
+%exec-class UnitTest
+
+class UnitTest inherits QUnit::Test {
+    constructor() : Test("UnitTest", OMQ::version) {
+        QorusClient::init2();
+
+        # ensure interfaces are loaded
+        qrest.put("services/axonize-stadium-floodlights/load");
+        on_exit {
+            # qrest.put("services/axonize-stadium-floodlights/unload");
+        }
+
+        addTestCase("receiveAxonizeRequestTest", \receiveAxonizeRequestTest());
+        set_return_value(main());
+    }
+
+    receiveAxonizeRequestTest() {
+        HTTPClient httpclient(("url":"http://localhost:8003"));
+        auto res = httpclient.post("/axonize/stadium-floodlights/", {"content": "asd"}, {"Content-Type" : "application/json"});
+        assertEq(0, res);
+    }
+}

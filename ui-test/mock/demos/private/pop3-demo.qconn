@@ -1,0 +1,4 @@
+pop3-demo = (
+    desc = Demo gmail POP3 Connection,
+    url = pop3s://qoretechnologies.demo@gmail.com:jk8b87Xb78FfEYsmTNBc7sMntdSU3Rm8upTiRc7rc8jlgleIyr@pop.gmail.com,
+)

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
-import { sleep } from '../utils/common';
+import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -16,7 +16,7 @@ import {
     submitInterface,
 } from '../utils/webview';
 
-const target_dir = 'arpm';
+const target_dir = '_tests';
 const target_file = ['test-mapper-3.45.qmapper.yaml', 'test-mapper-3.4.5.qmapper.yaml'];
 
 export const createMapper = async (webview: WebView) => {
@@ -66,16 +66,16 @@ export const createMapper = async (webview: WebView) => {
     await sleep(1000);
 };
 
-export const checkFile = async (project_folder: string, file_index: number) => {
-    compareWithGoldFiles(path.join(project_folder, target_dir), [target_file[file_index]]);
+export const checkFile = async (file_index: number) => {
+    compareWithGoldFiles(path.join(projectFolder, target_dir), [target_file[file_index]]);
 };
 
-export const editMapper = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
+export const editMapper = async (workbench: Workbench, editorView: EditorView) => {
     await sleep(1000);
     const webview: WebView = await openInterface(
         workbench,
         editorView,
-        path.join(project_folder, target_dir, target_file[0])
+        path.join(projectFolder, target_dir, target_file[0])
     );
 
     await sleep(1000);

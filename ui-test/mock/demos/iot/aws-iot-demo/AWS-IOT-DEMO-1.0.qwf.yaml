@@ -1,0 +1,26 @@
+# This is a generated file, don't edit!
+type: workflow
+name: AWS-IOT-DEMO
+version: "1.0"
+author:
+  - Qore Technologies, s.r.o.
+desc: Demo AWS IoT workflow
+keylist:
+  - message_id             # unique AWS message ID for the request
+  - detector_id            # detector (device) ID
+  - salesforce_account_id  # salesforce account ID
+  - zeyos_action_id        # the Zeyos action ID for the ERP update
+lang: qore
+groups:
+  - iot-demo
+mappers:
+  - aws-iot-demo-update-crm-request:1.0
+  - aws-iot-demo-update-erp-request:1.0
+steps:
+  [
+      [
+          "AwsIotDemoLookupCrmAccount:1.0",
+          "AwsIotDemoUpdateCrm:1.0"
+      ],
+      "AwsIotDemoUpdateErp:1.0"
+  ]

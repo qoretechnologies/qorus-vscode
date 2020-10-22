@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { EditorView, WebView } from 'vscode-extension-tester';
-import { sleep } from '../utils/common';
+import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -78,8 +78,8 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView) =
     expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
 };
 
-export const checkFiles = async (project_folder: string) => {
-    compareWithGoldFiles(path.join(project_folder, 'arpm'), [
+export const checkFiles = async () => {
+    compareWithGoldFiles(path.join(projectFolder, '_tests'), [
         'Step test-1.0.qstep.yaml',
         'Step test-1.0.qstep',
         'Workflow test-1.0.qwf.yaml',

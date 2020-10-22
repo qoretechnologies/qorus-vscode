@@ -1,0 +1,37 @@
+# This is a generated file, don't edit!
+type: mapper
+name: erp-orders-to-crm-wf-mapper
+desc: Synchronize new orders in **Salesforce** from the ERP system
+author:
+  - Qore Technologies, s.r.o.
+context:
+    iface_kind: workflow
+    name: ERP-ORDERS-TO-CRM
+fields:
+    AccountId:
+        context: '$static:{body.shippingrecipient}'
+    EffectiveDate:
+        context: ' $qore-expr:{localtime($static:body.creationdate)}'
+    OwnerId:
+        constant: 0052o0000095F5uAAE
+    Pricebook2Id:
+        constant: 01s2o000001QswCAAS
+    Status:
+        constant: Draft
+    erp_order_id__c:
+        context: '$static:{body.transactionnum}'
+options:
+    mapper-input:
+        can_manage_fields: true
+        custom-fields: {}
+        name: qore
+        path: /hash
+        type: type
+    mapper-output:
+        custom-fields: {}
+        name: sfrests-demo
+        path: /Order
+        type: connection
+    output_create_ignore_duplicates: true
+mappertype: Mapper
+version: "1.0"

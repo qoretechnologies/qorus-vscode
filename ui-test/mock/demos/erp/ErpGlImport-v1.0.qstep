@@ -1,0 +1,8 @@
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+#! this step imports GL data from a remote DB to the local DB
+class ErpGlImport inherits BBM_AutoMapperRecordStep {
+}

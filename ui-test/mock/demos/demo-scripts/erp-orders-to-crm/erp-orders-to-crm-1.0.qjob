@@ -1,0 +1,61 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class ErpOrdersToCrm inherits QorusJob {
+    private {
+        ####### GENERATED SECTION! DON'T EDIT! ########
+        ClassConnections_ErpOrdersToCrm class_connections();
+        ############ GENERATED SECTION END ############
+    }
+
+    ####### GENERATED SECTION! DON'T EDIT! ########
+    run() {
+        class_connections.Connection_1();
+    }
+    ############ GENERATED SECTION END ############
+}
+
+####### GENERATED SECTION! DON'T EDIT! ########
+class ClassConnections_ErpOrdersToCrm {
+    private {
+        # map of prefixed class names to class instances
+        hash<auto> class_map;
+    }
+
+    constructor() {
+        class_map = {
+            "BBM_DataProviderRequest": new BBM_DataProviderRequest(),
+            "BBM_InternalIterator": new BBM_InternalIterator(),
+            "BBM_CreateOrder": new BBM_CreateOrder(),
+            "BBM_OutputData": new BBM_OutputData(),
+        };
+    }
+
+    auto callClassWithPrefixMethod(string prefixed_class, string method) {
+        UserApi::logDebug("ClassConnections_ErpOrdersToCrm: callClassWithPrefixMethod: method: %s, class: %y", method, prefixed_class);
+        return call_object_method_args(class_map{prefixed_class}, method, argv);
+    }
+
+    auto Connection_1(auto params) {
+        auto mapper;
+        UserApi::logDebug("Connection_1 called with data: %y", params);
+
+        UserApi::logDebug("calling DataProvider Request: %y", params);
+        params = callClassWithPrefixMethod("BBM_DataProviderRequest", "makeDataProviderRequestConnector", params);
+
+        UserApi::logDebug("calling internalIterator: %y", params);
+        params = callClassWithPrefixMethod("BBM_InternalIterator", "internalIterator", params);
+
+        mapper = UserApi::getMapper("erp-orders-to-crm-job-mapper");
+        params = mapper.mapAuto(params);
+
+        UserApi::logDebug("calling createOrder: %y", params);
+        params = callClassWithPrefixMethod("BBM_CreateOrder", "createWorkflowOrderConnector", params);
+
+        UserApi::logDebug("calling writeOutputData: %y", params);
+        return callClassWithPrefixMethod("BBM_OutputData", "writeOutputData", params);
+    }
+}
+############ GENERATED SECTION END ############

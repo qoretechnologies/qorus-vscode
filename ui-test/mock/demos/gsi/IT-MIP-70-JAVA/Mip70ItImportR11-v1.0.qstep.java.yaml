@@ -1,0 +1,29 @@
+type: step
+name: Mip70ItImportR11
+class-name: Mip70ItImportR11
+version: "1.0"
+desc: Java test step class
+steptype: NORMAL
+arraytype: SERIES
+lang: java
+author:
+  - Qore Technologies, s.r.o.
+code: Mip70ItImportR11-v1.0.qstep.java
+base-class-name: QorusNormalStep
+config-items:
+  - name: gsi_staging
+    description: The name of the staging datasource
+    type: string
+    default_value: gsi_staging
+  - name: header-table-name
+    description: The R11 header table name
+    type: string
+    default_value: h3g_it_gl_int_header
+  - name: msepl-it
+    description: the mSEPL IT remote connection name
+    type: string
+    default_value: msepl-it
+  - name: ebs11i
+    description: the EBS 11i connection name
+    type: string
+    default_value: ebs11i

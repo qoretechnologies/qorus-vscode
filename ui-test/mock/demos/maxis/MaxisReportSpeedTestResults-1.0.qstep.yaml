@@ -1,0 +1,17 @@
+# This is a generated file, don't edit!
+type: step
+name: MaxisReportSpeedTestResults
+desc: |-
+    desc: Report speed test results
+    info:
+      message: "This step reports download and upload speeds"
+      loadingMessage: "Retrieving speed check results"
+      name: "Speed check results"
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalStep
+class-name: MaxisReportSpeedTestResults
+lang: qore
+version: "1.0"
+steptype: NORMAL
+code: MaxisReportSpeedTestResults-1.0.qstep

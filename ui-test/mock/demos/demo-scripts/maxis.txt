@@ -1,0 +1,29 @@
+
+
+**** DESCRIPTION
+desc: Check for other information
+info:
+  message: "This step checks for other information"
+  loadingMessage: "Running new check"
+  name: "New check"
+
+**** CODE
+    primary() {
+        int status = 1;
+        string msg = "OK: A check completed with no warnings or errors";
+        int goodness = (rand() % 10) + 10;
+        hash<auto> info = {
+            "test-info": {
+                "title": "A New Test",
+                "detail": sprintf("OK: this test returned a goodness value of %d", goodness),
+            },
+        };
+
+        updateDynamicData({
+            ("step" + getStepInfo().stepid): {
+                "status": status,
+                "message": msg,
+                "metadata": info,
+            },
+        });
+    }

@@ -1,0 +1,111 @@
+[
+  {
+    "tag": "greeting",
+    "patterns": ["hello", "hi", "hey", "greetings", "howdy", "how are you?", "is anyone there?", "is someone there?",
+        "yo", "wassup?", "good day", "salutations"],
+    "responses": [
+        "Hi, how can I help you?",
+        "Hello! Thank you for visiting; how can I help?",
+        "Hello, thanks for visiting; what can I do for you?",
+        "Welcome, how can I help you?", "Hi, what can I do for you?"
+    ]
+  },
+  {
+    "tag": "payments",
+    "patterns": [
+        "Do you take credit cards?",
+        "Can I pay with cash?",
+        "Do you accept cash?",
+        "Do you accept Mastercard?",
+        "Can I pay with my visa card?",
+        "Do you take American Express?",
+        "Do you accept Discover cards?",
+        "Are you cash only?",
+        "How can I pay?"
+    ],
+    "responses": [
+        "We accept VISA and Mastercard only; unfortunately we cannot accept cash payments or payments with other cards; to authorize payment for your ride, state 'I authorize payment'"
+    ]
+  },
+  {
+    "tag": "authorization",
+    "patterns": [
+        "I want to ride the metro",
+        "I would like to take the tram",
+        "Can I ride the metro?",
+        "Can I take the tram?",
+        "I need to get on the bus",
+        "I want to ride the bus",
+        "I want to pay",
+        "How do I authorize payment?",
+        "I want to buy a ticket",
+        "I authorize payment"
+    ],
+    "responses": [
+        "To authorize payment for public transport services, state 'I authorize payment'"
+    ]
+  },
+  {
+    "tag": "account",
+    "patterns": [
+      "account status",
+      "account",
+      "financial status",
+      "status",
+      "credit",
+      "balance"
+    ],
+    "responses": ["Your have 55€ of credit in your transport account"]
+  },
+  {
+    "tag": "transactions",
+    "patterns": [
+        "last recharge",
+        "last charge",
+        "when did i last recharge my account?",
+        "last time i recharged my credit",
+        "how much was my last transaction?",
+        "show my account activity",
+        "show travel history",
+        "what was my last ride?",
+        "when and where did I travel last?",
+        "travel history"
+    ],
+    "responses": [
+      "2020-07-17: -0.75 € metro ride zone A, balance +40.75 €\n2020-07-18: -0.75 € metro ride zone A, balance +40.00 €\n2020-07-19: +15.00 € credit card xxxx xxxx xxxx 0923 -> balance +55.00 €\n"
+    ]
+  },
+  {
+    "tag": "pets",
+    "patterns": [
+        "can my dog ride with me?",
+        "can I take my cat on the metro?",
+        "do you allow service animals?",
+        "can I travel with my pet?",
+        "do you allow animals on public transport?",
+        "my dog always travels with me, can she ride the bus?",
+        "do I need a ticket for my dog?",
+        "does my dog need to be on a leash?",
+        "do I need a muzzle for my dog?",
+        "does my dog need to be muzzled on the metro?",
+        "can I travel with more than one dog?",
+        "What are the rules for traveling with pets?"
+    ],
+    "responses": [
+        "Dogs are allowed on public transport if they are leashed and muzzled and always require a separate ticket; other service animals are permitted with the appropriate permit and documentation; in no cases may animals ride without their owner or a competent handler"
+    ]
+  },
+  {
+    "tag": "intro",
+    "patterns": [
+        "what is your name?",
+        "where are you?",
+        "are you a real person?",
+        "are you human?",
+        "are you a machine?"
+    ],
+    "responses": [
+        "I am a chatbot demo using AI and NLP frameworks along with IT automation to satisfy user requests for public transport charging."
+    ]
+  }
+]

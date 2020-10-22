@@ -1,0 +1,57 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+#
+# Qorus Integration Engine
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+our string format_version = "2.6";
+
+our hash<auto> groups."iot-demo".desc = "IoT demo interfaces";
+
+our hash<auto> queues = {
+    "iot_floodlight_demo_erp_action_queue": {"desc": "Asynchronous queue for ERP system"},
+    "iot_floodlight_demo_crm_ticket_queue": {"desc": "Asynchronous queue for CRM ticket monitoring"}
+};
+
+const Steps = (
+    "class:CheckBulbAvailabilityInStock:1.0",
+    "class:IotStadiumFloodLightsDemoCreateErpOrder:1.0",
+    {
+        "name": "WaitForERPOrderProcessed:1.0",
+        "classname": "WaitForERPOrderProcessed:1.0",
+        "queue": "iot_floodlight_demo_erp_action_queue",
+    },
+    "class:IotStadiumFloodLightsDemoCreateCrmOrder:1.0",
+    {
+        "name": "IotStadiumFloodLightsDemoWaitCrm:1.0",
+        "classname": "IotStadiumFloodLightsDemoWaitCrm:1.0",
+        "queue": "iot_floodlight_demo_crm_ticket_queue",
+    }
+    # postponed
+    #"class:NotifySender:1.0",
+);
+
+our hash<auto> workflows."IOT-STADIUM-LIGHT-REPLACEMENT-DEMO"."1.0" = {
+    "desc"      : "Demo IoT stadium flootlight replacement workflow",
+    "author"    : "Qore Technologies, s.r.o.",
+    "steps"     : Steps,
+    "keylist"   : (
+        "request_id", # unique ID for the request
+        "stadium_id", # stadium ID
+        "device_id",  # the device ID of the light to be replaced
+    ),
+    "groups"    : (
+        "iot-demo",
+    ),
+    "classes": (
+        "BBM_RestActionStep",
+    ),
+    "mappers": (
+        "iot-stadium-floodlights-demo-erp-request:1.0",
+        "iot-stadium-floodlights-demo-crm-request:1.0",
+    ),
+    "autostart" : 1,
+};

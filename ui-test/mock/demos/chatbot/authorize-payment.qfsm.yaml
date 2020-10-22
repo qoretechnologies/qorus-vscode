@@ -1,0 +1,202 @@
+# This is a generated file, don't edit!
+type: fsm
+name: authorize-payment
+desc: authorize payment for public transport services
+options:
+    action-strategy: one
+    max-thread-count: 1
+states:
+    '1':
+        action:
+            type: connector
+            value:
+                class: BBM_LogMessage
+                connector: logMessage
+        config-items:
+            -
+                name: log-message-level
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+            -
+                name: log-message-string
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+                value: 'Charge is %.2f €, available credit %.2f €'
+            -
+                name: log-message-args
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+                value:
+                    - -1
+                    - 55
+                value_true_type: list
+        desc: ''
+        final: false
+        initial: true
+        name: Check / Debit Credit Account
+        position:
+            x: 801.27734375
+            'y': 886.95703125
+        transitions:
+            -
+                condition: 'False'
+                state: '2'
+            -
+                condition: 'True'
+                state: '3'
+        type: state
+    '2':
+        action:
+            type: connector
+            value:
+                class: BBM_LogMessage
+                connector: logMessage
+        config-items:
+            -
+                name: log-message-level
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+            -
+                name: log-message-string
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+                value: Authorizing payment
+            -
+                name: log-message-args
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+        desc: ''
+        final: false
+        initial: false
+        name: Authorize Payment
+        position:
+            x: 1073.5
+            'y': 888.2578125
+        transitions:
+            -
+                condition: 'True'
+                state: '4'
+            -
+                condition: 'False'
+                state: '5'
+        type: state
+    '3':
+        action:
+            type: connector
+            value:
+                class: BBM_LogMessage
+                connector: logMessage
+        config-items:
+            -
+                name: log-message-level
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+            -
+                name: log-message-string
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+                value: >-
+                    Credit debited successfully; txid %s: charge: %.2f €, remaining
+                    balance: %.2f €
+            -
+                name: log-message-args
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+                value:
+                    - P081OhVwA955Yax
+                    - -1
+                    - 54
+        desc: ''
+        final: false
+        initial: false
+        name: Credit Debited
+        position:
+            x: 817
+            'y': 1088
+        type: state
+    '4':
+        action:
+            type: connector
+            value:
+                class: BBM_LogMessage
+                connector: logMessage
+        config-items:
+            -
+                name: log-message-level
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+            -
+                name: log-message-string
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+                value: Payment auhtorization successful
+            -
+                name: log-message-args
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+        desc: ''
+        final: false
+        initial: false
+        name: 'Payment: Success'
+        position:
+            x: 1329
+            'y': 890
+        type: state
+    '5':
+        action:
+            type: connector
+            value:
+                class: BBM_LogMessage
+                connector: logMessage
+        config-items:
+            -
+                name: log-message-level
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+            -
+                name: log-message-string
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+                value: Payment authorization failed
+            -
+                name: log-message-args
+                parent:
+                    interface-name: BBM_LogMessage
+                    interface-type: class
+                    interface-version: '1.0'
+        desc: ''
+        final: false
+        initial: false
+        name: 'Payment: Failure'
+        position:
+            x: 1079
+            'y': 1088
+        type: state

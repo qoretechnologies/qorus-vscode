@@ -1,0 +1,29 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# type: GENERIC
+# name: demo-lib
+# version: 1.0
+# desc: demo library functions
+# author: Qore Technologies, s.r.o.
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+#! removes all hash keys with no value in a hash hierarchy and return the edited hash
+hash sub remove_nulls(hash h) {
+    foreach string k in (h.keyIterator()) {
+        switch (h{k}.typeCode()) {
+            case NT_NOTHING: {
+                delete h{k};
+                break;
+            }
+            case NT_HASH: {
+                h{k} = remove_nulls(h{k});
+                break;
+            }
+        }
+    }
+    return h;
+}
+# END

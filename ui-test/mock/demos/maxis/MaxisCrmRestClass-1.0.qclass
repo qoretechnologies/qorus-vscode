@@ -1,0 +1,208 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class MaxisCrmOrderRestClass inherits BBM_RestClass {
+    private {
+        hash<auto> oh;
+        hash<auto> wfh;
+    }
+
+    softstring name() {
+        return oh.workflow_instanceid;
+    }
+
+    constructor(hash<auto> oh, hash<auto> wfh) {
+        self.oh = oh;
+        self.wfh = wfh;
+    }
+}
+
+class MaxisCrmOrdersRestClass inherits BBM_RestClass {
+    string name() {
+        return "orders";
+    }
+
+    *BBM_RestClass subClassImpl(string name, hash<auto> cx, *hash<auto> ah) {
+        try {
+            hash<auto> oh = UserApi::callRestApi("GET", "orders/" + name);
+            # check if order is a MAXIS order
+            if (*hash<auto> wfh = MaxisCrmWorkflowsRestClass::checkMaxisWorkflow(oh.workflowid)) {
+                return new MaxisCrmOrderRestClass(oh, wfh);
+            }
+        } catch () {
+            # exceptions are ignored
+        }
+    }
+
+    hash<HttpHandlerResponseInfo> get(hash<auto> cx, *hash<auto> ah) {
+        # get list of Maxis workflows
+        *list<int> wfids = map $1.workflowid, MaxisCrmWorkflowsRestClass::getMaxisWorkflows();
+        *list<auto> order_list = omqservice.system.info.searchWOrkflowInstances({
+            "workflowid": wfids,
+        });
+        return RestHandler::makeResponse(200, order_list);
+    }
+}
+
+class MaxisCrmWorkflowRestClass inherits BBM_RestClass {
+    private {
+        hash<auto> wfh;
+    }
+
+    constructor(hash<auto> wfh) {
+        self.wfh = wfh;
+    }
+
+    string name() {
+        return wfh.name;
+    }
+
+    hash<HttpHandlerResponseInfo> optionsStart(hash<auto> cx, *hash<auto> ah) {
+        return options(cx, ah);
+    }
+
+    hash<HttpHandlerResponseInfo> postStart(hash<auto> cx, *hash<auto> ah) {
+        # ensure workflow is running
+        ensureRunning();
+
+        # create a workflow order
+        hash<auto> order_data = {
+            "staticdata": {},
+        };
+        int wfiid = UserApi::createOrder(wfh.name, wfh.version, order_data);
+        hash<auto> info = {
+            "workflow_instanceid": wfiid,
+        };
+        return RestHandler::makeResponse(200, info);
+    }
+
+    hash<HttpHandlerResponseInfo> get(hash<auto> cx, *hash<auto> ah) {
+        list<hash<auto>> step_list;
+        hash<string, bool> stepmap;
+        foreach hash<auto> step in (wfh.stepinfo) {
+            UserApi::logInfo("step desc: %y", step.desc);
+            try {
+                hash<auto> h = parse_yaml(step.desc).info;
+                step_list += {
+                    "id": step.stepid,
+                    "status": 0,
+                    "isRunning": False,
+                } + h + {
+                    "metadata": NOTHING,
+                };
+                stepmap{step.stepid} = True;
+            } catch (hash<ExceptionInfo> ex) {
+                #UserApi::logInfo("%s", get_exception_string(ex));
+            }
+        }
+        # sort steps in workflow execution order
+        if (step_list) {
+            # make a tree of only the steps being processed here
+            hash<string, *hash<string, bool>> step_deps =
+                map {$1.key: (map {$1: True}, $1.value, stepmap{$1})},
+                wfh.steps.pairIterator(),
+                stepmap{$1.key};
+
+            # returns True if other is reachable from base
+            code reachable = bool sub (softstring base, softstring other) {
+                if (step_deps{base}{other}) {
+                    return True;
+                }
+                foreach string link in (keys step_deps{base}) {
+                    if (reachable(link, other)) {
+                        return True;
+                    }
+                }
+                return False;
+            };
+            step_list = map $1 + {"order": $#}, sort(step_list, int sub (hash<auto> l, hash<auto> r) {
+                return reachable(l.id, r.id) ? 1 : (reachable(r.id, l.id) ? -1 : l.id <=> r.id);
+            });
+        }
+        *hash<auto> rv = map {$1.id: $1}, step_list;
+        return RestHandler::makeResponse(200, rv);
+    }
+
+    private ensureRunning() {
+    }
+}
+
+class MaxisCrmWorkflowsRestClass inherits BBM_RestClass {
+    string name() {
+        return "workflows";
+    }
+
+    *BBM_RestClass subClassImpl(string name, hash<auto> cx, *hash<auto> ah) {
+        try {
+            if (*hash<auto> wfh = checkMaxisWorkflow(name)) {
+                return new MaxisCrmWorkflowRestClass(wfh);
+            }
+        } catch () {
+            # exceptions are ignored
+        }
+    }
+
+    hash<HttpHandlerResponseInfo> get(hash<auto> cx, *hash<auto> ah) {
+        *list<string> wf_list = map $1.name, getMaxisWorkflows();
+        return RestHandler::makeResponse(200, wf_list);
+    }
+
+    static *list<hash<auto>> getMaxisWorkflows() {
+        return UserApi::callRestApi("GET", "groups/MAXIS-CRM/workflows");
+    }
+
+    static *hash<auto> checkMaxisWorkflow(string name) {
+        hash<auto> wfh = UserApi::callRestApi("GET", "workflows/" + name);
+        if (map $1, wfh.groups, $1.name == "MAXIS-CRM") {
+            return wfh;
+        }
+    }
+}
+
+class MaxisCrmDemoRestClass inherits BBM_RestClass {
+    private {
+        const DemoComplaints = (
+            {"complaint_id": "CSR-1000ABF.200", "common_components": ("FTTH-RGW-2F",)},
+            {"complaint_id": "CSR-1000ABX.759", "common_components": ("FTTH-RGW-2F",)},
+            {"complaint_id": "CSR-1000AQW.528", "common_components": ("FTTH-RGW-2F",)},
+            {"complaint_id": "CSR-1000AOT.909", "common_components": ("FTTH-RGW-2F",)},
+        );
+    }
+
+    string name() {
+        return "demo";
+    }
+
+    *BBM_RestClass subClassImpl(string name, hash<auto> cx, *hash<auto> ah) {
+        *hash<auto> wfh = MaxisCrmWorkflowsRestClass::checkMaxisWorkflow("MAXIS-WIFI-ISSUE"); #name);
+        if (wfh) {
+            return new MaxisCrmWorkflowRestClass(wfh);
+        }
+    }
+
+    hash<HttpHandlerResponseInfo> put(hash<auto> cx, *hash<auto> ah) {
+        if (ah.workflow_instanceid) {
+            hash<auto> dd = UserApi::callRestApi("GET", "orders/" + ah.workflow_instanceid + "/dynamicdata");
+            string step = "step" + ah.step;
+            return RestHandler::makeResponse(200, {
+                "step": step,
+            } + dd{step});
+        }
+
+        return RestHandler::makeResponse(400, "missing workflow_instanceid");
+    }
+}
+
+class MaxisCrmRestClass inherits BBM_RestClass {
+    constructor() {
+        addClass(new MaxisCrmWorkflowsRestClass());
+        addClass(new MaxisCrmOrdersRestClass());
+        addClass(new MaxisCrmDemoRestClass());
+    }
+
+    string name() {
+        return "crm";
+    }
+}

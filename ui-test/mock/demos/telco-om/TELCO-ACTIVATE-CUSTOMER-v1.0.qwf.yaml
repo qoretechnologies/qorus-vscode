@@ -1,0 +1,29 @@
+type: workflow
+name: TELCO-ACTIVATE-CUSTOMER
+version: "1.0"
+desc: demo telco customer activation workflow
+author:
+  - Qore Technologies, s.r.o.
+keylist:
+  - customer_id
+  - account_id
+groups:
+  - demo
+  - demo-telco-om
+remote: false
+autostart: 1
+mappers:
+  - "telco-create-billing-account:1.0"
+sla_threshold: 60
+steps:
+  [
+    "TelcoGetPartyId:1.0",
+    [
+      "TelcoCreateSelfcareAccount:1.0",
+      [
+        "TelcoCustomerAccountActivationSubworkflow:1.0",
+        "TelcoUpdateAccountKey:1.0",
+      ],
+    ],
+    "TelcoUpdateCrmCustomer:1.0",
+  ]

@@ -1,0 +1,96 @@
+# This is a generated file, don't edit!
+type: step
+name: ErpOrderItemsToCrmStep
+desc: Synchronize new items in CRM from the ERP system
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalArrayStep
+class-name: ErpOrderItemsToCrmStep
+classes:
+  - BBM_GetArray
+  - BBM_GetData
+  - BBM_GenericMapper
+lang: java
+mappers:
+  - erp-items-to-crm-wf-mapper:1.0
+version: "1.0"
+vmaps:
+  - erp-crm-item-map
+steptype: NORMAL
+arraytype: SERIES
+code: ErpOrderItemsToCrmStep.java
+class-connections:
+    array:
+      - class: BBM_GetArray
+        connector: getArray
+        trigger: array
+    primary:
+      - class: BBM_GetData
+        connector: getData
+        trigger: primary
+      - class: BBM_GenericMapper
+        connector: map
+config-items:
+  - name: get-array-output
+    value:
+        '$dynamic:items'
+    parent:
+        interface-type: class
+        interface-name: BBM_GetArray
+        interface-version: "1.0"
+    is_value_templated_string: true
+  - name: get-data
+    value:
+        '$info:step.array_element'
+    parent:
+        interface-type: class
+        interface-name: BBM_GetData
+        interface-version: "1.0"
+    is_value_templated_string: true
+  - name: automapper-mapper-name
+    value:
+        "erp-items-to-crm-wf-mapper"
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-request
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-request-options
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-search
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-search-options
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-output-upsert
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-output-request-options
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-output
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"

@@ -1,0 +1,132 @@
+# This is a generated file, don't edit!
+type: job
+name: erp-orders-to-crm
+desc: Synchronize new orders in **Salesforce** from the ERP system
+active: false
+base-class-name: QorusJob
+class-name: ErpOrdersToCrm
+classes:
+  - BBM_DataProviderRequest
+  - BBM_InternalIterator
+  - BBM_CreateOrder
+  - BBM_OutputData
+lang: java
+mappers:
+  - erp-orders-to-crm-job-mapper:1.0
+schedule:
+    minutes: "*/10"
+    hours: "*"
+    days: "*"
+    months: "*"
+    dow: "*"
+version: "1.0"
+code: ErpOrdersToCrm.java
+class-connections:
+    Connection_1:
+      - class: BBM_DataProviderRequest
+        connector: DataProvider Request
+        trigger: run
+      - class: BBM_InternalIterator
+        connector: internalIterator
+      - class: BBM_CreateOrder
+        connector: createOrder
+        mapper: erp-orders-to-crm-job-mapper:1.0
+      - class: BBM_OutputData
+        connector: writeOutputData
+config-items:
+  - name: dataprovider-request-provider-path
+    value:
+        "connection/zeyosrests-iot-demo/api/v1/transactions/POST"
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+  - name: dataprovider-request-input
+    value:
+        body:
+            filters:
+                type: 6
+                creationdate:
+                    '>': >-
+                        $qore-expr:{get_epoch_seconds($pstate:last_executed??{2000-01-01})}
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+    value_true_type: hash
+  - name: dataprovider-request-mapper
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+  - name: dataprovider-request-options
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+  - name: dataprovider-request-id-location
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+  - name: dataprovider-request-body-remove-nulls
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+  - name: dataprovider-request-output-data
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+  - name: dataprovider-request-id-log-msg
+    parent:
+        interface-type: class
+        interface-name: BBM_DataProviderRequest
+        interface-version: "1.0"
+  - name: internal-iterator-key-path
+    value:
+        "body"
+    parent:
+        interface-type: class
+        interface-name: BBM_InternalIterator
+        interface-version: "1.0"
+  - name: create-workflow-order-mapper
+    parent:
+        interface-type: class
+        interface-name: BBM_CreateOrder
+        interface-version: "1.0"
+  - name: create-workflow-name
+    value:
+        "ERP-ORDERS-TO-CRM"
+    parent:
+        interface-type: class
+        interface-name: BBM_CreateOrder
+        interface-version: "1.0"
+  - name: create-workflow-version
+    parent:
+        interface-type: class
+        interface-name: BBM_CreateOrder
+        interface-version: "1.0"
+  - name: create-workflow-duplicate-handling
+    parent:
+        interface-type: class
+        interface-name: BBM_CreateOrder
+        interface-version: "1.0"
+  - name: create-workflow-output-data
+    parent:
+        interface-type: class
+        interface-name: BBM_CreateOrder
+        interface-version: "1.0"
+  - name: create-workflow-order-status
+    parent:
+        interface-type: class
+        interface-name: BBM_CreateOrder
+        interface-version: "1.0"
+  - name: output-data-hash
+    value:
+        '$info:last_executed': '$pstate:last_executed'
+    parent:
+        interface-type: class
+        interface-name: BBM_OutputData
+        interface-version: "1.0"

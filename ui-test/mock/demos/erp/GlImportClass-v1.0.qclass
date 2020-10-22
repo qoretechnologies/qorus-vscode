@@ -1,0 +1,11 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+# gl import class
+class GlImportClass {
+    static hash<auto> getEffectiveDate(date dt, hash<auto> rec) {
+        return rec.post_date ?? dt;
+    }
+}

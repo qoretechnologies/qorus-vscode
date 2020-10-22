@@ -1,0 +1,44 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+# test workflow definition
+#
+# Qorus Integration Engine
+
+%new-style
+
+our string format_version = "2.6";
+
+our hash<auto> groups = {
+    "demo": {"desc": "demo interfaces"},
+    "demo-erp": {"desc": "ERP demo interfaces"},
+};
+
+our list<auto> steps = (
+    {
+        "name": "erp_shipment_request_check_staging_out:1.0",
+        "desc": "check staging tables for output data & lock for outbound processing",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+    {
+        "name": "erp_shipment_request_transform_send_data_out:1.0",
+        "desc": "retrieve, transform, and send the outbound data",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+    {
+        "name": "erp_shipment_request_finalize_out:1.0",
+        "desc": "update ERP system that the data has been transferred",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+);
+
+our hash<auto> workflows."ERP-BATCH-O2C-SHIPMENT-REQUEST-OUT"."1.0" = {
+    "desc": "Demo ERP Order to Cash shipment request export workflow; exports shipment requests for sales order lines consolidated in a delivery for the logistics partner to perform a physical delivery at the warehouse",
+    "author": "Qore Technologies, s.r.o.",
+    "steps": steps,
+    "groups": ("demo", "demo-erp"),
+    "sla_threshold": 1,
+    "autostart": 1,
+    "remote": False,
+};

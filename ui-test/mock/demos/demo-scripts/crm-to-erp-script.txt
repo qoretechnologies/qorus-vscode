@@ -1,0 +1,89 @@
+
+service:
+    name:
+        crm-account-change-event-to-order
+    desc:
+        **Salesforce** account change event to workflow order
+
+Triggers the `CRM-ACCOUNT-EVENT-TO-ERP` workflow
+    autostart:
+        true
+
+    classes:
+        BBM_SalesforceStreamBase
+        BBM_CreateOrder
+
+    methods:
+        init: init method
+
+    mapper:
+        name:
+            crm-account-change-event-to-order-mapper
+        desc:
+            **Salesforce** account change event to workflow order
+        fields:
+            orderkeys
+                + salesforce_account_id
+                    desc: **Salesforce** account ID order key
+                    type: auto
+                        ⬅︎ recordIds
+            workflow_unique_key
+                + salesforce_event_id
+                    desc: **Salesforce** reply event ID unique order key
+                    type: softstring
+                        ⬅︎ replayId
+            staticdata
+                    ⬅︎ payload
+
+    config:
+        sf-stream-connection-name = sfrests-demo
+        sf-stream-channel-names = [/data/AccountChangeEvent]
+        create-workflow-name = CRM-ACCOUNT-EVENT-TO-ERP
+
+workflow:
+    name:
+        CRM-ACCOUNT-EVENT-TO-ERP
+    desc:
+        Synchronize **Salesforce** account changes to ERP from events delivered through the `crm-account-change-event-to-order` service
+    autostart:
+        1
+    key list:
+        salesforce_account_id salesforce_event_id
+    static data type:
+        type -> qoretechnologies -> building-blocks -> salesforce -> stream-event-account
+    mapper:
+        update-erp-from-crm
+
+step:
+    name:
+        UpdateErpFromCrm
+    desc:
+        Update ERP with changes from **Salesforce**
+    classes:
+        BBM_DataProviderSearch
+        BBM_GenericMapper
+    config:
+        dataprovider-search-provider-path = connection/sfrests-demo/Account
+        dataprovider-search-criteria = {Id: "$keys:{salesforce_account_id}"}
+        dataprovider-search-output-data = {zeyos_contact_id__c: "$dynamic:zeyos_contact_id"}
+        dataprovider-search-requires-result = true
+
+        automapper-mapper-name = update-erp-from-crm
+
+    mapper:
+        name:
+            update-erp-from-crm
+        desc:
+            Update ERP from **Salesforce** account change event
+        options:
+            ignore_missing_input = true
+        context:
+            workflow -> CRM-ACCOUNT-EVENT-TO-ERP
+        input:
+            type -> qore -> hash
+        output
+            connection -> zeyosrests-iot-demo -> api -> v1 -> contacts -> $dynamic:zeyos_contact_id -> PATCH
+        fields:
+            static.Name -> lastname
+            static.BillingAddress.Street -> address
+            static.BillingAddress.PostalCode -> postalcode

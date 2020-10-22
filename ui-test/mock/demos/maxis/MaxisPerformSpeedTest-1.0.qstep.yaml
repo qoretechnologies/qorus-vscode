@@ -1,0 +1,17 @@
+# This is a generated file, don't edit!
+type: step
+name: MaxisPerformSpeedTest
+desc: |-
+    desc: Perform a speed test if applicable
+    info:
+      message: "This step checks for download and upload speed"
+      loadingMessage: "Running speed check"
+      name: "Speed check"
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalStep
+class-name: MaxisPerformSpeedTest
+lang: qore
+version: "1.0"
+steptype: NORMAL
+code: MaxisPerformSpeedTest-1.0.qstep

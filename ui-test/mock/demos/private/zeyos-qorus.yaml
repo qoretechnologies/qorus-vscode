@@ -1,0 +1,1377 @@
+swagger: "2.0"
+info:
+  description: "This is an API for comminicating with ZeyOS"
+  version: "1.0.0"
+  title: "ZeyOS Qorus API"
+  contact:
+    email: "info@qoretechnologies.com"
+host: "localhost"
+basePath: "/qoretechnologies"
+tags:
+- name: "ZeyOS"
+  description: "ZeyOS API"
+schemes:
+- "https"
+- "http"
+paths:
+  /auth/v1/login:
+    post:
+      tags:
+      - "login"
+      summary: "login"
+      description: "login"
+      operationId: "login"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "login data"
+        required: true
+        schema:
+          $ref: "#/definitions/Login"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/LoginResponse"
+  /api/v1/accounts/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/actionsteps/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/addresses/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/applications/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/appointments/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/associations/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/campaigns/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/categories/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/comments/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/components/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/contacts:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "search criteria"
+        required: true
+        schema:
+          $ref: "#/definitions/Search"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/AnyObject"
+              #$ref: "#/definitions/Contact"
+  /api/v1/contacts/{contactId}:
+    get:
+      tags:
+      - "contacts"
+      summary: "Retrieve a contact"
+      description: "retrieve a contact"
+      operationId: "retrieveContact"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contactId"
+        in: "path"
+        description: "the ID of contact to retrieve"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Contact"
+    patch:
+      tags:
+      - "contacts"
+      summary: "Update a contact"
+      description: "update a contact"
+      operationId: "updateContact"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contactId"
+        in: "path"
+        description: "the ID of contact to update"
+        required: true
+        type: "integer"
+        format: "int64"
+      - in: "body"
+        name: "body"
+        description: "contact data to update"
+        required: true
+        schema:
+          $ref: "#/definitions/Contact"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Contact"
+        405:
+          description: "Invalid input"
+        500:
+          description: "server error"
+          schema:
+            type: string
+  /api/v1/contacts2contacts/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/contracts/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/coupons/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/couponcodes/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/davservers/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/dunning/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/dunning2transactions/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/events/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/feedservers/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/files/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/follows/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/groups/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/groups2users/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/invitations/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/items:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "search criteria"
+        required: true
+        schema:
+          $ref: "#/definitions/Search"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/AnyObject"
+              #$ref: "#/definitions/Contact"
+  /api/v1/items/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ItemProduct"
+            #$ref: "#/definitions/AnyObject"
+  /api/v1/ledgers/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/likes/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/links/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/mailinglists/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/mailservers/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/messages/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/messagereads/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/notes/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/objects/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/opportunities/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/participants/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/payments/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/permissions/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/pricelists/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/pricelists2accounts/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/prices/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/projects/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/records/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/resources/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/services/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/stocktransactions/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Transaction"
+  /api/v1/storages/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/suppliers/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/tasks/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/tickets/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+  /api/v1/transactions:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "search criteria"
+        required: true
+        schema:
+          $ref: "#/definitions/Search"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              #$ref: "#/definitions/Transaction"
+              $ref: "#/definitions/AnyObject"
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "new transaction"
+        required: true
+        schema:
+          $ref: "#/definitions/TransactionCreate"
+      responses:
+        201:
+          description: "created"
+          schema:
+            $ref: "#/definitions/Transaction"
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Transaction"
+  /api/v1/transactions/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Transaction"
+    patch:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      - in: "body"
+        name: "body"
+        description: "updated transaction data"
+        required: true
+        schema:
+          $ref: "#/definitions/Transaction"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+    delete:
+      produces:
+      - application/octet-stream
+      responses:
+        204:
+          description: "successful deletion"
+  /api/v1/users/{Id}:
+    get:
+      produces:
+      - application/json
+      parameters:
+      - name: "Id"
+        in: "path"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AnyObject"
+definitions:
+  AnyObject: {}
+  Login:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      password:
+        type: "string"
+      identifier:
+        type: "string"
+      appsecret:
+        type: "string"
+  LoginResponse: {}
+  Search:
+    type: "object"
+    properties:
+      fields:
+        schema:
+          $ref: "#/definitions/AnyObject"
+      filters:
+        schema:
+          $ref: "#/definitions/AnyObject"
+      sort:
+        schema:
+          $ref: "#/definitions/AnyObject"
+      limit:
+        type: "integer"
+      offset:
+        type: "integer"
+  Contact:
+    type: "object"
+    properties:
+      ID:
+        type: "integer"
+      owneruser:
+        type: "string"
+        x-nullable: true
+      ownergroup:
+        type: "string"
+        x-nullable: true
+      creator:
+        type: "integer"
+      assigneduser:
+        type: "integer"
+      creationdate:
+        type: "integer"
+      lastmodified:
+        type: "integer"
+      picbinfile:
+        type: "string"
+        x-nullable: true
+      visibility:
+        type: "integer"
+      lastname:
+        type: "string"
+      firstname:
+        type: "string"
+      type:
+        type: "integer"
+      title:
+        type: "string"
+      company:
+        type: "string"
+      position:
+        type: "string"
+      department:
+        type: "string"
+      address:
+        type: "string"
+      postalcode:
+        type: "string"
+      city:
+        type: "string"
+      region:
+        type: "string"
+      country:
+        type: "string"
+      phone:
+        type: "string"
+      phone2:
+        type: "string"
+      cell:
+        type: "string"
+      fax:
+        type: "string"
+      email:
+        type: "string"
+      email2:
+        type: "string"
+      website:
+        type: "string"
+      birthdate:
+        type: "integer"
+        x-nullable: true
+      description:
+        type: "string"
+  TransactionCreate:
+    type: "object"
+    properties:
+      ID:
+        type: "integer"
+      assigneduser:
+        type: "integer"
+        x-nullable: true
+      owneruser:
+        type: "string"
+        x-nullable: true
+      ownergroup:
+        type: "string"
+        x-nullable: true
+      creator:
+        type: "integer"
+      creationdate:
+        type: "integer"
+      lastmodified:
+        type: "integer"
+      account:
+        type: "integer"
+      billingaddress:
+        type: "string"
+      billingcity:
+        type: "string"
+      billingcountry:
+        type: "string"
+      billingpostalcode:
+        type: "string"
+      billingrecipient:
+        type: "string"
+      billingregion:
+        type: "string"
+      contract:
+        type: "integer"
+      currency:
+        type: "string"
+      date:
+        type: "integer"
+      discount:
+        type: "number"
+      duedate:
+        type: "integer"
+        x-nullable: true
+      exchangerate:
+        type: "number"
+        x-nullable: true
+      item:
+        type: "integer"
+        x-nullable: true
+      items:
+        type: "array"
+        items:
+          $ref: "#/definitions/AnyObject"
+        x-nullable: true
+      margin:
+        type: "number"
+      netamount:
+        type: "number"
+      productionfactor:
+        type: "integer"
+        x-nullable: true
+      shippingaddress:
+        type: "string"
+      shippingcity:
+        type: "string"
+      shippingcountry:
+        type: "string"
+      shippingpostalcode:
+        type: "string"
+      shippingrecipient:
+        type: "string"
+      shippingregion:
+        type: "string"
+      status:
+        type: "integer"
+      tax:
+        type: "number"
+      transactionnum:
+        type: "string"
+      type:
+        type: "integer"
+      weight:
+        type: "number"
+  Transaction:
+    type: "object"
+    properties:
+      ID:
+        type: "integer"
+      assigneduser:
+        type: "integer"
+        x-nullable: true
+      owneruser:
+        type: "string"
+        x-nullable: true
+      ownergroup:
+        type: "string"
+        x-nullable: true
+      creator:
+        type: "integer"
+      creationdate:
+        type: "integer"
+      lastmodified:
+        type: "integer"
+      account:
+        type: "integer"
+      billingaddress:
+        type: "string"
+      billingcity:
+        type: "string"
+      billingcountry:
+        type: "string"
+      billingpostalcode:
+        type: "string"
+      billingrecipient:
+        type: "string"
+      billingregion:
+        type: "string"
+      contract:
+        type: "integer"
+      currency:
+        type: "string"
+      date:
+        type: "integer"
+      discount:
+        type: "number"
+      duedate:
+        type: "integer"
+        x-nullable: true
+      exchangerate:
+        type: "number"
+        x-nullable: true
+      item:
+        type: "integer"
+        x-nullable: true
+      items:
+        description: "a list of item hashes serialized as a JSON string"
+        type: "string"
+        #type: "array"
+        #items:
+          #$ref: "#/definitions/AnyObject"
+        x-nullable: true
+      margin:
+        type: "number"
+      netamount:
+        type: "number"
+      productionfactor:
+        type: "integer"
+        x-nullable: true
+      shippingaddress:
+        type: "string"
+      shippingcity:
+        type: "string"
+      shippingcountry:
+        type: "string"
+      shippingpostalcode:
+        type: "string"
+      shippingrecipient:
+        type: "string"
+      shippingregion:
+        type: "string"
+      status:
+        type: "integer"
+      tax:
+        type: "number"
+      transactionnum:
+        type: "string"
+      type:
+        type: "integer"
+      weight:
+        type: "number"
+  ItemCommon:
+    type: "object"
+    properties:
+      original:
+        type: "string"
+        x-nullable: true
+      references:
+        type: "array"
+        items:
+          $ref: "#/definitions/AnyObject"
+      subindex:
+        type: "integer"
+      type:
+        description: "0 = product, 1 = text, 2 = coupon"
+        type: "integer"
+  ItemProduct:
+    type: "object"
+    properties:
+      ID:
+        type: "integer"
+      ownergroup:
+        type: "string"
+        x-nullable: true
+      creator:
+        type: "integer"
+      creationdate:
+        type: "integer"
+      lastmodified:
+        type: "integer"
+      model:
+        type: "string"
+        x-nullable: true
+      picbinfile:
+        type: "string"
+        x-nullable: true
+      visibility:
+        type: "integer"
+      type:
+        description: "0 = product, 1 = text, 2 = coupon"
+        type: "integer"
+      forcestock:
+        type: "integer"
+        x-nullable: true
+      original:
+        type: "string"
+        x-nullable: true
+      subindex:
+        type: "integer"
+      references:
+        type: "array"
+        items:
+          $ref: "#/definitions/AnyObject"
+      name:
+        type: "string"
+      manufacturer:
+        type: "string"
+      itemnum:
+        type: "string"
+      barcode:
+        type: "string"
+      itemtype:
+        type: "integer"
+      unit:
+        type: "string"
+      amount:
+        type: "integer"
+      amounttaken:
+        type: "integer"
+      sellingprice:
+        type: "integer"
+      purchaseprice:
+        type: "integer"
+      rebate:
+        type: "integer"
+      discount:
+        type: "integer"
+      discount2:
+        type: "integer"
+      taxrate:
+        type: "integer"
+        x-nullable: true
+      weight:
+        type: "integer"
+      description:
+        type: "string"
+      item:
+        type: "integer"
+      reservation:
+        type: "integer"
+        x-nullable: true
+      transactions:
+        type: "array"
+        items:
+          $ref: "#/definitions/ItemProductTransaction"
+      unit:
+        type: "string"
+      weight:
+        type: "number"
+  ItemProductTransaction:
+    type: "object"
+    properties:
+      amount:
+        type: "number"
+      chargenum:
+        type: "string"
+      location:
+        type: "string"
+      serials:
+        type: "array"
+        items:
+          type: "string"
+      storage:
+        type: "integer"
+      transaction:
+        type: "integer"

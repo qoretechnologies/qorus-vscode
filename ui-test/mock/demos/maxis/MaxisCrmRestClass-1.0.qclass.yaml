@@ -1,0 +1,9 @@
+# This is a generated file, don't edit!
+type: class
+name: MaxisCrmRestClass
+desc: REST-handling classes for the CRM REST API
+author:
+  - Qore Technologies, s.r.o.
+lang: qore
+version: "1.0"
+code: MaxisCrmRestClass-1.0.qclass

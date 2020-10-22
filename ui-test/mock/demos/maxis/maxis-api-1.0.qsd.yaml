@@ -1,0 +1,113 @@
+# This is a generated file, don't edit!
+type: service
+name: maxis-api
+desc: REST API for Maxis
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: BBM_RestServiceBase
+class-name: MaxisApi
+classes:
+  - BBM_RestServiceBase
+  - MaxisCrmRestClass
+groups:
+  - MAXIS-CRM
+lang: qore
+autostart: true
+version: "1.0"
+servicetype: USER
+code: maxis-api-1.0.qsd
+config-items:
+  - name: http-listener-bind-address
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-cert-location
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-cert-format
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-key-location
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-key-format
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-key-password
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-ssl-mode
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-accept-all-certs
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: http-listener-capture-client-certs
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: rest-root-uri
+    value:
+        "maxis"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+    value_true_type: string
+  - name: rest-auth-name
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: rest-swagger-schema
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: rest-cors-enable
+    value:
+        true
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+    value_true_type: bool
+  - name: rest-cors-methods
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: rest-cors-max-age
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: rest-cors-headers
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+  - name: rest-cors-credentials
+    parent:
+        interface-type: class
+        interface-name: BBM_RestServiceBase
+        interface-version: "1.0"
+methods:
+  - name: init
+    desc: Initializes the service

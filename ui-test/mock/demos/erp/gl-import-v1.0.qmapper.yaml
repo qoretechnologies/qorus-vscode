@@ -1,0 +1,60 @@
+# This is a generated file, don't edit!
+type: mapper
+name: gl-import
+desc: "GL import mapper"
+author:
+  - Qore Technologies, s.r.o.
+mapper-code:
+  - GlImportClass
+fields:
+    accounting_date:
+        code: 'GlImportClass::getEffectiveDate'
+    chart_of_accounts_id:
+        name: chart_of_accts_id
+    currency_code:
+        constant: EUR
+    currency_conversion_date:
+        name: fx_conversion_date
+    currency_conversion_rate:
+        name: fx_conversion_rate
+    date_created:
+        name: creation_date
+    gl_post_date:
+        name: post_date
+    id:
+        sequence: seq_gl_record
+    invoice_amount:
+        name: inv_amount
+    invoice_date:
+        name: inv_date
+    invoice_identifier:
+        name: inv_identifier
+    journal_category:
+        name: category
+    journal_header_id:
+        name: batch_id
+    journal_line_id:
+        name: line_id
+    journal_source:
+        constant: SV_GL_1
+    ledger_id:
+        constant: 100
+    qorus_wfiid:
+        context: '$local:workflow_instanceid'
+    reference_10:
+        name: qorus_wfiid
+    tax_code:
+        name: gl_tax_code
+options:
+    mapper-input:
+        custom-fields: {}
+        name: isepl
+        path: /datasources/omquser/external_gl_journal
+        type: remote
+    mapper-output:
+        custom-fields: {}
+        name: omquser
+        path: /gl_record
+        type: datasource
+mappertype: Mapper
+version: "1.0"

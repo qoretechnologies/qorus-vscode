@@ -6,7 +6,7 @@
 		"sourceMap": true,
 		"strict": true,
 		"rootDir": ".",
-		"types": ["node"]
+		"types": ["node", "lodash", "fs-extra"]
 	},
 	"exclude": ["node_modules", ".vscode-test", "test-resources"]
 }

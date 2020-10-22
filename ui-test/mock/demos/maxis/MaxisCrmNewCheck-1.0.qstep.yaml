@@ -1,0 +1,17 @@
+# This is a generated file, don't edit!
+type: step
+name: MaxisCrmNewCheck
+desc: |-
+    desc: Check for other information
+    info:
+      message: "This step checks for other information"
+      loadingMessage: "Running new check"
+      name: "New check"
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalStep
+class-name: MaxisCrmNewCheck
+lang: qore
+version: "1.0"
+steptype: NORMAL
+code: MaxisCrmNewCheck-1.0.qstep

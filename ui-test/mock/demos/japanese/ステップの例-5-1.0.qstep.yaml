@@ -1,0 +1,10 @@
+# This is a generated file, don't edit!
+type: step
+name: ステップの例-5
+desc: これは日本語の説明です。Qore Technologiesは、完全にローカライズされたインターフェイスで日本市場をサポートする予定です。
+base-class-name: QorusNormalStep
+class-name: ExampleJapaneseStep5
+lang: qore
+version: "1.0"
+steptype: NORMAL
+code: ステップの例-5-1.0.qstep

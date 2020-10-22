@@ -1,0 +1,221 @@
+# type: STEP
+# version: 1.0
+# desc: import data from IT R11
+# author: Petr Vanek (Qore Technologies, sro)
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+%requires BulkSqlUtil
+
+# x is my personal temporary status to lock lines only for this WFIID
+const PERSONAL_LOCK = "x";
+
+/*
+string sub mip70_get_sql_table(string tname) {
+    if (sepl_getconf("r11_no_schema_prefix", False)) {
+        return tname;
+    }
+    return sprintf("h3g.%s", tname);
+}
+*/
+
+synchronized sub mip70_it_lock_r11() {
+    string mseplit = sepl_getconf("msepl-it","msepl-it");
+    string ebs11i = sepl_getconf("ebs11i","ebs11i");
+    DbRemote db(mseplit, ebs11i);
+    on_success db.commit();
+    on_error db.rollback();
+
+    softint wfiid = wf_wfiid();
+    int ret = db.update(mip70_get_sql_table("h3g_it_gl_int_header"),
+                        ("int_status" : PERSONAL_LOCK, "qorus_wfiid" : wfiid,),
+                        ("int_status" : "N",
+                         "source_system" : "R11",
+                         "message_type" : "R11_JOURNALS",
+                         "record_count" : op_ne(NULL),
+                        )
+                       );
+    UserApi::logInfo("Updating h3g_it_gl_int_header. status = %s; where status = %s; count: %d", PERSONAL_LOCK, "N", ret);
+
+    hash dd;
+    hash sh = (
+            "columns" : "message_id",
+            "where" : ( "int_status" : PERSONAL_LOCK,
+                        "source_system" : "R11",
+                        "message_type" : "R11_JOURNALS",
+                      ),
+        );
+    dd.src_message_ids = db.select(mip70_get_sql_table("h3g_it_gl_int_header"), sh).message_id;
+
+    wf_update_dynamic_data(dd);
+    wf_set_order_keys( ("message_id" : dd.src_message_ids) );
+
+    ret = db.update(mip70_get_sql_table("h3g_it_gl_int_header"),
+                    ("int_status" : "W"),
+                    ("int_status" : PERSONAL_LOCK,
+                     "source_system" : "R11",
+                     "message_type" : "R11_JOURNALS",
+                    )
+                   );
+    UserApi::logInfo("Updating h3g_it_gl_int_header. status = %s; where status = %s; count: %d", "W", PERSONAL_LOCK, ret);
+}
+# END
+
+# type: ARRAY
+# version: 1.0
+# desc: import data from IT R11
+# author: Petr Vanek (Qore Technologies, sro)
+softlist sub mip70_it_import_r11_array() {
+    return wf_get_dynamic_data().src_message_ids;
+}
+# END
+
+# type: STEP
+# name: mip70_it_import_r11
+# version: 1.0
+# desc: import data from IT R11
+# author: Petr Vanek (Qore Technologies, sro)
+%new-style
+
+string sub mip70_get_sql_table(string tname) {
+    if (sepl_getconf("r11_no_schema_prefix", False)) {
+        return tname;
+    }
+    return sprintf("h3g.%s", tname);
+}
+
+%requires BulkSqlUtil
+
+sub mip70_it_import_r11(softint src_message_id) {
+    UserApi::logInfo("processing message_id %y", src_message_id);
+
+    string mseplit = sepl_getconf("msepl-it","msepl-it");
+    string ebs11i = sepl_getconf("ebs11i","ebs11i");
+
+    DbRemote db(mseplit, ebs11i);
+    InboundTableMapper mapperLog = get_mapper("it-70b-gl_journal-r11-log-in");
+    DatasourcePool dsstage = sepl_get_dsp("gsi_staging");
+
+    # get select and insert block size
+    int block_size = sepl_getconf("block_size", 60000);
+
+    hash insert_opts = (
+        "info_log": sub (string fmt) { UserApi::logInfo(vsprintf(fmt, argv)); },
+        "block_size": block_size,
+        );
+    # use BulkInsertOperation instead of a mapper because it's much faster
+    BulkInsertOperation iface(get_sql_table(dsstage, "h3g_it_gl_import_all"), insert_opts);
+
+    # get the current workflow_instanceid
+    int wfiid = wf_wfiid();
+
+    # constant values for the GL detail table lines
+    hash row_const = (
+        "message_id": src_message_id,
+        "source_system": "R11",
+        "target_system": "H3G",
+        "message_type": "R11_JOURNALS",
+        "qorus_wfiid": wfiid,
+        "int_status": "N",
+        "status": "NEW",
+        "date_created": now_us(),
+        "created_by": wfiid,
+        "actual_flag": "A",
+        );
+
+    on_success {
+        iface.flush();
+        dsstage.commit();
+        db.commit();
+    }
+    on_error {
+        mapperLog.discard();
+        iface.discard();
+        dsstage.rollback();
+        db.rollback();
+    }
+
+    int headerCount = db.select_row(mip70_get_sql_table("h3g_it_gl_int_header"),
+                                    ("columns": "record_count",
+                                     "where": ("message_id": src_message_id)
+                                    )
+        ).record_count;
+    int linesCount = db.select_row(mip70_get_sql_table("h3g_it_gl_int_detail"),
+                                   ("columns": cop_as(cop_count(), "lines_count"),
+                                    "where": ("message_id" : src_message_id)
+                                   )
+        ).lines_count;
+
+    if (headerCount != linesCount) {
+        UserApi::logInfo("BUSINESS-ERROR on EBS R11: Header count: %d, different from lines count: %d for message_id: %d was marked with int_status E", headerCount, linesCount, src_message_id);
+        throw ERROR::BUSINESS_ERROR, sprintf("BUSINESS-ERROR on EBS R11: Header count: %d, different from lines count: %d for message_id: %d was marked with int_status E", headerCount, linesCount, src_message_id);
+    }
+
+    AbstractTable t_h = get_sql_table(dsstage, "h3g_it_gl_import_log");
+    int message_id_count = t_h.selectRow(
+                                        ("columns": cop_as(cop_count(), "lines_count"),
+                                        "where" : ("message_id" : src_message_id)),
+                                  ).lines_count;
+
+    if (message_id_count) {
+        UserApi::logInfo("BUSINESS-ERROR on EBS R11: message_id: %d already exists in R12", src_message_id);
+        throw ERROR::BUSINESS_ERROR, sprintf("BUSINESS-ERROR on EBS R11: message_id: %d already exists in R12", src_message_id);
+    }
+
+    {
+        hash log_row = (
+            "ref_transfer": src_message_id,
+            "message_id": src_message_id,
+            "record_count": headerCount,
+            );
+        mapperLog.insertRow(log_row);
+    }
+
+    hash recv_opts = (
+        "select": (
+            "where" : ( "message_id" : src_message_id ),
+        ),
+        "timeout": sepl_getconf("remote_timeout", 600000),
+        "block" : block_size,
+        );
+
+    DbRemoteReceive recv(db, "select", mip70_get_sql_table("h3g_it_gl_int_detail"), recv_opts);
+    on_error recv.disconnect();
+
+    while (*hash h = recv.getData()) {
+        UserApi::logInfo("received block: %d rows", h.firstValue().lsize());
+        iface.queueData(h + row_const);
+    }
+
+    int ret = db.update(mip70_get_sql_table("h3g_it_gl_int_header"),
+                        ("int_status" : "I", "status_end": now_us()),
+                        ("int_status" : "W",
+                         "message_id" : src_message_id)
+                       );
+    UserApi::logInfo("Updating h3g_it_gl_idt_log. status = %s; where status = %s; count: %d", "C", "W", ret);
+}
+# END
+
+# type: STEP
+# version: 1.0
+# desc: finalize processed lines
+# author: Ahmed Hamuda (Accenture)
+
+%new-style
+%enable-all-warnings
+
+sub mip70_it_r11_gsi_finalize() {
+    softint wfiid = wf_wfiid();
+    DatasourcePool dsstage = sepl_get_dsp("gsi_staging");
+    on_success dsstage.commit();
+    on_error dsstage.rollback();
+
+    AbstractTable t_h = get_sql_table(dsstage, "h3g_it_gl_import_log");
+
+    t_h.update(("int_status": "N"),
+               ("qorus_wfiid": wfiid)
+              );
+}
+# END

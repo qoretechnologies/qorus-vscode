@@ -1,0 +1,11 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires RestClient
+%requires json
+
+class IotStadiumFloodLightsDemoCreateErpOrder inherits BBM_RestActionStep {
+}
+# END

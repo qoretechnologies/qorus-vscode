@@ -1,0 +1,51 @@
+# name: A127MKSchvaleniZD
+# version: 1.0
+# desc: Demo implementace A196MK - urceni planovace
+# author: Qore Technologies, s.r.o.
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+class A127MKSchvaleniZD inherits QorusAsyncStep {
+    private {
+        const DEFAULT_DATA = {
+            "formconfig": {
+                "desc": "A127 MK Schválení zadávací dokumentace",
+                "fields": (
+                    {
+                        "name": "rozhodnuti",
+                        "label": "Rozhodnutí",
+                        "type": "radiobtn",
+                        "required": 1,
+                        "choices": (
+                            {"name": "Schváleno", "value":"schvaleno"},
+                            {"name": "Vráceno k přepracování", "value":"vraceno"},
+                            {"name": "Zrušeno", "value":"zruseno"},
+                            {"name": "Jiné", "value":"jine"},
+                        ),
+                    },
+                    {
+                        "name": "duvod_akce",
+                        "label": "Zdůvodnění rozhodnutí",
+                        "type": "text",
+                    },
+                ),
+            },
+            "formdata": {
+            },
+        };
+    }
+
+    primary() {
+        submitAsyncKey(generateUniqueKey());
+    }
+
+    end(auto end_data) {
+    }
+
+    *hash<auto> getDefaultStepData() {
+        return DEFAULT_DATA;
+    }
+}
+# END

@@ -1,0 +1,121 @@
+# This is a generated file, don't edit!
+type: step
+class-name: AwsIotDemoLookupCrmAccount
+desc: Update account in CRM
+name: AwsIotDemoLookupCrmAccount
+version: "1.0"
+steptype: NORMAL
+code: AwsIotDemoLookupCrmAccount-1.0.qstep
+base-class-name: BBM_RestActionStep
+classes:
+  - BBM_RestActionStep
+config-items:
+  - name: rest-connection-name
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: sfrests-demo
+  - name: rest-method
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: GET
+  - name: rest-api-mapper-name
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-uri-path
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: "query?q=select id from account where Hardware_Key_Id__c = '$static:input_data.Message.payload.detector.detectorModelName-$static:input_data.Message.payload.detector.keyValue'"
+  - name: rest-id-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-headers
+    type: hash
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-swagger-schema-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: output_data
+    type: "*hash"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value:
+      rest-id: ["$dynamic:salesforce.account_id", "$keys:salesforce_account_id"]
+  - name: rest-id-log-msg
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: "REST response retrieved Salesforce account ID: $local:{rest-id}"
+  - name: rest-supports-recovery
+    type: bool
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: false
+  - name: rest-recovery-uri
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-id-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-response-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-response-value
+    type: any
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: recovery_output_data
+    type: "*hash"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-id-log-msg
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-sensitive-alias-input
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"

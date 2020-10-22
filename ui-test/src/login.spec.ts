@@ -1,7 +1,6 @@
 import { EditorView, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
 import { login } from './tests/login';
-import { cleanup } from './utils/common';
-import { setupWebview } from './utils/webview';
+import { cleanup, setupTest } from './utils/common';
 
 describe('Mapper Tests', function () {
     this.timeout(1800000);
@@ -11,7 +10,7 @@ describe('Mapper Tests', function () {
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ editorView, webview } = await setupWebview());
+        ({ editorView, webview } = await setupTest());
     });
 
     it('Login', () => login(webview));

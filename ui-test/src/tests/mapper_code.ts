@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
-import { sleep } from '../utils/common';
+import { WebView } from 'vscode-extension-tester';
+import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -12,7 +12,7 @@ import {
     submitInterface,
 } from '../utils/webview';
 
-const target_dir = 'arpm';
+const target_dir = '_tests';
 const target_file = 'TestMapperCode-v3.1.2.qmc.yaml';
 
 export const createMapperCode = async (webview: WebView) => {
@@ -44,10 +44,10 @@ export const createMapperCode = async (webview: WebView) => {
     await sleep(2000);
 };
 
-export const checkFiles = async (project_folder: string, gold_files_subfolder?: string) => {
+export const checkFiles = async (gold_files_subfolder?: string) => {
     await compareWithGoldFiles(
-        path.join(project_folder, target_dir),
-        [ target_file, 'TestMapperCode-v3.1.2.qmc' ],
+        path.join(projectFolder, target_dir),
+        [target_file, 'TestMapperCode-v3.1.2.qmc'],
         gold_files_subfolder
     );
 };

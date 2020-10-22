@@ -1,0 +1,164 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires json
+%requires ZeyosRestClient
+
+class PreventiveMaintenanceActionRestClass inherits BBM_RestClass {
+    private {
+        const RequiredBaseItems = {
+            "routeName": NT_STRING,
+            "username": NT_STRING,
+            "elapseTime": NT_STRING,
+            "records": NT_LIST
+        };
+
+        const RequiredRecordItems = {
+            "floor": NT_STRING,
+            "title": NT_STRING,
+            "taskState": NT_LIST,
+            "startTime": NT_INT,
+            "endTime": NT_INT,
+        };
+
+        const RequiredTaskStateItems = {
+            "name": NT_STRING,
+            "taskType": NT_STRING,
+            "value": NT_STRING,
+        };
+
+        const RequiredTaskStateCount = 1;
+    }
+
+    string name() {
+        return "event";
+    }
+
+    private validateData(*hash<auto> ah) {
+        if (!ah) {
+            throw "INVALID-DATA", "No data sent";
+        }
+
+        # check base items
+        foreach hash<auto> item in (RequiredBaseItems.pairIterator()) {
+            if (!ah.hasKey(item.key)) {
+                throw "INVALID-DATA", sprintf("Missing %s key", item.key);
+            }
+            if (ah{item.key}.typeCode() != item.value) {
+                throw "INVALID-DATA", sprintf("Invalid %s datatype - must be %d", item.key, item.value);
+            }
+        }
+
+        # check records
+        if (ah.records.size() < 1) {
+            throw "INVALID-DATA", "No records sent";
+        }
+
+        foreach auto record in (ah.records) {
+            if (record.typeCode() != NT_HASH) {
+                throw "INVALID-DATA",
+                    sprintf("Record has invalid datatype %s - must be a hash", record.type());
+            }
+
+            # check record items
+            foreach hash<auto> item in (RequiredRecordItems.pairIterator()) {
+                if (!record.hasKey(item.key)) {
+                    throw "INVALID-DATA", sprintf("Record is missing %s key", item.key);
+                }
+                if (record{item.key}.typeCode() != item.value) {
+                    throw "INVALID-DATA",
+                        sprintf(
+                            "Record's %s value has invalid datatype %s - must be %d",
+                            item.key, record{item.key}.type(), item.value
+                        );
+                }
+            }
+
+            if (record.taskState.size() != RequiredTaskStateCount) {
+                throw "INVALID-DATA", sprintf("Record's taskState must have %d items", RequiredTaskStateCount);
+            }
+
+            foreach auto ts in (record.taskState) {
+                if (ts.typeCode() != NT_HASH) {
+                    throw "INVALID-DATA",
+                        sprintf("Record's taskState has invalid datatype %s - must be a hash", ts.type());
+                }
+                foreach hash<auto> item in (RequiredTaskStateItems.pairIterator()) {
+                    if (!ts.hasKey(item.key)) {
+                        throw "INVALID-DATA", sprintf("Record's taskState is missing %s key", item.key);
+                    }
+                    if (ts{item.key}.typeCode() != item.value) {
+                        throw "INVALID-DATA",
+                            sprintf(
+                                "Record taskState's %s value has invalid datatype %s - must be %d",
+                                item.key, ts{item.key}.type(), item.value
+                            );
+                    }
+                }
+            }
+        }
+    }
+
+    hash<HttpHandlerResponseInfo> post(hash<auto> cx, *hash<auto> ah) {
+        ServiceApi::logInfo("POST event: %y", ah);
+
+        # validate the received data
+        try {
+            validateData(ah);
+        } catch (hash<ExceptionInfo> ex) {
+            if (ex.err == "INVALID-DATA") {
+                return RestHandler::makeResponse(400, sprintf("%s: %s", ex.err, ex.desc));
+            } else {
+                return RestHandler::makeResponse(500, sprintf("%s: %s", ex.err, ex.desc));
+            }
+        }
+
+        try {
+            # save context data for mapper
+            UserApi::updateOutputData({"input": ah}, {"input": "$transient:input"});
+            BBM_CreateOrder::createWorkflowOrder({"ah": ah});
+        } catch (hash<ExceptionInfo> ex) {
+            UserApi::logError("Error creating workflow order: %s: %s", ex.err, ex.desc);
+            return RestHandler::makeResponse(500, sprintf("%s: %s", ex.err, ex.desc));
+        }
+
+        return RestHandler::makeResponse(200, "OK");
+    }
+}
+
+class PreventiveMaintenanceRootRestClass inherits BBM_RestClass {
+    constructor() {
+        addClass(new PreventiveMaintenanceActionRestClass());
+    }
+
+    string name() {
+        return "maintenance";
+    }
+}
+
+#! the main REST handler class
+class ArpmRestHandler inherits BBM_RestHandlerBase {
+    constructor() {
+        addClass(new PreventiveMaintenanceRootRestClass());
+    }
+
+    hash<HttpResponseInfo> handleRequest(HttpListenerInterface listener, Socket s, hash<auto> cx, hash<auto> hdr, *data b) {
+        # hack for invalid content-type
+        if (hdr."content-type" == MimeTypeText) {
+            hdr."content-type" = MimeTypeJson;
+        }
+        return BBM_RestHandlerBase::handleRequest(listener, s, cx, hdr, b);
+    }
+}
+
+class ArpmRestServer inherits BBM_RestServiceBase {
+    init() {
+        BBM_RestServiceBase::init();
+    }
+
+    private AbstractServiceHttpHandler getHandlerImpl() {
+        return new ArpmRestHandler();
+    }
+}

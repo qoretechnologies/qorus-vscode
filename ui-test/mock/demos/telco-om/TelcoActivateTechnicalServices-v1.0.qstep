@@ -1,0 +1,16 @@
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+class TelcoActivateTechnicalServices inherits QorusSubworkflowArrayStep {
+    primary(auto ix) {
+        bindSubworkflow({"name": "TELCO-ACTIVATE-SERVICE"}, {"staticdata": {}});
+    }
+
+    softlist<auto> array() {
+        # return a list with 2 - 5 elements
+        int size = rand() % 4;
+        return map $1, xrange(1 + size);
+    }
+}

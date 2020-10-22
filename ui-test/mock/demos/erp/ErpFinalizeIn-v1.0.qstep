@@ -1,0 +1,7 @@
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+class ErpFinalizeIn inherits Demo {
+}

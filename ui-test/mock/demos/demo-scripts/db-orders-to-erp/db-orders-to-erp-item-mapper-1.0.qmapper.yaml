@@ -1,0 +1,29 @@
+# This is a generated file, don't edit!
+type: mapper
+name: db-orders-to-erp-item-mapper
+desc: Create new items in the ERP system from the `order_items` table
+fields:
+    amount:
+        name: quantity
+    itemnum:
+        name: item_id
+    purchaseprice:
+        name: cost
+    sellingprice:
+        context: '$qore-expr:{$local:input.cost + $local:input.markup}'
+    type:
+        constant: 0
+options:
+    mapper-input:
+        custom-fields: {}
+        name: omquser
+        path: /order_items
+        type: datasource
+    mapper-output:
+        can_manage_fields: false
+        custom-fields: {}
+        name: zeyos
+        path: /order/item
+        type: type
+mappertype: Mapper
+version: "1.0"

@@ -1,0 +1,6 @@
+sfrests-demo = (
+    desc = Salesforce.com CRM REST Connection,
+    url = "sfrests://username:password@login.salesforce.com/services/oauth2/token",
+    client_id = client_id,
+    client_secret = secret,
+)

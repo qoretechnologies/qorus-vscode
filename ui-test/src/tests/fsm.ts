@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { EditorView, WebView } from 'vscode-extension-tester';
-import { sleep } from '../utils/common';
+import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -17,7 +17,7 @@ import {
     submitInterface,
 } from '../utils/webview';
 
-export const openFSMPage = async (webview: WebView) => {
+export const createFSM = async (webview: WebView) => {
     await sleep(4000);
 
     await clickElement(webview, 'CreateInterface');
@@ -27,11 +27,14 @@ export const openFSMPage = async (webview: WebView) => {
 
     expect(await getSelectedFields(webview)).to.have.length(4);
 
-    await sleep(3000);
-    webview.switchBack();
+    await sleep(1000);
+
+    await selectNthFolder(webview, 'target_dir', 1);
+    await fillTextField(webview, 'field-name', 'FSM Test');
+    await fillTextField(webview, 'field-desc', 'FSM test description');
 };
 
-export const createWorkflow = async (webview: WebView, editorView: EditorView, project_folder: string) => {
+export const createWorkflow = async (webview: WebView, editorView: EditorView) => {
     // Submit disabled by default
     expect(await getElementAttribute(webview, 'interface-creator-submit-workflow', 'disabled')).to.equal('true');
 
@@ -85,5 +88,5 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView, p
 
     expect(titles.includes('Workflow test-1.0.qwf')).to.eql(true);
 
-    compareWithGoldFiles(path.join(project_folder, 'arpm'), ['Workflow test-1.0.qwf', 'Workflow test-1.0.qwf.yaml']);
+    compareWithGoldFiles(path.join(projectFolder, '_tests'), ['Workflow test-1.0.qwf', 'Workflow test-1.0.qwf.yaml']);
 };

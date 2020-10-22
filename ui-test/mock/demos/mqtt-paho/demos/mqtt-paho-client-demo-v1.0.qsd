@@ -1,0 +1,57 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# servicetype: USER
+# service: mqtt-paho-client-demo
+# serviceversion: 1.0
+# servicedesc: demonstrates MQTT API support with the Paho SDK
+# autostart: true
+# parse-options: PO_NEW_STYLE, PO_STRICT_ARGS, PO_REQUIRE_TYPES
+# define-group: DEMO: demonstration code
+# groups: DEMO
+# ENDSERVICE
+
+# name: init
+# desc: initializes the service
+%enable-all-warnings
+
+%requires jni
+
+%module-cmd(jni) add-classpath $OMQ_DIR/user/jar/org.eclipse.paho.client.mqttv3-1.1.1.jar
+
+%module-cmd(jni) import org.eclipse.paho.client.mqttv3.MqttClient
+%module-cmd(jni) import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+%module-cmd(jni) import org.eclipse.paho.client.mqttv3.MqttException
+%module-cmd(jni) import org.eclipse.paho.client.mqttv3.MqttMessage
+%module-cmd(jni) import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+
+sub init() {
+}
+# END
+
+# desc: sens a message
+hash sub send(string broker = "tcp://iot.eclipse.org:1883", string msg = "Message from Qorus") {
+    date now = now_us();
+    string topic        = "MQTT Examples";
+    int qos             = 2;
+    string clientId     = "JavaSample";
+    MemoryPersistence persistence();
+
+    MqttClient sampleClient(broker, clientId, persistence);
+    MqttConnectOptions connOpts();
+    connOpts.setCleanSession(True);
+    log(LL_INFO, "Connecting to broker: "+broker);
+    sampleClient.connect(connOpts);
+    log(LL_INFO, "Connected");
+    log(LL_INFO, "Publishing message: "+content);
+    MqttMessage message(binary(msg));
+    message.setQos(qos);
+    sampleClient.publish(topic, message);
+    log(LL_INFO, "Message published");
+    sampleClient.disconnect();
+    log(LL_INFO, "Disconnected");
+    return (
+        "status": "done",
+        "time": now_us() - now,
+    );
+}
+# END

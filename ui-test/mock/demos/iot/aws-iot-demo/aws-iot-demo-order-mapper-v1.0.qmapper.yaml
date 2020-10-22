@@ -1,0 +1,77 @@
+name: aws-iot-demo-order-mapper
+type: mapper
+version: "1.0"
+desc: maps IoT events to workflow order data
+mappertype: Mapper
+author:
+  - Qore Technologies, s.r.o.
+parse-options:
+  - PO_NEW_STYLE
+groups:
+  - iot-demo
+functions:
+  - aws-iot-demo-mapper-functions
+
+options:
+  input:
+    Type:
+      desc: the AWS message type
+    MessageId:
+      desc: the unique message ID
+    TopicArn:
+      desc: the AWS topic ARN
+    Message:
+      desc: the message hash itself
+    Timestamp:
+      desc: message timestamp
+    SignatureVersion:
+      desc: signature version
+    Signature:
+      desc: signature
+    SigningCertURL:
+      desc: signature certificate URL
+    UnsubscribeURL:
+      desc: unsubscribe URL
+  output:
+    staticdata:
+      type: hash
+      desc: the initial static data for the order
+      mand: true
+    dynamicdata:
+      type: hash
+      desc: the initial dynamic data for the order
+    global_unique_key:
+      type: hash
+      desc: a hash giving one or more unique order keys for the order (across all workflows regardless of
+            workflowid, name, or version); keys are order key names and values are the string key values; if this
+            key already exists for any order in the system, then the order creation will fail with a
+            DUPLICATE-ORDER-KEY error; the hash key must be a valid order key, and the value is the unique key
+            value; this value will also be created as an order key,
+    workflow_specific_unique_key:
+      type: hash
+      desc: a hash giving one or more unique order keys for the particular workflowid (which matches a
+            unique name and workflow version); keys are order key names and values are the string key values; if
+            any of the keys given already exists for an order with the target workflowid, then the order
+            creation will fail with a DUPLICATE-ORDER-KEY error; the hash key must be a valid order key, and the
+            value is the unique key value; this value will also be created as an order key,
+    workflow_unique_key:
+      type: hash
+      desc: a hash giving one or more unique order keys for the particular workflow by name only (across all
+            workflows with the same name regardless of version); keys are order key names and values are the string
+            key values; if this key already exists for a workflow order with the same name, then the order creation
+            will fail with a DUPLICATE-ORDER-KEY error; the hash key must be a valid order key, and the value is the
+            unique key value; this value will also be created as an order key,
+    orderkeys:
+      type: hash
+      desc: a hash of order keys for the order
+
+fields:
+  staticdata:
+    name: Message
+    code: getRecordAsInputData
+  workflow_unique_key:
+    name: MessageId
+    code: getMessageId
+  orderkeys:
+    name: Message.payload.detector
+    code: getDetectorId

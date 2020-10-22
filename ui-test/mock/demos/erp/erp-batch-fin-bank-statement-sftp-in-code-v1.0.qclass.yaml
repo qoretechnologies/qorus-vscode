@@ -1,0 +1,7 @@
+name: erp-batch-fin-bank-statement-sftp-in-code
+version: "1.0"
+desc: ERP demo mapper functions
+type: class
+author:
+  - Qore Technologies, s.r.o.
+code: erp-batch-fin-bank-statement-sftp-in-code-v1.0.qclass

@@ -1,0 +1,51 @@
+# name: WaitForERPOrderProcessed
+# version: 1.0
+# desc: Asynchronous wait for ZeyOS system action step complete
+# author: Qore Technologies
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+const STATUS_COMPLETE = 1;
+
+class WaitForERPOrderProcessed inherits QorusAsyncStep {
+    primary() {
+        log(LL_INFO, "Wait for ERP order to be processed");
+        submitAsyncKey(generateUniqueKey());
+    }
+
+    string validation(*string key) {
+        if (!exists key) {
+            return OMQ::StatRetry;
+        }
+
+        softint action_id = getDynamicData("action_id");
+        log(LL_INFO, "Check action step %y for completion", action_id);
+
+        hash<auto> headers = {
+            "Authorization": "Bearer 4739e1d71eac624151438b252a64489cd4f89299",
+        };
+        log(LL_DETAIL_1, "Using headers %y", headers);
+
+        RestClient http_client({"url": "https://cloud.zeyos.com/qoretechnologieshelp"});
+        hash<auto> response = http_client.get(sprintf("/api/v1/actionsteps/%d", action_id), NOTHING, NOTHING, headers);
+        log(LL_INFO, "Received %y", response);
+
+        int status = response{"body"}{"status"};
+
+        if (status == STATUS_COMPLETE) {
+            return OMQ::StatComplete;
+        } else if (now().getEpochSeconds() - getDynamicData("create_epoch_seconds") > 600) {
+            http_client.patch(sprintf("/api/v1/actionsteps/%d?status=%d", action_id, STATUS_COMPLETE), NOTHING, NOTHING, headers);
+            return OMQ::StatComplete;
+        }
+        return OMQ::StatAsyncWaiting;
+    }
+
+    end(auto _) {
+        log(LL_INFO, "Action step was closed");
+    }
+}
+# END

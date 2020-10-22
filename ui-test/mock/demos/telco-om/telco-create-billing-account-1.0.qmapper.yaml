@@ -1,0 +1,43 @@
+# This is a generated file, don't edit!
+type: mapper
+name: telco-create-billing-account
+desc: telco billing account mapper
+mapper-code:
+  - TelcoCreateBillingAccount
+fields:
+    body.BillCycle:
+        context: '$static:{bill-cycle}'
+    body.Name:
+        code: 'TelcoCreateBillingAccount::getName'
+    body.PaymentInfo.Address:
+        context: '$sensitive-alias:{payment-1.value.billing-address}'
+    body.PaymentInfo.CVV2:
+        context: '$sensitive-alias:{payment-1.value.CVV2}'
+    body.PaymentInfo.Expiration:
+        context: '$sensitive-alias:{payment-1.value.card-expiration-date}'
+    body.PaymentInfo.Id:
+        context: '$sensitive-alias:{payment-1.svalue}'
+    body.PaymentInfo.Name:
+        context: '$sensitive-alias:{payment-1.value.name}'
+    body.PaymentInfo.Type:
+        context: '$sensitive-alias:{payment-1.value.type}'
+    body.RequestId:
+        context: '$local:workflow_instanceid'
+    body.TaxId:
+        context: '$sensitive-alias:{party-1.svalue}'
+    body.Type:
+        context: '$static:type'
+options:
+    mapper-input:
+        custom-fields: {}
+        name: 'null'
+        path: /
+        type: factory
+    mapper-output:
+        custom-fields: {}
+        name: rest-billing-demo
+        path: /accounts/POST/
+        subtype: request
+        type: connection
+mappertype: Mapper
+version: "1.0"

@@ -1,0 +1,168 @@
+# This is a generated file, don't edit!
+type: type
+path: zeyos/order/item
+typeinfo:
+    base_type: hash<auto>
+    can_manage_fields: true
+    fields:
+        amount:
+            canBeNull: false
+            desc: the number of items / quantity
+            firstCustomInHierarchy: true
+            isCustom: true
+            name: amount
+            type:
+                base_type: int
+                can_manage_fields: false
+                fields: {}
+                mandatory: true
+                name: int
+                options:
+                    qore.no_null: true
+                supported_options:
+                    qore.no_null:
+                        desc: >-
+                            if True then NULL is not supported on input if NOTHING
+                            is also not accepted
+                        type: bool
+                typename: int
+                types_accepted:
+                    - int
+                    - integer
+                types_returned:
+                    - int
+                    - integer
+        item:
+            canBeNull: false
+            desc: ZeyOS item number
+            firstCustomInHierarchy: true
+            isCustom: true
+            name: item
+            type:
+                base_type: int
+                can_manage_fields: false
+                fields: {}
+                mandatory: true
+                name: int
+                options:
+                    qore.no_null: true
+                supported_options:
+                    qore.no_null:
+                        desc: >-
+                            if True then NULL is not supported on input if NOTHING
+                            is also not accepted
+                        type: bool
+                typename: int
+                types_accepted:
+                    - int
+                    - integer
+                types_returned:
+                    - int
+                    - integer
+        itemnum:
+            canBeNull: false
+            desc: the item or product code
+            firstCustomInHierarchy: true
+            isCustom: true
+            name: itemnum
+            type:
+                base_type: string
+                can_manage_fields: false
+                fields: {}
+                mandatory: true
+                name: string
+                options:
+                    qore.no_null: true
+                supported_options:
+                    qore.no_null:
+                        desc: >-
+                            if True then NULL is not supported on input if NOTHING
+                            is also not accepted
+                        type: bool
+                    string.encoding:
+                        desc: the output encoding when writing to the type
+                        type: string
+                    string.max_size_chars:
+                        desc: the maximum length of the string in characters
+                        type: integer
+                typename: string
+                types_accepted:
+                    - string
+                types_returned:
+                    - string
+        purchaseprice:
+            canBeNull: true
+            desc: the purchase price
+            firstCustomInHierarchy: true
+            isCustom: true
+            name: purchaseprice
+            type:
+                base_type: float
+                can_manage_fields: false
+                fields: {}
+                mandatory: false
+                name: '*float'
+                options: null
+                supported_options: null
+                typename: '*float'
+                types_accepted:
+                    - float
+                    - int
+                    - integer
+                    - nothing
+                    - 'null'
+                types_returned:
+                    - float
+                    - nothing
+        sellingprice:
+            canBeNull: true
+            desc: the selling price
+            firstCustomInHierarchy: true
+            isCustom: true
+            name: sellingprice
+            type:
+                base_type: float
+                can_manage_fields: false
+                fields: {}
+                mandatory: false
+                name: '*float'
+                options: null
+                supported_options: null
+                typename: '*float'
+                types_accepted:
+                    - float
+                    - int
+                    - integer
+                    - nothing
+                    - 'null'
+                types_returned:
+                    - float
+                    - nothing
+        type:
+            canBeNull: false
+            desc: '0 = product, 1 = text, 2 = coupon'
+            firstCustomInHierarchy: true
+            isCustom: true
+            name: type
+            type:
+                base_type: int
+                can_manage_fields: false
+                fields: {}
+                mandatory: true
+                name: int
+                options:
+                    qore.no_null: true
+                supported_options:
+                    qore.no_null:
+                        desc: >-
+                            if True then NULL is not supported on input if NOTHING
+                            is also not accepted
+                        type: bool
+                typename: int
+                types_accepted:
+                    - int
+                    - integer
+                types_returned:
+                    - int
+                    - integer
+    name: hash<auto>

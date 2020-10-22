@@ -1,0 +1,17 @@
+# This is a generated file, don't edit!
+type: step
+name: MaxisReportPingTestResults
+desc: |-
+    desc: Report packet loss and latency test results
+    info:
+      message: "This step reports latency and packet loss test results"
+      loadingMessage: "Retrieving latency check results"
+      name: "Latency check results"
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalStep
+class-name: MaxisReportPingTestResults
+lang: qore
+version: "1.0"
+steptype: NORMAL
+code: MaxisReportPingTestResults-1.0.qstep

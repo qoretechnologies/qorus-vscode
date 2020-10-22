@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as path from 'path';
 import { EditorView, WebView, Workbench } from 'vscode-extension-tester';
-import { sleep } from '../utils/common';
+import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -16,7 +16,7 @@ import {
     submitInterface,
 } from '../utils/webview';
 
-const target_dir = 'arpm';
+const target_dir = '_tests';
 const target_file = 'test-job-3.14.qjob.py';
 
 export const createJob = async (webview: WebView) => {
@@ -53,9 +53,9 @@ export const createJob = async (webview: WebView) => {
     await sleep(2000);
 };
 
-export const editJob = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
+export const editJob = async (workbench: Workbench, editorView: EditorView) => {
     await sleep(1000);
-    const webview = await openInterface(workbench, editorView, path.join(project_folder, target_dir, target_file));
+    const webview = await openInterface(workbench, editorView, path.join(projectFolder, target_dir, target_file));
 
     await sleep(8000);
     await resetAndFillTextField(webview, 'field-class-name', 'ModifiedTestJob');
@@ -68,9 +68,9 @@ export const editJob = async (workbench: Workbench, editorView: EditorView, proj
     return webview;
 };
 
-export const checkFiles = async (project_folder: string, gold_files_subfolder?: string) => {
+export const checkFiles = async (gold_files_subfolder?: string) => {
     await compareWithGoldFiles(
-        path.join(project_folder, target_dir),
+        path.join(projectFolder, target_dir),
         ['test-job-3.14.qjob.yaml', target_file],
         gold_files_subfolder
     );

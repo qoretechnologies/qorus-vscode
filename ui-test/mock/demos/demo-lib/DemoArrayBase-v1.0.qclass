@@ -1,0 +1,19 @@
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+class DemoArrayBase {
+    softlist<auto> array() {
+        # array steps must always return the same array
+        string stepname = getStepInfo().name;
+        *list<auto> rv = getDynamicData(){stepname};
+        if (!rv) {
+            # return a list with 2 - 5 elements
+            int size = rand() % 4;
+            rv = map $1, xrange(1 + size);
+            updateDynamicData({stepname: rv});
+        }
+        return rv;
+    }
+}

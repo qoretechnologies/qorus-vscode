@@ -1,0 +1,12 @@
+# This is a generated file, don't edit!
+type: step
+name: MaxisOnsiteDispatch
+desc: Dispatch a technician onsite if necessary
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalStep
+class-name: MaxisOnsiteDispatch
+lang: qore
+version: "1.0"
+steptype: NORMAL
+code: MaxisOnsiteDispatch-1.0.qstep

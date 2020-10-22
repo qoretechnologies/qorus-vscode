@@ -1,0 +1,10 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class ExampleJapaneseStep1 inherits QorusNormalStep {
+    primary() {
+        logInfo("これは日本語の説明です。Qore Technologiesは、完全にローカライズされたインターフェイスで日本市場をサポートする予定です。");
+    }
+}

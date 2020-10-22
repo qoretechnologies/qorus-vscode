@@ -1,0 +1,7 @@
+type: connection
+name: awsrests-iot-demo
+desc: REST connection to AWS server for IoT demos
+url: awsrests://iotevents.eu-central-1.amazonaws.com
+options:
+    aws_keyid: AKIATK5NKZTEWOAY2YH7
+    aws_secret: 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

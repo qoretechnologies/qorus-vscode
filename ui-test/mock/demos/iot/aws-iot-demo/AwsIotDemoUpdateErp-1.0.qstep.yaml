@@ -1,0 +1,124 @@
+# This is a generated file, don't edit!
+type: step
+author:
+  - Qore Technologies, s.r.o.
+class-name: AwsIotDemoUpdateErp
+desc: Create new action step in ZeyOS system to order new bulb
+name: AwsIotDemoUpdateErp
+version: "1.0"
+steptype: NORMAL
+code: AwsIotDemoUpdateErp-1.0.qstep
+base-class-name: BBM_RestActionStep
+classes:
+  - BBM_RestActionStep
+config-items:
+  - name: rest-connection-name
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: zeyosrests-iot-demo
+  - name: rest-method
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: PUT
+  - name: rest-api-mapper-name
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: aws-iot-demo-update-erp-request
+  - name: rest-uri-path
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: api/v1/actionsteps
+  - name: rest-id-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: body.ID
+  - name: rest-headers
+    type: hash
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-swagger-schema-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: output_data
+    type: "*hash"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value:
+      rest-id: ["$dynamic:zeyos.action_id", "$keys:zeyos_action_id"]
+  - name: rest-id-log-msg
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-supports-recovery
+    type: bool
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+    default_value: false
+  - name: rest-recovery-uri
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-id-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-response-location
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-response-value
+    type: any
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: recovery_output_data
+    type: "*hash"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-id-log-msg
+    type: string
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-sensitive-alias-input
+    type: "*string"
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"

@@ -1,0 +1,17 @@
+type: workflow
+name: ERP-BATCH-FIN-GL-IN
+version: "1.0"
+desc: Demo ERP Finance GL import workflow; imports GL info from an external DB
+author:
+  - Qore Technologies, s.r.o.
+groups:
+    - demo
+    - demo-erp
+remote: false
+autostart: 1
+mappers:
+  - "gl-import:1.0"
+sla_threshold: 1
+steps:
+  - "ErpGlImport:1.0"
+  - "ErpFinalizeIn:1.0"

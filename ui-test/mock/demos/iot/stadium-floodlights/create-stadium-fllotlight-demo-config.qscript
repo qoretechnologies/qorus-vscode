@@ -1,0 +1,38 @@
+#!/usr/bin/env qore
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires QorusClientCore
+
+QorusClient::init2();
+
+const Config = {
+    "workflows/IOT-STADIUM-LIGHT-REPLACEMENT-DEMO/stepinfo/IotStadiumFloodLightsDemoCreateCrmOrder": {
+        "rest-connection-name": "rests-zendesk-iot-demo",
+        "rest-method": "POST",
+        "rest-api-mapper-name": "iot-stadium-floodlights-demo-crm-request",
+        "rest-uri-path": "tickets.json",
+        "rest-id-location": "body.ticket.id",
+        "rest-supports-recovery": True,
+        "rest-recovery-uri": "tickets.json?external_id=$local:workflow_instanceid",
+        "output_data": {
+            "rest-id": "$dynamic:ticket_id",
+        }
+    },
+    "workflows/IOT-STADIUM-LIGHT-REPLACEMENT-DEMO/stepinfo/IotStadiumFloodLightsDemoCreateErpOrder": {
+        "rest-connection-name": "zeyosrests-iot-demo",
+        "rest-method": "PUT",
+        "rest-api-mapper-name": "iot-stadium-floodlights-demo-erp-request",
+        "rest-uri-path": "api/v1/actionsteps",
+        "rest-id-location": "body.ID",
+        "rest-supports-recovery": False,
+        "output_data": {
+            "rest-id": "$dynamic:action_id",
+        },
+    },
+};
+
+QorusClient::configureInterfaces(Config);

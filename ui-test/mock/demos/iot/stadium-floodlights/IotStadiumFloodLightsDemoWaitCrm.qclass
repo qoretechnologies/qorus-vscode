@@ -1,0 +1,60 @@
+# name: IotStadiumFloodLightsDemoWaitCrm
+# version: 1.0
+# desc: Asynchronous wait for freshdesk (CRM system) ticket response
+# author: Qore Technologies
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+const STATUS_CLOSED = 5;
+
+class IotStadiumFloodLightsDemoWaitCrm inherits QorusAsyncStep {
+    primary() {
+        log(LL_INFO, "Waiting for ticket to be closed");
+        submitAsyncKey(generateUniqueKey());
+    }
+
+    string validation(*string key) {
+        if (!exists key) {
+            return OMQ::StatRetry;
+        }
+
+        softint ticket_id = getDynamicData("ticket_id");
+        log (LL_INFO, "Check ticket %y for completion", ticket_id);
+
+        hash<auto> headers = {
+            "Authorization": "Basic THlOcldIVXA4RW5xNFBVcUlVVWk6b25kcmVqc2Vqdmw=",
+            "Accept": "*/*",
+        };
+        log(LL_DETAIL_1, "Using headers %y", headers);
+
+        HTTPClient http_client = new HTTPClient({"url": "https://qoretechnologieshelp.freshdesk.com"});
+        auto response = http_client.get(
+            sprintf("/api/v2/tickets/%d", ticket_id),
+            headers
+        );
+        log(LL_INFO, "Received %y", response);
+
+        int status = parse_json(response).status;
+
+        if (status == STATUS_CLOSED) {
+            return OMQ::StatComplete;
+        } else {
+            # get execution time of original step
+
+            if (now().getEpochSeconds() - getDynamicData("create_epoch_seconds") > 600) {
+                RestClient rest_client = new RestClient({"url": "https://qoretechnologieshelp.freshdesk.com"});
+                rest_client.put(sprintf("/api/v2/tickets/%d", ticket_id), {"status": STATUS_CLOSED}, NOTHING, headers);
+                return OMQ::StatComplete;
+            }
+        }
+        return OMQ::StatAsyncWaiting;
+    }
+
+    end(auto _) {
+        log(LL_INFO, "Ticket was closed");
+    }
+}
+# END

@@ -1,0 +1,46 @@
+<div class="tab-content">
+
+<h4>SQL Editor</h4>
+
+  <form role="form">
+    <div class="form-group">
+      <label for="sql-statement">SQL Statement:</label>
+      <textarea class="form-control" id="sql-statement" placeholder="Enter your SQL" name="sql-statement"><%= obj['sql-statement'] %></textarea>
+    </div>
+    <div class="checkbox">
+      <label><input type="checkbox" name="commit" <%= obj['commit'] ? 'checked' : '' %>> Commit</label>
+    </div>
+    <div class="checkbox">
+      <label><input type="checkbox" name="explain" <%= obj['explain'] ? 'checked' : '' %>> Explain</label>
+    </div>
+    <input type="submit" class="btn btn-default" value="Submit" />
+  </form>
+
+<h4>Result</h4>
+
+<% if (items.length == 0) { %>
+    <p>No Data Found</p>
+<% } else { %>
+
+<div class="pull-right"><a class="btn btn-small" id="csv_export" data-action="export-csv" href="#"><i class="icon-copy"/> Export CSV</a></div>
+<% var columns = _.keys(items[0]); %>
+<table class="table table-striped text-left">
+  <thead>
+    <tr>
+    <% _.each(columns, function (column) { %>
+      <th><%= column %></th>
+    <% }) %>
+    </tr>
+  </thead>
+  <tbody>
+  <% _.each(items, function (row) { %>
+    <tr>
+    <% _.each(row, function (col) { %>
+      <td><%= col %></td>
+    <% }) %>
+  <% }) %>
+  </tbody>
+</table>
+<% } %>
+
+</div>

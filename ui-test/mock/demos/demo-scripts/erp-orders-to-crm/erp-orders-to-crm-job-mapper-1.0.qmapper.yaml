@@ -1,0 +1,72 @@
+# This is a generated file, don't edit!
+type: mapper
+name: erp-orders-to-crm-job-mapper
+desc: Creates workflow orders for new orders in the ERP system
+author:
+  - Qore Technologies, s.r.o.
+fields:
+    dynamicdata:
+        context: >-
+            $qore-expr:{{'items':
+            parse_json($qore-expr-value:{$local:input.body.items})}}
+    staticdata:
+        use_input_record: true
+    workflow_unique_key.transactionnum:
+        name: body.transactionnum
+options:
+    mapper-input:
+        can_manage_fields: false
+        custom-fields: {}
+        name: zeyosrests-iot-demo
+        path: /api/v1/transactions/GET/
+        subtype: response
+        type: connection
+    mapper-output:
+        custom-fields:
+            transactionnum:
+                canBeNull: false
+                desc: Unique ERP order number
+                firstCustomInHierarchy: true
+                isChild: true
+                isCustom: true
+                level: 1
+                name: transactionnum
+                parent: workflow_unique_key
+                parentPath: workflow_unique_key
+                path: workflow_unique_key.transactionnum
+                type:
+                    base_type: string
+                    can_manage_fields: false
+                    fields: {}
+                    mandatory: true
+                    name: softstring
+                    options:
+                        qore.no_null: true
+                    supported_options:
+                        qore.no_null:
+                            desc: >-
+                                if True then NULL is not supported on input if
+                                NOTHING is also not accepted
+                            type: bool
+                        string.encoding:
+                            desc: the output encoding when writing to the type
+                            type: string
+                        string.max_size_chars:
+                            desc: the maximum length of the string in characters
+                            type: integer
+                    typename: string
+                    types_accepted:
+                        - string
+                        - bool
+                        - float
+                        - int
+                        - integer
+                        - date
+                        - number
+                    types_returned:
+                        - string
+        name: qoretechnologies
+        path: /building-blocks/create-order/request
+        type: type
+mappertype: Mapper
+version: "1.0"

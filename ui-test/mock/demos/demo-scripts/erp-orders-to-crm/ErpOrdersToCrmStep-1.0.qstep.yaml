@@ -1,0 +1,73 @@
+# This is a generated file, don't edit!
+type: step
+name: ErpOrdersToCrmStep
+desc: Synchronize new orders in **Salesforce** from the ERP system
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalStep
+class-name: ErpOrdersToCrmStep
+classes:
+  - BBM_GenericMapper
+lang: java
+mappers:
+  - erp-orders-to-crm-wf-mapper:1.0
+version: "1.0"
+steptype: NORMAL
+code: ErpOrdersToCrmStep.java
+class-connections:
+    Connection_1:
+      - class: BBM_GenericMapper
+        connector: map
+        trigger: primary
+config-items:
+  - name: automapper-mapper-name
+    value:
+        "erp-orders-to-crm-wf-mapper"
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-request
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-request-options
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-search
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input-search-options
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-output-upsert
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-output-request-options
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-input
+    value:
+        {}
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"
+  - name: automapper-output
+    value:
+        '$local:id': '$dynamic:id'
+    parent:
+        interface-type: class
+        interface-name: BBM_GenericMapper
+        interface-version: "1.0"

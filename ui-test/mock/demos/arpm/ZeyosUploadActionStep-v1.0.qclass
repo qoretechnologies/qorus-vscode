@@ -1,0 +1,17 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# name: ZeyosUploadActionStep
+# version: 1.0
+# desc: Upload actionstep to Zeyos
+# author: Qore Technologies
+# requires: BB_RestActionStep
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class ZeyosUploadActionStep inherits BB_RestActionStep {
+}
+
+# END

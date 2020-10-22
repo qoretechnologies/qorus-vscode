@@ -1,0 +1,56 @@
+name: aws-iot-demo-update-erp-request
+type: mapper
+version: "1.0"
+desc: maps AWS IoT workflow order data to an ERP REST request
+mappertype: Mapper
+author:
+  - Qore Technologies, s.r.o.
+parse-options:
+  - PO_NEW_STYLE
+groups:
+  - iot-demo
+functions:
+  - aws-iot-demo-mapper-functions
+options:
+  input:
+    static:
+      desc: static data
+    dynamic:
+      type: "*hash"
+      desc: dynamic data
+    orderkeys:
+      type: "*hash"
+      desc: order keys
+    context:
+      desc: current execution context info
+
+  output:
+    name:
+      type: string
+      desc: request name
+    description:
+      type: string
+      desc: request description
+    effort:
+      type: int
+      desc: effort estimation
+    actionnum:
+      type: string
+      desc: the device ID for the request
+    status:
+      type: int
+      desc: status code
+
+fields:
+  name:
+    constant: AWS IoT event
+  description:
+    name: static
+    code: getInputData
+  effort:
+    constant: 480
+  actionnum:
+    name: static
+    code: getEventInput
+  status:
+    constant: 0

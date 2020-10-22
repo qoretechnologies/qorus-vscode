@@ -1,0 +1,20 @@
+#!/usr/bin/env qore
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires QorusClientCore
+
+QorusClient::init2();
+
+# update REST connection
+const Conn = "zeyosrests-iot-demo";
+hash<auto> opts = {
+    "appsecret": "5555d673b1ab4585d5079506fdfb85973c08e39d",
+    "swagger": normalize_dir(get_script_dir() + DirSep + "zeyos-qorus.yaml"),
+};
+string url = "zeyosrests://zeyosapi@qoretechnologies.com:G687*!iQVzQwRx6entCL*CeBXLndUA*Fnfz_e*@dFCKmrbUQiT.cR9Pmibsiwgf7@cloud.zeyos.com/qoretechnologies";
+qrest.put("remote/user/" + Conn, {"url": url, "opts": opts});
+printf("updated %y with options: %y\n", Conn, opts);

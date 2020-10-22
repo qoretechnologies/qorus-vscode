@@ -1,0 +1,30 @@
+name: erp-batch-fin-bank-statement-sftp-in
+type: mapper
+version: "1.0"
+desc: maps SFTP file events to workflow order data
+mappertype: Mapper
+author:
+  - Qore Technologies, s.r.o.
+parse-options:
+  - PO_NEW_STYLE
+groups:
+  - demo
+  - demo-erp
+classes:
+  - erp-batch-fin-bank-statement-sftp-in-code
+options:
+  mapper-input:
+    type: type
+    path: /building-blocks/sftp/event
+    name: qoretechnologies
+  mapper-output:
+    type: type
+    name: qoretechnologies
+    path: /create-order
+fields:
+  staticdata:
+    name: local_path
+    code: get_record
+  workflow_unique_key:
+    name: name
+    code: get_unique_keys

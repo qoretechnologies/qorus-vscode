@@ -1,0 +1,39 @@
+#!/usr/bin/env qore
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires QorusClientCore
+
+QorusClient::init2();
+
+const Config = {
+    "services/arpm-rest-server": {
+        "rest-root-uri": "",
+        "http-listener-bind-address": 8021,
+        "http-listener-cert-location": "file://\\$OMQ_DIR/etc/fullchain.pem",
+        "http-listener-key-location": "file://\\$OMQ_DIR/etc/privkey.pem",
+        "create-workflow-order-mapper": "prepare-zeyos-action-step-order-data",
+        "create-workflow-name": "ZEYOS-ACTION-STEP-UPLOAD",
+    },
+    "workflows/ZEYOS-ACTION-STEP-UPLOAD/stepinfo/ZeyosUploadActionStep": {
+        "rest-connection-name": "zeyosrests-iot-demo",
+        "rest-method": "PUT",
+        "rest-api-mapper-name": "zeyos-action-step-create-request",
+        "rest-uri-path": "/api/v1/actionsteps",
+        "rest-id-location": "body.ID",
+        "rest-id-log-msg": "Action step created with ID: $local:{rest-id}",
+        "rest-supports-recovery": False,
+    },
+};
+
+# configure config items
+foreach hash<auto> i in (Config.pairIterator()) {
+    printf("%y\n", i.key);
+    map qrest.put(i.key + "/config/" + $1.key, {
+            "value": $1.value,
+        }), i.value.pairIterator();
+    printf("reconfigured %y\n", i.key);
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<classpath>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qore-jni.jar"/>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qorus-client.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="file:/Users/filipwitosz/.qorus-vscode/qorus-java-api/javadoc/qorus-client"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qorus-common.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="file:/Users/filipwitosz/.qorus-vscode/qorus-java-api/javadoc/qorus-common"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qorus-job.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="file:/Users/filipwitosz/.qorus-vscode/qorus-java-api/javadoc/qorus-job"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qorus-mapper.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="file:/Users/filipwitosz/.qorus-vscode/qorus-java-api/javadoc/qorus-mapper"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qorus-service.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="file:/Users/filipwitosz/.qorus-vscode/qorus-java-api/javadoc/qorus-service"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qorus-test.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="file:/Users/filipwitosz/.qorus-vscode/qorus-java-api/javadoc/qorus-test"/>
+        </attributes>
+    </classpathentry>
+    <classpathentry kind="lib" path="/Users/filipwitosz/.qorus-vscode/qorus-java-api/qorus-workflow.jar">
+        <attributes>
+            <attribute name="javadoc_location" value="file:/Users/filipwitosz/.qorus-vscode/qorus-java-api/javadoc/qorus-workflow"/>
+        </attributes>
+    </classpathentry>
+</classpath>

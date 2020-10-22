@@ -1,0 +1,52 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+# test workflow definition
+#
+# Qorus Integration Engine
+
+%new-style
+
+our string format_version = "2.6";
+
+our hash<auto> groups = {
+    "demo": {"desc": "demo interfaces"},
+    "demo-erp": {"desc": "ERP demo interfaces"},
+};
+
+our list<auto> steps = (
+    {
+        "name": "erp_stock_reconciliation_validate_in:1.0",
+        "desc": "validates stock reconciliation information and compares it to the original request",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+    (
+        {
+            "name": "erp_stock_reconciliation_import_in:1.0",
+            "desc": "imports the validated stock reconciliation data",
+            "funcname": "demo:1.0",
+            "valname": "demo_val:1.0",
+        },
+        {
+            "name": "erp_stock_reconciliation_in_error_out:1.0",
+            "desc": "returns errors to the sending system, if any are found",
+            "funcname": "demo:1.0",
+            "valname": "demo_val:1.0",
+        },
+    ),
+    {
+        "name": "erp_stock_reconciliation_finalize_in:1.0",
+        "desc": "sends a notification to the internal logistics group about stock reconciliation processing (success or error details, if any)",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+);
+
+our hash<auto> workflows."ERP-BATCH-SCM-STOCK-RECONCILIATION-IN"."1.0" = {
+    "desc": "Demo ERP Supply Chain Management stock reconciliation import workflow; imports stock reconciliation info as received from retail stores",
+    "author": "Qore Technologies, s.r.o.",
+    "steps": steps,
+    "groups": ("demo", "demo-erp"),
+    "sla_threshold": 1,
+    "autostart": 1,
+    "remote": False,
+};

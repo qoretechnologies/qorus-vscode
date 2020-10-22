@@ -1,0 +1,12 @@
+<div class="btn-group">
+  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+          <span id="datasource-name">Select datasource</span>
+          <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+  <% _.each(items, function (item) { %>
+    <li><a href="?<%= item.name %>" data-action="datasource-change" 
+        data-target="sql-dataview-tree" data-datasource="<%= item.name %>"><%= item.name %></a></li>
+  <% }) %>
+  </ul>
+</div>

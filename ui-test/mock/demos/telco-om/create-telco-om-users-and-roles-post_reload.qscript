@@ -1,0 +1,58 @@
+#!/usr/bin/env qore
+
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires QorusClientCore
+
+QorusClient::init2();
+
+const Config = {
+    "workflows/TELCO-ACTIVATE-ACCOUNT/stepinfo/TelcoCreateBillingAccount": {
+        "dataprovider-request-provider-path": "connection/rest-billing-demo/accounts/POST",
+        "dataprovider-request-mapper": "telco-create-billing-account",
+        "dataprovider-request-id-location": "body.Id",
+        "dataprovider-request-output-data": {
+            "response-id": ("$keys:billing_account_id", "$feedback:order-$local:workflow_instanceid"),
+        },
+        "dataprovider-request-recovery-provider-path": "connection/rest-billing-demo/accounts/GET",
+        "dataprovider-request-recovery-input": "$parse-value:{query={RequestId=$local:workflow_instanceid}}",
+        "dataprovider-request-recovery-id-location": "body.Id",
+        "dataprovider-request-id-log-msg": "REST response retrieved billing account ID: $local:{response-id}",
+        "dataprovider-request-recovery-id-log-msg": "REST response retrieved billing account ID: $local:{response-id}",
+    },
+    "services/TelcoBillingDemo": {
+        "rest-root-uri": "billing-demo",
+        "rest-swagger-schema": "resource://TelcoBillingDemo:billing-demo-1.0.yaml",
+    },
+};
+
+# create roles
+QorusClient::createRole("telco-om", "superuser", "Telco Order Management demo role", "demo-telco-om");
+QorusClient::createRole("telco-om-ro", "read-only", "Telco Order Management read-only demo role", "demo-telco-om");
+
+# create users
+QorusClient::createUser("telco-om", "telco-om", "telco-om", "Telco Order Management demo user");
+QorusClient::createUser("telco-om-ro", "telco-om-ro", "telco-om-ro", "Telco Order Management read-only demo user");
+
+# create demo rest connection
+{
+    string rest_url = qorus_get_local_url();
+    rest_url =~ s/^http/rest/;
+    rest_url += "/billing-demo";
+    hash<auto> opts = {
+        "swagger": "resource://TelcoBillingDemo:billing-demo-1.0.yaml",
+    };
+    QorusClient::createUserConnection("rest-billing-demo", "REST billing demo connection", rest_url, opts);
+}
+
+# create global error
+QorusClient::createGlobalError("REST-RESPONSE-ERROR", "REST error", OMQ::StatRetry);
+
+# configure workflow error
+QorusClient::createOrUpdateWorkflowError("TELCO-ACTIVATE-ACCOUNT", "REST-RESPONSE-ERROR",  "REST error", OMQ::StatRetry, 10);
+
+# configure config items
+QorusClient::configureInterfaces(Config);

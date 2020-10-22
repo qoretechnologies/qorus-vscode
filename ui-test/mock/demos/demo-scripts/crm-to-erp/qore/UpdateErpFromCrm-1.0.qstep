@@ -1,0 +1,53 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class UpdateErpFromCrm inherits QorusNormalStep {
+    private {
+        ####### GENERATED SECTION! DON'T EDIT! ########
+        ClassConnections_UpdateErpFromCrm class_connections();
+        ############ GENERATED SECTION END ############
+    }
+
+    ####### GENERATED SECTION! DON'T EDIT! ########
+    primary() {
+        class_connections.Connection_1();
+    }
+
+    string validation() {
+        return OMQ::StatRetry;
+    }
+    ############ GENERATED SECTION END ############
+}
+
+####### GENERATED SECTION! DON'T EDIT! ########
+class ClassConnections_UpdateErpFromCrm {
+    private {
+        # map of prefixed class names to class instances
+        hash<auto> class_map;
+    }
+
+    constructor() {
+        class_map = {
+            "BBM_DataProviderSearch": new BBM_DataProviderSearch(),
+            "BBM_GenericMapper": new BBM_GenericMapper(),
+        };
+    }
+
+    auto callClassWithPrefixMethod(string prefixed_class, string method) {
+        UserApi::logDebug("ClassConnections_UpdateErpFromCrm: callClassWithPrefixMethod: method: %s, class: %y", method, prefixed_class);
+        return call_object_method_args(class_map{prefixed_class}, method, argv);
+    }
+
+    auto Connection_1(auto params) {
+        UserApi::logDebug("Connection_1 called with data: %y", params);
+
+        UserApi::logDebug("calling DataProvider Single Record Search: %y", params);
+        params = callClassWithPrefixMethod("BBM_DataProviderSearch", "doSingleRecordSearchConnector", params);
+
+        UserApi::logDebug("calling map: %y", params);
+        return callClassWithPrefixMethod("BBM_GenericMapper", "genericMapper", params);
+    }
+}
+############ GENERATED SECTION END ############

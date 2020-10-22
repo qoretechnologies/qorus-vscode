@@ -1,7 +1,6 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 import { checkFiles, createWorkflow, openCreateWorkflow } from './tests/workflow';
-import { cleanup } from './utils/common';
-import { setupWebview } from './utils/webview';
+import { cleanup, setupTest } from './utils/common';
 
 describe('Workflow tests', function () {
     this.timeout(1800000);
@@ -9,17 +8,16 @@ describe('Workflow tests', function () {
     let workbench: Workbench;
     let editorView: EditorView;
     let webview: WebView;
-    const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview());
+        ({ workbench, editorView, webview } = await setupTest());
     });
 
     // create workflow tests
     it('Opens workflow create page', () => openCreateWorkflow(webview));
     it('Can create workflow', () => createWorkflow(webview, editorView));
-    it('Check files', () => checkFiles(project_folder));
+    it('Check files', () => checkFiles());
 
     // Reset the workbench
     this.afterAll(async () => {

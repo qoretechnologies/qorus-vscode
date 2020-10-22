@@ -1,0 +1,17 @@
+# This is a generated file, don't edit!
+type: step
+name: MaxisPerformPingTest
+desc: |-
+    desc: Check for packet loss and latency and verify against KPIs
+    info:
+      message: "This step checks for latency and potential packet loss"
+      loadingMessage: "Running latency check"
+      name: "Latency check"
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: QorusNormalStep
+class-name: MaxisPerformPingTest
+lang: qore
+version: "1.0"
+steptype: NORMAL
+code: MaxisPerformPingTest-1.0.qstep

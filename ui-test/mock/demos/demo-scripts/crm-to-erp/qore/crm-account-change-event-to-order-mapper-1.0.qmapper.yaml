@@ -1,0 +1,92 @@
+# This is a generated file, don't edit!
+type: mapper
+name: crm-account-change-event-to-order-mapper
+desc: '**Salesforce** account change event to workflow order'
+author:
+  - Qore Technologies, s.r.o.
+fields:
+    orderkeys.salesforce_account_id:
+        name: payload.ChangeEventHeader.recordIds
+    staticdata:
+        use_input_record: true
+    workflow_unique_key.salesforce_event_id:
+        name: event.replayId
+options:
+    mapper-input:
+        custom-fields: {}
+        name: qoretechnologies
+        path: /building-blocks/salesforce/stream-event
+        type: type
+    mapper-output:
+        custom-fields:
+            salesforce_account_id:
+                canBeNull: false
+                desc: salesforce_account_id
+                firstCustomInHierarchy: true
+                isChild: true
+                isCustom: true
+                level: 1
+                name: salesforce_account_id
+                parent: orderkeys
+                parentPath: orderkeys
+                path: orderkeys.salesforce_account_id
+                type:
+                    base_type: auto
+                    can_manage_fields: true
+                    fields: {}
+                    mandatory: false
+                    name: auto
+                    options: null
+                    supported_options: null
+                    typename: any
+                    types_accepted:
+                        - any
+                    types_returned:
+                        - any
+            salesforce_event_id:
+                canBeNull: false
+                desc: salesforce_event_id
+                firstCustomInHierarchy: true
+                isChild: true
+                isCustom: true
+                level: 1
+                name: salesforce_event_id
+                parent: workflow_unique_key
+                parentPath: workflow_unique_key
+                path: workflow_unique_key.salesforce_event_id
+                type:
+                    base_type: string
+                    can_manage_fields: false
+                    fields: {}
+                    mandatory: true
+                    name: softstring
+                    options:
+                        qore.no_null: true
+                    supported_options:
+                        qore.no_null:
+                            desc: >-
+                                if True then NULL is not supported on input if
+                                NOTHING is also not accepted
+                            type: bool
+                        string.encoding:
+                            desc: the output encoding when writing to the type
+                            type: string
+                        string.max_size_chars:
+                            desc: the maximum length of the string in characters
+                            type: integer
+                    typename: string
+                    types_accepted:
+                        - string
+                        - bool
+                        - float
+                        - int
+                        - integer
+                        - date
+                        - number
+                    types_returned:
+                        - string
+        name: qoretechnologies
+        path: /building-blocks/create-order/request
+        type: type
+mappertype: Mapper
+version: "1.0"

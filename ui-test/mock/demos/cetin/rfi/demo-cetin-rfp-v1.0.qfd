@@ -1,0 +1,70 @@
+# type: SUBWORKFLOW
+# version: 1.0
+# desc: cetin demo portfolio step function
+# author: Qore Technologies, s.r.o.
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+sub demo_cetin_create_portfolio_subworkflow(auto e) {
+    wf_bind_subworkflow({"name": "CETIN-PORTFOLIO"}, {"staticdata": {}});
+}
+# END
+
+# type: SUBWORKFLOW
+# version: 1.0
+# desc: cetin demo project step function
+# author: Qore Technologies, s.r.o.
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+sub demo_cetin_create_project_subworkflow(auto e) {
+    wf_bind_subworkflow({"name": "CETIN-PROJECT"}, {"staticdata": {}});
+}
+# END
+
+# type: SUBWORKFLOW
+# version: 1.0
+# desc: cetin demo subproject step function
+# author: Qore Technologies, s.r.o.
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+sub demo_cetin_create_subproject_subworkflow(auto e) {
+    wf_bind_subworkflow({"name": "CETIN-SUBPROJECT"}, {"staticdata": {}});
+}
+# END
+
+# type: SUBWORKFLOW
+# version: 1.0
+# desc: cetin demo subproject step function
+# author: Qore Technologies, s.r.o.
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+sub demo_cetin_subproject_step(auto e) {
+}
+# END
+
+# type: ARRAY
+# version: 1.0
+# desc: cetin demo array function
+# author: Qore Technologies, s.r.o.
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+softlist<auto> sub demo_cetin_array_1() {
+    # return a list with 2 - 5 elements
+    int size = rand() % 4;
+    return map $1, xrange(1 + size);
+}
+# END

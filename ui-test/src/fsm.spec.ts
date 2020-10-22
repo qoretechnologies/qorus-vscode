@@ -1,7 +1,6 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { openFSMPage } from './tests/fsm';
-import { cleanup } from './utils/common';
-import { setupWebview } from './utils/webview';
+import { createFSM } from './tests/fsm';
+import { cleanup, setupTest } from './utils/common';
 
 describe('FSM tests', function () {
     this.timeout(1800000);
@@ -9,14 +8,13 @@ describe('FSM tests', function () {
     let workbench: Workbench;
     let editorView: EditorView;
     let webview: WebView;
-    const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview('rippy IP'));
+        ({ workbench, editorView, webview } = await setupTest('rippy IP'));
     });
 
-    it('Opens FSM create page', () => openFSMPage(webview));
+    it('Opens FSM create page', () => createFSM(webview));
 
     // Reset the workbench
     this.afterAll(async () => {

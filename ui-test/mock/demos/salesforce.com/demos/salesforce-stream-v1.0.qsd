@@ -1,0 +1,36 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# servicetype: USER
+# service: salesforce-stream
+# serviceversion: 1.0
+# servicedesc: demonstrates Salesforce.com streaming API support
+# class-name: SalesforceStream
+# autostart: true
+# parse-options: PO_NEW_STYLE, PO_STRICT_ARGS, PO_REQUIRE_TYPES
+# classes: BBM_SalesforceStreamBase
+# define-group: DEMO: demonstration code
+# groups: DEMO
+# ENDSERVICE
+
+class SalesforceStream inherits BBM_SalesforceStreamBase {
+    private messageCallbackImpl(hash<auto> mh) {
+        log(LL_INFO, "MESSAGE: %N", mh);
+    }
+
+    private {
+        #! default values for config items in this step
+        const DefaultConfigItemValues = {
+            "sf-stream-connection-name": "sfrests-demo",
+            "sf-stream-channel-names": ("/data/AccountChangeEvent",),
+        };
+    }
+
+    #! config items for this step
+    /** - rest-connection-name: the name of the billing system REST connection
+    */
+    private *hash<string, hash<ConfigItemInfo>> getConfigItemsImpl() {
+        hash<string, hash<ConfigItemInfo>> rv = BBM_SalesforceStreamBase::getConfigItemsImpl();
+        map rv{$1.key}.default_value = $1.value, DefaultConfigItemValues.pairIterator();
+        return rv;
+    }
+}

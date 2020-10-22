@@ -1,0 +1,14 @@
+type: value-map
+name: erp-crm-item-map
+desc: maps from ERP item codes to CRM product IDs
+valuetype: string
+author:
+  - Qore Technologies, s.r.o.
+exception: true
+value-maps:
+  EX-0001:
+    value: 01u2o00000hRwjBAAS
+    enabled: true
+  EX-0002:
+    value: 01u2o00000hRwjoAAC
+    enabled: true

@@ -1,0 +1,69 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# name: zeyos-action-step-create-request
+# version: 1.0
+# desc: maps static workflow order data to a Zeyos REST request
+# type: Mapper
+# author: Qore Technologies, s.r.o.
+# parse-options: PO_NEW_STYLE
+# define-group: demo: demo interfaces
+# define-group: ZeyosArpmDemoGroup: Zeyos arpm demo group
+# groups: demo, ZeyosArpmDemoGroup
+
+OPTION: input: (
+    "static": {
+        "desc": "static data",
+    },
+    "dynamic": {
+        "type": "*hash",
+        "desc": "dynamic data",
+    },
+    "orderkeys": {
+        "type": "*hash",
+        "desc": "order keys",
+    },
+    "context": {
+        "desc": "current execution context info",
+    },
+)
+
+OPTION: output: (
+    "name": {
+        "type": "string",
+    },
+    "description": {
+        "type": "string",
+    },
+    "effort": {
+        "type": "int",
+    },
+    "actionnum": {
+        "type": "string",
+    },
+    "status": {
+        "type": "int",
+    },
+    "creator": {
+        "type": "string",
+    },
+)
+
+FIELD: name: {
+    "name": "static.name",
+}
+FIELD: description: {
+    "name": "static.description",
+}
+FIELD: effort: {
+    "name": "static.effort",
+}
+FIELD: actionnum: {
+    "name": "static.actionnum",
+}
+FIELD: status: {
+    "name": "static.status",
+}
+FIELD: creator: {
+    "name": "static.creator",
+}
+# END

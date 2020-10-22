@@ -1,0 +1,13 @@
+<div>
+<input class="search-query input-small" type="search" id="search_input" placeholder="Type to filter">
+</div>
+
+<ul id="sql-dataview-mainmenu" class="nav nav-list" data-source="<%= obj.ds %>">
+  <% _.each(features, function (val) { %>
+  <li><a href="#" class="nav-header" data-action="load-nested-menu" data-type="<%= val.name %>"><%= val.name %></a><div id="<%= obj.ds %>-<%= val.name %>"></div></li>
+  <% }) %>
+</ul>
+
+<hr/>
+<div><a href="?<%= obj.ds %>/sql" data-action="sql-editor-clicked">SQL Editor</a></div>
+

@@ -1,0 +1,133 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# type: GENERIC
+# version: 1.0
+# desc: Salesforce.com email demo onetimeinit function
+# author: Qore Technologies, s.r.o.
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires SalesforceSoapClient
+
+sub sf_email_init() {
+    # ensure we can get our Salesforce.com SOAP connection
+    get_user_connection("sfsoap-demo");
+    # ensure we can get our gmail SMTP connection
+    get_user_connection("smtps-demo");
+}
+# END
+
+# type: STEP
+# version: 1.0
+# desc: Salesforce.com email demo get Salesforce.com account step function
+# author: Qore Technologies, s.r.o.
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+sub sf_email_get_account() {
+    # get salesforce.com SOAP connection
+    SalesforceSoapClient sc = get_user_connection("sfsoap-demo");
+
+    # get static data for account to retrieve
+    hash sd = wf_get_static_data();
+
+    # create SOQL query string
+    string ss = sprintf("select id, name, description, accountnumber, BillingStreet, BillingState, BillingPostalCode, BillingCountry, BillingCity from account where accountnumber = '%s'", sd.account_number);
+
+    # execute query in Salesforce.com
+    hash ah = sc.query(("queryString": ss)).result.records;
+
+    # remove null attributes
+    ah = remove_nulls(ah);
+
+    # log account info
+    log(LL_DETAIL_1, "got account: %N", ah);
+
+    # save account in dynamic data
+    hash dd = (
+        "account": ah,
+        "uuid": UUID::get(),
+        );
+    wf_update_dynamic_data(dd);
+
+    # set order key with account uuid
+    wf_set_order_keys(("account": dd.uuid));
+}
+# END
+
+# type: STEP
+# version: 1.0
+# desc: Salesforce.com email send email attachment with Salesforce.com account info
+# author: Qore Technologies, s.r.o.
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+%requires SmtpClient
+%requires MailMessage
+%requires Mime
+
+# overridable properties
+const Props = (
+    "email-to": "david.nichols@qoretechnologies.com",
+    "email-from": "qoretechnologies.demo@gmail.com",
+    "email-subject": "Salesforce.com Account Info",
+    );
+
+sub sf_email_send_email() {
+    # get account data
+    hash dd = wf_get_dynamic_data();
+
+    # get mapper to transform data
+    Mapper mapper = get_mapper("salesforce-email");
+
+    # map data
+    hash dh = mapper.mapData(dd.account);
+    log(LL_DETAIL_1, "data: %N", dh);
+
+    string xml = make_xml(("account": dh), XGF_ADD_FORMATTING);
+    log(LL_DETAIL_1, "XML: %s", xml);
+
+    # get workflow name for property search
+    string name = wf_get_workflow_metadata().name;
+    # set email properties
+    hash props = map {$1.key: prop_get(name, $1.key) ?? $1.value}, Props.pairIterator();
+
+    # get current timestamp as a string
+    string now = Qore::now().format("YYYY-MM-DD HH:mm:SS");
+
+    # create email subject
+    string subject = sprintf("%s %s %d", props."email-subject", now, wf_wfiid());
+
+    # create message
+    Message msg(props."email-from", subject);
+
+    # set target address
+    msg.addTO(props."email-to");
+
+    # get system info
+    hash sh = get_system_info();
+
+    # create and set email body
+    string body = sprintf("Salesforce.com account info received at %s Qorus %y v%s sessionid %d workflow_instanceid %d\n\n", now, sh."instance-key", sh."omq-version", sh.sessionid, wf_wfiid());
+    msg.setBody(body);
+
+    # generate filename
+    string fn = sprintf("account-%s.xml", dd.uuid);
+
+    # add XML file attachment
+    msg.attach(fn, get_mime_type_from_ext(fn), xml);
+
+    # get SMTP connection object
+    SmtpClient smtp = get_user_connection("smtps-demo");
+
+    # send the message
+    log(LL_INFO, "sending message to %y with attachment %y (%d bytes)", props."email-to", fn, xml.size());
+    smtp.sendMessage(msg);
+}
+# END

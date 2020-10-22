@@ -1,0 +1,74 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+# test workflow definition
+#
+# Qorus Integration Engine
+
+%new-style
+
+our string format_version = "2.6";
+
+our hash<auto> groups = {
+    "demo": {"desc": "demo interfaces"},
+    "demo-cetin": {"desc": "Telco OM demo interfaces"},
+};
+
+our hash<auto> queues = {
+    "PH14MK-A196MK-urceni-planovace": {
+        "desc": "Urceni planovace",
+    },
+    "PH14MK-A123MK-urceni-koordinatora-vystavby": {
+        "desc": "Urceni koordinatora vystavby",
+    },
+    "PH14MK-A127MK-schvaleni-zadavaci-dokumentace": {
+        "desc": "Schvaleni zadavaci dokumentace",
+    },
+};
+
+
+const step_a196mk = {
+    "name": "PH14MK-A196MK_urceni_planovace:1,0",
+	"classname": "A196MKUrceniPlanovace:1.0",
+	"queue": "PH14MK-A196MK-urceni-planovace",
+	"user-interaction": True,
+};
+
+const step_a123mk = {
+    "name": "PH14MK-A123MK_urceni_koordinatora:1,0",
+	"classname": "A123MKUrceniKoordinatora:1.0",
+	"queue": "PH14MK-A123MK-urceni-koordinatora-vystavby",
+	"user-interaction": True,
+};
+
+const step_a217mk = {
+    "name": "PH14MK-A217MK_auto_urceni_realizatora_zadavaci_dokumentace:1,0",
+    "classname": "A217MKAutoUrceniRealizatoraZD:1.0",
+};
+
+const step_a120mk = {
+    "name": "PH14MK-A120MK_auto_objednani_zadavaci_dokumentace:1,0",
+    "classname": "A120MKAutoObjednaniZD:1.0",
+};
+
+const step_a127mk = {
+    "name": "PH14MK-A127MK_schvaleni_zadavaci_dokumentace:1,0",
+	"classname": "A127MKSchvaleniZD:1.0",
+	"queue": "PH14MK-A127MK-schvaleni-zadavaci-dokumentace",
+	"user-interaction": True,
+};
+
+our list<auto> steps = (
+    step_a196mk,
+    step_a123mk,
+    step_a217mk,
+    step_a120mk,
+    step_a127mk,
+);
+
+our hash<auto> workflows."CETIN-SUBPROJ-PH14MK"."1.0" = {
+    "desc": "demo implementace subprojektu PH14 MK",
+    "steps": steps,
+    "groups": ("demo", "demo-cetin"),
+    "sla_threshold": 5,
+    "autostart": 1,
+    "remote": False,
+};

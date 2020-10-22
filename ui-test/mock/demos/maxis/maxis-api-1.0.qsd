@@ -1,0 +1,34 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+#! the main REST handler class
+class MaxisRestHandler inherits BBM_RestHandlerBase {
+    constructor() {
+        addClass(new MaxisCrmRestClass());
+    }
+
+    hash<HttpResponseInfo> handleRequest(HttpListenerInterface listener, Socket s, hash<auto> cx, hash<auto> hdr, *data b) {
+        return BBM_RestHandlerBase::handleRequest(listener, s, cx, hdr, b);
+    }
+}
+
+#! Demo UI HTTP handler
+class MaxisCrmDemoUiHandler inherits ServiceFileHandler {
+    constructor() : ServiceFileHandler("/Users/david/src/Qorus/git/demos/maxis/ui", "/") {
+        addListener(<HttpListenerOptionInfo>{"service": 20011});
+    }
+}
+
+class MaxisApi inherits BBM_RestServiceBase {
+    init() {
+        BBM_RestServiceBase::init();
+
+        bindHttp(new MaxisCrmDemoUiHandler());
+    }
+
+    private AbstractServiceHttpHandler getHandlerImpl() {
+        return new MaxisRestHandler();
+    }
+}

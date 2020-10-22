@@ -1,0 +1,5 @@
+sewiorest-demo = (
+    desc = Sewio.net RTLS Studio REST Connection,
+    url = sewiorest://rtlsstudio.com/sensmapserver/api,
+    apikey = "171555a8fe71148a165392904",
+)

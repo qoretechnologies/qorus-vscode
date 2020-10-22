@@ -1,0 +1,104 @@
+# This is a generated file, don't edit!
+type: step
+steptype: NORMAL
+author:
+  - Qore Technologies, s.r.o.
+class-name: IotStadiumFloodLightsDemoCreateCrmOrder
+desc: Create new issue in CRM system to order more bulbs
+name: IotStadiumFloodLightsDemoCreateCrmOrder
+version: "1.0"
+code: IotStadiumFloodLightsDemoCreateCrmOrder.qstep
+base-class-name: BBM_RestActionStep
+classes:
+  - BBM_RestActionStep
+config-items:
+  - name: rest-connection-name
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-method
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-api-mapper-name
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-uri-path
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-id-location
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-headers
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-swagger-schema-location
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-body-remove-nulls
+    parent:
+      interface-type: class
+      interface-name: BBM_RestActionStep
+      interface-version: "1.0"
+  - name: output_data
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-id-log-msg
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-supports-recovery
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-uri
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-id-location
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-response-location
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-response-value
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: recovery_output_data
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-recovery-id-log-msg
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"
+  - name: rest-sensitive-alias-input
+    parent:
+        interface-type: class
+        interface-name: BBM_RestActionStep
+        interface-version: "1.0"

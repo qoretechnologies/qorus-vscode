@@ -1,0 +1,14 @@
+# This is a generated file, don't edit!
+type: step
+author:
+  - Qore Technologies, s.r.o.
+base-class-name: Demo
+class-name: TelcoUpdateCrmAccount
+classes:
+  - Demo
+desc: updates the account status in CRM
+lang: qore
+name: TelcoUpdateCrmAccount
+version: "1.0"
+steptype: NORMAL
+code: TelcoUpdateCrmAccount-v1.0.qstep

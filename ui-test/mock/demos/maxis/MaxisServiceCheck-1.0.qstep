@@ -1,0 +1,88 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class MaxisServiceCheck inherits QorusNormalStep {
+    primary() {
+        int status;
+        string msg;
+        if (*softint dd_status = getStaticData("service_status")) {
+            status = dd_status;
+        } else {
+            switch ((rand() % 10)) {
+                case < 1:
+                    status = 3;
+                    break;
+
+                case < 3:
+                    status = 2;
+                    break;
+
+                default:
+                    status = 1;
+                    break;
+            }
+        }
+
+        hash<auto> info;
+        switch (status) {
+            case 1:
+                msg = "OK: Service check completed with no warnings or errors";
+                info = {
+                    "FSM": {
+                        "title": "FSM",
+                        "detail": "FSM reports no outage or service degradation for service",
+                    },
+                    "complaint-db": {
+                        "title": "Complaint DB",
+                        "detail": "No complaints from subscribers on shared infrastructure found in the "
+                            "complaints DB",
+                    },
+                };
+                break;
+
+            case 2:
+                msg = "WARNING: Service check did not find any technical problems, but complaints exist from "
+                    "other subscribers with shared service infrastructure";
+                int num_complaints = (rand() % 4) + 1;
+                info = {
+                    "FSM": {
+                        "title": "FSM",
+                        "detail": "No outage or service degradation for service",
+                    },
+                    "complaint-db": {
+                        "title": "Complaint DB",
+                        "detail": sprintf("%d subscriber complaint%s reported in shared service "
+                            "infrastructure", num_complaints, num_complaints == 1 ? "" : "s"),
+                    },
+                };
+                break;
+
+            case 3:
+                int num_complaints = (rand() % 20) + 2;
+                msg = "ERROR: Service check detected infrastructure faults; complaints exist from other "
+                    "subscribers with shared service infrastructure";
+                info = {
+                    "FSM": {
+                        "title": "FSM",
+                        "detail": "FSM reports a fault in FTTH-RGW-2F",
+                    },
+                    "complaint-db": {
+                        "title": "Complaint DB",
+                        "detail": sprintf("%d subscriber complaint%s reported in shared service "
+                            "infrastructure", num_complaints, num_complaints == 1 ? "" : "s"),
+                    }
+                };
+                break;
+        }
+
+        updateDynamicData({
+            ("step" + getStepInfo().stepid): {
+                "status": status,
+                "message": msg,
+                "metadata": info,
+            },
+        });
+    }
+}

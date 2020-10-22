@@ -1,0 +1,60 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# servicetype: USER
+# service: sewio-demo
+# serviceversion: 1.0
+# servicedesc: demonstrates Sewio API support
+# autostart: true
+# parse-options: PO_NEW_STYLE, PO_STRICT_ARGS, PO_REQUIRE_TYPES
+# define-group: DEMO: demonstration code
+# groups: DEMO
+# ENDSERVICE
+
+# name: init
+# desc: initializes the service
+%enable-all-warnings
+
+%requires SewioRestClient
+%requires SewioWebSocketClient
+
+sub init() {
+}
+# END
+
+# desc: calls a REST API method and returns the response
+hash sub call(string method, string path, any body) {
+    SewioRestClient rc = get_user_connection("sewiorest-demo");
+    return rc.doRequest(method, path, body);
+}
+# END
+
+# desc: listens to the webservice API for the given number of seconds
+list sub ws(int secs) {
+    # get all feeds
+    SewioRestClient rc = get_user_connection("sewiorest-demo");
+    list feeds = map $1.id, rc.get("feeds").body.results;
+
+    log(LL_INFO, "got feeds: %y", feeds);
+
+    list l = ();
+    code cb = sub (*hash msg) {
+        if (msg) {
+            log(LL_INFO, "got: %y", msg);
+            l += msg;
+        }
+    };
+
+    # get web socket connection
+    SewioWebSocketClient ws = get_user_connection("sewiows-demo", NOTHING, NOTHING, ("callback": cb));
+
+    # subscribe to all feeds
+    map ws.sendData("subscribe", "feeds/" + $1), feeds;
+
+    # wait for the required time
+    omqsleep(secs);
+
+    # delete the websocket client and return the messages received
+    delete ws;
+    return l;
+}
+# END

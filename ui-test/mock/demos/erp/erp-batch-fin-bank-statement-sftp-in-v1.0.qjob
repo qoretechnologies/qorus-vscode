@@ -1,0 +1,10 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+%new-style
+%require-types
+%strict-args
+%enable-all-warnings
+
+class ErpBatchFinBankStatementSftpIn inherits BBM_SftpPollerCreateOrderJob {
+}
+# END

@@ -1,0 +1,226 @@
+#!/usr/bin/env qore
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+%require-types
+%new-style
+%strict-args
+%enable-all-warnings
+
+%exec-class Mip70BEbs11iProcessTest
+
+# here we add fallback paths to the QORE_MODULE_DIR search path,
+# in case QORE_MODULE_DIR is not set properly for Qorus
+%append-module-path /var/opt/qorus/qlib:$OMQ_DIR/qlib:/opt/qorus/qlib:$OMQ_DIR/user/modules
+
+%requires SeplInterfaceTest
+%requires Util
+
+class Mip70BEbs11iProcessTest inherits SeplWorkflowTest {
+    private {
+        QorusSystemRestHelper mseplit;
+        string ebs11i;
+        string wfiid;
+
+        const Job = "it-70b-gl_journal_java-r11-in";
+
+        const Defaults = (
+            "lines": 2, #10000,
+            );
+
+        const MyOpts = Opts + (
+            "clear": "c,clear",
+            "keep":  "k,keep",
+            "lines" : "l,lines=i",
+            );
+
+        const OptionColumn = 25;
+
+        const TestValue = "QORUS-TEST";
+    }
+
+    constructor() : SeplWorkflowTest("IT-70B-GL_JOURNAL_JAVA-R11-IN", "1.0", \ARGV, MyOpts) {
+        addTestCase("MIP 70B OK test case", \ok());
+
+        mseplit = get_remote_rest_connection(getConfig("msepl-it"));
+        ebs11i = getConfig("ebs11i");
+
+        map m_options.($1.key) = $1.value, Defaults.pairIterator(), !exists m_options.($1.key);
+        if (m_options.lines <= 0)
+            throw "LINES-ERROR", sprintf("expecting a positive lines value; got %d instead", m_options.lines);
+
+        if (m_options.clear)
+            purgeTestData();
+
+        set_return_value(main());
+
+        if (m_options.keep) {
+            if (m_options.verbose)
+                printf("not deleting test DB data\n");
+        }
+        else
+            purgeTestData();
+    }
+
+    auto getConfig(string name) {
+        return qrest.get("workflows/IT-70B-GL_JOURNAL_JAVA-R11-IN/stepinfo/Mip70ItImportR11/config/" + name + "/value");
+    }
+
+    private usageIntern() {
+        TestReporter::usageIntern(OptionColumn);
+        printOption("-c,--clear", "clear test data before running the test", OptionColumn);
+        printOption("-k,--keep", "do not delete test data in DB", OptionColumn);
+        printOption("-l,--lines=ARG", sprintf("number of input lines to insert (default: %d)", Defaults.lines), OptionColumn);
+    }
+
+    private purgeRemoteData() {
+        hash sh = (
+            "columns": "message_id",
+            "where": ("feedback": TestValue),
+            );
+        softlist l = mseplit.put("services/sqlutil/select?action=call", ("args": (ebs11i, "h3g_it_gl_int_header", sh))).message_id;
+
+        hash dh = (
+            "message_id": op_in(l),
+            );
+
+        foreach string table in ("h3g_it_gl_int_header", "h3g_it_gl_int_detail") {
+            int rows = mseplit.put("services/sqlutil/del?action=call", ("args": (ebs11i, table, dh)));
+            if (rows && m_options.verbose)
+                printf("purged %d row%s from %s (%s)\n", rows, rows == 1 ? "" : "s", table, mseplit.getURL());
+        }
+    }
+
+    private purgeLocalData() {
+        hash sh = (
+            "columns": cop_distinct("message_id"),
+            "where": ("trl_category": TestValue),
+            );
+
+        AbstractTable dtl = get_sql_table(staging, "h3g_it_gl_import_all");
+
+        softlist l = dtl.select(sh).message_id;
+
+        AbstractTable hdr = get_sql_table(staging, "h3g_it_gl_import_log");
+
+        on_success hdr.commit();
+        on_error hdr.rollback();
+
+        int rows = hdr.del(("message_id": op_in(l)));
+        if (rows && m_options.verbose)
+            printf("purged %d row%s from %s\n", rows, rows == 1 ? "" : "s", hdr.getName());
+
+        rows = dtl.del(("message_id": op_in(l)));
+        if (rows && m_options.verbose)
+            printf("purged %d row%s from %s\n", rows, rows == 1 ? "" : "s", dtl.getName());
+    }
+
+    private purgeTestData() {
+        purgeRemoteData();
+        purgeLocalData();
+    }
+
+    ok() {
+        {
+            if (m_options.verbose) {
+                printf("sending %d rows to the remote DB: ", m_options.lines);
+                flush();
+            }
+
+            # get random negative message_id
+            int mid = -500000000000000 - (rand() % 100000000000000) * -1;
+
+            DbRemoteSend out(mseplit, "omquser", "insert", "h3g_it_gl_int_detail");
+            on_success out.commit();
+            on_error out.disconnect();
+
+            sendRandomData(out, mid);
+
+            out.openStream("insert", "h3g_it_gl_int_header");
+
+            hash row = (
+                "message_id": mid,
+                "source_system": "R11",
+                "target_system": "H3G",
+                "int_status": "N",
+                "message_type": "R11_JOURNALS",
+                "creation_date": now_us(),
+                "status_start": now_us(),
+                "status_end": now_us(),
+                "request_id": rand() % 1000000000,
+                "record_count": m_options.lines,
+                # mark as test data
+                "feedback": TestValue,
+                );
+            out.append(row);
+
+            if (m_options.verbose)
+                printf("done\n");
+        }
+
+        # trigger job
+        hash h = qrest.put("jobs/" + Job + "?action=run");
+        assertEq(OMQ::StatComplete, h.status);
+
+        # get job data
+        int wfiid = qrest.get("jobresults/" + h.job_instanceid + "/info/wfiid");
+
+        # wait for MIP70B workflow to go to COMPLETE
+        exec(new WaitForWfiid(wfiid, NOTHING, 5m));
+
+        #map checkDataRow(wfiid, $1), InputData;
+    }
+
+    /*
+    checkDataRow(int wfiid, hash h) {
+        hash wh = ("where": ("i_sepl_created_id": wfiid, "lp_order_id": h.record_id.toString(), "line_type": "01"));
+        hash dh;
+        if (h.transaction_name =~ /^..._CSV/ && !h.broken_item_code)
+            dh = BrepTransConst + (
+                "lp_order_id": h.record_id,
+                "order_id": h.sr_id,
+                #"item_number": h.broken_item_code,
+                "external_position_number": h.transaction_id,
+                "internal_position_number": h.transaction_id,
+                "source_timestamp": h.shipping_date,
+                "status_date": h.transaction_date,
+                "signer_receipt": h.customer_code,
+                "delivery_number": h.ddt_number,
+                "delivery_text": h.carrier,
+                "delivery_date": h.ddt_date,
+                #"line_type": ,
+                #"dispatched_quantity": h.count_quantity,
+                "subinventory": h.contract_type == "C" ? "Hcncom" : "Hcnnol"
+                #"reason_code": h.reason_name,
+                #"organization": h.organization_code,
+            );
+        exec(new CheckDbTableRow(staging, "h3g_it_brep_trans", wh, dh));
+
+        if (h.transaction_name =~ /^..._CSV/ && !h.broken_item_code)
+            dh = CommonConst + (
+                "order_id": h.sr_id,
+                "serial_number": h.broken_serial_number.toString(),
+            );
+        wh."where" = (("i_sepl_created_id": wfiid, "serial_number": h.broken_serial_number.toString()));
+        exec(new CheckDbTableRow(staging, "h3g_it_snr", wh, dh));
+    }
+    */
+
+    sendRandomData(DbRemoteSend out, int mid) {
+        for (int i = 0; i < m_options.lines; ++i) {
+            # generate a random row
+            hash row = (
+                "message_id": mid,
+                "source_system": "R11",
+                "target_system": "H3G-TEST",
+                "int_status": "N",
+                "message_type": "R11_JOURNALS",
+                "status": "N",
+                "accounting_date": now_us(),
+                "currency_code": "EUR",
+                "line_id": rand() % 1000000000000000,
+                "trl_category": TestValue, #"Scritture GL",
+                );
+            out.append(row);
+        }
+    }
+}

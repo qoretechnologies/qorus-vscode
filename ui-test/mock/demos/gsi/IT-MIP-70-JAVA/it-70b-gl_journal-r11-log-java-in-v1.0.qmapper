@@ -1,0 +1,33 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+
+# name: it-70b-gl_journal-r11-log-java-in
+# version: 1.0
+# desc: R11 log import
+# type: EbsSingleTableInboundMapper
+# author: Petr Vanek (Qore Technologies, sro)
+# parse-options: PO_NEW_STYLE
+# define-group: IT: H3G IT interface objects
+# groups: IT
+
+
+OPTION: datasource: get_global_config_item_value_with_default("gsi_staging", "gsi_staging")
+OPTION: table:      "h3g_it_gl_import_log"
+OPTION: input: (
+    "ref_transfer": {},
+    "record_count": {},
+    "message_id": {},
+)
+
+FIELD: message_id     : ("name" : "message_id")
+FIELD: source_system  : ("constant" : "R11")
+FIELD: target_system  : ("constant" : "H3G")
+FIELD: message_type   : ("constant" : "R11_JOURNALS")
+FIELD: int_status     : ("constant" : "I")
+FIELD: creation_date  : {"code": date sub (auto x, hash<auto> rec) { return now_us(); }}
+FIELD: ref_transfer   : True
+FIELD: status_start   : {"code": date sub (auto x, hash<auto> rec) { return now_us(); }}
+FIELD: status_end     : {"code": date sub (auto x, hash<auto> rec) { return now_us(); }}
+FIELD: record_count   : "record_count"
+FIELD: ctrl_sum       : ("constant" : 0)
+FIELD: qorus_wfiid    : softint sub(auto x, hash<auto> rec) { return get_user_context_info().workflow_instanceid; }
+# END

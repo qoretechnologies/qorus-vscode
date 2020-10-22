@@ -1,0 +1,18 @@
+{
+    "qorus_instances": {
+        "local": [
+            {
+                "name": "LOCAL",
+                "url": "https://localhost:8002",
+                "custom_urls": []
+            }
+        ],
+        "cloud": [
+            {
+                "name": "Production cloud instance",
+                "url": "https://cloud1.qoretechnologies.com:8011",
+                "custom_urls": []
+            }
+        ]
+    }
+}

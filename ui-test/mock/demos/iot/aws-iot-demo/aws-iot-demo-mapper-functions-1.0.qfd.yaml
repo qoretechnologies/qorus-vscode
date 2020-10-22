@@ -1,0 +1,7 @@
+name: aws-iot-demo-mapper-functions
+version: "1.0"
+desc: AWS IoT mapper functions
+type: function
+author:
+  - Qore Technologies, s.r.o.
+code: aws-iot-demo-mapper-functions-1.0.qfd

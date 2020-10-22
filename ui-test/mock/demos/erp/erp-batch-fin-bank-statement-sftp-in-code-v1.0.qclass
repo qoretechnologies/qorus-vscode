@@ -1,0 +1,12 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+hash<auto> sub get_record(*string local_path, hash<auto> rec) {
+    return rec;
+}
+
+hash<auto> sub get_unique_keys(string name, hash<auto> rec) {
+    return {"filename": name};
+}

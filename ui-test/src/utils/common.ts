@@ -1,5 +1,19 @@
-import { ActivityBar, EditorView, SideBarView, ViewControl, ViewTitlePart, WebView } from 'vscode-extension-tester';
+import * as fsExtra from 'fs-extra';
+import * as path from 'path';
+import {
+    ActivityBar,
+    EditorView,
+    SideBarView,
+    ViewControl,
+    ViewTitlePart,
+    WebView,
+    Workbench,
+} from 'vscode-extension-tester';
 import { logoutFromTreeView } from './treeView';
+import { setupWebview } from './webview';
+
+export const testFolder = path.join(process.cwd(), 'ui-test');
+export const projectFolder = path.join(testFolder, 'test_project');
 
 export const cleanup = async (editorView: EditorView, webview?: WebView, logoutInstanceName?: string) => {
     if (webview) {
@@ -11,6 +25,25 @@ export const cleanup = async (editorView: EditorView, webview?: WebView, logoutI
     if (logoutInstanceName) {
         await logoutFromTreeView(logoutInstanceName);
     }
+};
+
+export const setupTest = async (loginInstanceName?: string, noWebview?: boolean) => {
+    try {
+        await fsExtra.copy(path.join(testFolder, 'mock/'), projectFolder);
+    } catch (e) {
+        console.error(e);
+    }
+
+    const workbench = new Workbench();
+    const editorView = new EditorView();
+    let webview: WebView;
+
+    if (!noWebview) {
+        webview = await setupWebview(workbench, editorView, loginInstanceName);
+    }
+
+    // @ts-ignore
+    return { workbench, editorView, webview };
 };
 
 export const openQorusActivityBar = async () => {

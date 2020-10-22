@@ -1,0 +1,15 @@
+{
+    "qorus_instances": {
+        "Rippy": [
+            {
+                "name": "rippy IP",
+                "url": "https://admin:admin@192.168.20.23:8092",
+                "custom_urls": []
+            }
+        ]
+    },
+    "source_directories": [
+        "_tests",
+        "demos"
+    ]
+}

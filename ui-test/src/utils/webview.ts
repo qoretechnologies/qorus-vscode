@@ -21,10 +21,11 @@ export const getWebview = async (editorView: EditorView): Promise<WebView> => {
     return webview;
 };
 
-export const setupWebview = async (loginInstance?: string): Promise<any> => {
-    const workbench = new Workbench();
-    const editorView = new EditorView();
-
+export const setupWebview = async (
+    workbench: Workbench,
+    editorView: EditorView,
+    loginInstance?: string
+): Promise<any> => {
     if (loginInstance) {
         await loginFromTreeView(workbench, loginInstance);
     }
@@ -34,7 +35,7 @@ export const setupWebview = async (loginInstance?: string): Promise<any> => {
 
     const webview = await getWebview(editorView);
 
-    return { workbench, editorView, webview };
+    return webview;
 };
 
 export const closeWebview = async (editorView: EditorView, webview: WebView, logout?: boolean) => {

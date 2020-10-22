@@ -1,0 +1,52 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+# test workflow definition
+#
+# Qorus Integration Engine
+
+%new-style
+
+our string format_version = "2.6";
+
+our hash<auto> groups = {
+    "demo": {"desc": "demo interfaces"},
+    "demo-erp": {"desc": "ERP demo interfaces"},
+};
+
+our list<auto> steps = (
+    {
+        "name": "erp_rma_receipt_validate_in:1.0",
+        "desc": "validates RMA receipt information and compares it to the original request",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+    (
+        {
+            "name": "erp_rma_receipt_import_in:1.0",
+            "desc": "imports the validated RMA receipt data",
+            "funcname": "demo:1.0",
+            "valname": "demo_val:1.0",
+        },
+        {
+            "name": "erp_rma_receipt_in_error_out:1.0",
+            "desc": "returns errors to the external logistics provider, if any are found",
+            "funcname": "demo:1.0",
+            "valname": "demo_val:1.0",
+        },
+    ),
+    {
+        "name": "erp_rma_receipt_finalize_in:1.0",
+        "desc": "sends a notification to the internal logistics group about RMA receipt processing (success or error details, if any)",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+);
+
+our hash<auto> workflows."ERP-BATCH-RL-RMA-RECEIPT-IN"."1.0" = {
+    "desc": "Demo ERP Reverse Logistics RMA receipt import workflow; imports RMA confirmations as received from logistics partners",
+    "author": "Qore Technologies, s.r.o.",
+    "steps": steps,
+    "groups": ("demo", "demo-erp"),
+    "sla_threshold": 1,
+    "autostart": 1,
+    "remote": False,
+};

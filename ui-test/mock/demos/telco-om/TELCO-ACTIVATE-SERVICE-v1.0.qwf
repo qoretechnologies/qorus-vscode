@@ -1,0 +1,45 @@
+# -*- mode: qore; indent-tabs-mode: nil -*-
+# test workflow definition
+#
+# Qorus Integration Engine
+
+%new-style
+
+our string format_version = "2.6";
+
+our hash<auto> groups = {
+    "demo": {"desc": "demo interfaces"},
+    "demo-telco-om": {"desc": "Telco OM demo interfaces"},
+};
+
+our hash<auto> queues."demo-queue" = {
+    "desc" : "asynchronous demo queue",
+};
+
+our list<auto> steps = (
+    {
+        "name": "telco_activate_service:1.0",
+        "desc": "activate the technical service in the network or system",
+        "funcname": "demo_async:1.0",
+        "valname": "demo_val:1.0",
+        "arrrayname": "demo_array_1:1.0",
+        "endname": "demo_end:1.0",
+        "queue": "demo-queue",
+    },
+    {
+        "name": "telco_update_crm_service:1.0",
+        "desc": "update the CRM system on the status of the service activation action",
+        "funcname": "demo:1.0",
+        "valname": "demo_val:1.0",
+    },
+);
+
+our hash<auto> workflows."TELCO-ACTIVATE-SERVICE"."1.0" = {
+    "desc": "demo telco technical service activation workflow",
+    "author": "Qore Technologies, s.r.o.",
+    "steps": steps,
+    "groups": ("demo", "demo-telco-om"),
+    "sla_threshold": 20,
+    "autostart": 1,
+    "remote": False,
+};
