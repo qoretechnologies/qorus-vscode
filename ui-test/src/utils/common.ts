@@ -14,6 +14,7 @@ import { setupWebview } from './webview';
 
 export const testFolder = path.join(process.cwd(), 'ui-test');
 export const projectFolder = path.join(testFolder, 'test_project');
+export const goldFilesFolder = path.join(testFolder, 'gold_files');
 
 export const cleanup = async (editorView: EditorView, webview?: WebView, logoutInstanceName?: string) => {
     if (webview) {
