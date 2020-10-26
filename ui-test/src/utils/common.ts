@@ -58,7 +58,6 @@ export const openQorusActivityBar = async () => {
     const activityBar: ActivityBar = new ActivityBar();
     const control: ViewControl = await activityBar.getViewControl('Qorus Development');
     await control.click();
-    await sleep(20000);
 };
 
 export const closeQorusActivityBar = async () => {

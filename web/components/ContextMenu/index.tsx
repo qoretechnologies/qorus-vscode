@@ -1,9 +1,6 @@
-import React from 'react';
-
-import styled from 'styled-components';
-
 import { Icon, Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
-
+import React from 'react';
+import styled from 'styled-components';
 import { IContextMenu } from '../../context/contextMenu';
 
 export interface IContextMenuProps extends IContextMenu {
@@ -30,7 +27,7 @@ const ContextMenu: React.FC<IContextMenuProps> = ({ event, data, onClick }) => {
                     boxShadow: '0 0 0 1px rgba(16,22,26,.2), 0 2px 4px rgba(16,22,26,.4), 0 8px 24px rgba(16,22,26,.4)',
                 }}
             >
-                {data.map((datum) =>
+                {data.map((datum, index) =>
                     datum.title ? (
                         <MenuDivider title={datum.title} />
                     ) : (
@@ -41,6 +38,7 @@ const ContextMenu: React.FC<IContextMenuProps> = ({ event, data, onClick }) => {
                                 datum.onClick();
                                 onClick();
                             }}
+                            name={`context-menu-item-${index}`}
                             text={datum.item}
                             icon={datum.icon}
                             intent={datum.intent}

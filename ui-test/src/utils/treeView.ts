@@ -3,13 +3,26 @@ import { CustomTreeSection, Notification, SideBarView, TreeItem, Workbench } fro
 import { closeQorusActivityBar, openQorusActivityBar, sleep } from './common';
 
 export const getQorusTreeSection = async (sectionName: string): Promise<CustomTreeSection> => {
-    return (await new SideBarView().getContent().getSection(sectionName)) as CustomTreeSection;
+    let qorusTreeSection: CustomTreeSection | null = null;
+
+    while (!qorusTreeSection) {
+        qorusTreeSection = (await new SideBarView().getContent().getSection(sectionName)) as CustomTreeSection;
+        await sleep(1000);
+    }
+
+    return qorusTreeSection;
 };
 
 export const getQorusTreeItem = async (sectionName: string, itemName: string): Promise<TreeItem> => {
     const section = await getQorusTreeSection(sectionName);
+    let qorusTreeItem: TreeItem | null = null;
 
-    return (await section.findItem(itemName)) as TreeItem;
+    while (!qorusTreeItem) {
+        qorusTreeItem = (await section.findItem(itemName)) as TreeItem;
+        await sleep(1000);
+    }
+
+    return qorusTreeItem;
 };
 
 export const toggleQorusTreeSection = async (sectionName: string, collapse?: boolean) => {
@@ -21,8 +34,7 @@ export const toggleQorusTreeSection = async (sectionName: string, collapse?: boo
 export const logoutFromTreeView = async (instanceName: string) => {
     await openQorusActivityBar();
     await toggleQorusTreeSection('Interfaces', true);
-    const instance = await getQorusTreeItem('Instances', instanceName);
-    const logoutAction: TreeItem = (await instance.findChildItem('Logout')) as TreeItem;
+    const logoutAction: TreeItem = await getQorusTreeItem('Instances', 'Logout');
 
     if (logoutAction) {
         await logoutAction.click();

@@ -1,0 +1,33 @@
+# This is a generated file, don't edit!
+type: fsm
+name: FSMforFSMTest
+desc: FSM for FSM test
+states:
+    '1':
+        position:
+            x: 220
+            'y': 178
+        initial: false
+        name: State 1
+        desc: ''
+        type: state
+        id: uUOKQPMhW
+        action:
+            type: mapper
+            value: 'MapperForFSMTest:1.0'
+    '2':
+        position:
+            x: 535
+            'y': 179
+        initial: true
+        name: State 2
+        desc: ''
+        type: state
+        id: kCpqsji21
+        action:
+            type: pipeline
+            value: PipelineForFSMTest
+        transitions:
+            -
+                state: '1'
+                language: qore

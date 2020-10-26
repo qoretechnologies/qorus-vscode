@@ -11,6 +11,7 @@ export interface IFSMToolbarItemProps {
     count?: number;
     type: string;
     disabled?: boolean;
+    onDoubleClick: (name: string, type: string, stateType: string) => any;
 }
 
 export const getStateStyle = (type, toolbar?: boolean) => {
@@ -88,7 +89,7 @@ const StyledToolbarItem = styled.div<{ type: string; disabled?: boolean }>`
     }
 `;
 
-const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({ children, count, name, type, disabled }) => {
+const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({ children, count, name, type, disabled, onDoubleClick }) => {
     const t = useContext(TextContext);
     const [, drag] = useDrag({
         item: { name, type: TOOLBAR_ITEM_TYPE, stateType: type },
@@ -99,7 +100,11 @@ const FSMToolbarItem: React.FC<IFSMToolbarItemProps> = ({ children, count, name,
             <StyledToolbarItem
                 ref={!disabled ? drag : undefined}
                 type={type}
+                name={`fsm-toolbar-${type}`}
                 toolbar
+                onDoubleClick={() => {
+                    onDoubleClick(name, TOOLBAR_ITEM_TYPE, type);
+                }}
                 className={disabled ? 'disabled' : undefined}
             >
                 <span>

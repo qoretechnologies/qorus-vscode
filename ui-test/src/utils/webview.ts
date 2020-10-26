@@ -1,4 +1,14 @@
-import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
+import {
+    ActionSequence,
+    Button,
+    By,
+    EditorView,
+    InputBox,
+    VSBrowser,
+    WebElement,
+    WebView,
+    Workbench,
+} from 'vscode-extension-tester';
 import { sleep } from './common';
 import { loginFromTreeView } from './treeView';
 
@@ -92,6 +102,10 @@ export const clickElement = async (
     await (await getNthElement(webview, name, position, selector)).click();
 };
 
+export const clickSwitchElement = async (webview: WebView, name: string, position: number = 1) => {
+    await clickElement(webview, `field-switch-${name}`, position, 'className');
+};
+
 export const fillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1) => {
     await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
 };
@@ -163,10 +177,13 @@ export const selectMultiselectItemsByNumbers = async (
     element_position: number = 1
 ) => {
     await clickElement(webview, 'bp3-input-ghost', element_position, 'className');
-    for (const item_position of item_positions) {
+
+    for await (const item_position of item_positions) {
         await sleep(500);
         await clickElement(webview, 'multiselect-menu-item', item_position);
-    };
+    }
+
+    await clickElement(webview, 'bp3-fixed-top', 1, 'className');
 };
 
 export const submitInterface = async (webview: WebView, iface: string) => {
@@ -185,6 +202,28 @@ export const closeLastDialog = async (webview: WebView) => {
 
 export const getSelectedFields = async (webview: WebView) => {
     return await getElements(webview, 'selected-field');
+};
+
+export const doubleClickElement = async (element: WebElement) => {
+    const driver = VSBrowser.instance.driver;
+
+    await new ActionSequence(driver).doubleClick(element).perform();
+};
+
+export const rightClickElement = async (element: WebElement) => {
+    const driver = VSBrowser.instance.driver;
+
+    await new ActionSequence(driver).click(element, Button.RIGHT).perform();
+};
+
+export const selectFromContextMenu = async (webview: WebView, itemPosition: number) => {
+    await clickElement(webview, `context-menu-item-${itemPosition - 1}`);
+};
+
+export const selectFsmToolbarItem = async (webview: WebView, item: string) => {
+    const element = await getNthElement(webview, `fsm-toolbar-${item}`);
+
+    await doubleClickElement(element);
 };
 
 export const getElementAttribute = async (

@@ -1,0 +1,53 @@
+# This is a generated file, don't edit!
+type: class
+name: ClassForFSMTest
+desc: Class for FSM Test
+lang: qore
+version: "1.0"
+class-connectors:
+  - name: InputConnectorString
+    type: input
+    method: a
+    input-provider:
+        type: type
+        name: qore
+        can_manage_fields: false
+        path: /string
+  - name: InputConnectorHash
+    type: input
+    method: b
+    input-provider:
+        type: type
+        name: qore
+        can_manage_fields: true
+        path: /hash
+  - name: InputOutputConnectorHashString
+    type: input-output
+    method: c
+    input-provider:
+        type: type
+        name: qore
+        can_manage_fields: true
+        path: /hash
+    output-provider:
+        type: type
+        name: qore
+        can_manage_fields: false
+        path: /string
+  - name: OutputConnectorString
+    type: output
+    method: d
+    output-provider:
+        type: type
+        name: qore
+        can_manage_fields: false
+        path: /string
+  - name: OutputConnectorHash
+    type: output
+    method: g
+    output-provider:
+        type: type
+        name: qore
+        can_manage_fields: true
+        path: /hash
+code: ClassForFSMTest-1.0.qclass
