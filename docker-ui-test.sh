@@ -62,7 +62,6 @@ ui-test/node_modules/.bin/extest setup-tests
 
 # set resolution
 if find_active_monitor; then
-    xrandr --verbose
     xrandr --output ${x_output} --mode 1920x1200
 else
     echo "Cannot find active monitor -> cannot set screen resolution" >&2
