@@ -63,12 +63,12 @@ ui-test/node_modules/.bin/extest setup-tests
 # set resolution
 if find_active_monitor; then
     xrandr --verbose
-    xrandr --output ${x_output} --mode 1920x1080
+    xrandr --output ${x_output} --mode 1920x1200
 else
     echo "Cannot find active monitor -> cannot set screen resolution" >&2
     exit 1
 fi
-sed -i 's/width:1024,height:768/width:1920,height:1080/' test-resources/VSCode-linux-x64/resources/app/out/vs/code/electron-main/main.js
+sed -i 's/width:1024,height:768/width:1920,height:1200/' test-resources/VSCode-linux-x64/resources/app/out/vs/code/electron-main/main.js
 
 # install qore extension
 #test-resources/VSCode-linux-x64/bin/code --user-data-dir test-resources/settings --install-extension qoretechnologies.qore-vscode
