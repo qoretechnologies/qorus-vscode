@@ -9,12 +9,12 @@ import { IField } from './';
 import BooleanField from './boolean';
 import ByteSizeField from './byteSize';
 import DateField from './date';
+import LongStringField from './longString';
 import NumberField from './number';
 import OptionHashField from './optionHash';
 import RadioField from './radioField';
 import SelectField from './select';
 import StringField from './string';
-import TextareaField from './textarea';
 
 const AutoField: FunctionComponent<IField & IFieldChange> = ({
     name,
@@ -154,7 +154,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             case 'list':
             case 'list<auto>':
                 return (
-                    <TextareaField
+                    <LongStringField
                         {...rest}
                         name={name}
                         onChange={handleChange}

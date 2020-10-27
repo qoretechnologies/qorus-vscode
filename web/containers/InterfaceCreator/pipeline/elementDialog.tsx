@@ -20,7 +20,10 @@ export const CompatibilityCheckIndicator = ({ isCompatible, isCheckingCompatibil
 
     return (
         <>
-            <Callout intent={isCheckingCompatibility ? 'warning' : isCompatible ? 'success' : 'danger'}>
+            <Callout
+                name={`compatibility-check-${isCompatible.toString()}`}
+                intent={isCheckingCompatibility ? 'warning' : isCompatible ? 'success' : 'danger'}
+            >
                 {isCheckingCompatibility
                     ? t('CheckingCompatibility')
                     : t(`${title || 'PipelineElement'}${isCompatible ? 'Compatible' : 'Incompatible'}`)}
@@ -196,7 +199,7 @@ const PipelineElementDialog = ({
                                 text={t('Submit')}
                                 disabled={!isDataValid()}
                                 icon={'tick'}
-                                name={`fsn-submit-state`}
+                                name="pipeline-submit-element"
                                 intent={Intent.SUCCESS}
                                 onClick={() => {
                                     if (newData.type === 'processor') {

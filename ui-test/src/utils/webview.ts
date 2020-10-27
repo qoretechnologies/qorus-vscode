@@ -213,10 +213,27 @@ export const doubleClickElement = async (element: WebElement) => {
 export const rightClickElement = async (element: WebElement) => {
     const driver = VSBrowser.instance.driver;
 
+    if (!element) {
+        throw new Error('righClickElement: Element not found!');
+    }
+
     await new ActionSequence(driver).click(element, Button.RIGHT).perform();
+    await sleep(500);
 };
 
-export const selectFromContextMenu = async (webview: WebView, itemPosition: number) => {
+export const selectFromContextMenu = async (
+    webview: WebView,
+    element: string,
+    itemPosition: number,
+    elementPosition: number = 1,
+    elementSelector: TSelector = 'name'
+) => {
+    const el = await getNthElement(webview, element, elementPosition, elementSelector);
+
+    await rightClickElement(el);
+
+    await sleep(500);
+
     await clickElement(webview, `context-menu-item-${itemPosition - 1}`);
 };
 
@@ -224,6 +241,24 @@ export const selectFsmToolbarItem = async (webview: WebView, item: string) => {
     const element = await getNthElement(webview, `fsm-toolbar-${item}`);
 
     await doubleClickElement(element);
+};
+
+export const selectProviderData = async (webview: WebView, data: string[], fieldSuffix?: string) => {
+    const suffix = fieldSuffix ? `-${fieldSuffix}` : '';
+
+    for await (const [index, datum] of data.entries()) {
+        await selectNthFilteredDropdownItem(webview, `provider${suffix}${index === 0 ? '-' : `-${index - 1}`}`, datum);
+        await sleep(1500);
+    }
+
+    await sleep(2000);
+};
+
+export const addAndFillTextOption = async (webview: WebView, optionName: string, optionValue: string) => {
+    await selectNthFilteredDropdownItem(webview, 'options', optionName);
+    await sleep(800);
+    await fillTextField(webview, `field-${optionName}`, optionValue);
+    await sleep(500);
 };
 
 export const getElementAttribute = async (

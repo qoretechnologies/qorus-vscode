@@ -1,0 +1,29 @@
+# This is a generated file, don't edit!
+type: pipeline
+name: PipelineTest
+desc: Pipeline test
+groups:
+    - MAXIS-CRM
+    - demo
+input-provider:
+    type: type
+    name: qore
+    can_manage_fields: false
+    path: /string
+input-provider-options:
+    input_search_options:
+        type: hash
+        value: 'test: test'
+children:
+    - type: mapper
+      name: MapperForFSMTest:1.0
+      children:
+          - type: queue
+          - type: queue
+            children:
+                - type: processor
+                  name: ProcessorClassTest
+                  pid: t5gjD6L98
+                  children:
+                      - type: mapper
+                        name: MapperForFSMTest:1.0

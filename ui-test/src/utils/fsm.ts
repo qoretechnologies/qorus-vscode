@@ -6,10 +6,10 @@ import {
     doubleClickElement,
     fillTextField,
     getNthElement,
-    rightClickElement,
     selectFromContextMenu,
     selectFsmToolbarItem,
     selectNthFilteredDropdownItem,
+    selectProviderData,
 } from './webview';
 
 export const createBasicState = async (
@@ -26,12 +26,7 @@ export const createBasicState = async (
         await selectNthFilteredDropdownItem(webview, 'name', itemName);
     } else if (type === 'if') {
         await fillTextField(webview, 'field-condition', itemName);
-        await selectNthFilteredDropdownItem(webview, 'provider-', 'type');
-        await sleep(1000);
-        await selectNthFilteredDropdownItem(webview, 'provider-0', 'qore');
-        await sleep(1000);
-        await selectNthFilteredDropdownItem(webview, 'provider-1', 'hash');
-        await sleep(2000);
+        await selectProviderData(webview, ['type', 'qore', 'hash']);
     } else {
         await selectNthFilteredDropdownItem(webview, type === 'connector' ? 'class' : 'action', itemName);
 
@@ -59,14 +54,9 @@ export const connectStates = async (webview: WebView, from: string, to: string) 
 };
 
 export const openTransitionsDialog = async (webview: WebView, stateName: string) => {
-    // Editing one true transition to false
-    await rightClickElement(await getNthElement(webview, `fsm-state-${stateName}`));
-    await sleep(200);
-    await selectFromContextMenu(webview, 4);
+    await selectFromContextMenu(webview, `fsm-state-${stateName}`, 4);
 };
 
 export const editState = async (webview: WebView, stateName: string) => {
-    await rightClickElement(await getNthElement(webview, `fsm-state-${stateName}`));
-    await sleep(200);
-    await selectFromContextMenu(webview, 6);
+    await selectFromContextMenu(webview, `fsm-state-${stateName}`, 6);
 };

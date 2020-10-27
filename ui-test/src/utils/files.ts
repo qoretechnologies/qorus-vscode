@@ -6,14 +6,14 @@ import * as path from 'path';
 import { goldFilesFolder } from './common';
 
 function difference(object: any, base: any) {
-	function changes(object: any, base: any) {
-		return transform(object, function(result: any, value: any, key: any) {
-			if (!isEqual(value, base[key])) {
-				result[key] = (isObject(value) && isObject(base[key])) ? changes(value, base[key]) : value;
-			}
-		});
-	}
-	return changes(object, base);
+    function changes(object: any, base: any) {
+        return transform(object, function (result: any, value: any, key: any) {
+            if (!isEqual(value, base[key])) {
+                result[key] = isObject(value) && isObject(base[key]) ? changes(value, base[key]) : value;
+            }
+        });
+    }
+    return changes(object, base);
 }
 
 export const compareWithGoldFiles = async (
@@ -44,7 +44,10 @@ export const compareWithGoldFiles = async (
             }
 
             if (!isEqual(expected_file_data, true_file_data)) {
-                console.log(difference(expected_file_data, true_file_data));
+                console.error(
+                    'Gold file different. Difference:',
+                    JSON.stringify(difference(expected_file_data, true_file_data))
+                );
             }
 
             expect(isEqual(expected_file_data, true_file_data)).to.be.true;

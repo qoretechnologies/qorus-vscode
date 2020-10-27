@@ -12,11 +12,10 @@ import {
     getElementsCount,
     getNthElement,
     getSelectedFields,
-    rightClickElement,
     selectFromContextMenu,
     selectMultiselectItemsByNumbers,
     selectNthFilteredDropdownItem,
-    selectNthFolder
+    selectNthFolder,
 } from '../utils/webview';
 
 export const openFSMPage = async (webview: WebView) => {
@@ -133,8 +132,7 @@ export const undoToPreviousState = async (webview: WebView) => {
 };
 
 export const deletesState = async (webview: WebView) => {
-    await rightClickElement(await getNthElement(webview, `fsm-state-State 3`));
-    await selectFromContextMenu(webview, 7);
+    await selectFromContextMenu(webview, 'fsm-state-State 3', 7);
     await sleep(1000);
 
     expect(await getElementsCount(webview, 'fsm-transition')).to.eq(1);
@@ -145,8 +143,7 @@ export const deletesState = async (webview: WebView) => {
 };
 
 export const removesAllTransitions = async (webview: WebView) => {
-    await rightClickElement(await getNthElement(webview, `fsm-state-State 3`));
-    await selectFromContextMenu(webview, 5);
+    await selectFromContextMenu(webview, `fsm-state-State 3`, 5);
     await sleep(1000);
 
     expect(await getElementsCount(webview, 'fsm-transition')).to.eq(2);
@@ -176,4 +173,3 @@ export const submitFSMAndCheckFiles = async (webview: WebView) => {
         return transformedData;
     });
 };
-
