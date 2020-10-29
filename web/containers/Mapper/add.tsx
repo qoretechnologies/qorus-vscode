@@ -1,8 +1,8 @@
-import React, { FC, useCallback, useContext } from 'react';
 import { Button, ButtonGroup, Tooltip } from '@blueprintjs/core';
-import withTextContext from '../../hocomponents/withTextContext';
+import React, { FC, useCallback, useContext } from 'react';
 import { TTranslator } from '../../App';
 import { InitialContext } from '../../context/init';
+import withTextContext from '../../hocomponents/withTextContext';
 
 export interface IAddFieldProps {
     onClick: any;
@@ -41,6 +41,7 @@ const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields
                         onClick={onEditClick}
                         className="field-manage"
                         icon="edit"
+                        name="edit-diagram-field"
                         small
                         minimal
                         style={{ minWidth: '18px', minHeight: '18px' }}
@@ -54,6 +55,7 @@ const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields
                         onClick={() => initContext.confirmAction('ConfirmRemoveField', onDeleteClick)}
                         icon="trash"
                         small
+                        name="delete-diagram-field"
                         minimal
                         intent="danger"
                         style={{ minWidth: '18px', minHeight: '18px' }}
@@ -66,6 +68,7 @@ const AddFieldButton: FC<IAddFieldProps> = ({ onClick, isCustom, canManageFields
                         onClick={onAddClick}
                         minimal
                         icon="small-plus"
+                        name="add-new-diagram-field"
                         small
                         style={{ minWidth: '18px', minHeight: '18px' }}
                     />

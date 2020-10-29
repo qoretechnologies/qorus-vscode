@@ -84,18 +84,10 @@ export const StyledMapperField = styled.div`
     position: relative;
     cursor: ${({ isDisabled }) => (isDisabled ? 'initial' : 'pointer')};
 
-    .field-manage {
-        display: none;
-    }
-
     ${({ isDisabled }) =>
         css`
             &:hover {
                 border-color: ${isDisabled ? '#d7d7d7' : '#137cbd'};
-
-                .field-manage {
-                    display: unset;
-                }
             }
         `};
 

@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
-
+import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 import { cloneDeep, get, map, set, size, unset } from 'lodash';
+import React, { useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
-
-import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-
 import FileField from '../../components/Field/fileString';
 import String from '../../components/Field/string';
 import Suggest from '../../components/Field/suggest';
@@ -190,12 +187,12 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
     return (
         <>
-            <FieldWrapper>
+            <FieldWrapper name="selected-field">
                 <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', targetDir)} />
                 <FieldInputWrapper>
                     <FileField
                         onChange={(_name, value) => setTargetDir(value)}
-                        name="target-dir"
+                        name="target_dir"
                         value={targetDir}
                         get_message={{
                             action: 'creator-get-directories',
@@ -209,16 +206,16 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     />
                 </FieldInputWrapper>
             </FieldWrapper>
-            <FieldWrapper>
+            <FieldWrapper name="selected-field">
                 <FieldLabel label={t('field-label-target_file')} info={t('Optional')} isValid />
                 <FieldInputWrapper>
                     <String onChange={(_name, value) => setTargetFile(value)} name="target-dir" value={targetFile} />
                 </FieldInputWrapper>
             </FieldWrapper>
-            <FieldWrapper>
+            <FieldWrapper name="selected-field">
                 <FieldLabel label={t('Path')} isValid={validateField('string', val)} />
                 <FieldInputWrapper>
-                    <Suggest defaultItems={types} value={val} onChange={(_name, value) => setVal(value)} />
+                    <Suggest defaultItems={types} value={val} name="path" onChange={(_name, value) => setVal(value)} />
                 </FieldInputWrapper>
             </FieldWrapper>
             <div
@@ -228,9 +225,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     padding: 10,
                     flex: 1,
                     overflow: 'auto',
-                    background: `url(${
-                        `${initialData.image_path}/images/tiny_grid.png)`
-                    }`,
+                    background: `url(${`${initialData.image_path}/images/tiny_grid.png)`}`,
                 }}
             >
                 <StyledMapperWrapper style={{ justifyContent: 'center', paddingTop: '10px' }}>
@@ -256,6 +251,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                             minimal
                             intent="success"
                             icon="add"
+                            name="type-add-field"
                             onClick={() => handleClick()}
                         />
                     </StyledFieldsWrapper>
@@ -285,6 +281,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                             onClick={handleSubmitClick}
                             disabled={!(size(fields) && validateField('string', val))}
                             icon={'tick'}
+                            name="type-submit"
                             intent={Intent.SUCCESS}
                         />
                     </ButtonGroup>

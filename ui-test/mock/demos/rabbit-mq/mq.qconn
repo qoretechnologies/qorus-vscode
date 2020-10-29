@@ -1,5 +1,0 @@
-mq = (
-    url = rabbitmq://guest:guest@localhost:5672,
-    desc = test RabbitMQ connection,
-    connection_name = "my test connection",
-)

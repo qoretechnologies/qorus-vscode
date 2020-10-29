@@ -1,6 +1,0 @@
-sfrests-demo = (
-    desc = Salesforce.com CRM REST Connection,
-    url = "sfrests://sfapi@qoretechnologies.com:mjTqekZt7EpVZnTRyjFEXY6UnQ8hhFgikzo7jy3rp4yewreruUosTyxEuAqnNJTJ@login.salesforce.com/services/oauth2/token",
-    client_id = 3MVG9Ve.2wqUVx_ZZLVqAnNNUPvVOeESwqTueYGwGz8N.U_ZiRBO.RrjI.gr853y3NcTzaCCuaOlc859Urf60,
-    client_secret = 81350AD087CA2E45C98D1B2DB36AFEE7598F853B3210B727D96AA9AE67DF6858,
-)

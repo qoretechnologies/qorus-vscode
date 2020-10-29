@@ -1,4 +1,0 @@
-zeyosrests-iot-demo = (
-    desc = REST connection to Zeyos server for IoT demos,
-    url = "zeyosrests://zeyosapi@qoretechnologies.com:G687*!iQVzQwRx6entCL*CeBXLndUA*Fnfz_e*@dFCKmrbUQiT.cR9Pmibsiwgf7@cloud.zeyos.com/qoretechnologies",
-)

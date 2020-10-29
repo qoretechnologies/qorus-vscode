@@ -1,8 +1,0 @@
-<% if (items.length == 0) { %>
-<% } else { %>
-<ul id="dbobject-menu-<%= itemtype %>" class="nav nav-list">
-  <% _.each(items, function (item) { %>
-    <li><a href="?<%= ds %>/<%= item.type %>/<%= item.name %>" data-action="db-object-menu-clicked" data-target="sql-dataview-object-detail" data-dbobject="<%= ds %>/<%= item.type %>/<%= item.name %>"><%= item.name %></a></li>
-  <% }) %>
-</ul>
-<% } %>

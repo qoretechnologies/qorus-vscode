@@ -1,5 +1,0 @@
-zeyosrests-iot-demo = (
-    desc = REST connection to Zeyos server for IoT demos,
-    url = "zeyosrests://username:password@cloud.zeyos.com/instancename",
-    appsecret = "my-secret",
-)

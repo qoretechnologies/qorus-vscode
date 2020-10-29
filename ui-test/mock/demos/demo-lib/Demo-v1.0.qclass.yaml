@@ -1,7 +1,0 @@
-name: Demo
-version: "1.0"
-desc: common demo step logic
-type: class
-author:
-  - Qore Technologies, s.r.o.
-code: Demo-v1.0.qclass

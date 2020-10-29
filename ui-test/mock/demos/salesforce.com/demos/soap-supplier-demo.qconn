@@ -1,7 +1,0 @@
-
-soap-supplier-demo = (
-    desc = ERP Supplier Demo Connection,
-    url = soap://fake_url,
-    wsdl = resource://supplier-soap:supplier.wsdl,
-    #soap://$OMQ_DIR/user/wsdl/supplier.wsdl,
-)

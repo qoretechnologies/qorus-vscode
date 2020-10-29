@@ -1,9 +1,0 @@
-%new-style
-%strict-args
-%require-types
-%enable-all-warnings
-
-class MaxisGetSubscriberInfo inherits QorusNormalStep {
-    primary() {
-    }
-}

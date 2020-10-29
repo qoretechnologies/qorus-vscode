@@ -1,5 +1,0 @@
-sewiows-demo = (
-    desc = Sewio.net RTLS Studio WebSocket Connection,
-    url = sewiows://rtlsstudio.com:8080,
-    apikey = "171555a8fe71148a165392904",
-)

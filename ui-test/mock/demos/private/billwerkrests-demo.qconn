@@ -1,6 +1,0 @@
-billwerkrests-demo = (
-    desc = REST connection to the Billwerk sandbox,
-    url = "billwerkrests://sandbox.billwerk.com",
-    client_id = "5e786ce64de084131881ed8e",
-    client_secret = "90da27cf63cee0249588584204f65a83",
-)

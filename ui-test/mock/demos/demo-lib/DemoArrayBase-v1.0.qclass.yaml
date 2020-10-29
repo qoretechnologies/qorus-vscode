@@ -1,7 +1,0 @@
-name: DemoArrayBase
-version: "1.0"
-desc: implements a demo array method
-type: class
-author:
-  - unknown author
-code: DemoArrayBase-v1.0.qclass

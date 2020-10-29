@@ -1,7 +1,0 @@
-sfsoap-demo = (
-    desc = Salesforce.com CRM SOAP Connection,
-    url = sfsoap://$OMQ_DIR/user/wsdl/enterprise.wsdl,
-    username = david@qore.org,
-    password = "EJYygMmb7MdR5ZEJeG0aokvYUc8wLP4bPtqHmdcmm7IRFhmLfGtFyLnhRSUfbOGS",
-    token = "vfZn5d4DZLTrsnwXG6DDaoCsT",
-)
