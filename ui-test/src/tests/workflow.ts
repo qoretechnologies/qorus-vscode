@@ -13,7 +13,7 @@ import {
     selectField,
     selectNthDropdownItem,
     selectNthFolder,
-    submitInterface,
+    submitInterface
 } from '../utils/webview';
 
 export const openCreateWorkflow = async (webview: WebView) => {
@@ -58,7 +58,7 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView) =
     await sleep(3000);
 
     await selectNthFolder(webview, 'target_dir', 1);
-    await fillTextField(webview, 'field-name', 'Step test', 2);
+    await fillTextField(webview, 'field-name', 'Step test');
     await fillTextField(webview, 'field-desc', 'Step test description');
     await selectNthDropdownItem(webview, 'base-class-name', 6);
     await fillTextField(webview, 'field-version', '1.0');

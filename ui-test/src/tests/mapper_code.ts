@@ -11,7 +11,7 @@ import {
     selectField,
     selectMultiselectItemsByNumbers,
     selectNthFolder,
-    submitInterface,
+    submitInterface
 } from '../utils/webview';
 
 const target_dir = '_tests';
@@ -39,7 +39,9 @@ export const createMapperCode = async (webview: WebView) => {
     await sleep(500);
     await selectField(webview, 'author');
     await sleep(500);
-    await selectMultiselectItemsByNumbers(webview, [2, 4], 1);
+    await fillTextField(webview, 'bp3-input-ghost', 'Test User', 1, 'className');
+    await sleep(500);
+    await selectMultiselectItemsByNumbers(webview, [1]);
     await sleep(500);
     await selectField(webview, 'lang');
     await sleep(500);

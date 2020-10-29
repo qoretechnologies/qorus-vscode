@@ -1,15 +1,15 @@
 import { EditorView, WebView } from 'vscode-extension-tester';
 import {
-    addsTypeFields,
-    deletesTypeField,
-    fillsTypeFields,
-    opensTypePage,
-    renamesTypeField,
-    submitsTypeAndChecksFiles,
+  addsTypeFields,
+  deletesTypeField,
+  fillsTypeFields,
+  opensTypePage,
+  renamesTypeField,
+  submitsTypeAndChecksFiles
 } from './tests/type';
 import { cleanup, setupTest } from './utils/common';
 
-describe('Pipeline tests', function () {
+describe('Type tests', function () {
     this.timeout(1800000);
     let editorView: EditorView;
     let webview: WebView;

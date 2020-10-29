@@ -1,13 +1,10 @@
-import React, { FunctionComponent, useState } from 'react';
-
+import { Button, Classes, ControlGroup, Icon, MenuItem, Tag, Tooltip } from '@blueprintjs/core';
+import { MultiSelect } from '@blueprintjs/select';
 import { includes, size } from 'lodash';
+import React, { FunctionComponent, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
-
-import { Button, ControlGroup, Icon, MenuItem, Tag, Tooltip, Classes } from '@blueprintjs/core';
-import { MultiSelect } from '@blueprintjs/select';
-
 import { TTranslator } from '../../App';
 import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
@@ -17,6 +14,9 @@ import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
 import String from './string';
+
+
+
 
 export interface IMultiSelectField {
     get_message: { action: string; object_type: string };
@@ -181,6 +181,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                         <MultiSelect
                             key={activeId}
                             items={items}
+                            name={`field-${name}`}
                             createNewItemFromQuery={(query: string) =>
                                 query
                                     ? {
@@ -189,7 +190,7 @@ const MultiSelectField: FunctionComponent<IMultiSelectField & IField & IFieldCha
                                     : undefined
                             }
                             createNewItemRenderer={(query, _active, handleClick) => (
-                                <MenuItem icon={'add'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
+                                <MenuItem icon={'add'} name={'multiselect-menu-item'} text={`${t('AddNew')} ${query}`} onClick={handleClick} />
                             )}
                             itemRenderer={(item, { handleClick }) => (
                                 <MenuItem

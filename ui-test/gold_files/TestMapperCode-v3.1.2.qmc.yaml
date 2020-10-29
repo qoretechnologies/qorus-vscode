@@ -4,8 +4,7 @@ name: TestMapperCode
 desc: test mapper code
 version: v3.1.2
 author:
-  - unknown author
-  - yet another author
+  - Test User
 lang: qore
 class-name: TestMapperCode
 code: TestMapperCode-v3.1.2.qmc

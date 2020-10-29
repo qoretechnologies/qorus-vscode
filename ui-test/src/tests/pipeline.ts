@@ -35,7 +35,7 @@ export const fillPipelineFields = async (webview: WebView) => {
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-name', 'PipelineTest');
     await fillTextField(webview, 'field-desc', 'Pipeline test');
-    await selectMultiselectItemsByNumbers(webview, [2, 4]);
+    await selectMultiselectItemsByNumbers(webview, [1]);
     await selectProviderData(webview, ['type', 'qore', 'string']);
     await addAndFillTextOption(webview, 'input_search_options', 'test: test');
     await clickElement(webview, 'pipeline-hide-metadata');

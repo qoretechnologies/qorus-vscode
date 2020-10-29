@@ -3,8 +3,7 @@ type: fsm
 name: FSMTest
 desc: FSM Test
 groups:
-  - MAXIS-CRM
-  - demo
+  - GroupTest
 states:
     '1':
         position:

@@ -3,8 +3,7 @@ type: pipeline
 name: PipelineTest
 desc: Pipeline test
 groups:
-    - MAXIS-CRM
-    - demo
+    - GroupTest
 input-provider:
     type: type
     name: qore

@@ -35,7 +35,7 @@ export const fillFSMFields = async (webview: WebView) => {
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-name', 'FSMTest');
     await fillTextField(webview, 'field-desc', 'FSM Test');
-    await selectMultiselectItemsByNumbers(webview, [2, 4]);
+    await selectMultiselectItemsByNumbers(webview, [1]);
     await clickElement(webview, 'fsm-hide-metadata-button');
 
     await sleep(300);
