@@ -7,7 +7,7 @@ import {
     VSBrowser,
     WebElement,
     WebView,
-    Workbench
+    Workbench,
 } from 'vscode-extension-tester';
 import { sleep } from './common';
 import { loginFromTreeView } from './treeView';
@@ -106,7 +106,13 @@ export const clickSwitchElement = async (webview: WebView, name: string, positio
     await clickElement(webview, `field-switch-${name}`, position, 'className');
 };
 
-export const fillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1, selector: TSelector = 'name') => {
+export const fillTextField = async (
+    webview: WebView,
+    name: string,
+    value: string | number,
+    position: number = 1,
+    selector: TSelector = 'name'
+) => {
     await (await webview.findWebElements(By[selector](name)))[position - 1].sendKeys(value);
 };
 
@@ -254,7 +260,7 @@ export const selectProviderData = async (webview: WebView, data: string[], field
     await sleep(2000);
 };
 
-export const addAndFillTextOption = async (webview: WebView, optionName: string, optionValue: string) => {
+export const addAndFillTextOption = async (webview: WebView, optionName: string, optionValue: string | number) => {
     await selectNthFilteredDropdownItem(webview, 'options', optionName);
     await sleep(800);
     await fillTextField(webview, `field-${optionName}`, optionValue);
