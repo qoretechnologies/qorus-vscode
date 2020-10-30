@@ -59,7 +59,7 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
             ) : (
                 <ConnectorField
                     inline
-                    value={inputType}
+                    value={outputType}
                     isInitialEditing={!!initialData.class}
                     name={name}
                     onChange={(_name, value) => setOutputType(value)}

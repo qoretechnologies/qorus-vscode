@@ -4,18 +4,22 @@ import { WebView } from 'vscode-extension-tester';
 import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { addQueue, createPipelineElement } from '../utils/pipeline';
+import { openInterfaceFromTreeView } from '../utils/treeView';
 import {
     addAndFillTextOption,
     clickElement,
     fillTextField,
+    getElementAttribute,
     getElementsCount,
     getNthElement,
     getSelectedFields,
+    resetAndFillTextField,
     rightClickElement,
     selectFromContextMenu,
     selectMultiselectItemsByNumbers,
     selectNthFolder,
     selectProviderData,
+    submitInterface
 } from '../utils/webview';
 
 export const openPipelinePage = async (webview: WebView) => {
@@ -59,8 +63,9 @@ export const createsPipelineElements = async (webview: WebView) => {
     // Add compatible processor
     await createPipelineElement(webview, 4, 'processor', 'ProcessorClassTest');
     await createPipelineElement(webview, 5, 'mapper', 'MapperForFSMTest:1.0');
+    await createPipelineElement(webview, 3, 'processor', 'ProcessorClassTest');
 
-    expect(await getElementsCount(webview, 'pipeline-element')).to.eq(6);
+    expect(await getElementsCount(webview, 'pipeline-element')).to.eq(7);
 };
 
 export const removesPipelineElementAndChildren = async (webview: WebView) => {
@@ -74,7 +79,7 @@ export const removesPipelineElementAndChildren = async (webview: WebView) => {
 export const undoPipelineToPreviousState = async (webview: WebView) => {
     await clickElement(webview, 'pipeline-undo');
     await sleep(500);
-    expect(await getElementsCount(webview, 'pipeline-element')).to.eq(6);
+    expect(await getElementsCount(webview, 'pipeline-element')).to.eq(7);
 };
 
 export const submitPipelineAndCheckFiles = async (webview: WebView) => {
@@ -83,6 +88,74 @@ export const submitPipelineAndCheckFiles = async (webview: WebView) => {
     await sleep(4000);
 
     await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['PipelineTest.qpipe.yaml'], undefined, (data) => {
+        // Remove the RNG ids from the states
+        const transformedData = { ...data };
+
+        const removePid = (data: any) => {
+            return data.reduce((newData: any, datum: any) => {
+                delete datum.pid;
+
+                if (!datum.children) {
+                    return [...newData, datum];
+                }
+
+                return [
+                    ...newData,
+                    {
+                        ...datum,
+                        children: removePid(datum.children),
+                    },
+                ];
+            }, []);
+        };
+
+        transformedData.children = removePid(transformedData.children);
+
+        return transformedData;
+    });
+};
+
+export const disablesSubmitForIncompatiblePipeline = async (webview: WebView) => {
+    await openInterfaceFromTreeView('ProcessorClassTest', webview);
+
+    await clickElement(webview, 'bp3-tag-remove', 1, 'className');
+    await sleep(1000);
+    await selectProviderData(webview, ['type', 'qore', 'string']);
+    await sleep(1000);
+    await submitInterface(webview, 'class');
+    await sleep(5000);
+
+    await openInterfaceFromTreeView('PipelineTest', webview);
+
+    await sleep(2000);
+
+    expect(await getElementAttribute(webview, 'pipeline-submit', 'disabled')).to.eq('true');
+
+    await openInterfaceFromTreeView('ProcessorClassTest', webview);
+
+    await clickElement(webview, 'bp3-tag-remove', 1, 'className');
+    await sleep(1000);
+    await selectProviderData(webview, ['type', 'qore', 'hash']);
+    await sleep(1000);
+    await submitInterface(webview, 'class');
+    await sleep(5000);
+};
+
+export const editsPipelineAndChecksFiles = async (webview: WebView) => {
+    await openInterfaceFromTreeView('PipelineTest', webview);
+    await resetAndFillTextField(webview, 'field-name', 'PipelineTestEdited');
+    
+    await selectFromContextMenu(webview, 'pipeline-element', 3, 3);
+
+    await sleep(500);
+
+    expect(await getElementsCount(webview, 'pipeline-element')).to.eq(5);
+
+    await clickElement(webview, 'pipeline-submit');
+
+    await sleep(4000);
+
+    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['PipelineTestEdited.qpipe.yaml'], 'changed_interfaces', (data) => {
         // Remove the RNG ids from the states
         const transformedData = { ...data };
 

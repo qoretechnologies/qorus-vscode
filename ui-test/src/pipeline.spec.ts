@@ -1,11 +1,12 @@
 import { EditorView, WebView } from 'vscode-extension-tester';
 import {
     createsPipelineElements,
-    fillPipelineFields,
+    disablesSubmitForIncompatiblePipeline,
+    editsPipelineAndChecksFiles, fillPipelineFields,
     openPipelinePage,
     removesPipelineElementAndChildren,
     submitPipelineAndCheckFiles,
-    undoPipelineToPreviousState,
+    undoPipelineToPreviousState
 } from './tests/pipeline';
 import { cleanup, setupTest } from './utils/common';
 
@@ -24,6 +25,8 @@ describe('Pipeline tests', function () {
     it('Removes Pipeline elements and its children', () => removesPipelineElementAndChildren(webview));
     it('Undo Pipeline to previous state', () => undoPipelineToPreviousState(webview));
     it('Submits Pipeline and checks files', () => submitPipelineAndCheckFiles(webview));
+    it('Disables submit for incompatible Pipeline', () => disablesSubmitForIncompatiblePipeline(webview));
+    it('Edits Pipeline and checks files', () => editsPipelineAndChecksFiles(webview));
 
     // Reset the workbench
     this.afterAll(async () => {
