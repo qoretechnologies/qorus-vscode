@@ -109,12 +109,20 @@ export const openInterfaceFromTreeView = async (interfaceName: string, webview?:
     }
 
     await openQorusActivityBar();
-    const FSMItem = (await getQorusTreeItem('Interfaces', interfaceName)) as TreeItem;
+
+    // Open the other section
+    const other = (await getQorusTreeItem('Interfaces', 'Other')) as TreeItem;
+
+    if (!(await other.isExpanded())) {
+        await other.click();
+    }
+
+    const item = (await getQorusTreeItem('Interfaces', interfaceName)) as TreeItem;
 
     const driver = VSBrowser.instance.driver;
-    await new ActionSequence(driver).mouseMove(FSMItem).perform();
+    await new ActionSequence(driver).mouseMove(item).perform();
 
-    const actionButtons = await FSMItem.getActionButtons();
+    const actionButtons = await item.getActionButtons();
     await actionButtons[2].click();
 
     await sleep(5000);

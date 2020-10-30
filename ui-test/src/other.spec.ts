@@ -1,5 +1,12 @@
 import { EditorView, WebView } from 'vscode-extension-tester';
-import { checksOtherFiles, createsNewOtherInterface, fillsOtherFields, opensOtherPage } from './tests/other';
+import {
+    checksOtherEditedFiles,
+    checksOtherFiles,
+    createsNewOtherInterface,
+    editsOtherInterface,
+    fillsOtherFields,
+    opensOtherPage,
+} from './tests/other';
 import { cleanup, setupTest } from './utils/common';
 
 describe('Other interface tests', function () {
@@ -15,7 +22,11 @@ describe('Other interface tests', function () {
     it('Creates and submits Group', () => fillsOtherFields(webview, 'Group'));
     it('Creates and submits Event', () => createsNewOtherInterface(webview, 'Event'));
     it('Creates and submits Queue', () => createsNewOtherInterface(webview, 'Queue'));
-    it('Checks all Other files', () => checksOtherFiles(webview));
+    it('Checks all Other files', () => checksOtherFiles());
+    it('Edits and submits Group', () => editsOtherInterface(webview, 'Group'));
+    it('Edits and submits Event', () => editsOtherInterface(webview, 'Event'));
+    it('Edits and submits Queue', () => editsOtherInterface(webview, 'Queue'));
+    it('Checks all edited Other files', () => checksOtherEditedFiles());
 
     // Reset the workbench
     this.afterAll(async () => {

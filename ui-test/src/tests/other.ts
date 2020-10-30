@@ -3,7 +3,15 @@ import * as path from 'path';
 import { WebView } from 'vscode-extension-tester';
 import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
-import { clickElement, fillTextField, getSelectedFields, selectField, selectNthFolder } from '../utils/webview';
+import { openInterfaceFromTreeView } from '../utils/treeView';
+import {
+    clickElement,
+    fillTextField,
+    getSelectedFields,
+    resetAndFillTextField,
+    selectField,
+    selectNthFolder,
+} from '../utils/webview';
 
 export const opensOtherPage = async (webview: WebView) => {
     await sleep(2000);
@@ -37,10 +45,29 @@ export const createsNewOtherInterface = async (webview: WebView, type: string) =
     await fillsOtherFields(webview, type);
 };
 
-export const checksOtherFiles = async (webview: WebView) => {
+export const checksOtherFiles = async () => {
     await compareWithGoldFiles(path.join(projectFolder, '_tests'), [
         'GroupTest.qgroup.yaml',
         'EventTest.qevent.yaml',
         'QueueTest.qqueue.yaml',
     ]);
+};
+
+export const editsOtherInterface = async (webview: WebView, type: string) => {
+    await openInterfaceFromTreeView(`${type}Test`, webview);
+    await sleep(1000);
+
+    await resetAndFillTextField(webview, 'field-name', `${type}TestEdited`);
+    await resetAndFillTextField(webview, 'field-target_file', `${type}TestEdited`);
+    await sleep(500);
+    await clickElement(webview, 'interface-creator-submit-other');
+    await sleep(3000);
+};
+
+export const checksOtherEditedFiles = async () => {
+    await compareWithGoldFiles(
+        path.join(projectFolder, '_tests'),
+        ['GroupTestEdited.qgroup.yaml', 'EventTestEdited.qevent.yaml', 'QueueTestEdited.qqueue.yaml'],
+        'changed_interfaces'
+    );
 };
