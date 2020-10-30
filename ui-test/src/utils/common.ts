@@ -30,6 +30,8 @@ export const cleanup = async (editorView: EditorView, webview?: WebView, logoutI
 
 export const setupTest = async (loginInstanceName?: string, noWebview?: boolean) => {
     try {
+        await fsExtra.remove(path.join(projectFolder, '_tests'));
+        await fsExtra.remove(path.join(projectFolder, 'demos'));
         await fsExtra.copy(path.join(testFolder, 'mock/'), projectFolder);
     } catch (e) {
         console.error(e);
