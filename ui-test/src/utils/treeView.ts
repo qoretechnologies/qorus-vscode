@@ -1,5 +1,14 @@
 import { expect } from 'chai';
-import { CustomTreeSection, Notification, SideBarView, TreeItem, Workbench } from 'vscode-extension-tester';
+import {
+    ActionSequence,
+    CustomTreeSection,
+    Notification,
+    SideBarView,
+    TreeItem,
+    VSBrowser,
+    WebView,
+    Workbench,
+} from 'vscode-extension-tester';
 import { closeQorusActivityBar, openQorusActivityBar, sleep } from './common';
 
 export const getQorusTreeSection = async (sectionName: string): Promise<CustomTreeSection> => {
@@ -92,4 +101,25 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
     expect(loggedIn).to.be.true;
 
     await closeQorusActivityBar();
+};
+
+export const openInterfaceFromTreeView = async (interfaceName: string, webview?: WebView) => {
+    if (webview) {
+        await webview.switchBack();
+    }
+
+    await openQorusActivityBar();
+    const FSMItem = (await getQorusTreeItem('Interfaces', interfaceName)) as TreeItem;
+
+    const driver = VSBrowser.instance.driver;
+    await new ActionSequence(driver).mouseMove(FSMItem).perform();
+
+    const actionButtons = await FSMItem.getActionButtons();
+    await actionButtons[2].click();
+
+    await sleep(5000);
+
+    if (webview) {
+        await webview.switchToFrame();
+    }
 };

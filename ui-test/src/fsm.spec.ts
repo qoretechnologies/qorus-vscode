@@ -4,12 +4,14 @@ import {
     connectsStates,
     createStates,
     deletesState,
+    editsCreatedFSMAndChecksFiles,
     editsIfTransition,
     editsTransitionsOrder,
     fillFSMFields,
     openFSMPage,
     removesAllTransitions,
     submitFSMAndCheckFiles,
+    transitionsAreRemovedForIncompatibleFSM,
     undoToPreviousState,
 } from './tests/fsm';
 import { cleanup, setupTest } from './utils/common';
@@ -37,6 +39,8 @@ describe('FSM tests', function () {
     it('Deletes state', () => deletesState(webview));
     it('Removes all transitions from state', () => removesAllTransitions(webview));
     it('Submits FSM and checks files', () => submitFSMAndCheckFiles(webview));
+    it('Transitions are removed for incompatible FSM', () => transitionsAreRemovedForIncompatibleFSM(webview));
+    it('Edits FSM and checks files', () => editsCreatedFSMAndChecksFiles(webview));
 
     // Reset the workbench
     this.afterAll(async () => {

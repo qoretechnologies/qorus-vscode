@@ -5,6 +5,7 @@ import { WebView } from 'vscode-extension-tester';
 import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { connectStates, createBasicState, editState, openTransitionsDialog } from '../utils/fsm';
+import { openInterfaceFromTreeView } from '../utils/treeView';
 import {
     clickElement,
     closeLastDialog,
@@ -12,10 +13,13 @@ import {
     getElementsCount,
     getNthElement,
     getSelectedFields,
+    resetAndFillTextField,
     selectFromContextMenu,
     selectMultiselectItemsByNumbers,
     selectNthFilteredDropdownItem,
     selectNthFolder,
+    selectProviderData,
+    submitInterface,
 } from '../utils/webview';
 
 export const openFSMPage = async (webview: WebView) => {
@@ -82,7 +86,7 @@ export const editsIfTransition = async (webview: WebView) => {
     await clickElement(webview, 'fsm-submit-transition');
     await sleep(500);
     await clickElement(webview, 'fsm-submit-transitions');
-    await sleep(1300);
+    await sleep(2300);
 
     expect(await getElementsCount(webview, 'fsm-transition')).to.eq(4);
     expect(await getElementsCount(webview, 'fsm-transition-true')).to.eq(1);
@@ -172,4 +176,70 @@ export const submitFSMAndCheckFiles = async (webview: WebView) => {
 
         return transformedData;
     });
+};
+
+export const editsCreatedFSMAndChecksFiles = async (webview: WebView) => {
+    await openInterfaceFromTreeView('FSMTest', webview);
+    await resetAndFillTextField(webview, 'field-name', 'FSMTestEdited');
+
+    await selectFromContextMenu(webview, 'fsm-state-State 3', 7);
+    await sleep(1000);
+
+    expect(await getElementsCount(webview, 'fsm-transition')).to.eq(1);
+    expect(await getElementsCount(webview, 'fsm-transition-true')).to.eq(1);
+    expect(await getElementsCount(webview, 'fsm-transition-false')).to.eq(1);
+    expect(await getElementsCount(webview, 'isolated-state', 'className')).to.eq(4);
+
+    await clickElement(webview, 'fsm-submit');
+
+    await sleep(4000);
+
+    await compareWithGoldFiles(
+        path.join(projectFolder, '_tests'),
+        ['FSMTestEdited.qfsm.yaml'],
+        'changed_interfaces',
+        (data) => {
+            // Remove the RNG ids from the states
+            const transformedData = { ...data };
+
+            transformedData.states = reduce(
+                data.states,
+                (states, stateData, stateId) => {
+                    return { ...states, [stateId]: omit(stateData, ['id']) };
+                },
+                {}
+            );
+
+            return transformedData;
+        }
+    );
+};
+
+export const transitionsAreRemovedForIncompatibleFSM = async (webview: WebView) => {
+    await openInterfaceFromTreeView('ClassForFSMTest', webview);
+
+    await clickElement(webview, 'bp3-tag-remove', 2, 'className');
+    await sleep(1000);
+    await selectProviderData(webview, ['type', 'qore', 'string']);
+    await sleep(1000);
+    await submitInterface(webview, 'class');
+    await sleep(5000);
+
+    await openInterfaceFromTreeView('FSMTest', webview);
+
+    await sleep(2000);
+
+    expect(await getElementsCount(webview, 'fsm-transition')).to.eq(3);
+    expect(await getElementsCount(webview, 'fsm-transition-true')).to.eq(0);
+    expect(await getElementsCount(webview, 'fsm-transition-false')).to.eq(0);
+    expect(await getElementsCount(webview, 'isolated-state', 'className')).to.eq(5);
+
+    await openInterfaceFromTreeView('ClassForFSMTest', webview);
+
+    await clickElement(webview, 'bp3-tag-remove', 2, 'className');
+    await sleep(1000);
+    await selectProviderData(webview, ['type', 'qore', 'hash']);
+    await sleep(1000);
+    await submitInterface(webview, 'class');
+    await sleep(5000);
 };

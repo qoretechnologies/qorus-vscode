@@ -1,0 +1,100 @@
+# This is a generated file, don't edit!
+type: fsm
+name: FSMTestEdited
+desc: FSM Test
+groups:
+    - TestingGroup
+states:
+    '1':
+        position:
+            x: 100
+            'y': 100
+        initial: true
+        name: State 1
+        desc: ''
+        type: state
+        id: Woaae_Nu8
+        action:
+            type: pipeline
+            value: PipelineForFSMTest
+        execution_order: 1
+        transitions:
+            - state: '2'
+              language: qore
+    '2':
+        position:
+            x: 100
+            'y': 200
+        initial: false
+        name: State 2
+        desc: ''
+        type: state
+        id: cPYi4cMy8
+        action:
+            type: mapper
+            value: 'MapperForFSMTest:1.0'
+        transitions: []
+    '4':
+        position:
+            x: 100
+            'y': 400
+        initial: false
+        name: State 4
+        desc: ''
+        type: state
+        id: R-paBG3cr
+        action:
+            type: connector
+            value:
+                class: ClassForFSMTest
+                connector: InputOutputConnectorHashString
+    '5':
+        position:
+            x: 100
+            'y': 500
+        initial: false
+        name: State 5
+        desc: ''
+        type: if
+        id: wnSUlNLJV
+        condition: a === b
+        input-output-type:
+            type: type
+            name: qore
+            can_manage_fields: true
+            path: /hash
+        transitions:
+            - state: '6'
+              branch: 'true'
+              language: qore
+            - state: '7'
+              branch: 'false'
+              language: qore
+    '6':
+        position:
+            x: 100
+            'y': 600
+        initial: false
+        name: State 6
+        desc: ''
+        type: state
+        id: obBn_rxPU
+        action:
+            type: connector
+            value:
+                class: ClassForFSMTest
+                connector: InputConnectorHash
+    '7':
+        position:
+            x: 100
+            'y': 700
+        initial: false
+        name: State 7
+        desc: ''
+        type: state
+        id: yTtZam6Q5
+        action:
+            type: connector
+            value:
+                class: ClassForFSMTest
+                connector: InputConnectorHash
