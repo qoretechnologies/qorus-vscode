@@ -3,7 +3,7 @@ type: fsm
 name: FSMTest
 desc: FSM Test
 groups:
-  - GroupTest
+    - TestingGroup
 states:
     '1':
         position:
@@ -19,9 +19,8 @@ states:
             value: PipelineForFSMTest
         execution_order: 1
         transitions:
-            -
-                state: '2'
-                language: qore
+            - state: '2'
+              language: qore
     '2':
         position:
             x: 100
@@ -35,9 +34,8 @@ states:
             type: mapper
             value: 'MapperForFSMTest:1.0'
         transitions:
-            -
-                state: '3'
-                language: qore
+            - state: '3'
+              language: qore
     '3':
         position:
             x: 100
@@ -53,12 +51,10 @@ states:
                 class: ClassForFSMTest
                 connector: InputConnectorHash
         transitions:
-            -
-                state: '4'
-                language: qore
-            -
-                state: '5'
-                language: qore
+            - state: '4'
+              language: qore
+            - state: '5'
+              language: qore
     '4':
         position:
             x: 100
@@ -89,14 +85,12 @@ states:
             can_manage_fields: true
             path: /hash
         transitions:
-            -
-                state: '6'
-                branch: 'true'
-                language: qore
-            -
-                state: '7'
-                branch: 'false'
-                language: qore
+            - state: '6'
+              branch: 'true'
+              language: qore
+            - state: '7'
+              branch: 'false'
+              language: qore
     '6':
         position:
             x: 100

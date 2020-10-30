@@ -1,19 +1,18 @@
-import { workspace, window } from 'vscode';
 import * as jsyaml from 'js-yaml';
-
+import { t } from 'ttag';
+import { window, workspace } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
-import { InterfaceCreator } from './InterfaceCreator';
-import { simple_method_template, classTemplate, classImports } from './common_constants';
-import { jobImports } from './job_constants';
-import { workflowImports } from './workflow_constants';
-import { stepImports } from './step_constants';
-import { stepTypeHeaders } from './step_constants';
+import { default_lang } from '../qorus_constants';
+import * as msg from '../qorus_message';
+import { capitalize, hasConfigItems, toValidIdentifier } from '../qorus_utils';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
 import { ClassConnectionsEdit } from './ClassConnectionsEdit';
-import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
-import { default_lang } from '../qorus_constants';
-import { t } from 'ttag';
-import * as msg from '../qorus_message';
+import { classImports, classTemplate, simple_method_template } from './common_constants';
+import { InterfaceCreator } from './InterfaceCreator';
+import { jobImports } from './job_constants';
+import { stepImports, stepTypeHeaders } from './step_constants';
+import { workflowImports } from './workflow_constants';
+
 
 
 class InterfaceWithoutMethodsCreator extends InterfaceCreator {

@@ -3,7 +3,7 @@ type: pipeline
 name: PipelineTest
 desc: Pipeline test
 groups:
-    - GroupTest
+    - TestingGroup
 input-provider:
     type: type
     name: qore

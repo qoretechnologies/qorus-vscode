@@ -3,17 +3,17 @@ import * as jsyaml from 'js-yaml';
 import * as path from 'path';
 import { t } from 'ttag';
 import { Position } from 'vscode';
-
 import * as globals from '../global_config_item_values';
-import { default_version, types_with_version, default_lang } from '../qorus_constants';
-import * as msg from '../qorus_message';
-import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
+import { default_lang, default_version, types_with_version } from '../qorus_constants';
+import * as msg from '../qorus_message';
+import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
 import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
+
 
 const list_indent = '  - ';
 const indent = '    ';
@@ -205,9 +205,8 @@ export abstract class InterfaceCreator {
         const fixed_data = this.code_info.fixData(data);
 
         let iface_kind = fixed_data.type;
-        if (['group', 'event', 'queue'].includes(iface_kind)) {
+        if (['Group', 'Event', 'Queue'].includes(fixed_data.type)) {
             iface_kind = 'other';
-            fixed_data.type = capitalize(fixed_data.type);
         }
 
         const initial_data = {
