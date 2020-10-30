@@ -8,8 +8,9 @@ import {
     clickElement,
     fillTextField,
     getSelectedFields,
+    resetAndFillTextField,
     selectNthFilteredDropdownItem,
-    selectNthFolder,
+    selectNthFolder
 } from '../utils/webview';
 
 export const opensConnectionPage = async (webview: WebView) => {
@@ -42,3 +43,15 @@ export const sumbitsConnectionAndChecksFiles = async (webview: WebView) => {
 
     await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['ConnectionTest.qconn.yaml']);
 };
+
+export const editsConnectionsAndChecksFiles = async (webview: WebView) => {
+    await resetAndFillTextField(webview, 'field-name', 'ConnectionTestEdited');
+    await resetAndFillTextField(webview, 'field-target_file', 'ConnectionTestEdited');
+    await selectNthFilteredDropdownItem(webview, 'protocol', 'https');
+    await resetAndFillTextField(webview, 'field-address', 'twitter.com');
+    
+    await clickElement(webview, 'connection-submit');
+    await sleep(4000);
+
+    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['ConnectionTestEdited.qconn.yaml'], 'changed_interfaces');
+}

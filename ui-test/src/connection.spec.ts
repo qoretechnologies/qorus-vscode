@@ -1,5 +1,5 @@
 import { EditorView, WebView } from 'vscode-extension-tester';
-import { fillsConnectionFields, opensConnectionPage, sumbitsConnectionAndChecksFiles } from './tests/connection';
+import { editsConnectionsAndChecksFiles, fillsConnectionFields, opensConnectionPage, sumbitsConnectionAndChecksFiles } from './tests/connection';
 import { cleanup, setupTest } from './utils/common';
 
 describe('Connection tests', function () {
@@ -14,6 +14,7 @@ describe('Connection tests', function () {
     it('Opens Connection create page', () => opensConnectionPage(webview));
     it('Fills Connection fields', () => fillsConnectionFields(webview));
     it('Submits Connection and checks files', () => sumbitsConnectionAndChecksFiles(webview));
+    it('Edits Connection and checks files', () => editsConnectionsAndChecksFiles(webview));
 
     // Reset the workbench
     this.afterAll(async () => {
