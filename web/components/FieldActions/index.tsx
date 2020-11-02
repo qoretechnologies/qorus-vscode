@@ -62,6 +62,7 @@ const FieldActions: FunctionComponent<IFieldActions> = ({
                 {removable && (
                     <Tooltip content={t('RemoveField')}>
                         <Button
+                            name={`remove-field-${name}`}
                             icon={'trash'}
                             intent="danger"
                             onClick={() => {
