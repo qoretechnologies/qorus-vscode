@@ -1,0 +1,12 @@
+# This is a generated file, don't edit!
+type: class
+name: ClassWithAuthors
+desc: class introducing a few authors to be selectable in tests
+lang: qore
+version: "0"
+author:
+  - Qore Technologies, s.r.o.
+  - Author 1
+  - Author 2
+  - another author
+code: ClassWithAuthors-0.qclass
