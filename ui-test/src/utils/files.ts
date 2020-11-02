@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
 import { isEqual, isObject, transform } from 'lodash';
 import * as path from 'path';
-import { goldFilesFolder } from './common';
+import { goldFilesFolder, projectFolder } from './common';
 
 function difference(object: any, base: any) {
     function changes(object: any, base: any) {
@@ -16,12 +16,10 @@ function difference(object: any, base: any) {
     return changes(object, base);
 }
 
-export const compareWithGoldFiles = async (
-    folder: string,
-    files: string[],
-    gold_files_subfolder: string = '',
-    transformer?: (data: any) => any
-) => {
+export const compareWithGoldFiles = async (files: string[], isChanged?: boolean, transformer?: (data: any) => any) => {
+    const folder = path.join(projectFolder, '_tests');
+    const gold_files_subfolder = isChanged ? 'changed_interfaces' : '';
+
     const compare = (file_name: string) => {
         const file_path = path.join(folder, file_name);
         const file_exists = fs.existsSync(file_path);

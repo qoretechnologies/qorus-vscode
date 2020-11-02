@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import { omit, reduce } from 'lodash';
-import * as path from 'path';
 import { WebView } from 'vscode-extension-tester';
-import { projectFolder, sleep } from '../utils/common';
+import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { connectStates, createBasicState, editState, openTransitionsDialog } from '../utils/fsm';
 import { openInterfaceFromTreeView } from '../utils/treeView';
@@ -162,7 +161,7 @@ export const submitFSMAndCheckFiles = async (webview: WebView) => {
 
     await sleep(4000);
 
-    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['FSMTest.qfsm.yaml'], undefined, (data) => {
+    await compareWithGoldFiles(['FSMTest.qfsm.yaml'], undefined, (data) => {
         // Remove the RNG ids from the states
         const transformedData = { ...data };
 
@@ -194,25 +193,20 @@ export const editsCreatedFSMAndChecksFiles = async (webview: WebView) => {
 
     await sleep(4000);
 
-    await compareWithGoldFiles(
-        path.join(projectFolder, '_tests'),
-        ['FSMTestEdited.qfsm.yaml'],
-        'changed_interfaces',
-        (data) => {
-            // Remove the RNG ids from the states
-            const transformedData = { ...data };
+    await compareWithGoldFiles(['FSMTestEdited.qfsm.yaml'], true, (data) => {
+        // Remove the RNG ids from the states
+        const transformedData = { ...data };
 
-            transformedData.states = reduce(
-                data.states,
-                (states, stateData, stateId) => {
-                    return { ...states, [stateId]: omit(stateData, ['id']) };
-                },
-                {}
-            );
+        transformedData.states = reduce(
+            data.states,
+            (states, stateData, stateId) => {
+                return { ...states, [stateId]: omit(stateData, ['id']) };
+            },
+            {}
+        );
 
-            return transformedData;
-        }
-    );
+        return transformedData;
+    });
 };
 
 export const transitionsAreRemovedForIncompatibleFSM = async (webview: WebView) => {

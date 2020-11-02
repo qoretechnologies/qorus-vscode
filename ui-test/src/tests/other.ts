@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import * as path from 'path';
 import { WebView } from 'vscode-extension-tester';
-import { projectFolder, sleep } from '../utils/common';
+import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { openInterfaceFromTreeView } from '../utils/treeView';
 import {
@@ -46,11 +45,7 @@ export const createsNewOtherInterface = async (webview: WebView, type: string) =
 };
 
 export const checksOtherFiles = async () => {
-    await compareWithGoldFiles(path.join(projectFolder, '_tests'), [
-        'GroupTest.qgroup.yaml',
-        'EventTest.qevent.yaml',
-        'QueueTest.qqueue.yaml',
-    ]);
+    await compareWithGoldFiles(['GroupTest.qgroup.yaml', 'EventTest.qevent.yaml', 'QueueTest.qqueue.yaml']);
 };
 
 export const editsOtherInterface = async (webview: WebView, type: string) => {
@@ -66,8 +61,7 @@ export const editsOtherInterface = async (webview: WebView, type: string) => {
 
 export const checksOtherEditedFiles = async () => {
     await compareWithGoldFiles(
-        path.join(projectFolder, '_tests'),
         ['GroupTestEdited.qgroup.yaml', 'EventTestEdited.qevent.yaml', 'QueueTestEdited.qqueue.yaml'],
-        'changed_interfaces'
+        true
     );
 };

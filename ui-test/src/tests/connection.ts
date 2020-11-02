@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import * as path from 'path';
 import { WebView } from 'vscode-extension-tester';
-import { projectFolder, sleep } from '../utils/common';
+import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     addAndFillTextOption,
@@ -10,7 +9,7 @@ import {
     getSelectedFields,
     resetAndFillTextField,
     selectNthFilteredDropdownItem,
-    selectNthFolder
+    selectNthFolder,
 } from '../utils/webview';
 
 export const opensConnectionPage = async (webview: WebView) => {
@@ -41,7 +40,7 @@ export const sumbitsConnectionAndChecksFiles = async (webview: WebView) => {
     await clickElement(webview, 'connection-submit');
     await sleep(4000);
 
-    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['ConnectionTest.qconn.yaml']);
+    await compareWithGoldFiles(['ConnectionTest.qconn.yaml']);
 };
 
 export const editsConnectionsAndChecksFiles = async (webview: WebView) => {
@@ -49,9 +48,9 @@ export const editsConnectionsAndChecksFiles = async (webview: WebView) => {
     await resetAndFillTextField(webview, 'field-target_file', 'ConnectionTestEdited');
     await selectNthFilteredDropdownItem(webview, 'protocol', 'https');
     await resetAndFillTextField(webview, 'field-address', 'twitter.com');
-    
+
     await clickElement(webview, 'connection-submit');
     await sleep(4000);
 
-    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['ConnectionTestEdited.qconn.yaml'], 'changed_interfaces');
-}
+    await compareWithGoldFiles(['ConnectionTestEdited.qconn.yaml'], true);
+};

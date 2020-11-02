@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import * as path from 'path';
 import { WebView } from 'vscode-extension-tester';
-import { projectFolder, sleep } from '../utils/common';
+import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { addQueue, createPipelineElement } from '../utils/pipeline';
 import { openInterfaceFromTreeView } from '../utils/treeView';
@@ -19,7 +18,7 @@ import {
     selectMultiselectItemsByNumbers,
     selectNthFolder,
     selectProviderData,
-    submitInterface
+    submitInterface,
 } from '../utils/webview';
 
 export const openPipelinePage = async (webview: WebView) => {
@@ -87,7 +86,7 @@ export const submitPipelineAndCheckFiles = async (webview: WebView) => {
 
     await sleep(4000);
 
-    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['PipelineTest.qpipe.yaml'], undefined, (data) => {
+    await compareWithGoldFiles(['PipelineTest.qpipe.yaml'], undefined, (data) => {
         // Remove the RNG ids from the states
         const transformedData = { ...data };
 
@@ -144,7 +143,7 @@ export const disablesSubmitForIncompatiblePipeline = async (webview: WebView) =>
 export const editsPipelineAndChecksFiles = async (webview: WebView) => {
     await openInterfaceFromTreeView('PipelineTest', webview);
     await resetAndFillTextField(webview, 'field-name', 'PipelineTestEdited');
-    
+
     await selectFromContextMenu(webview, 'pipeline-element', 3, 3);
 
     await sleep(500);
@@ -155,7 +154,7 @@ export const editsPipelineAndChecksFiles = async (webview: WebView) => {
 
     await sleep(4000);
 
-    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['PipelineTestEdited.qpipe.yaml'], 'changed_interfaces', (data) => {
+    await compareWithGoldFiles(['PipelineTestEdited.qpipe.yaml'], true, (data) => {
         // Remove the RNG ids from the states
         const transformedData = { ...data };
 

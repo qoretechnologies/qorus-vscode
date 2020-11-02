@@ -69,9 +69,5 @@ export const editJob = async (workbench: Workbench, editorView: EditorView) => {
 };
 
 export const checkFiles = async (gold_files_subfolder?: string) => {
-    await compareWithGoldFiles(
-        path.join(projectFolder, target_dir),
-        ['test-job-3.14.qjob.yaml', target_file],
-        gold_files_subfolder
-    );
+    await compareWithGoldFiles(['test-job-3.14.qjob.yaml', target_file], true);
 };

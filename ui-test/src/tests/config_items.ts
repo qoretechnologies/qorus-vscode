@@ -17,8 +17,6 @@ import {
     submitInterface,
 } from '../utils/webview';
 
-const target_dir = '_tests';
-
 export const createServiceClass = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
     await clickElement(webview, 'Class');
@@ -166,7 +164,7 @@ export const createService = async (webview: WebView, editorView: EditorView) =>
 
 export const checkFiles = async () => {
     await sleep(3000);
-    await compareWithGoldFiles(path.join(projectFolder, target_dir), [
+    await compareWithGoldFiles([
         'ServiceClassWithConfigItems-1.2.qclass',
         'ServiceClassWithConfigItems-1.2.qclass.yaml',
         'ClassWithConfigItems-1.3.qclass',
@@ -181,7 +179,7 @@ export const editInterface = async (workbench: Workbench, editorView: EditorView
     const webview: WebView = await openInterface(
         workbench,
         editorView,
-        path.join(projectFolder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml')
+        path.join(projectFolder, '_tests', 'ClassWithConfigItems-1.3.qclass.yaml')
     );
     await sleep(8000);
     await submitInterface(webview, 'class');

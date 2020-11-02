@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import * as path from 'path';
 import { WebView } from 'vscode-extension-tester';
-import { projectFolder, sleep } from '../utils/common';
+import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { createNewTypeField } from '../utils/type';
 import {
@@ -11,6 +10,7 @@ import {
     getElementsCount,
     getNthElement,
     getSelectedFields,
+    resetAndFillTextField,
     selectNthFolder,
 } from '../utils/webview';
 
@@ -84,5 +84,19 @@ export const submitsTypeAndChecksFiles = async (webview: WebView) => {
     await clickElement(webview, 'type-submit');
     await sleep(4000);
 
-    await compareWithGoldFiles(path.join(projectFolder, '_tests'), ['TypeTest.qtype.yaml']);
+    await compareWithGoldFiles(['TypeTest.qtype.yaml']);
+};
+
+export const editsTypeAndChecksFiles = async (webview: WebView) => {
+    await resetAndFillTextField(webview, 'field-target-dir', 'TypeTestEdited.qtype.yaml');
+    await clickElement(webview, 'type-add-field');
+    await sleep(2000);
+    await createNewTypeField(webview, 'Field3', 'Field 3', 'float');
+    await sleep(1000);
+    expect(await getElementsCount(webview, 'diagram-field')).to.eq(4);
+
+    await clickElement(webview, 'type-submit');
+    await sleep(4000);
+
+    await compareWithGoldFiles(['TypeTestEdited.qtype.yaml'], true);
 };

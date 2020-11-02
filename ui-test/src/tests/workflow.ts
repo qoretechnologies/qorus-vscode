@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-import * as path from 'path';
 import { EditorView, WebView } from 'vscode-extension-tester';
-import { projectFolder, sleep } from '../utils/common';
+import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -13,7 +12,7 @@ import {
     selectField,
     selectNthDropdownItem,
     selectNthFolder,
-    submitInterface
+    submitInterface,
 } from '../utils/webview';
 
 export const openCreateWorkflow = async (webview: WebView) => {
@@ -79,7 +78,7 @@ export const createWorkflow = async (webview: WebView, editorView: EditorView) =
 };
 
 export const checkFiles = async () => {
-    compareWithGoldFiles(path.join(projectFolder, '_tests'), [
+    compareWithGoldFiles([
         'Step test-1.0.qstep.yaml',
         'Step test-1.0.qstep',
         'Workflow test-1.0.qwf.yaml',
