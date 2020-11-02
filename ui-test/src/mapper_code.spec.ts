@@ -1,5 +1,5 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { checkFiles, createMapperCode } from './tests/mapper_code';
+import { checkFiles, createMapperCode, editMapperCode } from './tests/mapper_code';
 import { cleanup, setupTest } from './utils/common';
 
 describe('Mapper code test', function () {
@@ -16,6 +16,11 @@ describe('Mapper code test', function () {
 
     it('Create mapper code', () => createMapperCode(webview));
     it('Check files', () => checkFiles());
+    it('Edit mapper code', async () => {
+        await cleanup(editorView, webview);
+        webview = await editMapperCode(editorView);
+    });
+    it('Check changed files', async () => checkFiles(true));
 
     this.afterAll(async () => {
         await cleanup(editorView, webview);

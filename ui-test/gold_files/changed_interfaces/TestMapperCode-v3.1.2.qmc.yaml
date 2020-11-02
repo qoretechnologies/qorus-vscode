@@ -1,14 +1,14 @@
 # This is a generated file, don't edit!
 type: mapper-code
 name: TestMapperCode
-desc: test mapper code
-version: v3.1.2
+lang: qore
 author:
   - Author 2
   - another author
-lang: qore
+  - Qore Technologies, s.r.o.
+version: v3.1.2
 class-name: TestMapperCode
 code: TestMapperCode-v3.1.2.qmc
 methods:
   - name: someMapperCodeMethod
-    desc: some mapper code method
+    desc: simple mapper code method
