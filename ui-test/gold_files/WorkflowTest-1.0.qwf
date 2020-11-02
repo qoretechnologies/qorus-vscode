@@ -3,5 +3,5 @@
 %require-types
 %enable-all-warnings
 
-class TestWorkflow inherits QorusWorkflow {
+class WorkflowTest inherits QorusWorkflow {
 }

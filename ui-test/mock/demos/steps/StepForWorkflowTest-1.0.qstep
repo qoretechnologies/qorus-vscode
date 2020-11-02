@@ -3,7 +3,7 @@
 %require-types
 %enable-all-warnings
 
-class StepTest inherits BBM_RestActionStep {
+class StepForWorkflowTest inherits QorusNormalStep {
     primary() {
     }
 }

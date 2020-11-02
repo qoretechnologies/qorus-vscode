@@ -1,0 +1,10 @@
+# This is a generated file, don't edit!
+type: step
+name: StepFromWorkflowTest
+desc: Step from Workflow test
+lang: qore
+base-class-name: QorusNormalStep
+class-name: StepFromWorkflowTest
+version: "1.0"
+steptype: NORMAL
+code: StepFromWorkflowTest-1.0.qstep

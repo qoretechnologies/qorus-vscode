@@ -150,6 +150,22 @@ export const selectNthFolder = async (webview: WebView, name: string, position: 
 
 export const selectField = async (webview: WebView, name: string) => {
     await clickElement(webview, `field-selector-${name}`);
+    await sleep(500);
+};
+
+export const selectAndFillField = async (webview: WebView, name: string, value: string | number) => {
+    await selectField(webview, name);
+    await fillTextField(webview, `field-${name}`, value);
+};
+
+export const addNewMultiSelectItemAndSelectIt = async (
+    webview: WebView,
+    value: string,
+    elementPosition: number = 1
+) => {
+    await fillTextField(webview, 'bp3-input-ghost', value, elementPosition, 'className');
+    await sleep(300);
+    await selectMultiselectItemsByNumbers(webview, [1], elementPosition);
 };
 
 export const selectNthDropdownItem = async (

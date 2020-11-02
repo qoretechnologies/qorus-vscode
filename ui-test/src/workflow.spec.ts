@@ -1,5 +1,12 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { checkFiles, createWorkflow, openCreateWorkflow } from './tests/workflow';
+import {
+    addsExistingStepFromWorkflowDiagram,
+    createsNewStepFromWorkflowDiagram,
+    editsWorkflowAndChecksFiles,
+    fillsWorkflowFields,
+    openCreateWorkflow,
+    submitsWorkflowAndChecksFiles,
+} from './tests/workflow';
 import { cleanup, setupTest } from './utils/common';
 
 describe('Workflow tests', function () {
@@ -15,9 +22,12 @@ describe('Workflow tests', function () {
     });
 
     // create workflow tests
-    it('Opens workflow create page', () => openCreateWorkflow(webview));
-    it('Can create workflow', () => createWorkflow(webview, editorView));
-    it('Check files', () => checkFiles());
+    it('Opens Workflow create page', () => openCreateWorkflow(webview));
+    it('Fills Workflow fields', () => fillsWorkflowFields(webview));
+    it('Creates new Step from Workflow and adds it to diagram', () => createsNewStepFromWorkflowDiagram(webview));
+    it('Adds existing Step to diagram', () => addsExistingStepFromWorkflowDiagram(webview));
+    it('Submits Workflow and checks files', () => submitsWorkflowAndChecksFiles(webview));
+    it('Edits Workflow and checks files', () => editsWorkflowAndChecksFiles(webview));
 
     // Reset the workbench
     this.afterAll(async () => {

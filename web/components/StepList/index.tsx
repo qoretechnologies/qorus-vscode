@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
-
+import { Button, ButtonGroup, Classes, ControlGroup, Tooltip } from '@blueprintjs/core';
 import { flattenDeep, isArray, size, some } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { onlyUpdateForKeys } from 'recompose';
 import compose from 'recompose/compose';
 import styled, { css } from 'styled-components';
-
-import { Button, ButtonGroup, Classes, ControlGroup, Tooltip } from '@blueprintjs/core';
-
 import { Messages } from '../../constants/messages';
 import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
 import ClassConnectionsStateProvider from '../../containers/ClassConnectionsStateProvider';
@@ -360,6 +357,7 @@ const Step = ({
                                     <Tooltip content={t('EditStep')}>
                                         <Button
                                             icon="edit"
+                                            name="edit-step"
                                             onClick={() => {
                                                 initialData.setStepSubmitCallback((stepName, stepVersion, stepType) => {
                                                     onStepUpdate(step, {
@@ -379,7 +377,7 @@ const Step = ({
                                         />
                                     </Tooltip>
                                     <Tooltip content={t('RemoveStep')}>
-                                        <Button icon="remove" onClick={() => onStepRemove(step)} />
+                                        <Button icon="remove" onClick={() => onStepRemove(step)} name="remove-step" />
                                     </Tooltip>
                                 </ButtonGroup>
                             </StyledStepActions>
