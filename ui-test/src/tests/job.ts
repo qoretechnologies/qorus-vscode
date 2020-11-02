@@ -68,6 +68,6 @@ export const editJob = async (workbench: Workbench, editorView: EditorView) => {
     return webview;
 };
 
-export const checkFiles = async (gold_files_subfolder?: string) => {
-    await compareWithGoldFiles(['test-job-3.14.qjob.yaml', target_file], true);
+export const checkFiles = async (edited?: boolean) => {
+    await compareWithGoldFiles(['test-job-3.14.qjob.yaml', target_file], edited);
 };
