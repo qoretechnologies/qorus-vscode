@@ -55,6 +55,6 @@ export const createMapperCode = async (webview: WebView) => {
     await sleep(2000);
 };
 
-export const checkFiles = async (gold_files_subfolder?: string) => {
-    await compareWithGoldFiles([target_file, 'TestMapperCode-v3.1.2.qmc'], true);
+export const checkFiles = async (edited?: boolean) => {
+    await compareWithGoldFiles([target_file, 'TestMapperCode-v3.1.2.qmc'], edited);
 };
