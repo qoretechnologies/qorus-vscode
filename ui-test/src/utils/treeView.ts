@@ -23,6 +23,11 @@ export const getQorusTreeSection = async (sectionName: string): Promise<CustomTr
 };
 
 export const getQorusTreeItem = async (sectionName: string, itemName: string): Promise<TreeItem> => {
+    //! Collapse the unused tree section, so that all items are visible
+    sectionName === 'Interfaces'
+        ? await toggleQorusTreeSection('Instances', true)
+        : await toggleQorusTreeSection('Interfaces', true);
+
     const section = await getQorusTreeSection(sectionName);
     let qorusTreeItem: TreeItem | null = null;
     let time: number = 0;
