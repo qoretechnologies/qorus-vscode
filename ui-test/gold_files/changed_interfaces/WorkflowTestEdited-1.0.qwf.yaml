@@ -5,7 +5,7 @@ desc: Workflow test
 lang: qore
 attach: test
 author:
-  - Test User
+  - Author 1
 autostart: 1
 base-class-name: QorusWorkflow
 class-name: WorkflowTest

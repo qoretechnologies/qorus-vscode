@@ -32,7 +32,9 @@ export const setupTest = async (loginInstanceName?: string, noWebview?: boolean)
     try {
         await fsExtra.remove(path.join(projectFolder, '_tests'));
         await fsExtra.remove(path.join(projectFolder, 'demos'));
+        await fsExtra.remove(path.join(projectFolder, 'mydir'));
         await fsExtra.copy(path.join(testFolder, 'mock/'), projectFolder);
+        await sleep(5000);
     } catch (e) {
         console.error(e);
     }

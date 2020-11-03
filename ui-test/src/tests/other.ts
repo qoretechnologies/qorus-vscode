@@ -49,6 +49,7 @@ export const checksOtherFiles = async () => {
 };
 
 export const editsOtherInterface = async (webview: WebView, type: string) => {
+    await sleep(5000);
     await openInterfaceFromTreeView(`${type}Test`, webview);
     await sleep(1000);
 
