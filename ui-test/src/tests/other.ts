@@ -50,7 +50,9 @@ export const checksOtherFiles = async () => {
 
 export const editsOtherInterface = async (webview: WebView, type: string) => {
     await sleep(5000);
+    console.log(`- ABOUT TO OPEN ${type}Test FOR EDITING`);
     await openInterfaceFromTreeView(`${type}Test`, webview);
+    console.log(`- OPENED ${type}Test FOR EDITING`);
     await sleep(1000);
 
     await resetAndFillTextField(webview, 'field-name', `${type}TestEdited`);

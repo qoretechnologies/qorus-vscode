@@ -105,24 +105,46 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
 
 export const openInterfaceFromTreeView = async (interfaceName: string, webview?: WebView) => {
     if (webview) {
+        console.log(`- WEBVIEW IS PRESENT, SWITCHING TO EDITOR`);
         await webview.switchBack();
     }
 
+    console.log(`- OPENING QORUS ACTIVITY BAR`);
     await openQorusActivityBar();
+    console.log(`- QORUS ACTIVITY BAR OPENED`);
 
     // Open the other section
     const other = (await getQorusTreeItem('Interfaces', 'Other')) as TreeItem;
 
-    if (!(await other.isExpanded())) {
-        await other.click();
+    if (!other) {
+        throw new Error('Other section not found!');
     }
 
+    if (!(await other.isExpanded())) {
+        console.log(`- OPENING OTHER SECTION`);
+        await other.click();
+        console.log(`- OTHER SECTION OPENED`);
+    }
+
+    console.log(`- SEARCHING FOR ITEM TO OPEN`);
     const item = (await getQorusTreeItem('Interfaces', interfaceName)) as TreeItem;
+
+    if (!item) {
+        throw new Error('Item to edit not found');
+    }
+
+    console.log(`- ITEM TO OPEN FOUND`);
 
     const driver = VSBrowser.instance.driver;
     await new ActionSequence(driver).mouseMove(item).perform();
 
+    console.log(`- GETTING ITEM ACTION BUTTONS`);
     const actionButtons = await item.getActionButtons();
+    if (!actionButtons) {
+        throw new Error('Action buttons for item editing not found!');
+    }
+
+    console.log(`- ACTION BUTTONS FOUND`);
     await actionButtons[2].click();
 
     await sleep(5000);
