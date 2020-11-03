@@ -25,10 +25,17 @@ export const getQorusTreeSection = async (sectionName: string): Promise<CustomTr
 export const getQorusTreeItem = async (sectionName: string, itemName: string): Promise<TreeItem> => {
     const section = await getQorusTreeSection(sectionName);
     let qorusTreeItem: TreeItem | null = null;
+    let time: number = 0;
 
-    while (!qorusTreeItem) {
+    while (!qorusTreeItem && time < 10) {
         qorusTreeItem = (await section.findItem(itemName)) as TreeItem;
         await sleep(1000);
+        time += 1;
+    }
+
+    if (!qorusTreeItem) {
+        console.log(await section.getVisibleItems());
+        throw new Error(`Qorus tree item ${itemName} not found in 10 seconds`);
     }
 
     return qorusTreeItem;
