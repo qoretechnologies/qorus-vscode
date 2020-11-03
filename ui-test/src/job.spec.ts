@@ -20,7 +20,7 @@ describe('Job test', function () {
         await cleanup(editorView, webview);
         webview = await editJob(workbench, editorView);
     });
-    it('Check changed files', async () => checkFiles(true));
+    it('Check changed files', () => checkFiles(true));
 
     this.afterAll(async () => {
         await cleanup(editorView, webview);

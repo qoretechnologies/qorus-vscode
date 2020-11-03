@@ -1,0 +1,10 @@
+# This is a generated file, don't edit!
+type: class
+name: ClassToEdit
+desc: class for edit test
+lang: java
+author:
+  - Qore Technologies, s.r.o.
+  - Author 1
+version: "7.8"
+code: ClassToEdit-7.8-class/ClassToEdit.java
