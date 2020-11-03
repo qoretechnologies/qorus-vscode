@@ -8,6 +8,7 @@ import {
     addNewMultiSelectItemAndSelectIt,
     clickElement,
     confirmDialog,
+    fillTextField,
     getWebview,
     selectField,
     selectNthFilteredDropdownItem,
@@ -18,7 +19,6 @@ import {
 export const editClass = async (editorView: EditorView) => {
     await openInterfaceFromTreeView('ClassToEdit');
     const webview = await getWebview(editorView);
-    await sleep(500);
 
     await selectNthFolder(webview, 'target_dir', 1);
     await selectField(webview, 'base-class-name');
@@ -26,8 +26,14 @@ export const editClass = async (editorView: EditorView) => {
     await addNewMultiSelectItemAndSelectIt(webview, 'additional author'); // doesn't work now, selects first instead
     await clickElement(webview, 'remove-field-requires');
     await confirmDialog(webview);
+    await selectField(webview, 'tags');
+    await fillTextField(webview, 'field-key', 'first-tag');
+    await fillTextField(webview, 'field-value', 'first tag value');
+    await clickElement(webview, 'bp3-icon-add', 2, 'className');
+    await fillTextField(webview, 'field-key', 'second-tag', 2);
+    await fillTextField(webview, 'field-value', 'second tag value', 2);
     await submitInterface(webview, 'class');
-    await sleep(1000);
+    await sleep(500);
 
     return webview;
 };
