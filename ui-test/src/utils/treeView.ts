@@ -34,7 +34,9 @@ export const getQorusTreeItem = async (sectionName: string, itemName: string): P
     }
 
     if (!qorusTreeItem) {
-        console.log(await section.getVisibleItems());
+        for await (const item of await section.getVisibleItems()) {
+            console.log(await item.getText());
+        }
         throw new Error(`Qorus tree item ${itemName} not found in 10 seconds`);
     }
 
@@ -127,11 +129,10 @@ export const openInterfaceFromTreeView = async (interfaceName: string, webview?:
         throw new Error('Other section not found!');
     }
 
-    if (!(await other.isExpanded())) {
-        console.log(`- OPENING OTHER SECTION`);
-        await other.click();
-        console.log(`- OTHER SECTION OPENED`);
-    }
+    console.log('IS OTHER EXPANDED?', await other.isExpanded());
+
+    await other.collapse();
+    await other.click();
 
     console.log(`- SEARCHING FOR ITEM TO OPEN`);
     const item = (await getQorusTreeItem('Interfaces', interfaceName)) as TreeItem;
