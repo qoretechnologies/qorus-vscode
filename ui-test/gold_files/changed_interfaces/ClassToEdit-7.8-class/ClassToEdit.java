@@ -1,2 +1,2 @@
-class ClassToEdit {
+class ClassToEdit extends JavaBaseClass {
 }

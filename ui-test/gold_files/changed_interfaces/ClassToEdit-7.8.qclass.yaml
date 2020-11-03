@@ -7,4 +7,7 @@ author:
   - Qore Technologies, s.r.o.
   - Author 1
 version: "7.8"
+base-class-name: JavaBaseClass
 code: ClassToEdit-7.8-class/ClassToEdit.java
+requires:
+  - JavaBaseClass

@@ -9,6 +9,8 @@ import {
     clickElement,
     confirmDialog,
     getWebview,
+    selectField,
+    selectNthFilteredDropdownItem,
     selectNthFolder,
     submitInterface,
 } from '../utils/webview';
@@ -19,13 +21,13 @@ export const editClass = async (editorView: EditorView) => {
     await sleep(500);
 
     await selectNthFolder(webview, 'target_dir', 1);
+    await selectField(webview, 'base-class-name');
+    await selectNthFilteredDropdownItem(webview, 'base-class-name', 'JavaBaseClass');
     await addNewMultiSelectItemAndSelectIt(webview, 'additional author'); // doesn't work now, selects first instead
     await clickElement(webview, 'remove-field-requires');
-    await sleep(500);
     await confirmDialog(webview);
-    await sleep(500);
     await submitInterface(webview, 'class');
-    await sleep(2000);
+    await sleep(1000);
 
     return webview;
 };
