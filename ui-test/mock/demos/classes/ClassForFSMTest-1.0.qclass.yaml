@@ -18,8 +18,8 @@ class-connectors:
     input-provider:
         type: type
         name: qore
-        can_manage_fields: false
-        path: /string
+        can_manage_fields: true
+        path: /hash
   - name: InputOutputConnectorHashString
     type: input-output
     method: c
@@ -52,5 +52,10 @@ class-connectors:
   - name: EventConnector
     type: event
     method: e
+    output-provider:
+        type: type
+        name: qore
+        can_manage_fields: false
+        path: /fsevents/event
 version: "1.0"
 code: ClassForFSMTest-1.0.qclass
