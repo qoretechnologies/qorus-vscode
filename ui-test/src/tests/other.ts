@@ -19,7 +19,7 @@ export const opensOtherPage = async (webview: WebView) => {
 
     await sleep(3000);
 
-    expect(await getSelectedFields(webview)).to.have.length(3);
+    expect(await getSelectedFields(webview)).to.have.length(4);
 };
 
 export const fillsOtherFields = async (webview: WebView, type: string) => {
