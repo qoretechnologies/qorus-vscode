@@ -306,13 +306,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     }
                 }
 
-                console.log(item);
-
                 if (item.isCompatible === false) {
                     isValid = false;
                 }
-
-                console.log(isValid);
 
                 return isValid;
             }, isDefValid) &&
