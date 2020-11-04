@@ -183,7 +183,7 @@ export const createNewSourceDir = async (webview: WebView) => {
 
     await clickElement(webview, 'create-new-dir-test_project');
 
-    await sleep(500);
+    await sleep(2500);
 
     await fillTextField(webview, 'field-new-directory', 'mydir');
 
