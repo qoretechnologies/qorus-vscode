@@ -20,7 +20,7 @@ describe('Mapper code test', function () {
         await cleanup(editorView, webview);
         webview = await editMapperCode(editorView);
     });
-    it('Check changed files', async () => checkFiles(true));
+    it('Check changed files', () => checkFiles(true));
 
     this.afterAll(async () => {
         await cleanup(editorView, webview);
