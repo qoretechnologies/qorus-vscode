@@ -23,7 +23,7 @@ import {
     root_processor, root_service, root_steps, root_workflow, types_with_version
 } from './qorus_constants';
 import * as msg from './qorus_message';
-import { capitalize, filesInDir, hasSuffix, isObject } from './qorus_utils';
+import { capitalize, deepCopy, filesInDir, hasSuffix, isObject } from './qorus_utils';
 
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
@@ -293,7 +293,7 @@ export class QorusProjectCodeInfo {
     }
 
     fixData(orig_data: any): any {
-        let data = {...orig_data};
+        let data = deepCopy(orig_data);
 
         if (data.options) {
             data[data.type + '_options'] = data.options;
