@@ -5,7 +5,7 @@ desc: class for edit test
 lang: java
 author:
   - Qore Technologies, s.r.o.
-  - Author 1
+  - additional author
 version: "7.8"
 base-class-name: JavaBaseClass
 tags:
