@@ -8,7 +8,6 @@ import {
     fillTextField,
     getSelectedFields,
     resetAndFillTextField,
-    selectField,
     selectNthFolder,
 } from '../utils/webview';
 
@@ -28,8 +27,6 @@ export const fillsOtherFields = async (webview: WebView, type: string) => {
 
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-name', `${type}Test`);
-    await selectField(webview, 'desc');
-    await sleep(500);
     await fillTextField(webview, 'field-desc', `${type} test`);
     await clickElement(webview, `field-type-radio-${type}`);
     await sleep(500);
