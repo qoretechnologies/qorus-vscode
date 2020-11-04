@@ -1267,7 +1267,7 @@
                 {
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createOther",
-                    "group": "2_workspace12"
+                    "group": "2_workspace@12"
                 },
                 {
                     "when": "explorerResourceIsFolder && !listMultiSelection",
