@@ -1276,11 +1276,6 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.explorer.deployDir",
-                    "group": "2_workspace@14"
-                },
-                {
-                    "when": "explorerResourceIsFolder",
                     "command": "qorus.testDir",
                     "group": "2_workspace@21"
                 },
