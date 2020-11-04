@@ -142,24 +142,21 @@ export const createService = async (webview: WebView, editorView: EditorView) =>
     await nextButton.click();
 
     // open the edit method name dialog
-    await sleep(1000);
+    await sleep(500);
     const editMethodNameButton = await getNthElement(webview, 'edit-method-name-button');
     await editMethodNameButton.click();
 
     // edit method name dialog
-    await sleep(1000);
     await fillTextField(webview, 'field-methodName', `${'\b'.repeat('init'.length)}someMethod`);
     const saveMethodNameButton = await getNthElement(webview, 'save-method-name-button');
     await saveMethodNameButton.click();
 
     // fill description and submit
-    await sleep(1000);
     await fillTextField(webview, 'field-desc', 'some method');
-    await sleep(1000);
     await submitInterface(webview, 'service-methods');
-    await sleep(1000);
+    await sleep(500);
     await webview.switchBack();
-    await sleep(1000);
+    await sleep(500);
 };
 
 export const checkFiles = async () => {
