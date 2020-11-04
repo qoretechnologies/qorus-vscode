@@ -1,0 +1,44 @@
+# This is a generated file, don't edit!
+type: step
+name: StepTest
+desc: Step test
+lang: qore
+author:
+  - Author 1
+base-class-name: QorusNormalStep
+class-name: StepTest
+classes:
+  - ClassForFSMTest
+constants:
+  - test
+fsm:
+    [
+        {
+            "name": "FSMforFSMTest",
+            "triggers": [
+                {
+                    "connector": "EventConnector",
+                    "class": "ClassForFSMTest"
+                }
+            ]
+        },
+        {
+            "name": "FSMforFSMTest",
+            "triggers": [
+                {
+                    "method": "primary"
+                }
+            ]
+        }
+    ]
+functions:
+  - test
+mappers:
+  - MapperForFSMTest:1.0
+vmaps:
+  - test
+version: "1.0"
+event: EventForStep
+queue: QueueForStep
+steptype: NORMAL
+code: StepTest-1.0.qstep

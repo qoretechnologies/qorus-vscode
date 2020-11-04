@@ -1,3 +1,4 @@
+import { last } from 'lodash';
 import {
     ActionSequence,
     Button,
@@ -165,7 +166,11 @@ export const addNewMultiSelectItemAndSelectIt = async (
 ) => {
     await fillTextField(webview, 'bp3-input-ghost', value, elementPosition, 'className');
     await sleep(300);
-    await selectMultiselectItemsByNumbers(webview, [1], elementPosition);
+
+    const multiSelectElements = await getElements(webview, 'multiselect-menu-item');
+    const lastItem = last(multiSelectElements);
+
+    await lastItem?.click();
 };
 
 export const selectNthDropdownItem = async (

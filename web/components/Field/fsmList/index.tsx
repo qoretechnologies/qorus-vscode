@@ -1,19 +1,8 @@
-import React, {
-    ReactNode,
-    useContext,
-    useEffect,
-    useState
-} from 'react';
-
+import { Button, Classes } from '@blueprintjs/core';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-
-import {
-    Button,
-    Classes
-} from '@blueprintjs/core';
-
 import { TTrigger } from '../../../containers/InterfaceCreator/fsm';
 import FSMTriggerDialog from '../../../containers/InterfaceCreator/fsm/triggerDialog';
 import { IField } from '../../../containers/InterfaceCreator/panel';
@@ -163,12 +152,22 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({ value, reference, name, on
                     </StyledWrapper>
                     {size(data) > 1 && (
                         <StyledDeleteButton>
-                            <Button icon="cross" intent="danger" onClick={() => handleFSMRemove(index)} />
+                            <Button
+                                icon="cross"
+                                intent="danger"
+                                onClick={() => handleFSMRemove(index)}
+                                name={`field-fsm-${index}-remove`}
+                            />
                         </StyledDeleteButton>
                     )}
                 </StyledFSMWrapper>
             ))}
-            <Button fill icon="add" onClick={() => setData([...data, { name: null, triggers: [] }])}>
+            <Button
+                fill
+                icon="add"
+                onClick={() => setData([...data, { name: null, triggers: [] }])}
+                name="field-fsm-add-another"
+            >
                 {t('AddAnother')}
             </Button>
             {triggerManager.isOpen && (

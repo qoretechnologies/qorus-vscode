@@ -3,7 +3,6 @@ type: class
 name: ClassForFSMTest
 desc: Class for FSM Test
 lang: qore
-version: "1.0"
 class-connectors:
   - name: InputConnectorString
     type: input
@@ -19,8 +18,8 @@ class-connectors:
     input-provider:
         type: type
         name: qore
-        can_manage_fields: true
-        path: /hash
+        can_manage_fields: false
+        path: /string
   - name: InputOutputConnectorHashString
     type: input-output
     method: c
@@ -50,4 +49,8 @@ class-connectors:
         name: qore
         can_manage_fields: true
         path: /hash
+  - name: EventConnector
+    type: event
+    method: e
+version: "1.0"
 code: ClassForFSMTest-1.0.qclass
