@@ -2,7 +2,7 @@ import { EditorView, VSBrowser, WebDriver, WebView } from 'vscode-extension-test
 import { checkFiles, editClass } from './tests/class';
 import { cleanup, setupTest } from './utils/common';
 
-describe('Job test', function () {
+describe('Edit class test', function () {
     this.timeout(1800000);
     let driver: WebDriver;
     let editorView: EditorView;

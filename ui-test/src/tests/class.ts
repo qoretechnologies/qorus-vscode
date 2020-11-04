@@ -23,7 +23,7 @@ export const editClass = async (editorView: EditorView) => {
     await selectNthFolder(webview, 'target_dir', 1);
     await selectField(webview, 'base-class-name');
     await selectNthFilteredDropdownItem(webview, 'base-class-name', 'JavaBaseClass');
-    await addNewMultiSelectItemAndSelectIt(webview, 'additional author'); // doesn't work now, selects first instead
+    await addNewMultiSelectItemAndSelectIt(webview, 'additional author');
     await clickElement(webview, 'remove-field-requires');
     await confirmDialog(webview);
     await selectField(webview, 'tags');
