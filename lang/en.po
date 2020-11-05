@@ -187,9 +187,6 @@ msgstr "Files to deploy:"
 msgid "DeploymentHasStarted ${ name } ${ url }"
 msgstr "Deployment to ${ name } - ${ url } has started ..."
 
-msgid "deploymentResponse ${ response }"
-msgstr "  ... response: ${ response }"
-
 msgid "ResponseIdUndefined"
 msgstr "Response ID is undefined"
 
@@ -277,14 +274,17 @@ msgstr "${ sec }s"
 msgid "checkingDeploymentProgress ${ deployment_id } ${ sec }";
 msgstr "${ sec }s   checking deployment progress (ID: ${ deployment_id }) ... "
 
-msgid "deploymentResponse ${ response } ${ status }"
-msgstr "    ... ${ response }, status: ${ status }";
-
 msgid "requestResponse ${ response }"
-msgstr "  ... response: ${ response }"
+msgstr "... response: ${ response }"
 
-msgid "requestResponse ${ response } ${ status }"
-msgstr "    ... ${ response }, status: ${ status }";
+msgid "requestStatus ${ status }"
+msgstr "... status: ${ status }";
+
+msgid "YouCanOpenQorusLog"
+msgstr "Open the log for more details.";
+
+msgid "OpenQorusLogButton"
+msgstr "Open log";
 
 msgid "DeploymentFinishedSuccessfully"
 msgstr "Deployment finished successfully"
@@ -900,9 +900,6 @@ msgstr "Files to test:"
 
 msgid "TestHasStarted ${ name } ${ url }"
 msgstr "Test execution to ${ name } - ${ url } has started ..."
-
-msgid "testResponse ${ response }"
-msgstr "  ... response: ${ response }"
 
 msgid "TestStartFailed"
 msgstr "Test execution failed to start"
