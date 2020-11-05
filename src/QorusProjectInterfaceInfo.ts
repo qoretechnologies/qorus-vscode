@@ -748,7 +748,7 @@ export class QorusProjectInterfaceInfo {
     }
 
     getConfigItems = params => {
-        this.code_info.waitForPending(['yaml']).then(() => this.getConfigItemsImpl(params));
+        this.code_info.waitForPending(['yaml'], 500).then(() => this.getConfigItemsImpl(params));
     }
 
     private getConfigItemsImpl = ({
