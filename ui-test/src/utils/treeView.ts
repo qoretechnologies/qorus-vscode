@@ -71,9 +71,13 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
 
     await openQorusActivityBar();
 
+    await sleep(400);
+
     // Collapse of the interfaces is needed because if the instance is not in the view
     // it cannot be clicked
     await toggleQorusTreeSection('Interfaces', true);
+
+    await sleep(400);
 
     const instance: TreeItem = await getQorusTreeItem('Instances', instanceName);
 
@@ -87,6 +91,10 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
 
             while (!loggedIn && time < 10000) {
                 const notifications: Notification[] = await workbench.getNotifications();
+
+                if (!notifications || notifications.length === 0) {
+                    continue;
+                }
 
                 for await (const notification of notifications) {
                     const text: string = await notification.getText();
