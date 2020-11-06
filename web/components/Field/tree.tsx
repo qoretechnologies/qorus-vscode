@@ -62,6 +62,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     onChange,
     name,
     value = [],
+    default_value,
     single,
     useRelativePath,
     notFixed,
@@ -77,8 +78,8 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     const [manageSourceDirs, setManageSourceDirs] = useState<any>(false);
 
     useMount(() => {
-        if (value) {
-            onChange(name, value);
+        if (default_value) {
+            onChange(name, default_value);
         }
 
         addMessageListener(return_message.action, (data: any) => {
