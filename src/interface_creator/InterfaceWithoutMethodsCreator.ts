@@ -27,6 +27,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             open_file_on_success,
             no_data_return,
             request_id,
+            recreate,
         } = params;
 
         this.lang = data.lang || default_lang;
@@ -79,7 +80,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
 
         this.had_code = iface_kind === 'workflow' ? !!orig_data?.['class-name'] : this.has_code;
 
-        this.setPaths(data, orig_data, suffix, iface_kind, edit_type);
+        this.setPaths(data, orig_data, suffix, iface_kind, recreate, iface_id, edit_type);
 
         let {ok, message} = this.checkData(params);
 

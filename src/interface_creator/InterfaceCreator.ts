@@ -38,12 +38,28 @@ export abstract class InterfaceCreator {
     protected has_code = false;
     protected had_code = false;
 
-    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind: string, edit_type?: string): any {
+    protected setPaths(
+        data: any,
+        orig_data: any,
+        suffix: string,
+        iface_kind: string,
+        recreate?: boolean,
+        iface_id?: string,
+        edit_type?: string
+    ): any {
         this.file_edit_info = undefined;
         this.suffix = suffix || '';
 
         let { target_dir, target_file } = data;
-        const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
+
+        let orig_target_dir, orig_target_file;
+        if (orig_data) {
+            ({ target_dir: orig_target_dir, target_file: orig_target_file } = orig_data);
+        } else if (recreate && iface_id) {
+            const info_by_id = this.code_info.interface_info.getInfo(iface_id);
+            ({ target_dir: orig_target_dir, target_file: orig_target_file } = info_by_id);
+            this.code_info.interface_info.deleteInfo(iface_id);
+        }
 
         this.target_dir =
             iface_kind === 'type' && edit_type === 'create'
