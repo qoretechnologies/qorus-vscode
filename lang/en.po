@@ -1150,6 +1150,9 @@ msgstr "One or more interface groups that the object is a member of"
 msgid "field-label-event"
 msgstr "Event"
 
+msgid "field-label-step"
+msgstr "Step"
+
 msgid "field-desc-event"
 msgstr "The name of the event associated with the step"
 
@@ -1900,8 +1903,23 @@ msgstr "after"
 msgid "AddNewStep"
 msgstr "Add new step"
 
-msgid "AddNewParallelStep"
-msgstr "Add new step parallel to"
+msgid "AddNewStepBefore"
+msgstr "Add new step before all"
+
+msgid "AddNewStepAfter"
+msgstr "Add new step after all"
+
+msgid "AddParallelStepBefore"
+msgstr "Add parallel step before"
+
+msgid "AddParallelStepAfter"
+msgstr "Add parallel step after"
+
+msgid "AddSequentialStepBefore"
+msgstr "Add sequential step before"
+
+msgid "AddSequentialStepAfter"
+msgstr "Add sequential step after"
 
 msgid "OrSelectExisting"
 msgstr "Select existing"

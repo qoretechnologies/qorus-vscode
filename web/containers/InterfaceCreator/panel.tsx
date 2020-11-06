@@ -1193,7 +1193,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 },
                                 {}
                             );
-                            console.log(modifiedConnections);
                             modifyMappers(modifiedConnections);
                             setClassConnectionsData(modifiedConnections);
                             setShowClassConnectionsManager(false);

@@ -87,6 +87,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     reference,
     iface_kind,
     context,
+    editOnly,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -374,14 +375,16 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                     />
                                 </Tooltip>
                             )}
-                            <Tooltip content={t('CreateAndAddNewItem')}>
-                                <Button
-                                    icon="add"
-                                    intent="success"
-                                    name={`field-${name}-reference-add-new`}
-                                    onClick={() => onCreateClick(reference, handleEditSubmit)}
-                                />
-                            </Tooltip>
+                            {!editOnly && (
+                                <Tooltip content={t('CreateAndAddNewItem')}>
+                                    <Button
+                                        icon="add"
+                                        intent="success"
+                                        name={`field-${name}-reference-add-new`}
+                                        onClick={() => onCreateClick(reference, handleEditSubmit)}
+                                    />
+                                </Tooltip>
+                            )}
                         </>
                     )}
                 </ControlGroup>
