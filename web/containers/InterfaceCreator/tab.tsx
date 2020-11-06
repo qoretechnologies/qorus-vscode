@@ -2,7 +2,6 @@ import { Button, ButtonGroup } from '@blueprintjs/core';
 import React, { useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
-import shortid from 'shortid';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import Tutorial from '../../components/Tutorial';
@@ -239,7 +238,6 @@ const Tab: React.FC<ITabProps> = ({
                 () => {
                     initialData.resetInterfaceData(iface_kind);
                     initialData.changeInitialData('isRecreate', true);
-                    setInterfaceId(iface_kind, shortid.generate());
                     setRecreateDialog(null);
                 },
                 'Recreate',
