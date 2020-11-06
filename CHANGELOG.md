@@ -2,6 +2,18 @@
 
 ## 2.0.0
 
+#### New features
+
+- step diagram for Workflows has been redesigned for better user experience
+
+#### Bug fixes
+
+- connection now properly saves the port
+- target directory is now properly pre set when creating a step from workflow
+- target directory is now shown when selected
+
+## 2.0.0
+
 #### Requires
 
   Qorus 5.0.0
