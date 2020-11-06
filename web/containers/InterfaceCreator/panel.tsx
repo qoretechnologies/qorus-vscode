@@ -477,6 +477,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             // Remove the code from relations
             removeCodeFromRelations();
         }
+        if (fieldName === 'classes') {
+            resetClassConnections();
+        }
         // Remove the field
         setFields(
             type,

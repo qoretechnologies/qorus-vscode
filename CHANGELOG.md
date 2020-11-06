@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.0.1
+
+#### New features
+
+- step diagram for Workflows has been redesigned for better user experience
+
+#### Bug fixes
+
+- connection now properly saves the port
+- target directory is now properly pre set when creating a step from workflow
+- target directory is now shown when selected
+- fixed opening service methods with author for editing
+- description is mandatory for events, groups and queues
+- fixed opening events, groups and queues for editing from the file browser
+- fixed updating the file list after adding new directory
+- removed incorrect message on adding new step from the workflow diagram
+
 ## 2.0.0
 
 #### Requires
