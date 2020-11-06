@@ -27,7 +27,7 @@ export class QorusRequest extends QorusLogin {
     doRequestAndCheckResult(options: any, texts: QorusRequestTexts, onFinished?): Thenable<boolean> {
         return request(options).then(
             (response: any) => {
-                msg.log(t`requestResponse ${JSON.stringify(response)}`);
+                msg.log('    ' + t`requestResponse ${JSON.stringify(response)}`);
                 if (response.id === undefined) {
                     msg.error(t`ResponseIdUndefined`);
                     return false;
@@ -97,10 +97,12 @@ export class QorusRequest extends QorusLogin {
                         (response: any) => {
                             const status: string = response.status;
                             if (response.stdout) {
-                                msg.log(t`requestResponse ${response.stdout} ${status}`);
+                                msg.log('    ' + t`requestResponse ${response.stdout}`);
+                                msg.log('    ' + t`requestStatus ${status}`);
                             }
                             if (response.stderr) {
-                                msg.log(t`requestResponse ${response.stderr} ${status}`);
+                                msg.log('    ' + t`requestResponse ${response.stderr}`);
+                                msg.log('    ' + t`requestStatus ${status}`);
                             }
                             switch (status) {
                                 case 'FINISHED':
@@ -113,7 +115,15 @@ export class QorusRequest extends QorusLogin {
                                     quit = true;
                                     break;
                                 case 'FAILED':
-                                    msg.error(texts.failed + id_info);
+                                    msg.log(texts.failed + id_info);
+
+                                    vscode.window.showErrorMessage(
+                                        texts.failed + id_info + '.  ' + t`YouCanOpenQorusLog`,
+                                        t`OpenQorusLogButton`
+                                    ).then(() => {
+                                        msg.output.show();
+                                    });
+
                                     quit = true;
                                     break;
                                 default:

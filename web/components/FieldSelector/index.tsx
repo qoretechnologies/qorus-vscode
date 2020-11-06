@@ -1,3 +1,4 @@
+import { Tooltip } from '@blueprintjs/core';
 import React, { FunctionComponent } from 'react';
 import styled, { css } from 'styled-components';
 import { TextContext } from '../../context/text';
@@ -42,6 +43,9 @@ export const FieldName = styled.h4`
     padding: 0;
     color: #333;
     line-height: 20px;
+    word-break: keep-all;
+    text-overflow: ellipsis;
+    overflow: hidden;
 `;
 
 export const FieldType = styled.p`

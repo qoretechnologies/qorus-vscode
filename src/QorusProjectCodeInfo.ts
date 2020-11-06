@@ -735,7 +735,7 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['file_tree']).then(() => postMessage('resources', this.file_tree, false));
                 break;
             case 'target_dir':
-                this.waitForPending(['file_tree']).then(() => postMessage('directories', this.dir_tree, false));
+                this.waitForPending(['file_tree'], 800).then(() => postMessage('directories', this.dir_tree, false));
                 break;
             case 'all_dirs':
                 this.waitForPending(['file_tree'], 1000).then(() => qorus_webview.postMessage({

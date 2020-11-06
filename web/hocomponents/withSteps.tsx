@@ -1,16 +1,14 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
-
 import { isArray, reduce } from 'lodash';
 import size from 'lodash/size';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
-
 import { Messages } from '../constants/messages';
 import { processSteps } from '../containers/InterfaceCreator/workflowsView';
 import { StepsContext } from '../context/steps';
-import { transformSteps } from '../helpers/steps';
 import WorkflowStepDependencyParser from '../helpers/StepDependencyParser';
+import { transformSteps } from '../helpers/steps';
 import withFieldsConsumer from './withFieldsConsumer';
 import withMessageHandler from './withMessageHandler';
 
@@ -63,8 +61,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             targetStep: number,
             steps: (number | number[])[],
             before?: boolean,
-            parallel?: boolean
-        ) => any[] = (stepId, targetStep, steps, before, parallel) => {
+            parallel?: boolean,
+            currentListType?: 'serial' | 'parallel'
+        ) => any[] = (stepId, targetStep, steps, before, parallel, currentListType) => {
             const newSteps: (number | number[])[] = [];
             // Build the new steps
             steps.forEach((step: number | number[]): void => {
@@ -75,25 +74,52 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     if (before) {
                         // Check if this step is parallel
                         if (parallel) {
-                            newSteps.push([stepId, step]);
+                            if (currentListType === 'parallel') {
+                                newSteps.push(stepId);
+                                newSteps.push(step);
+                            } else {
+                                newSteps.push([stepId, step]);
+                            }
                         } else {
-                            newSteps.push(stepId);
-                            newSteps.push(step);
+                            if (currentListType === 'serial') {
+                                newSteps.push(stepId);
+                                newSteps.push(step);
+                            } else {
+                                newSteps.push([stepId, step]);
+                            }
                         }
                     } else {
                         // Check if this step is parallel
                         if (parallel) {
-                            newSteps.push([step, stepId]);
+                            if (currentListType === 'parallel') {
+                                newSteps.push(step);
+                                newSteps.push(stepId);
+                            } else {
+                                newSteps.push([step, stepId]);
+                            }
                         } else {
-                            newSteps.push(step);
-                            newSteps.push(stepId);
+                            if (currentListType === 'serial') {
+                                newSteps.push(step);
+                                newSteps.push(stepId);
+                            } else {
+                                newSteps.push([step, stepId]);
+                            }
                         }
                     }
                 }
                 // Check if this is a list of steps
                 else if (isArray(step)) {
                     // Push the recurse
-                    newSteps.push(insertNewStep(stepId, targetStep, step, before, parallel));
+                    newSteps.push(
+                        insertNewStep(
+                            stepId,
+                            targetStep,
+                            step,
+                            before,
+                            parallel,
+                            currentListType === 'serial' ? 'parallel' : 'serial'
+                        )
+                    );
                 }
                 // Else push the step back
                 else {
@@ -167,9 +193,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                             steps = [...current, stepId];
                         }
                     } else {
-                        steps = insertNewStep(stepId, targetStep, current, before, parallel);
+                        steps = insertNewStep(stepId, targetStep, current, before, parallel, 'serial');
                     }
                     setParsedSteps(stepsParser.processSteps(steps));
+
                     return steps;
                 });
                 setStepsData((current) => ({
