@@ -28,6 +28,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             open_file_on_success,
             no_data_return,
             request_id,
+            recreate,
         } = params;
 
         this.lang = data.lang || default_lang;
@@ -62,7 +63,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
 
         const methods = data[methods_key];
 
-        this.setPaths(data, orig_data, suffix, iface_kind);
+        this.setPaths(data, orig_data, suffix, iface_kind, recreate, iface_id);
 
         let {ok, message} = this.checkData(params);
         if (!ok) {

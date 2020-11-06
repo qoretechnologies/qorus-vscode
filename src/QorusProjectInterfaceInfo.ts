@@ -186,6 +186,10 @@ export class QorusProjectInterfaceInfo {
         return this.iface_by_id[id];
     }
 
+    deleteInfo = (id: string) => {
+        delete this.iface_by_id[id];
+    }
+
     get last_config_group(): string | undefined {
         return this.last_conf_group;
     }
