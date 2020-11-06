@@ -24,11 +24,11 @@ const StyledUrlSeparator = styled.div`
 `;
 
 export const getProtocol = (v) => {
-    return v?.split(':')?.[0] || '';
+    return v?.split('://')?.[0] || '';
 };
 
 export const getAddress = (v) => {
-    return v?.split(':')?.[1].replace('//', '') || '';
+    return v?.split('://')?.[1] || '';
 };
 
 const URLField: React.FC<IURLFieldProps> = ({ url, value, name, onChange }) => {
