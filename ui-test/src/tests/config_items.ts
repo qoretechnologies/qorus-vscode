@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
+import { By, EditorView, WebView } from 'vscode-extension-tester';
 import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
@@ -10,7 +10,6 @@ import {
     getElementAttribute,
     getNthElement,
     getSelectedFields,
-    openInterface,
     selectField,
     selectNthFilteredDropdownItem,
     selectNthFolder,
@@ -169,20 +168,6 @@ export const checkFiles = async () => {
         'service-inheriting-config-items-1.23.qsd',
         'service-inheriting-config-items-1.23.qsd.yaml',
     ]);
-};
-
-export const editInterface = async (workbench: Workbench, editorView: EditorView) => {
-    await sleep(1000);
-    const webview: WebView = await openInterface(
-        workbench,
-        editorView,
-        path.join(projectFolder, '_tests', 'ClassWithConfigItems-1.3.qclass.yaml')
-    );
-    await sleep(8000);
-    await submitInterface(webview, 'class');
-    await sleep(2000);
-    return webview;
-    // more to do
 };
 
 const openConfigItemManager = async (webview: WebView) => {
