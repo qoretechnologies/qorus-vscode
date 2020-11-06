@@ -807,6 +807,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                     intent="success"
                     icon="add"
                     onClick={() => this.handleAddStep(true, t('AddNewStepBefore'))}
+                    name="add-step-before-all"
                 />
                 <Spacer size={10} />
                 {size(steps) ? (
@@ -833,6 +834,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                     intent="success"
                     icon="add"
                     onClick={() => this.handleAddStep(false, t('AddNewStepAfter'))}
+                    name="add-step-after-all"
                 />
                 <Spacer size={10} />
             </>
@@ -1066,6 +1068,7 @@ const StepBox = ({
         <>
             {dialog && <StepDialog onClose={() => setDialog(null)} {...dialog} />}
             <StyledStep
+                name="workflow-diagram-step"
                 isHighlighted={highlightedSteps.includes(stepId)}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
@@ -1114,6 +1117,7 @@ const StepBox = ({
                 <StyledAddStepButton
                     position="top"
                     onClick={(event) => handleAddStep(event, true, false, t('AddSequentialStepBefore'))}
+                    name={`add-sequential-step-before-${stepData.name}`}
                 >
                     <Tooltip content={t('AddSequentialStepBefore')}>
                         <Icon intent="success" icon="add" iconSize={16} />
@@ -1122,6 +1126,7 @@ const StepBox = ({
                 <StyledAddStepButton
                     position="left"
                     onClick={(event) => handleAddStep(event, true, true, t('AddParallelStepBefore'))}
+                    name={`add-parallel-step-before-${stepData.name}`}
                 >
                     <Tooltip content={t('AddParallelStepBefore')}>
                         <Icon intent="success" icon="add" iconSize={16} />
@@ -1130,6 +1135,7 @@ const StepBox = ({
                 <StyledAddStepButton
                     position="bottom"
                     onClick={(event) => handleAddStep(event, false, false, t('AddSequentialStepAfter'))}
+                    name={`add-sequential-step-after-${stepData.name}`}
                 >
                     <Tooltip content={t('AddSequentialStepAfter')}>
                         <Icon intent="success" icon="add" iconSize={16} />
@@ -1138,6 +1144,7 @@ const StepBox = ({
                 <StyledAddStepButton
                     position="right"
                     onClick={(event) => handleAddStep(event, false, true, t('AddParallelStepAfter'))}
+                    name={`add-parallel-step-after-${stepData.name}`}
                 >
                     <Tooltip content={t('AddParallelStepAfter')}>
                         <Icon intent="success" icon="add" iconSize={16} />

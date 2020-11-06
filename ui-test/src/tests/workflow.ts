@@ -12,6 +12,7 @@ import {
     resetAndFillTextField,
     selectAndFillField,
     selectField,
+    selectFromContextMenu,
     selectMultiselectItemsByNumbers,
     selectNthFilteredDropdownItem,
     selectNthFolder,
@@ -83,7 +84,7 @@ export const fillsWorkflowFields = async (webview: WebView) => {
 export const createsNewStepFromWorkflowDiagram = async (webview: WebView) => {
     await clickElement(webview, 'add-step-after-all');
     await sleep(500);
-    await clickElement(webview, 'create-new-step');
+    await clickElement(webview, 'field-step-reference-add-new');
     await sleep(3000);
 
     await selectNthFolder(webview, 'target_dir', 1);
@@ -95,17 +96,17 @@ export const createsNewStepFromWorkflowDiagram = async (webview: WebView) => {
 
     await sleep(2000);
 
-    expect(await getElements(webview, 'steplist-step')).to.have.length(1);
+    expect(await getElements(webview, 'workflow-diagram-step')).to.have.length(1);
 };
 
 export const addsExistingStepFromWorkflowDiagram = async (webview: WebView) => {
-    await clickElement(webview, 'add-step-after-parallel-to-StepFromWorkflowTest');
+    await clickElement(webview, 'add-parallel-step-after-StepFromWorkflowTest');
     await sleep(500);
-    await selectNthFilteredDropdownItem(webview, 'name', 'StepForWorkflowTest');
+    await selectNthFilteredDropdownItem(webview, 'step', 'StepForWorkflowTest');
 
     await sleep(3000);
 
-    expect(await getElements(webview, 'steplist-step')).to.have.length(2);
+    expect(await getElements(webview, 'workflow-diagram-step')).to.have.length(2);
 };
 
 export const submitsWorkflowAndChecksFiles = async (webview: WebView) => {
@@ -131,9 +132,9 @@ export const editsWorkflowAndChecksFiles = async (webview: WebView) => {
 
     await sleep(1000);
 
-    await clickElement(webview, 'remove-step', 2);
+    await selectFromContextMenu(webview, `workflow-diagram-step`, 5, 2);
 
-    await sleep(500);
+    await sleep(1000);
 
     await submitInterface(webview, 'workflow-steps');
 
