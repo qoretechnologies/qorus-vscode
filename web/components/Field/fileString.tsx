@@ -42,7 +42,7 @@ const FileField: FunctionComponent<IFileField & IField & IFieldChange> = ({
                 single
                 onChange={onChange}
                 name={name}
-                value={value}
+                value={value || default_value}
                 canManageSourceDirs={canManageSourceDirs}
                 {...rest}
             />

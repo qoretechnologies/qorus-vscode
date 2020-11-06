@@ -874,7 +874,6 @@ const StepDialog = ({ step, onClose, onSubmit, title, stepName }) => {
                                     object_type: 'workflow-step',
                                     return_value: 'objects',
                                 }}
-                                editOnly
                             />
                         </FieldInputWrapper>
                     </FieldWrapper>
