@@ -240,10 +240,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             return valid;
         }
         case 'url': {
-            return (
-                validateField('string', getProtocol(value)) &&
-                validateField('string', getAddress(value?.replace(/\//g, '')))
-            );
+            return validateField('string', getProtocol(value)) && validateField('string', getAddress(value));
         }
         case 'nothing':
             return false;
