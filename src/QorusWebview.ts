@@ -228,7 +228,7 @@ class QorusWebview {
                                 fields: creator.getSortedFields({
                                     ... message,
                                     interface_info,
-                                    default_target_dir: this.initial_data.uri?.fsPath || interface_info.last_target_directory
+                                    default_target_dir: message.context?.target_dir || this.initial_data.uri?.fsPath
                                 }),
                             });
                             break;
