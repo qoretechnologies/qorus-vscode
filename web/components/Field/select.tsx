@@ -244,7 +244,13 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     };
 
     return (
-        <FieldEnhancer context={{ iface_kind, ...context }}>
+        <FieldEnhancer
+            context={{
+                iface_kind,
+                target_dir: requestFieldData && requestFieldData('target_dir', 'value'),
+                ...context,
+            }}
+        >
             {(onEditClick, onCreateClick) => (
                 <ControlGroup fill={fill}>
                     {!filteredItems || filteredItems.length === 0 ? (

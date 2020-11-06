@@ -13,6 +13,7 @@ import {
     FieldWrapper,
 } from '../../containers/InterfaceCreator/panel';
 import { ContextMenuContext } from '../../context/contextMenu';
+import { FieldContext } from '../../context/fields';
 import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { validateField } from '../../helpers/validations';
@@ -842,6 +843,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
 
 const StepDialog = ({ step, onClose, onSubmit, title, stepName }) => {
     const t = useContext(TextContext);
+    const { requestInterfaceData } = useContext(FieldContext);
     const { confirmAction } = useContext(InitialContext);
     const [stepState, setStepState] = useState(step);
 
@@ -873,6 +875,11 @@ const StepDialog = ({ step, onClose, onSubmit, title, stepName }) => {
                                     action: 'creator-return-objects',
                                     object_type: 'workflow-step',
                                     return_value: 'objects',
+                                }}
+                                requestFieldData={(field) => {
+                                    if (field === 'target_dir') {
+                                        return requestInterfaceData('workflow', 'target_dir')?.value;
+                                    }
                                 }}
                             />
                         </FieldInputWrapper>
