@@ -43,7 +43,10 @@ class QorusWebview {
             },
         });
 
-        this.initial_data = {};
+        // clear initial data except uri
+        this.initial_data = {
+            uri: this.initial_data?.uri
+        };
     }
 
     private checkError = (edit_info: QorusProjectEditInfo) => {
