@@ -298,6 +298,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                                     value={query}
                                                     name="select-filter"
                                                     placeholder={t('Filter')}
+                                                    autoFocus
                                                 />
                                                 <Spacer size={10} />
                                                 {filterItems(filteredItems).map((item) => (
@@ -341,6 +342,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                     inputProps={{
                                         placeholder: t('Filter'),
                                         name: 'field-select-filter',
+                                        autoFocus: true,
                                     }}
                                     popoverProps={{
                                         popoverClassName: 'custom-popover',
