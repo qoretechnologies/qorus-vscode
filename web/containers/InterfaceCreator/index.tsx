@@ -107,18 +107,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                         context={context}
                                         onSubmitSuccess={onSubmit}
                                         isEditing={!!initialData.step}
-                                        onSubmitSuccess={
-                                            initialData.stepCallback
-                                                ? (data) => {
-                                                      initialData.stepCallback(
-                                                          data.name,
-                                                          data.version,
-                                                          data['base-call-name']
-                                                      );
-                                                  }
-                                                : null
-                                        }
-                                        openFileOnSubmit={!!!initialData.stepCallback}
+                                        openFileOnSubmit={!onSubmit}
                                         forceSubmit
                                         {...classConnectionsProps}
                                     />

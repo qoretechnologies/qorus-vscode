@@ -1,13 +1,29 @@
 // @flow
-import React, { Component, useState, useEffect } from 'react';
+import { Button, ButtonGroup, Icon, Intent, NonIdealState, Tooltip } from '@blueprintjs/core';
 import classNames from 'classnames';
-
-import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import { size } from 'lodash';
-import { FieldName, FieldType } from '../FieldSelector';
-import withTextContext from '../../hocomponents/withTextContext';
-import withMessageHandler from '../../hocomponents/withMessageHandler';
+import React, { Component, useContext, useEffect, useState } from 'react';
+import styled, { css } from 'styled-components';
 import { Messages } from '../../constants/messages';
+import { calculateFontSize } from '../../containers/InterfaceCreator/fsm/state';
+import {
+    ActionsWrapper,
+    ContentWrapper,
+    FieldInputWrapper,
+    FieldWrapper,
+} from '../../containers/InterfaceCreator/panel';
+import { ContextMenuContext } from '../../context/contextMenu';
+import { InitialContext } from '../../context/init';
+import { TextContext } from '../../context/text';
+import { validateField } from '../../helpers/validations';
+import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
+import Content from '../Content';
+import CustomDialog from '../CustomDialog';
+import Field from '../Field';
+import FieldLabel from '../FieldLabel';
+import { FieldName, FieldType } from '../FieldSelector';
+import Spacer from '../Spacer';
 
 /**
  * Typical list of arguments for step-specific functions.
@@ -455,7 +471,7 @@ class GraphBuilder {
                 }
 
                 // find group with same average
-                let group = rowGroups.find(group => group.avgX === avgX);
+                let group = rowGroups.find((group) => group.avgX === avgX);
 
                 // if exists, assign to group
                 if (group) {
@@ -530,11 +546,11 @@ class GraphBuilder {
 }
 
 @withTextContext()
-@onlyUpdateForKeys(['highlightedGroupSteps', 'steps', 'stepsData', 't'])
 export default class StepDiagram extends Component<IStepDiagramProps> {
     state = {
         rows: null,
         highlightedSteps: this.props.highlightedGroupSteps || [],
+        dialog: null,
     };
 
     renderGridPath(startX, startY, endX, endY) {
@@ -601,7 +617,7 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     }
 
     renderNormalStep(step) {
-        const { stepsData, steps, t } = this.props;
+        const { stepsData, steps, t, handleStepInsert, onStepRemove, onStepUpdate } = this.props;
         const { highlightedSteps } = this.state;
         stepsData[step.id].sortName = step.sortName;
         return (
@@ -617,8 +633,10 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                     <rect {...this.getDefaultParams()} />
                     <foreignObject x={0} y={0} width={BOX_WIDTH} height={BOX_HEIGHT}>
                         <StepBox
+                            handleStepInsert={handleStepInsert}
+                            onStepRemove={onStepRemove}
+                            onStepUpdate={onStepUpdate}
                             stepData={stepsData[step.id]}
-                            t={t}
                             highlightedSteps={highlightedSteps}
                             stepId={step.id}
                             onMouseEnter={() => {
@@ -686,9 +704,9 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
     }
 
     getStepDeps(stepId: number, steps) {
-        const initIds = Object.keys(steps).filter(id => steps[id].length <= 0);
+        const initIds = Object.keys(steps).filter((id) => steps[id].length <= 0);
 
-        const initialDeps = initIds.map(initId => ({ [initId]: [ROOT_STEP_ID] }));
+        const initialDeps = initIds.map((initId) => ({ [initId]: [ROOT_STEP_ID] }));
 
         const deps = Object.assign({ [ROOT_STEP_ID]: [] }, steps, ...initialDeps);
 
@@ -729,12 +747,14 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
      * @see DIAGRAM_MIN_COLUMNS
      */
     componentDidMount() {
-        const bgraph = GraphBuilder.buildGraph(this.props.steps);
-        const rows = GraphBuilder.buildRows(bgraph);
-        GraphBuilder.sortAndBalanceRows(rows);
-        this.setState({
-            rows: rows,
-        });
+        if (size(this.props.steps)) {
+            const bgraph = GraphBuilder.buildGraph(this.props.steps);
+            const rows = GraphBuilder.buildRows(bgraph);
+            GraphBuilder.sortAndBalanceRows(rows);
+            this.setState({
+                rows: rows,
+            });
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -746,93 +766,384 @@ export default class StepDiagram extends Component<IStepDiagramProps> {
                 rows: rows,
             });
         }
-
-        if (nextProps.highlightedGroupSteps !== this.props.highlightedGroupSteps) {
-            this.setState({
-                highlightedSteps: nextProps.highlightedGroupSteps,
-            });
-        }
     }
 
+    handleAddStep = (before, title) => {
+        this.setState({
+            ...this.state,
+            dialog: {
+                title,
+                onSubmit: (step) => {
+                    this.props.handleStepInsert(
+                        {
+                            name: step.split(':')[0],
+                            version: step.split(':')[1],
+                        },
+                        null,
+                        before
+                    );
+                    this.setState({ dialog: null });
+                },
+            },
+        });
+    };
+
     render() {
-        if (!this.state.rows) {
+        const { t, steps } = this.props;
+
+        if (size(steps) && !this.state.rows) {
             return 'Loading...';
         }
 
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    flexFlow: 'column',
-                    flex: '1 1 auto',
-                }}
-            >
-                {this.renderGraph()}
-            </div>
+            <>
+                {this.state.dialog && (
+                    <StepDialog onClose={() => this.setState({ dialog: null })} {...this.state.dialog} />
+                )}
+                <Spacer size={10} />
+                <Button
+                    text={t('AddNewStepBefore')}
+                    minimal
+                    intent="success"
+                    icon="add"
+                    onClick={() => this.handleAddStep(true, t('AddNewStepBefore'))}
+                />
+                <Spacer size={10} />
+                {size(steps) ? (
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexFlow: 'column',
+                            flex: '1 1 auto',
+                        }}
+                    >
+                        {this.renderGraph()}
+                    </div>
+                ) : (
+                    <NonIdealState
+                        title={t('DiagramIsEmpty')}
+                        description={t('DiagramEmptyDescription')}
+                        icon="diagram-tree"
+                    />
+                )}
+                <Spacer size={10} />
+                <Button
+                    text={t('AddNewStepAfter')}
+                    minimal
+                    intent="success"
+                    icon="add"
+                    onClick={() => this.handleAddStep(false, t('AddNewStepAfter'))}
+                />
+                <Spacer size={10} />
+            </>
         );
     }
 }
 
-const StepBox = withMessageHandler()(
-    ({
-        highlightedSteps,
-        stepId,
-        onMouseLeave,
-        onMouseEnter,
-        stepData: origStepData,
-        t,
-        addMessageListener,
-        postMessage,
-    }) => {
-        const [stepData, setStepData] = useState(
-            origStepData && size(origStepData)
-                ? origStepData
-                : {
-                      name: 'Unknown Step',
-                      version: 0,
-                      type: 'unknown',
-                  }
-        );
+const StepDialog = ({ step, onClose, onSubmit, title, stepName }) => {
+    const t = useContext(TextContext);
+    const { confirmAction } = useContext(InitialContext);
+    const [stepState, setStepState] = useState(step);
 
-        useEffect(() => {
-            // Wait for the interface data message
-            const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                if (data.step && stepData.name === data.step.name && stepData.version == data.step.version) {
-                    setStepData({
-                        name: data.step.name,
-                        version: data.step.version,
-                        type: data.step['step-type'],
-                    });
-                }
-            });
-            // Ask for the interface data on every change to
-            // this step
-            postMessage(Messages.GET_INTERFACE_DATA, {
-                iface_kind: 'step',
-                name: `${stepData.name}:${stepData.version}`,
-                include_tabs: false,
-            });
-            // Remove the listener when unmounted
-            return () => {
-                msgListener();
-            };
-        }, []);
+    return (
+        <CustomDialog
+            isOpen
+            title={`${title}${stepName ? ` - ${stepName}` : ''}`}
+            onClose={onClose}
+            style={{
+                paddingBottom: 0,
+            }}
+        >
+            <Content style={{ padding: 10, backgroundColor: '#fff', borderTop: '1px solid #d7d7d7' }}>
+                <ContentWrapper style={{ display: 'flex', flexFlow: 'column', paddingRight: 0, position: 'relative' }}>
+                    <FieldWrapper>
+                        <FieldLabel label={t('field-label-step')} isValid={validateField('string', stepState)} />
+                        <FieldInputWrapper>
+                            <Field
+                                type="select-string"
+                                onChange={(_name, value) => setStepState(value)}
+                                name="step"
+                                reference={{ iface_kind: 'step' }}
+                                value={stepState}
+                                get_message={{
+                                    action: 'creator-get-objects',
+                                    object_type: 'workflow-step',
+                                }}
+                                return_message={{
+                                    action: 'creator-return-objects',
+                                    object_type: 'workflow-step',
+                                    return_value: 'objects',
+                                }}
+                                editOnly
+                            />
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                </ContentWrapper>
+                <ActionsWrapper style={{ padding: '10px' }}>
+                    <ButtonGroup fill>
+                        <Tooltip content={t('ResetTooltip')}>
+                            <Button
+                                text={t('Reset')}
+                                icon={'history'}
+                                onClick={() => {
+                                    confirmAction(
+                                        'ResetFieldsConfirm',
+                                        () => {
+                                            setStepState(step);
+                                        },
+                                        'Reset',
+                                        'warning'
+                                    );
+                                }}
+                            />
+                        </Tooltip>
+                        <Button
+                            text={t('Submit')}
+                            disabled={!validateField('string', stepState)}
+                            icon={'tick'}
+                            name={`workflow-submit-step`}
+                            intent={Intent.SUCCESS}
+                            onClick={() => {
+                                onSubmit(stepState);
+                            }}
+                        />
+                    </ButtonGroup>
+                </ActionsWrapper>
+            </Content>
+        </CustomDialog>
+    );
+};
 
-        return (
-            <div
-                style={{
-                    height: '100%',
-                    margin: '0 10px',
-                    padding: '7px',
-                    backgroundColor: '#fff',
-                    border: highlightedSteps.includes(stepId) ? '2px dashed #137cbd' : '1px solid #eee',
-                    borderRadius: '5px',
-                    transform: `scale(${highlightedSteps.includes(stepId) ? 1.05 : 1})`,
-                    boxShadow: `0 0 ${highlightedSteps.includes(stepId) ? 15 : 2}px 0px #ccc`,
-                }}
+const StyledAddStepButton = styled.div<{ position: string }>`
+    width: 20px;
+    height: 20px;
+    border-radius: 99px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    ${({ position }) => {
+        switch (position) {
+            case 'top': {
+                return css`
+                    left: 50%;
+                    top: -11px;
+                    transform: translateX(-50%);
+                `;
+            }
+            case 'bottom': {
+                return css`
+                    left: 50%;
+                    bottom: -10px;
+                    transform: translateX(-50%);
+                `;
+            }
+            case 'left': {
+                return css`
+                    top: 50%;
+                    left: -10px;
+                    transform: translateY(-50%);
+                `;
+            }
+            default: {
+                return css`
+                    top: 50%;
+                    right: -10px;
+                    transform: translateY(-50%);
+                `;
+            }
+        }
+    }}
+`;
+
+const StyledStep = styled.div<{ isHighlighted?: boolean }>`
+    margin: 10px;
+    max-height: 56px;
+    padding: 7px;
+    background-color: #fff;
+    border: ${({ isHighlighted }) => (isHighlighted ? '2px dashed #137cbd' : '1px solid #ccc')};
+    border-radius: 5px;
+    transform: ${({ isHighlighted }) => (isHighlighted ? 1.05 : 1)};
+    box-shadow: 0 0 ${({ isHighlighted }) => (isHighlighted ? 15 : 2)}px 0px #ccc;
+    position: relative;
+
+    &:hover {
+        cursor: pointer;
+        box-shadow: 0 0 10px 2px #ccc;
+        border: 1px solid #ccc;
+
+        ${StyledAddStepButton} {
+            display: block;
+        }
+    }
+`;
+
+const StepBox = ({
+    highlightedSteps,
+    stepId,
+    onMouseLeave,
+    onMouseEnter,
+    stepData: origStepData,
+    handleStepInsert,
+    onStepRemove,
+    onStepUpdate,
+}) => {
+    const t = useContext(TextContext);
+    const { addMenu } = useContext(ContextMenuContext);
+    const [dialog, setDialog] = useState(null);
+    const [stepData, setStepData] = useState(
+        origStepData && size(origStepData)
+            ? origStepData
+            : {
+                  name: 'Unknown Step',
+                  version: 0,
+                  type: 'unknown',
+              }
+    );
+
+    useEffect(() => {
+        // Wait for the interface data message
+        const msgListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+            if (data.step && origStepData.name === data.step.name && origStepData.version == data.step.version) {
+                setStepData({
+                    name: data.step.name,
+                    version: data.step.version,
+                    type: data.step['step-type'],
+                });
+            }
+        });
+        // Ask for the interface data on every change to
+        // this step
+        postMessage(Messages.GET_INTERFACE_DATA, {
+            iface_kind: 'step',
+            name: `${origStepData.name}:${origStepData.version}`,
+            include_tabs: false,
+        });
+        // Remove the listener when unmounted
+        return () => {
+            msgListener();
+        };
+    }, [origStepData]);
+
+    const handleAddStep = (event, before, parallel, title) => {
+        event.stopPropagation();
+        setDialog({
+            title,
+            stepName: `${stepData.name}:${stepData.version}`,
+            onSubmit: (step) => {
+                handleStepInsert(
+                    {
+                        name: step.split(':')[0],
+                        version: step.split(':')[1],
+                    },
+                    stepId,
+                    before,
+                    parallel
+                );
+                setDialog(null);
+            },
+        });
+    };
+
+    const handleClick = () => {
+        setDialog({
+            title: t('EditStep'),
+            step: `${stepData.name}:${stepData.version}`,
+            stepName: `${stepData.name}:${stepData.version}`,
+            onSubmit: (step) => {
+                onStepUpdate(stepId, {
+                    name: step.split(':')[0],
+                    version: step.split(':')[1],
+                });
+                setDialog(null);
+            },
+        });
+    };
+
+    return (
+        <>
+            {dialog && <StepDialog onClose={() => setDialog(null)} {...dialog} />}
+            <StyledStep
+                isHighlighted={highlightedSteps.includes(stepId)}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
+                onContextMenu={(event) => {
+                    event.persist();
+                    addMenu({
+                        event,
+                        data: [
+                            {
+                                item: t('AddSequentialStepBefore'),
+                                onClick: () => handleAddStep(event, true, false, t('AddSequentialStepBefore')),
+                                icon: 'chevron-up',
+                            },
+                            {
+                                item: t('AddSequentialStepAfter'),
+                                onClick: () => handleAddStep(event, false, false, t('AddSequentialStepAfter')),
+                                icon: 'chevron-down',
+                            },
+                            {
+                                item: t('AddParallelStepBefore'),
+                                onClick: () => handleAddStep(event, true, true, t('AddParallelStepBefore')),
+                                icon: 'chevron-left',
+                            },
+                            {
+                                item: t('AddParallelStepAfter'),
+                                onClick: () => handleAddStep(event, false, true, t('AddParallelStepAfter')),
+                                icon: 'chevron-right',
+                            },
+                            {
+                                item: t('Edit'),
+                                onClick: () => handleClick(),
+                                icon: 'edit',
+                                intent: 'warning',
+                            },
+                            {
+                                item: t('Remove'),
+                                onClick: () => onStepRemove(stepId),
+                                icon: 'trash',
+                                intent: 'danger',
+                            },
+                        ],
+                    });
+                }}
+                onClick={() => handleClick()}
             >
+                <StyledAddStepButton
+                    position="top"
+                    onClick={(event) => handleAddStep(event, true, false, t('AddSequentialStepBefore'))}
+                >
+                    <Tooltip content={t('AddSequentialStepBefore')}>
+                        <Icon intent="success" icon="add" iconSize={16} />
+                    </Tooltip>
+                </StyledAddStepButton>
+                <StyledAddStepButton
+                    position="left"
+                    onClick={(event) => handleAddStep(event, true, true, t('AddParallelStepBefore'))}
+                >
+                    <Tooltip content={t('AddParallelStepBefore')}>
+                        <Icon intent="success" icon="add" iconSize={16} />
+                    </Tooltip>
+                </StyledAddStepButton>
+                <StyledAddStepButton
+                    position="bottom"
+                    onClick={(event) => handleAddStep(event, false, false, t('AddSequentialStepAfter'))}
+                >
+                    <Tooltip content={t('AddSequentialStepAfter')}>
+                        <Icon intent="success" icon="add" iconSize={16} />
+                    </Tooltip>
+                </StyledAddStepButton>
+                <StyledAddStepButton
+                    position="right"
+                    onClick={(event) => handleAddStep(event, false, true, t('AddParallelStepAfter'))}
+                >
+                    <Tooltip content={t('AddParallelStepAfter')}>
+                        <Icon intent="success" icon="add" iconSize={16} />
+                    </Tooltip>
+                </StyledAddStepButton>
                 <div
                     style={{
                         justifyContent: 'center',
@@ -842,12 +1153,18 @@ const StepBox = withMessageHandler()(
                         wordBreak: 'break-word',
                     }}
                 >
-                    <FieldName>
+                    <FieldName
+                        title={`${stepData.name}:${stepData.version}`}
+                        style={{
+                            fontSize: calculateFontSize(`${stepData.name}:${stepData.version}`),
+                        }}
+                    >
                         {stepData.name}:{stepData.version}
                     </FieldName>
+
                     <FieldType>{t(stepData.type)}</FieldType>
                 </div>
-            </div>
-        );
-    }
-);
+            </StyledStep>
+        </>
+    );
+};
