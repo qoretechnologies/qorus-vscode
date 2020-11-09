@@ -492,6 +492,57 @@ export class QorusProjectCodeInfo {
         return data;
     }
 
+    checkData = (data: any): boolean => {
+        const items_to_check = ['checkDependentObjects'];
+        return items_to_check.every(itemToCheck => this[itemToCheck](data));
+    }
+
+    protected checkDependentObjects(iface_data: any): boolean {
+        msg.debug({iface_data});
+        let ok: boolean = true;
+
+        const checkObject = (type, name) => {
+            if (!name) {
+                return;
+            }
+
+            if (name.name) {
+                name = name.name;
+            }
+
+            if (type === 'class' && QorusProjectCodeInfo.isRootBaseClass(name)) {
+                return;
+            }
+
+            const yaml_data = this.yaml_info.yamlDataByName(type, name);
+            if (!yaml_data) {
+                msg.debug({name});
+                msg.error(t`ReferencedObjectNotFound ${type} ${name}`);
+                ok = false;
+                return;
+            }
+
+            checkIfaceData(yaml_data);
+        };
+
+        const checkIfaceData = (data: any) => {
+            checkObject('class', data['base-class-name']);
+
+            (data.classes || []).forEach(name => checkObject('class', name));
+            (data.requires || []).forEach(name => checkObject('class', name));
+
+            (data['config-items'] || []).forEach(item => {
+                if (item.parent?.['interface-type'] === 'class') {
+                    checkObject('class', item.parent?.['interface-name']);
+                }
+            });
+        };
+
+        checkIfaceData(iface_data);
+
+        return ok;
+    }
+
     private initInfo() {
         this.file_tree = [];
         this.dir_tree = [];

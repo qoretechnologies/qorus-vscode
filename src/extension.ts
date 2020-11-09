@@ -121,6 +121,10 @@ export async function activate(context: vscode.ExtensionContext) {
             iface_info.last_other_iface_kind = undefined;
         }
 
+        if (!code_info.checkData(data)) {
+            return;
+        }
+
         qorus_webview.open({
             tab: 'CreateInterface',
             subtab: iface_kind,
