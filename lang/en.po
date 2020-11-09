@@ -1898,10 +1898,10 @@ msgid "AddNewStep"
 msgstr "Add new step"
 
 msgid "AddNewStepBefore"
-msgstr "Add new step before all"
+msgstr "Add new step at the beginning"
 
 msgid "AddNewStepAfter"
-msgstr "Add new step after all"
+msgstr "Add new step at the end"
 
 msgid "AddParallelStepBefore"
 msgstr "Add parallel step before"
