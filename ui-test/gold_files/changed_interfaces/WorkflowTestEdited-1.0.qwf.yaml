@@ -39,6 +39,6 @@ vmaps:
 version: "1.0"
 steps:
     [
-        "StepFromWorkflowTest:1.0",
+        "StepFromWorkflowTest:1.0"
     ]
 code: WorkflowTestEdited-1.0.qwf

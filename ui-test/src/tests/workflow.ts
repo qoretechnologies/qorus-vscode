@@ -83,18 +83,22 @@ export const fillsWorkflowFields = async (webview: WebView) => {
 
 export const createsNewStepFromWorkflowDiagram = async (webview: WebView) => {
     await clickElement(webview, 'add-step-after-all');
-    await sleep(500);
+    await sleep(2500);
     await clickElement(webview, 'field-step-reference-add-new');
     await sleep(3000);
 
     await selectNthFolder(webview, 'target_dir', 1);
-    await fillTextField(webview, 'field-name', 'StepFromWorkflowTest', 2);
+    await fillTextField(webview, 'field-name', 'StepFromWorkflowTest');
     await fillTextField(webview, 'field-desc', 'Step from Workflow test');
     await selectNthFilteredDropdownItem(webview, 'base-class-name', 'QorusNormalStep');
     await fillTextField(webview, 'field-version', '1.0');
     await submitInterface(webview, 'step');
 
     await sleep(2000);
+
+    await clickElement(webview, 'workflow-submit-step');
+
+    await sleep(1000);
 
     expect(await getElements(webview, 'workflow-diagram-step')).to.have.length(1);
 };
@@ -103,7 +107,7 @@ export const addsExistingStepFromWorkflowDiagram = async (webview: WebView) => {
     await clickElement(webview, 'add-parallel-step-after-StepFromWorkflowTest');
     await sleep(500);
     await selectNthFilteredDropdownItem(webview, 'step', 'StepForWorkflowTest');
-
+    await clickElement(webview, 'workflow-submit-step');
     await sleep(3000);
 
     expect(await getElements(webview, 'workflow-diagram-step')).to.have.length(2);
@@ -132,7 +136,7 @@ export const editsWorkflowAndChecksFiles = async (webview: WebView) => {
 
     await sleep(1000);
 
-    await selectFromContextMenu(webview, `workflow-diagram-step`, 5, 2);
+    await selectFromContextMenu(webview, `workflow-diagram-step`, 6, 2);
 
     await sleep(1000);
 
