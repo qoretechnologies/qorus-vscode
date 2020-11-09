@@ -16,6 +16,7 @@
 - fixed opening events, groups and queues for editing from the file browser
 - fixed updating the file list after adding new directory
 - removed incorrect message on adding new step from the workflow diagram
+- fixed switching an interface into another language
 
 ## 2.0.0
 
