@@ -146,6 +146,7 @@ export const getElementText = async (
 
 export const selectNthFolder = async (webview: WebView, name: string, position: number) => {
     await clickElement(webview, `folder-expander-${name}`);
+    await sleep(500);
     await clickElement(webview, 'bp3-tree-node-content', position, 'className');
 };
 
