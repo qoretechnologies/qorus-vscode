@@ -273,6 +273,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
             ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField }; iface_kind: string }) => {
+                console.log(newFields);
                 // Register only for this interface
                 if (rest.iface_kind === type) {
                     // Clone initial data
@@ -475,6 +476,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (type === 'mapper' && fieldName === 'codes') {
             // Remove the code from relations
             removeCodeFromRelations();
+        }
+        if (fieldName === 'classes') {
+            resetClassConnections();
         }
         // Remove the field
         setFields(
@@ -1193,7 +1197,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 },
                                 {}
                             );
-                            console.log(modifiedConnections);
                             modifyMappers(modifiedConnections);
                             setClassConnectionsData(modifiedConnections);
                             setShowClassConnectionsManager(false);

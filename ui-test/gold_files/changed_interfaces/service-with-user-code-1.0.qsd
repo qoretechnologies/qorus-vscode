@@ -1,0 +1,36 @@
+%new-style
+%strict-args
+%require-types
+%enable-all-warnings
+
+class ServiceWithUserCode inherits QorusService {
+    init() {
+        # dummy
+    }
+
+    private {
+        int coef = 3;
+        string pref = "_";
+    }
+
+    multiply(int n) {
+        printf("%d\n", coef * n);
+    }
+
+    # set the multiplication coefficient
+    private setCoef(int c) {
+        coef = c;
+    }
+
+    addPrefix(string s) {
+        printf("%s\n", pref + s);
+    }
+
+    # set the prefix
+    private setPref(string p) {
+        prefix = p;
+    }
+
+    newMethod() {
+    }
+}

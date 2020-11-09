@@ -203,6 +203,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     {methods.map(
                                                         (method: { id: number; name?: string }, index: number) => (
                                                             <MethodSelector
+                                                                name={`select-method-${method.name}`}
                                                                 key={method.id}
                                                                 active={method.id === activeMethod}
                                                                 valid={isSubItemValid(method.id, 'service-methods')}
@@ -216,6 +217,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                                 )}
                                                                 {methodsCount !== 1 && (
                                                                     <RemoveButton
+                                                                        name={`remove-method-${method.name}`}
                                                                         onClick={() => {
                                                                             setMethods((current) =>
                                                                                 current.filter(
@@ -240,6 +242,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 <ActionsWrapper>
                                                     <ButtonGroup fill>
                                                         <Button
+                                                            name={'add-method-button'}
                                                             text={t('AddMethod')}
                                                             icon={'plus'}
                                                             onClick={handleAddMethodClick}

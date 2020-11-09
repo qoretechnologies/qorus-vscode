@@ -1,11 +1,9 @@
-import React, { FunctionComponent, ChangeEvent } from 'react';
 import { Classes, TextArea } from '@blueprintjs/core';
-import withTextContext from '../../hocomponents/withTextContext';
+import React, { ChangeEvent, FunctionComponent } from 'react';
+import useMount from 'react-use/lib/useMount';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import compose from 'recompose/compose';
-import useMount from 'react-use/lib/useMount';
-import withMessageHandler, { TPostMessage, TMessageListener } from '../../hocomponents/withMessageHandler';
+import { addMessageListener, postMessage, TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import { getLineCount } from '../Tree';
 
 export interface ILongStringField {
@@ -13,6 +11,7 @@ export interface ILongStringField {
     fill?: boolean;
     postMessage?: TPostMessage;
     addMessageListener?: TMessageListener;
+    placeholder?: string;
 }
 
 const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChange> = ({
@@ -21,10 +20,9 @@ const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChang
     value,
     default_value,
     fill,
-    postMessage,
-    addMessageListener,
     get_message,
     return_message,
+    placeholder,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -48,11 +46,6 @@ const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChang
         onChange(name, event.target.value);
     };
 
-    // Clear the input on reset click
-    const handleResetClick = (): void => {
-        onChange(name, '');
-    };
-
     return (
         <TextArea
             name={`field-${name}`}
@@ -60,6 +53,7 @@ const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChang
                 width: '100%',
                 resize: 'none',
             }}
+            placeholder={placeholder}
             rows={getLineCount(value || default_value || '') + 1}
             className={fill && Classes.FILL}
             value={!value ? default_value || '' : value}
@@ -68,6 +62,4 @@ const LongStringField: FunctionComponent<ILongStringField & IField & IFieldChang
     );
 };
 
-export default compose(withMessageHandler(), withTextContext())(LongStringField) as FunctionComponent<
-    ILongStringField & IField & IFieldChange
->;
+export default LongStringField;

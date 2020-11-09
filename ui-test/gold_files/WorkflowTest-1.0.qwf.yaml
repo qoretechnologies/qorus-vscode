@@ -1,0 +1,47 @@
+# This is a generated file, don't edit!
+type: workflow
+name: WorkflowTest
+desc: Workflow test
+lang: qore
+attach: test
+author:
+  - Test User
+autostart: 1
+base-class-name: QorusWorkflow
+class-name: WorkflowTest
+classes:
+  - ClassForFSMTest
+constants:
+  - test
+detach: test
+errorfunction: test
+error_handler: test
+functions:
+  - test
+groups:
+  - TestingGroup
+keylist:
+  - test
+mappers:
+  - MapperForFSMTest:1.0
+max_instances: 5
+onetimeinit: test
+options:
+    foo: bar
+remote: true
+sla_threshold: 1800
+statuses:
+    200: ok
+tags:
+    foo: bar
+vmaps:
+  - test
+version: "1.0"
+steps:
+    [
+        [
+            "StepFromWorkflowTest:1.0",
+            "StepForWorkflowTest:1.0"
+        ]
+    ]
+code: WorkflowTest-1.0.qwf

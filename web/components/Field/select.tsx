@@ -87,6 +87,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     reference,
     iface_kind,
     context,
+    editOnly,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -243,7 +244,13 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     };
 
     return (
-        <FieldEnhancer context={{ iface_kind, ...context }}>
+        <FieldEnhancer
+            context={{
+                iface_kind,
+                target_dir: requestFieldData && requestFieldData('target_dir', 'value'),
+                ...context,
+            }}
+        >
             {(onEditClick, onCreateClick) => (
                 <ControlGroup fill={fill}>
                     {!filteredItems || filteredItems.length === 0 ? (
@@ -297,6 +304,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                                     value={query}
                                                     name="select-filter"
                                                     placeholder={t('Filter')}
+                                                    autoFocus
                                                 />
                                                 <Spacer size={10} />
                                                 {filterItems(filteredItems).map((item) => (
@@ -340,6 +348,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                     inputProps={{
                                         placeholder: t('Filter'),
                                         name: 'field-select-filter',
+                                        autoFocus: true,
                                     }}
                                     popoverProps={{
                                         popoverClassName: 'custom-popover',
@@ -374,14 +383,16 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                     />
                                 </Tooltip>
                             )}
-                            <Tooltip content={t('CreateAndAddNewItem')}>
-                                <Button
-                                    icon="add"
-                                    intent="success"
-                                    name={`field-${name}-reference-add-new`}
-                                    onClick={() => onCreateClick(reference, handleEditSubmit)}
-                                />
-                            </Tooltip>
+                            {!editOnly && (
+                                <Tooltip content={t('CreateAndAddNewItem')}>
+                                    <Button
+                                        icon="add"
+                                        intent="success"
+                                        name={`field-${name}-reference-add-new`}
+                                        onClick={() => onCreateClick(reference, handleEditSubmit)}
+                                    />
+                                </Tooltip>
+                            )}
                         </>
                     )}
                 </ControlGroup>

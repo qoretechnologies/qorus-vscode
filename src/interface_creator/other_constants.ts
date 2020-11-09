@@ -6,10 +6,7 @@ export const otherFields = ({ default_target_dir, interface_info, is_editing, co
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
-    {
-        ...field.desc,
-        mandatory: false,
-    },
+    field.desc,
     {
         name: 'type',
         type: 'enum',

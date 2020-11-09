@@ -34,7 +34,7 @@ export interface ITreeField {
 }
 
 const StyledTreeWrapper = styled.div`
-    height: 30px;
+    min-height: 30px;
     line-height: 30px;
     padding-left: 7px;
     font-weight: 500;
@@ -62,6 +62,7 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     onChange,
     name,
     value = [],
+    default_value,
     single,
     useRelativePath,
     notFixed,
@@ -77,6 +78,10 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
     const [manageSourceDirs, setManageSourceDirs] = useState<any>(false);
 
     useMount(() => {
+        if (default_value) {
+            onChange(name, default_value);
+        }
+
         addMessageListener(return_message.action, (data: any) => {
             // Check if this is the correct
             // object type
@@ -267,19 +272,22 @@ const TreeField: FunctionComponent<ITreeField & IField & IFieldChange> = ({
                 />
             )}
             <StyledTreeWrapper onClick={() => setRootExpanded((cur) => !cur)} name={`folder-expander-${name}`}>
-                <Icon icon={isRootExpanded ? 'folder-open' : 'folder-close'} /> {isRootExpanded ? 'Hide' : 'Show'}{' '}
-                folders{' '}
-                {canManageSourceDirs && (
-                    <p
-                        style={{ float: 'right', padding: 0, margin: 0 }}
-                        onClick={(event) => {
-                            event.stopPropagation();
-                            setManageSourceDirs(true);
-                        }}
-                    >
-                        Manage <Icon icon="cog" />
-                    </p>
-                )}
+                {single && <>{value && <p style={{ margin: 0, padding: 0 }}>{value}</p>}</>}
+                <div>
+                    <Icon icon={isRootExpanded ? 'folder-open' : 'folder-close'} /> {isRootExpanded ? 'Hide' : 'Show'}{' '}
+                    folders{' '}
+                    {canManageSourceDirs && (
+                        <p
+                            style={{ float: 'right', padding: 0, margin: 0 }}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setManageSourceDirs(true);
+                            }}
+                        >
+                            Manage <Icon icon="cog" />
+                        </p>
+                    )}
+                </div>
             </StyledTreeWrapper>
             {notFixed ? (
                 <>

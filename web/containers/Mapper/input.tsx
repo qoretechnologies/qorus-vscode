@@ -1,9 +1,8 @@
 import React, { FC } from 'react';
 import { useDrag } from 'react-dnd';
+import styled from 'styled-components';
 import { StyledMapperField } from '.';
 import AddFieldButton from './add';
-import styled from 'styled-components';
-import { Tooltip } from '@blueprintjs/core';
 
 export interface IMapperInputProps {
     id: number;
@@ -45,7 +44,7 @@ const MapperInput: FC<IMapperInputProps> = ({
 }) => {
     const [{ opacity }, dragRef] = useDrag({
         item: { type: 'input', types, id: path, usesContext, isWholeInput },
-        collect: monitor => ({
+        collect: (monitor) => ({
             opacity: monitor.isDragging() ? 0.2 : 1,
         }),
     });
@@ -62,16 +61,12 @@ const MapperInput: FC<IMapperInputProps> = ({
             level={level}
             childrenCount={lastChildIndex}
             title={field?.desc}
+            name="diagram-field"
         >
             <StyledDragHandle ref={hasAvailableOutput ? dragRef : undefined} style={{ opacity: finalOpacity }}>
                 <h4 style={{ fontSize: isWholeInput ? '16px' : '14px' }}>{name}</h4>
                 {!isWholeInput && (
-                    <p
-                        className={`${types
-                            .join(' ')
-                            .replace(/</g, '')
-                            .replace(/>/g, '')} type`}
-                    >
+                    <p className={`${types.join(' ').replace(/</g, '').replace(/>/g, '')} type`}>
                         {`${types.includes('nothing') ? '*' : ''}${type.base_type}`}
                     </p>
                 )}

@@ -1,27 +1,53 @@
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
-import { isEqual } from 'lodash';
+import { isEqual, isObject, transform } from 'lodash';
 import * as path from 'path';
+import { goldFilesFolder, projectFolder } from './common';
 
-export const compareWithGoldFiles = async (folder: string, files: string[], gold_files_subfolder = '') => {
-    const gold_files_folder: string = process.env.TEST_GOLD_FILES || '/builds/mirror/qorus-vscode/ui-test/gold_files';
+function difference(object: any, base: any) {
+    function changes(object: any, base: any) {
+        return transform(object, function (result: any, value: any, key: any) {
+            if (!isEqual(value, base[key])) {
+                result[key] = isObject(value) && isObject(base[key]) ? changes(value, base[key]) : value;
+            }
+        });
+    }
+    return changes(object, base);
+}
+
+export const compareWithGoldFiles = async (files: string[], isChanged?: boolean, transformer?: (data: any) => any) => {
+    const folder = path.join(projectFolder, '_tests');
+    const gold_files_subfolder = isChanged ? 'changed_interfaces' : '';
 
     const compare = (file_name: string) => {
         const file_path = path.join(folder, file_name);
         const file_exists = fs.existsSync(file_path);
-        expect(file_exists).to.be.true;
+
         if (!file_exists) {
-            return;
+            throw new Error(`File ${file_name} not found!`);
         }
 
-        const gold_file_path = path.join(gold_files_folder, gold_files_subfolder, file_name);
+        const gold_file_path = path.join(goldFilesFolder, gold_files_subfolder, file_name);
         const expected_file_contents = fs.readFileSync(gold_file_path);
         const true_file_contents = fs.readFileSync(file_path);
 
         if (path.extname(file_name) === '.yaml') {
-            const expected_file_data = jsyaml.safeLoad(expected_file_contents.toString());
-            const true_file_data = jsyaml.safeLoad(true_file_contents.toString());
+            let expected_file_data = jsyaml.safeLoad(expected_file_contents.toString());
+            let true_file_data = jsyaml.safeLoad(true_file_contents.toString());
+
+            if (transformer) {
+                expected_file_data = transformer(expected_file_data);
+                true_file_data = transformer(true_file_data);
+            }
+
+            if (!isEqual(expected_file_data, true_file_data)) {
+                console.error(
+                    'Gold file different. Difference:',
+                    JSON.stringify(difference(expected_file_data, true_file_data))
+                );
+            }
+
             expect(isEqual(expected_file_data, true_file_data)).to.be.true;
         } else {
             expect(true_file_contents).to.eql(expected_file_contents);

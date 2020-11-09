@@ -3,17 +3,17 @@ import * as jsyaml from 'js-yaml';
 import * as path from 'path';
 import { t } from 'ttag';
 import { Position } from 'vscode';
-
 import * as globals from '../global_config_item_values';
-import { default_version, types_with_version, default_lang } from '../qorus_constants';
-import * as msg from '../qorus_message';
-import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
 import { projects } from '../QorusProject';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
+import { default_lang, default_version, types_with_version } from '../qorus_constants';
+import * as msg from '../qorus_message';
+import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
 import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
+
 
 const list_indent = '  - ';
 const indent = '    ';
@@ -38,12 +38,28 @@ export abstract class InterfaceCreator {
     protected has_code = false;
     protected had_code = false;
 
-    protected setPaths(data: any, orig_data: any, suffix: string, iface_kind: string, edit_type?: string): any {
+    protected setPaths(
+        data: any,
+        orig_data: any,
+        suffix: string,
+        iface_kind: string,
+        recreate?: boolean,
+        iface_id?: string,
+        edit_type?: string
+    ): any {
         this.file_edit_info = undefined;
         this.suffix = suffix || '';
 
         let { target_dir, target_file } = data;
-        const { target_dir: orig_target_dir, target_file: orig_target_file } = orig_data || {};
+
+        let orig_target_dir, orig_target_file;
+        if (orig_data) {
+            ({ target_dir: orig_target_dir, target_file: orig_target_file } = orig_data);
+        } else if (recreate && iface_id) {
+            const info_by_id = this.code_info.interface_info.getInfo(iface_id);
+            ({ target_dir: orig_target_dir, target_file: orig_target_file } = info_by_id);
+            this.code_info.interface_info.deleteInfo(iface_id);
+        }
 
         this.target_dir =
             iface_kind === 'type' && edit_type === 'create'
@@ -205,9 +221,8 @@ export abstract class InterfaceCreator {
         const fixed_data = this.code_info.fixData(data);
 
         let iface_kind = fixed_data.type;
-        if (['group', 'event', 'queue'].includes(iface_kind)) {
+        if (['Group', 'Event', 'Queue'].includes(fixed_data.type)) {
             iface_kind = 'other';
-            fixed_data.type = capitalize(fixed_data.type);
         }
 
         const initial_data = {

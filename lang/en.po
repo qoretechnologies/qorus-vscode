@@ -187,9 +187,6 @@ msgstr "Files to deploy:"
 msgid "DeploymentHasStarted ${ name } ${ url }"
 msgstr "Deployment to ${ name } - ${ url } has started ..."
 
-msgid "deploymentResponse ${ response }"
-msgstr "  ... response: ${ response }"
-
 msgid "ResponseIdUndefined"
 msgstr "Response ID is undefined"
 
@@ -277,14 +274,17 @@ msgstr "${ sec }s"
 msgid "checkingDeploymentProgress ${ deployment_id } ${ sec }";
 msgstr "${ sec }s   checking deployment progress (ID: ${ deployment_id }) ... "
 
-msgid "deploymentResponse ${ response } ${ status }"
-msgstr "    ... ${ response }, status: ${ status }";
-
 msgid "requestResponse ${ response }"
-msgstr "  ... response: ${ response }"
+msgstr "... response: ${ response }"
 
-msgid "requestResponse ${ response } ${ status }"
-msgstr "    ... ${ response }, status: ${ status }";
+msgid "requestStatus ${ status }"
+msgstr "... status: ${ status }";
+
+msgid "YouCanOpenQorusLog"
+msgstr "Open the log for more details.";
+
+msgid "OpenQorusLogButton"
+msgstr "Open log";
 
 msgid "DeploymentFinishedSuccessfully"
 msgstr "Deployment finished successfully"
@@ -901,9 +901,6 @@ msgstr "Files to test:"
 msgid "TestHasStarted ${ name } ${ url }"
 msgstr "Test execution to ${ name } - ${ url } has started ..."
 
-msgid "testResponse ${ response }"
-msgstr "  ... response: ${ response }"
-
 msgid "TestStartFailed"
 msgstr "Test execution failed to start"
 
@@ -1149,6 +1146,9 @@ msgstr "One or more interface groups that the object is a member of"
 
 msgid "field-label-event"
 msgstr "Event"
+
+msgid "field-label-step"
+msgstr "Step"
 
 msgid "field-desc-event"
 msgstr "The name of the event associated with the step"
@@ -1615,9 +1615,6 @@ msgstr "Loading fields..."
 msgid "SelectAll"
 msgstr "Select all"
 
-msgid "AddMethod"
-msgstr "Add new method"
-
 msgid "UnknownWebviewMessage ${ msg }"
 msgstr "Unknown webview message ${ msg }"
 
@@ -1900,8 +1897,23 @@ msgstr "after"
 msgid "AddNewStep"
 msgstr "Add new step"
 
-msgid "AddNewParallelStep"
-msgstr "Add new step parallel to"
+msgid "AddNewStepBefore"
+msgstr "Add new step at the beginning"
+
+msgid "AddNewStepAfter"
+msgstr "Add new step at the end"
+
+msgid "AddParallelStepBefore"
+msgstr "Add parallel step before"
+
+msgid "AddParallelStepAfter"
+msgstr "Add parallel step after"
+
+msgid "AddSequentialStepBefore"
+msgstr "Add sequential step before"
+
+msgid "AddSequentialStepAfter"
+msgstr "Add sequential step after"
 
 msgid "OrSelectExisting"
 msgstr "Select existing"

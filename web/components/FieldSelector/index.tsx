@@ -1,7 +1,7 @@
+import { Tooltip } from '@blueprintjs/core';
 import React, { FunctionComponent } from 'react';
 import styled, { css } from 'styled-components';
 import { TextContext } from '../../context/text';
-import { Tooltip } from '@blueprintjs/core';
 
 const StyledFieldSelector = styled.div`
     width: 100%;
@@ -43,6 +43,9 @@ export const FieldName = styled.h4`
     padding: 0;
     color: #333;
     line-height: 20px;
+    word-break: keep-all;
+    text-overflow: ellipsis;
+    overflow: hidden;
 `;
 
 export const FieldType = styled.p`
@@ -104,19 +107,15 @@ const FieldSelector: FunctionComponent<IFieldSelector> = ({
     tooltip,
 }) => (
     <TextContext.Consumer>
-        {t => (
+        {(t) => (
             <StyledFieldSelector
                 name={`field-selector-${name}`}
                 disabled={disabled}
                 onClick={() => !disabled && onClick(name)}
             >
-                <Tooltip content={tooltip || type}>
-                    <>
-                        <FieldName>{translateName ? t(`field-label-${name}`) : name}</FieldName>
-                        <FieldType>{`<${type}>`}</FieldType>
-                        <FieldButton />
-                    </>
-                </Tooltip>
+                <FieldName>{translateName ? t(`field-label-${name}`) : name}</FieldName>
+                <FieldType>{`<${type}>`}</FieldType>
+                <FieldButton />
             </StyledFieldSelector>
         )}
     </TextContext.Consumer>

@@ -1,11 +1,7 @@
-import React, {
-    FunctionComponent, useState
-} from 'react';
-
 import set from 'lodash/set';
+import React, { FunctionComponent, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
-
 import { AppToaster } from '../components/Toast';
 import { Messages } from '../constants/messages';
 import { InitialContext } from '../context/init';

@@ -488,9 +488,9 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                             <Button
                                 text={t('Submit')}
                                 disabled={!isDataValid()}
-                                icon={'tick'}
+                                icon="tick"
                                 loading={isLoading}
-                                name={`fsn-submit-state`}
+                                name="fsm-submit-state"
                                 intent={isLoading ? Intent.WARNING : Intent.SUCCESS}
                                 onClick={() => {
                                     setIsLoading(true);

@@ -1,17 +1,14 @@
-import React, { FC, useState } from 'react';
-
-import set from 'lodash/set';
-import useMount from 'react-use/lib/useMount';
-
 import { Button, ButtonGroup, Callout } from '@blueprintjs/core';
-
+import set from 'lodash/set';
+import React, { FC, useState } from 'react';
+import useMount from 'react-use/lib/useMount';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import BooleanField from '../../components/Field/boolean';
+import LongStringField from '../../components/Field/longString';
 import MarkdownPreview from '../../components/Field/markdownPreview';
 import SelectField from '../../components/Field/select';
 import String from '../../components/Field/string';
-import TextareaField from '../../components/Field/textarea';
 import FieldLabel from '../../components/FieldLabel';
 import Box from '../../components/ResponsiveBox';
 import { validateField } from '../../helpers/validations';
@@ -47,7 +44,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     initialData,
     isParentCustom,
 }) => {
-    const transformFieldData = fieldData => {
+    const transformFieldData = (fieldData) => {
         // Save the typename
         const typename = fieldData.type.name;
         // Check if the field has a maybe type
@@ -81,7 +78,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     });
 
     const onChange: (path: string, value: any) => void = (path, value) => {
-        setField(current => {
+        setField((current) => {
             const newField = { ...current };
             set(newField, path, value);
             return newField;
@@ -89,10 +86,10 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     };
 
     const onTypeChange: (_path: string, value: any) => void = (_path, value) => {
-        setField(current => {
+        setField((current) => {
             const newField = { ...current };
             // Find the type based on the name
-            const fieldType = types.find(type => type.name === value);
+            const fieldType = types.find((type) => type.name === value);
             // Set the type
             newField.type = fieldType;
             // If type is auto
@@ -104,7 +101,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         });
     };
 
-    const isUnique: (name: string) => boolean = name =>
+    const isUnique: (name: string) => boolean = (name) =>
         !Object.keys(siblings).find((sibling: string) => sibling === name);
 
     const isFieldValid: () => boolean = () => {
@@ -131,7 +128,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             }
             // Transform the field type to the
             // same maybe type
-            newField.type = types.find(t => t.typename === `*${type.replace('soft', '')}`);
+            newField.type = types.find((t) => t.typename === `*${type.replace('soft', '')}`);
         }
         // If parent is not a custom field, set this as the first
         // custom field in the hierarchy
@@ -171,7 +168,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                     isValid={validateField('string', field.desc)}
                                 />
                                 <FieldInputWrapper>
-                                    <TextareaField fill onChange={onChange} name="desc" value={field.desc} />
+                                    <LongStringField fill onChange={onChange} name="desc" value={field.desc} />
                                     <MarkdownPreview value={field.desc} />
                                 </FieldInputWrapper>
                             </FieldWrapper>
@@ -181,8 +178,8 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                     <SelectField
                                         simple
                                         defaultItems={types
-                                            .filter(type => !type.name.startsWith('*'))
-                                            .map(type => ({
+                                            .filter((type) => !type.name.startsWith('*'))
+                                            .map((type) => ({
                                                 name: type.name,
                                                 desc: '',
                                             }))}
@@ -215,6 +212,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                         <Button
                             intent="success"
                             text="Submit"
+                            name="type-custom-field-submit"
                             icon="small-tick"
                             disabled={!isFieldValid()}
                             onClick={handleSubmit}

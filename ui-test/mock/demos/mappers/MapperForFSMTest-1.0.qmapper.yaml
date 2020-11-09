@@ -1,0 +1,51 @@
+# This is a generated file, don't edit!
+type: mapper
+name: MapperForFSMTest
+desc: Mapper for FSM test
+mappertype: Mapper
+version: "1.0"
+fields:
+    CustomHashField:
+        context: asdg
+options:
+    mapper-input:
+        type: type
+        name: qore
+        can_manage_fields: false
+        path: /string
+        custom-fields: {}
+    mapper-output:
+        type: type
+        name: qore
+        can_manage_fields: true
+        path: /hash
+        custom-fields:
+            CustomHashField:
+                name: CustomHashField
+                desc: Custom hash field
+                type:
+                    typename: hash
+                    name: hash<auto>
+                    supported_options:
+                        qore.no_null:
+                            type: bool
+                            desc: >-
+                                if True then NULL is not supported on input if
+                                NOTHING is also not accepted
+                    options:
+                        qore.no_null: true
+                    base_type: hash<auto>
+                    mandatory: true
+                    types_accepted:
+                        - hash<auto>
+                    types_returned:
+                        - hash<auto>
+                    fields: {}
+                    can_manage_fields: true
+                isCustom: true
+                canBeNull: false
+                firstCustomInHierarchy: true
+                isChild: false
+                level: 0
+                path: CustomHashField
+                parentPath: false

@@ -1,7 +1,13 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { checkFiles, createWorkflow, openCreateWorkflow } from './tests/workflow';
-import { cleanup } from './utils/common';
-import { setupWebview } from './utils/webview';
+import {
+    addsExistingStepFromWorkflowDiagram,
+    createsNewStepFromWorkflowDiagram,
+    editsWorkflowAndChecksFiles,
+    fillsWorkflowFields,
+    openCreateWorkflow,
+    submitsWorkflowAndChecksFiles,
+} from './tests/workflow';
+import { cleanup, setupTest } from './utils/common';
 
 describe('Workflow tests', function () {
     this.timeout(1800000);
@@ -9,17 +15,19 @@ describe('Workflow tests', function () {
     let workbench: Workbench;
     let editorView: EditorView;
     let webview: WebView;
-    const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview());
+        ({ workbench, editorView, webview } = await setupTest());
     });
 
     // create workflow tests
-    it('Opens workflow create page', () => openCreateWorkflow(webview));
-    it('Can create workflow', () => createWorkflow(webview, editorView));
-    it('Check files', () => checkFiles(project_folder));
+    it('Opens Workflow create page', () => openCreateWorkflow(webview));
+    it('Fills Workflow fields', () => fillsWorkflowFields(webview));
+    it('Creates new Step from Workflow and adds it to diagram', () => createsNewStepFromWorkflowDiagram(webview));
+    it('Adds existing Step to diagram', () => addsExistingStepFromWorkflowDiagram(webview));
+    it('Submits Workflow and checks files', () => submitsWorkflowAndChecksFiles(webview));
+    it('Edits Workflow and checks files', () => editsWorkflowAndChecksFiles(webview));
 
     // Reset the workbench
     this.afterAll(async () => {

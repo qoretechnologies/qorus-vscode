@@ -1,29 +1,25 @@
-import React, { useState, useContext, useEffect } from 'react';
-import CustomDialog from '../../../components/CustomDialog';
-import { IFSMState, IFSMStates, IFSMTransition } from '.';
-import { StyledDialogBody } from '../../ClassConnectionsManager';
-import { FieldWrapper, FieldInputWrapper, ContentWrapper, ActionsWrapper } from '../panel';
-import FieldLabel from '../../../components/FieldLabel';
-import { InitialContext } from '../../../context/init';
-import BooleanField from '../../../components/Field/boolean';
-import { TextContext } from '../../../context/text';
-import Content from '../../../components/Content';
-import { validateField } from '../../../helpers/validations';
-import String from '../../../components/Field/string';
-import Connectors from '../../../components/Field/connectors';
-import { ButtonGroup, Tooltip, Button, Intent, Callout, Spinner } from '@blueprintjs/core';
-import { Messages } from '../../../constants/messages';
-import uniq from 'lodash/uniq';
+import { Button, ButtonGroup, Callout, Intent, Spinner, Tooltip } from '@blueprintjs/core';
+import cloneDeep from 'lodash/cloneDeep';
+import every from 'lodash/every';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
-import every from 'lodash/every';
-import cloneDeep from 'lodash/cloneDeep';
-import RadioField from '../../../components/Field/radioField';
-import ConnectorSelector from './connectorSelector';
-import MultiSelect from '../../../components/Field/multiSelect';
-import Spacer from '../../../components/Spacer';
+import uniq from 'lodash/uniq';
+import React, { useContext, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import styled from 'styled-components';
+import { IFSMStates, IFSMTransition } from '.';
+import Content from '../../../components/Content';
+import CustomDialog from '../../../components/CustomDialog';
+import MultiSelect from '../../../components/Field/multiSelect';
+import RadioField from '../../../components/Field/radioField';
+import String from '../../../components/Field/string';
+import FieldLabel from '../../../components/FieldLabel';
+import Spacer from '../../../components/Spacer';
+import { InitialContext } from '../../../context/init';
+import { TextContext } from '../../../context/text';
+import { validateField } from '../../../helpers/validations';
+import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from '../panel';
+import ConnectorSelector from './connectorSelector';
 
 export interface IFSMTransitionDialogProps {
     onClose: () => any;
@@ -346,13 +342,14 @@ const FSMTransitionDialog: React.FC<IFSMTransitionDialogProps> = ({ onClose, sta
                                 text={t('Reset')}
                                 icon={'history'}
                                 onClick={() => setNewData(getTransitionFromStates())}
+                                name="fsm-reset-transition"
                             />
                         </Tooltip>
                         <Button
                             text={t('Submit')}
                             disabled={!isDataValid()}
                             icon={'tick'}
-                            name={`fsn-submit-state`}
+                            name="fsm-submit-transition"
                             intent={Intent.SUCCESS}
                             onClick={handleSubmitClick}
                         />

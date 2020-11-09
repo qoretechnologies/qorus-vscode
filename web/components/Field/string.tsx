@@ -18,6 +18,7 @@ export interface IStringField {
     placeholder?: string;
     canBeNull?: boolean;
     sensitive?: boolean;
+    autoFocus?: boolean;
 }
 
 const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
@@ -35,6 +36,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
     placeholder,
     canBeNull,
     sensitive,
+    autoFocus,
 }) => {
     // Fetch data on mount
     useMount(() => {
@@ -71,6 +73,7 @@ const StringField: FunctionComponent<IStringField & IField & IFieldChange> = ({
             value={canBeNull && isNull(value) ? 'Value set to [null]' : !value ? default_value || '' : value}
             onChange={handleInputChange}
             type={sensitive ? 'password' : 'text'}
+            autoFocus={autoFocus}
             rightElement={
                 value &&
                 value !== '' &&

@@ -1,0 +1,119 @@
+# This is a generated file, don't edit!
+type: type
+path: /
+typeinfo:
+    base_type: hash<auto>
+    name: hash<auto>
+    can_manage_fields: true
+    fields:
+        Field5:
+            name: Field1
+            desc: Field 1
+            type:
+                typename: hash
+                name: hash<auto>
+                supported_options:
+                    qore.no_null:
+                        type: bool
+                        desc: >-
+                            if True then NULL is not supported on input if NOTHING
+                            is also not accepted
+                options:
+                    qore.no_null: true
+                base_type: hash<auto>
+                mandatory: true
+                types_accepted:
+                    - hash<auto>
+                types_returned:
+                    - hash<auto>
+                fields:
+                    Child1:
+                        name: Child1
+                        desc: Child 1
+                        type:
+                            typename: hash
+                            name: hash<auto>
+                            supported_options:
+                                qore.no_null:
+                                    type: bool
+                                    desc: >-
+                                        if True then NULL is not supported on input
+                                        if NOTHING is also not accepted
+                            options:
+                                qore.no_null: true
+                            base_type: hash<auto>
+                            mandatory: true
+                            types_accepted:
+                                - hash<auto>
+                            types_returned:
+                                - hash<auto>
+                            fields: {}
+                            can_manage_fields: true
+                        isCustom: true
+                        canBeNull: false
+                can_manage_fields: true
+            isCustom: true
+            canBeNull: false
+            firstCustomInHierarchy: true
+            isChild: false
+            level: 0
+            path: Field5
+            parentPath: false
+        Field2:
+            name: Field2
+            desc: Field 2
+            type:
+                typename: string
+                name: string
+                supported_options:
+                    qore.no_null:
+                        type: bool
+                        desc: >-
+                            if True then NULL is not supported on input if NOTHING
+                            is also not accepted
+                    string.encoding:
+                        type: string
+                        desc: the output encoding when writing to the type
+                    string.max_size_chars:
+                        type: integer
+                        desc: the maximum length of the string in characters
+                options:
+                    qore.no_null: true
+                base_type: string
+                mandatory: true
+                types_accepted:
+                    - string
+                types_returned:
+                    - string
+                fields: {}
+                can_manage_fields: false
+            isCustom: true
+            canBeNull: false
+            firstCustomInHierarchy: true
+        Field3:
+            name: Field3
+            desc: Field 3
+            type:
+                typename: float
+                name: float
+                supported_options:
+                    qore.no_null:
+                        type: bool
+                        desc: >-
+                            if True then NULL is not supported on input if NOTHING
+                            is also not accepted
+                options:
+                    qore.no_null: true
+                base_type: float
+                mandatory: true
+                types_accepted:
+                    - float
+                    - int
+                    - integer
+                types_returned:
+                    - float
+                fields: {}
+                can_manage_fields: false
+            isCustom: true
+            canBeNull: false
+            firstCustomInHierarchy: true

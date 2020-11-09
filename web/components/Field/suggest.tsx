@@ -1,15 +1,12 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import { Select } from '@blueprintjs/select';
-import { MenuItem, Button, Tooltip, ControlGroup, Classes, Callout, InputGroup } from '@blueprintjs/core';
-import useMount from 'react-use/lib/useMount';
-import { includes, get, size } from 'lodash';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import { TTranslator } from '../../App';
-import withTextContext from '../../hocomponents/withTextContext';
-import { compose } from 'recompose';
-import StringField from './string';
+import { get } from 'lodash';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import AutoComplete from 'react-autocomplete';
+import useMount from 'react-use/lib/useMount';
+import { compose } from 'recompose';
+import { TTranslator } from '../../App';
+import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withTextContext from '../../hocomponents/withTextContext';
 
 export interface ISuggestField {
     addMessageListener: TMessageListener;
@@ -67,7 +64,7 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
         }
     }, [defaultItems]);
 
-    const handleChange: (item: any) => void = item => {
+    const handleChange: (item: any) => void = (item) => {
         if (item === value) {
             return;
         }
@@ -89,7 +86,7 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
 
     return (
         <AutoComplete
-            getItemValue={item => item}
+            getItemValue={(item) => item}
             wrapperProps={{
                 style: {
                     width: '100%',
@@ -114,6 +111,7 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
                     fontWeight: '400',
                     transition: 'box-shadow 100ms cubic-bezier(0.4, 1, 0.75, 0.9)',
                 },
+                name: `field-${name}`,
             }}
             menuStyle={{
                 borderRadius: '3px',
@@ -126,8 +124,8 @@ const SuggestField: FunctionComponent<ISuggestField & IField & IFieldChange> = (
             }}
             items={items}
             value={value}
-            onChange={e => handleChange(e.target.value)}
-            onSelect={val => handleChange(val)}
+            onChange={(e) => handleChange(e.target.value)}
+            onSelect={(val) => handleChange(val)}
             renderItem={(item, isHighlighted) => (
                 <div
                     style={{

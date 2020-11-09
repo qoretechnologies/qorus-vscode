@@ -224,49 +224,56 @@ const FSMView: React.FC<IFSMViewProps> = ({
         drop: (item: IDraggableItem, monitor) => {
             if (item.type === TOOLBAR_ITEM_TYPE) {
                 let { x, y } = monitor.getClientOffset();
-                const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
-                const id = (Math.max(...ids) + 1).toString();
                 const calculatePercDiff = (value) => value + (value / 100) * Math.abs(100 * (zoom - 1));
                 x = x / zoom;
                 y = y / zoom;
+                x =
+                    x +
+                    calculatePercDiff(currentXPan.current) -
+                    (!embedded && sidebarOpen ? 333 : embedded ? 233 : 153);
+                y =
+                    y +
+                    calculatePercDiff(currentYPan.current) -
+                    (fieldsWrapperRef.current.getBoundingClientRect().height + (embedded ? 380 : 200));
 
-                setStates(
-                    (cur: IFSMStates): IFSMStates => ({
-                        ...cur,
-                        [id]: {
-                            position: {
-                                x:
-                                    x +
-                                    calculatePercDiff(currentXPan.current) -
-                                    (!embedded && sidebarOpen ? 333 : embedded ? 233 : 153),
-                                y:
-                                    y +
-                                    calculatePercDiff(currentYPan.current) -
-                                    (fieldsWrapperRef.current.getBoundingClientRect().height + (embedded ? 380 : 200)),
-                            },
-                            initial: false,
-                            name: getStateName(item, id),
-                            desc: '',
-                            type: item.name,
-                            id: shortid.generate(),
-                            states: item.name === 'block' ? {} : undefined,
-                            condition: item.name === 'if' ? '' : undefined,
-                            action:
-                                item.name === 'state'
-                                    ? {
-                                          type: item.stateType,
-                                      }
-                                    : undefined,
-                        },
-                    })
-                );
-
-                setEditingState(id);
+                addNewState(item, x, y);
             } else if (item.type === STATE_ITEM_TYPE) {
                 moveItem(item.id, monitor.getDifferenceFromInitialOffset());
             }
         },
     });
+
+    const addNewState = (item, x, y) => {
+        const ids: number[] = size(states) ? Object.keys(states).map((key) => parseInt(key)) : [0];
+        const id = (Math.max(...ids) + 1).toString();
+
+        setStates(
+            (cur: IFSMStates): IFSMStates => ({
+                ...cur,
+                [id]: {
+                    position: {
+                        x,
+                        y,
+                    },
+                    initial: false,
+                    name: getStateName(item, id),
+                    desc: '',
+                    type: item.name,
+                    id: shortid.generate(),
+                    states: item.name === 'block' ? {} : undefined,
+                    condition: item.name === 'if' ? '' : undefined,
+                    action:
+                        item.name === 'state'
+                            ? {
+                                  type: item.stateType,
+                              }
+                            : undefined,
+                },
+            })
+        );
+
+        setEditingState(id);
+    };
 
     const getStateName = (item, id) => {
         if (parentStateName) {
@@ -633,6 +640,18 @@ const FSMView: React.FC<IFSMViewProps> = ({
         return null;
     };
 
+    const handleToolbarItemDblClick = (name, type, stateType) => {
+        addNewState(
+            {
+                name,
+                type,
+                stateType,
+            },
+            100,
+            size(states) * 100 + 100
+        );
+    };
+
     const isTransitionToSelf = (stateId: string, targetId: string): boolean => {
         return stateId === targetId;
     };
@@ -989,6 +1008,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         name="state"
                         type="mapper"
                         count={size(filter(states, ({ action }: IFSMState) => action?.type === 'mapper'))}
+                        onDoubleClick={handleToolbarItemDblClick}
                     >
                         {t('Mapper')}
                     </FSMToolbarItem>
@@ -996,6 +1016,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         name="state"
                         type="pipeline"
                         count={size(filter(states, ({ action }: IFSMState) => action?.type === 'pipeline'))}
+                        onDoubleClick={handleToolbarItemDblClick}
                     >
                         {t('Pipeline')}
                     </FSMToolbarItem>
@@ -1003,6 +1024,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         name="state"
                         type="connector"
                         count={size(filter(states, ({ action }: IFSMState) => action?.type === 'connector'))}
+                        onDoubleClick={handleToolbarItemDblClick}
                     >
                         {t('Connector')}
                     </FSMToolbarItem>
@@ -1010,6 +1032,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         name="fsm"
                         type="fsm"
                         count={size(filter(states, ({ type }: IFSMState) => type === 'fsm'))}
+                        onDoubleClick={handleToolbarItemDblClick}
                     >
                         {t('FSM')}
                     </FSMToolbarItem>
@@ -1018,6 +1041,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         type="block"
                         disabled={!qorus_instance}
                         count={size(filter(states, ({ type }: IFSMState) => type === 'block'))}
+                        onDoubleClick={handleToolbarItemDblClick}
                     >
                         {t('Block')}
                     </FSMToolbarItem>
@@ -1025,6 +1049,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         name="if"
                         type="if"
                         count={size(filter(states, ({ type }: IFSMState) => type === 'if'))}
+                        onDoubleClick={handleToolbarItemDblClick}
                     >
                         {t('If')}
                     </FSMToolbarItem>
@@ -1037,6 +1062,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                             disabled={currentHistoryPosition.current <= 0}
                             text={`(${currentHistoryPosition.current})`}
                             icon="undo"
+                            name="fsm-undo-button"
                         />
                         <Button
                             onClick={() => {
@@ -1046,12 +1072,14 @@ const FSMView: React.FC<IFSMViewProps> = ({
                             disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
                             text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
                             icon="redo"
+                            name="fsm-redo-button"
                         />
                         <Button
                             onClick={() =>
                                 embedded ? onHideMetadataClick((cur) => !cur) : setIsMetadataHidden((cur) => !cur)
                             }
                             icon={getIsMetadataHidden() ? 'eye-open' : 'eye-off'}
+                            name="fsm-hide-metadata-button"
                         />
                     </ButtonGroup>
                 </StyledToolbarWrapper>
@@ -1070,6 +1098,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
                         }))}
                     >
                         <StyledDiagram
+                            name="fsm-drop-zone"
                             key={JSON.stringify(wrapperDimensions)}
                             ref={drop}
                             path={image_path}
@@ -1135,10 +1164,12 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                                         });
                                                     }}
                                                     key={index}
+                                                    name={`fsm-transition${
+                                                        isError ? '-error' : branch ? `-${branch}` : ''
+                                                    }`}
                                                     stroke={getTransitionColor(isError, branch)}
                                                     strokeWidth={isError ? 2 : 1}
                                                     strokeDasharray={isError ? '10 2' : undefined}
-                                                    id={getTargetStatePosition(x1, y1, x2, y2)}
                                                     markerEnd={`url(#arrowhead${getTransitionEndMarker(
                                                         isError,
                                                         branch
@@ -1186,7 +1217,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
                                 text={t('Submit')}
                                 onClick={handleSubmitClick}
                                 disabled={!isFSMValid()}
-                                icon={'tick'}
+                                name="fsm-submit"
+                                icon="tick"
                                 intent={Intent.SUCCESS}
                             />
                         </ButtonGroup>

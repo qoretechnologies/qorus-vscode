@@ -1,0 +1,11 @@
+# This is a generated file, don't edit!
+type: class
+name: ClassToEdit
+desc: class for edit test
+lang: java
+version: "7.8"
+requires:
+  - ProcessorClassTest
+author:
+  - Qore Technologies, s.r.o.
+code: ClassToEdit-7.8-class/ClassToEdit.java

@@ -1,16 +1,12 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
-
+import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 import { isArray, omit, reduce, size } from 'lodash';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
-import SidePanel from '../../components/SidePanel';
-import StepList from '../../components/StepList';
+import StepDiagram from '../../components/Diagram';
 import { Messages } from '../../constants/messages';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -21,7 +17,6 @@ import withTextContext from '../../hocomponents/withTextContext';
 import ConfigItemManager from '../ConfigItemManager';
 import ManageButton from '../ConfigItemManager/manageButton';
 import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper, IField } from './panel';
-import StepsCreator from './stepsCreator';
 
 export const CreatorWrapper = styled.div`
     display: flex;
@@ -41,7 +36,7 @@ export interface IServicesView {
 export function processSteps(steps, stepsData): any[] {
     const result = [];
 
-    steps.forEach(step => {
+    steps.forEach((step) => {
         if (isArray(step)) {
             result.push(processSteps(step, stepsData));
         } else {
@@ -113,37 +108,23 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             )}
             {showSteps && (
                 <>
-                    <SidePanel title={t('AddStepsTitle')}>
-                        <ContentWrapper style={{ overflowX: 'unset' }}>
-                            <StepList
-                                steps={steps}
-                                setSteps={setSteps}
-                                highlightedSteps={highlightedSteps}
-                                setHighlightedSteps={setHighlightedSteps}
-                                highlightedStepGroupIds={highlightedStepGroupIds}
-                                setHighlightedStepGroupIds={setHighlightedStepGroupIds}
-                                handleStepInsert={handleStepInsert}
-                                onStepRemove={handleStepRemove}
-                                onStepUpdate={handleStepUpdate}
-                                stepsData={stepsData}
-                                stepsCount={steps.length}
-                            />
-                        </ContentWrapper>
-                    </SidePanel>
-                    <Content title={t('StepsDiagram')}>
+                    <Content>
                         <ContentWrapper
                             scrollX
                             style={{
-                                background: `url(${
-                                    `${initialData.image_path}/images/tiny_grid.png)`
-                                }`,
+                                background: `url(${`${initialData.image_path}/images/tiny_grid.png)`}`,
+                                paddingRight: 0,
                             }}
                         >
-                            <StepsCreator
-                                steps={parsedSteps}
-                                highlightedGroupSteps={highlightedStepGroupIds || []}
-                                stepsData={stepsData}
-                            />
+                            <div style={{ width: '100%', display: 'flex', flex: '1 1 auto', flexFlow: 'column' }}>
+                                <StepDiagram
+                                    steps={parsedSteps}
+                                    stepsData={stepsData}
+                                    handleStepInsert={handleStepInsert}
+                                    onStepRemove={handleStepRemove}
+                                    onStepUpdate={handleStepUpdate}
+                                />
+                            </div>
                         </ContentWrapper>
 
                         <ActionsWrapper>

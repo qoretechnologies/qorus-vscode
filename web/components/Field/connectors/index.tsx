@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import Provider, { providers } from '../../../containers/Mapper/provider';
-import { Tag, Callout, Button } from '@blueprintjs/core';
+import { Button, Callout, Tag } from '@blueprintjs/core';
+import size from 'lodash/size';
+import React, { useEffect, useState } from 'react';
+import compose from 'recompose/compose';
 import styled from 'styled-components';
+import { TTranslator } from '../../../App';
+import Provider, { providers } from '../../../containers/Mapper/provider';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../../hocomponents/withTextContext';
-import compose from 'recompose/compose';
-import { TTranslator } from '../../../App';
-import size from 'lodash/size';
 
 export interface IConnectorFieldProps {
     title?: string;

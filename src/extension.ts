@@ -115,7 +115,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
-        if (['group', 'event', 'queue'].includes(iface_kind)) {
+        if (['group', 'event', 'queue'].includes(iface_kind.toLowerCase())) {
             iface_kind = 'other';
             data.type = capitalize(data.type);
             iface_info.last_other_iface_kind = undefined;

@@ -186,6 +186,10 @@ export class QorusProjectInterfaceInfo {
         return this.iface_by_id[id];
     }
 
+    deleteInfo = (id: string) => {
+        delete this.iface_by_id[id];
+    }
+
     get last_config_group(): string | undefined {
         return this.last_conf_group;
     }
@@ -748,7 +752,7 @@ export class QorusProjectInterfaceInfo {
     }
 
     getConfigItems = params => {
-        this.code_info.waitForPending(['yaml']).then(() => this.getConfigItemsImpl(params));
+        this.code_info.waitForPending(['yaml'], 500).then(() => this.getConfigItemsImpl(params));
     }
 
     private getConfigItemsImpl = ({

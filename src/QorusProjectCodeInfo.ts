@@ -23,7 +23,7 @@ import {
     root_processor, root_service, root_steps, root_workflow, types_with_version
 } from './qorus_constants';
 import * as msg from './qorus_message';
-import { capitalize, filesInDir, hasSuffix, isObject } from './qorus_utils';
+import { capitalize, deepCopy, filesInDir, hasSuffix, isObject } from './qorus_utils';
 
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
@@ -293,7 +293,7 @@ export class QorusProjectCodeInfo {
     }
 
     fixData(orig_data: any): any {
-        let data = {...orig_data};
+        let data = deepCopy(orig_data);
 
         if (data.options) {
             data[data.type + '_options'] = data.options;
@@ -735,7 +735,7 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['file_tree']).then(() => postMessage('resources', this.file_tree, false));
                 break;
             case 'target_dir':
-                this.waitForPending(['file_tree']).then(() => postMessage('directories', this.dir_tree, false));
+                this.waitForPending(['file_tree'], 800).then(() => postMessage('directories', this.dir_tree, false));
                 break;
             case 'all_dirs':
                 this.waitForPending(['file_tree'], 1000).then(() => qorus_webview.postMessage({

@@ -1,0 +1,2 @@
+class ClassToEdit extends JavaBaseClass {
+}

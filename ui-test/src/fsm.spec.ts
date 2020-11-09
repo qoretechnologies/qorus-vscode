@@ -1,7 +1,20 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
-import { openFSMPage } from './tests/fsm';
-import { cleanup } from './utils/common';
-import { setupWebview } from './utils/webview';
+import {
+    changesState,
+    connectsStates,
+    createStates,
+    deletesState,
+    editsCreatedFSMAndChecksFiles,
+    editsIfTransition,
+    editsTransitionsOrder,
+    fillFSMFields,
+    openFSMPage,
+    removesAllTransitions,
+    submitFSMAndCheckFiles,
+    transitionsAreRemovedForIncompatibleFSM,
+    undoToPreviousState,
+} from './tests/fsm';
+import { cleanup, setupTest } from './utils/common';
 
 describe('FSM tests', function () {
     this.timeout(1800000);
@@ -9,14 +22,25 @@ describe('FSM tests', function () {
     let workbench: Workbench;
     let editorView: EditorView;
     let webview: WebView;
-    const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
 
     before(async () => {
         driver = VSBrowser.instance.driver;
-        ({ workbench, editorView, webview } = await setupWebview('rippy IP'));
+        ({ workbench, editorView, webview } = await setupTest('rippy IP'));
     });
 
     it('Opens FSM create page', () => openFSMPage(webview));
+    it('Fills FSM fields', () => fillFSMFields(webview));
+    it('Creates new states', () => createStates(webview));
+    it('Connects states', () => connectsStates(webview));
+    it('Edits IF state transition to "false"', () => editsIfTransition(webview));
+    it('Edits transitions order', () => editsTransitionsOrder(webview));
+    it('Changes state from Connector to Mapper', () => changesState(webview));
+    it('Undo to last state', () => undoToPreviousState(webview));
+    it('Deletes state', () => deletesState(webview));
+    it('Removes all transitions from state', () => removesAllTransitions(webview));
+    it('Submits FSM and checks files', () => submitFSMAndCheckFiles(webview));
+    it('Transitions are removed for incompatible FSM', () => transitionsAreRemovedForIncompatibleFSM(webview));
+    it('Edits FSM and checks files', () => editsCreatedFSMAndChecksFiles(webview));
 
     // Reset the workbench
     this.afterAll(async () => {

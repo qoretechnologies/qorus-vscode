@@ -93,6 +93,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
 
     return (
         <StyledNodeLabel
+            name="pipeline-element"
             onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
             onContextMenu={(event) => {
                 event.persist();
@@ -183,7 +184,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     shapeProps: {
                         rx: 100,
                         ry: 30,
-                        fill: children.length === 0 || isCompatible === false ? '#fddcd4' : '#fff',
+                        fill: children?.length === 0 || isCompatible === false ? '#fddcd4' : '#fff',
                         stroke: children?.length === 0 || isCompatible === false ? '#d13913' : '#a9a9a9',
                     },
                 };
@@ -292,21 +293,25 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         }
     };
 
-    const isDataValid = (data) => {
+    const isDataValid = (data, isDefValid = true) => {
         return (
             data.reduce((isValid, item) => {
-                if (item.type === 'queue' || item.type === 'start') {
-                    if (item.children && item.children.length > 0) {
-                        if (!isDataValid(item.children)) {
-                            isValid = false;
-                        }
-                    } else {
+                if ((item.type === 'queue' || item.type === 'start') && size(item.children) === 0) {
+                    isValid = false;
+                }
+
+                if (item.children && item.children.length > 0) {
+                    if (!isDataValid(item.children, isValid)) {
                         isValid = false;
                     }
                 }
 
+                if (item.isCompatible === false) {
+                    isValid = false;
+                }
+
                 return isValid;
-            }, true) &&
+            }, isDefValid) &&
             validateField('string', metadata.name) &&
             validateField('string', metadata.desc) &&
             validateField('string', metadata.target_dir)
@@ -481,7 +486,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             <div id="pipeline-fields-wrapper">
                 {!isMetadataHidden && (
                     <>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 label={t('field-label-target_dir')}
                                 isValid={validateField('file-string', metadata.target_dir)}
@@ -503,7 +508,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 isValid={validateField('string', metadata.name)}
                                 label={t('field-label-name')}
@@ -512,7 +517,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 <String onChange={handleMetadataChange} value={metadata.name} name="name" />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 isValid={validateField('string', metadata.desc)}
                                 label={t('field-label-desc')}
@@ -521,7 +526,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 isValid={
                                     metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
@@ -550,7 +555,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper>
+                        <FieldWrapper name="selected-field">
                             <FieldLabel
                                 info={t('Optional')}
                                 label={t('field-label-input-provider')}
@@ -570,7 +575,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                             </FieldInputWrapper>
                         </FieldWrapper>
                         {metadata['input-provider'] && (
-                            <FieldWrapper>
+                            <FieldWrapper name="selected-field">
                                 <FieldLabel
                                     label={t('field-label-input-provider-options')}
                                     isValid={validateField('pipeline-options', metadata['input-provider-options'])}
@@ -598,6 +603,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         disabled={currentHistoryPosition.current <= 0}
                         text={`(${currentHistoryPosition.current})`}
                         icon="undo"
+                        name="pipeline-undo"
                     />
                     <Button
                         onClick={() => {
@@ -607,10 +613,12 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                         disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
                         text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
                         icon="redo"
+                        name="pipeline-redo"
                     />
                     <Button
                         onClick={() => setIsMetadataHidden((cur) => !cur)}
                         icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
+                        name="pipeline-hide-metadata"
                     />
                 </ButtonGroup>
             </StyledToolbarWrapper>
@@ -709,6 +717,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                             onClick={handleSubmitClick}
                             disabled={!isDataValid(elements)}
                             icon={'tick'}
+                            name="pipeline-submit"
                             intent={Intent.SUCCESS}
                         />
                     </ButtonGroup>

@@ -108,7 +108,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
         <>
             <div style={{ flex: 1 }}>
                 {map(fields, (field: IField) => (
-                    <FieldWrapper>
+                    <FieldWrapper name="selected-field">
                         <FieldLabel
                             label={t(`field-label-${field.name}`)}
                             info={
@@ -130,7 +130,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                         <FieldActions desc={t(`field-desc-${field.name}`)} />
                     </FieldWrapper>
                 ))}
-                <FieldWrapper>
+                <FieldWrapper name="selected-field">
                     <FieldLabel label={t('field-label-url')} isValid={validateField('url', data.url)} />
                     <FieldInputWrapper>
                         <Field
@@ -144,7 +144,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                     <FieldActions desc={t(`field-desc-url`)} />
                 </FieldWrapper>
                 {getProtocol(data.url) && (
-                    <FieldWrapper>
+                    <FieldWrapper name="selected-field">
                         <FieldLabel
                             label={t('field-label-options')}
                             info={t('Optional')}
@@ -190,6 +190,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                         onClick={handleSubmitClick}
                         disabled={!isDataValid()}
                         icon={'tick'}
+                        name="connection-submit"
                         intent={Intent.SUCCESS}
                     />
                 </ButtonGroup>
