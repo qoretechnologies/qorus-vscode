@@ -13,7 +13,7 @@ import {
 export const openEnvironmentPage = async (webview: WebView) => {
     await sleep(3000);
     const environmentPanels = await webview.findWebElements(By.className('env-panel'));
-    expect(environmentPanels).to.have.length(4);
+    expect(environmentPanels).to.have.length(1);
 };
 
 export const addEnvironment = async (webview: WebView) => {
@@ -28,31 +28,31 @@ export const addEnvironment = async (webview: WebView) => {
     await environmentSubmit.click();
 
     const environmentPanels = await webview.findWebElements(By.className('env-panel'));
-    expect(environmentPanels).to.have.length(5);
+    expect(environmentPanels).to.have.length(2);
 };
 
 export const deleteEnvironment = async (webview: WebView) => {
     let environmentPanels = await webview.findWebElements(By.className('env-panel'));
-    expect(environmentPanels).to.have.length(5);
+    expect(environmentPanels).to.have.length(2);
     const environmentDeleteButtons = await webview.findWebElements(By.name('delete-environment'));
-    expect(environmentDeleteButtons).to.have.length(5);
-    await environmentDeleteButtons[4].click();
+    expect(environmentDeleteButtons).to.have.length(2);
+    await environmentDeleteButtons[1].click();
     await confirmDialog(webview);
     environmentPanels = await webview.findWebElements(By.className('env-panel'));
-    expect(environmentPanels).to.have.length(4);
+    expect(environmentPanels).to.have.length(1);
 };
 
 export const renameEnvironment = async (webview: WebView) => {
     const environmentEditButtons = await webview.findWebElements(By.name('edit-environment'));
-    await environmentEditButtons[0].click();
+    await environmentEditButtons[1].click();
     const environmentEditInput = await webview.findWebElements(By.name('environment-edit-input'));
     expect(environmentEditInput).to.have.length(1);
-    await environmentEditInput[0].sendKeys('Edited');
+    await environmentEditInput[0].sendKeys(' Edited');
     const environmentEditSubmit = await webview.findWebElements(By.name('edit-environment-submit'));
     await environmentEditSubmit[0].click();
     const environmentNames = await webview.findWebElements(By.name('environment-name'));
-    const newText = await environmentNames[0].getText();
-    expect(newText).to.equal('David - GreybeardEdited');
+    const newText = await environmentNames[1].getText();
+    expect(newText).to.equal('test environment Edited');
 };
 
 export const addInstance = async (webview: WebView) => {
@@ -64,14 +64,14 @@ export const addInstance = async (webview: WebView) => {
     const instances = await webview.findWebElements(By.name('instance-item'));
     const links = await webview.findWebElements(By.name('instance-link'));
 
-    expect(instances).to.have.length(10);
-    expect(links).to.have.length(10);
-    expect(await links[4].getText()).to.equal('test');
-    expect(await links[4].getAttribute('href')).to.equal('https://google.com/');
+    expect(instances).to.have.length(2);
+    expect(links).to.have.length(2);
+    expect(await links[1].getText()).to.equal('test');
+    expect(await links[1].getAttribute('href')).to.equal('https://google.com/');
 };
 
 export const editInstance = async (webview: WebView) => {
-    await (await webview.findWebElements(By.name('instance-edit')))[6].click();
+    await (await webview.findWebElements(By.name('instance-edit')))[1].click();
     await (await webview.findWebElement(By.name('instance'))).clear();
     await (await webview.findWebElement(By.name('instance'))).sendKeys('new instance');
     await (await webview.findWebElement(By.name('instance-url'))).clear();
@@ -81,22 +81,22 @@ export const editInstance = async (webview: WebView) => {
     const instances = await webview.findWebElements(By.name('instance-item'));
     const links = await webview.findWebElements(By.name('instance-link'));
 
-    expect(instances).to.have.length(10);
-    expect(links).to.have.length(10);
-    expect(await links[6].getText()).to.equal('new instance');
-    expect(await links[6].getAttribute('href')).to.equal('https://synthax.io/');
+    expect(instances).to.have.length(2);
+    expect(links).to.have.length(2);
+    expect(await links[1].getText()).to.equal('new instance');
+    expect(await links[1].getAttribute('href')).to.equal('https://synthax.io/');
 };
 
 export const deleteInstance = async (webview: WebView) => {
-    await (await webview.findWebElements(By.name('instance-delete')))[4].click();
+    await (await webview.findWebElements(By.name('instance-delete')))[1].click();
     await confirmDialog(webview);
 
     const instances = await webview.findWebElements(By.name('instance-item'));
     const links = await webview.findWebElements(By.name('instance-link'));
 
-    expect(instances).to.have.length(9);
-    expect(links).to.have.length(9);
-    expect(await links[0].getText()).to.equal('greybeard-1');
+    expect(instances).to.have.length(1);
+    expect(links).to.have.length(1);
+    expect(await links[0].getText()).to.equal('rippy IP');
 };
 
 export const addUrl = async (webview: WebView) => {
@@ -183,7 +183,7 @@ export const createNewSourceDir = async (webview: WebView) => {
 
     await clickElement(webview, 'create-new-dir-test_project');
 
-    await sleep(500);
+    await sleep(2500);
 
     await fillTextField(webview, 'field-new-directory', 'mydir');
 

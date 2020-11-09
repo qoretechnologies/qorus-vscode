@@ -1,11 +1,11 @@
-import { ButtonGroup, Tooltip, Button, Intent } from '@blueprintjs/core';
+import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { IFSMState, IFSMTransition } from '.';
 import Content from '../../../components/Content';
 import CustomDialog from '../../../components/CustomDialog';
 import { TextContext } from '../../../context/text';
-import { ContentWrapper, ActionsWrapper } from '../panel';
+import { ActionsWrapper, ContentWrapper } from '../panel';
 
 const StyledOrderWrapper = styled.div`
     display: flex;
@@ -63,7 +63,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
                     {data.map((datum, index) => (
                         <>
                             <StyledOrderWrapper key={index}>
-                                <span>
+                                <span name="fsm-transition-order-name">
                                     <strong>{index + 1}.</strong> {title || datum.name || ''}{' '}
                                     {metadata ? metadata(datum) : ''}
                                 </span>
@@ -73,6 +73,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
                                             icon="arrow-up"
                                             disabled={index === 0}
                                             onClick={() => changeOrder(index, index - 1)}
+                                            name="fsm-move-transition-up"
                                         />
                                     </Tooltip>
                                     <Tooltip content={t('MoveItemDown')}>
@@ -80,6 +81,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
                                             icon="arrow-down"
                                             disabled={index === data.length - 1}
                                             onClick={() => changeOrder(index, index + 1)}
+                                            name="fsm-move-transition-down"
                                         />
                                     </Tooltip>
                                     <Tooltip content={t('Edit')}>
@@ -87,6 +89,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
                                             icon="edit"
                                             intent="warning"
                                             onClick={() => onEditClick(datum.keyId || index)}
+                                            name="fsm-edit-transition"
                                         />
                                     </Tooltip>
                                     <Tooltip content={t('Delete')}>
@@ -94,6 +97,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
                                             icon="trash"
                                             intent="danger"
                                             onClick={() => onDeleteClick(datum.keyId || index)}
+                                            name="fsm-delete-transition"
                                         />
                                     </Tooltip>
                                 </ButtonGroup>
@@ -109,7 +113,7 @@ const OrderDialog: React.FC<IOrderDialogProps> = ({
                         <Button
                             text={t('Submit')}
                             icon={'tick'}
-                            name={`fsn-submit-state`}
+                            name="fsm-submit-transitions"
                             intent={Intent.SUCCESS}
                             disabled={isDisabled}
                             onClick={onSubmitClick}

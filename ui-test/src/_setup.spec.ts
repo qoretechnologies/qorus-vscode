@@ -1,14 +1,15 @@
 import { expect } from 'chai';
 import { InputBox, Workbench } from 'vscode-extension-tester';
-import { sleep } from './utils/common';
+import { projectFolder, setupTest, sleep } from './utils/common';
 
 describe('@ Setup tests', function () {
     this.timeout(1800000);
-    const project_folder: string = process.env.PROJECT_FOLDER || '/builds/mirror/qorus-vscode/ui-test/test_project';
+    let workbench: Workbench;
 
     before(async () => {
-        const workbench = new Workbench();
         await sleep(8000);
+
+        ({ workbench } = await setupTest(undefined, true));
 
         await workbench.executeCommand('Extest: Open Folder');
 
@@ -17,7 +18,7 @@ describe('@ Setup tests', function () {
         const input = await new InputBox();
 
         await input.wait();
-        await input.setText(project_folder);
+        await input.setText(projectFolder);
         await input.confirm();
 
         await sleep(5000);

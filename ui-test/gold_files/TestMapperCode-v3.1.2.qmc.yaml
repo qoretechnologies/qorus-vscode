@@ -1,7 +1,12 @@
 # This is a generated file, don't edit!
 type: mapper-code
 name: TestMapperCode
+desc: test mapper code
 version: v3.1.2
+author:
+  - Author 2
+  - another author
+lang: qore
 class-name: TestMapperCode
 code: TestMapperCode-v3.1.2.qmc
 methods:

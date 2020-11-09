@@ -1,4 +1,15 @@
-import { By, EditorView, InputBox, WebView, Workbench } from 'vscode-extension-tester';
+import { last } from 'lodash';
+import {
+    ActionSequence,
+    Button,
+    By,
+    EditorView,
+    InputBox,
+    VSBrowser,
+    WebElement,
+    WebView,
+    Workbench,
+} from 'vscode-extension-tester';
 import { sleep } from './common';
 import { loginFromTreeView } from './treeView';
 
@@ -21,10 +32,11 @@ export const getWebview = async (editorView: EditorView): Promise<WebView> => {
     return webview;
 };
 
-export const setupWebview = async (loginInstance?: string): Promise<any> => {
-    const workbench = new Workbench();
-    const editorView = new EditorView();
-
+export const setupWebview = async (
+    workbench: Workbench,
+    editorView: EditorView,
+    loginInstance?: string
+): Promise<any> => {
     if (loginInstance) {
         await loginFromTreeView(workbench, loginInstance);
     }
@@ -34,7 +46,7 @@ export const setupWebview = async (loginInstance?: string): Promise<any> => {
 
     const webview = await getWebview(editorView);
 
-    return { workbench, editorView, webview };
+    return webview;
 };
 
 export const closeWebview = async (editorView: EditorView, webview: WebView, logout?: boolean) => {
@@ -91,8 +103,18 @@ export const clickElement = async (
     await (await getNthElement(webview, name, position, selector)).click();
 };
 
-export const fillTextField = async (webview: WebView, name: string, value: string | number, position: number = 1) => {
-    await (await webview.findWebElements(By.name(name)))[position - 1].sendKeys(value);
+export const clickSwitchElement = async (webview: WebView, name: string, position: number = 1) => {
+    await clickElement(webview, `field-switch-${name}`, position, 'className');
+};
+
+export const fillTextField = async (
+    webview: WebView,
+    name: string,
+    value: string | number,
+    position: number = 1,
+    selector: TSelector = 'name'
+) => {
+    await (await webview.findWebElements(By[selector](name)))[position - 1].sendKeys(value);
 };
 
 export const eraseTextField = async (webview: WebView, name: string, position: number = 1, length: number = 50) => {
@@ -124,11 +146,32 @@ export const getElementText = async (
 
 export const selectNthFolder = async (webview: WebView, name: string, position: number) => {
     await clickElement(webview, `folder-expander-${name}`);
+    await sleep(500);
     await clickElement(webview, 'bp3-tree-node-content', position, 'className');
 };
 
 export const selectField = async (webview: WebView, name: string) => {
     await clickElement(webview, `field-selector-${name}`);
+    await sleep(500);
+};
+
+export const selectAndFillField = async (webview: WebView, name: string, value: string | number) => {
+    await selectField(webview, name);
+    await fillTextField(webview, `field-${name}`, value);
+};
+
+export const addNewMultiSelectItemAndSelectIt = async (
+    webview: WebView,
+    value: string,
+    elementPosition: number = 1
+) => {
+    await fillTextField(webview, 'bp3-input-ghost', value, elementPosition, 'className');
+    await sleep(300);
+
+    const multiSelectElements = await getElements(webview, 'multiselect-menu-item');
+    const lastItem = last(multiSelectElements);
+
+    await lastItem?.click();
 };
 
 export const selectNthDropdownItem = async (
@@ -156,6 +199,21 @@ export const selectNthFilteredDropdownItem = async (
     await clickElement(webview, `field-${name}-item`, item_position);
 };
 
+export const selectMultiselectItemsByNumbers = async (
+    webview: WebView,
+    item_positions: number[],
+    element_position: number = 1
+) => {
+    await clickElement(webview, 'bp3-input-ghost', element_position, 'className');
+
+    for await (const item_position of item_positions) {
+        await sleep(500);
+        await clickElement(webview, 'multiselect-menu-item', item_position);
+    }
+
+    await clickElement(webview, 'bp3-fixed-top', 1, 'className');
+};
+
 export const submitInterface = async (webview: WebView, iface: string) => {
     await clickElement(webview, `interface-creator-submit-${iface}`);
 };
@@ -172,6 +230,63 @@ export const closeLastDialog = async (webview: WebView) => {
 
 export const getSelectedFields = async (webview: WebView) => {
     return await getElements(webview, 'selected-field');
+};
+
+export const doubleClickElement = async (element: WebElement) => {
+    const driver = VSBrowser.instance.driver;
+
+    await new ActionSequence(driver).doubleClick(element).perform();
+};
+
+export const rightClickElement = async (element: WebElement) => {
+    const driver = VSBrowser.instance.driver;
+
+    if (!element) {
+        throw new Error('righClickElement: Element not found!');
+    }
+
+    await new ActionSequence(driver).click(element, Button.RIGHT).perform();
+    await sleep(500);
+};
+
+export const selectFromContextMenu = async (
+    webview: WebView,
+    element: string,
+    itemPosition: number,
+    elementPosition: number = 1,
+    elementSelector: TSelector = 'name'
+) => {
+    const el = await getNthElement(webview, element, elementPosition, elementSelector);
+
+    await rightClickElement(el);
+
+    await sleep(500);
+
+    await clickElement(webview, `context-menu-item-${itemPosition - 1}`);
+};
+
+export const selectFsmToolbarItem = async (webview: WebView, item: string) => {
+    const element = await getNthElement(webview, `fsm-toolbar-${item}`);
+
+    await doubleClickElement(element);
+};
+
+export const selectProviderData = async (webview: WebView, data: string[], fieldSuffix?: string) => {
+    const suffix = fieldSuffix ? `-${fieldSuffix}` : '';
+
+    for await (const [index, datum] of data.entries()) {
+        await selectNthFilteredDropdownItem(webview, `provider${suffix}${index === 0 ? '-' : `-${index - 1}`}`, datum);
+        await sleep(1500);
+    }
+
+    await sleep(2000);
+};
+
+export const addAndFillTextOption = async (webview: WebView, optionName: string, optionValue: string | number) => {
+    await selectNthFilteredDropdownItem(webview, 'options', optionName);
+    await sleep(800);
+    await fillTextField(webview, `field-${optionName}`, optionValue);
+    await sleep(500);
 };
 
 export const getElementAttribute = async (

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { By, EditorView, WebView, Workbench } from 'vscode-extension-tester';
-import { sleep } from '../utils/common';
+import { By, EditorView, WebView } from 'vscode-extension-tester';
+import { projectFolder, sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import {
     clickElement,
@@ -10,14 +10,11 @@ import {
     getElementAttribute,
     getNthElement,
     getSelectedFields,
-    openInterface,
     selectField,
     selectNthFilteredDropdownItem,
     selectNthFolder,
     submitInterface,
 } from '../utils/webview';
-
-const target_dir = 'arpm';
 
 export const createServiceClass = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
@@ -144,29 +141,26 @@ export const createService = async (webview: WebView, editorView: EditorView) =>
     await nextButton.click();
 
     // open the edit method name dialog
-    await sleep(1000);
+    await sleep(500);
     const editMethodNameButton = await getNthElement(webview, 'edit-method-name-button');
     await editMethodNameButton.click();
 
     // edit method name dialog
-    await sleep(1000);
     await fillTextField(webview, 'field-methodName', `${'\b'.repeat('init'.length)}someMethod`);
     const saveMethodNameButton = await getNthElement(webview, 'save-method-name-button');
     await saveMethodNameButton.click();
 
     // fill description and submit
-    await sleep(1000);
     await fillTextField(webview, 'field-desc', 'some method');
-    await sleep(1000);
     await submitInterface(webview, 'service-methods');
-    await sleep(1000);
+    await sleep(500);
     await webview.switchBack();
-    await sleep(1000);
+    await sleep(500);
 };
 
-export const checkFiles = async (project_folder: string) => {
+export const checkFiles = async () => {
     await sleep(3000);
-    await compareWithGoldFiles(path.join(project_folder, target_dir), [
+    await compareWithGoldFiles([
         'ServiceClassWithConfigItems-1.2.qclass',
         'ServiceClassWithConfigItems-1.2.qclass.yaml',
         'ClassWithConfigItems-1.3.qclass',
@@ -174,20 +168,6 @@ export const checkFiles = async (project_folder: string) => {
         'service-inheriting-config-items-1.23.qsd',
         'service-inheriting-config-items-1.23.qsd.yaml',
     ]);
-};
-
-export const editInterface = async (workbench: Workbench, editorView: EditorView, project_folder: string) => {
-    await sleep(1000);
-    const webview: WebView = await openInterface(
-        workbench,
-        editorView,
-        path.join(project_folder, target_dir, 'ClassWithConfigItems-1.3.qclass.yaml')
-    );
-    await sleep(8000);
-    await submitInterface(webview, 'class');
-    await sleep(2000);
-    return webview;
-    // more to do
 };
 
 const openConfigItemManager = async (webview: WebView) => {

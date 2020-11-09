@@ -1,9 +1,5 @@
-import React, {
-    ReactNode, useContext
-} from 'react';
-
 import { Button, Classes, Tag } from '@blueprintjs/core';
-
+import React, { ReactNode, useContext } from 'react';
 import { TTrigger } from '../../../containers/InterfaceCreator/fsm';
 import { TextContext } from '../../../context/text';
 import { getTriggerName } from './';
@@ -50,6 +46,7 @@ const IFSMListTriggers: React.FC<IFSMListTriggersProps> = ({
             <Button
                 icon="add"
                 intent="success"
+                name={`field-fsm-${fsmIndex}-add-trigger`}
                 disabled={disabled}
                 onClick={() => setTriggerManager({ isOpen: true, fsmIndex })}
             />

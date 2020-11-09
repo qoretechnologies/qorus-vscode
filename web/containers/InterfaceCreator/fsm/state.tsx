@@ -238,6 +238,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
         <StyledFSMState
             key={id}
             ref={drag}
+            name={`fsm-state-${name}`}
             x={position.x}
             y={position.y}
             onDoubleClick={selectedState ? undefined : (e) => handleClick(e, onDblClick)}
@@ -248,6 +249,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             initial={initial}
             final={final}
             isIsolated={isIsolated}
+            className={isIsolated ? 'isolated-state' : ''}
             isAvailableForTransition={shouldWiggle}
             isIncompatible={selectedState && !shouldWiggle}
             type={action?.type || type}

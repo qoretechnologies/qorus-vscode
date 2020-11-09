@@ -1,0 +1,23 @@
+# This is a generated file, don't edit!
+type: service
+name: service-with-user-code
+desc: test service with user code
+lang: qore
+author:
+  - Author 2
+base-class-name: QorusService
+class-name: ServiceWithUserCode
+version: "1.0"
+servicetype: USER
+code: service-with-user-code-1.0.qsd
+methods:
+  - name: init
+    desc: the init method
+    author:
+      - Qore Technologies, s.r.o.
+  - name: multiply
+    desc: multiplication function
+  - name: prefix
+    desc: adds prefix
+  - name: uselessMethod
+    desc: method to be removed
