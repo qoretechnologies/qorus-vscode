@@ -344,7 +344,7 @@ msgid "RequestTimedOut ${ url }"
 msgstr "Request timed out: ${ url }"
 
 msgid "ReferencedObjectNotFound ${ type } ${ name }"
-msgstr "Referenced ${ type } not found ${ name }"
+msgstr "Referenced ${ type } '${ name }' not found"
 
 msgid "ConnectionRefused ${ url }"
 msgstr "Connection to ${ url } refused"

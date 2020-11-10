@@ -498,7 +498,6 @@ export class QorusProjectCodeInfo {
     }
 
     protected checkDependentObjects(iface_data: any): boolean {
-        msg.debug({iface_data});
         let ok: boolean = true;
 
         const checkObject = (type, name) => {
@@ -527,9 +526,18 @@ export class QorusProjectCodeInfo {
 
         const checkIfaceData = (data: any) => {
             checkObject('class', data['base-class-name']);
+            checkObject('queue', data.queue);
+            checkObject('event', data.event);
 
             (data.classes || []).forEach(name => checkObject('class', name));
             (data.requires || []).forEach(name => checkObject('class', name));
+            (data.mappers || []).forEach(name_version => checkObject('mapper', name_version));
+            (data.groups || []).forEach(name => checkObject('group', name));
+            (data.fsm || []).forEach(fsm => checkObject('fsm', fsm.name));
+            (data.vmaps || []).forEach(name => checkObject('value-map', name));
+            (data.constants || []).forEach(name => checkObject('constant', name));
+            (data.functions || []).forEach(name => checkObject('function', name));
+            (data['class-connections'] || []).forEach(connection => checkObject('class', connection.class));
 
             (data['config-items'] || []).forEach(item => {
                 if (item.parent?.['interface-type'] === 'class') {
