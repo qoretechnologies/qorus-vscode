@@ -227,7 +227,8 @@ export class QorusProjectYamlInfo {
 
         const base_class_name = yaml_data['base-class-name'];
 
-        if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
+        // if (class_name && base_class_name && ['class', 'step'].includes(yaml_data.type)) {
+        if (class_name && base_class_name && yaml_data.type === 'class') {
             this.inheritance_pairs[yaml_data.lang || default_lang][class_name] = [base_class_name];
         }
 /*
