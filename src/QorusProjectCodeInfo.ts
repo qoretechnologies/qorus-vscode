@@ -554,7 +554,7 @@ export class QorusProjectCodeInfo {
 
             if (data.steps) {
                 const step_names: string[] = flattenDeep(data.steps);
-                (step_names || []).forEach(name_version => checkObject('step', name_version));
+                step_names.forEach(name_version => checkObject('step', name_version));
             }
         };
 
