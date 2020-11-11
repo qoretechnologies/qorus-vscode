@@ -122,7 +122,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         if (!code_info.checkData(data)) {
-            return;
+//            return;
         }
 
         qorus_webview.open({
