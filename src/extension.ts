@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 
 import * as msg from './qorus_message';
 import { installQorusJavaApiSources } from './qorus_java_utils';
-import { dash2Pascal, capitalize } from './qorus_utils';
+import { dash2Pascal } from './qorus_utils';
 import { qorus_vscode } from './qorus_vscode';
 import { deployer } from './QorusDeploy';
 import { qorusIcons } from './QorusIcons';
@@ -83,17 +83,11 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class', 'connection',
-        'other', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
+        'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {
             const uri = data instanceof vscode.Uri ? data : undefined;
-
-            if (['group', 'event', 'queue'].includes(iface_kind)) {
-                const iface_info: QorusProjectInterfaceInfo = projects.currentInterfaceInfo();
-                iface_info.last_other_iface_kind = iface_kind;
-                iface_kind = 'other';
-            }
 
             qorus_webview.open({
                 tab: 'CreateInterface',
@@ -114,12 +108,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
         const iface_id = iface_info.addIfaceById(data, iface_kind);
-
-        if (['group', 'event', 'queue'].includes(iface_kind.toLowerCase())) {
-            iface_kind = 'other';
-            data.type = capitalize(data.type);
-            iface_info.last_other_iface_kind = undefined;
-        }
 
         qorus_webview.open({
             tab: 'CreateInterface',

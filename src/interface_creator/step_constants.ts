@@ -60,8 +60,7 @@ export const stepFields = ({ default_target_dir }) => [
             return_value: 'objects',
         },
         reference: {
-            iface_kind: 'other',
-            type: 'event',
+            iface_kind: 'event',
         },
     },
     {
@@ -78,8 +77,7 @@ export const stepFields = ({ default_target_dir }) => [
             return_value: 'objects',
         },
         reference: {
-            iface_kind: 'other',
-            type: 'queue',
+            iface_kind: 'queue',
         },
     },
     {

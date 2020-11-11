@@ -335,8 +335,7 @@ export const field = {
             return_value: 'objects',
         },
         reference: {
-            iface_kind: 'other',
-            type: 'group',
+            iface_kind: 'group',
         },
     },
     tags: {
