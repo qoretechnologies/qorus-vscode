@@ -516,7 +516,7 @@ export class QorusProjectCodeInfo {
             const yaml_data = this.yaml_info.yamlDataByName(type, name);
             if (!yaml_data) {
                 msg.debug({name});
-                msg.error(t`ReferencedObjectNotFound ${type} ${name}`);
+                msg.warning(t`ReferencedObjectNotFound ${type} ${name}`);
                 ok = false;
                 return;
             }
