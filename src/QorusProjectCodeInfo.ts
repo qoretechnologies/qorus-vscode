@@ -533,6 +533,7 @@ export class QorusProjectCodeInfo {
             (data.requires || []).forEach(name => checkObject('class', name));
             (data.mappers || []).forEach(name_version => checkObject('mapper', name_version));
             (data.groups || []).forEach(name => checkObject('group', name));
+            (data.errors || []).forEach(name => checkObject('error', name));
             (data.fsm || []).forEach(fsm => checkObject('fsm', fsm.name));
             (data.vmaps || []).forEach(name => checkObject('value-map', name));
             (data.constants || []).forEach(name => checkObject('constant', name));
@@ -541,9 +542,20 @@ export class QorusProjectCodeInfo {
 
             (data['config-items'] || []).forEach(item => {
                 if (item.parent?.['interface-type'] === 'class') {
-                    checkObject('class', item.parent?.['interface-name']);
+                    checkObject('class', item.parent['interface-name']);
                 }
             });
+
+            (data.states || []).forEach(state => {
+                if (['mapper', 'pipeline'].includes(state.action?.type)) {
+                    checkObject(state.action.type, state.action.value);
+                }
+            });
+
+            if (data.steps) {
+                const step_names: string[] = flattenDeep(data.steps);
+                (step_names || []).forEach(name_version => checkObject('step', name_version));
+            }
         };
 
         checkIfaceData(iface_data);
