@@ -129,16 +129,6 @@ export const openInterfaceFromTreeView = async (interfaceName: string, webview?:
 
     await openQorusActivityBar();
 
-    // Open the other section
-    const other = (await getQorusTreeItem('Interfaces', 'Other')) as TreeItem;
-
-    if (!other) {
-        throw new Error('Other section not found!');
-    }
-
-    await other.collapse();
-    await other.click();
-
     const item = (await getQorusTreeItem('Interfaces', interfaceName)) as TreeItem;
 
     if (!item) {

@@ -1,4 +1,4 @@
 # This is a generated file, don't edit!
 type: event
-name: EventTestEdited
-desc: Event test
+name: event-test
+desc: event test
