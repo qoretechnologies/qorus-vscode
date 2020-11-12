@@ -1,10 +1,6 @@
-import React, {
-    FunctionComponent, useState
-} from 'react';
-
-import { every, reduce } from 'lodash';
+import { every, last, reduce } from 'lodash';
+import React, { FunctionComponent, useState } from 'react';
 import { isArray } from 'util';
-
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
 import { maybeSendOnChangeEvent } from '../helpers/common';
@@ -22,21 +18,24 @@ const getInterfaceCollectionType: (type: string) => [] | {} = (type) => {
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
-        const [interfaceId, _setInterfaceId] = useState<{ [key: string]: string }>({
-            service: null,
-            ['mapper-code']: null,
-            workflow: null,
-            job: null,
-            class: null,
-            step: null,
-            other: null,
-            mapper: null,
-        });
-        const [fields, setLocalFields] = useState<{ [key: string]: IField[] | { [key: string]: IField[] } }>({
+        const [interfaceId, _setInterfaceId] = useState<{ [key: string]: string[] }>({
             service: [],
             ['mapper-code']: [],
-            ['service-methods']: {},
-            ['mapper-methods']: {},
+            ['service-methods']: [],
+            ['mapper-methods']: [],
+            workflow: [],
+            job: [],
+            class: [],
+            step: [],
+            other: [],
+            mapper: [],
+            ['config-item']: [],
+        });
+        const [fields, setLocalFields] = useState<any>({
+            service: [],
+            ['mapper-code']: [],
+            ['service-methods']: [],
+            ['mapper-methods']: [],
             workflow: [],
             job: [],
             class: [],
@@ -45,13 +44,11 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             other: [],
             mapper: [],
         });
-        const [selectedFields, setLocalSelectedFields] = useState<{
-            [key: string]: IField[] | { [key: string]: IField[] };
-        }>({
+        const [selectedFields, setLocalSelectedFields] = useState<any>({
             service: [],
             ['mapper-code']: [],
-            ['service-methods']: {},
-            ['mapper-methods']: {},
+            ['service-methods']: [],
+            ['mapper-methods']: [],
             workflow: [],
             job: [],
             class: [],
@@ -60,60 +57,137 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             other: [],
             mapper: [],
         });
-        const [query, setLocalQuery] = useState<{ [key: string]: string }>({
-            service: '',
-            ['mapper-code']: '',
-            ['service-methods']: '',
-            ['mapper-methods']: '',
-            workflow: '',
-            job: '',
-            class: '',
-            step: '',
-            ['config-item']: '',
-            other: '',
-            mapper: '',
+        const [query, setLocalQuery] = useState<any>({
+            service: [],
+            ['mapper-code']: [],
+            ['service-methods']: [],
+            ['mapper-methods']: [],
+            workflow: [],
+            job: [],
+            class: [],
+            step: [],
+            ['config-item']: [],
+            other: [],
+            mapper: [],
         });
-        const [selectedQuery, setLocalSelectedQuery] = useState<{ [key: string]: string }>({
-            service: '',
-            ['service-methods']: '',
-            workflow: '',
-            ['mapper-methods']: '',
-            ['mapper-code']: '',
-            job: '',
-            class: '',
-            step: '',
-            ['config-item']: '',
-            other: '',
-            mapper: '',
+        const [selectedQuery, setLocalSelectedQuery] = useState<any>({
+            service: [],
+            ['service-methods']: [],
+            workflow: [],
+            ['mapper-methods']: [],
+            ['mapper-code']: [],
+            job: [],
+            class: [],
+            step: [],
+            ['config-item']: [],
+            other: [],
+            mapper: [],
         });
 
+        const addInterface = (type: string, interfaceIndex: number) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
+
+            if (fields[type][interfaceIndex]) {
+                return;
+            }
+
+            _setInterfaceId((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                newResult[type][index] = '';
+                return newResult;
+            });
+            setLocalQuery((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                newResult[type][index] = '';
+                return newResult;
+            });
+            setLocalSelectedQuery((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                newResult[type][index] = '';
+                return newResult;
+            });
+            setLocalFields((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                newResult[type][index] = getInterfaceCollectionType(type);
+                return newResult;
+            });
+            setLocalSelectedFields((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                newResult[type][index] = getInterfaceCollectionType(type);
+                return newResult;
+            });
+        };
+
+        const removeInterface = (type: string) => {
+            _setInterfaceId((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                delete newResult[type][newResult[type].length - 1];
+                return newResult;
+            });
+            setLocalQuery((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                delete newResult[type][newResult[type].length - 1];
+                return newResult;
+            });
+            setLocalSelectedQuery((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                delete newResult[type][newResult[type].length - 1];
+                return newResult;
+            });
+            setLocalFields((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                delete newResult[type][newResult[type].length - 1];
+                return newResult;
+            });
+            setLocalSelectedFields((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                delete newResult[type][newResult[type].length - 1];
+                return newResult;
+            });
+        };
+
         const requestInterfaceData = (ifaceKind: string, field?: string): any => {
-            if (!selectedFields[ifaceKind] || selectedFields[ifaceKind].length === 0) {
+            const lastIface = last(selectedFields[ifaceKind]);
+
+            if (!lastIface || lastIface.length === 0) {
                 return null;
             }
 
             if (field) {
-                return selectedFields[ifaceKind].find((f) => {
+                return lastIface.find((f) => {
                     return f.name === field;
                 });
             }
 
-            return selectedFields[ifaceKind];
+            return lastIface;
         };
 
-        const resetFields: (type: string) => void = (type) => {
+        const getInterfaceIndex = (type: string, interfaceIndex?: number) =>
+            interfaceIndex ?? interfaceId[type].length - 1;
+
+        const resetFields: (type: string, interfaceIndex?: number) => void = (type, interfaceIndex) => {
             setLocalFields((current) => {
                 setLocalSelectedFields((current) => {
                     const newResult = { ...current };
                     // Reset the fields
-                    newResult[type] = getInterfaceCollectionType(type);
+                    newResult[type][getInterfaceIndex(type, interfaceIndex)] = getInterfaceCollectionType(type);
                     return newResult;
                 });
 
                 _setInterfaceId((current) => {
                     const newResult = { ...current };
                     // Set the interface id to null
-                    newResult[type] = null;
+                    newResult[type][getInterfaceIndex(type, interfaceIndex)] = null;
                     return newResult;
                 });
 
@@ -126,18 +200,25 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
                 const newResult = { ...current };
                 // Reset the fields
-                newResult[type] = getInterfaceCollectionType(type);
+                newResult[type][getInterfaceIndex(type, interfaceIndex)] = getInterfaceCollectionType(type);
                 return newResult;
             });
         };
 
-        const setInterfaceId: (interfaceType: string, id: string) => void = (interfaceType, id) => {
+        const setInterfaceId: (interfaceType: string, id: string, interfaceIndex: number) => void = (
+            interfaceType,
+            id,
+            interfaceIndex
+        ) => {
+            const index = getInterfaceIndex(interfaceType, interfaceIndex);
             // Sets the interface id, which is only used
             // for config items management
-            _setInterfaceId((current) => ({
-                ...current,
-                [interfaceType]: id,
-            }));
+            _setInterfaceId((current) => {
+                const newResult = { ...current };
+                // Set the interface id to null
+                newResult[interfaceType][index] = id;
+                return newResult;
+            });
         };
 
         const setAsDraft: (type: string) => void = (type) => {
@@ -151,39 +232,45 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             }
         };
 
-        const setFields = (type, value, activeId) => {
+        const setFields = (type, value, activeId, interfaceIndex) => {
             setLocalFields((current) => {
+                const index = getInterfaceIndex(type, interfaceIndex);
                 const newResult = { ...current };
                 // If active ID is set, we need to create/update
                 // a specific item
                 if (activeId) {
-                    newResult[type][activeId] = typeof value === 'function' ? value(current[type][activeId]) : value;
+                    newResult[type][index][activeId] =
+                        typeof value === 'function' ? value(current[type][index][activeId] || []) : value;
                 } else {
-                    newResult[type] = typeof value === 'function' ? value(current[type]) : value;
+                    newResult[type][index] = typeof value === 'function' ? value(current[type][index] || []) : value;
                 }
                 return newResult;
             });
         };
 
-        const setSelectedFields = (type, value, activeId) => {
+        const setSelectedFields = (type, value, activeId, interfaceIndex) => {
             setLocalSelectedFields((current) => {
+                const index = getInterfaceIndex(type, interfaceIndex);
                 const newResult = { ...current };
                 // If active ID is set, we need to create/update
                 // a specific item
                 if (activeId || activeId === 0) {
-                    newResult[type][activeId] = typeof value === 'function' ? value(current[type][activeId]) : value;
+                    newResult[type][index][activeId] =
+                        typeof value === 'function' ? value(current[type][index][activeId] || []) : value;
                 } else {
-                    newResult[type] = typeof value === 'function' ? value(current[type]) : value;
+                    newResult[type][index] =
+                        typeof value === 'function' ? value(current?.[type]?.[index] || []) : value;
                 }
                 return newResult;
             });
         };
 
-        const updateField = (type, field, value, iface_id) => {
+        const updateField = (type, field, value, iface_id, interfaceIndex) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
             setLocalSelectedFields((current) => {
                 const newResult = { ...current };
 
-                newResult[type] = newResult[type].reduce((fields, currentField) => {
+                newResult[type][index] = newResult[type][index].reduce((fields, currentField) => {
                     if (currentField.name === field) {
                         maybeSendOnChangeEvent(currentField, value, type, iface_id);
 
@@ -203,53 +290,70 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
-        const setQuery = (type, value) => {
+        const setQuery = (type, value, interfaceIndex) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
             setLocalQuery((current) => {
                 const newResult = { ...current };
 
-                newResult[type] = typeof value === 'function' ? value(current[type]) : value;
+                newResult[type][index] = typeof value === 'function' ? value(current[type][index]) : value;
 
                 return newResult;
             });
         };
 
-        const setSelectedQuery = (type, value) => {
+        const setSelectedQuery = (type, value, interfaceIndex) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
             setLocalSelectedQuery((current) => {
                 const newResult = { ...current };
 
-                newResult[type] = typeof value === 'function' ? value(current[type]) : value;
+                newResult[type][index] = typeof value === 'function' ? value(current[type][index]) : value;
 
                 return newResult;
             });
         };
 
         // check if the form is valid
-        const isFormValid: (type: string) => boolean = (type) => {
-            if (isArray(selectedFields[type])) {
-                return selectedFields[type].every(({ isValid }: IField) => isValid);
+        const isFormValid: (type: string, interfaceIndex: number) => boolean = (type, interfaceIndex) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
+
+            if (isArray(selectedFields[type][index])) {
+                return selectedFields[type][index].every(({ isValid }: IField) => isValid);
             }
 
-            return every(selectedFields[type], (fieldsData: IField[]) => {
+            return every(selectedFields[type][index], (fieldsData: IField[]) => {
                 return fieldsData.every(({ isValid }: IField) => isValid);
             });
         };
 
         // Checks if method is valid
-        const isSubItemValid: (itemId: number, type: string) => boolean = (itemId, type) => {
+        const isSubItemValid: (itemId: number, type: string, interfaceIndex: number) => boolean = (
+            itemId,
+            type,
+            interfaceIndex
+        ) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
+
             if (itemId) {
                 return (
-                    selectedFields[type][itemId] && selectedFields[type][itemId].every(({ isValid }: IField) => isValid)
+                    selectedFields?.[type]?.[index]?.[itemId] &&
+                    selectedFields[type][index][itemId].every(({ isValid }: IField) => isValid)
                 );
             }
         };
 
         // Remove method from the methods
-        const removeSubItem: (itemId: number, type: string) => void = (itemId, type) => {
+        const removeSubItem: (itemId: number, type: string, interfaceIndex: number) => void = (
+            itemId,
+            type,
+            interfaceIndex
+        ) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
+
             setLocalSelectedFields((current) => {
                 const newResult = { ...current };
                 // Remove the method with the provided id
-                newResult[type] = reduce(
-                    newResult[type],
+                newResult[type][index] = reduce(
+                    newResult[type][index],
                     (newItems, itemData, id) => {
                         let result = { ...newItems };
                         // The id does not match so add the method
@@ -287,6 +391,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setAsDraft,
                     requestInterfaceData,
                     updateField,
+                    addInterface,
+                    removeInterface,
                 }}
             >
                 <Component {...props} />

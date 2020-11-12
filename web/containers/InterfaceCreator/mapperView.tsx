@@ -1,6 +1,6 @@
 import { Callout } from '@blueprintjs/core';
-import { omit } from 'lodash';
-import React, { FunctionComponent } from 'react';
+import { omit, size } from 'lodash';
+import React, { FunctionComponent, useState } from 'react';
 import { useLifecycles } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
@@ -45,7 +45,10 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     ifaceType,
     interfaceContext,
     onSubmitSuccess,
+    interfaceId,
 }) => {
+    const [interfaceIndex, setInterfaceIndex] = useState(size(interfaceId.mapper));
+
     if (!qorus_instance) {
         return (
             <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
@@ -76,6 +79,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                 <CreatorWrapper>
                     <InterfaceCreatorPanel
                         type={'mapper'}
+                        interfaceIndex={interfaceIndex}
                         submitLabel={t('Next')}
                         context={interfaceContext}
                         onSubmit={() => {
