@@ -27,7 +27,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             job: [],
             class: [],
             step: [],
-            other: [],
+            group: [],
+            event: [],
+            queue: [],
             mapper: [],
             ['config-item']: [],
         });
@@ -41,7 +43,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: [],
             step: [],
             ['config-item']: [],
-            other: [],
+            group: [],
+            event: [],
+            queue: [],
             mapper: [],
         });
         const [selectedFields, setLocalSelectedFields] = useState<any>({
@@ -54,7 +58,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: [],
             step: [],
             ['config-item']: [],
-            other: [],
+            group: [],
+            event: [],
+            queue: [],
             mapper: [],
         });
         const [query, setLocalQuery] = useState<any>({
@@ -67,7 +73,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: [],
             step: [],
             ['config-item']: [],
-            other: [],
+            group: [],
+            event: [],
+            queue: [],
             mapper: [],
         });
         const [selectedQuery, setLocalSelectedQuery] = useState<any>({
@@ -80,7 +88,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             class: [],
             step: [],
             ['config-item']: [],
-            other: [],
+            group: [],
+            event: [],
+            queue: [],
             mapper: [],
         });
 
@@ -172,37 +182,40 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return lastIface;
         };
 
-        const getInterfaceIndex = (type: string, interfaceIndex?: number) =>
-            interfaceIndex ?? interfaceId[type].length - 1;
+        const getInterfaceIndex = (type: string, interfaceIndex?: number) => {
+            return interfaceIndex ?? interfaceId[type].length - 1;
+        };
 
         const resetFields: (type: string, interfaceIndex?: number) => void = (type, interfaceIndex) => {
-            setLocalFields((current) => {
-                setLocalSelectedFields((current) => {
+            if (type in fields) {
+                setLocalFields((current) => {
+                    setLocalSelectedFields((current) => {
+                        const newResult = { ...current };
+                        // Reset the fields
+                        newResult[type][getInterfaceIndex(type, interfaceIndex)] = getInterfaceCollectionType(type);
+                        return newResult;
+                    });
+
+                    _setInterfaceId((current) => {
+                        const newResult = { ...current };
+                        // Set the interface id to null
+                        newResult[type][getInterfaceIndex(type, interfaceIndex)] = null;
+                        return newResult;
+                    });
+
+                    props.setUnfinishedWork((current) => {
+                        const newResult = { ...current };
+                        // Set the interface id to null
+                        newResult[type] = null;
+                        return newResult;
+                    });
+
                     const newResult = { ...current };
                     // Reset the fields
                     newResult[type][getInterfaceIndex(type, interfaceIndex)] = getInterfaceCollectionType(type);
                     return newResult;
                 });
-
-                _setInterfaceId((current) => {
-                    const newResult = { ...current };
-                    // Set the interface id to null
-                    newResult[type][getInterfaceIndex(type, interfaceIndex)] = null;
-                    return newResult;
-                });
-
-                props.setUnfinishedWork((current) => {
-                    const newResult = { ...current };
-                    // Set the interface id to null
-                    newResult[type] = null;
-                    return newResult;
-                });
-
-                const newResult = { ...current };
-                // Reset the fields
-                newResult[type][getInterfaceIndex(type, interfaceIndex)] = getInterfaceCollectionType(type);
-                return newResult;
-            });
+            }
         };
 
         const setInterfaceId: (interfaceType: string, id: string, interfaceIndex: number) => void = (

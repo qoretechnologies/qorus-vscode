@@ -103,6 +103,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
                     context={selectedFields.mapper.find((field: IField) => field.name === 'context')?.value}
                     isEditing={isEditing || !!mapper}
                     onSubmitSuccess={onSubmitSuccess}
+                    interfaceIndex={interfaceIndex}
                 />
             )}
         </>
