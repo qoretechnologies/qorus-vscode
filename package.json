@@ -429,6 +429,15 @@
                 }
             },
             {
+                "command": "qorus.createValueMap",
+                "title": "Create New Value Map",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
                 "command": "qorus.createType",
                 "title": "Create New Type",
                 "category": "Qorus",
@@ -1275,9 +1284,14 @@
                     "group": "2_workspace@14"
                 },
                 {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createValueMap",
+                    "group": "2_workspace@15"
+                },
+                {
                     "when": "explorerResourceIsFolder && !listMultiSelection",
                     "command": "qorus.explorer.deployDir",
-                    "group": "2_workspace@15"
+                    "group": "2_workspace@19"
                 },
                 {
                     "when": "explorerResourceIsFolder",
@@ -1478,6 +1492,11 @@
                 {
                     "command": "qorus.createQueue",
                     "when": "view == qorusInterfaces && viewItem == queue-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map-category",
                     "group": "inline"
                 },
                 {
