@@ -48,6 +48,7 @@ export const valueMapFields = ({ default_target_dir }) => [
             { value: 'raw' },
             { value: 'date' },
         ],
+        default_value: 'date',
         notify_on_add: true,
         notify_on_remove: true,
         on_change: 'valuetype-changed',

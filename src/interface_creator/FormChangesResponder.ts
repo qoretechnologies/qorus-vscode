@@ -49,6 +49,24 @@ export class FormChangesResponder {
         }
     }
 
+    static valueTypeChanged({ valuetype, iface_id, iface_kind }) {
+        if (valuetype === 'date') {
+            qorus_webview.postMessage({
+                action: `creator-add-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+        } else {
+            qorus_webview.postMessage({
+                action: `creator-remove-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+        }
+    }
+
     static fieldAdded({field, iface_id, iface_kind}) {
         const addField = field =>
             qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
@@ -76,6 +94,12 @@ export class FormChangesResponder {
                 if (iface_kind === 'class') {
                     addField('base-class-name');
                 }
+                break;
+            case 'valuetype':
+                addField('dateformat');
+                break;
+            case 'dateformat':
+                addField('valuetype');
                 break;
         }
     }
@@ -113,6 +137,12 @@ export class FormChangesResponder {
             case 'classes':
             case 'requires':
                 interface_info.removeAllClasses(other_params);
+                break;
+            case 'valuetype':
+                removeField('dateformat');
+                break;
+            case 'dateformat':
+                removeField('valuetype');
                 break;
         }
     }
