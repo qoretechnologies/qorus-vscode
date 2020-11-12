@@ -6,7 +6,7 @@ import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
 import { default_version } from './qorus_constants';
 import { defaultValue, configItemFields } from './interface_creator/config_item_constants';
-import { hasConfigItems, deepCopy, capitalize } from './qorus_utils';
+import { hasConfigItems, deepCopy } from './qorus_utils';
 import { t } from 'ttag';
 import * as msg from './qorus_message';
 
@@ -18,7 +18,6 @@ export class QorusProjectInterfaceInfo {
 
     private last_target_dir: string | undefined;
     private last_conf_group: string | undefined;
-    private last_other_if_kind: string | undefined; // one of ['Group', 'Event', 'Queue']
 
     constructor(code_info: QorusProjectCodeInfo) {
         this.code_info = code_info;
@@ -192,14 +191,6 @@ export class QorusProjectInterfaceInfo {
 
     get last_config_group(): string | undefined {
         return this.last_conf_group;
-    }
-
-    get last_other_iface_kind(): string | undefined {
-        return this.last_other_if_kind;
-    }
-
-    set last_other_iface_kind(other_iface_kind: string | undefined) {
-        this.last_other_if_kind = other_iface_kind && capitalize(other_iface_kind);
     }
 
     get last_target_directory(): string | undefined {

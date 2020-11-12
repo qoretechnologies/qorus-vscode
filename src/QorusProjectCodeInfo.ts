@@ -23,7 +23,7 @@ import {
     root_processor, root_service, root_steps, root_workflow, types_with_version
 } from './qorus_constants';
 import * as msg from './qorus_message';
-import { capitalize, deepCopy, filesInDir, hasSuffix, isObject } from './qorus_utils';
+import { deepCopy, filesInDir, hasSuffix, isObject } from './qorus_utils';
 
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
@@ -113,18 +113,16 @@ export class QorusProjectCodeInfo {
 
     getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data, request_id }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
-            const true_iface_kind = iface_kind === 'other' ? custom_data?.type : iface_kind;
-
             let raw_data;
             if (class_name) {
                 raw_data = this.yaml_info.yamlDataByName('class', class_name);
             } else {
                 const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
-                raw_data = this.yaml_info.yamlDataByName(true_iface_kind, name_key);
+                raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
             }
             const data = this.fixData(raw_data);
 
-            const iface_id = this.iface_info.addIfaceById(data, true_iface_kind);
+            const iface_id = this.iface_info.addIfaceById(data, iface_kind);
 
             qorus_webview.postMessage({
                 action: `return-interface-data${request_id ? '-complete' : ''}`,
@@ -476,10 +474,6 @@ export class QorusProjectCodeInfo {
             if (step_type) {
                 data['step-type'] = step_type;
             }
-        }
-
-        if (['group', 'event', 'queue'].includes(data.type)) {
-            data.type = capitalize(data.type);
         }
 
         if (!data.target_file && data.yaml_file) {
