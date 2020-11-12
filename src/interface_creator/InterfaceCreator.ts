@@ -221,9 +221,6 @@ export abstract class InterfaceCreator {
         const fixed_data = this.code_info.fixData(data);
 
         let iface_kind = fixed_data.type;
-        if (['Group', 'Event', 'Queue'].includes(fixed_data.type)) {
-            iface_kind = 'other';
-        }
 
         const initial_data = {
             tab: 'CreateInterface',
@@ -265,17 +262,13 @@ export abstract class InterfaceCreator {
         let {
             iface_kind,
             edit_type,
-            data: { name, version, type, 'class-name': class_name },
+            data: { name, version, 'class-name': class_name },
             orig_data,
             recreate
         } = params;
 
         if (recreate || !['create', 'edit'].includes(edit_type)) {
             return { ok: true };
-        }
-
-        if (iface_kind === 'other') {
-            iface_kind = (type || '').toLowerCase();
         }
 
         const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};

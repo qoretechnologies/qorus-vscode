@@ -438,11 +438,6 @@
                 }
             },
             {
-                "command": "qorus.createOther",
-                "title": "Create Other Entity",
-                "category": "Qorus"
-            },
-            {
                 "command": "qorus.views.deleteClass",
                 "title": "Delete Class",
                 "category": "Qorus",
@@ -1266,13 +1261,23 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createGroup",
                     "group": "2_workspace@12"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createEvent",
+                    "group": "2_workspace@13"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createQueue",
+                    "group": "2_workspace@14"
                 },
                 {
                     "when": "explorerResourceIsFolder && !listMultiSelection",
                     "command": "qorus.explorer.deployDir",
-                    "group": "2_workspace@13"
+                    "group": "2_workspace@15"
                 },
                 {
                     "when": "explorerResourceIsFolder",
