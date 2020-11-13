@@ -518,6 +518,27 @@ export class QorusProjectCodeInfo {
             checkIfaceData(yaml_data);
         };
 
+        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
+            const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
+            if (!parent_yaml_data) {
+                return false;
+            }
+
+            const parent_item = parent_yaml_data['config-items'].find(item => item.name === name);
+            if (!parent_item) {
+                return false;
+            }
+            if (!parent_item.parent) {
+                return true;
+            }
+
+            return checkParentConfigItem(
+                name,
+                parent_item.parent['interface-type'],
+                parent_item.parent['interface-name']
+            );
+        };
+
         const checkIfaceData = (data: any) => {
             checkObject('class', data['base-class-name']);
             checkObject('queue', data.queue);
@@ -534,11 +555,20 @@ export class QorusProjectCodeInfo {
             (data.functions || []).forEach(name => checkObject('function', name));
             (data['class-connections'] || []).forEach(connection => checkObject('class', connection.class));
 
+            let checked_config_items: any[] = [];
             (data['config-items'] || []).forEach(item => {
-                if (item.parent?.['interface-type'] === 'class') {
+                if (item.parent?.['interface-type']) {
                     checkObject('class', item.parent['interface-name']);
+                    if (checkParentConfigItem(
+                        item.name,
+                        item.parent['interface-type'],
+                        item.parent['interface-name']))
+                    {
+                        checked_config_items.push(deepCopy(item));
+                    }
                 }
             });
+            data['config-items'] = checked_config_items.length ? checked_config_items : undefined;
 
             (Object.keys(data.states || {})).forEach(state_id => {
                 const state = data.states[state_id];
