@@ -48,9 +48,10 @@ export const editsConnectionsAndChecksFiles = async (webview: WebView) => {
     await resetAndFillTextField(webview, 'field-target_file', 'ConnectionTestEdited');
     await selectNthFilteredDropdownItem(webview, 'protocol', 'https');
     await resetAndFillTextField(webview, 'field-address', 'twitter.com');
+    await sleep(2000);
 
     await clickElement(webview, 'connection-submit');
-    await sleep(4000);
+    await sleep(2000);
 
     await compareWithGoldFiles(['ConnectionTestEdited.qconn.yaml'], true);
 };
