@@ -540,7 +540,8 @@ export class QorusProjectCodeInfo {
                 }
             });
 
-            (data.states || []).forEach(state => {
+            (Object.keys(data.states || {})).forEach(state_id => {
+                const state = data.states[state_id];
                 if (['mapper', 'pipeline'].includes(state.action?.type)) {
                     checkObject(state.action.type, state.action.value);
                 }
