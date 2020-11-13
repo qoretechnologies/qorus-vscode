@@ -95,12 +95,6 @@ export class FormChangesResponder {
                     addField('base-class-name');
                 }
                 break;
-            case 'valuetype':
-                addField('dateformat');
-                break;
-            case 'dateformat':
-                addField('valuetype');
-                break;
         }
     }
 
@@ -140,9 +134,6 @@ export class FormChangesResponder {
                 break;
             case 'valuetype':
                 removeField('dateformat');
-                break;
-            case 'dateformat':
-                removeField('valuetype');
                 break;
         }
     }

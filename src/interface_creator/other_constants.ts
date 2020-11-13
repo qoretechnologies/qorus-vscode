@@ -48,8 +48,6 @@ export const valueMapFields = ({ default_target_dir }) => [
             { value: 'raw' },
             { value: 'date' },
         ],
-        default_value: 'date',
-        notify_on_add: true,
         notify_on_remove: true,
         on_change: 'valuetype-changed',
     },
@@ -57,8 +55,6 @@ export const valueMapFields = ({ default_target_dir }) => [
         name: 'dateformat',
         mandatory: false,
         default_value: 'DD.MM.YYYY',
-        notify_on_add: true,
-        notify_on_remove: true,
     },
     {
         name: 'value-maps',
