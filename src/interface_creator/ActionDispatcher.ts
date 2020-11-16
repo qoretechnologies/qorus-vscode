@@ -9,7 +9,7 @@ import { stepFields } from './step_constants';
 import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_constants';
 import { connectionFields } from './connection_constants';
 import { configItemFields } from './config_item_constants';
-import { groupFields, eventFields, queueFields } from './other_constants';
+import { groupFields, eventFields, queueFields, valueMapFields } from './other_constants';
 import { gettext } from 'ttag';
 
 
@@ -44,6 +44,8 @@ export class ActionDispatcher {
                 return eventFields(params);
             case 'queue':
                 return queueFields(params);
+            case 'value-map':
+                return valueMapFields(params);
             default:
                 return [];
         }
