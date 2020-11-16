@@ -486,17 +486,12 @@ export class QorusProjectCodeInfo {
         return data;
     }
 
-    checkData = (data: any): boolean => {
-        const items_to_check = ['checkDependentObjects'];
-        return items_to_check.every(itemToCheck => this[itemToCheck](data));
-    }
+    checkReferencedObjects(iface_data: any) {
+        let error_messages: string[] = [];
 
-    protected checkDependentObjects(iface_data: any): boolean {
-        let ok: boolean = true;
-
-        const checkObject = (type, name) => {
+        const checkObject = (type, name): boolean => {
             if (!name) {
-                return;
+                return true;
             }
 
             if (name.name) {
@@ -504,18 +499,30 @@ export class QorusProjectCodeInfo {
             }
 
             if (type === 'class' && QorusProjectCodeInfo.isRootBaseClass(name)) {
-                return;
+                return true;
             }
 
             const yaml_data = this.yaml_info.yamlDataByName(type, name);
             if (!yaml_data) {
-                msg.debug({name});
-                msg.warning(t`ReferencedObjectNotFound ${type} ${name}`);
-                ok = false;
-                return;
+                const message = t`ReferencedObjectNotFound ${type} ${name}`;
+                error_messages.push(message);
+                msg.warning(message);
+                return false;
             }
 
-            checkIfaceData(yaml_data);
+            return true;
+        };
+
+        const removeUnknownObject = (data: any, key: string, type: string) => {
+            if (data[key] && !checkObject(type, data[key])) {
+                delete data[key];
+            }
+        };
+
+        const removeUnknownObjectsFromList = (data: any, key: string, type: string) => {
+            if (data[key]) {
+                data[key] = data[key].filter(name => checkObject(type, name));
+            }
         };
 
         const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
@@ -540,40 +547,38 @@ export class QorusProjectCodeInfo {
         };
 
         const checkIfaceData = (data: any) => {
-            checkObject('class', data['base-class-name']);
-            checkObject('queue', data.queue);
-            checkObject('event', data.event);
+            removeUnknownObject(data, 'base-class-name', 'class');
+            removeUnknownObject(data, 'queue', 'queue');
+            removeUnknownObject(data, 'event', 'event');
 
-            (data.classes || []).forEach(name => checkObject('class', name));
-            (data.requires || []).forEach(name => checkObject('class', name));
-            (data.mappers || []).forEach(name_version => checkObject('mapper', name_version));
-            (data.groups || []).forEach(name => checkObject('group', name));
-            (data.errors || []).forEach(name => checkObject('error', name));
-            (data.fsm || []).forEach(fsm => checkObject('fsm', fsm.name));
-            (data.vmaps || []).forEach(name => checkObject('value-map', name));
-            (data.constants || []).forEach(name => checkObject('constant', name));
-            (data.functions || []).forEach(name => checkObject('function', name));
-            (data['class-connections'] || []).forEach(connection => checkObject('class', connection.class));
+            removeUnknownObjectsFromList(data, 'classes', 'class');
+            removeUnknownObjectsFromList(data, 'requires', 'class');
+            removeUnknownObjectsFromList(data, 'mappers', 'mapper');
+            removeUnknownObjectsFromList(data, 'groups', 'group');
+            removeUnknownObjectsFromList(data, 'errors', 'error');
+            removeUnknownObjectsFromList(data, 'fsm', 'fsm');
+            removeUnknownObjectsFromList(data, 'vmaps', 'value-map');
+            removeUnknownObjectsFromList(data, 'constants', 'constant');
+            removeUnknownObjectsFromList(data, 'functions', 'function');
 
-            let checked_config_items: any[] = [];
-            (data['config-items'] || []).forEach(item => {
-                if (item.parent?.['interface-type']) {
-                    checkObject('class', item.parent['interface-name']);
-                    if (checkParentConfigItem(
-                        item.name,
-                        item.parent['interface-type'],
-                        item.parent['interface-name']))
-                    {
-                        checked_config_items.push(deepCopy(item));
-                    }
-                }
-            });
-            data['config-items'] = checked_config_items.length ? checked_config_items : undefined;
+            if (data['class-connections']) {
+                data['class-connections'] = data['class-connections'].filter(conn => checkObject('class', conn.class));
+            }
+
+            if (data['config-items']) {
+                data['config-items'] = data['config-items'].filter(item => !item.parent || checkParentConfigItem(
+                    item.name,
+                    item.parent['interface-type'],
+                    item.parent['interface-name']
+                ));
+            }
 
             (Object.keys(data.states || {})).forEach(state_id => {
                 const state = data.states[state_id];
                 if (['mapper', 'pipeline'].includes(state.action?.type)) {
-                    checkObject(state.action.type, state.action.value);
+                    if (!checkObject(state.action.type, state.action.value)) {
+                        delete state.action;
+                    }
                 }
             });
 
@@ -584,8 +589,6 @@ export class QorusProjectCodeInfo {
         };
 
         checkIfaceData(iface_data);
-
-        return ok;
     }
 
     private initInfo() {

@@ -109,7 +109,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
-        code_info.checkData(data);
+        code_info.checkReferencedObjects(data);
 
         qorus_webview.open({
             tab: 'CreateInterface',
