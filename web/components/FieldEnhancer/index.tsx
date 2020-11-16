@@ -30,10 +30,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
     const mapperContext = useContext(MapperContext);
 
     const handleCreateClick = (reference: any, onSubmit?: () => any) => {
-        // First reset the current fields of the same kind
-        fields.resetFields(reference.iface_kind);
-        // Remove leftover data
-        initialData.changeInitialData(reference.iface_kind, null);
         // Set the context for the mapper if this is
         // mapper interface
         if (reference.iface_kind === 'mapper' && context?.static_data) {

@@ -6,17 +6,20 @@ import {
     find,
     forEach,
     includes,
+    last,
     map,
     omit,
     reduce,
     size,
     uniqBy,
-    upperFirst,
+    upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
+import { useMount } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
+import withState from 'recompose/withState';
 import shortid from 'shortid';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
@@ -217,6 +220,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     onSubmitSuccess,
     setAsDraft,
     onDataFinishLoadingRecur,
+    addInterface,
+    removeInterface,
+    interfaceIndex,
 }) => {
     const isInitialMount = useRef(true);
     const [show, setShow] = useState<boolean>(false);
@@ -243,6 +249,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             steps: type === 'workflow' && size(steps) ? processSteps(steps, stepsData) : undefined,
         });
     };
+
+    useMount(() => {
+        addInterface(type, interfaceIndex);
+    });
 
     useEffect(() => {
         // Remove the current listeners
@@ -273,7 +283,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
             ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField }; iface_kind: string }) => {
-                console.log(newFields);
                 // Register only for this interface
                 if (rest.iface_kind === type) {
                     // Clone initial data
@@ -306,9 +315,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             });
                         }
                         // Save preselected fields
-                        setSelectedFields(type, preselectedFields, activeId);
+                        setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
                         // Save the fields
-                        setFields(type, transformedFields, activeId);
+                        setFields(type, transformedFields, activeId, interfaceIndex);
                     }
                     // Check if onDataFinish function is set
                     // only do this on initial mount
@@ -329,7 +338,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // has already been on this view
                     if (!interfaceId) {
                         // Create it if this is brand new interface
-                        setInterfaceId(type, currentInterfaceId);
+                        setInterfaceId(type, currentInterfaceId, interfaceIndex);
                     }
                     // Set show
                     setShow(true);
@@ -403,9 +412,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         });
                     }
                     // Save preselected fields
-                    setSelectedFields(type, preselectedFields, activeId);
+                    setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
                     // Save the fields
-                    setFields(type, transformedFields, activeId);
+                    setFields(type, transformedFields, activeId, interfaceIndex);
                 }
                 // Check if onDataFinish function is set
                 // only do this on initial mount
@@ -416,7 +425,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     isInitialMount.current = false;
                 }
                 // Create / set interface id
-                setInterfaceId(type, data ? copiedData.iface_id : shortid.generate());
+                setInterfaceId(type, data ? copiedData.iface_id : shortid.generate(), interfaceIndex);
                 // Set show
                 setShow(true);
             }
@@ -440,7 +449,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         ...field,
                         selected: fieldName === field.name ? true : field.selected,
                     })),
-                activeId
+                activeId,
+                interfaceIndex
             );
             // Get the field
             const field: IField = find(fields, (field: IField) => field.name === fieldName);
@@ -465,7 +475,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             },
                         ];
                     },
-                    activeId
+                    activeId,
+                    interfaceIndex
                 );
             }
         }
@@ -499,7 +510,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 setSelectedFields(
                     type,
                     (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName),
-                    activeId
+                    activeId,
+                    interfaceIndex
                 );
 
                 return map(current, (field: IField) => ({
@@ -510,7 +522,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     hasValueSet: fieldName === field.name ? false : field.hasValueSet,
                 }));
             },
-            activeId
+            activeId,
+            interfaceIndex
         );
     };
 
@@ -522,7 +535,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     ...field,
                     disabled: fieldName === field.name ? disabled : field.disabled,
                 })),
-            activeId
+            activeId,
+            interfaceIndex
         );
     };
 
@@ -633,7 +647,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     return [...newFields, { ...currentField }];
                 }, []);
             },
-            activeId
+            activeId,
+            interfaceIndex
         );
     };
 
@@ -663,7 +678,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     ];
                 }, []);
             },
-            activeId
+            activeId,
+            interfaceIndex
         );
 
         if (onSubmit) {
@@ -680,7 +696,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 const subItemType = type === 'service-methods' ? 'methods' : 'mapper-methods';
                 // Get the service data
                 newData = reduce(
-                    allSelectedFields[intrfType],
+                    last(allSelectedFields[intrfType]),
                     (result: { [key: string]: any }, field: IField) => ({
                         ...result,
                         [field.name]: field.value,
@@ -688,7 +704,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
                 // Add the methods
-                newData[subItemType] = map(allSelectedFields[type], (serviceMethod) => {
+                newData[subItemType] = map(last(allSelectedFields[type]), (serviceMethod) => {
                     return reduce(
                         serviceMethod,
                         (result: { [key: string]: any }, field: IField) => ({
@@ -731,7 +747,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             if (type === 'step') {
                 // Get the workflow data
                 const workflow = reduce(
-                    allSelectedFields.workflow,
+                    last(allSelectedFields.workflow),
                     (result: { [key: string]: any }, field: IField) => ({
                         ...result,
                         [field.name]: field.value,
@@ -790,7 +806,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // If this is config item, reset only the fields
                 // local fields will be unmounted
                 if (type === 'config-item') {
-                    resetFields(type);
+                    resetFields(type, interfaceIndex);
                 } else {
                     // Reset the interface data
                     resetAllInterfaceData(type);
@@ -962,9 +978,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     const getInterfaceNameForContext = () => {
         const ifaceType: string = type === 'step' ? 'workflow' : type;
-        const iName: IField = allSelectedFields[ifaceType].find((field) => field.name === 'name');
-        const iVersion: IField = allSelectedFields[ifaceType].find((field) => field.name === 'version');
-        const iStaticData: IField = allSelectedFields[ifaceType].find((field) => field.name === 'staticdata-type');
+
+        const iName: IField = last(allSelectedFields[ifaceType])?.find((field) => field.name === 'name');
+        const iVersion: IField = last(allSelectedFields[ifaceType])?.find((field) => field.name === 'version');
+        const iStaticData: IField = last(allSelectedFields[ifaceType])?.find(
+            (field) => field.name === 'staticdata-type'
+        );
 
         if (!iName || !iVersion || !iStaticData) {
             return null;
@@ -980,7 +999,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const getContext = () => {
         if (supportsContext() && getInterfaceNameForContext()) {
             const ifaceType: string = type === 'step' ? 'workflow' : type;
-            const staticData: IField = allSelectedFields[ifaceType].find((field) => field.name === 'staticdata-type');
+            const staticData: IField = last(allSelectedFields[ifaceType]).find(
+                (field) => field.name === 'staticdata-type'
+            );
             return {
                 iface_kind: type === 'step' ? 'workflow' : type,
                 name: getInterfaceNameForContext(),
@@ -1238,6 +1259,9 @@ export default compose(
     withMapperConsumer(),
     withStepsConsumer(),
     withFieldsConsumer(),
+    withState('interfaceIndex', 'setInterfaceIndex', ({ type, interfaceId, interfaceIndex, selectedFields }) => {
+        return interfaceIndex ?? size(interfaceId[type]);
+    }),
     mapProps(
         ({
             type,
@@ -1248,16 +1272,20 @@ export default compose(
             activeId,
             interfaceId,
             initialInterfaceId,
+            interfaceIndex,
             ...rest
         }) => ({
-            fields: activeId ? fields[type][activeId] : fields[type],
-            selectedFields: activeId ? selectedFields[type][activeId] : selectedFields[type],
-            query: query[type],
-            selectedQuery: selectedQuery[type],
+            fields: activeId ? fields[type]?.[interfaceIndex]?.[activeId] : fields[type][interfaceIndex],
+            selectedFields: activeId
+                ? selectedFields[type]?.[interfaceIndex]?.[activeId]
+                : selectedFields[type][interfaceIndex],
+            query: query[type][interfaceIndex],
+            selectedQuery: selectedQuery[type][interfaceIndex],
             allSelectedFields: selectedFields,
-            interfaceId: initialInterfaceId || interfaceId[type],
+            interfaceId: initialInterfaceId || interfaceId[type][interfaceIndex],
             type,
             activeId,
+            interfaceIndex,
             ...rest,
         })
     )
