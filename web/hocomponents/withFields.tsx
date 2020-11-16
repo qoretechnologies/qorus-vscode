@@ -32,6 +32,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             queue: [],
             mapper: [],
             ['config-item']: [],
+            'value-map': [],
         });
         const [fields, setLocalFields] = useState<any>({
             service: [],
@@ -47,6 +48,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             event: [],
             queue: [],
             mapper: [],
+            'value-map': [],
         });
         const [selectedFields, setLocalSelectedFields] = useState<any>({
             service: [],
@@ -62,6 +64,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             event: [],
             queue: [],
             mapper: [],
+            'value-map': [],
         });
         const [query, setLocalQuery] = useState<any>({
             service: [],
@@ -77,6 +80,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             event: [],
             queue: [],
             mapper: [],
+            'value-map': [],
         });
         const [selectedQuery, setLocalSelectedQuery] = useState<any>({
             service: [],
@@ -92,6 +96,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             event: [],
             queue: [],
             mapper: [],
+            'value-map': [],
         });
 
         const addInterface = (type: string, interfaceIndex: number) => {

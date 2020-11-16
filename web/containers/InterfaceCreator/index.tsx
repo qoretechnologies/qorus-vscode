@@ -120,28 +120,25 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     )}
                     {initialData.subtab === 'group' && (
                         <CreatorWrapper>
-                            <InterfaceCreatorPanel
-                                type={'group'}
-                                onSubmitSuccess={onSubmit}
-                                data={initialData.group}
-                            />
+                            <InterfaceCreatorPanel type={'group'} onSubmitSuccess={onSubmit} data={initialData.group} />
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'event' && (
                         <CreatorWrapper>
-                            <InterfaceCreatorPanel
-                                type={'event'}
-                                onSubmitSuccess={onSubmit}
-                                data={initialData.event}
-                            />
+                            <InterfaceCreatorPanel type={'event'} onSubmitSuccess={onSubmit} data={initialData.event} />
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'queue' && (
                         <CreatorWrapper>
+                            <InterfaceCreatorPanel type={'queue'} onSubmitSuccess={onSubmit} data={initialData.queue} />
+                        </CreatorWrapper>
+                    )}
+                    {initialData.subtab === 'value-map' && (
+                        <CreatorWrapper>
                             <InterfaceCreatorPanel
-                                type={'queue'}
+                                type={'value-map'}
                                 onSubmitSuccess={onSubmit}
-                                data={initialData.queue}
+                                data={initialData['value-map']}
                             />
                         </CreatorWrapper>
                     )}
