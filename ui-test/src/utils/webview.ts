@@ -100,6 +100,12 @@ export const clickElement = async (
     position: number = 1,
     selector: TSelector = 'name'
 ) => {
+    const element = await getNthElement(webview, name, position, selector);
+
+    if (!element) {
+        throw new Error(`Element to click ${name} ${position} not found!`);
+    }
+
     await (await getNthElement(webview, name, position, selector)).click();
 };
 
