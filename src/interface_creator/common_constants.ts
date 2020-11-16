@@ -137,6 +137,9 @@ export const classFields = ({ default_target_dir }) => [
         },
         on_change: 'get-config-items',
         notify_on_remove: true,
+        reference: {
+            iface_kind: 'class',
+        },
     },
     {
         name: 'requires',

@@ -1,11 +1,11 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import PairField from './pair';
 import { Button, ButtonGroup } from '@blueprintjs/core';
-import styled from 'styled-components';
 import { size } from 'lodash';
+import React, { FunctionComponent } from 'react';
+import styled from 'styled-components';
+import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
+import PairField from './pair';
 
 type IPair = {
     id: number;
@@ -37,7 +37,7 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
         onChange(name, [...value, { id: size(value) + 1, [fields[0]]: '', [fields[1]]: '' }]);
     };
 
-    const handleRemoveClick: (id: number) => void = id => {
+    const handleRemoveClick: (id: number) => void = (id) => {
         // Remove the selected pair
         onChange(
             name,
@@ -65,7 +65,7 @@ const MultiPairField: FunctionComponent<TTranslator & IField & IFieldChange> = (
                 </StyledPairField>
             ))}
             <ButtonGroup fill>
-                <Button text={t('AddNew')} icon={'add'} onClick={handleAddClick} />
+                <Button text={t('AddNew')} icon={'add'} name={`field-${name}-add-new`} onClick={handleAddClick} />
             </ButtonGroup>
         </>
     );
