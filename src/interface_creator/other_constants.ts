@@ -54,7 +54,8 @@ export const valueMapFields = ({ default_target_dir }) => [
     {
         name: 'dateformat',
         mandatory: false,
-        default_value: 'DD.MM.YYYY',
+        disabled: true,
+        default_value: 'YYYY-MM-DD',
     },
     {
         name: 'value-maps',
