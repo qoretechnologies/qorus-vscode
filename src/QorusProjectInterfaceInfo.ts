@@ -460,7 +460,7 @@ export class QorusProjectInterfaceInfo {
 
         const index = (parent_data['config-items'] || []).findIndex(item => item.name === this_item.name);
         if (index === -1) {
-            msg.error(t`ParentDoesNotHaveConfigItem ${parent_name} ${this_item.name}`);
+//            msg.error(t`AncestorDoesNotHaveConfigItem ${'class'} ${parent_name} ${this_item.name}`);
             return this_item;
         }
 

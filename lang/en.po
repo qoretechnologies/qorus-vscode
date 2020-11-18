@@ -343,6 +343,9 @@ msgstr "Getting info from ${ url } ..."
 msgid "RequestTimedOut ${ url }"
 msgstr "Request timed out: ${ url }"
 
+msgid "ReferencedObjectNotFound ${ type } ${ name }"
+msgstr "Referenced ${ type } '${ name }' not found"
+
 msgid "ConnectionRefused ${ url }"
 msgstr "Connection to ${ url } refused"
 
@@ -2031,8 +2034,11 @@ msgstr "Config item editor "
 msgid "UnknownConfigItem ${ name }"
 msgstr "Unknown config item '${ name }'"
 
-msgid "ParentDoesNotHaveConfigItem ${ parent } ${ item }"
-msgstr "Parent ${ parent } does not have config item ${ item }"
+msgid "AncestorDoesNotHaveConfigItem ${ type } ${ ancestor } ${ item }"
+msgstr "Ancestor ${ type } ${ ancestor } does not have config item ${ item }"
+
+msgid "AncestorDoesNotExist ${type} ${ ancestor } ${ item }"
+msgstr "Ancestor ${type} ${ ancestor } referenced by config item ${ item } does not exist"
 
 msgid "AddNewEnvironment"
 msgstr "Add new environment"

@@ -25,9 +25,6 @@ export const addMessageListener: TMessageListener = (action, callback) => {
 
 // Send message
 export const postMessage: TPostMessage = (action, data = {}) => {
-    if (action === 'creator-create-interface') {
-        console.log(data);
-    }
     vscode.postMessage({
         action,
         ...data,
