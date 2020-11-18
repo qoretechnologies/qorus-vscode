@@ -1,15 +1,12 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
-
+import { AnchorButton, Button, ButtonGroup, Callout, Classes, Navbar, NavbarGroup } from '@blueprintjs/core';
 import last from 'lodash/last';
 import size from 'lodash/size';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { AnchorButton, Button, ButtonGroup, Callout, Classes, Navbar, NavbarGroup } from '@blueprintjs/core';
-
 import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
@@ -183,6 +180,17 @@ const App: FunctionComponent<IApp> = ({
         });
         addMessageListener('return-all-text', ({ data }): void => {
             setTexts(data);
+        });
+        addMessageListener('display-notifications', ({ data }) => {
+            if (data.length) {
+                data.forEach(({ message, intent, timeout }) => {
+                    AppToaster.show({
+                        message,
+                        intent,
+                        timeout,
+                    });
+                });
+            }
         });
         // Get the current project folder
         postMessage(Messages.GET_PROJECT_FOLDER);
