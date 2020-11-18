@@ -2034,8 +2034,11 @@ msgstr "Config item editor "
 msgid "UnknownConfigItem ${ name }"
 msgstr "Unknown config item '${ name }'"
 
-msgid "ParentDoesNotHaveConfigItem ${ parent } ${ item }"
-msgstr "Parent ${ parent } does not have config item ${ item }"
+msgid "AncestorDoesNotHaveConfigItem ${ type } ${ ancestor } ${ item }"
+msgstr "Ancestor ${ type } ${ ancestor } does not have config item ${ item }"
+
+msgid "AncestorDoesNotExist ${type} ${ ancestor } ${ item }"
+msgstr "Ancestor ${type} ${ ancestor } referenced by config item ${ item } does not exist"
 
 msgid "AddNewEnvironment"
 msgstr "Add new environment"

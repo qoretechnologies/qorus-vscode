@@ -500,6 +500,11 @@ export class QorusProjectCodeInfo {
     checkReferencedObjects(iface_id: string, iface_data: any) {
         let messages: any = {};
 
+        const addMessage = (message: string) => {
+            messages[message] = true;
+            msg.error(message);
+        };
+
         const checkObject = (type, name): boolean => {
             if (!name) {
                 return true;
@@ -515,9 +520,7 @@ export class QorusProjectCodeInfo {
 
             const yaml_data = this.yaml_info.yamlDataByName(type, name);
             if (!yaml_data) {
-                const message = t`ReferencedObjectNotFound ${type} ${name}`;
-                messages[message] = true;
-                msg.warning(message);
+                addMessage(t`ReferencedObjectNotFound ${type} ${name}`);
                 return false;
             }
 
@@ -539,11 +542,13 @@ export class QorusProjectCodeInfo {
         const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
             const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
             if (!parent_yaml_data) {
+                addMessage(t`AncestorDoesNotExist ${parent_type} ${parent_name} ${name}`);
                 return false;
             }
 
             const parent_item = parent_yaml_data['config-items'].find(item => item.name === name);
             if (!parent_item) {
+                addMessage(t`AncestorDoesNotHaveConfigItem ${parent_type} ${parent_name} ${name}`);
                 return false;
             }
             if (!parent_item.parent) {
@@ -605,7 +610,7 @@ export class QorusProjectCodeInfo {
             this.error_messages[iface_id] = {};
         }
         this.error_messages[iface_id].referenced_objects
-            = Object.keys(messages).map(message => ({ intent: 'warning', message }));
+            = Object.keys(messages).map(message => ({ intent: 'danger', message, timeout: 20000 }));
     }
 
     private initInfo() {
