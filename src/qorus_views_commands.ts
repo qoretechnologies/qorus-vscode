@@ -93,7 +93,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps', 'connection',
-        'workflow', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
+        'workflow', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline', 'value-map'].forEach(iface_kind =>
     {
         const command_part = dash2Pascal(iface_kind);
         disposable = commands.registerCommand(`qorus.views.edit${command_part}`, (data: any) => {

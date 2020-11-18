@@ -212,6 +212,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editValueMap",
+                "title": "Edit Value Map",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editServiceMethods",
                 "title": "Edit Service Methods",
                 "category": "Qorus"
@@ -897,6 +902,15 @@
                 }
             },
             {
+                "command": "qorus.views.editValueMap",
+                "title": "Edit Value Map",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
                 "command": "qorus.views.editStep",
                 "title": "Edit Step",
                 "category": "Qorus",
@@ -1162,6 +1176,10 @@
                 },
                 {
                     "command": "qorus.views.editService",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editValueMap",
                     "when": "false"
                 },
                 {
@@ -1747,6 +1765,11 @@
                 {
                     "command": "qorus.views.editService",
                     "when": "view == qorusInterfaces && viewItem == service",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map",
                     "group": "inline"
                 },
                 {
