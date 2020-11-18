@@ -1303,6 +1303,12 @@ msgstr "Date format"
 msgid "field-desc-dateformat"
 msgstr "Date format"
 
+msgid "field-label-raw"
+msgstr "raw"
+
+msgid "field-desc-raw"
+msgstr "Raw"
+
 msgid "field-label-valuetype"
 msgstr "Value type"
 

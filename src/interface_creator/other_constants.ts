@@ -57,10 +57,5 @@ export const valueMapFields = ({ default_target_dir }) => [
         disabled: true,
         default_value: 'YYYY-MM-DD',
     },
-    {
-        name: 'value-maps',
-        mandatory: false,
-        type: 'array-of-pairs',
-        fields: ['key', 'value'],
-    },
+    field['value-maps'],
 ];

@@ -705,7 +705,8 @@ export abstract class InterfaceCreator {
                     case 'workflow_options':
                     case 'define-auth-label':
                     case 'statuses':
-                        const [key_name, value_name] = field[tag.replace(/-/g, '_')].fields;
+                    case 'value-maps':
+                        const [key_name, value_name] = field[tag].fields;
                         for (let item of value) {
                             result += `${indent}${item[key_name]}: ${item[value_name]}\n`;
                         }
