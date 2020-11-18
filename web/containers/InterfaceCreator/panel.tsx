@@ -12,7 +12,7 @@ import {
     reduce,
     size,
     uniqBy,
-    upperFirst
+    upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -529,6 +529,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     const toggleDisableField: (fieldName: string, disabled: boolean) => void = (fieldName, disabled) => {
         setFields(
+            type,
+            (current: IField[]) =>
+                map(current, (field: IField) => ({
+                    ...field,
+                    disabled: fieldName === field.name ? disabled : field.disabled,
+                })),
+            activeId,
+            interfaceIndex
+        );
+        setSelectedFields(
             type,
             (current: IField[]) =>
                 map(current, (field: IField) => ({
