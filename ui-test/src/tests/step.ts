@@ -6,6 +6,7 @@ import {
     addNewMultiSelectItemAndSelectIt,
     clickElement,
     fillTextField,
+    getElementAttribute,
     getSelectedFields,
     resetAndFillTextField,
     selectField,
@@ -40,6 +41,9 @@ export const fillsStepFields = async (webview: WebView) => {
 
     await selectField(webview, 'classes');
     await selectNthFilteredDropdownItem(webview, 'name', 'ClassForFSMTest', 1, 2);
+
+    // Expect class connections to be enabled
+    expect(await getElementAttribute(webview, 'step-class-connections-button', 'disabled')).to.eq(null);
 
     await selectField(webview, 'constants');
     await addNewMultiSelectItemAndSelectIt(webview, 'test', 2);
