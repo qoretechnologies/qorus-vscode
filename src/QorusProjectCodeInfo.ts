@@ -52,6 +52,8 @@ export class QorusProjectCodeInfo {
 
     private notif_trees = [interface_tree];
 
+    private error_messages: any = {};
+
     constructor(project: QorusProject) {
         this.project = project;
         this.yaml_files_info = new QorusProjectYamlInfo();
@@ -486,8 +488,17 @@ export class QorusProjectCodeInfo {
         return data;
     }
 
-    checkReferencedObjects(iface_data: any) {
-        let error_messages: string[] = [];
+    sendErrorMessages(iface_id: string) {
+        if (this.error_messages[iface_id].referenced_objects.length) {
+            qorus_webview.postMessage({
+                action: 'display-notifications',
+                data: this.error_messages[iface_id].referenced_objects
+            });
+        }
+    }
+
+    checkReferencedObjects(iface_id: string, iface_data: any) {
+        let messages: any = {};
 
         const checkObject = (type, name): boolean => {
             if (!name) {
@@ -505,7 +516,7 @@ export class QorusProjectCodeInfo {
             const yaml_data = this.yaml_info.yamlDataByName(type, name);
             if (!yaml_data) {
                 const message = t`ReferencedObjectNotFound ${type} ${name}`;
-                error_messages.push(message);
+                messages[message] = true;
                 msg.warning(message);
                 return false;
             }
@@ -589,6 +600,12 @@ export class QorusProjectCodeInfo {
         };
 
         checkIfaceData(iface_data);
+
+        if (!this.error_messages[iface_id]) {
+            this.error_messages[iface_id] = {};
+        }
+        this.error_messages[iface_id].referenced_objects
+            = Object.keys(messages).map(message => ({ intent: 'warning', message }));
     }
 
     private initInfo() {
