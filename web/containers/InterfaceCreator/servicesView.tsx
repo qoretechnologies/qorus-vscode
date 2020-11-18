@@ -1,11 +1,9 @@
-import React, { FunctionComponent } from 'react';
-
-import { omit } from 'lodash';
+import { Button, ButtonGroup } from '@blueprintjs/core';
+import { omit, size } from 'lodash';
+import React, { FunctionComponent, useState } from 'react';
+import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
 import { MethodsContext } from '../../context/methods';
@@ -14,7 +12,6 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
 import InterfaceCreatorPanel, { ActionsWrapper, ContentWrapper } from './panel';
-import useMount from 'react-use/lib/useMount';
 
 let hasAllMethodsLoaded: boolean;
 
@@ -131,8 +128,8 @@ const CreatorWrapper = styled.div`
 export interface IServicesView {
     targetDir: string;
     t: TTranslator;
-    isSubItemValid: (id: number, type: string) => boolean;
-    removeSubItemFromFields: (id: number, type: string) => void;
+    isSubItemValid: any;
+    removeSubItemFromFields: any;
     service: any;
     interfaceId: { [key: string]: string };
 }
@@ -146,6 +143,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     interfaceId,
     initialData,
 }) => {
+    const [serviceIndex, setServiceIndex] = useState(size(interfaceId.service));
+    const [methodsIndex, setMethodsIndex] = useState(size(interfaceId['service-methods']));
+
     useMount(() => {
         return () => {
             hasAllMethodsLoaded = false;
@@ -185,6 +185,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 setActiveMethod(1);
                                                 setShowMethods(true);
                                             }}
+                                            interfaceIndex={serviceIndex}
                                             data={service && omit(service, 'methods')}
                                             isEditing={!!service}
                                             onDataFinishLoading={
@@ -206,7 +207,11 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                                 name={`select-method-${method.name}`}
                                                                 key={method.id}
                                                                 active={method.id === activeMethod}
-                                                                valid={isSubItemValid(method.id, 'service-methods')}
+                                                                valid={isSubItemValid(
+                                                                    method.id,
+                                                                    'service-methods',
+                                                                    methodsIndex
+                                                                )}
                                                                 onClick={() => setActiveMethod(method.id)}
                                                             >
                                                                 {method.name || `${t('Method')} ${method.id}`}
@@ -227,7 +232,8 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                                             );
                                                                             removeSubItemFromFields(
                                                                                 method.id,
-                                                                                'service-methods'
+                                                                                'service-methods',
+                                                                                methodsIndex
                                                                             );
                                                                             setMethodsCount(
                                                                                 (current: number) => current - 1
@@ -253,6 +259,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                             <InterfaceCreatorPanel
                                                 stepOneTitle={t('SelectFieldsSecondStep')}
                                                 stepTwoTitle={t('FillDataThirdStep')}
+                                                interfaceIndex={methodsIndex}
                                                 onBackClick={() => {
                                                     hasAllMethodsLoaded = false;
                                                     setActiveMethod(null);
@@ -271,7 +278,9 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                         }
                                                     }
                                                 }}
-                                                initialInterfaceId={service ? service.iface_id : interfaceId.service}
+                                                initialInterfaceId={
+                                                    service ? service.iface_id : interfaceId.service[serviceIndex]
+                                                }
                                                 type={'service-methods'}
                                                 activeId={activeMethod}
                                                 isEditing={!!service}

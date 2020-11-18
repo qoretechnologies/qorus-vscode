@@ -8,7 +8,7 @@ describe('Other interface tests', function () {
     let webview: WebView;
 
     before(async () => {
-        ({ editorView, webview } = await setupTest());
+        ({ editorView, webview } = await setupTest('rippy IP'));
     });
 
     it('Opens Step create page', () => opensStepPage(webview));

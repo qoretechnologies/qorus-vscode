@@ -189,15 +189,7 @@ const TutorialButton = ({ type, onClick }) => {
     );
 };
 
-const Tab: React.FC<ITabProps> = ({
-    t,
-    initialData,
-    type,
-    children,
-    resetAllInterfaceData,
-    setInterfaceId,
-    updateField,
-}) => {
+const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData, updateField }) => {
     const isEditing: () => boolean = () => !!initialData[type]?.name;
     const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
