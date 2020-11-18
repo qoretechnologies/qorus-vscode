@@ -6,6 +6,7 @@ import { AppToaster } from '../components/Toast';
 import { Messages } from '../constants/messages';
 import { InitialContext } from '../context/init';
 import withFieldsConsumer from './withFieldsConsumer';
+import { addMessageListener, postMessage } from './withMessageHandler';
 
 // A HoC helper that holds all the initial data
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
@@ -25,7 +26,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [unfinishedWork, setUnfinishedWork] = useState<{ [key: string]: boolean }>({});
 
         useMount(() => {
-            props.addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
+            addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
                 setInitialData(null);
 
                 if (!data.tab) {
@@ -38,7 +39,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }));
             });
 
-            props.addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+            addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
                 // Only set initial data if we are
                 // switching tabs
                 if (data.tab) {
@@ -49,7 +50,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }
             });
 
-            props.postMessage(Messages.GET_INITIAL_DATA);
+            postMessage(Messages.GET_INITIAL_DATA);
         });
 
         const confirmAction: (text: string, action: () => any, btnText?: string, btnIntent?: string) => void = (
@@ -137,7 +138,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }, 120000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
-                const listener = props.addMessageListener('fetch-data-complete', (data) => {
+                const listener = addMessageListener('fetch-data-complete', (data) => {
                     if (data.id === uniqueId) {
                         clearTimeout(timeout);
                         timeout = null;
@@ -147,7 +148,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     }
                 });
                 // Fetch the data
-                props.postMessage('fetch-data', {
+                postMessage('fetch-data', {
                     id: uniqueId,
                     url,
                     method,
@@ -194,7 +195,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 }, 30000);
                 // Watch for the request to complete
                 // if the ID matches then resolve
-                props.addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
+                addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
                     if (data.request_id === uniqueId) {
                         AppToaster.show(
                             {
@@ -213,7 +214,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 });
 
                 // Fetch the data
-                props.postMessage(getMessage, {
+                postMessage(getMessage, {
                     request_id: uniqueId,
                     ...data,
                     recreate: initialData.isRecreate,
