@@ -1297,6 +1297,30 @@ msgstr "Active"
 msgid "field-desc-active"
 msgstr "A boolean value giving the active status of the job; if not present, the default is True"
 
+msgid "field-label-dateformat"
+msgstr "Date format"
+
+msgid "field-desc-dateformat"
+msgstr "Date format"
+
+msgid "field-label-valuetype"
+msgstr "Value type"
+
+msgid "field-desc-valuetype"
+msgstr "Value type"
+
+msgid "field-label-value-maps"
+msgstr "Value maps"
+
+msgid "field-desc-value-maps"
+msgstr "Value maps"
+
+msgid "field-label-exception"
+msgstr "Exception"
+
+msgid "field-desc-exception"
+msgstr "Exception"
+
 msgid "field-label-run-skipped"
 msgstr "Run skipped"
 
