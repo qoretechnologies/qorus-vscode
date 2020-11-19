@@ -2,7 +2,7 @@ import { EditorView, WebView } from 'vscode-extension-tester';
 import { editsStepAndChecksFiles, fillsStepFields, opensStepPage, submitsStepAndChecksFiles } from './tests/step';
 import { cleanup, setupTest } from './utils/common';
 
-describe('Other interface tests', function () {
+describe('Step tests', function () {
     this.timeout(1800000);
     let editorView: EditorView;
     let webview: WebView;
