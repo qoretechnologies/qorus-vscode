@@ -326,6 +326,12 @@ export class QorusProjectCodeInfo {
             delete data['mapper-code'];
         }
 
+        if (data['value-maps']) {
+            Object.keys(data['value-maps']).forEach(key => {
+                data['value-maps'][key] = data['value-maps'][key].value;
+            });
+        }
+
         ['desc', 'description'].forEach(tag => {
             if (data[tag]) {
                 data[tag] = data[tag].replace(/^\"/, '');

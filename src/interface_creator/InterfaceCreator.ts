@@ -705,10 +705,17 @@ export abstract class InterfaceCreator {
                     case 'workflow_options':
                     case 'define-auth-label':
                     case 'statuses':
-                    case 'value-maps':
                         const [key_name, value_name] = field[tag].fields;
                         for (let item of value) {
                             result += `${indent}${item[key_name]}: ${item[value_name]}\n`;
+                        }
+                        break;
+                    case 'value-maps':
+                        const [key_name_2, value_name_2] = field[tag].fields;
+                        for (let item of value) {
+                            result += `${indent}${item[key_name_2]}:\n`
+                                + `${indent}${indent}value: ${item[value_name_2]}\n`
+                                + `${indent}${indent}enabled: true\n`;
                         }
                         break;
                     case 'author':
