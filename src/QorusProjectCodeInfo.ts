@@ -583,9 +583,10 @@ export class QorusProjectCodeInfo {
             removeUnknownObjectsFromList(data, 'constants', 'constant');
             removeUnknownObjectsFromList(data, 'functions', 'function');
 
-            if (data['class-connections']) {
-                data['class-connections'] = data['class-connections'].filter(conn => checkObject('class', conn.class));
-            }
+            (Object.keys(data['class-connections'] || {})).forEach(connection => {
+                let connectors = data['class-connections'][connection];
+                connectors = connectors.filter(connector => checkObject('class', connector.class));
+            });
 
             if (data['config-items']) {
                 data['config-items'] = data['config-items'].filter(item => !item.parent || checkParentConfigItem(
