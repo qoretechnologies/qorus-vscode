@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.2
+
+#### New features
+
+- new interface: Value map
+- it is now possible to create or edit two interfaces of the same kind at the same time (create Class from a Class for example)
+
+#### Bug fixes
+
+- config item with allowed values can now be given a template string instead
+
 ## 2.0.1
 
 #### New features
