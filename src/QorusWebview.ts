@@ -5,12 +5,13 @@ import * as map from 'lodash/map';
 import * as msg from './qorus_message';
 import { instance_tree } from './QorusInstanceTree';
 import { projects, QorusProject, config_filename } from './QorusProject';
-import { QorusProjectEditInfo } from './QorusProjectEditInfo';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { qorus_request } from './QorusRequest';
 import { releaser } from './QorusRelease';
 import { deleter } from './QorusDelete';
 import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
 import { FormChangesResponder } from './interface_creator/FormChangesResponder';
+import { deepCopy } from './qorus_utils';
 import { triggers } from './interface_creator/standard_methods';
 import { qorus_locale } from './QorusLocale';
 
@@ -20,7 +21,9 @@ class QorusWebview {
     private panel: vscode.WebviewPanel | undefined = undefined;
     private config_file_watcher: vscode.FileSystemWatcher | undefined = undefined;
     private message_on_config_file_change: boolean = true;
+    private uri: vscode.Uri;
     private initial_data: any = {};
+    private previous_initial_data: any = {};
 
     setInitialData(data: any, do_post: boolean = false) {
         this.initial_data = data;
@@ -30,7 +33,6 @@ class QorusWebview {
     }
 
     private postInitialData = () => {
-        const { uri, ...other_data } = this.initial_data;
         const { authority, path, scheme } = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
 
         this.postMessage({
@@ -39,32 +41,38 @@ class QorusWebview {
                 path: web_path,
                 image_path: `${scheme}://${authority}${path}`,
                 qorus_instance: qorus_request.activeQorusInstance(),
-                ...other_data,
+                ... this.initial_data,
             },
         });
 
         // clear initial data except uri
-        this.initial_data = {
-            uri: this.initial_data?.uri
-        };
+        if (Object.keys(this.initial_data).length) {
+            this.previous_initial_data = deepCopy(this.initial_data);
+        }
+        this.initial_data = {}
     }
 
-    private checkError = (edit_info: QorusProjectEditInfo) => {
-        const iface_kind = this.initial_data.subtab;
-        if (iface_kind && this.initial_data[iface_kind]) {
-            const { target_dir, target_file, iface_id } = this.initial_data[iface_kind];
+    private checkError = (code_info: QorusProjectCodeInfo) => {
+        const initial_data = { ... this.initial_data, ... this.previous_initial_data }; 
+        const iface_kind = initial_data.subtab;
+        if (iface_kind && initial_data[iface_kind]) {
+            const { target_dir, target_file, iface_id } = initial_data[iface_kind];
+
+            code_info.sendErrorMessages(iface_id);
+
             if (target_dir && target_file) {
-                edit_info.checkError(path.join(target_dir, target_file), iface_id, iface_kind);
+                code_info.edit_info.checkError(path.join(target_dir, target_file), iface_id, iface_kind);
             }
         }
     }
 
-    open(initial_data: any = {}) {
+    open(initial_data: any = {}, uri?: vscode.Uri) {
         this.initial_data = initial_data;
+        this.uri = uri;
 
         if (this.panel) {
-            if (initial_data.uri) {
-                if (projects.updateCurrentWorkspaceFolder(initial_data.uri)) {
+            if (uri) {
+                if (projects.updateCurrentWorkspaceFolder(uri)) {
                     this.dispose();
                     msg.warning(t`WorkspaceFolderChangedResetWebview`);
                     return this.open(initial_data);
@@ -228,7 +236,7 @@ class QorusWebview {
                                 fields: creator.getSortedFields({
                                     ... message,
                                     interface_info,
-                                    default_target_dir: message.context?.target_dir || this.initial_data.uri?.fsPath
+                                    default_target_dir: message.context?.target_dir || this.uri?.fsPath
                                 }),
                             });
                             break;
@@ -250,7 +258,7 @@ class QorusWebview {
                             creator.editInterface({ ...message, edit_type: 'edit', interface_info });
                             break;
                         case 'check-edit-data':
-                            this.checkError(project.code_info.edit_info);
+                            this.checkError(project.code_info);
                             break;
                         case 'creator-field-added':
                             FormChangesResponder.fieldAdded(message);
@@ -299,7 +307,10 @@ class QorusWebview {
                             interface_info.removeSpecificData(message);
                             break;
                         case 'lang-changed':
-                            FormChangesResponder.langChanged(message);
+                            FormChangesResponder.langChanged(message, project.code_info);
+                            break;
+                        case 'valuetype-changed':
+                            FormChangesResponder.valueTypeChanged(message);
                             break;
                         case 'target-dir-changed':
                             interface_info.last_target_directory = message.target_dir;

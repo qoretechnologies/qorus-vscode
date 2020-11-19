@@ -118,14 +118,27 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     {initialData.subtab === 'mapper' && (
                         <MapperView onSubmitSuccess={onSubmit} interfaceContext={context} />
                     )}
-                    {initialData.subtab === 'other' && (
+                    {initialData.subtab === 'group' && (
+                        <CreatorWrapper>
+                            <InterfaceCreatorPanel type={'group'} onSubmitSuccess={onSubmit} data={initialData.group} />
+                        </CreatorWrapper>
+                    )}
+                    {initialData.subtab === 'event' && (
+                        <CreatorWrapper>
+                            <InterfaceCreatorPanel type={'event'} onSubmitSuccess={onSubmit} data={initialData.event} />
+                        </CreatorWrapper>
+                    )}
+                    {initialData.subtab === 'queue' && (
+                        <CreatorWrapper>
+                            <InterfaceCreatorPanel type={'queue'} onSubmitSuccess={onSubmit} data={initialData.queue} />
+                        </CreatorWrapper>
+                    )}
+                    {initialData.subtab === 'value-map' && (
                         <CreatorWrapper>
                             <InterfaceCreatorPanel
-                                context={context}
+                                type={'value-map'}
                                 onSubmitSuccess={onSubmit}
-                                type={'other'}
-                                data={initialData.other}
-                                isEditing={!!initialData.other}
+                                data={initialData['value-map']}
                             />
                         </CreatorWrapper>
                     )}

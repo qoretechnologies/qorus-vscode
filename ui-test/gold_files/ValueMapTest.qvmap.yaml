@@ -1,0 +1,8 @@
+# This is a generated file, don't edit!
+type: value-map
+name: ValueMapTest
+desc: Value map test
+author:
+  - Author 1
+exception: false
+valuetype: string

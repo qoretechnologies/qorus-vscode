@@ -80,7 +80,7 @@ export abstract class InterfaceCreator {
                 if (target_file) {
                     this.file_base = target_file;
                     // remove all possible suffixes
-                    ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype', 'qsd',
+                    ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype', 'qsd', 'qvmap',
                      'qmc', 'qevent', 'qgroup', 'qqueue', 'qfsm', 'qpipe', 'qconn', ].forEach((suffix) =>
                     {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
@@ -221,9 +221,6 @@ export abstract class InterfaceCreator {
         const fixed_data = this.code_info.fixData(data);
 
         let iface_kind = fixed_data.type;
-        if (['Group', 'Event', 'Queue'].includes(fixed_data.type)) {
-            iface_kind = 'other';
-        }
 
         const initial_data = {
             tab: 'CreateInterface',
@@ -265,17 +262,13 @@ export abstract class InterfaceCreator {
         let {
             iface_kind,
             edit_type,
-            data: { name, version, type, 'class-name': class_name },
+            data: { name, version, 'class-name': class_name },
             orig_data,
             recreate
         } = params;
 
         if (recreate || !['create', 'edit'].includes(edit_type)) {
             return { ok: true };
-        }
-
-        if (iface_kind === 'other') {
-            iface_kind = (type || '').toLowerCase();
         }
 
         const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
@@ -712,9 +705,17 @@ export abstract class InterfaceCreator {
                     case 'workflow_options':
                     case 'define-auth-label':
                     case 'statuses':
-                        const [key_name, value_name] = field[tag.replace(/-/g, '_')].fields;
+                        const [key_name, value_name] = field[tag].fields;
                         for (let item of value) {
                             result += `${indent}${item[key_name]}: ${item[value_name]}\n`;
+                        }
+                        break;
+                    case 'value-maps':
+                        const [key_name_2, value_name_2] = field[tag].fields;
+                        for (let item of value) {
+                            result += `${indent}${item[key_name_2]}:\n`
+                                + `${indent}${indent}value: ${item[value_name_2]}\n`
+                                + `${indent}${indent}enabled: true\n`;
                         }
                         break;
                     case 'author':

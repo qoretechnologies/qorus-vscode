@@ -4,69 +4,15 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
-## Version 2.0.1 overview - What's new:
-- step diagram for Workflows has been redesigned for better user experience
+## Version 2.0.2 overview - What's new:
+- new interface: Value map
+- it is now possible to create or edit two interfaces of the same kind at the same time (create Class from a Class for example)
 #### Bug fixes
-- connection now properly saves the port
-- target directory is now properly pre set when creating a step from workflow
-- target directory is now shown when selected
-- fixed opening service methods with author for editing
-- description is mandatory for events, groups and queues
-- fixed opening events, groups and queues for editing from the file browser
-- fixed updating the file list after adding new directory
-- removed incorrect message on adding new step from the workflow diagram
-- fixed switching an interface into another language
+- config item with allowed values can now be given a template string instead
 
+---
 
-## Version 2.0.0 overview - What's new:
-* Python is now a supported language
-* The extension is now 20x smaller
-* New Flow Designer (Finite State Machines): supports building arbitrary logic for any interface object with a mouse and configuration of building blocks instead of coding
-* Support for pipelines added: build high-performance data flow processing solutions using a mouse
-* Support for connections added
-* You can now deploy multiple files and directories
-* Code can now be shared between Qore, Java and Python; interfaces can also be regenerated from configuration in another language
-* New tutorial feature to guide you through some of the more complex interfaces
-...and many more new features and bug fixes, for a complete list please check the changelog.
-
-## Version 1.3.0 overview - What's new:
-* Support for editing Java interfaces
-* Added the commands 'Close Webview' and 'Edit current interface'
-#### Bug fixes:
-* Deletion of service and mapper code methods
-* Updating base classes in the selection box
-* Java source files are now created in a subdirectory (to fix name collisions)
-* On submitting edited interface check whether the original still exists
-* Java class cannot inherit Qore class
-* Freezing on deleting a mapper
-* Fixed including resources to service deployment
-
-## Version 1.2.0 overview - What's new:
-* A warning dialog has been added when a view is about to be changed and there is unsaved work
-* It is now possible to create and edit new objects **directly** from their respective fields
-* Mapper inputs and outputs can now be cleared and entered again when editing an existing mapper
-* Fixed a race condition bug that would cause the newly added step for a workflow diagram to show Loading step:0 instead of the step's name and version
-* When removing a second-to-last step in group of parallel steps, the last step is now moved upwards in the hierarchy and is rendered inline
-
-... and a lot more, please see changelog for all features and bug fixes.
-
-## Version 1.1.1 overview - What was fixed:
-* Java class connections code generation
-* displaying of folder in folder pickers
-* check of existence of an interface with same name or class name
-* success confirmation message from backend to frontend
-* fixed: saving of text-/bin-/resource fields
-
-## Version 1.1.0 overview - What's new:
-* Interface type **Type** support
-* Workflow property **Static data type**
-* Mapper property **Context**
-* The entire input hash is now mappable in mappers
-* Open file and Delete file buttons
-* All delete actions now have a confirmation dialog
-* Many bugs are fixed
-
-## Features
+## Main Features
 
 * Qorus Webview
 * Configuration manager helps to easily manage configuration data of the project (no need for manual work with **qorusproject.json**).

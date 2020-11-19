@@ -22,7 +22,7 @@ export class FormChangesResponder {
         }
     }
 
-    static langChanged({ lang, orig_lang, iface_id, iface_kind, send_response }) {
+    static langChanged({ lang, orig_lang, iface_id, iface_kind, send_response }, code_info) {
         if (lang === 'java') {
             qorus_webview.postMessage({
                 action: 'creator-remove-field',
@@ -38,11 +38,57 @@ export class FormChangesResponder {
             });
         }
 
-        if (send_response && orig_lang !== lang) {
+        if (send_response && orig_lang && orig_lang !== lang) {
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
                 message: t`LangChangeRecreateQuestion`,
                 orig_lang,
+                iface_id,
+                iface_kind
+            });
+        }
+
+        if (lang === 'java' && orig_lang && orig_lang !== lang) {
+            if (['service', 'job', 'workflow', 'step', 'processor'].includes(iface_kind)) {
+                code_info.getObjects({ object_type: `${iface_kind}-base-class`, iface_kind, lang });
+            } else {
+                code_info.getObjects({ object_type: 'base-class', iface_kind, lang });
+            }
+
+            qorus_webview.postMessage({
+                action: 'creator-change-field-value',
+                field: 'base-class-name',
+                value: undefined,
+                iface_id,
+                iface_kind
+            });
+        }
+    }
+
+    static valueTypeChanged({ valuetype, iface_id, iface_kind }) {
+        if (valuetype === 'date') {
+            qorus_webview.postMessage({
+                action: `creator-enable-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+            qorus_webview.postMessage({
+                action: `creator-add-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+        } else {
+            qorus_webview.postMessage({
+                action: `creator-remove-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+            qorus_webview.postMessage({
+                action: `creator-disable-field`,
+                field: 'dateformat',
                 iface_id,
                 iface_kind
             });
@@ -86,6 +132,9 @@ export class FormChangesResponder {
         const removeField = field =>
             qorus_webview.postMessage({ action: 'creator-remove-field', field, iface_id, iface_kind });
 
+        const disableField = field =>
+            qorus_webview.postMessage({ action: 'creator-disable-field', field, iface_id, iface_kind });
+
         switch(field) {
             case 'base-class-name':
                 if (iface_kind === 'workflow') {
@@ -113,6 +162,10 @@ export class FormChangesResponder {
             case 'classes':
             case 'requires':
                 interface_info.removeAllClasses(other_params);
+                break;
+            case 'valuetype':
+                removeField('dateformat');
+                disableField('dateformat');
                 break;
         }
     }

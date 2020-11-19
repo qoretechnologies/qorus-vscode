@@ -70,7 +70,11 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
             children.push(new QorusTreeFSMCategoryNode(this.code_info));
             children.push(new QorusTreePipelineCategoryNode(this.code_info));
             children.push(new QorusTreeConnectionCategoryNode(this.code_info));
-            children.push(new QorusTreeOtherCategoriesNode(this.code_info));
+            children.push(new QorusTreeGroupCategoryNode(this.code_info));
+            children.push(new QorusTreeEventCategoryNode(this.code_info));
+            children.push(new QorusTreeQueueCategoryNode(this.code_info));
+            children.push(new QorusTreeValueMapCategoryNode(this.code_info));
+            //children.push(new QorusTreeErrorCategoryNode(this.code_info));
         }
 
         return children;
@@ -312,7 +316,7 @@ class QorusTreeStepNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getStepIcon();
     }
 }
-/*
+
 class QorusTreeValueMapNode extends QorusSingleInterfaceNode {
     constructor(code_info, name: string, data: any) {
         super(code_info, name, TreeItemCollapsibleState.None);
@@ -324,7 +328,7 @@ class QorusTreeValueMapNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getValueMapIcon();
     }
 }
-*/
+
 class QorusTreeWorkflowNode extends QorusSingleInterfaceNode {
     constructor(code_info, name: string, data: any) {
         super(code_info, name, TreeItemCollapsibleState.None);
@@ -413,7 +417,7 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                         children.push(new QorusTreeStepNode(this.code_info, data.name, data));
                         break;
                     case 'value-map':
-                        // children.push(new QorusTreeValueMapNode(this.code_info, data.name, data));
+                        children.push(new QorusTreeValueMapNode(this.code_info, data.name, data));
                         break;
                     case 'workflow':
                         children.push(new QorusTreeWorkflowNode(this.code_info, data.name, data));
@@ -447,26 +451,6 @@ class QorusTreeCategoryNode extends QorusInterfaceTreeNode {
         this.tooltip = label;
         this.contextValue = category + '-category';
         this.iconPath = qorusIcons.getPackageIcon();
-    }
-}
-
-class QorusTreeOtherCategoriesNode extends QorusInterfaceTreeNode {
-    constructor(code_info, collapsibleState?: TreeItemCollapsibleState) {
-        super(code_info, t`Other`, collapsibleState || TreeItemCollapsibleState.Collapsed);
-        this.tooltip = t`Other`;
-    }
-
-    async getChildren(_node?: QorusInterfaceTreeNode): Promise<QorusInterfaceTreeNode[]> {
-        let children = [];
-        //children.push(new QorusTreeConstantCategoryNode(this.code_info));
-        //children.push(new QorusTreeFunctionCategoryNode(this.code_info));
-        children.push(new QorusTreeQueueCategoryNode(this.code_info));
-        children.push(new QorusTreeErrorCategoryNode(this.code_info));
-        children.push(new QorusTreeEventCategoryNode(this.code_info));
-        children.push(new QorusTreeGroupCategoryNode(this.code_info));
-        //children.push(new QorusTreeValueMapCategoryNode(this.code_info));
-
-        return children;
     }
 }
 
@@ -513,7 +497,7 @@ class QorusTreeConstantCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-*/
+
 class QorusTreeErrorCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
         super(code_info, t`Errors`, 'error', TreeItemCollapsibleState.Expanded);
@@ -527,7 +511,7 @@ class QorusTreeErrorCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-
+*/
 class QorusTreeEventCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
         super(code_info, t`Events`, 'event', TreeItemCollapsibleState.Expanded);
@@ -695,7 +679,7 @@ class QorusTreeStepCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-/*
+
 class QorusTreeValueMapCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
         super(code_info, t`ValueMaps`, 'value-map', TreeItemCollapsibleState.Expanded);
@@ -709,7 +693,7 @@ class QorusTreeValueMapCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-*/
+
 class QorusTreeWorkflowCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
         super(code_info, t`Workflows`, 'workflow', TreeItemCollapsibleState.Expanded);

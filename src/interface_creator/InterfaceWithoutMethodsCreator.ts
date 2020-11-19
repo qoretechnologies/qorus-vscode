@@ -61,6 +61,9 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             case 'mapper':
             case 'type':
             case 'fsm':
+            case 'group':
+            case 'event':
+            case 'queue':
                 suffix = `.q${iface_kind}`;
                 break;
             case 'pipeline':
@@ -69,8 +72,8 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             case 'connection':
                 suffix = `.qconn`;
                 break;
-            case 'other':
-                suffix = `.q${data.type.toLowerCase()}`;
+            case 'value-map':
+                suffix = `.qvmap`;
                 break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'InterfaceWithoutMethodsCreator'}`);

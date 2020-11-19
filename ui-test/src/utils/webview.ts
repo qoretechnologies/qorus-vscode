@@ -100,6 +100,12 @@ export const clickElement = async (
     position: number = 1,
     selector: TSelector = 'name'
 ) => {
+    const element = await getNthElement(webview, name, position, selector);
+
+    if (!element) {
+        throw new Error(`Element to click ${name} ${position} not found!`);
+    }
+
     await (await getNthElement(webview, name, position, selector)).click();
 };
 
@@ -230,6 +236,16 @@ export const closeLastDialog = async (webview: WebView) => {
 
 export const getSelectedFields = async (webview: WebView) => {
     return await getElements(webview, 'selected-field');
+};
+
+export const removeField = async (webview: WebView, fieldName: string) => {
+    await clickElement(webview, `remove-field-${fieldName}`);
+
+    await sleep(1000);
+
+    if (await getNthElement(webview, 'global-dialog-confirm')) {
+        await confirmDialog(webview);
+    }
 };
 
 export const doubleClickElement = async (element: WebElement) => {

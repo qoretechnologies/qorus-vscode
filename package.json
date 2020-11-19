@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -209,6 +209,11 @@
             {
                 "command": "qorus.explorer.editService",
                 "title": "Edit Service",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editValueMap",
+                "title": "Edit Value Map",
                 "category": "Qorus"
             },
             {
@@ -429,8 +434,8 @@
                 }
             },
             {
-                "command": "qorus.createType",
-                "title": "Create New Type",
+                "command": "qorus.createValueMap",
+                "title": "Create New Value Map",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/create-new.svg",
@@ -438,9 +443,13 @@
                 }
             },
             {
-                "command": "qorus.createOther",
-                "title": "Create Other Entity",
-                "category": "Qorus"
+                "command": "qorus.createType",
+                "title": "Create New Type",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
             },
             {
                 "command": "qorus.views.deleteClass",
@@ -893,6 +902,15 @@
                 }
             },
             {
+                "command": "qorus.views.editValueMap",
+                "title": "Edit Value Map",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
                 "command": "qorus.views.editStep",
                 "title": "Edit Step",
                 "category": "Qorus",
@@ -1161,6 +1179,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.editValueMap",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.editStep",
                     "when": "false"
                 },
@@ -1266,13 +1288,28 @@
                 },
                 {
                     "when": "explorerResourceIsFolder",
-                    "command": "qorus.createOther",
+                    "command": "qorus.createGroup",
                     "group": "2_workspace@12"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createEvent",
+                    "group": "2_workspace@13"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createQueue",
+                    "group": "2_workspace@14"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createValueMap",
+                    "group": "2_workspace@15"
                 },
                 {
                     "when": "explorerResourceIsFolder && !listMultiSelection",
                     "command": "qorus.explorer.deployDir",
-                    "group": "2_workspace@13"
+                    "group": "2_workspace@19"
                 },
                 {
                     "when": "explorerResourceIsFolder",
@@ -1473,6 +1510,11 @@
                 {
                     "command": "qorus.createQueue",
                     "when": "view == qorusInterfaces && viewItem == queue-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map-category",
                     "group": "inline"
                 },
                 {
@@ -1726,6 +1768,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.views.editValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.views.editStep",
                     "when": "view == qorusInterfaces && viewItem == step",
                     "group": "inline"
@@ -1807,7 +1854,8 @@
         "build": "NODE_ENV=production webpack --config webpack.config.js",
         "ui-setup-tests": "ui-test/node_modules/.bin/extest setup-tests",
         "ui-run-tests": "rm -rf ui-test/test_project/* && rm -rf ui-test/out && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ 'ui-test/out/*.js' && rm -rf ui-test/test_project/* && rm -rf ui-test/out",
-        "ui-run-single-test": "rm -rf ui-test/test_project/* && rm -rf ui-test/out && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ \"ui-test/out/{_setup,$TEST_NAME}.spec.js\" && rm -rf ui-test/test_project/* && rm -rf ui-test/out"
+        "ui-run-single-test": "rm -rf ui-test/test_project/* && rm -rf ui-test/out && npm run compile:test && ui-test/node_modules/.bin/extest run-tests -e ui-test/extensions/ \"ui-test/out/{_setup,$TEST_NAME}.spec.js\" && rm -rf ui-test/test_project/* && rm -rf ui-test/out",
+        "ui-run-tests-gitlab": "rm -rf ui-test/test_project/* && ui-test/node_modules/.bin/extest run-tests \"ui-test/out/{_setup,$TEST_NAME}.spec.js\" && rm -rf ui-test/test_project/*"
     },
     "devDependencies": {
         "@babel/cli": "^7.6.0",

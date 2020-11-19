@@ -9,7 +9,7 @@ import { stepFields } from './step_constants';
 import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_constants';
 import { connectionFields } from './connection_constants';
 import { configItemFields } from './config_item_constants';
-import { otherFields } from './other_constants';
+import { groupFields, eventFields, queueFields, valueMapFields } from './other_constants';
 import { gettext } from 'ttag';
 
 
@@ -38,8 +38,14 @@ export class ActionDispatcher {
                 return mapperCodeFields(params);
             case 'mapper-methods':
                 return mapper_method_fields;
-            case 'other':
-                return otherFields(params);
+            case 'group':
+                return groupFields(params);
+            case 'event':
+                return eventFields(params);
+            case 'queue':
+                return queueFields(params);
+            case 'value-map':
+                return valueMapFields(params);
             default:
                 return [];
         }
@@ -75,12 +81,15 @@ export class ActionDispatcher {
             case 'job':
             case 'class':
             case 'step':
-            case 'other':
+            case 'group':
+            case 'event':
+            case 'queue':
             case 'mapper':
             case 'type':
             case 'fsm':
             case 'pipeline':
             case 'connection':
+            case 'value-map':
                 interface_without_methods_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':
