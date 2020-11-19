@@ -6,10 +6,13 @@
 
 - new interface: Value map
 - it is now possible to create or edit two interfaces of the same kind at the same time (create Class from a Class for example)
+- groups, event and queues are now edited separately
 
 #### Bug fixes
 
 - config item with allowed values can now be given a template string instead
+- check referenced interfaces on opening an interface
+- fixed filtering the base class list for source language when creating a new interface
 
 ## 2.0.1
 
