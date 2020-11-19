@@ -226,8 +226,13 @@ export const submitInterface = async (webview: WebView, iface: string) => {
 
 export const confirmDialog = async (webview: WebView) => {
     await sleep(500);
-    await clickElement(webview, 'global-dialog-confirm', 1, 'id');
-    await sleep(1000);
+
+    const dialog = await getNthElement(webview, 'global-dialog-confirm', 1, 'id');
+
+    if (dialog) {
+        await clickElement(webview, 'global-dialog-confirm', 1, 'id');
+        await sleep(1000);
+    }
 };
 
 export const closeLastDialog = async (webview: WebView) => {
@@ -243,9 +248,7 @@ export const removeField = async (webview: WebView, fieldName: string) => {
 
     await sleep(1000);
 
-    if (await getNthElement(webview, 'global-dialog-confirm')) {
-        await confirmDialog(webview);
-    }
+    await confirmDialog(webview);
 };
 
 export const doubleClickElement = async (element: WebElement) => {
