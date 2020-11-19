@@ -48,7 +48,7 @@ export class FormChangesResponder {
             });
         }
 
-        if (orig_lang !== lang) {
+        if (lang === 'java' && orig_lang && orig_lang !== lang) {
             if (['service', 'job', 'workflow', 'step', 'processor'].includes(iface_kind)) {
                 code_info.getObjects({ object_type: `${iface_kind}-base-class`, iface_kind, lang });
             } else {
