@@ -11,13 +11,9 @@ base-class-name: QorusWorkflow
 class-name: WorkflowTest
 classes:
   - ClassForFSMTest
-constants:
-  - test
 detach: test
 errorfunction: test
 error_handler: test
-functions:
-  - test
 groups:
   - TestingGroup
 keylist:
@@ -34,8 +30,6 @@ statuses:
     200: ok
 tags:
     foo: bar
-vmaps:
-  - test
 version: "1.0"
 steps:
     [
