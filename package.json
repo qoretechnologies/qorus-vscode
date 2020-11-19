@@ -212,6 +212,11 @@
                 "category": "Qorus"
             },
             {
+                "command": "qorus.explorer.editValueMap",
+                "title": "Edit Value Map",
+                "category": "Qorus"
+            },
+            {
                 "command": "qorus.explorer.editServiceMethods",
                 "title": "Edit Service Methods",
                 "category": "Qorus"
@@ -422,6 +427,15 @@
             {
                 "command": "qorus.createQueue",
                 "title": "Create New Queue",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
+                "command": "qorus.createValueMap",
+                "title": "Create New Value Map",
                 "category": "Qorus",
                 "icon": {
                     "dark": "images/icons/dark/create-new.svg",
@@ -888,6 +902,15 @@
                 }
             },
             {
+                "command": "qorus.views.editValueMap",
+                "title": "Edit Value Map",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
                 "command": "qorus.views.editStep",
                 "title": "Edit Step",
                 "category": "Qorus",
@@ -1156,6 +1179,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "qorus.views.editValueMap",
+                    "when": "false"
+                },
+                {
                     "command": "qorus.views.editStep",
                     "when": "false"
                 },
@@ -1275,9 +1302,14 @@
                     "group": "2_workspace@14"
                 },
                 {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createValueMap",
+                    "group": "2_workspace@15"
+                },
+                {
                     "when": "explorerResourceIsFolder && !listMultiSelection",
                     "command": "qorus.explorer.deployDir",
-                    "group": "2_workspace@15"
+                    "group": "2_workspace@19"
                 },
                 {
                     "when": "explorerResourceIsFolder",
@@ -1478,6 +1510,11 @@
                 {
                     "command": "qorus.createQueue",
                     "when": "view == qorusInterfaces && viewItem == queue-category",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.createValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map-category",
                     "group": "inline"
                 },
                 {
@@ -1728,6 +1765,11 @@
                 {
                     "command": "qorus.views.editService",
                     "when": "view == qorusInterfaces && viewItem == service",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editValueMap",
+                    "when": "view == qorusInterfaces && viewItem == value-map",
                     "group": "inline"
                 },
                 {

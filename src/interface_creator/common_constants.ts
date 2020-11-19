@@ -384,10 +384,16 @@ export const field = {
         fields: ['code', 'desc'],
         mandatory: false,
     },
-    define_auth_label: {
+    'define-auth-label': {
         name: 'define-auth-label',
         type: 'array-of-pairs',
         fields: ['label', 'value'],
         mandatory: false,
+    },
+    'value-maps': {
+        name: 'value-maps',
+        mandatory: false,
+        type: 'array-of-pairs',
+        fields: ['key', 'value'],
     },
 };

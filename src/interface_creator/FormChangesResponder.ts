@@ -65,6 +65,36 @@ export class FormChangesResponder {
         }
     }
 
+    static valueTypeChanged({ valuetype, iface_id, iface_kind }) {
+        if (valuetype === 'date') {
+            qorus_webview.postMessage({
+                action: `creator-enable-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+            qorus_webview.postMessage({
+                action: `creator-add-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+        } else {
+            qorus_webview.postMessage({
+                action: `creator-remove-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+            qorus_webview.postMessage({
+                action: `creator-disable-field`,
+                field: 'dateformat',
+                iface_id,
+                iface_kind
+            });
+        }
+    }
+
     static fieldAdded({field, iface_id, iface_kind}) {
         const addField = field =>
             qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
@@ -102,6 +132,9 @@ export class FormChangesResponder {
         const removeField = field =>
             qorus_webview.postMessage({ action: 'creator-remove-field', field, iface_id, iface_kind });
 
+        const disableField = field =>
+            qorus_webview.postMessage({ action: 'creator-disable-field', field, iface_id, iface_kind });
+
         switch(field) {
             case 'base-class-name':
                 if (iface_kind === 'workflow') {
@@ -129,6 +162,10 @@ export class FormChangesResponder {
             case 'classes':
             case 'requires':
                 interface_info.removeAllClasses(other_params);
+                break;
+            case 'valuetype':
+                removeField('dateformat');
+                disableField('dateformat');
                 break;
         }
     }

@@ -309,6 +309,9 @@ class QorusWebview {
                         case 'lang-changed':
                             FormChangesResponder.langChanged(message, project.code_info);
                             break;
+                        case 'valuetype-changed':
+                            FormChangesResponder.valueTypeChanged(message);
+                            break;
                         case 'target-dir-changed':
                             interface_info.last_target_directory = message.target_dir;
                             break;

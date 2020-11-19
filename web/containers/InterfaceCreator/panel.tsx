@@ -541,6 +541,16 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             activeId,
             interfaceIndex
         );
+        setSelectedFields(
+            type,
+            (current: IField[]) =>
+                map(current, (field: IField) => ({
+                    ...field,
+                    disabled: fieldName === field.name ? disabled : field.disabled,
+                })),
+            activeId,
+            interfaceIndex
+        );
     };
 
     const handleAddClick: (fieldName: string) => void = (fieldName) => {

@@ -238,6 +238,12 @@ export const getSelectedFields = async (webview: WebView) => {
     return await getElements(webview, 'selected-field');
 };
 
+export const removeField = async (webview: WebView, fieldName: string) => {
+    await clickElement(webview, `remove-field-${fieldName}`);
+    await sleep(1000);
+    await confirmDialog(webview);
+};
+
 export const doubleClickElement = async (element: WebElement) => {
     const driver = VSBrowser.instance.driver;
 

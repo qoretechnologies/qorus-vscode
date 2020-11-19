@@ -326,6 +326,12 @@ export class QorusProjectCodeInfo {
             delete data['mapper-code'];
         }
 
+        if (data['value-maps']) {
+            Object.keys(data['value-maps']).forEach(key => {
+                data['value-maps'][key] = data['value-maps'][key].value;
+            });
+        }
+
         ['desc', 'description'].forEach(tag => {
             if (data[tag]) {
                 data[tag] = data[tag].replace(/^\"/, '');
@@ -378,13 +384,13 @@ export class QorusProjectCodeInfo {
             data[classes_or_requires] = classes;
         }
 
-        const array_of_pairs_fields = ['tags', 'define-auth-label', 'workflow_options', 'statuses'];
+        const array_of_pairs_fields = ['tags', 'define-auth-label', 'workflow_options', 'statuses', 'value-maps'];
         array_of_pairs_fields.forEach(tag => {
             if (!data[tag]) {
                 return;
             }
 
-            const [key_name, value_name] = field[tag.replace(/-/g, '_')].fields;
+            const [key_name, value_name] = field[tag].fields;
             let transformed_data = [];
 
             for (const key in data[tag]) {
