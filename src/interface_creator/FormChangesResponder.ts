@@ -49,11 +49,19 @@ export class FormChangesResponder {
         }
 
         if (orig_lang !== lang) {
-            code_info.getObjects({ object_type: 'base-class', iface_kind, lang });
-
             if (['service', 'job', 'workflow', 'step', 'processor'].includes(iface_kind)) {
                 code_info.getObjects({ object_type: `${iface_kind}-base-class`, iface_kind, lang });
+            } else {
+                code_info.getObjects({ object_type: 'base-class', iface_kind, lang });
             }
+
+            qorus_webview.postMessage({
+                action: 'creator-change-field-value',
+                field: 'base-class-name',
+                value: undefined,
+                iface_id,
+                iface_kind
+            });
         }
     }
 
