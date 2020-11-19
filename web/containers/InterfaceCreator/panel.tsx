@@ -273,6 +273,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             addMessageListener(Messages.CREATOR_DISABLE_FIELD, ({ field }) => {
                 toggleDisableField(field, true);
             }),
+            addMessageListener(Messages.CREATOR_CHANGE_FIELD_VALUE, ({ field, value }) => {
+                handleFieldChange(field, value);
+            }),
         ]);
     }, [fields]);
 
