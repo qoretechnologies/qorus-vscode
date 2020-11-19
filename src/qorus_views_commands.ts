@@ -146,29 +146,6 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
                     );
                 }
                 break;
-            case 'connection':
-            case 'error':
-            case 'value-map':
-                if (iface_data.yaml_file) {
-                    workspace.openTextDocument(Uri.file(iface_data.yaml_file)).then(
-                        doc => {
-                            if (vswindow.activeTextEditor &&
-                                vswindow.activeTextEditor.document.fileName === iface_data.yaml_file)
-                            {
-                                vswindow.showTextDocument(doc, { preview: false });
-                            } else {
-                                vswindow.showTextDocument(doc);
-                            }
-                        },
-                        err => {
-                            console.log(t`ErrorOpeningFile ${iface_data.yaml_file} ${err}`);
-                        }
-                    );
-                }
-            //case 'event':
-            //case 'group':
-            //case 'mapper':
-            //case 'queue':
             default:
                 break;
         }
