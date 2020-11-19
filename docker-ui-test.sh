@@ -36,6 +36,10 @@ sed -i 's/const args = \[/const args = \["--disable-gpu", /' browser.js
 cd ${rootdir}
 mkdir -p test-resources/settings
 
+# extester setup
+cd ${rootdir}
+ui-test/node_modules/.bin/extest setup-tests
+
 # set resolution
 if find_active_monitor; then
     xrandr --output ${x_output} --mode 1920x1200

@@ -1,8 +1,6 @@
 #!/bin/bash
 set +e
 
-npm run ui-setup-tests
-
 rm -rf ui-test/out
 
 npm run compile:test
