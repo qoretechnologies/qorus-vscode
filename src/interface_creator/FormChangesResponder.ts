@@ -22,7 +22,7 @@ export class FormChangesResponder {
         }
     }
 
-    static langChanged({ lang, orig_lang, iface_id, iface_kind, send_response }) {
+    static langChanged({ lang, orig_lang, iface_id, iface_kind, send_response }, code_info) {
         if (lang === 'java') {
             qorus_webview.postMessage({
                 action: 'creator-remove-field',
@@ -46,6 +46,14 @@ export class FormChangesResponder {
                 iface_id,
                 iface_kind
             });
+        }
+
+        if (orig_lang !== lang) {
+            code_info.getObjects({ object_type: 'base-class', iface_kind, lang });
+
+            if (['service', 'job', 'workflow', 'step', 'processor'].includes(iface_kind)) {
+                code_info.getObjects({ object_type: `${iface_kind}-base-class`, iface_kind, lang });
+            }
         }
     }
 
