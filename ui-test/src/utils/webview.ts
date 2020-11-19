@@ -240,8 +240,12 @@ export const getSelectedFields = async (webview: WebView) => {
 
 export const removeField = async (webview: WebView, fieldName: string) => {
     await clickElement(webview, `remove-field-${fieldName}`);
+
     await sleep(1000);
-    await confirmDialog(webview);
+
+    if (await getNthElement(webview, 'global-dialog-confirm')) {
+        await confirmDialog(webview);
+    }
 };
 
 export const doubleClickElement = async (element: WebElement) => {

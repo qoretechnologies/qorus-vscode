@@ -162,7 +162,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                         onClick={async () => {
                                             // Build the finished object
                                             const newData = reduce(
-                                                selectedFields.workflow,
+                                                selectedFields.workflow[workflowIndex],
                                                 (result: { [key: string]: any }, field: IField) => ({
                                                     ...result,
                                                     [field.name]: field.value,

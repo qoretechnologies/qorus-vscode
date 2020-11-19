@@ -709,7 +709,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 const subItemType = type === 'service-methods' ? 'methods' : 'mapper-methods';
                 // Get the service data
                 newData = reduce(
-                    last(allSelectedFields[intrfType]),
+                    allSelectedFields[intrfType][interfaceIndex],
                     (result: { [key: string]: any }, field: IField) => ({
                         ...result,
                         [field.name]: field.value,
@@ -717,7 +717,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
                 // Add the methods
-                newData[subItemType] = map(last(allSelectedFields[type]), (serviceMethod) => {
+                newData[subItemType] = map(allSelectedFields[type][interfaceIndex], (serviceMethod) => {
                     return reduce(
                         serviceMethod,
                         (result: { [key: string]: any }, field: IField) => ({
