@@ -82,6 +82,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     baseClassName,
     selectedFields,
     interfaceContext,
+    interfaceIndex,
 }) => {
     const getConnectorsCount = (connections) => {
         if (connections) {
@@ -103,7 +104,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     const [lastConnectorId, setLastConnectorId] = useState<number>(getConnectorsCount(initialConnections));
     const [lastConnectionId, setLastConnectionId] = useState<number>(initialConnections ? size(initialConnections) : 0);
     const [isCheckingCompatibility, setIsCheckingCompatibility] = useState<boolean>(false);
-    const classes = selectedFields[ifaceType].find((field: IField) => field.name === 'classes').value;
+    const classes = selectedFields[ifaceType][interfaceIndex].find((field: IField) => field.name === 'classes').value;
     const initContext = useContext(InitialContext);
 
     // Get the classes data

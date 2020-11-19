@@ -1,10 +1,4 @@
 // @flow
-import React, { Component } from 'react';
-
-import jsyaml from 'js-yaml';
-import map from 'lodash/map';
-import ReactMarkdown from 'react-markdown';
-
 import {
     Button,
     ButtonGroup,
@@ -19,7 +13,10 @@ import {
     Tabs,
     Tooltip,
 } from '@blueprintjs/core';
-
+import jsyaml from 'js-yaml';
+import map from 'lodash/map';
+import React, { Component } from 'react';
+import ReactMarkdown from 'react-markdown';
 import CustomDialog from '../../components/CustomDialog';
 import Dropdown, { Control as DControl, Item } from '../../components/Dropdown';
 import AutoField from '../../components/Field/auto';
@@ -54,13 +51,13 @@ const templatesList = [
 
 @withTextContext()
 export default class ConfigItemsModal extends Component {
-    getTemplateType = value => {
+    getTemplateType = (value) => {
         const [type] = value.replace(/'/g, '').split(':');
 
         return type.replace('$', '');
     };
 
-    getTemplateKey = value => {
+    getTemplateKey = (value) => {
         const [_type, key] = value.replace(/'/g, '').split(':');
 
         return key;
@@ -125,11 +122,11 @@ export default class ConfigItemsModal extends Component {
         this.props.onSubmit(this.state.item.name, newValue, this.state.item.parent_class, this.state.isTemplatedString);
     };
 
-    renderAllowedItems: Function = item => {
+    renderAllowedItems: Function = (item) => {
         if (this.state.type === 'hash' || this.state.type === '*hash') {
             return (
                 <React.Fragment>
-                    {item.allowed_values.map(value => (
+                    {item.allowed_values.map((value) => (
                         <Tree data={value} compact noControls expanded />
                     ))}
                 </React.Fragment>
@@ -142,8 +139,8 @@ export default class ConfigItemsModal extends Component {
                     {this.props.t('ConfigSelectFromPredefined')}
                 </DControl>
                 {item.allowed_values
-                    .filter(item => item)
-                    .map(value => (
+                    .filter((item) => item)
+                    .map((value) => (
                         <Item
                             title={value}
                             onClick={() => {
@@ -201,7 +198,7 @@ export default class ConfigItemsModal extends Component {
                                 <>
                                     <Dropdown>
                                         <DControl>{t('PleaseSelect')}</DControl>
-                                        {map(globalConfig, data => (
+                                        {map(globalConfig, (data) => (
                                             <Item
                                                 title={data.name}
                                                 onClick={(event, name) => {
@@ -284,7 +281,7 @@ export default class ConfigItemsModal extends Component {
                                                     t={t}
                                                     type="auto"
                                                     disabled={!!item.allowed_values}
-                                                    requestFieldData={field =>
+                                                    requestFieldData={(field) =>
                                                         field === 'can_be_undefined' ? item.can_be_undefined : item.type
                                                     }
                                                     onChange={(name, value, type, canBeNull) => {
@@ -296,48 +293,46 @@ export default class ConfigItemsModal extends Component {
                                     </React.Fragment>
                                 }
                             />
-                            {!item.allowed_values && (
-                                <Tab
-                                    id={'template'}
-                                    title={t('Template')}
-                                    className={'flex-column flex-auto'}
-                                    panel={
-                                        <div className="configItemsEditor">
-                                            <div className="header">{t('ConfigCustomTemplate')}</div>
-                                            <div className="body">
-                                                <Callout intent="primary" icon="info-sign">
-                                                    {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
-                                                </Callout>
-                                                <div style={{ marginTop: '10px' }} />
-                                                <ControlGroup className="pt-fill">
-                                                    <Dropdown className="pt-fixed">
-                                                        <DControl icon="dollar">{this.state.templateType}</DControl>
-                                                        {templatesList.map(template => (
-                                                            <Item
-                                                                title={template}
-                                                                onClick={() => {
-                                                                    this.setState({ templateType: template });
-                                                                }}
-                                                            />
-                                                        ))}
-                                                    </Dropdown>
-                                                    <Button text=":" className={Classes.FIXED} />
-                                                    <InputGroup
-                                                        fill
-                                                        value={this.state.templateKey}
-                                                        onChange={(event: any) => {
-                                                            this.setState({
-                                                                templateKey: event.target.value,
-                                                                value: `$${this.state.templateType}:${event.target.value}`,
-                                                            });
-                                                        }}
-                                                    />
-                                                </ControlGroup>
-                                            </div>
+                            <Tab
+                                id={'template'}
+                                title={t('Template')}
+                                className={'flex-column flex-auto'}
+                                panel={
+                                    <div className="configItemsEditor">
+                                        <div className="header">{t('ConfigCustomTemplate')}</div>
+                                        <div className="body">
+                                            <Callout intent="primary" icon="info-sign">
+                                                {`${t('ConfigTemplatesFormat')} $<type>:<key>`}
+                                            </Callout>
+                                            <div style={{ marginTop: '10px' }} />
+                                            <ControlGroup className="pt-fill">
+                                                <Dropdown className="pt-fixed">
+                                                    <DControl icon="dollar">{this.state.templateType}</DControl>
+                                                    {templatesList.map((template) => (
+                                                        <Item
+                                                            title={template}
+                                                            onClick={() => {
+                                                                this.setState({ templateType: template });
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </Dropdown>
+                                                <Button text=":" className={Classes.FIXED} />
+                                                <InputGroup
+                                                    fill
+                                                    value={this.state.templateKey}
+                                                    onChange={(event: any) => {
+                                                        this.setState({
+                                                            templateKey: event.target.value,
+                                                            value: `$${this.state.templateType}:${event.target.value}`,
+                                                        });
+                                                    }}
+                                                />
+                                            </ControlGroup>
                                         </div>
-                                    }
-                                />
-                            )}
+                                    </div>
+                                }
+                            />
                         </Tabs>
                     ) : null}
                     {yamlData ? (

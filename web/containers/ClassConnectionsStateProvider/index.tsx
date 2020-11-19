@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
-
 import every from 'lodash/every';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import { useEffect, useState } from 'react';
 import compose from 'recompose/compose';
-
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
@@ -17,7 +15,7 @@ const removeMethodTriggers = (methods, connectionData) =>
         // Check if this connector has a trigger
         if (newConnector.trigger) {
             // Check if the trigger is in the methods
-            if (methods.find(method => method.name === newConnector.trigger)) {
+            if (methods.find((method) => method.name === newConnector.trigger)) {
                 // Return unchanged
                 return [...newData, newConnector];
             } else {
@@ -117,9 +115,9 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
         setClassConnectionsData(null);
     };
 
-    const isClassConnectionsManagerEnabled = () => {
+    const isClassConnectionsManagerEnabled = (interfaceIndex?: number) => {
         // Find the base class name field
-        const classes: IField = selectedFields[type].find((field: IField) => field.name === 'classes');
+        const classes: IField = selectedFields[type][interfaceIndex].find((field: IField) => field.name === 'classes');
         // Check if the field exists
         if (classes) {
             // The field has to be selected and valid

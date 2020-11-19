@@ -1134,8 +1134,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                     <Button
                                         icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
                                         intent={areClassConnectionsValid() ? 'none' : 'warning'}
-                                        disabled={!isClassConnectionsManagerEnabled() || !initialData.qorus_instance}
+                                        disabled={
+                                            !isClassConnectionsManagerEnabled(interfaceIndex) ||
+                                            !initialData.qorus_instance
+                                        }
                                         onClick={() => setShowClassConnectionsManager(true)}
+                                        name={`${type}-class-connections-button`}
                                     >
                                         {t('ManageClassConnections')} ({size(classConnectionsData)})
                                     </Button>
@@ -1198,6 +1202,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 >
                     <ClassConnectionsManager
                         ifaceType={type === 'service-methods' ? 'service' : type}
+                        interfaceIndex={interfaceIndex}
                         baseClassName={requestFieldData('base-class-name', 'value')}
                         interfaceContext={getContext()}
                         initialConnections={classConnectionsData}

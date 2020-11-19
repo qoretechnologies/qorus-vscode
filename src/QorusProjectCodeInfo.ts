@@ -52,6 +52,8 @@ export class QorusProjectCodeInfo {
 
     private notif_trees = [interface_tree];
 
+    private error_messages: any = {};
+
     constructor(project: QorusProject) {
         this.project = project;
         this.yaml_files_info = new QorusProjectYamlInfo();
@@ -484,6 +486,131 @@ export class QorusProjectCodeInfo {
         delete data.yaml_file;
 
         return data;
+    }
+
+    sendErrorMessages(iface_id: string) {
+        if (this.error_messages[iface_id].referenced_objects.length) {
+            qorus_webview.postMessage({
+                action: 'display-notifications',
+                data: this.error_messages[iface_id].referenced_objects
+            });
+        }
+    }
+
+    checkReferencedObjects(iface_id: string, iface_data: any) {
+        let messages: any = {};
+
+        const addMessage = (message: string) => {
+            messages[message] = true;
+            msg.error(message);
+        };
+
+        const checkObject = (type, name): boolean => {
+            if (!name) {
+                return true;
+            }
+
+            if (name.name) {
+                name = name.name;
+            }
+
+            if (type === 'class' && QorusProjectCodeInfo.isRootBaseClass(name)) {
+                return true;
+            }
+
+            const yaml_data = this.yaml_info.yamlDataByName(type, name);
+            if (!yaml_data) {
+                addMessage(t`ReferencedObjectNotFound ${type} ${name}`);
+                return false;
+            }
+
+            return true;
+        };
+
+        const removeUnknownObject = (data: any, key: string, type: string) => {
+            if (data[key] && !checkObject(type, data[key])) {
+                delete data[key];
+            }
+        };
+
+        const removeUnknownObjectsFromList = (data: any, key: string, type: string) => {
+            if (data[key]) {
+                data[key] = data[key].filter(name => checkObject(type, name));
+            }
+        };
+
+        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
+            const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
+            if (!parent_yaml_data) {
+                addMessage(t`AncestorDoesNotExist ${parent_type} ${parent_name} ${name}`);
+                return false;
+            }
+
+            const parent_item = parent_yaml_data['config-items'].find(item => item.name === name);
+            if (!parent_item) {
+                addMessage(t`AncestorDoesNotHaveConfigItem ${parent_type} ${parent_name} ${name}`);
+                return false;
+            }
+            if (!parent_item.parent) {
+                return true;
+            }
+
+            return checkParentConfigItem(
+                name,
+                parent_item.parent['interface-type'],
+                parent_item.parent['interface-name']
+            );
+        };
+
+        const checkIfaceData = (data: any) => {
+            removeUnknownObject(data, 'base-class-name', 'class');
+            removeUnknownObject(data, 'queue', 'queue');
+            removeUnknownObject(data, 'event', 'event');
+
+            removeUnknownObjectsFromList(data, 'classes', 'class');
+            removeUnknownObjectsFromList(data, 'requires', 'class');
+            removeUnknownObjectsFromList(data, 'mappers', 'mapper');
+            removeUnknownObjectsFromList(data, 'groups', 'group');
+            removeUnknownObjectsFromList(data, 'errors', 'error');
+            removeUnknownObjectsFromList(data, 'fsm', 'fsm');
+            removeUnknownObjectsFromList(data, 'vmaps', 'value-map');
+            removeUnknownObjectsFromList(data, 'constants', 'constant');
+            removeUnknownObjectsFromList(data, 'functions', 'function');
+
+            if (data['class-connections']) {
+                data['class-connections'] = data['class-connections'].filter(conn => checkObject('class', conn.class));
+            }
+
+            if (data['config-items']) {
+                data['config-items'] = data['config-items'].filter(item => !item.parent || checkParentConfigItem(
+                    item.name,
+                    item.parent['interface-type'],
+                    item.parent['interface-name']
+                ));
+            }
+
+            (Object.keys(data.states || {})).forEach(state_id => {
+                const state = data.states[state_id];
+                if (['mapper', 'pipeline'].includes(state.action?.type)) {
+                    if (!checkObject(state.action.type, state.action.value)) {
+                        delete state.action;
+                    }
+                }
+            });
+
+            if (data.steps) {
+                const step_names: string[] = flattenDeep(data.steps);
+                step_names.forEach(name_version => checkObject('step', name_version));
+            }
+        };
+
+        checkIfaceData(iface_data);
+
+        if (!this.error_messages[iface_id]) {
+            this.error_messages[iface_id] = {};
+        }
+        this.error_messages[iface_id].referenced_objects
+            = Object.keys(messages).map(message => ({ intent: 'danger', message, timeout: 20000 }));
     }
 
     private initInfo() {

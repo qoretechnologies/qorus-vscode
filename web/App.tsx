@@ -1,15 +1,12 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
-
+import { AnchorButton, Button, ButtonGroup, Callout, Classes, Navbar, NavbarGroup } from '@blueprintjs/core';
 import last from 'lodash/last';
 import size from 'lodash/size';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
+import { useEffectOnce } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { AnchorButton, Button, ButtonGroup, Callout, Classes, Navbar, NavbarGroup } from '@blueprintjs/core';
-
 import ContextMenu from './components/ContextMenu';
 import CustomDialog from './components/CustomDialog';
 import Loader from './components/Loader';
@@ -28,7 +25,7 @@ import withFunctions from './hocomponents/withFunctions';
 import withGlobalOptions from './hocomponents/withGlobalOptions';
 import withInitialData from './hocomponents/withInitialData';
 import withMapper from './hocomponents/withMapper';
-import withMessageHandler, { TMessageListener, TPostMessage } from './hocomponents/withMessageHandler';
+import { addMessageListener, postMessage, TMessageListener, TPostMessage } from './hocomponents/withMessageHandler';
 import withMethods from './hocomponents/withMethods';
 import withSteps from './hocomponents/withSteps';
 import { LoginContainer } from './login/Login';
@@ -85,8 +82,6 @@ export type TTranslator = (id: string) => string;
 const pastTexts: { [id: string]: { isTranslated: boolean; text: string } } = {};
 
 const App: FunctionComponent<IApp> = ({
-    addMessageListener,
-    postMessage,
     closeLogin,
     setActiveInstance,
     setCurrentProjectFolder,
@@ -149,44 +144,73 @@ const App: FunctionComponent<IApp> = ({
     };
 
     useEffectOnce(() => {
+        const listeners = [];
         // New text was received
-        addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
-            setTexts((currentTexts) => {
-                // Do not modify state if the text already
-                // exists
-                if (!currentTexts[data.text_id]) {
-                    pastTexts[data.text_id] = { isTranslated: true, text: data.text };
-                    return {
-                        ...currentTexts,
-                        [data.text_id]: data.text,
-                    };
-                }
-                // Return current state
-                return currentTexts;
-            });
-        });
+        listeners.push(
+            addMessageListener(Messages.TEXT_RECEIVED, (data: any): void => {
+                setTexts((currentTexts) => {
+                    // Do not modify state if the text already
+                    // exists
+                    if (!currentTexts[data.text_id]) {
+                        pastTexts[data.text_id] = { isTranslated: true, text: data.text };
+                        return {
+                            ...currentTexts,
+                            [data.text_id]: data.text,
+                        };
+                    }
+                    // Return current state
+                    return currentTexts;
+                });
+            })
+        );
         // Close login
-        addMessageListener(Messages.CLOSE_LOGIN, (data: any): void => {
-            changeTab('ProjectConfig');
+        listeners.push(
+            addMessageListener(Messages.CLOSE_LOGIN, (data: any): void => {
+                changeTab('ProjectConfig');
 
-            if (data.qorus_instance) {
-                setActiveInstance(data.qorus_instance);
-            }
-        });
+                if (data.qorus_instance) {
+                    setActiveInstance(data.qorus_instance);
+                }
+            })
+        );
         // Set project folder
-        addMessageListener(Messages.SET_PROJECT_FOLDER, (data: any): void => {
-            setCurrentProjectFolder(data.folder);
-        });
+        listeners.push(
+            addMessageListener(Messages.SET_PROJECT_FOLDER, (data: any): void => {
+                setCurrentProjectFolder(data.folder);
+            })
+        );
         // Set instance
-        addMessageListener(Messages.SET_QORUS_INSTANCE, ({ qorus_instance }): void => {
-            setActiveInstance(qorus_instance);
-        });
-        addMessageListener('return-all-text', ({ data }): void => {
-            setTexts(data);
-        });
+        listeners.push(
+            addMessageListener(Messages.SET_QORUS_INSTANCE, ({ qorus_instance }): void => {
+                setActiveInstance(qorus_instance);
+            })
+        );
+        listeners.push(
+            addMessageListener('return-all-text', ({ data }): void => {
+                setTexts(data);
+            })
+        );
+        listeners.push(
+            addMessageListener('display-notifications', ({ data }) => {
+                if (data.length) {
+                    data.forEach(({ message, intent, timeout }) => {
+                        AppToaster.show({
+                            message,
+                            intent,
+                            timeout,
+                        });
+                    });
+                }
+            })
+        );
         // Get the current project folder
         postMessage(Messages.GET_PROJECT_FOLDER);
         postMessage('get-all-text');
+
+        return () => {
+            // remove all listeners
+            listeners.forEach((l) => l());
+        };
     });
 
     if (!texts) {
@@ -317,7 +341,6 @@ const mapDispatchToProps = (dispatch) => ({
 
 export default hot(
     compose(
-        withMessageHandler(),
         connect(mapStateToProps, mapDispatchToProps),
         withInitialData(),
         withFields(),

@@ -38,7 +38,7 @@ export class FormChangesResponder {
             });
         }
 
-        if (send_response && orig_lang !== lang) {
+        if (send_response && orig_lang && orig_lang !== lang) {
             qorus_webview.postMessage({
                 action: 'maybe-recreate-interface',
                 message: t`LangChangeRecreateQuestion`,

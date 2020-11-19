@@ -92,8 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
             qorus_webview.open({
                 tab: 'CreateInterface',
                 subtab: iface_kind,
-                uri
-            });
+            }, uri);
         });
         context.subscriptions.push(disposable);
     });
@@ -108,6 +107,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
         const iface_id = iface_info.addIfaceById(data, iface_kind);
+
+        code_info.checkReferencedObjects(iface_id, data);
 
         qorus_webview.open({
             tab: 'CreateInterface',
