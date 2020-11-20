@@ -12,7 +12,7 @@ import {
     selectField,
     selectMultiselectItemsByNumbers,
     selectNthFolder,
-    submitInterface,
+    submitInterface
 } from '../utils/webview';
 
 export const opensValuemapPage = async (webview: WebView) => {
@@ -52,6 +52,8 @@ export const fillsValuemapFields = async (webview: WebView) => {
     expect(await getSelectedFields(webview)).to.have.length(6);
 
     await clickElement(webview, 'field-valuetype-radio-date');
+
+    await sleep(3000);
 
     expect(await getSelectedFields(webview)).to.have.length(7);
 
