@@ -134,7 +134,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     interfaceId,
     onSubmitSuccess,
 }) => {
-    const [interfaceIndex, setInterfaceIndex] = useState(size(interfaceId.mapper));
+    const [interfaceIndex, setInterfaceIndex] = useState(size(interfaceId['mapper-code']));
     const [methodsIndex, setMethodIndex] = useState(size(interfaceId['mapper-methods']));
 
     return (

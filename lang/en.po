@@ -2350,7 +2350,7 @@ msgid "Draft"
 msgstr "Draft"
 
 msgid "UnfinishedWork"
-msgstr "You have unsaved work, are you sure you want to leave? Leaving will result in your work being saved as a draft."
+msgstr "You have unsaved work, are you sure you want to leave? Leaving will result in your work being discarded!"
 
 msgid "ResetFieldsConfirm"
 msgstr "You have unsaved work, are you sure you want to reset?"

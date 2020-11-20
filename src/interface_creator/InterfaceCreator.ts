@@ -225,7 +225,8 @@ export abstract class InterfaceCreator {
         const initial_data = {
             tab: 'CreateInterface',
             subtab: iface_kind,
-            [iface_kind]: { ...fixed_data, iface_id }
+            [iface_kind]: { ...fixed_data, iface_id },
+            no_notify: true,
         };
 
         if (this.file_path) {

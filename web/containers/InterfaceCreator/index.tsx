@@ -27,13 +27,19 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
             <div className={'fullHeightTabs'}>
                 <Tab type={initialData.subtab}>
                     {initialData.subtab === 'fsm' && (
-                        <FSMView fsm={initialData.fsm} onSubmitSuccess={onSubmit} interfaceContext={context} />
+                        <FSMView
+                            fsm={initialData.fsm}
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                            key={initialData?.fsm?.iface_id}
+                        />
                     )}
                     {initialData.subtab === 'connection' && (
                         <ConnectionView
                             context={context}
                             onSubmitSuccess={onSubmit}
                             isEditing={!!initialData.connection}
+                            key={initialData?.connection?.iface_id}
                         />
                     )}
                     {initialData.subtab === 'pipeline' && (
@@ -41,6 +47,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                             pipeline={initialData.pipeline}
                             onSubmitSuccess={onSubmit}
                             interfaceContext={context}
+                            key={initialData?.pipeline?.iface_id}
                         />
                     )}
                     {initialData.subtab === 'service' && (
@@ -48,6 +55,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                             service={initialData.service}
                             onSubmitSuccess={onSubmit}
                             interfaceContext={context}
+                            key={initialData?.service?.iface_id}
                         />
                     )}
                     {initialData.subtab === 'mapper-code' && (
@@ -55,6 +63,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                             library={initialData.library}
                             onSubmitSuccess={onSubmit}
                             interfaceContext={context}
+                            key={initialData?.['mapper-code']?.iface_id}
                         />
                     )}
                     {initialData.subtab === 'workflow' && (
@@ -62,11 +71,12 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                             workflow={initialData.workflow}
                             onSubmitSuccess={onSubmit}
                             interfaceContext={context}
+                            key={initialData?.workflow?.iface_id}
                         />
                     )}
                     {initialData.subtab === 'job' && (
                         <CreatorWrapper>
-                            <ClassConnectionsStateProvider type="job">
+                            <ClassConnectionsStateProvider type="job" key={initialData?.job?.iface_id}>
                                 {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         hasClassConnections
@@ -76,6 +86,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                         type={'job'}
                                         data={initialData.job}
                                         isEditing={!!initialData.job}
+                                        key={initialData?.job?.iface_id}
                                         {...classConnectionsProps}
                                     />
                                 )}
@@ -92,12 +103,13 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                 hasConfigManager
                                 onSubmitSuccess={onSubmit}
                                 definitionsOnly
+                                key={initialData?.['class']?.iface_id}
                             />
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'step' && (
                         <CreatorWrapper>
-                            <ClassConnectionsStateProvider type="step">
+                            <ClassConnectionsStateProvider type="step" key={initialData?.step?.iface_id}>
                                 {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         type={'step'}
@@ -109,6 +121,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                         isEditing={!!initialData.step}
                                         openFileOnSubmit={!onSubmit}
                                         forceSubmit
+                                        key={initialData?.step?.iface_id}
                                         {...classConnectionsProps}
                                     />
                                 )}
@@ -116,21 +129,40 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'mapper' && (
-                        <MapperView onSubmitSuccess={onSubmit} interfaceContext={context} />
+                        <MapperView
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                            key={initialData?.mapper?.iface_id}
+                        />
                     )}
                     {initialData.subtab === 'group' && (
                         <CreatorWrapper>
-                            <InterfaceCreatorPanel type={'group'} onSubmitSuccess={onSubmit} data={initialData.group} />
+                            <InterfaceCreatorPanel
+                                type={'group'}
+                                onSubmitSuccess={onSubmit}
+                                data={initialData.group}
+                                key={initialData?.group?.iface_id}
+                            />
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'event' && (
                         <CreatorWrapper>
-                            <InterfaceCreatorPanel type={'event'} onSubmitSuccess={onSubmit} data={initialData.event} />
+                            <InterfaceCreatorPanel
+                                type={'event'}
+                                onSubmitSuccess={onSubmit}
+                                data={initialData.event}
+                                key={initialData?.event?.iface_id}
+                            />
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'queue' && (
                         <CreatorWrapper>
-                            <InterfaceCreatorPanel type={'queue'} onSubmitSuccess={onSubmit} data={initialData.queue} />
+                            <InterfaceCreatorPanel
+                                type={'queue'}
+                                onSubmitSuccess={onSubmit}
+                                data={initialData.queue}
+                                key={initialData?.queue?.iface_id}
+                            />
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'value-map' && (
@@ -139,10 +171,13 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                                 type={'value-map'}
                                 onSubmitSuccess={onSubmit}
                                 data={initialData['value-map']}
+                                key={initialData?.['value-map']?.iface_id}
                             />
                         </CreatorWrapper>
                     )}
-                    {initialData.subtab === 'type' && <TypeView onSubmitSuccess={onSubmit} />}
+                    {initialData.subtab === 'type' && (
+                        <TypeView onSubmitSuccess={onSubmit} key={initialData?.type?.iface_id} />
+                    )}
                 </Tab>
             </div>
         </Box>

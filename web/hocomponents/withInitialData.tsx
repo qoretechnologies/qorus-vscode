@@ -1,5 +1,5 @@
 import set from 'lodash/set';
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import shortid from 'shortid';
 import { AppToaster } from '../components/Toast';
@@ -26,32 +26,60 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         const [unfinishedWork, setUnfinishedWork] = useState<{ [key: string]: boolean }>({});
 
         useMount(() => {
-            addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
-                setInitialData(null);
-
-                if (!data.tab) {
-                    data.tab = 'ProjectConfig';
-                }
-
-                setInitialData((current) => ({
-                    ...current,
-                    ...data,
-                }));
-            });
-
-            addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                // Only set initial data if we are
-                // switching tabs
-                if (data.tab) {
-                    setInitialData((current) => ({
-                        ...current,
-                        ...data,
-                    }));
-                }
-            });
-
             postMessage(Messages.GET_INITIAL_DATA);
         });
+
+        useEffect(() => {
+            const listeners = [];
+            listeners.push(
+                addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
+                    if (!data.tab) {
+                        data.tab = 'ProjectConfig';
+                    }
+
+                    if (initialData.tab === 'CreateInterface' && !data.no_notify) {
+                        confirmAction(
+                            'UnfinishedWork',
+                            () => {
+                                setInitialData((current) => {
+                                    return {
+                                        ...current,
+                                        ...data,
+                                    };
+                                });
+                            },
+                            'Leave',
+                            'danger'
+                        );
+                    } else {
+                        setInitialData(null);
+                        setInitialData((current) => {
+                            return {
+                                ...current,
+                                ...data,
+                            };
+                        });
+                    }
+                })
+            );
+
+            listeners.push(
+                addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
+                    // Only set initial data if we are
+                    // switching tabs
+                    if (data.tab) {
+                        setInitialData((current) => ({
+                            ...current,
+                            ...data,
+                        }));
+                    }
+                })
+            );
+
+            return () => {
+                listeners.forEach((l) => l());
+            };
+        }, [initialData]);
 
         const confirmAction: (text: string, action: () => any, btnText?: string, btnIntent?: string) => void = (
             text,
@@ -80,7 +108,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
             if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab] && !force) {
                 // Check if there is data for the given subtab
-                confirmAction('UnfinishedWork', setTabs, 'Leave', 'warning');
+                confirmAction('UnfinishedWork', setTabs, 'Leave', 'danger');
             } else {
                 setTabs();
             }
