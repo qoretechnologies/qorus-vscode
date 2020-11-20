@@ -545,7 +545,7 @@ export class QorusProjectCodeInfo {
             }
         };
 
-        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
+        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string): boolean => {
             const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
             if (!parent_yaml_data) {
                 addMessage(t`AncestorDoesNotExist ${parent_type} ${parent_name} ${name}`);
@@ -580,8 +580,6 @@ export class QorusProjectCodeInfo {
             removeUnknownObjectsFromList(data, 'errors', 'error');
             removeUnknownObjectsFromList(data, 'fsm', 'fsm');
             removeUnknownObjectsFromList(data, 'vmaps', 'value-map');
-            removeUnknownObjectsFromList(data, 'constants', 'constant');
-            removeUnknownObjectsFromList(data, 'functions', 'function');
 
             (Object.keys(data['class-connections'] || {})).forEach(connection => {
                 let connectors = data['class-connections'][connection];
@@ -618,6 +616,99 @@ export class QorusProjectCodeInfo {
         }
         this.error_messages[iface_id].referenced_objects
             = Object.keys(messages).map(message => ({ intent: 'danger', message, timeout: 20000 }));
+    }
+
+    getReferencedObjects(iface_data: any): any[] {
+        let result: any[] = [];
+
+        const checkObject = (type, name) => {
+            if (!name) {
+                return;
+            }
+
+            if (name.name) {
+                name = name.name;
+            }
+
+            if (type === 'class' && QorusProjectCodeInfo.isRootBaseClass(name)) {
+                return;
+            }
+
+            const yaml_data = this.yaml_info.yamlDataByName(type, name);
+            if (!yaml_data) {
+                return;
+            }
+
+            result.push({ type, name, data: yaml_data });
+            getObjects(yaml_data);
+        };
+
+        const checkObjects = (type: string, names?: string[]) => {
+            (names || []).forEach(name => checkObject(type, name));
+        };
+
+        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
+            const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
+            if (!parent_yaml_data) {
+                return;
+            }
+
+            result.push({ parent_type, parent_name, data: parent_yaml_data });
+            getObjects(parent_yaml_data);
+
+            const parent_item = parent_yaml_data['config-items'].find(item => item.name === name);
+            if (!parent_item?.parent) {
+                return;
+            }
+
+             checkParentConfigItem(
+                name,
+                parent_item.parent['interface-type'],
+                parent_item.parent['interface-name']
+            );
+        };
+
+        const getObjects = (data: any) => {
+            checkObject('class', data['base-class-name']);
+            checkObject('event', data.event);
+            checkObject('queue', data.queue);
+
+            checkObjects('class', data.classes);
+            checkObjects('class', data.requires);
+            checkObjects('mapper', data.mappers);
+            checkObjects('group', data.groups);
+            checkObjects('error', data.errors);
+            checkObjects('fsm', data.fsm);
+            checkObjects('value-map', data.vmaps);
+
+            (Object.keys(data['class-connections'] || {})).forEach(connection => {
+                let connectors = data['class-connections'][connection];
+                connectors.forEach(connector => checkObject('class', connector.class));
+            });
+
+            (Object.keys(data.states || {})).forEach(state_id => {
+                const state = data.states[state_id];
+                if (['mapper', 'pipeline'].includes(state.action?.type)) {
+                    checkObject(state.action.type, state.action.value);
+                }
+            });
+
+            if (data.steps) {
+                const step_names: string[] = flattenDeep(data.steps);
+                step_names.forEach(name_version => checkObject('step', name_version));
+            }
+
+            (data['config-items'] || []).forEach(item => item.parent && checkParentConfigItem(
+                item.name,
+                item.parent['interface-type'],
+                item.parent['interface-name']
+            ));
+        };
+
+        getObjects(iface_data);
+
+        msg.debug({result});
+        return result;
     }
 
     private initInfo() {
