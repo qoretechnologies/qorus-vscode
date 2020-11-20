@@ -10,6 +10,7 @@ import {
     Workbench,
 } from 'vscode-extension-tester';
 import { closeQorusActivityBar, openQorusActivityBar, sleep } from './common';
+import { confirmDialog } from './webview';
 
 export const getQorusTreeSection = async (sectionName: string): Promise<CustomTreeSection> => {
     let qorusTreeSection: CustomTreeSection | null = null;
@@ -149,5 +150,7 @@ export const openInterfaceFromTreeView = async (interfaceName: string, webview?:
 
     if (webview) {
         await webview.switchToFrame();
+        await confirmDialog(webview);
+        await sleep(3000);
     }
 };
