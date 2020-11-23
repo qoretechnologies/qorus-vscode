@@ -122,7 +122,7 @@ export class QorusProjectCodeInfo {
                 const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
                 raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
             }
-            const data = this.fixData(raw_data);
+            const data = this.yaml2FrontEnd(raw_data);
 
             const iface_id = this.iface_info.addIfaceById(data, iface_kind);
 
@@ -292,7 +292,7 @@ export class QorusProjectCodeInfo {
         });
     }
 
-    fixData(orig_data: any): any {
+    yaml2FrontEnd(orig_data: any): any {
         let data = deepCopy(orig_data);
 
         if (data.options) {
@@ -1107,7 +1107,7 @@ export class QorusProjectCodeInfo {
     getMappers = ({'input-condition': input_condition, 'output-condition': output_condition}) => {
         this.waitForPending(['yaml']).then(() => {
             const all_mappers: any[] = Object.keys(this.yaml_info.yamlDataByType('mapper'))
-                                             .map(name => this.fixData(this.yaml_info.yamlDataByName('mapper', name)));
+                                             .map(name => this.yaml2FrontEnd(this.yaml_info.yamlDataByName('mapper', name)));
 
             const filtered_mappers = all_mappers.filter(mapper => {
                 if (!mapper.mapper_options) {

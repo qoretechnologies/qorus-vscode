@@ -16,7 +16,7 @@ export class QorusJavaCodeLensProvider extends QorusCodeLensProviderBase {
         return this.code_info.edit_info.setFileInfo(file_path, data).then(
             () => {
                 let lenses: CodeLens[] = [];
-                data = this.code_info.fixData(data);
+                data = this.code_info.yaml2FrontEnd(data);
 
                 const parsed_data: any = QorusJavaParser.parseFileNoExcept(file_path);
                 parsed_data.classes.forEach(parsed_class => {

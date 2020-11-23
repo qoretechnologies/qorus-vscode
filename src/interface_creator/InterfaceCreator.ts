@@ -218,7 +218,7 @@ export abstract class InterfaceCreator {
     }
 
     protected returnData = (data: any, iface_id: string) => {
-        const fixed_data = this.code_info.fixData(data);
+        const fixed_data = this.code_info.yaml2FrontEnd(data);
 
         let iface_kind = fixed_data.type;
 

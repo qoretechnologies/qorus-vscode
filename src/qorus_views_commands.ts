@@ -5,7 +5,6 @@ import { commands, ExtensionContext, Uri, window as vswindow, workspace } from '
 import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
 import { interface_tree } from './QorusInterfaceTree';
-import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { deployer } from './QorusDeploy';
 
@@ -93,18 +92,28 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps', 'connection',
-        'workflow', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline', 'value-map'].forEach(iface_kind =>
+        'workflow', 'service-methods', 'mapper-code-methods', 'group', 'event', 'queue', 'type',
+        'fsm', 'pipeline', 'value-map'].forEach(iface_kind =>
     {
-        const command_part = dash2Pascal(iface_kind);
-        disposable = commands.registerCommand(`qorus.views.edit${command_part}`, (data: any) => {
-            const code_info = projects.projectCodeInfo(data.data?.yaml_file);
-            const fixed_data = code_info?.fixData(data.data);
-            if (fixed_data) {
-                if (command_part === 'WorkflowSteps') {
-                    fixed_data.show_steps = true;
-                    iface_kind = 'workflow';
+        const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
+        disposable = commands.registerCommand(command, (data: any) => {
+            data = data.data;
+            if (data) {
+                switch (iface_kind) {
+                    case 'workflow-steps':
+                        data.show_steps = true;
+                        iface_kind = 'workflow';
+                        break;
+                    case 'service-methods':
+                        data.active_method = 1;
+                        iface_kind = 'service';
+                        break;
+                    case 'mapper-code-methods':
+                        data.active_method = 1;
+                        iface_kind = 'mapper-code';
+                        break;
                 }
-                commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+                commands.executeCommand('qorus.editInterface', data, iface_kind);
             }
         });
         context.subscriptions.push(disposable);
