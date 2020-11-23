@@ -106,6 +106,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
+        data = code_info.yaml2FrontEnd(data);
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
         code_info.checkReferencedObjects(iface_id, data);
@@ -137,8 +138,8 @@ export async function activate(context: vscode.ExtensionContext) {
         if (!data) {
             return;
         }
-        const fixed_data = code_info.fixData(data);
-        vscode.commands.executeCommand('qorus.editInterface', fixed_data, data.type);
+
+        vscode.commands.executeCommand('qorus.editInterface', data, data.type);
     });
     context.subscriptions.push(disposable);
 
