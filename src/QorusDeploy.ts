@@ -59,7 +59,11 @@ class QorusDeploy {
             return;
         }
 
-        this.deployFileAndPairFile(editor.document.uri.fsPath);
+        if (!this.setCodeInfo([file_path])) {
+            return;
+        }
+
+        this.doDeploy(this.code_info.getFilesOfReferencedObjects([file_path]));
     }
 
     deployFile(file_path: string) {
@@ -68,22 +72,11 @@ class QorusDeploy {
             return;
         }
 
-        this.deployFileAndPairFile(file_path);
-    }
-
-    private deployFileAndPairFile(file_path: string) {
         if (!this.setCodeInfo([file_path])) {
             return;
         }
 
-        const pair_file_path = this.code_info.pairFile(file_path);
-
-        if (pair_file_path) {
-            this.doDeploy([file_path, pair_file_path]);
-        }
-        else {
-            this.doDeploy([file_path]);
-        }
+        this.doDeploy(this.code_info.getFilesOfReferencedObjects([file_path]));
     }
 
     deployDir(dir: string) {
@@ -94,8 +87,7 @@ class QorusDeploy {
         msg.log(t`DeployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
         const files: string[] = filesInDir(dir, isDeployable);
-        const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
-        this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
+        this.doDeploy(this.code_info.getFilesOfReferencedObjects(files));
     }
 
     deployFilesAndDirs = (paths: string[]) => {
@@ -111,8 +103,8 @@ class QorusDeploy {
                 files.push(file_or_dir);
             }
         });
-        const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
-        this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
+
+        this.doDeploy(this.code_info.getFilesOfReferencedObjects(removeDuplicates(files)));
     }
 
     // returns true if the process got to the stage of checking the result

@@ -23,7 +23,7 @@ import {
     root_processor, root_service, root_steps, root_workflow, types_with_version
 } from './qorus_constants';
 import * as msg from './qorus_message';
-import { deepCopy, filesInDir, hasSuffix, isObject } from './qorus_utils';
+import { deepCopy, filesInDir, hasSuffix, isObject, removeDuplicates } from './qorus_utils';
 
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
@@ -149,16 +149,43 @@ export class QorusProjectCodeInfo {
         (this.yaml_info.yamlDataByName('class', class_name)?.['class-connectors'] || [])
                 .find(connector => connector.name === connector_name)
 
-    pairFile = (file: string): string | undefined => {
-        if (!hasSuffix(file, 'yaml')) {
-            return (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
-        }
+    getFilesOfReferencedObjects(files: string[]): string[] {
+        let yaml_files: string[] = [];
+        files.forEach(file => {
+            if (path.extname(file) === '.yaml') {
+                yaml_files.push(file);
+            } else {
+                const yaml_file = (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
+                if (yaml_file) {
+                    yaml_files.push(yaml_file);
+                }
+            }
+        });
+        yaml_files = removeDuplicates(yaml_files);
 
-        const type = this.yaml_info.getValue(file, 'type');
-        if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function', 'mapper-code'].includes(type)) {
-            return this.yaml_info.getSrcFile(file);
-        }
-        return undefined;
+        let referenced_yaml_files: string[] = [];
+        yaml_files.forEach(yaml_file => {
+            const yaml_data = this.yaml_info.yamlDataByFile(yaml_file);
+            const objects: any[] = this.getReferencedObjects(yaml_data);
+            referenced_yaml_files = [
+                ...referenced_yaml_files,
+                yaml_file,
+                ...objects.map(o => o.yaml_file).filter(yaml_file => !!yaml_file)
+            ];
+        });
+        referenced_yaml_files = removeDuplicates(referenced_yaml_files);
+
+        let all_referenced_files: string[] = [];
+        referenced_yaml_files.forEach(yaml_file => {
+            all_referenced_files.push(yaml_file);
+            const src_file = this.yaml_info.getSrcFile(yaml_file);
+            if (src_file) {
+                all_referenced_files.push(src_file);
+            }
+        });
+
+        msg.debug({all_referenced_files});
+        return all_referenced_files;
     }
 
     stepData = (step_structure: any[]): any => {
@@ -488,9 +515,6 @@ export class QorusProjectCodeInfo {
             data.target_file = path.basename(data.yaml_file);
         }
 
-        delete data.code;
-        delete data.yaml_file;
-
         return data;
     }
 
@@ -618,7 +642,7 @@ export class QorusProjectCodeInfo {
             = Object.keys(messages).map(message => ({ intent: 'danger', message, timeout: 20000 }));
     }
 
-    getReferencedObjects(iface_data: any): any[] {
+    private getReferencedObjects(iface_data: any): any[] {
         let result: any[] = [];
 
         const checkObject = (type, name) => {
@@ -639,7 +663,7 @@ export class QorusProjectCodeInfo {
                 return;
             }
 
-            result.push({ type, name, data: yaml_data });
+            result.push({ type, name, ...yaml_data });
             getObjects(yaml_data);
         };
 
@@ -707,7 +731,6 @@ export class QorusProjectCodeInfo {
 
         getObjects(iface_data);
 
-        msg.debug({result});
         return result;
     }
 
