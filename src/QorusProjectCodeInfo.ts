@@ -184,7 +184,6 @@ export class QorusProjectCodeInfo {
             }
         });
 
-        msg.debug({all_referenced_files});
         return all_referenced_files;
     }
 
