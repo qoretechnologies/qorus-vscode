@@ -1,11 +1,8 @@
-import React, { FunctionComponent } from 'react';
-
-import { omit } from 'lodash';
+import { Button, ButtonGroup } from '@blueprintjs/core';
+import { omit, size } from 'lodash';
+import React, { FunctionComponent, useState } from 'react';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { Button, ButtonGroup } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import SidePanel from '../../components/SidePanel';
 import { FunctionsContext } from '../../context/functions';
@@ -21,8 +18,8 @@ const MethodSelector = styled.div`
     padding: 0px 10px;
     margin-bottom: 5px;
     border: 1px solid #eee;
-    border-color: ${props => (props.active ? '#137cbd' : '#eee')};
-    border-left-color: ${props => (props.valid ? '#0F9960' : '#DB3737')};
+    border-color: ${(props) => (props.active ? '#137cbd' : '#eee')};
+    border-left-color: ${(props) => (props.valid ? '#0F9960' : '#DB3737')};
     border-left-width: 3px;
     border-radius: 3px;
     cursor: pointer;
@@ -123,8 +120,8 @@ const CreatorWrapper = styled.div`
 export interface ILibraryView {
     targetDir: string;
     t: TTranslator;
-    isSubItemValid: (id: number, type: string) => boolean;
-    removeSubItemFromFields: (id: number, type: string) => void;
+    isSubItemValid: any;
+    removeSubItemFromFields: any;
     initialData: any;
     interfaceId: { [key: string]: string };
 }
@@ -137,6 +134,9 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     interfaceId,
     onSubmitSuccess,
 }) => {
+    const [interfaceIndex, setInterfaceIndex] = useState(size(interfaceId.mapper));
+    const [methodsIndex, setMethodIndex] = useState(size(interfaceId['mapper-methods']));
+
     return (
         <FunctionsContext.Consumer>
             {({
@@ -161,6 +161,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                     setActiveFunction(1);
                                     setShowFunctions(true);
                                 }}
+                                interfaceIndex={interfaceIndex}
                                 data={library && omit(library, 'functions')}
                                 isEditing={!!library}
                                 onDataFinishLoading={
@@ -180,7 +181,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                             <MethodSelector
                                                 key={fun.id}
                                                 active={fun.id === activeFunction}
-                                                valid={isSubItemValid(fun.id, 'mapper-methods')}
+                                                valid={isSubItemValid(fun.id, 'mapper-methods', methodsIndex)}
                                                 onClick={() => setActiveFunction(fun.id)}
                                             >
                                                 {fun.name || `${t('Method')} ${fun.id}`}
@@ -192,12 +193,16 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                 {functionsCount !== 1 && (
                                                     <RemoveButton
                                                         onClick={() => {
-                                                            setFunctions(current =>
+                                                            setFunctions((current) =>
                                                                 current.filter(
-                                                                    currentFunction => currentFunction.id !== fun.id
+                                                                    (currentFunction) => currentFunction.id !== fun.id
                                                                 )
                                                             );
-                                                            removeSubItemFromFields(fun.id, 'mapper-methods');
+                                                            removeSubItemFromFields(
+                                                                fun.id,
+                                                                'mapper-methods',
+                                                                methodsIndex
+                                                            );
                                                             setFunctionsCount((current: number) => current - 1);
                                                         }}
                                                     />
@@ -216,6 +221,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                     </ActionsWrapper>
                                 </SidePanel>
                                 <InterfaceCreatorPanel
+                                    interfaceIndex={methodsIndex}
                                     stepOneTitle={t('SelectFieldsSecondStep')}
                                     stepTwoTitle={t('FillDataThirdStep')}
                                     onBackClick={() => {
@@ -229,7 +235,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                     allMethodsData={functionsData}
                                     methodsList={functions}
                                     onSubmitSuccess={onSubmitSuccess}
-                                    data={functionsData && functionsData.find(fun => fun.id === activeFunction)}
+                                    data={functionsData && functionsData.find((fun) => fun.id === activeFunction)}
                                     onNameChange={(functionId: number, name: string) => {
                                         setFunctions((currentFunctions: { id: number; name: string }[]) =>
                                             currentFunctions.reduce((cur, fun: { id: number; name: string }) => {

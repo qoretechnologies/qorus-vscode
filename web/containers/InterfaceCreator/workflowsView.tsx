@@ -74,6 +74,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
     onSubmitSuccess,
 }) => {
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
+    const [workflowIndex, setWorkflowIndex] = useState(size(interfaceId.workflow));
 
     useEffect(() => {
         if (showSteps) {
@@ -92,6 +93,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                     hasConfigManager
                     type={'workflow'}
                     submitLabel={t('Next')}
+                    interfaceIndex={workflowIndex}
                     onSubmit={() => {
                         setShowSteps(true);
                     }}
@@ -160,7 +162,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                         onClick={async () => {
                                             // Build the finished object
                                             const newData = reduce(
-                                                selectedFields.workflow,
+                                                selectedFields.workflow[workflowIndex],
                                                 (result: { [key: string]: any }, field: IField) => ({
                                                     ...result,
                                                     [field.name]: field.value,

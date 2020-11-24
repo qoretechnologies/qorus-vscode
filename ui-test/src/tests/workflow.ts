@@ -7,8 +7,10 @@ import {
     addNewMultiSelectItemAndSelectIt,
     clickElement,
     fillTextField,
+    getElementAttribute,
     getElements,
     getSelectedFields,
+    removeField,
     resetAndFillTextField,
     selectAndFillField,
     selectField,
@@ -129,6 +131,15 @@ export const submitsWorkflowAndChecksFiles = async (webview: WebView) => {
 export const editsWorkflowAndChecksFiles = async (webview: WebView) => {
     await openInterfaceFromTreeView('WorkflowTest', webview);
     await sleep(4000);
+
+    // Constants, value-maps, functions and keylist should be empty because their interfaces do not exist
+    // and submit button should be disabled
+    expect(await getElementAttribute(webview, 'interface-creator-submit-workflow', 'disabled')).to.eq('true');
+
+    await removeField(webview, 'constants');
+    await removeField(webview, 'functions');
+    await removeField(webview, 'vmaps');
+
     await resetAndFillTextField(webview, 'field-name', 'WorkflowTestEdited');
     await resetAndFillTextField(webview, 'field-target_file', 'WorkflowTestEdited-1.0');
 

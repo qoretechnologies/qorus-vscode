@@ -72,6 +72,9 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             case 'connection':
                 suffix = `.qconn`;
                 break;
+            case 'value-map':
+                suffix = `.qvmap`;
+                break;
             default:
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'InterfaceWithoutMethodsCreator'}`);
                 return;

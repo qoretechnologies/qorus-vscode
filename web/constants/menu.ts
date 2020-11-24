@@ -40,6 +40,7 @@ export const MENU = {
                 { name: 'Group', icon: 'group-objects', tab: 'CreateInterface', subtab: 'group' },
                 { name: 'Event', icon: 'notifications', tab: 'CreateInterface', subtab: 'event' },
                 { name: 'Queue', icon: 'list', tab: 'CreateInterface', subtab: 'queue' },
+                { name: 'Valuemap', icon: 'join-table', tab: 'CreateInterface', subtab: 'value-map' },
             ],
         },
     ],

@@ -325,6 +325,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     setShowMapperConnections,
     context,
     isContextLoaded,
+    interfaceIndex,
 }) => {
     const [{ isDragging }, _dropRef] = useDrop({
         accept: 'none',
@@ -700,7 +701,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const handleSubmitClick = async () => {
         // Build the mapper object
         const mapper = reduce(
-            selectedFields.mapper,
+            selectedFields.mapper[interfaceIndex],
             (result: { [key: string]: any }, field: IField) => ({
                 ...result,
                 [field.name]: field.value,

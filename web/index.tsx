@@ -1,20 +1,16 @@
 import '@babel/polyfill';
+import { AnchorButton, ButtonGroup, Callout } from '@blueprintjs/core';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
 import '@blueprintjs/table/lib/css/table.css';
 import 'normalize.css/normalize.css';
-
 import React from 'react';
-import { render } from 'react-dom';
-
 import { DndProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
+import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import styled from 'styled-components';
-
-import { AnchorButton, ButtonGroup, Callout } from '@blueprintjs/core';
-
 import AppContainer from './App';
 import { vscode } from './common/vscode';
 import reducer from './reducers';

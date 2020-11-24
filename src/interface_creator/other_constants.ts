@@ -21,17 +21,53 @@ export const queueFields = ({ default_target_dir }) => [
     field.desc,
 ];
 
-export const errorsFields = ({ default_target_dir }) => [
+export const valueMapFields = ({ default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
     {
-        name: 'errors',
-        type: 'array-of-error',
-    }
+        ... field.desc,
+        mandatory: false
+    },
+    field.author,
+    {
+        name: 'exception',
+        mandatory: false,
+        type: 'boolean',
+        default_value: false,
+    },
+    field.groups,
+    {
+        name: 'valuetype',
+        mandatory: false,
+        type: 'enum',
+        items: [
+            { value: 'int' },
+            { value: 'string' },
+            { value: 'float' },
+            { value: 'raw' },
+            { value: 'date' },
+        ],
+        notify_on_remove: true,
+        on_change: 'valuetype-changed',
+    },
+    {
+        name: 'dateformat',
+        mandatory: false,
+        disabled: true,
+        default_value: 'YYYY-MM-DD',
+    },
+    field['value-maps'],
 ];
 
-export const errorFields = () => [
+
+export const errorsFields = ({ default_target_dir }) => [
+    field.targetDir(default_target_dir),
+    field.targetFile,
+    field.name,
+];
+
+export const error_fields = [
     field.name,
     field.desc,
     {

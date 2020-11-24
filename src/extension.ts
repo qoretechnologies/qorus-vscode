@@ -83,7 +83,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class', 'connection',
-        'group', 'event', 'queue', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
+        'group', 'event', 'queue', 'type', 'fsm', 'pipeline', 'value-map'].forEach(iface_kind =>
     {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {
@@ -92,8 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
             qorus_webview.open({
                 tab: 'CreateInterface',
                 subtab: iface_kind,
-                uri
-            });
+            }, uri);
         });
         context.subscriptions.push(disposable);
     });
@@ -107,7 +106,10 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
+        data = code_info.yaml2FrontEnd(data);
         const iface_id = iface_info.addIfaceById(data, iface_kind);
+
+        code_info.checkReferencedObjects(iface_id, data);
 
         qorus_webview.open({
             tab: 'CreateInterface',
@@ -135,8 +137,8 @@ export async function activate(context: vscode.ExtensionContext) {
         if (!data) {
             return;
         }
-        const fixed_data = code_info.fixData(data);
-        vscode.commands.executeCommand('qorus.editInterface', fixed_data, data.type);
+
+        vscode.commands.executeCommand('qorus.editInterface', data, data.type);
     });
     context.subscriptions.push(disposable);
 
