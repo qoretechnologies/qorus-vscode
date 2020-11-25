@@ -26,9 +26,7 @@ const columns = {
     jobs: ['name', 'version', 'jobid', 'description'],
     steps: ['name', 'version', 'stepid', 'description'],
     classes: ['name', 'version', 'classid', 'description', 'language'],
-    constants: ['name', 'version', 'constantid', 'description'],
     mappers: ['name', 'version', 'mapperid', 'desc', 'type'],
-    functions: ['name', 'version', 'function_instanceid', 'description'],
 };
 
 class DeleteInterfaces extends Component {
@@ -202,9 +200,7 @@ class DeleteInterfaces extends Component {
                     <Tab id="jobs" title={t('Jobs')} panel={Interfaces} />
                     <Tab id="steps" title={t('Steps')} panel={Interfaces} />
                     <Tab id="classes" title={t('Classes')} panel={Interfaces} />
-                    <Tab id="constants" title={t('Constants')} panel={Interfaces} />
                     <Tab id="mappers" title={t('Mappers')} panel={Interfaces} />
-                    <Tab id="functions" title={t('Functions')} panel={Interfaces} />
                 </Tabs>
             </Box>
         );

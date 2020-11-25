@@ -242,34 +242,6 @@ export const field = {
         default_value: default_lang,
         on_change: 'lang-changed',
     },
-    constants: {
-        name: 'constants',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'constant',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'constant',
-            return_value: 'objects',
-        },
-    },
-    functions: {
-        name: 'functions',
-        mandatory: false,
-        type: 'select-array',
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'function',
-        },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'function',
-            return_value: 'objects',
-        },
-    },
     mappers: {
         name: 'mappers',
         mandatory: false,

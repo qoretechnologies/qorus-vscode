@@ -330,8 +330,8 @@ export class QorusProjectCodeInfo {
             delete data.autostart;
         }
 
-        ['functions', 'constants', 'mappers', 'value_maps', 'vmaps', 'author',
-            'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
+        ['mappers', 'value_maps', 'vmaps', 'author', 'mapper-code',
+            'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
@@ -950,8 +950,6 @@ export class QorusProjectCodeInfo {
             case 'author':
                 this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));
                 break;
-            case 'function':
-            case 'constant':
             case 'mapper':
             case 'value-map':
             case 'group':

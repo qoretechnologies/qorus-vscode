@@ -49,19 +49,15 @@ export const fillsWorkflowFields = async (webview: WebView) => {
     await selectField(webview, 'workflow-autostart');
     await selectField(webview, 'classes');
     await selectNthFilteredDropdownItem(webview, 'name', 'ClassForFSMTest', 1, 2);
-    await selectField(webview, 'constants');
-    await addNewMultiSelectItemAndSelectIt(webview, 'test', 2);
     await selectAndFillField(webview, 'detach', 'test');
     await selectAndFillField(webview, 'errorfunction', 'test');
     await selectAndFillField(webview, 'error_handler', 'test');
-    await selectField(webview, 'functions');
-    await addNewMultiSelectItemAndSelectIt(webview, 'test', 3);
     await selectField(webview, 'groups');
-    await selectMultiselectItemsByNumbers(webview, [1], 4);
+    await selectMultiselectItemsByNumbers(webview, [1], 2);
     await selectField(webview, 'keylist');
-    await addNewMultiSelectItemAndSelectIt(webview, 'test', 5);
+    await addNewMultiSelectItemAndSelectIt(webview, 'test', 3);
     await selectField(webview, 'mappers');
-    await selectMultiselectItemsByNumbers(webview, [1], 6);
+    await selectMultiselectItemsByNumbers(webview, [1], 4);
     await selectAndFillField(webview, 'max_instances', 5);
     await selectAndFillField(webview, 'onetimeinit', 'test');
     await selectField(webview, 'workflow_options');
@@ -76,7 +72,7 @@ export const fillsWorkflowFields = async (webview: WebView) => {
     await fillTextField(webview, 'field-key', 'foo', 2);
     await fillTextField(webview, 'field-value', 'bar', 2);
     await selectField(webview, 'vmaps');
-    await addNewMultiSelectItemAndSelectIt(webview, 'test', 7);
+    await addNewMultiSelectItemAndSelectIt(webview, 'test', 5);
 
     await submitInterface(webview, 'workflow');
 
@@ -132,12 +128,10 @@ export const editsWorkflowAndChecksFiles = async (webview: WebView) => {
     await openInterfaceFromTreeView('WorkflowTest', webview);
     await sleep(4000);
 
-    // Constants, value-maps, functions and keylist should be empty because their interfaces do not exist
+    // value-maps and keylist should be empty because their interfaces do not exist
     // and submit button should be disabled
     expect(await getElementAttribute(webview, 'interface-creator-submit-workflow', 'disabled')).to.eq('true');
 
-    await removeField(webview, 'constants');
-    await removeField(webview, 'functions');
     await removeField(webview, 'vmaps');
 
     await resetAndFillTextField(webview, 'field-name', 'WorkflowTestEdited');

@@ -121,8 +121,8 @@ class QorusDeploy {
         }
 
         const ifaceKinds = [
-            'connection', 'error', 'group', 'constant', 'event', 'function', 'queue', 'fsm', 'pipeline',
-            'value-map', 'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
+            'connection', 'error', 'group', 'event', 'queue', 'fsm', 'pipeline', 'value-map',
+            'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
         ];
 
         code_info.waitForPending(['yaml']).then(() => {

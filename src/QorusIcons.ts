@@ -7,11 +7,9 @@ const LightIconsDirRelPath = join(IconsDirRelPath, 'light');
 
 const ClassIconName = 'class.svg';
 const ConnectionIconName = 'connection.svg';
-const ConstantIconName = 'function.svg';
 const ErrorIconName = 'error.svg';
 const EventIconName = 'event.svg';
 const FolderIconName = 'folder.svg';
-const FunctionIconName = 'function.svg';
 const GroupIconName = 'group.svg';
 const InterfaceIconName = 'interface.svg';
 const JobIconName = 'job.svg';
@@ -30,11 +28,9 @@ const PipelineIconName = 'pipeline.svg';
 export class QorusIcons  {
     private classIcon;
     private connectionIcon;
-    private constantIcon;
     private errorIcon;
     private eventIcon;
     private folderIcon;
-    private functionIcon;
     private groupIcon;
     private interfaceIcon;
     private jobIcon;
@@ -61,10 +57,6 @@ export class QorusIcons  {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ConnectionIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, ConnectionIconName))
         };
-        this.constantIcon = {
-            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ConstantIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ConstantIconName))
-        };
         this.errorIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ErrorIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, ErrorIconName))
@@ -76,10 +68,6 @@ export class QorusIcons  {
         this.folderIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, FolderIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, FolderIconName))
-        };
-        this.functionIcon = {
-            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, FunctionIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, FunctionIconName))
         };
         this.groupIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, GroupIconName)),
@@ -143,10 +131,6 @@ export class QorusIcons  {
         return this.connectionIcon;
     }
 
-    getConstantIcon() {
-        return this.constantIcon;
-    }
-
     getErrorIcon() {
         return this.errorIcon;
     }
@@ -157,10 +141,6 @@ export class QorusIcons  {
 
     getFolderIcon() {
         return this.folderIcon;
-    }
-
-    getFunctionIcon() {
-        return this.functionIcon;
     }
 
     getGroupIcon() {
