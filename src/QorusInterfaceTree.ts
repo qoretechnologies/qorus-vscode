@@ -147,19 +147,7 @@ class QorusTreeConnectionNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getConnectionIcon();
     }
 }
-/*
-class QorusTreeConstantNode extends QorusSingleInterfaceNode {
-    constructor(code_info, name: string, data: any) {
-        super(code_info, name, TreeItemCollapsibleState.None);
-        this.name = name;
-        this.data = data;
-        this.tooltip = data.desc;
-        this.description = data.version || '';
-        this.contextValue = 'constant';
-        this.iconPath = qorusIcons.getConstantIcon();
-    }
-}
-*/
+
 class QorusTreeErrorNode extends QorusSingleInterfaceNode {
     constructor(code_info, name: string, data: any) {
         super(code_info, name, TreeItemCollapsibleState.None);
@@ -183,19 +171,7 @@ class QorusTreeEventNode extends QorusSingleInterfaceNode {
         this.iconPath = qorusIcons.getEventIcon();
     }
 }
-/*
-class QorusTreeFunctionNode extends QorusSingleInterfaceNode {
-    constructor(code_info, name: string, data: any) {
-        super(code_info, name, TreeItemCollapsibleState.None);
-        this.name = name;
-        this.data = data;
-        this.tooltip = data.desc;
-        this.description = data.version || '';
-        this.contextValue = 'function';
-        this.iconPath = qorusIcons.getFunctionIcon();
-    }
-}
-*/
+
 class QorusTreeGroupNode extends QorusSingleInterfaceNode {
     constructor(code_info, name: string, data: any) {
         super(code_info, name, TreeItemCollapsibleState.None);
@@ -383,17 +359,11 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                     case 'connection':
                         children.push(new QorusTreeConnectionNode(this.code_info, data.name, data));
                         break;
-                    case 'constant':
-                        //children.push(new QorusTreeConstantNode(this.code_info, data.name, data));
-                        break;
                     case 'error':
                         children.push(new QorusTreeErrorNode(this.code_info, data.name, data));
                         break;
                     case 'event':
                         children.push(new QorusTreeEventNode(this.code_info, data.name, data));
-                        break;
-                    case 'function':
-                        //children.push(new QorusTreeFunctionNode(this.code_info, data.name, data));
                         break;
                     case 'group':
                         children.push(new QorusTreeGroupNode(this.code_info, data.name, data));
@@ -484,20 +454,6 @@ class QorusTreeConnectionCategoryNode extends QorusTreeCategoryNode {
     }
 }
 /*
-class QorusTreeConstantCategoryNode extends QorusTreeCategoryNode {
-    constructor(code_info) {
-        super(code_info, t`Constants`, 'constant', TreeItemCollapsibleState.Expanded);
-    }
-
-    async getChildren(): Promise<QorusTreeConstantNode[]> {
-        let children = [];
-        this.code_info.interfaceDataByType(this.category).forEach(({name, data}) => {
-            children.push(new QorusTreeConstantNode(this.code_info, name, data));
-        });
-        return children;
-    }
-}
-
 class QorusTreeErrorCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
         super(code_info, t`Errors`, 'error', TreeItemCollapsibleState.Expanded);
@@ -525,21 +481,7 @@ class QorusTreeEventCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-/*
-class QorusTreeFunctionCategoryNode extends QorusTreeCategoryNode {
-    constructor(code_info) {
-        super(code_info, t`Functions`, 'function', TreeItemCollapsibleState.Expanded);
-    }
 
-    async getChildren(): Promise<QorusTreeFunctionNode[]> {
-        let children = [];
-        this.code_info.interfaceDataByType(this.category).forEach(({name, data}) => {
-            children.push(new QorusTreeFunctionNode(this.code_info, name, data));
-        });
-        return children;
-    }
-}
-*/
 class QorusTreeGroupCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
         super(code_info, t`Groups`, 'group', TreeItemCollapsibleState.Expanded);

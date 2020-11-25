@@ -51,8 +51,6 @@ export abstract class QorusHoverProviderBase implements HoverProvider {
     prepareBasicListParams(yaml_info: any): string {
         return this.prepareListParam(t`Modules`, yaml_info.modules)
             +  this.prepareListParam(t`Classes`, yaml_info.classes)
-            +  this.prepareListParam(t`Constants`, yaml_info.constants)
-            +  this.prepareListParam(t`Functions`, yaml_info.functions)
             +  this.prepareListParam(t`Mappers`, yaml_info.mappers)
             +  this.prepareListParam(t`ValueMaps`, yaml_info.vmaps)
             +  this.prepareListParam(t`Groups`, yaml_info.groups);

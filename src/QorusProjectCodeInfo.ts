@@ -155,7 +155,7 @@ export class QorusProjectCodeInfo {
         }
 
         const type = this.yaml_info.getValue(file, 'type');
-        if (['service', 'job', 'workflow', 'step', 'class', 'constant', 'function', 'mapper-code'].includes(type)) {
+        if (['service', 'job', 'workflow', 'step', 'class', 'mapper-code'].includes(type)) {
             return this.yaml_info.getSrcFile(file);
         }
         return undefined;
@@ -304,8 +304,8 @@ export class QorusProjectCodeInfo {
             delete data.autostart;
         }
 
-        ['functions', 'constants', 'mappers', 'value_maps', 'vmaps', 'author',
-            'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(tag =>
+        ['mappers', 'value_maps', 'vmaps', 'author', 'mapper-code',
+            'groups', 'events', 'queues', 'keylist'].forEach(tag =>
         {
             if (data[tag]) {
                 data[tag] = data[tag].map(name => ({ name }));
@@ -580,8 +580,6 @@ export class QorusProjectCodeInfo {
             removeUnknownObjectsFromList(data, 'errors', 'error');
             removeUnknownObjectsFromList(data, 'fsm', 'fsm');
             removeUnknownObjectsFromList(data, 'vmaps', 'value-map');
-            removeUnknownObjectsFromList(data, 'constants', 'constant');
-            removeUnknownObjectsFromList(data, 'functions', 'function');
 
             (Object.keys(data['class-connections'] || {})).forEach(connection => {
                 let connectors = data['class-connections'][connection];
@@ -837,8 +835,6 @@ export class QorusProjectCodeInfo {
             case 'author':
                 this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));
                 break;
-            case 'function':
-            case 'constant':
             case 'mapper':
             case 'value-map':
             case 'group':

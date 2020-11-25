@@ -29,8 +29,11 @@ class QorusDelete {
 
         let iface_post_kind: string;
         switch (iface_kind) {
-            case 'classes': iface_post_kind = 'class'; break;
-            default: iface_post_kind = iface_kind.slice(0, -1);
+            case 'classes':
+                iface_post_kind = 'class';
+                break;
+            default: // only remove 's' to get the singular
+                iface_post_kind = iface_kind.slice(0, -1);
         }
         const config: any = vscode.workspace.getConfiguration('qorusDeployment')
                                 || {reload: false, 'verbosity-level': 1};
@@ -70,7 +73,7 @@ class QorusDelete {
         qorus_request.doRequestAndCheckResult(options, texts, () => {
             qorus_webview.postMessage({
                 action: 'deletion-finished',
-                iface_kind: iface_kind
+                iface_kind
             });
         });
     }
@@ -89,7 +92,6 @@ class QorusDelete {
         const isIdKey = (key: string): boolean => {
             switch (iface_kind) {
                 case 'classes':   return key === 'classid';
-                case 'functions': return key === 'function_instanceid';
                 default:
                     return key.slice(-2) === 'id'
                         && key.slice(0, -2) === iface_kind.slice(0, -1);

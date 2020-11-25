@@ -719,8 +719,6 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'author':
-                    case 'constants':
-                    case 'functions':
                     case 'vmaps':
                     case 'mappers':
                     case 'keylist':

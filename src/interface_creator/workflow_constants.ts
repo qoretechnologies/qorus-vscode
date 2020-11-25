@@ -36,8 +36,6 @@ export const workflowFields = ({ default_target_dir}) => [
         notify_on_add: true,
         notify_on_remove: true,
     },
-    field.constants,
-    field.functions,
     field.mappers,
     field.vmaps,
     field.modules,

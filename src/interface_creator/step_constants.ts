@@ -26,9 +26,7 @@ export const stepFields = ({ default_target_dir }) => [
     field.version,
     field.class_name,
     field.lang,
-    field.constants,
     field.classes,
-    field.functions,
     field.mappers,
     field.vmaps,
     {

@@ -45,9 +45,6 @@ export const fillsStepFields = async (webview: WebView) => {
     // Expect class connections to be enabled
     expect(await getElementAttribute(webview, 'step-class-connections-button', 'disabled')).to.eq(null);
 
-    await selectField(webview, 'constants');
-    await addNewMultiSelectItemAndSelectIt(webview, 'test', 2);
-
     await selectField(webview, 'event');
     await selectNthFilteredDropdownItem(webview, 'event', 'EventForStep');
 
@@ -74,16 +71,13 @@ export const fillsStepFields = async (webview: WebView) => {
     await sleep(500);
 
     await selectField(webview, 'mappers');
-    await selectMultiselectItemsByNumbers(webview, [1], 3);
+    await selectMultiselectItemsByNumbers(webview, [1], 2);
 
     await selectField(webview, 'queue');
     await selectNthFilteredDropdownItem(webview, 'queue', 'QueueForStep');
 
-    await selectField(webview, 'functions');
-    await addNewMultiSelectItemAndSelectIt(webview, 'test', 4);
-
     await selectField(webview, 'vmaps');
-    await addNewMultiSelectItemAndSelectIt(webview, 'test', 5);
+    await addNewMultiSelectItemAndSelectIt(webview, 'test', 3);
 };
 
 export const submitsStepAndChecksFiles = async (webview: WebView) => {
