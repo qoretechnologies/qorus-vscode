@@ -215,7 +215,7 @@ class QorusTreeTypeNode extends QorusSingleInterfaceNode {
         this.tooltip = data.desc;
         this.description = data.version || '';
         this.contextValue = 'type';
-        this.iconPath = qorusIcons.getValueMapIcon();
+        this.iconPath = qorusIcons.getTypeIcon();
     }
 }
 

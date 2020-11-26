@@ -5,22 +5,23 @@ const IconsDirRelPath = join('/images/icons');
 const DarkIconsDirRelPath = join(IconsDirRelPath, 'dark');
 const LightIconsDirRelPath = join(IconsDirRelPath, 'light');
 
-const ClassIconName = 'class.svg';
+const ClassIconName = 'code-block.svg';
 const ConnectionIconName = 'connection.svg';
 const ErrorIconName = 'error.svg';
 const EventIconName = 'event.svg';
 const FolderIconName = 'folder.svg';
 const GroupIconName = 'group.svg';
 const InterfaceIconName = 'interface.svg';
-const JobIconName = 'job.svg';
+const JobIconName = 'calendar.svg';
 const MapperCodeIconName = 'mapper-code.svg';
 const MapperIconName = 'mapper.svg';
 const PackageIconName = 'package.svg';
 const QueueIconName = 'queue.svg';
-const ServiceIconName = 'service.svg';
-const StepIconName = 'step.svg';
+const ServiceIconName = 'merge-links.svg';
+const StepIconName = 'diagram-tree.svg';
+const TypeIconName = 'asterisk.svg';
 const ValueMapIconName = 'value-map.svg';
-const WorkflowIconName = 'workflow.svg';
+const WorkflowIconName = 'exchange.svg';
 const FsmIconName = 'fsm.svg';
 const PipelineIconName = 'pipeline.svg';
 
@@ -40,6 +41,7 @@ export class QorusIcons  {
     private queueIcon;
     private serviceIcon;
     private stepIcon;
+    private typeIcon;
     private valueMapIcon;
     private workflowIcon;
     private fsmIcon;
@@ -104,6 +106,10 @@ export class QorusIcons  {
         this.stepIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, StepIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, StepIconName))
+        };
+        this.typeIcon = {
+            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, TypeIconName)),
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, TypeIconName))
         };
         this.valueMapIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ValueMapIconName)),
@@ -177,6 +183,10 @@ export class QorusIcons  {
 
     getStepIcon() {
         return this.stepIcon;
+    }
+
+    getTypeIcon() {
+        return this.typeIcon;
     }
 
     getValueMapIcon() {
