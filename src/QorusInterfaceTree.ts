@@ -64,11 +64,11 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
             children.push(new QorusTreeServiceCategoryNode(this.code_info));
             children.push(new QorusTreeJobCategoryNode(this.code_info));
             children.push(new QorusTreeClassCategoryNode(this.code_info));
-            children.push(new QorusTreeTypeCategoryNode(this.code_info));
             children.push(new QorusTreeMapperCategoryNode(this.code_info));
             children.push(new QorusTreeMapperCodeCategoryNode(this.code_info));
-            children.push(new QorusTreeFSMCategoryNode(this.code_info));
+            children.push(new QorusTreeTypeCategoryNode(this.code_info));
             children.push(new QorusTreePipelineCategoryNode(this.code_info));
+            children.push(new QorusTreeFSMCategoryNode(this.code_info));
             children.push(new QorusTreeConnectionCategoryNode(this.code_info));
             children.push(new QorusTreeGroupCategoryNode(this.code_info));
             children.push(new QorusTreeEventCategoryNode(this.code_info));
