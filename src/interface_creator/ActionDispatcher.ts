@@ -80,7 +80,6 @@ export class ActionDispatcher {
         switch (sub_iface_kind || iface_kind) {
             case 'service':
             case 'mapper-code':
-            case 'errors':
                 interface_with_methods_creator.edit({...other_params, iface_kind});
                 break;
             case 'workflow':
@@ -96,6 +95,7 @@ export class ActionDispatcher {
             case 'pipeline':
             case 'connection':
             case 'value-map':
+            case 'errors':
                 interface_without_methods_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':

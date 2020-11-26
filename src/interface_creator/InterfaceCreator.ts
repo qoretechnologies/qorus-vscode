@@ -775,6 +775,7 @@ export abstract class InterfaceCreator {
                     case 'steps':
                     case 'fsm':
                     case 'triggers':
+                    case 'errors':
                         const lines = JSON.stringify(value, null, 4).split('\n');
                         for (let line of lines) {
                             result += `${indent}${line}\n`;
