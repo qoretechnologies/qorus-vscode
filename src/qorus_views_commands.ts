@@ -20,7 +20,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     );
 
     // delete commands
-    ['class', 'connection', 'error', 'event', 'group', 'job', 'mapper', 'mapper-code',
+    ['class', 'connection', 'errors', 'event', 'group', 'job', 'mapper', 'mapper-code',
         'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
@@ -42,7 +42,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     });
 
     // deploy commands
-    ['class', 'connection', 'error', 'event', 'group', 'job', 'mapper', 'mapper-code',
+    ['class', 'connection', 'errors', 'event', 'group', 'job', 'mapper', 'mapper-code',
         'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
@@ -91,7 +91,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps', 'connection',
         'workflow', 'service-methods', 'mapper-code-methods', 'group', 'event', 'queue', 'type',
-        'fsm', 'pipeline', 'value-map'].forEach(iface_kind =>
+        'fsm', 'pipeline', 'value-map', 'errors'].forEach(iface_kind =>
     {
         const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {

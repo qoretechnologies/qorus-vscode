@@ -1,7 +1,7 @@
 export const types_with_version = ['step', 'mapper'];
 export const types_without_version = [
     'service', 'job', 'workflow', 'config-item-values', 'config-items', 'class', 'connection',
-    'event', 'group', 'queue', 'value-map', 'mapper-code', 'type', 'fsm', 'pipeline'
+    'event', 'group', 'queue', 'value-map', 'mapper-code', 'type', 'fsm', 'pipeline', 'errors'
 ];
 export const types = [...types_with_version, ...types_without_version];
 

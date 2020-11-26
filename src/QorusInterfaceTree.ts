@@ -74,7 +74,7 @@ class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
             children.push(new QorusTreeEventCategoryNode(this.code_info));
             children.push(new QorusTreeQueueCategoryNode(this.code_info));
             children.push(new QorusTreeValueMapCategoryNode(this.code_info));
-            //children.push(new QorusTreeErrorCategoryNode(this.code_info));
+            children.push(new QorusTreeErrorsCategoryNode(this.code_info));
         }
 
         return children;
@@ -148,15 +148,15 @@ class QorusTreeConnectionNode extends QorusSingleInterfaceNode {
     }
 }
 
-class QorusTreeErrorNode extends QorusSingleInterfaceNode {
+class QorusTreeErrorsNode extends QorusSingleInterfaceNode {
     constructor(code_info, name: string, data: any) {
         super(code_info, name, TreeItemCollapsibleState.None);
         this.name = name;
         this.data = data;
         this.tooltip = data.desc;
         this.description = data.version || '';
-        this.contextValue = 'error';
-        this.iconPath = qorusIcons.getErrorIcon();
+        this.contextValue = 'errors';
+        this.iconPath = qorusIcons.getErrorsIcon();
     }
 }
 
@@ -359,8 +359,8 @@ class QorusTreeDirectoryNode extends QorusInterfaceTreeNode {
                     case 'connection':
                         children.push(new QorusTreeConnectionNode(this.code_info, data.name, data));
                         break;
-                    case 'error':
-                        children.push(new QorusTreeErrorNode(this.code_info, data.name, data));
+                    case 'errors':
+                        children.push(new QorusTreeErrorsNode(this.code_info, data.name, data));
                         break;
                     case 'event':
                         children.push(new QorusTreeEventNode(this.code_info, data.name, data));
@@ -453,21 +453,21 @@ class QorusTreeConnectionCategoryNode extends QorusTreeCategoryNode {
         return children;
     }
 }
-/*
-class QorusTreeErrorCategoryNode extends QorusTreeCategoryNode {
+
+class QorusTreeErrorsCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
-        super(code_info, t`Errors`, 'error', TreeItemCollapsibleState.Expanded);
+        super(code_info, t`Errors`, 'errors', TreeItemCollapsibleState.Expanded);
     }
 
-    async getChildren(): Promise<QorusTreeErrorNode[]> {
+    async getChildren(): Promise<QorusTreeErrorsNode[]> {
         let children = [];
         this.code_info.interfaceDataByType(this.category).forEach(({name, data}) => {
-            children.push(new QorusTreeErrorNode(this.code_info, name, data));
+            children.push(new QorusTreeErrorsNode(this.code_info, name, data));
         });
         return children;
     }
 }
-*/
+
 class QorusTreeEventCategoryNode extends QorusTreeCategoryNode {
     constructor(code_info) {
         super(code_info, t`Events`, 'event', TreeItemCollapsibleState.Expanded);

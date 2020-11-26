@@ -7,7 +7,7 @@ const LightIconsDirRelPath = join(IconsDirRelPath, 'light');
 
 const ClassIconName = 'class.svg';
 const ConnectionIconName = 'connection.svg';
-const ErrorIconName = 'error.svg';
+const ErrorsIconName = 'errors.svg';
 const EventIconName = 'event.svg';
 const FolderIconName = 'folder.svg';
 const GroupIconName = 'group.svg';
@@ -28,7 +28,7 @@ const PipelineIconName = 'pipeline.svg';
 export class QorusIcons  {
     private classIcon;
     private connectionIcon;
-    private errorIcon;
+    private errorsIcon;
     private eventIcon;
     private folderIcon;
     private groupIcon;
@@ -57,9 +57,9 @@ export class QorusIcons  {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ConnectionIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, ConnectionIconName))
         };
-        this.errorIcon = {
-            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ErrorIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ErrorIconName))
+        this.errorsIcon = {
+            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ErrorsIconName)),
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ErrorsIconName))
         };
         this.eventIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, EventIconName)),
@@ -131,8 +131,8 @@ export class QorusIcons  {
         return this.connectionIcon;
     }
 
-    getErrorIcon() {
-        return this.errorIcon;
+    getErrorsIcon() {
+        return this.errorsIcon;
     }
 
     getEventIcon() {
