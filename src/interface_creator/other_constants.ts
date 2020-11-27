@@ -103,7 +103,7 @@ export const error_fields = [
     {
         name: 'retry-delay',
         mandatory: false,
-        type: 'integer',
+        type: 'number',
     },
     {
         name: 'level',
