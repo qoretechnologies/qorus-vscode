@@ -776,9 +776,15 @@ export abstract class InterfaceCreator {
                     case 'fsm':
                     case 'triggers':
                     case 'errors':
-                        const lines = JSON.stringify(value, null, 4).split('\n');
-                        for (let line of lines) {
-                            result += `${indent}${line}\n`;
+                        if (iface_kind === 'workflow') {
+                            for (let item of value) {
+                                result += `${list_indent}${item.name}\n`;
+                            }
+                        } else {
+                            const lines = JSON.stringify(value, null, 4).split('\n');
+                            for (let line of lines) {
+                                result += `${indent}${line}\n`;
+                            }
                         }
                         break;
                     case 'children':
