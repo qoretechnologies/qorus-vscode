@@ -7,7 +7,7 @@ const LightIconsDirRelPath = join(IconsDirRelPath, 'light');
 
 const ClassIconName = 'class.svg';
 const ConnectionIconName = 'connection.svg';
-const ErrorsIconName = 'errors.svg';
+const ErrorsIconName = 'warning-sign.svg';
 const EventIconName = 'event.svg';
 const FolderIconName = 'folder.svg';
 const GroupIconName = 'group.svg';
