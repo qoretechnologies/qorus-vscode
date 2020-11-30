@@ -600,7 +600,9 @@ export class QorusProjectCodeInfo {
             removeUnknownObjectsFromList(data, 'requires', 'class');
             removeUnknownObjectsFromList(data, 'mappers', 'mapper');
             removeUnknownObjectsFromList(data, 'groups', 'group');
-            removeUnknownObjectsFromList(data, 'errors', 'error');
+            if (data.type === 'workflow') {
+                removeUnknownObjectsFromList(data, 'errors', 'error');
+            }
             removeUnknownObjectsFromList(data, 'fsm', 'fsm');
             removeUnknownObjectsFromList(data, 'vmaps', 'value-map');
 
@@ -700,7 +702,9 @@ export class QorusProjectCodeInfo {
             checkObjects('class', data.requires);
             checkObjects('mapper', data.mappers);
             checkObjects('group', data.groups);
-            checkObjects('error', data.errors);
+            if (data.type === 'workflow') {
+                checkObjects('error', data.errors);
+            }
             checkObjects('fsm', data.fsm);
             checkObjects('value-map', data.vmaps);
 
