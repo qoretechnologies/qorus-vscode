@@ -227,7 +227,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                             <ButtonGroup fill>
                                                 <Button
                                                     name={'add-error-button'}
-                                                    text={t('AddMethod')}
+                                                    text={t('AddError')}
                                                     icon={'plus'}
                                                     onClick={handleAddErrorClick}
                                                 />

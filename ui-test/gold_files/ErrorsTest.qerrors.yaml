@@ -11,6 +11,5 @@ errors:
             "retry-delay": 30,
             "severity": "MAJOR",
             "status": "ERROR",
-            "orig_name": "Error 1"
         }
     ]

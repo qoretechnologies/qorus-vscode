@@ -118,6 +118,9 @@ export const workflowFields = ({ default_target_dir}) => [
             return_value: 'objects',
         },
         mandatory: false,
+        reference: {
+            iface_kind: 'errors',
+        }
     },
     field.workflow_options,
     {

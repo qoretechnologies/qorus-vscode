@@ -1048,6 +1048,21 @@ msgstr "Both interface name and class code name"
 msgid "field-label-base-class-name"
 msgstr "Base class name"
 
+msgid "field-label-business"
+msgstr "Business error"
+
+msgid "field-label-level"
+msgstr "Level"
+
+msgid "field-label-retry-delay"
+msgstr "Retry delay"
+
+msgid "field-label-severity"
+msgstr "Severity"
+
+msgid "field-label-status"
+msgstr "Status"
+
 msgid "field-desc-base-class-name"
 msgstr "Inherited class name"
 
@@ -2348,6 +2363,12 @@ msgstr "Reloading webview ..."
 
 msgid "Draft"
 msgstr "Draft"
+
+msgid "AddErrorsTitle"
+msgstr "1. Add Errors"
+
+msgid "AddError"
+msgstr "Add Error"
 
 msgid "UnfinishedWork"
 msgstr "You have unsaved work, are you sure you want to leave? Leaving will result in your work being saved as a draft."
