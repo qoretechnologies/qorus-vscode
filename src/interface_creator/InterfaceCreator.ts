@@ -786,10 +786,14 @@ export abstract class InterfaceCreator {
                                 result += `${list_indent}${item.name}\n`;
                             }
                         } else {
-                            const lines = JSON.stringify(value, null, 4).split('\n');
-                            for (let line of lines) {
-                                result += `${indent}${line}\n`;
-                            }
+                            value.forEach(error => {
+                                result += `${list_indent}name: ${error.name}\n`;
+                                Object.keys(error).forEach(key => {
+                                    if (key !== 'name') {
+                                        result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0, false);
+                                    }
+                                });
+                            });
                         }
                         break;
                     case 'children':
