@@ -81,7 +81,7 @@ export abstract class InterfaceCreator {
                     this.file_base = target_file;
                     // remove all possible suffixes
                     ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype', 'qsd', 'qvmap',
-                     'qmc', 'qevent', 'qgroup', 'qqueue', 'qfsm', 'qpipe', 'qconn', ].forEach((suffix) =>
+                     'qmc', 'qevent', 'qgroup', 'qqueue', 'qfsm', 'qpipe', 'qconn', 'qerrors'].forEach((suffix) =>
                     {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
