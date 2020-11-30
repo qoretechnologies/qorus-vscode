@@ -789,7 +789,7 @@ export abstract class InterfaceCreator {
                             value.forEach(error => {
                                 result += `${list_indent}name: ${error.name}\n`;
                                 Object.keys(error).forEach(key => {
-                                    if (key !== 'name') {
+                                    if (!['name', 'orig_name'].includes(key)) {
                                         result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0, false);
                                     }
                                 });
