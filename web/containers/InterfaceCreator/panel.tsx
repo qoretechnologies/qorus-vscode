@@ -721,7 +721,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     }
                     default: {
                         intrfType = 'service';
-                        subItemType = 'service-methods';
+                        subItemType = 'methods';
                         break;
                     }
                 }
