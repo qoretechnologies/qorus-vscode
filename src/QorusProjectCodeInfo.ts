@@ -577,7 +577,9 @@ export class QorusProjectCodeInfo {
             removeUnknownObjectsFromList(data, 'requires', 'class');
             removeUnknownObjectsFromList(data, 'mappers', 'mapper');
             removeUnknownObjectsFromList(data, 'groups', 'group');
-            removeUnknownObjectsFromList(data, 'errors', 'error');
+            if (data.type === 'workflow') {
+                removeUnknownObjectsFromList(data, 'errors', 'error');
+            }
             removeUnknownObjectsFromList(data, 'fsm', 'fsm');
             removeUnknownObjectsFromList(data, 'vmaps', 'value-map');
 
