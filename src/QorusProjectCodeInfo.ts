@@ -843,6 +843,7 @@ export class QorusProjectCodeInfo {
             case 'type':
             case 'fsm':
             case 'pipeline':
+            case 'errors':
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.yaml_info.yamlDataByType(object_type)).map(name => ({name}))
                 ));

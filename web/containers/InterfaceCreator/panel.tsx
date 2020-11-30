@@ -12,7 +12,7 @@ import {
     reduce,
     size,
     uniqBy,
-    upperFirst,
+    upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -704,9 +704,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (!onSubmit || forceSubmit) {
             let newData: { [key: string]: any };
             // If this is service methods
-            if (type === 'service-methods' || type === 'mapper-methods') {
-                const intrfType = type === 'service-methods' ? 'service' : 'mapper-code';
-                const subItemType = type === 'service-methods' ? 'methods' : 'mapper-methods';
+            if (type === 'service-methods' || type === 'mapper-methods' || type === 'error') {
+                let intrfType;
+                let subItemType;
+
+                switch (type) {
+                    case 'mapper-methods': {
+                        intrfType = 'mapper';
+                        subItemType = 'mapper-methods';
+                        break;
+                    }
+                    case 'error': {
+                        intrfType = 'errors';
+                        subItemType = 'errors';
+                        break;
+                    }
+                    default: {
+                        intrfType = 'service';
+                        subItemType = 'service-methods';
+                        break;
+                    }
+                }
+
                 // Get the service data
                 newData = reduce(
                     allSelectedFields[intrfType][interfaceIndex],
@@ -751,6 +770,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 iface_kind = 'service';
             } else if (type === 'mapper-methods') {
                 iface_kind = 'mapper-code';
+            } else if (type === 'error') {
+                iface_kind = 'errors';
             }
             // Config items use the parent type
             if (parent) {
@@ -779,7 +800,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
-                    t(`Saving ${type}...`)
+                    t(`Saving ${iface_kind}...`)
                 );
             } else {
                 let true_type: string;
@@ -800,16 +821,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             default_value_true_type: true_type,
                         },
                         orig_data:
-                            type === 'service-methods'
-                                ? initialData.service
-                                : type === 'mapper-methods'
-                                ? initialData['mapper-code']
+                            type === 'service-methods' || type === 'mapper-methods' || type === 'error'
+                                ? initialData[iface_kind]
                                 : data,
                         open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
                         no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
-                    t(`Saving ${type}...`)
+                    t(`Saving ${iface_kind}...`)
                 );
             }
             if (result.ok) {
@@ -1062,7 +1081,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <ActionsWrapper>
                         <ButtonGroup fill>
                             <Tooltip content={t('SelectAllTooltip')}>
-                                <Button text={t('SelectAll')} icon={'plus'} onClick={handleAddAll} />
+                                <Button text={t('SelectAll')} icon={'plus'} onClick={handleAddAll} name="add-all-fields" />
                             </Tooltip>
                         </ButtonGroup>
                     </ActionsWrapper>

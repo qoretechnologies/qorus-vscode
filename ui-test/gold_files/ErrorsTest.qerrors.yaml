@@ -1,0 +1,16 @@
+# This is a generated file, don't edit!
+type: errors
+name: ErrorsTest
+errors:
+    [
+        {
+            "name": "Error 1",
+            "desc": "error 1",
+            "business": false,
+            "level": "AUTO",
+            "retry-delay": 30,
+            "severity": "MAJOR",
+            "status": "ERROR",
+            "orig_name": "Error 1"
+        }
+    ]

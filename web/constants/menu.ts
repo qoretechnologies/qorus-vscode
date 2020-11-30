@@ -41,6 +41,7 @@ export const MENU = {
                 { name: 'Event', icon: 'notifications', tab: 'CreateInterface', subtab: 'event' },
                 { name: 'Queue', icon: 'list', tab: 'CreateInterface', subtab: 'queue' },
                 { name: 'Valuemap', icon: 'join-table', tab: 'CreateInterface', subtab: 'value-map' },
+                { name: 'Errors', icon: 'warning-sign', tab: 'CreateInterface', subtab: 'errors' },
             ],
         },
     ],
