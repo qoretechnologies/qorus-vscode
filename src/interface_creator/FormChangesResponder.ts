@@ -1,5 +1,5 @@
-import { qorus_webview } from '../QorusWebview';
 import { t } from 'ttag';
+import { qorus_webview } from '../QorusWebview';
 
 
 export class FormChangesResponder {
@@ -99,12 +99,6 @@ export class FormChangesResponder {
         if (status === 'RETRY') {
             qorus_webview.postMessage({
                 action: `creator-enable-field`,
-                field: 'retry-delay',
-                iface_id,
-                iface_kind
-            });
-            qorus_webview.postMessage({
-                action: `creator-add-field`,
                 field: 'retry-delay',
                 iface_id,
                 iface_kind

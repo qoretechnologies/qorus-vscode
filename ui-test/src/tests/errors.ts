@@ -7,6 +7,7 @@ import {
     fillTextField,
     getSelectedFields,
     resetAndFillTextField,
+    selectField,
     selectNthFolder,
     submitInterface,
 } from '../utils/webview';
@@ -36,6 +37,8 @@ export const addsError = async (webview: WebView) => {
     await sleep(1500);
     await clickElement(webview, 'field-status-radio-RETRY');
     await sleep(1000);
+    await selectField(webview, 'retry-delay');
+    await sleep(500);
     await fillTextField(webview, 'field-retry-delay', 30);
 };
 
