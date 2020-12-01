@@ -65,6 +65,7 @@ export const errorsFields = ({ default_target_dir }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
+    field.desc,
 ];
 
 export const error_fields = [
