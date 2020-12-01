@@ -1051,16 +1051,31 @@ msgstr "Base class name"
 msgid "field-label-business"
 msgstr "Business error"
 
+msgid "field-desc-business"
+msgstr "Business error"
+
 msgid "field-label-level"
+msgstr "Level"
+
+msgid "field-desc-level"
 msgstr "Level"
 
 msgid "field-label-retry-delay"
 msgstr "Retry delay"
 
+msgid "field-desc-retry-delay"
+msgstr "Retry delay"
+
 msgid "field-label-severity"
 msgstr "Severity"
 
+msgid "field-desc-severity"
+msgstr "Severity"
+
 msgid "field-label-status"
+msgstr "Status"
+
+msgid "field-desc-status"
 msgstr "Status"
 
 msgid "field-desc-base-class-name"
@@ -2480,6 +2495,45 @@ msgstr "Trigger"
 
 msgid "field-desc-trigger"
 msgstr "Indicates how the associated action will be triggered"
+
+msgid "field-label-errors"
+msgstr "Errors"
+
+msgid "field-desc-errors"
+msgstr "Errors"
+
+msgid "field-label-FATAL"
+msgstr "FATAL"
+
+msgid "field-label-MAJOR"
+msgstr "MAJOR"
+
+msgid "field-label-MINOR"
+msgstr "MINOR"
+
+msgid "field-label-WARNING"
+msgstr "WARNING"
+
+msgid "field-label-INFO"
+msgstr "INFO"
+
+msgid "field-label-NONE"
+msgstr "NONE"
+
+msgid "field-label-AUTO"
+msgstr "AUTO"
+
+msgid "field-label-GLOBAL"
+msgstr "GLOBAL"
+
+msgid "field-label-WORKFLOW"
+msgstr "WORKFLOW"
+
+msgid "field-label-ERROR"
+msgstr "ERROR"
+
+msgid "field-label-RETRY"
+msgstr "RETRY"
 
 msgid "TriggerManager"
 msgstr "Manage trigger"
