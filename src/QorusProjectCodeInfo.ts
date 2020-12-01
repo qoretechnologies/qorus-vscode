@@ -299,9 +299,15 @@ export class QorusProjectCodeInfo {
             data[data.type + '_options'] = data.options;
             delete data.options;
         }
+
         if (data.autostart) {
             data[data.type + '-autostart'] = data.autostart;
             delete data.autostart;
+        }
+
+        if (data.errors) {
+            data[data.type + '_errors'] = data.errors;
+            delete data.errors;
         }
 
         ['mappers', 'value_maps', 'vmaps', 'author', 'mapper-code',

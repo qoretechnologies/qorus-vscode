@@ -106,7 +106,7 @@ export const workflowFields = ({ default_target_dir}) => [
         mandatory: false,
     },
     {
-        name: 'errors',
+        name: 'workflow_errors',
         type: 'select-string',
         get_message: {
             action: 'creator-get-objects',

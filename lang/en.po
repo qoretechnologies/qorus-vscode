@@ -2496,10 +2496,16 @@ msgstr "Trigger"
 msgid "field-desc-trigger"
 msgstr "Indicates how the associated action will be triggered"
 
-msgid "field-label-errors"
+msgid "field-label-errors_errors"
 msgstr "Errors"
 
-msgid "field-desc-errors"
+msgid "field-desc-errors_errors"
+msgstr "Errors"
+
+msgid "field-label-workflow_errors"
+msgstr "Errors"
+
+msgid "field-desc-workflow_errors"
 msgstr "Errors"
 
 msgid "field-label-FATAL"

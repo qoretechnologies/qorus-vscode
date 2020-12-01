@@ -694,6 +694,9 @@ export abstract class InterfaceCreator {
                     case 'codes':
                         result += 'mapper-code:\n';
                         break;
+                    case 'errors_errors':
+                        result += 'errors:\n';
+                        break;
                     case 'children':
                         break;
                     default:
@@ -780,9 +783,7 @@ export abstract class InterfaceCreator {
                             result += `${indent}${line}\n`;
                         }
                         break;
-                    case 'errors':
-                        // applies only for errors.errors
-                        // workflow.errors is not an array
+                    case 'errors_errors':
                         value.forEach(error => {
                             result += `${list_indent}name: ${error.name}\n`;
                             Object.keys(error).forEach(key => {
@@ -836,6 +837,9 @@ export abstract class InterfaceCreator {
                     case 'service-autostart':
                     case 'workflow-autostart':
                         result += `autostart: ${value}\n`;
+                        break;
+                    case 'workflow_errors':
+                        result += `errors: ${value}\n`;
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
