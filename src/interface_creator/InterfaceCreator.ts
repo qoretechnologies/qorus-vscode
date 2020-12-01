@@ -781,20 +781,16 @@ export abstract class InterfaceCreator {
                         }
                         break;
                     case 'errors':
-                        if (iface_kind === 'workflow') {
-                            for (let item of value) {
-                                result += `${list_indent}${item.name}\n`;
-                            }
-                        } else {
-                            value.forEach(error => {
-                                result += `${list_indent}name: ${error.name}\n`;
-                                Object.keys(error).forEach(key => {
-                                    if (!['name', 'orig_name'].includes(key)) {
-                                        result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0, false);
-                                    }
-                                });
+                        // applies only for errors.errors
+                        // workflow.errors is not an array
+                        value.forEach(error => {
+                            result += `${list_indent}name: ${error.name}\n`;
+                            Object.keys(error).forEach(key => {
+                                if (!['name', 'orig_name'].includes(key)) {
+                                    result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0, false);
+                                }
                             });
-                        }
+                        });
                         break;
                     case 'children':
                         const dumpChildren = (children: any[] | undefined, indent_level: number) => {
