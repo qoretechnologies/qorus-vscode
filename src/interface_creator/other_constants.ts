@@ -94,6 +94,8 @@ export const error_fields = [
             { value: 'RETRY' },
         ],
         default_value: 'ERROR',
+        notify_on_remove: true,
+        on_change: 'error-status-changed',
     },
     {
         name: 'business',
@@ -104,6 +106,7 @@ export const error_fields = [
     {
         name: 'retry-delay',
         mandatory: false,
+        disabled: true,
         type: 'number',
     },
     {

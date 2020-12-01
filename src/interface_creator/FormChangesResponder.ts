@@ -95,6 +95,36 @@ export class FormChangesResponder {
         }
     }
 
+    static errorStatusChanged({ status: error_status, iface_id, iface_kind }) {
+        if (error_status === 'RETRY') {
+            qorus_webview.postMessage({
+                action: `creator-enable-field`,
+                field: 'retry-delay',
+                iface_id,
+                iface_kind
+            });
+            qorus_webview.postMessage({
+                action: `creator-add-field`,
+                field: 'retry-delay',
+                iface_id,
+                iface_kind
+            });
+        } else {
+            qorus_webview.postMessage({
+                action: `creator-remove-field`,
+                field: 'retry-delay',
+                iface_id,
+                iface_kind
+            });
+            qorus_webview.postMessage({
+                action: `creator-disable-field`,
+                field: 'retry-delay',
+                iface_id,
+                iface_kind
+            });
+        }
+    }
+
     static fieldAdded({field, iface_id, iface_kind}) {
         const addField = field =>
             qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
@@ -166,6 +196,10 @@ export class FormChangesResponder {
             case 'valuetype':
                 removeField('dateformat');
                 disableField('dateformat');
+                break;
+            case 'error-status':
+                removeField('retry-delay');
+                disableField('retry-delay');
                 break;
         }
     }

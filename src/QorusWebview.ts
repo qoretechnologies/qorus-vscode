@@ -312,6 +312,9 @@ class QorusWebview {
                         case 'valuetype-changed':
                             FormChangesResponder.valueTypeChanged(message);
                             break;
+                        case 'error-status-changed':
+                            FormChangesResponder.errorStatusChanged(message);
+                            break;
                         case 'target-dir-changed':
                             interface_info.last_target_directory = message.target_dir;
                             break;
