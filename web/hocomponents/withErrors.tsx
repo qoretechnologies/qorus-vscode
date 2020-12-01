@@ -65,19 +65,19 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
     return mapProps(({ errors, ...rest }) => ({
         initialErrors:
-            errors && errors.errors
-                ? errors.errors.map((method, i) => ({ name: method.name, id: i + 1 }))
+            errors && errors.errors_errors
+                ? errors.errors_errors.map((method, i) => ({ name: method.name, id: i + 1 }))
                 : [{ id: 1, name: '' }],
-        initialErrorsCount: errors && errors.errors ? size(errors.errors) : 1,
+        initialErrorsCount: errors && errors.errors_errors ? size(errors.errors_errors) : 1,
         // Set the last method ID to the methods
         // count + 1 if methods exist
-        initialErrorsId: errors && errors.errors ? size(errors.errors) : 1,
+        initialErrorsId: errors && errors.errors_errors ? size(errors.errors_errors) : 1,
         // Map the ids to the current method data
         // to know which method belongs to which id
         // in the method selector
         errorsData:
-            errors && errors.errors
-                ? errors.errors.map((method, i) => ({ ...method, id: i + 1 }))
+            errors && errors.errors_errors
+                ? errors.errors_errors.map((method, i) => ({ ...method, id: i + 1 }))
                 : [{ id: 1, name: '' }],
         errors,
         ...rest,

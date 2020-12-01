@@ -12,7 +12,7 @@ import {
     reduce,
     size,
     uniqBy,
-    upperFirst
+    upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -40,7 +40,12 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+    addMessageListener,
+    postMessage,
+    TMessageListener,
+    TPostMessage,
+} from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
@@ -168,8 +173,6 @@ export const ActionsWrapper = styled.div`
 
 const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     type,
-    addMessageListener,
-    postMessage,
     t,
     fields,
     setFields,
@@ -277,6 +280,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 handleFieldChange(field, value);
             }),
         ]);
+
+        return () => {
+            // Remove the current listeners
+            fieldListeners.forEach((listener) => {
+                listener();
+            });
+        };
     }, [fields]);
 
     useEffect(() => {
@@ -531,26 +541,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     const toggleDisableField: (fieldName: string, disabled: boolean) => void = (fieldName, disabled) => {
-        setFields(
-            type,
-            (current: IField[]) =>
-                map(current, (field: IField) => ({
-                    ...field,
-                    disabled: fieldName === field.name ? disabled : field.disabled,
-                })),
-            activeId,
-            interfaceIndex
-        );
-        setSelectedFields(
-            type,
-            (current: IField[]) =>
-                map(current, (field: IField) => ({
-                    ...field,
-                    disabled: fieldName === field.name ? disabled : field.disabled,
-                })),
-            activeId,
-            interfaceIndex
-        );
+        setTimeout(() => {
+            setFields(
+                type,
+                (current: IField[]) =>
+                    map(current, (field: IField) => ({
+                        ...field,
+                        disabled: fieldName === field.name ? disabled : field.disabled,
+                    })),
+                activeId,
+                interfaceIndex
+            );
+            setSelectedFields(
+                type,
+                (current: IField[]) =>
+                    map(current, (field: IField) => ({
+                        ...field,
+                        disabled: fieldName === field.name ? disabled : field.disabled,
+                    })),
+                activeId,
+                interfaceIndex
+            );
+        }, 1000);
     };
 
     const handleAddClick: (fieldName: string) => void = (fieldName) => {
@@ -716,7 +728,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     }
                     case 'error': {
                         intrfType = 'errors';
-                        subItemType = 'errors';
+                        subItemType = 'errors_errors';
                         break;
                     }
                     default: {
@@ -1081,7 +1093,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <ActionsWrapper>
                         <ButtonGroup fill>
                             <Tooltip content={t('SelectAllTooltip')}>
-                                <Button text={t('SelectAll')} icon={'plus'} onClick={handleAddAll} name="add-all-fields" />
+                                <Button
+                                    text={t('SelectAll')}
+                                    icon={'plus'}
+                                    onClick={handleAddAll}
+                                    name="add-all-fields"
+                                />
                             </Tooltip>
                         </ButtonGroup>
                     </ActionsWrapper>

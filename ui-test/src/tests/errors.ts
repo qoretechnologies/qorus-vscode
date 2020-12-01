@@ -17,12 +17,13 @@ export const opensErrorsPage = async (webview: WebView) => {
 
     await sleep(1000);
 
-    expect(await getSelectedFields(webview)).to.have.length(2);
+    expect(await getSelectedFields(webview)).to.have.length(3);
 };
 
 export const fillsErrorsFields = async (webview: WebView) => {
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-name', 'ErrorsTest');
+    await fillTextField(webview, 'field-desc', 'Errors test');
     await submitInterface(webview, 'errors');
     await sleep(2000);
 };
@@ -33,6 +34,8 @@ export const addsError = async (webview: WebView) => {
     await fillTextField(webview, 'field-desc', 'error 1');
     await clickElement(webview, 'add-all-fields');
     await sleep(1500);
+    await clickElement(webview, 'field-status-radio-RETRY');
+    await sleep(1000);
     await fillTextField(webview, 'field-retry-delay', 30);
 };
 

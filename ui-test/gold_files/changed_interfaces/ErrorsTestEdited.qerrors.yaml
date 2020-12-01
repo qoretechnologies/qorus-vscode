@@ -1,6 +1,7 @@
 # This is a generated file, don't edit!
 type: errors
 name: ErrorsTestEdited
+desc: Errors test
 errors:
     [
         {
@@ -10,7 +11,7 @@ errors:
             "level": "AUTO",
             "retry-delay": 30,
             "severity": "MAJOR",
-            "status": "ERROR",
+            "status": "RETRY",
         },
         {
             "name": "Error 2",

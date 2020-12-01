@@ -1036,6 +1036,9 @@ msgstr "Name of the file with the configuration items"
 msgid "field-label-class-name"
 msgstr "Class name"
 
+msgid "field-label-errors"
+msgstr "Errors"
+
 msgid "field-desc-class-name"
 msgstr "Class name"
 
