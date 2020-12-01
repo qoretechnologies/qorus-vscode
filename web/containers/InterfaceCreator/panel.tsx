@@ -710,7 +710,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
                 switch (type) {
                     case 'mapper-methods': {
-                        intrfType = 'mapper';
+                        intrfType = 'mapper-code';
                         subItemType = 'mapper-methods';
                         break;
                     }
