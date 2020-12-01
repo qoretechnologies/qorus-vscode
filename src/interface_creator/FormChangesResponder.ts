@@ -95,8 +95,8 @@ export class FormChangesResponder {
         }
     }
 
-    static errorStatusChanged({ status: error_status, iface_id, iface_kind }) {
-        if (error_status === 'RETRY') {
+    static errorStatusChanged({ status: status, iface_id, iface_kind }) {
+        if (status === 'RETRY') {
             qorus_webview.postMessage({
                 action: `creator-enable-field`,
                 field: 'retry-delay',
@@ -197,7 +197,7 @@ export class FormChangesResponder {
                 removeField('dateformat');
                 disableField('dateformat');
                 break;
-            case 'error-status':
+            case 'status':
                 removeField('retry-delay');
                 disableField('retry-delay');
                 break;
