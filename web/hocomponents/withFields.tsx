@@ -8,6 +8,7 @@ import { maybeSendOnChangeEvent } from '../helpers/common';
 const getInterfaceCollectionType: (type: string) => [] | {} = (type) => {
     switch (type) {
         case 'service-methods':
+        case 'error':
         case 'mapper-methods':
             return {};
         default:
@@ -20,6 +21,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     const EnhancedComponent: FunctionComponent = (props: any) => {
         const [interfaceId, _setInterfaceId] = useState<{ [key: string]: string[] }>({
             service: [],
+            error: [],
+            errors: [],
             ['mapper-code']: [],
             ['service-methods']: [],
             ['mapper-methods']: [],
@@ -36,6 +39,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [fields, setLocalFields] = useState<any>({
             service: [],
+            error: [],
+            errors: [],
             ['mapper-code']: [],
             ['service-methods']: [],
             ['mapper-methods']: [],
@@ -52,6 +57,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [selectedFields, setLocalSelectedFields] = useState<any>({
             service: [],
+            error: [],
+            errors: [],
             ['mapper-code']: [],
             ['service-methods']: [],
             ['mapper-methods']: [],
@@ -68,6 +75,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [query, setLocalQuery] = useState<any>({
             service: [],
+            error: [],
+            errors: [],
             ['mapper-code']: [],
             ['service-methods']: [],
             ['mapper-methods']: [],
@@ -84,6 +93,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         });
         const [selectedQuery, setLocalSelectedQuery] = useState<any>({
             service: [],
+            error: [],
+            errors: [],
             ['service-methods']: [],
             workflow: [],
             ['mapper-methods']: [],

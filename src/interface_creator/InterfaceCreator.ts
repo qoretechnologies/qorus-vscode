@@ -81,7 +81,7 @@ export abstract class InterfaceCreator {
                     this.file_base = target_file;
                     // remove all possible suffixes
                     ['py', 'yaml', 'qjob', 'qstep', 'qwf', 'qclass', 'qmapper', 'qtype', 'qsd', 'qvmap',
-                     'qmc', 'qevent', 'qgroup', 'qqueue', 'qfsm', 'qpipe', 'qconn', ].forEach((suffix) =>
+                     'qmc', 'qevent', 'qgroup', 'qqueue', 'qfsm', 'qpipe', 'qconn', 'qerrors'].forEach((suffix) =>
                     {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
@@ -694,6 +694,9 @@ export abstract class InterfaceCreator {
                     case 'codes':
                         result += 'mapper-code:\n';
                         break;
+                    case 'errors_errors':
+                        result += 'errors:\n';
+                        break;
                     case 'children':
                         break;
                     default:
@@ -780,6 +783,16 @@ export abstract class InterfaceCreator {
                             result += `${indent}${line}\n`;
                         }
                         break;
+                    case 'errors_errors':
+                        value.forEach(error => {
+                            result += `${list_indent}name: ${error.name}\n`;
+                            Object.keys(error).forEach(key => {
+                                if (!['name', 'orig_name'].includes(key)) {
+                                    result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0, false);
+                                }
+                            });
+                        });
+                        break;
                     case 'children':
                         const dumpChildren = (children: any[] | undefined, indent_level: number) => {
                             if (!children?.length) {
@@ -824,6 +837,11 @@ export abstract class InterfaceCreator {
                     case 'service-autostart':
                     case 'workflow-autostart':
                         result += `autostart: ${value}\n`;
+                        break;
+                    case 'workflow_errors':
+                        const file_name = this.code_info.yaml_info.yamlDataByName('errors', value)?.yaml_file;
+                        const relative_file_name = path.relative(headers.target_dir, file_name);
+                        result += `errors: ${relative_file_name}\n`;
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;

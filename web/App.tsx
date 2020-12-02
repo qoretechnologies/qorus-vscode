@@ -20,6 +20,7 @@ import { ContextMenuContext, IContextMenu } from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
+import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
 import withFunctions from './hocomponents/withFunctions';
 import withGlobalOptions from './hocomponents/withGlobalOptions';
@@ -345,6 +346,7 @@ export default hot(
         withInitialData(),
         withFields(),
         withMethods(),
+        withErrors(),
         withFunctions(),
         withSteps(),
         withMapper(),
