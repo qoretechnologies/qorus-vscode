@@ -716,14 +716,16 @@ export class QorusProjectCodeInfo {
             checkObject('class', data['base-class-name']);
             checkObject('event', data.event);
             checkObject('queue', data.queue);
+            if (data.type === 'workflow') {
+                const file_name = path.join(data.target_dir, data.errors);
+                const object_name = this.yaml_info.yamlDataByYamlFile(file_name)?.name;
+                checkObject('errors', object_name);
+            }
 
             checkObjects('class', data.classes);
             checkObjects('class', data.requires);
             checkObjects('mapper', data.mappers);
             checkObjects('group', data.groups);
-            if (data.type === 'workflow') {
-                checkObjects('error', data.errors);
-            }
             checkObjects('fsm', data.fsm);
             checkObjects('value-map', data.vmaps);
 
