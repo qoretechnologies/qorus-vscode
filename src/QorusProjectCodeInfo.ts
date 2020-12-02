@@ -306,6 +306,11 @@ export class QorusProjectCodeInfo {
         }
 
         if (data.errors) {
+            if (data.type === 'workflow') {
+                const file_name = path.join(data.target_dir, data.errors);
+                data.errors = this.yaml_info.yamlDataByYamlFile(file_name)?.name;
+            }
+
             data[data.type + '_errors'] = data.errors;
             delete data.errors;
         }

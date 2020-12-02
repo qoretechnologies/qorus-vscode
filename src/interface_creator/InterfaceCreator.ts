@@ -839,7 +839,9 @@ export abstract class InterfaceCreator {
                         result += `autostart: ${value}\n`;
                         break;
                     case 'workflow_errors':
-                        result += `errors: ${value}\n`;
+                        const file_name = this.code_info.yaml_info.yamlDataByName('errors', value)?.yaml_file;
+                        const relative_file_name = path.relative(headers.target_dir, file_name);
+                        result += `errors: ${relative_file_name}\n`;
                         break;
                     case 'version':
                         result += `${tag}: ${quotesIfNum(value)}\n`;
