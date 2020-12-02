@@ -457,6 +457,12 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
+msgid "YesWithDep"
+msgstr " Yes - with all dependencies "
+
+msgid "YesWithoutDep"
+msgstr " Yes - without dependencies "
+
 msgid "MoveUp"
 msgstr "Move up one position"
 
@@ -483,6 +489,9 @@ msgstr "Do you really want to delete ${ iface_kind } ${ name }?"
 
 msgid "ConfirmDeployInterface ${ iface_kind } ${ name }"
 msgstr "Do you really want to deploy ${ iface_kind } ${ name }?"
+
+msgid "ConfirmDeployCurrentFile"
+msgstr "Do you really want to deploy the current file?"
 
 msgid "ConfirmDeployAllInterfaces"
 msgstr "Do you really want to deploy all interfaces?"

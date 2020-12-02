@@ -149,6 +149,14 @@ export class QorusProjectCodeInfo {
         (this.yaml_info.yamlDataByName('class', class_name)?.['class-connectors'] || [])
                 .find(connector => connector.name === connector_name)
 
+    pairFile = (file: string): string | undefined => {
+        if (path.extname(file) === '.yaml') {
+            return this.yaml_info.getSrcFile(file);
+        }
+
+        return (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
+    }
+
     getFilesOfReferencedObjects(files: string[]): string[] {
         let yaml_files: string[] = [];
         files.forEach(file => {

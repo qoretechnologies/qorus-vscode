@@ -37,7 +37,7 @@ class QorusDeploy {
         return true;
     }
 
-    deployCurrentFile() {
+    deployCurrentFile(with_dependencies: boolean) {
         const editor = vscode.window.activeTextEditor;
         const file_path = editor ? editor.document.fileName : '';
         const code = editor ? editor.document.getText() : '';
@@ -63,10 +63,14 @@ class QorusDeploy {
             return;
         }
 
-        this.doDeploy(this.code_info.getFilesOfReferencedObjects([file_path]));
+        if (with_dependencies) {
+            this.doDeploy(this.code_info.getFilesOfReferencedObjects([file_path]));
+        } else {
+            this.deployFileAndPairFile(file_path);
+        }
     }
 
-    deployFile(file_path: string) {
+    deployFile(file_path: string, with_dependencies: boolean) {
         if (!isDeployable(file_path)) {
             msg.error(t`NotDeployableFile ${vscode.workspace.asRelativePath(file_path, false)}`);
             return;
@@ -76,10 +80,14 @@ class QorusDeploy {
             return;
         }
 
-        this.doDeploy(this.code_info.getFilesOfReferencedObjects([file_path]));
+        if (with_dependencies) {
+            this.doDeploy(this.code_info.getFilesOfReferencedObjects([file_path]));
+        } else {
+            this.deployFileAndPairFile(file_path);
+        }
     }
 
-    deployDir(dir: string) {
+    deployDir(dir: string, with_dependencies: boolean) {
         if (!this.setCodeInfo([dir])) {
             return;
         }
@@ -87,10 +95,15 @@ class QorusDeploy {
         msg.log(t`DeployingDirectory ${vscode.workspace.asRelativePath(dir, false)}`);
 
         const files: string[] = filesInDir(dir, isDeployable);
-        this.doDeploy(this.code_info.getFilesOfReferencedObjects(files));
+        if (with_dependencies) {
+            this.doDeploy(this.code_info.getFilesOfReferencedObjects(files));
+        } else {
+            const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
+            this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
+        }
     }
 
-    deployFilesAndDirs = (paths: string[]) => {
+    deployFilesAndDirs = (paths: string[], with_dependencies: boolean) => {
         if (!this.setCodeInfo(paths)) {
             return;
         }
@@ -104,7 +117,12 @@ class QorusDeploy {
             }
         });
 
-        this.doDeploy(this.code_info.getFilesOfReferencedObjects(removeDuplicates(files)));
+        if (with_dependencies) {
+            this.doDeploy(this.code_info.getFilesOfReferencedObjects(removeDuplicates(files)));
+        } else {
+            const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
+            this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
+        }
     }
 
     // returns true if the process got to the stage of checking the result
@@ -130,11 +148,27 @@ class QorusDeploy {
                 const interfaces = code_info.interfaceDataByType(ifaceKind);
                 for (const iface of interfaces) {
                     if (iface.data.yaml_file) {
-                        this.deployFile(iface.data.yaml_file);
+                        this.deployFile(iface.data.yaml_file, false);
                     }
                 }
             }
         });
+    }
+
+
+    private deployFileAndPairFile(file_path: string) {
+        if (!this.setCodeInfo([file_path])) {
+            return;
+        }
+
+        const pair_file_path = this.code_info.pairFile(file_path);
+
+        if (pair_file_path) {
+            this.doDeploy([file_path, pair_file_path]);
+        }
+        else {
+            this.doDeploy([file_path]);
+        }
     }
 
     // returns true if the process got to the stage of checking the result
