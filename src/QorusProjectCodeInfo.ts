@@ -299,9 +299,20 @@ export class QorusProjectCodeInfo {
             data[data.type + '_options'] = data.options;
             delete data.options;
         }
+
         if (data.autostart) {
             data[data.type + '-autostart'] = data.autostart;
             delete data.autostart;
+        }
+
+        if (data.errors) {
+            if (data.type === 'workflow') {
+                const file_name = path.join(data.target_dir, data.errors);
+                data.errors = this.yaml_info.yamlDataByYamlFile(file_name)?.name;
+            }
+
+            data[data.type + '_errors'] = data.errors;
+            delete data.errors;
         }
 
         ['mappers', 'value_maps', 'vmaps', 'author', 'mapper-code',
@@ -572,12 +583,14 @@ export class QorusProjectCodeInfo {
             removeUnknownObject(data, 'base-class-name', 'class');
             removeUnknownObject(data, 'queue', 'queue');
             removeUnknownObject(data, 'event', 'event');
+            if (data.type === 'workflow') {
+                removeUnknownObject(data, 'errors', 'errors');
+            }
 
             removeUnknownObjectsFromList(data, 'classes', 'class');
             removeUnknownObjectsFromList(data, 'requires', 'class');
             removeUnknownObjectsFromList(data, 'mappers', 'mapper');
             removeUnknownObjectsFromList(data, 'groups', 'group');
-            removeUnknownObjectsFromList(data, 'errors', 'error');
             removeUnknownObjectsFromList(data, 'fsm', 'fsm');
             removeUnknownObjectsFromList(data, 'vmaps', 'value-map');
 
@@ -843,6 +856,7 @@ export class QorusProjectCodeInfo {
             case 'type':
             case 'fsm':
             case 'pipeline':
+            case 'errors':
                 this.waitForPending(['yaml']).then(() => postMessage('objects',
                     Object.keys(this.yaml_info.yamlDataByType(object_type)).map(name => ({name}))
                 ));

@@ -1,4 +1,4 @@
-import { root_workflow, classToPythonModule } from '../qorus_constants';
+import { classToPythonModule, root_workflow } from '../qorus_constants';
 import { field } from './common_constants';
 
 export const workflowImports = (lang: string, base_class_name: string) => {
@@ -104,6 +104,23 @@ export const workflowFields = ({ default_target_dir}) => [
     {
         name: 'errorfunction',
         mandatory: false,
+    },
+    {
+        name: 'workflow_errors',
+        type: 'select-string',
+        get_message: {
+            action: 'creator-get-objects',
+            object_type: 'errors',
+        },
+        return_message: {
+            action: 'creator-return-objects',
+            object_type: 'errors',
+            return_value: 'objects',
+        },
+        mandatory: false,
+        reference: {
+            iface_kind: 'errors',
+        }
     },
     field.workflow_options,
     {

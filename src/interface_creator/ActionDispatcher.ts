@@ -95,6 +95,7 @@ export class ActionDispatcher {
             case 'pipeline':
             case 'connection':
             case 'value-map':
+            case 'errors':
                 interface_without_methods_creator.edit({...other_params, iface_kind});
                 break;
             case 'config-item':
