@@ -1,6 +1,7 @@
 import { EditorView, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
 import {
     addsExistingStepFromWorkflowDiagram,
+    canOpenStepForEditingFromDiagram,
     createsNewStepFromWorkflowDiagram,
     editsWorkflowAndChecksFiles,
     fillsWorkflowFields,
@@ -26,6 +27,7 @@ describe('Workflow tests', function () {
     it('Fills Workflow fields', () => fillsWorkflowFields(webview));
     it('Creates new Step from Workflow and adds it to diagram', () => createsNewStepFromWorkflowDiagram(webview));
     it('Adds existing Step to diagram', () => addsExistingStepFromWorkflowDiagram(webview));
+    it('Can open Step for editing from diagram', () => canOpenStepForEditingFromDiagram(webview));
     it('Submits Workflow and checks files', () => submitsWorkflowAndChecksFiles(webview));
     it('Edits Workflow and checks files', () => editsWorkflowAndChecksFiles(webview));
 

@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { last, size } from 'lodash';
 import {
     ActionSequence,
     Button,
@@ -236,7 +236,12 @@ export const confirmDialog = async (webview: WebView) => {
 };
 
 export const closeLastDialog = async (webview: WebView) => {
-    await (await webview.findWebElement(By.className('bp3-dialog-close-button'))).click();
+    const dialogs = await webview.findWebElements(By.className('bp3-dialog-close-button'));
+
+    if (size(dialogs)) {
+        // @ts-ignore
+        await last(dialogs).click();
+    }
 };
 
 export const getSelectedFields = async (webview: WebView) => {
