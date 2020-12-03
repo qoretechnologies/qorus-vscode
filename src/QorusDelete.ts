@@ -95,8 +95,13 @@ class QorusDelete {
 
         const isIdKey = (key: string): boolean => {
             switch (iface_kind) {
-                case 'classes': return key === 'classid';
-                case 'groups': return key === 'id';
+                case 'classes':
+                    return key === 'classid';
+                case 'groups':
+                    return key === 'id';
+                case 'pipelines':
+                case 'fsms':
+                    return key === 'name';
                 default:
                     return key.slice(-2) === 'id' && key.slice(0, -2) === iface_kind.slice(0, -1);
             }
