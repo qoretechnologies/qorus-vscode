@@ -27,6 +27,7 @@ const columns = {
     steps: ['name', 'version', 'stepid', 'description'],
     classes: ['name', 'version', 'classid', 'description', 'language'],
     mappers: ['name', 'version', 'mapperid', 'desc', 'type'],
+    groups: ['name', 'id', 'description'],
 };
 
 class DeleteInterfaces extends Component {
@@ -201,6 +202,7 @@ class DeleteInterfaces extends Component {
                     <Tab id="steps" title={t('Steps')} panel={Interfaces} />
                     <Tab id="classes" title={t('Classes')} panel={Interfaces} />
                     <Tab id="mappers" title={t('Mappers')} panel={Interfaces} />
+                    <Tab id="groups" title={t('Groups')} panel={Interfaces} />
                 </Tabs>
             </Box>
         );

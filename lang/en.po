@@ -100,12 +100,6 @@ msgstr "Create interface"
 msgid "CreateInterface-buttonTitle"
 msgstr "Create Qorus interface"
 
-msgid "QorusDeleteInterfacesTitle"
-msgstr "Delete Qorus Interfaces"
-
-msgid "DeleteQorusInterfaces"
-msgstr "Delete interfaces"
-
 msgid "LoggedOut"
 msgstr "Logged out"
 
@@ -690,6 +684,9 @@ msgstr "Name"
 
 msgid "ColumnHeader-version"
 msgstr "Version"
+
+msgid "ColumnHeader-id"
+msgstr "ID"
 
 msgid "ColumnHeader-workflowid"
 msgstr "ID"
