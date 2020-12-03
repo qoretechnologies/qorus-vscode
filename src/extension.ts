@@ -97,8 +97,9 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(disposable);
     });
 
-    disposable = vscode.commands.registerCommand('qorus.editInterface',
-                                                 (data: any, iface_kind: string) =>
+    disposable = vscode.commands.registerCommand(
+        'qorus.editInterface',
+        (data: any, iface_kind: string, data_already_transformed: boolean = false) =>
     {
         const code_info = projects.currentProjectCodeInfo();
         if (!code_info) {
@@ -106,7 +107,9 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
-        data = code_info.yaml2FrontEnd(data);
+        if (!data_already_transformed) {
+            data = code_info.yaml2FrontEnd(data);
+        }
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
         code_info.checkReferencedObjects(iface_id, data);
