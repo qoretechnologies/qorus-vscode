@@ -90,14 +90,13 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
                 return;
             }
 
-            vscode.window.showWarningMessage(
-                t`ConfirmDeployInterface ${data.type} ${data.name}`, t`Yes`, t`No`
+            vscode.window.showInformationMessage(
+                t`ConfirmDeployInterface ${data.type} ${data.name}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
             ).then(
                 selection => {
-                    if (selection !== t`Yes`) {
-                        return;
+                    if (selection !== t`No`) {
+                        deployer.deployFile(resource.fsPath, selection === t`YesWithDep`);
                     }
-                    deployer.deployFile(resource.fsPath);
                 }
             );
         });
@@ -105,12 +104,12 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     });
 
     disposable = vscode.commands.registerCommand('qorus.explorer.multiDeploy', (_uri: vscode.Uri, uris: vscode.Uri[]) => {
-        vscode.window.showWarningMessage(
-            t`ConfirmDeployFilesAndDirs`, t`Yes`, t`No`
+        vscode.window.showInformationMessage(
+            t`ConfirmDeployFilesAndDirs`, t`YesWithDep`, t`YesWithoutDep`, t`No`
         ).then(
             selection => {
-                if (selection === t`Yes`) {
-                    deployer.deployFilesAndDirs(uris.map(uri => uri.fsPath));
+                if (selection !== t`No`) {
+                    deployer.deployFilesAndDirs(uris.map(uri => uri.fsPath), selection === t`YesWithDep`);
                 }
             }
         );
@@ -118,12 +117,12 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.explorer.deployDir', (uri: vscode.Uri) => {
-        vscode.window.showWarningMessage(
-            t`ConfirmDeployDirectory ${uri.fsPath}`, t`Yes`, t`No`
+        vscode.window.showInformationMessage(
+            t`ConfirmDeployDirectory ${uri.fsPath}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
         ).then(
             selection => {
-                if (selection === t`Yes`) {
-                    deployer.deployDir(uri.fsPath);
+                if (selection !== t`No`) {
+                    deployer.deployDir(uri.fsPath, selection === t`YesWithDep`);
                 }
             }
         );

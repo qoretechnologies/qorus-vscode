@@ -35,8 +35,17 @@ export async function activate(context: vscode.ExtensionContext) {
     installQorusJavaApiSources(context.extensionPath);
 
     let disposable;
-    disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
-                                                               () => deployer.deployCurrentFile());
+    disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile', () => {
+        vscode.window.showInformationMessage(
+            t`ConfirmDeployCurrentFile`, t`YesWithDep`, t`YesWithoutDep`, t`No`
+        ).then(
+            selection => {
+                if (selection !== t`No`) {
+                    deployer.deployCurrentFile(selection === t`YesWithDep`);
+                }
+            }
+        );
+    });
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () => tester.testCurrentFile());

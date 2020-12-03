@@ -47,26 +47,27 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     {
         const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
-            vswindow.showWarningMessage(
-                t`ConfirmDeployInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`
+            vswindow.showInformationMessage(
+                t`ConfirmDeployInterface ${iface_kind} ${data.name}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
             ).then(
                 selection => {
-                    if (selection !== t`Yes`) {
+                    if (selection === t`No`) {
                         return;
                     }
 
                     if (!data.data?.yaml_file) {
                         msg.error(t`MissingDeploymentData`);
+                        return;
                     }
 
-                    deployer.deployFile(data.data.yaml_file);
+                    deployer.deployFile(data.data.yaml_file, selection === t`YesWithDep`);
                 }
             );
         });
         context.subscriptions.push(disposable);
     });
     disposable = commands.registerCommand('qorus.views.deployAllInterfaces', () => {
-        vswindow.showWarningMessage(
+        vswindow.showInformationMessage(
             t`ConfirmDeployAllInterfaces`, t`Yes`, t`No`
         ).then(
             selection => {
@@ -77,12 +78,12 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
         );
     });
     disposable = commands.registerCommand('qorus.views.deployDir', (data: any) => {
-        vswindow.showWarningMessage(
-            t`ConfirmDeployDirectory ${data.getDirectoryName()}`, t`Yes`, t`No`
+        vswindow.showInformationMessage(
+            t`ConfirmDeployDirectory ${data.getDirectoryName()}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
         ).then(
             selection => {
-                if (selection === t`Yes`) {
-                    deployer.deployDir(data.getVscodeUri());
+                if (selection !== t`No`) {
+                    deployer.deployDir(data.getVscodeUri(), selection === t`YesWithDep`);
                 }
             }
         );

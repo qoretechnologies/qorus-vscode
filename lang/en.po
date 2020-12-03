@@ -100,12 +100,6 @@ msgstr "Create interface"
 msgid "CreateInterface-buttonTitle"
 msgstr "Create Qorus interface"
 
-msgid "QorusDeleteInterfacesTitle"
-msgstr "Delete Qorus Interfaces"
-
-msgid "DeleteQorusInterfaces"
-msgstr "Delete interfaces"
-
 msgid "LoggedOut"
 msgstr "Logged out"
 
@@ -457,6 +451,12 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
+msgid "YesWithDep"
+msgstr " Yes - with all dependencies "
+
+msgid "YesWithoutDep"
+msgstr " Yes - without dependencies "
+
 msgid "MoveUp"
 msgstr "Move up one position"
 
@@ -483,6 +483,9 @@ msgstr "Do you really want to delete ${ iface_kind } ${ name }?"
 
 msgid "ConfirmDeployInterface ${ iface_kind } ${ name }"
 msgstr "Do you really want to deploy ${ iface_kind } ${ name }?"
+
+msgid "ConfirmDeployCurrentFile"
+msgstr "Do you really want to deploy the current file?"
 
 msgid "ConfirmDeployAllInterfaces"
 msgstr "Do you really want to deploy all interfaces?"
@@ -681,6 +684,9 @@ msgstr "Name"
 
 msgid "ColumnHeader-version"
 msgstr "Version"
+
+msgid "ColumnHeader-id"
+msgstr "ID"
 
 msgid "ColumnHeader-workflowid"
 msgstr "ID"
