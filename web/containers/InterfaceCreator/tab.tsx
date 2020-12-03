@@ -189,9 +189,8 @@ const TutorialButton = ({ type, onClick }) => {
     );
 };
 
-const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData, updateField }) => {
-    const isEditing: () => boolean = () => !!initialData[type]?.name;
-    const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
+const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData, updateField, name }) => {
+    const isEditing: () => boolean = () => !!name;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
     const getFilePath = () => {
         if (isEditing()) {
@@ -253,7 +252,7 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
             )}
             <StyledHeader>
                 <h2 id={`${type}-interface-title`}>
-                    {isEditing() ? `Edit ${getTypeName(type, t)} "${getName()}"` : `New ${getTypeName(type, t)}`}
+                    {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
                 </h2>
                 <ButtonGroup>
                     {tutorials[type] && (
@@ -297,7 +296,7 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                                     initialData.confirmAction('ConfirmDeleteInterface', () => {
                                         postMessage('delete-interface', {
                                             iface_kind: type,
-                                            name: getName(),
+                                            name: name,
                                         });
                                         resetAllInterfaceData(type);
                                     });

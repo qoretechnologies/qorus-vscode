@@ -23,6 +23,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
         onSubmit?: () => any;
         originalName: string;
         changeType: string;
+        initialData: any;
     }>({});
     const initialData = useContext(InitialContext);
     const fields = useContext(FieldContext);
@@ -44,10 +45,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
             interfaceKind: reference.iface_kind,
             context: context || (reference.type && reference.type !== '' ? { type: capitalize(reference.type) } : null),
             onSubmit,
-            onClose: () => {
-                // Reset the current fields of the same kind
-                fields.resetFields(reference.iface_kind);
-            },
         });
     };
 
@@ -55,10 +52,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
         const iface_kind = reference.iface_kind === 'other' ? reference.type : reference.iface_kind;
         // Add message listener for the interface data
         const listener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-            // First reset the current fields of the same kind
-            fields.resetFields(reference.iface_kind);
-            // Set the new data
-            initialData.changeInitialData(reference.iface_kind, data[iface_kind]);
             // Set the context for the mapper if this is
             // mapper interface
             if (reference.iface_kind === 'mapper' && context?.static_data) {
@@ -72,14 +65,11 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
                 interfaceKind: reference.iface_kind,
                 originalName: iface_name,
                 changeType: 'EditInterface',
+                initialData: {
+                    [reference.iface_kind]: data[reference.iface_kind],
+                },
                 context,
                 onSubmit,
-                onClose: () => {
-                    // Reset the current fields of the same kind
-                    fields.resetFields(reference.iface_kind);
-                    // Set the new data
-                    initialData.changeInitialData(reference.iface_kind, null);
-                },
             });
             // Remove this listener
             listener();
@@ -98,7 +88,6 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
             {editManager.isOpen && (
                 <CustomDialog
                     onClose={() => {
-                        editManager.onClose();
                         setEditManager({});
                     }}
                     title={t(editManager.changeType)}
@@ -107,6 +96,7 @@ const FieldEnhancer: React.FC<IFieldEnhancerProps> = ({ children, addMessageList
                 >
                     <CreateInterface
                         initialData={{ ...initialData, subtab: editManager.interfaceKind }}
+                        data={editManager.initialData}
                         context={editManager.context}
                         onSubmit={(data) => {
                             const name: string = data.name || data['class-class-name'];
