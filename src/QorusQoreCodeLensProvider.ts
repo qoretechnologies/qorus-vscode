@@ -29,7 +29,7 @@ export class QorusQoreCodeLensProvider extends QorusCodeLensProviderBase {
                     }
 
                     let lenses: CodeLens[] = [];
-                    data = this.code_info.fixData(data);
+                    data = this.code_info.yaml2FrontEnd(data);
 
                     symbols.forEach(symbol => {
                         if (!QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, data['class-name'])) {

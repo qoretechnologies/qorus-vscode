@@ -5,6 +5,7 @@ import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer'
 import withTextContext from '../../hocomponents/withTextContext';
 import ClassConnectionsStateProvider from '../ClassConnectionsStateProvider';
 import { ConnectionView } from './connection';
+import ErrorsView from './errorsView';
 import FSMView from './fsm';
 import LibraryView from './libraryView';
 import MapperView from './mapperView';
@@ -177,6 +178,14 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     )}
                     {initialData.subtab === 'type' && (
                         <TypeView onSubmitSuccess={onSubmit} key={initialData?.type?.iface_id} />
+                    )}
+                    {initialData.subtab === 'errors' && (
+                        <ErrorsView
+                            errors={initialData.errors}
+                            onSubmitSuccess={onSubmit}
+                            interfaceContext={context}
+                            key={initialData?.errors?.iface_id}
+                        />
                     )}
                 </Tab>
             </div>

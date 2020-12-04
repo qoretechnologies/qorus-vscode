@@ -64,6 +64,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             case 'group':
             case 'event':
             case 'queue':
+            case 'errors':
                 suffix = `.q${iface_kind}`;
                 break;
             case 'pipeline':

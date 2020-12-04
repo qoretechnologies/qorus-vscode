@@ -39,7 +39,12 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+    addMessageListener,
+    postMessage,
+    TMessageListener,
+    TPostMessage,
+} from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
@@ -167,8 +172,6 @@ export const ActionsWrapper = styled.div`
 
 const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     type,
-    addMessageListener,
-    postMessage,
     t,
     fields,
     setFields,
@@ -276,6 +279,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 handleFieldChange(field, value);
             }),
         ]);
+
+        return () => {
+            // Remove the current listeners
+            fieldListeners.forEach((listener) => {
+                listener();
+            });
+        };
     }, [fields]);
 
     useEffect(() => {
@@ -530,26 +540,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     const toggleDisableField: (fieldName: string, disabled: boolean) => void = (fieldName, disabled) => {
-        setFields(
-            type,
-            (current: IField[]) =>
-                map(current, (field: IField) => ({
-                    ...field,
-                    disabled: fieldName === field.name ? disabled : field.disabled,
-                })),
-            activeId,
-            interfaceIndex
-        );
-        setSelectedFields(
-            type,
-            (current: IField[]) =>
-                map(current, (field: IField) => ({
-                    ...field,
-                    disabled: fieldName === field.name ? disabled : field.disabled,
-                })),
-            activeId,
-            interfaceIndex
-        );
+        setTimeout(() => {
+            setFields(
+                type,
+                (current: IField[]) =>
+                    map(current, (field: IField) => ({
+                        ...field,
+                        disabled: fieldName === field.name ? disabled : field.disabled,
+                    })),
+                activeId,
+                interfaceIndex
+            );
+            setSelectedFields(
+                type,
+                (current: IField[]) =>
+                    map(current, (field: IField) => ({
+                        ...field,
+                        disabled: fieldName === field.name ? disabled : field.disabled,
+                    })),
+                activeId,
+                interfaceIndex
+            );
+        }, 1000);
     };
 
     const handleAddClick: (fieldName: string) => void = (fieldName) => {
@@ -703,9 +715,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (!onSubmit || forceSubmit) {
             let newData: { [key: string]: any };
             // If this is service methods
-            if (type === 'service-methods' || type === 'mapper-methods') {
-                const intrfType = type === 'service-methods' ? 'service' : 'mapper-code';
-                const subItemType = type === 'service-methods' ? 'methods' : 'mapper-methods';
+            if (type === 'service-methods' || type === 'mapper-methods' || type === 'error') {
+                let intrfType;
+                let subItemType;
+
+                switch (type) {
+                    case 'mapper-methods': {
+                        intrfType = 'mapper-code';
+                        subItemType = 'mapper-methods';
+                        break;
+                    }
+                    case 'error': {
+                        intrfType = 'errors';
+                        subItemType = 'errors_errors';
+                        break;
+                    }
+                    default: {
+                        intrfType = 'service';
+                        subItemType = 'methods';
+                        break;
+                    }
+                }
+
                 // Get the service data
                 newData = reduce(
                     allSelectedFields[intrfType][interfaceIndex],
@@ -750,6 +781,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 iface_kind = 'service';
             } else if (type === 'mapper-methods') {
                 iface_kind = 'mapper-code';
+            } else if (type === 'error') {
+                iface_kind = 'errors';
             }
             // Config items use the parent type
             if (parent) {
@@ -778,7 +811,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
-                    t(`Saving ${type}...`)
+                    t(`Saving ${iface_kind}...`)
                 );
             } else {
                 let true_type: string;
@@ -799,16 +832,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             default_value_true_type: true_type,
                         },
                         orig_data:
-                            type === 'service-methods'
-                                ? initialData.service
-                                : type === 'mapper-methods'
-                                ? initialData['mapper-code']
+                            type === 'service-methods' || type === 'mapper-methods' || type === 'error'
+                                ? initialData[iface_kind]
                                 : data,
                         open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
                         no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
                     },
-                    t(`Saving ${type}...`)
+                    t(`Saving ${iface_kind}...`)
                 );
             }
             if (result.ok) {
@@ -1061,7 +1092,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <ActionsWrapper>
                         <ButtonGroup fill>
                             <Tooltip content={t('SelectAllTooltip')}>
-                                <Button text={t('SelectAll')} icon={'plus'} onClick={handleAddAll} />
+                                <Button
+                                    text={t('SelectAll')}
+                                    icon={'plus'}
+                                    onClick={handleAddAll}
+                                    name="add-all-fields"
+                                />
                             </Tooltip>
                         </ButtonGroup>
                     </ActionsWrapper>

@@ -5,36 +5,33 @@ const IconsDirRelPath = join('/images/icons');
 const DarkIconsDirRelPath = join(IconsDirRelPath, 'dark');
 const LightIconsDirRelPath = join(IconsDirRelPath, 'light');
 
-const ClassIconName = 'class.svg';
-const ConnectionIconName = 'connection.svg';
-const ConstantIconName = 'function.svg';
-const ErrorIconName = 'error.svg';
-const EventIconName = 'event.svg';
+const ErrorsIconName = 'warning-sign.svg';
+const ClassIconName = 'code-block.svg';
+const ConnectionIconName = 'link.svg';
+const EventIconName = 'notifications.svg';
 const FolderIconName = 'folder.svg';
-const FunctionIconName = 'function.svg';
-const GroupIconName = 'group.svg';
+const GroupIconName = 'group-objects.svg';
 const InterfaceIconName = 'interface.svg';
-const JobIconName = 'job.svg';
-const MapperCodeIconName = 'mapper-code.svg';
-const MapperIconName = 'mapper.svg';
+const JobIconName = 'calendar.svg';
+const MapperCodeIconName = 'function.svg';
+const MapperIconName = 'layout-group-by.svg';
 const PackageIconName = 'package.svg';
-const QueueIconName = 'queue.svg';
-const ServiceIconName = 'service.svg';
-const StepIconName = 'step.svg';
-const ValueMapIconName = 'value-map.svg';
-const WorkflowIconName = 'workflow.svg';
-const FsmIconName = 'fsm.svg';
-const PipelineIconName = 'pipeline.svg';
+const QueueIconName = 'list.svg';
+const ServiceIconName = 'merge-links.svg';
+const StepIconName = 'diagram-tree.svg';
+const TypeIconName = 'asterisk.svg';
+const ValueMapIconName = 'join-table.svg';
+const WorkflowIconName = 'exchange.svg';
+const FsmIconName = 'layout.svg';
+const PipelineIconName = 'graph.svg';
 
 
 export class QorusIcons  {
     private classIcon;
     private connectionIcon;
-    private constantIcon;
-    private errorIcon;
+    private errorsIcon;
     private eventIcon;
     private folderIcon;
-    private functionIcon;
     private groupIcon;
     private interfaceIcon;
     private jobIcon;
@@ -44,6 +41,7 @@ export class QorusIcons  {
     private queueIcon;
     private serviceIcon;
     private stepIcon;
+    private typeIcon;
     private valueMapIcon;
     private workflowIcon;
     private fsmIcon;
@@ -61,13 +59,9 @@ export class QorusIcons  {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ConnectionIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, ConnectionIconName))
         };
-        this.constantIcon = {
-            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ConstantIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ConstantIconName))
-        };
-        this.errorIcon = {
-            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ErrorIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ErrorIconName))
+        this.errorsIcon = {
+            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ErrorsIconName)),
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ErrorsIconName))
         };
         this.eventIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, EventIconName)),
@@ -76,10 +70,6 @@ export class QorusIcons  {
         this.folderIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, FolderIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, FolderIconName))
-        };
-        this.functionIcon = {
-            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, FunctionIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, FunctionIconName))
         };
         this.groupIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, GroupIconName)),
@@ -117,6 +107,10 @@ export class QorusIcons  {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, StepIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, StepIconName))
         };
+        this.typeIcon = {
+            dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, TypeIconName)),
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, TypeIconName))
+        };
         this.valueMapIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ValueMapIconName)),
             light: Uri.file(join(extensionPath, LightIconsDirRelPath, ValueMapIconName))
@@ -143,12 +137,8 @@ export class QorusIcons  {
         return this.connectionIcon;
     }
 
-    getConstantIcon() {
-        return this.constantIcon;
-    }
-
-    getErrorIcon() {
-        return this.errorIcon;
+    getErrorsIcon() {
+        return this.errorsIcon;
     }
 
     getEventIcon() {
@@ -157,10 +147,6 @@ export class QorusIcons  {
 
     getFolderIcon() {
         return this.folderIcon;
-    }
-
-    getFunctionIcon() {
-        return this.functionIcon;
     }
 
     getGroupIcon() {
@@ -197,6 +183,10 @@ export class QorusIcons  {
 
     getStepIcon() {
         return this.stepIcon;
+    }
+
+    getTypeIcon() {
+        return this.typeIcon;
     }
 
     getValueMapIcon() {

@@ -5,7 +5,6 @@ import { commands, ExtensionContext, Uri, window as vswindow, workspace } from '
 import * as msg from './qorus_message';
 import { dash2Pascal } from './qorus_utils';
 import { interface_tree } from './QorusInterfaceTree';
-import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { deployer } from './QorusDeploy';
 
@@ -21,9 +20,8 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     );
 
     // delete commands
-    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group',
-        'job', 'mapper', 'mapper-code', 'queue', 'service', 'step', 'value-map',
-        'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
+    ['class', 'connection', 'errors', 'event', 'group', 'job', 'mapper', 'mapper-code',
+        'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
@@ -44,32 +42,32 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     });
 
     // deploy commands
-    ['class', 'connection', 'constant', 'error', 'event', 'function', 'group',
-        'job', 'mapper', 'mapper-code', 'queue', 'service', 'step', 'value-map',
-        'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
+    ['class', 'connection', 'errors', 'event', 'group', 'job', 'mapper', 'mapper-code',
+        'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
     {
         const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
-            vswindow.showWarningMessage(
-                t`ConfirmDeployInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`
+            vswindow.showInformationMessage(
+                t`ConfirmDeployInterface ${iface_kind} ${data.name}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
             ).then(
                 selection => {
-                    if (selection !== t`Yes`) {
+                    if (selection === t`No`) {
                         return;
                     }
 
                     if (!data.data?.yaml_file) {
                         msg.error(t`MissingDeploymentData`);
+                        return;
                     }
 
-                    deployer.deployFile(data.data.yaml_file);
+                    deployer.deployFile(data.data.yaml_file, selection === t`YesWithDep`);
                 }
             );
         });
         context.subscriptions.push(disposable);
     });
     disposable = commands.registerCommand('qorus.views.deployAllInterfaces', () => {
-        vswindow.showWarningMessage(
+        vswindow.showInformationMessage(
             t`ConfirmDeployAllInterfaces`, t`Yes`, t`No`
         ).then(
             selection => {
@@ -80,12 +78,12 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
         );
     });
     disposable = commands.registerCommand('qorus.views.deployDir', (data: any) => {
-        vswindow.showWarningMessage(
-            t`ConfirmDeployDirectory ${data.getDirectoryName()}`, t`Yes`, t`No`
+        vswindow.showInformationMessage(
+            t`ConfirmDeployDirectory ${data.getDirectoryName()}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
         ).then(
             selection => {
-                if (selection === t`Yes`) {
-                    deployer.deployDir(data.getVscodeUri());
+                if (selection !== t`No`) {
+                    deployer.deployDir(data.getVscodeUri(), selection === t`YesWithDep`);
                 }
             }
         );
@@ -93,18 +91,28 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
 
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps', 'connection',
-        'workflow', 'group', 'event', 'queue', 'type', 'fsm', 'pipeline', 'value-map'].forEach(iface_kind =>
+        'workflow', 'service-methods', 'mapper-code-methods', 'group', 'event', 'queue', 'type',
+        'fsm', 'pipeline', 'value-map', 'errors'].forEach(iface_kind =>
     {
-        const command_part = dash2Pascal(iface_kind);
-        disposable = commands.registerCommand(`qorus.views.edit${command_part}`, (data: any) => {
-            const code_info = projects.projectCodeInfo(data.data?.yaml_file);
-            const fixed_data = code_info?.fixData(data.data);
-            if (fixed_data) {
-                if (command_part === 'WorkflowSteps') {
-                    fixed_data.show_steps = true;
-                    iface_kind = 'workflow';
+        const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
+        disposable = commands.registerCommand(command, (data: any) => {
+            data = data.data;
+            if (data) {
+                switch (iface_kind) {
+                    case 'workflow-steps':
+                        data.show_steps = true;
+                        iface_kind = 'workflow';
+                        break;
+                    case 'service-methods':
+                        data.active_method = 1;
+                        iface_kind = 'service';
+                        break;
+                    case 'mapper-code-methods':
+                        data.active_method = 1;
+                        iface_kind = 'mapper-code';
+                        break;
                 }
-                commands.executeCommand('qorus.editInterface', fixed_data, iface_kind);
+                commands.executeCommand('qorus.editInterface', data, iface_kind);
             }
         });
         context.subscriptions.push(disposable);
@@ -119,8 +127,6 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
         const iface_data = data.data;
         switch (iface_data.type) {
             case 'class':
-            case 'constant':
-            case 'function':
             case 'job':
             case 'mapper-code':
             case 'service':

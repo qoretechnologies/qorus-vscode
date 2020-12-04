@@ -35,8 +35,17 @@ export async function activate(context: vscode.ExtensionContext) {
     installQorusJavaApiSources(context.extensionPath);
 
     let disposable;
-    disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile',
-                                                               () => deployer.deployCurrentFile());
+    disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile', () => {
+        vscode.window.showInformationMessage(
+            t`ConfirmDeployCurrentFile`, t`YesWithDep`, t`YesWithoutDep`, t`No`
+        ).then(
+            selection => {
+                if (selection !== t`No`) {
+                    deployer.deployCurrentFile(selection === t`YesWithDep`);
+                }
+            }
+        );
+    });
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () => tester.testCurrentFile());
@@ -83,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 
     ['service', 'job', 'workflow', 'step', 'mapper', 'mapper-code', 'class', 'connection',
-        'group', 'event', 'queue', 'type', 'fsm', 'pipeline', 'value-map'].forEach(iface_kind =>
+        'group', 'event', 'queue', 'type', 'fsm', 'pipeline', 'value-map', 'errors'].forEach(iface_kind =>
     {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
         disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {
@@ -97,8 +106,9 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(disposable);
     });
 
-    disposable = vscode.commands.registerCommand('qorus.editInterface',
-                                                 (data: any, iface_kind: string) =>
+    disposable = vscode.commands.registerCommand(
+        'qorus.editInterface',
+        (data: any, iface_kind: string, data_already_transformed: boolean = false) =>
     {
         const code_info = projects.currentProjectCodeInfo();
         if (!code_info) {
@@ -106,6 +116,9 @@ export async function activate(context: vscode.ExtensionContext) {
         }
 
         const iface_info: QorusProjectInterfaceInfo = code_info.interface_info;
+        if (!data_already_transformed) {
+            data = code_info.yaml2FrontEnd(data);
+        }
         const iface_id = iface_info.addIfaceById(data, iface_kind);
 
         code_info.checkReferencedObjects(iface_id, data);
@@ -136,8 +149,8 @@ export async function activate(context: vscode.ExtensionContext) {
         if (!data) {
             return;
         }
-        const fixed_data = code_info.fixData(data);
-        vscode.commands.executeCommand('qorus.editInterface', fixed_data, data.type);
+
+        vscode.commands.executeCommand('qorus.editInterface', data, data.type);
     });
     context.subscriptions.push(disposable);
 

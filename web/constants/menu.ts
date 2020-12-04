@@ -27,9 +27,9 @@ export const MENU = {
             tab: 'CreateInterface',
             submenu: [
                 { name: 'Workflow', icon: 'exchange', tab: 'CreateInterface', subtab: 'workflow' },
+                { name: 'Step', icon: 'diagram-tree', tab: 'CreateInterface', subtab: 'step' },
                 { name: 'Service', icon: 'merge-links', tab: 'CreateInterface', subtab: 'service' },
                 { name: 'Job', icon: 'calendar', tab: 'CreateInterface', subtab: 'job' },
-                { name: 'Step', icon: 'diagram-tree', tab: 'CreateInterface', subtab: 'step' },
                 { name: 'Class', icon: 'code-block', tab: 'CreateInterface', subtab: 'class' },
                 { name: 'Mapper', icon: 'layout-group-by', tab: 'CreateInterface', subtab: 'mapper' },
                 { name: 'Mapper Code', icon: 'function', tab: 'CreateInterface', subtab: 'mapper-code' },
@@ -41,6 +41,7 @@ export const MENU = {
                 { name: 'Event', icon: 'notifications', tab: 'CreateInterface', subtab: 'event' },
                 { name: 'Queue', icon: 'list', tab: 'CreateInterface', subtab: 'queue' },
                 { name: 'Valuemap', icon: 'join-table', tab: 'CreateInterface', subtab: 'value-map' },
+                { name: 'Errors', icon: 'warning-sign', tab: 'CreateInterface', subtab: 'errors' },
             ],
         },
     ],

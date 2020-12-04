@@ -9,8 +9,6 @@ base-class-name: QorusNormalStep
 class-name: StepTest
 classes:
   - ClassForFSMTest
-constants:
-  - test
 fsm:
     [
         {
@@ -23,8 +21,6 @@ fsm:
             ]
         }
     ]
-functions:
-  - test
 mappers:
   - MapperForFSMTest:1.0
 vmaps:

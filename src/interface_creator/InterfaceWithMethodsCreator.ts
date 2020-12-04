@@ -99,7 +99,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
                 contents = code_lines.join('\n');
                 break;
             case 'delete-method':
-                if (typeof(data.method_index) === 'undefined') {
+                if (data.method_index === 'undefined') {
                     break;
                 }
                 const method_name = methods[data.method_index].name;

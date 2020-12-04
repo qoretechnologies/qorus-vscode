@@ -2,22 +2,19 @@
 type: workflow
 name: WorkflowTest
 desc: Workflow test
+version: "1.0"
 lang: qore
+class-name: WorkflowTest
+base-class-name: QorusWorkflow
 attach: test
 author:
   - Test User
 autostart: 1
-base-class-name: QorusWorkflow
-class-name: WorkflowTest
 classes:
   - ClassForFSMTest
-constants:
-  - test
 detach: test
 errorfunction: test
 error_handler: test
-functions:
-  - test
 groups:
   - TestingGroup
 keylist:
@@ -36,7 +33,6 @@ tags:
     foo: bar
 vmaps:
   - test
-version: "1.0"
 steps:
     [
         [
