@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { EditorView, WebView } from 'vscode-extension-tester';
+import { WebView } from 'vscode-extension-tester';
 import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { openInterfaceFromTreeView } from '../utils/treeView';
@@ -10,7 +10,7 @@ import {
     confirmDialog,
     fillTextField,
     getNthElement,
-    getWebview,
+    resetAndFillTextField,
     selectField,
     selectNthFilteredDropdownItem,
     selectNthFolder,
@@ -31,8 +31,9 @@ export const createsClassFromClass = async (webview: WebView) => {
 
     await sleep(3000);
 
-    await fillTextField(webview, 'field-class-class-name', 'ClassFromClass');
-    await fillTextField(webview, 'field-desc', 'Class created from class', 2);
+    await selectNthFolder(webview, 'target_dir', 1, 2);
+    await fillTextField(webview, 'field-class-class-name', 'ClassFromClass', 2);
+    await fillTextField(webview, 'field-desc', 'Class from class', 2);
     await fillTextField(webview, 'field-version', '1.0', 2);
 
     await submitInterface(webview, 'class', 2);
@@ -40,11 +41,30 @@ export const createsClassFromClass = async (webview: WebView) => {
     await sleep(3000);
 
     expect(await (await getNthElement(webview, 'field-name')).getText()).to.eq('ClassFromClass');
+
+    await compareWithGoldFiles(['ClassFromClass-1.0.qclass.yaml', 'ClassFromClass-1.0.qclass']);
 };
 
-export const editClass = async (editorView: EditorView) => {
-    await openInterfaceFromTreeView('ClassToEdit');
-    const webview = await getWebview(editorView);
+export const editsClassCreatedFromClass = async (webview: WebView) => {
+    await clickElement(webview, 'field-name-edit-reference');
+
+    await sleep(3000);
+
+    await fillTextField(webview, 'field-class-class-name', 'Edited', 2);
+    await fillTextField(webview, 'field-desc', ' edited', 2);
+    await resetAndFillTextField(webview, 'field-target_file', 'ClassFromClassEdited-1.0');
+
+    await submitInterface(webview, 'class', 2);
+
+    await sleep(3000);
+
+    expect(await (await getNthElement(webview, 'field-name')).getText()).to.eq('ClassFromClassEdited');
+
+    await compareWithGoldFiles(['ClassFromClassEdited-1.0.qclass.yaml', 'ClassFromClassEdited-1.0.qclass'], true);
+};
+
+export const editClass = async (webview: WebView) => {
+    await openInterfaceFromTreeView('ClassToEdit', webview);
 
     await selectNthFolder(webview, 'target_dir', 1);
     await selectField(webview, 'base-class-name');

@@ -1,19 +1,19 @@
-import { EditorView, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
-import { checkFiles, editClass } from './tests/class';
+import { EditorView, WebView } from 'vscode-extension-tester';
+import { checkFiles, createsClassFromClass, editClass, editsClassCreatedFromClass } from './tests/class';
 import { cleanup, setupTest } from './utils/common';
 
-describe('Edit class test', function () {
+describe('Class tests', function () {
     this.timeout(1800000);
-    let driver: WebDriver;
     let editorView: EditorView;
     let webview: WebView;
 
     before(async () => {
-        driver = VSBrowser.instance.driver;
-        ({ editorView } = await setupTest(undefined, true));
+        ({ editorView, webview } = await setupTest());
     });
 
-    it('Edit class', async () => { webview = await editClass(editorView); });
+    it('Creates Class from another Class', () => createsClassFromClass(webview));
+    it('Edits Class created from another Class', () => editsClassCreatedFromClass(webview));
+    it('Edits class', () => editClass(webview));
     it('Check changed files', () => checkFiles());
 
     this.afterAll(async () => {
