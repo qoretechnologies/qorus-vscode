@@ -23,7 +23,7 @@ import {
     root_processor, root_service, root_steps, root_workflow, types_with_version
 } from './qorus_constants';
 import * as msg from './qorus_message';
-import { deepCopy, filesInDir, hasSuffix, isObject } from './qorus_utils';
+import { deepCopy, filesInDir, hasSuffix, isObject, removeDuplicates } from './qorus_utils';
 
 
 const info_keys = ['file_tree', 'yaml', 'modules'];
@@ -150,15 +150,49 @@ export class QorusProjectCodeInfo {
                 .find(connector => connector.name === connector_name)
 
     pairFile = (file: string): string | undefined => {
-        if (!hasSuffix(file, 'yaml')) {
-            return (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
-        }
-
-        const type = this.yaml_info.getValue(file, 'type');
-        if (['service', 'job', 'workflow', 'step', 'class', 'mapper-code'].includes(type)) {
+        if (path.extname(file) === '.yaml') {
             return this.yaml_info.getSrcFile(file);
         }
-        return undefined;
+
+        return (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
+    }
+
+    getFilesOfReferencedObjects(files: string[]): string[] {
+        let yaml_files: string[] = [];
+        files.forEach(file => {
+            if (path.extname(file) === '.yaml') {
+                yaml_files.push(file);
+            } else {
+                const yaml_file = (this.yaml_info.yamlDataBySrcFile(file) || {}).yaml_file;
+                if (yaml_file) {
+                    yaml_files.push(yaml_file);
+                }
+            }
+        });
+        yaml_files = removeDuplicates(yaml_files);
+
+        let referenced_yaml_files: string[] = [];
+        yaml_files.forEach(yaml_file => {
+            const yaml_data = this.yaml_info.yamlDataByFile(yaml_file);
+            const objects: any[] = this.getReferencedObjects(yaml_data);
+            referenced_yaml_files = [
+                ...referenced_yaml_files,
+                yaml_file,
+                ...objects.map(o => o.yaml_file).filter(yaml_file => !!yaml_file)
+            ];
+        });
+        referenced_yaml_files = removeDuplicates(referenced_yaml_files);
+
+        let all_referenced_files: string[] = [];
+        referenced_yaml_files.forEach(yaml_file => {
+            all_referenced_files.push(yaml_file);
+            const src_file = this.yaml_info.getSrcFile(yaml_file);
+            if (src_file) {
+                all_referenced_files.push(src_file);
+            }
+        });
+
+        return all_referenced_files;
     }
 
     stepData = (step_structure: any[]): any => {
@@ -499,9 +533,6 @@ export class QorusProjectCodeInfo {
             data.target_file = path.basename(data.yaml_file);
         }
 
-        delete data.code;
-        delete data.yaml_file;
-
         return data;
     }
 
@@ -556,7 +587,7 @@ export class QorusProjectCodeInfo {
             }
         };
 
-        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
+        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string): boolean => {
             const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
             if (!parent_yaml_data) {
                 addMessage(t`AncestorDoesNotExist ${parent_type} ${parent_name} ${name}`);
@@ -629,6 +660,102 @@ export class QorusProjectCodeInfo {
         }
         this.error_messages[iface_id].referenced_objects
             = Object.keys(messages).map(message => ({ intent: 'danger', message, timeout: 20000 }));
+    }
+
+    private getReferencedObjects(iface_data: any): any[] {
+        let result: any[] = [];
+
+        const checkObject = (type, name) => {
+            if (!name) {
+                return;
+            }
+
+            if (name.name) {
+                name = name.name;
+            }
+
+            if (type === 'class' && QorusProjectCodeInfo.isRootBaseClass(name)) {
+                return;
+            }
+
+            const yaml_data = this.yaml_info.yamlDataByName(type, name);
+            if (!yaml_data) {
+                return;
+            }
+
+            result.push({ type, name, ...yaml_data });
+            getObjects(yaml_data);
+        };
+
+        const checkObjects = (type: string, names?: string[]) => {
+            (names || []).forEach(name => checkObject(type, name));
+        };
+
+        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string) => {
+            const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
+            if (!parent_yaml_data) {
+                return;
+            }
+
+            result.push({ parent_type, parent_name, data: parent_yaml_data });
+            getObjects(parent_yaml_data);
+
+            const parent_item = parent_yaml_data['config-items'].find(item => item.name === name);
+            if (!parent_item?.parent) {
+                return;
+            }
+
+             checkParentConfigItem(
+                name,
+                parent_item.parent['interface-type'],
+                parent_item.parent['interface-name']
+            );
+        };
+
+        const getObjects = (data: any) => {
+            checkObject('class', data['base-class-name']);
+            checkObject('event', data.event);
+            checkObject('queue', data.queue);
+            if (data.type === 'workflow') {
+                const file_name = path.join(data.target_dir, data.errors);
+                const object_name = this.yaml_info.yamlDataByYamlFile(file_name)?.name;
+                checkObject('errors', object_name);
+            }
+
+            checkObjects('class', data.classes);
+            checkObjects('class', data.requires);
+            checkObjects('mapper', data.mappers);
+            checkObjects('group', data.groups);
+            checkObjects('fsm', data.fsm);
+            checkObjects('value-map', data.vmaps);
+
+            (Object.keys(data['class-connections'] || {})).forEach(connection => {
+                let connectors = data['class-connections'][connection];
+                connectors.forEach(connector => checkObject('class', connector.class));
+            });
+
+            (Object.keys(data.states || {})).forEach(state_id => {
+                const state = data.states[state_id];
+                if (['mapper', 'pipeline'].includes(state.action?.type)) {
+                    checkObject(state.action.type, state.action.value);
+                }
+            });
+
+            if (data.steps) {
+                const step_names: string[] = flattenDeep(data.steps);
+                step_names.forEach(name_version => checkObject('step', name_version));
+            }
+
+            (data['config-items'] || []).forEach(item => item.parent && checkParentConfigItem(
+                item.name,
+                item.parent['interface-type'],
+                item.parent['interface-name']
+            ));
+        };
+
+        getObjects(iface_data);
+
+        return result;
     }
 
     private initInfo() {

@@ -67,13 +67,13 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
                 lenses.push(new CodeLens(range, {
                     title: gettext('Edit' + dash2Pascal(iface_kind)),
                     command: 'qorus.editInterface',
-                    arguments: [data, iface_kind],
+                    arguments: [data, iface_kind, true],
                 }));
 
                 lenses.push(new CodeLens(range, {
                     title: t`AddMethod`,
                     command: 'qorus.editInterface',
-                    arguments: [{ ...cloned_data, active_method: cloned_data[methods_key].length }, iface_kind],
+                    arguments: [{ ...cloned_data, active_method: cloned_data[methods_key].length }, iface_kind, true],
                 }));
 
                 break;
@@ -83,19 +83,19 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
                 lenses.push(new CodeLens(range, {
                     title: gettext('Edit' + dash2Pascal(iface_kind)),
                     command: 'qorus.editInterface',
-                    arguments: [data, iface_kind],
+                    arguments: [data, iface_kind, true],
                 }));
                 break;
             case 'workflow':
                 lenses.push(new CodeLens(range, {
                     title: t`EditWorkflow`,
                     command: 'qorus.editInterface',
-                    arguments: [data, 'workflow'],
+                    arguments: [data, 'workflow', true],
                 }));
                 lenses.push(new CodeLens(range, {
                     title: t`EditSteps`,
                     command: 'qorus.editInterface',
-                    arguments: [{ ...data, show_steps: true }, 'workflow'],
+                    arguments: [{ ...data, show_steps: true }, 'workflow', true],
                 }));
                 break;
             default:
@@ -128,7 +128,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
         lenses.push(new CodeLens(range, {
             title: t`EditMethod`,
             command: 'qorus.editInterface',
-            arguments: [{ ...data, active_method: method_index + 1 }, iface_kind],
+            arguments: [{ ...data, active_method: method_index + 1 }, iface_kind, true],
         }));
 
         lenses.push(new CodeLens(range, {
