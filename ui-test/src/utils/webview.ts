@@ -220,8 +220,8 @@ export const selectMultiselectItemsByNumbers = async (
     await clickElement(webview, 'bp3-fixed-top', 1, 'className');
 };
 
-export const submitInterface = async (webview: WebView, iface: string) => {
-    await clickElement(webview, `interface-creator-submit-${iface}`);
+export const submitInterface = async (webview: WebView, iface: string, position: number = 1) => {
+    await clickElement(webview, `interface-creator-submit-${iface}`, position);
 };
 
 export const confirmDialog = async (webview: WebView) => {

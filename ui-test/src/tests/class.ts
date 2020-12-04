@@ -9,12 +9,38 @@ import {
     clickElement,
     confirmDialog,
     fillTextField,
+    getNthElement,
     getWebview,
     selectField,
     selectNthFilteredDropdownItem,
     selectNthFolder,
     submitInterface,
 } from '../utils/webview';
+
+export const createsClassFromClass = async (webview: WebView) => {
+    await clickElement(webview, 'CreateInterface');
+    await clickElement(webview, 'Class');
+
+    await sleep(1000);
+
+    await selectField(webview, 'requires');
+
+    await sleep(1000);
+
+    await clickElement(webview, 'field-name-reference-add-new');
+
+    await sleep(3000);
+
+    await fillTextField(webview, 'field-class-class-name', 'ClassFromClass');
+    await fillTextField(webview, 'field-desc', 'Class created from class', 2);
+    await fillTextField(webview, 'field-version', '1.0', 2);
+
+    await submitInterface(webview, 'class', 2);
+
+    await sleep(3000);
+
+    expect(await (await getNthElement(webview, 'field-name')).getText()).to.eq('ClassFromClass');
+};
 
 export const editClass = async (editorView: EditorView) => {
     await openInterfaceFromTreeView('ClassToEdit');
@@ -39,8 +65,8 @@ export const editClass = async (editorView: EditorView) => {
 };
 
 export const checkFiles = async () => {
-    await compareWithGoldFiles([
-        path.join('ClassToEdit-7.8-class', 'ClassToEdit.java'),
-        'ClassToEdit-7.8.qclass.yaml'
-    ], true);
+    await compareWithGoldFiles(
+        [path.join('ClassToEdit-7.8-class', 'ClassToEdit.java'), 'ClassToEdit-7.8.qclass.yaml'],
+        true
+    );
 };
