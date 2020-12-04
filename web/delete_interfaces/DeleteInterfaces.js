@@ -30,6 +30,7 @@ const columns = {
     groups: ['name', 'id', 'description'],
     pipelines: ['name', 'description'],
     fsms: ['name', 'description'],
+    valuemaps: ['name', 'id', 'description'],
 };
 
 class DeleteInterfaces extends Component {
@@ -207,6 +208,7 @@ class DeleteInterfaces extends Component {
                     <Tab id="groups" title={t('Groups')} panel={Interfaces} />
                     <Tab id="pipelines" title={t('Pipelines')} panel={Interfaces} />
                     <Tab id="fsms" title={t('FSMs')} panel={Interfaces} />
+                    <Tab id="valuemaps" title={t('ValueMaps')} panel={Interfaces} />
                 </Tabs>
             </Box>
         );

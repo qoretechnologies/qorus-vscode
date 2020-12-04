@@ -98,6 +98,7 @@ class QorusDelete {
                 case 'classes':
                     return key === 'classid';
                 case 'groups':
+                case 'valuemaps':
                     return key === 'id';
                 case 'pipelines':
                 case 'fsms':
