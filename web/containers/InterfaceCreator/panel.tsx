@@ -252,11 +252,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     useEffect(() => {
-        addInterface(type, interfaceIndex);
-
-        if (!onSubmitSuccess) {
-            initialData.setActiveInterface(type, interfaceIndex);
-        }
+        addInterface(type, interfaceIndex, !!onSubmitSuccess);
     }, [data]);
 
     useEffect(() => {

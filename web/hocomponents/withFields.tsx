@@ -1,8 +1,9 @@
 import { every, last, reduce } from 'lodash';
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useContext, useState } from 'react';
 import { isArray } from 'util';
 import { IField } from '../containers/InterfaceCreator/panel';
 import { FieldContext } from '../context/fields';
+import { InitialContext } from '../context/init';
 import { maybeSendOnChangeEvent } from '../helpers/common';
 
 const getInterfaceCollectionType: (type: string) => [] | {} = (type) => {
@@ -19,6 +20,8 @@ const getInterfaceCollectionType: (type: string) => [] | {} = (type) => {
 // A HoC helper that holds all the state for interface creations
 export default () => (Component: FunctionComponent<any>): FunctionComponent<any> => {
     const EnhancedComponent: FunctionComponent = (props: any) => {
+        const { setActiveInterface } = useContext(InitialContext);
+
         const [interfaceId, _setInterfaceId] = useState<{ [key: string]: string[] }>({
             service: [],
             error: [],
@@ -110,11 +113,15 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             'value-map': [],
         });
 
-        const addInterface = (type: string, interfaceIndex: number) => {
+        const addInterface = (type: string, interfaceIndex: number, isFromInterface?: boolean) => {
             const index = getInterfaceIndex(type, interfaceIndex);
 
-            if (fields[type][interfaceIndex]) {
+            if (fields[type][index]) {
                 return;
+            }
+
+            if (!isFromInterface) {
+                setActiveInterface(type, interfaceIndex);
             }
 
             _setInterfaceId((current) => {
