@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.1.0
+
+#### New features
+
+- new interface: Errors
+- workflows can now have a errors assigned
+
+#### Bug fixes
+
+- fixed a bug where the the IDE would crash when opening step for editing from the step diagram
+- it is now properly possible to create a Class from another Class
+
 ## 2.0.2
 
 #### New features
