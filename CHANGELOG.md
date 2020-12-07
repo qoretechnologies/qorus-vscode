@@ -13,7 +13,6 @@
 - fixed a bug where the the IDE would crash when opening step for editing from the step diagram
 - it is now properly possible to create a Class from another Class
 - icons representing types of interfaces were unified, now they are the same in the tree view and in the webview
-- the confirmation dialog when leaving an unsubmitted interface now works correctly
 
 ## 2.0.2
 
