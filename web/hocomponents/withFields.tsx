@@ -250,22 +250,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
-        const setAsDraft: (type: string, interfaceIndex: number) => void = (type, interfaceIndex) => {
-            if (!props.unfinishedWork?.[`${type}:${interfaceIndex}`]) {
-                props.setUnfinishedWork((current) => {
-                    const newResult = { ...current };
-
-                    if (!newResult[type]) {
-                        newResult[type] = {};
-                    }
-                    // Set the interface id to null
-                    newResult[type][interfaceIndex] = true;
-
-                    return newResult;
-                });
-            }
-        };
-
         const setFields = (type, value, activeId, interfaceIndex) => {
             setLocalFields((current) => {
                 const index = getInterfaceIndex(type, interfaceIndex);
@@ -421,8 +405,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     resetFields,
                     interfaceId,
                     setInterfaceId,
-                    unfinishedWork: props.unfinishedWork,
-                    setAsDraft,
                     requestInterfaceData,
                     updateField,
                     addInterface,

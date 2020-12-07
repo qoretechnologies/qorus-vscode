@@ -99,12 +99,15 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (tab, subtab, force) => {
-            const setTabs = () =>
+            const setTabs = () => {
+                setUnfinishedWork({});
                 setInitialData((current) => ({
                     ...current,
                     tab,
                     subtab: subtab || null,
+                    activeInterface: null,
                 }));
+            };
 
             if (
                 initialData.tab === 'CreateInterface' &&
@@ -264,6 +267,22 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
+        const setAsDraft: (type: string, interfaceIndex: number) => void = (type, interfaceIndex) => {
+            if (!unfinishedWork?.[`${type}:${interfaceIndex}`]) {
+                setUnfinishedWork((current) => {
+                    const newResult = { ...current };
+
+                    if (!newResult[type]) {
+                        newResult[type] = {};
+                    }
+                    // Set the interface id to null
+                    newResult[type][interfaceIndex] = true;
+
+                    return newResult;
+                });
+            }
+        };
+
         if (!initialData) {
             return null;
         }
@@ -286,6 +305,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     setUnfinishedWork,
                     toggleSidebar,
                     setActiveInterface,
+                    setAsDraft,
                 }}
             >
                 <InitialContext.Consumer>

@@ -178,9 +178,17 @@ const FSMView: React.FC<IFSMViewProps> = ({
     defaultInterfaceId,
 }) => {
     const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm, qorus_instance } = useContext(
-        InitialContext
-    );
+    const {
+        sidebarOpen,
+        path,
+        image_path,
+        confirmAction,
+        callBackend,
+        fsm,
+        qorus_instance,
+        setActiveInterface,
+        setAsDraft,
+    } = useContext(InitialContext);
     const { resetAllInterfaceData } = useContext(GlobalContext);
     const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || defaultInterfaceId || shortid.generate());
 
@@ -343,6 +351,10 @@ const FSMView: React.FC<IFSMViewProps> = ({
     useMount(() => {
         if (!embedded) {
             setFsmReset(() => reset);
+
+            if (!onSubmitSuccess) {
+                setActiveInterface('fsm', 0);
+            }
         }
     });
 

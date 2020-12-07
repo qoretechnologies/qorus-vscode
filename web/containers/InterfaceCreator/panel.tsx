@@ -220,7 +220,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     definitionsOnly,
     context,
     onSubmitSuccess,
-    setAsDraft,
     onDataFinishLoadingRecur,
     addInterface,
     removeInterface,
@@ -584,7 +583,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         //* we ignore the `lang` field because it has a default value and fires a change
         //* on mount
         if (value && fieldName !== 'lang') {
-            setAsDraft(type, interfaceIndex);
+            initialData.setAsDraft(type, interfaceIndex);
         }
         setSelectedFields(
             type,
