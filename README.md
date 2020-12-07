@@ -8,11 +8,14 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 - new interface: Errors
 - workflows can now have a errors assigned
+- deployment of an interface now (optionally) includes all referenced interfaces
 
 #### Bug fixes
 
 - fixed a bug where the the IDE would crash when opening step for editing from the step diagram
 - it is now properly possible to create a Class from another Class
+- icons representing types of interfaces were unified, now they are the same in the tree view and in the webview
+- the confirmation dialog when leaving an unsubmitted interface now works correctly
 
 ---
 
