@@ -50,7 +50,14 @@ export const compareWithGoldFiles = async (files: string[], isChanged?: boolean,
 
             expect(isEqual(expected_file_data, true_file_data)).to.be.true;
         } else {
-            expect(true_file_contents).to.eql(expected_file_contents);
+            if (!isEqual(true_file_contents.toString(), expected_file_contents.toString())) {
+                console.error(
+                    'Gold file different. Difference:',
+                    JSON.stringify(difference(true_file_contents.toString(), expected_file_contents.toString()))
+                );
+            }
+
+            expect(true_file_contents.toString()).to.eql(expected_file_contents.toString());
         }
     };
 

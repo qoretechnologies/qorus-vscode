@@ -36,26 +36,23 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
 
             const code_info = projects.projectCodeInfo(resource.fsPath);
             const data = code_info?.yaml_info.yamlDataBySrcFile(resource.fsPath);
-            const fixed_data = code_info?.fixData(data);
-            if (fixed_data) {
-                let true_iface_kind;
+
+            if (data) {
                 switch (iface_kind) {
                     case 'workflow-steps':
-                        fixed_data.show_steps = true;
-                        true_iface_kind = 'workflow';
+                        data.show_steps = true;
+                        iface_kind = 'workflow';
                         break;
                     case 'service-methods':
-                        fixed_data.active_method = 1;
-                        true_iface_kind = 'service';
+                        data.active_method = 1;
+                        iface_kind = 'service';
                         break;
                     case 'mapper-code-methods':
-                        fixed_data.active_method = 1;
-                        true_iface_kind = 'mapper-code';
+                        data.active_method = 1;
+                        iface_kind = 'mapper-code';
                         break;
-                    default:
-                        true_iface_kind = iface_kind;
                 }
-                vscode.commands.executeCommand('qorus.editInterface', fixed_data, true_iface_kind);
+                vscode.commands.executeCommand('qorus.editInterface', data, iface_kind);
             }
         });
         context.subscriptions.push(disposable);
@@ -72,8 +69,8 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
             msg.error(t`NotAQorusInterfaceFile ${resource.fsPath}`);
             return;
         }
-        const fixed_data = code_info?.fixData(data);
-        vscode.commands.executeCommand('qorus.editInterface', fixed_data, fixed_data.type);
+
+        vscode.commands.executeCommand('qorus.editInterface', data, data.type);
     });
     context.subscriptions.push(disposable);
 
@@ -93,14 +90,13 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
                 return;
             }
 
-            vscode.window.showWarningMessage(
-                t`ConfirmDeployInterface ${data.type} ${data.name}`, t`Yes`, t`No`
+            vscode.window.showInformationMessage(
+                t`ConfirmDeployInterface ${data.type} ${data.name}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
             ).then(
                 selection => {
-                    if (selection !== t`Yes`) {
-                        return;
+                    if (selection !== t`No`) {
+                        deployer.deployFile(resource.fsPath, selection === t`YesWithDep`);
                     }
-                    deployer.deployFile(resource.fsPath);
                 }
             );
         });
@@ -108,12 +104,12 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     });
 
     disposable = vscode.commands.registerCommand('qorus.explorer.multiDeploy', (_uri: vscode.Uri, uris: vscode.Uri[]) => {
-        vscode.window.showWarningMessage(
-            t`ConfirmDeployFilesAndDirs`, t`Yes`, t`No`
+        vscode.window.showInformationMessage(
+            t`ConfirmDeployFilesAndDirs`, t`YesWithDep`, t`YesWithoutDep`, t`No`
         ).then(
             selection => {
-                if (selection === t`Yes`) {
-                    deployer.deployFilesAndDirs(uris.map(uri => uri.fsPath));
+                if (selection !== t`No`) {
+                    deployer.deployFilesAndDirs(uris.map(uri => uri.fsPath), selection === t`YesWithDep`);
                 }
             }
         );
@@ -121,12 +117,12 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.explorer.deployDir', (uri: vscode.Uri) => {
-        vscode.window.showWarningMessage(
-            t`ConfirmDeployDirectory ${uri.fsPath}`, t`Yes`, t`No`
+        vscode.window.showInformationMessage(
+            t`ConfirmDeployDirectory ${uri.fsPath}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
         ).then(
             selection => {
-                if (selection === t`Yes`) {
-                    deployer.deployDir(uri.fsPath);
+                if (selection !== t`No`) {
+                    deployer.deployDir(uri.fsPath, selection === t`YesWithDep`);
                 }
             }
         );

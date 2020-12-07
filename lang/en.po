@@ -100,12 +100,6 @@ msgstr "Create interface"
 msgid "CreateInterface-buttonTitle"
 msgstr "Create Qorus interface"
 
-msgid "QorusDeleteInterfacesTitle"
-msgstr "Delete Qorus Interfaces"
-
-msgid "DeleteQorusInterfaces"
-msgstr "Delete interfaces"
-
 msgid "LoggedOut"
 msgstr "Logged out"
 
@@ -457,6 +451,12 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
+msgid "YesWithDep"
+msgstr " Yes - with all dependencies "
+
+msgid "YesWithoutDep"
+msgstr " Yes - without dependencies "
+
 msgid "MoveUp"
 msgstr "Move up one position"
 
@@ -483,6 +483,9 @@ msgstr "Do you really want to delete ${ iface_kind } ${ name }?"
 
 msgid "ConfirmDeployInterface ${ iface_kind } ${ name }"
 msgstr "Do you really want to deploy ${ iface_kind } ${ name }?"
+
+msgid "ConfirmDeployCurrentFile"
+msgstr "Do you really want to deploy the current file?"
 
 msgid "ConfirmDeployAllInterfaces"
 msgstr "Do you really want to deploy all interfaces?"
@@ -681,6 +684,9 @@ msgstr "Name"
 
 msgid "ColumnHeader-version"
 msgstr "Version"
+
+msgid "ColumnHeader-id"
+msgstr "ID"
 
 msgid "ColumnHeader-workflowid"
 msgstr "ID"
@@ -1036,6 +1042,9 @@ msgstr "Name of the file with the configuration items"
 msgid "field-label-class-name"
 msgstr "Class name"
 
+msgid "field-label-errors"
+msgstr "Errors"
+
 msgid "field-desc-class-name"
 msgstr "Class name"
 
@@ -1047,6 +1056,36 @@ msgstr "Both interface name and class code name"
 
 msgid "field-label-base-class-name"
 msgstr "Base class name"
+
+msgid "field-label-business"
+msgstr "Business error"
+
+msgid "field-desc-business"
+msgstr "Business error"
+
+msgid "field-label-level"
+msgstr "Level"
+
+msgid "field-desc-level"
+msgstr "Level"
+
+msgid "field-label-retry-delay"
+msgstr "Retry delay"
+
+msgid "field-desc-retry-delay"
+msgstr "Retry delay"
+
+msgid "field-label-severity"
+msgstr "Severity"
+
+msgid "field-desc-severity"
+msgstr "Severity"
+
+msgid "field-label-status"
+msgstr "Status"
+
+msgid "field-desc-status"
+msgstr "Status"
 
 msgid "field-desc-base-class-name"
 msgstr "Inherited class name"
@@ -2349,6 +2388,12 @@ msgstr "Reloading webview ..."
 msgid "Draft"
 msgstr "Draft"
 
+msgid "AddErrorsTitle"
+msgstr "1. Add Errors"
+
+msgid "AddError"
+msgstr "Add Error"
+
 msgid "UnfinishedWork"
 msgstr "You have unsaved work, are you sure you want to leave? Leaving will result in your work being saved as a draft."
 
@@ -2459,6 +2504,51 @@ msgstr "Trigger"
 
 msgid "field-desc-trigger"
 msgstr "Indicates how the associated action will be triggered"
+
+msgid "field-label-errors_errors"
+msgstr "Errors"
+
+msgid "field-desc-errors_errors"
+msgstr "Errors"
+
+msgid "field-label-workflow_errors"
+msgstr "Errors"
+
+msgid "field-desc-workflow_errors"
+msgstr "Errors"
+
+msgid "field-label-FATAL"
+msgstr "FATAL"
+
+msgid "field-label-MAJOR"
+msgstr "MAJOR"
+
+msgid "field-label-MINOR"
+msgstr "MINOR"
+
+msgid "field-label-WARNING"
+msgstr "WARNING"
+
+msgid "field-label-INFO"
+msgstr "INFO"
+
+msgid "field-label-NONE"
+msgstr "NONE"
+
+msgid "field-label-AUTO"
+msgstr "AUTO"
+
+msgid "field-label-GLOBAL"
+msgstr "GLOBAL"
+
+msgid "field-label-WORKFLOW"
+msgstr "WORKFLOW"
+
+msgid "field-label-ERROR"
+msgstr "ERROR"
+
+msgid "field-label-RETRY"
+msgstr "RETRY"
 
 msgid "TriggerManager"
 msgstr "Manage trigger"

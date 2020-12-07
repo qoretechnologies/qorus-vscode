@@ -26,8 +26,6 @@ export const jobFields = ({ default_target_dir }) => [
     field.version,
     field.class_name,
     field.lang,
-    field.constants,
-    field.functions,
     field.mappers,
     field.vmaps,
     field.modules,

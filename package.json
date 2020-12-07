@@ -2,7 +2,7 @@
     "name": "qorus-vscode",
     "displayName": "Qorus Developer Tools",
     "description": "Qorus Integration Engine developer tools",
-    "version": "2.0.2",
+    "version": "2.1.0",
     "publisher": "qoretechnologies",
     "author": {
         "name": "Qore Technologies",
@@ -214,6 +214,11 @@
             {
                 "command": "qorus.explorer.editValueMap",
                 "title": "Edit Value Map",
+                "category": "Qorus"
+            },
+            {
+                "command": "qorus.explorer.editErrors",
+                "title": "Edit Errors",
                 "category": "Qorus"
             },
             {
@@ -443,6 +448,15 @@
                 }
             },
             {
+                "command": "qorus.createErrors",
+                "title": "Create New Errors",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/create-new.svg",
+                    "light": "images/icons/light/create-new.svg"
+                }
+            },
+            {
                 "command": "qorus.createType",
                 "title": "Create New Type",
                 "category": "Qorus",
@@ -479,7 +493,7 @@
                 }
             },
             {
-                "command": "qorus.views.deleteError",
+                "command": "qorus.views.deleteErrors",
                 "title": "Delete Errors",
                 "category": "Qorus",
                 "icon": {
@@ -677,7 +691,7 @@
                 }
             },
             {
-                "command": "qorus.views.deployError",
+                "command": "qorus.views.deployErrors",
                 "title": "Deploy Errors",
                 "category": "Qorus",
                 "icon": {
@@ -911,6 +925,15 @@
                 }
             },
             {
+                "command": "qorus.views.editErrors",
+                "title": "Edit Errors",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/edit.svg",
+                    "light": "images/icons/light/edit.svg"
+                }
+            },
+            {
                 "command": "qorus.views.editStep",
                 "title": "Edit Step",
                 "category": "Qorus",
@@ -991,7 +1014,7 @@
                     "when": "false"
                 },
                 {
-                    "command": "qorus.views.deleteError",
+                    "command": "qorus.views.deleteErrors",
                     "when": "false"
                 },
                 {
@@ -1079,7 +1102,7 @@
                     "when": "false"
                 },
                 {
-                    "command": "qorus.views.deployError",
+                    "command": "qorus.views.deployErrors",
                     "when": "false"
                 },
                 {
@@ -1180,6 +1203,10 @@
                 },
                 {
                     "command": "qorus.views.editValueMap",
+                    "when": "false"
+                },
+                {
+                    "command": "qorus.views.editErrors",
                     "when": "false"
                 },
                 {
@@ -1305,6 +1332,11 @@
                     "when": "explorerResourceIsFolder",
                     "command": "qorus.createValueMap",
                     "group": "2_workspace@15"
+                },
+                {
+                    "when": "explorerResourceIsFolder",
+                    "command": "qorus.createErrors",
+                    "group": "2_workspace@16"
                 },
                 {
                     "when": "explorerResourceIsFolder && !listMultiSelection",
@@ -1518,6 +1550,11 @@
                     "group": "inline"
                 },
                 {
+                    "command": "qorus.createErrors",
+                    "when": "view == qorusInterfaces && viewItem == errors-category",
+                    "group": "inline"
+                },
+                {
                     "command": "qorus.createType",
                     "when": "view == qorusInterfaces && viewItem == type-category",
                     "group": "inline"
@@ -1548,8 +1585,8 @@
                     "group": "inline"
                 },
                 {
-                    "command": "qorus.views.deleteError",
-                    "when": "view == qorusInterfaces && viewItem == error",
+                    "command": "qorus.views.deleteErrors",
+                    "when": "view == qorusInterfaces && viewItem == errors",
                     "group": "inline"
                 },
                 {
@@ -1643,8 +1680,8 @@
                     "group": "inline"
                 },
                 {
-                    "command": "qorus.views.deployError",
-                    "when": "view == qorusInterfaces && viewItem == error",
+                    "command": "qorus.views.deployErrors",
+                    "when": "view == qorusInterfaces && viewItem == errors",
                     "group": "inline"
                 },
                 {
@@ -1770,6 +1807,11 @@
                 {
                     "command": "qorus.views.editValueMap",
                     "when": "view == qorusInterfaces && viewItem == value-map",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.views.editErrors",
+                    "when": "view == qorusInterfaces && viewItem == errors",
                     "group": "inline"
                 },
                 {

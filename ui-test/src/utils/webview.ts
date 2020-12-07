@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { last, size } from 'lodash';
 import {
     ActionSequence,
     Button,
@@ -150,8 +150,13 @@ export const getElementText = async (
     return await (await getNthElement(webview, name, position, selector)).getText();
 };
 
-export const selectNthFolder = async (webview: WebView, name: string, position: number) => {
-    await clickElement(webview, `folder-expander-${name}`);
+export const selectNthFolder = async (
+    webview: WebView,
+    name: string,
+    position: number,
+    elementPosition: number = 1
+) => {
+    await clickElement(webview, `folder-expander-${name}`, elementPosition);
     await sleep(500);
     await clickElement(webview, 'bp3-tree-node-content', position, 'className');
 };
@@ -220,18 +225,28 @@ export const selectMultiselectItemsByNumbers = async (
     await clickElement(webview, 'bp3-fixed-top', 1, 'className');
 };
 
-export const submitInterface = async (webview: WebView, iface: string) => {
-    await clickElement(webview, `interface-creator-submit-${iface}`);
+export const submitInterface = async (webview: WebView, iface: string, position: number = 1) => {
+    await clickElement(webview, `interface-creator-submit-${iface}`, position);
 };
 
 export const confirmDialog = async (webview: WebView) => {
     await sleep(500);
-    await clickElement(webview, 'global-dialog-confirm', 1, 'id');
-    await sleep(1000);
+
+    const dialog = await getNthElement(webview, 'global-dialog-confirm', 1, 'id');
+
+    if (dialog) {
+        await clickElement(webview, 'global-dialog-confirm', 1, 'id');
+        await sleep(1000);
+    }
 };
 
 export const closeLastDialog = async (webview: WebView) => {
-    await (await webview.findWebElement(By.className('bp3-dialog-close-button'))).click();
+    const dialogs = await webview.findWebElements(By.className('bp3-dialog-close-button'));
+
+    if (size(dialogs)) {
+        // @ts-ignore
+        await last(dialogs).click();
+    }
 };
 
 export const getSelectedFields = async (webview: WebView) => {
@@ -243,9 +258,7 @@ export const removeField = async (webview: WebView, fieldName: string) => {
 
     await sleep(1000);
 
-    if (await getNthElement(webview, 'global-dialog-confirm')) {
-        await confirmDialog(webview);
-    }
+    await confirmDialog(webview);
 };
 
 export const doubleClickElement = async (element: WebElement) => {

@@ -59,3 +59,65 @@ export const valueMapFields = ({ default_target_dir }) => [
     },
     field['value-maps'],
 ];
+
+
+export const errorsFields = ({ default_target_dir }) => [
+    field.targetDir(default_target_dir),
+    field.targetFile,
+    field.name,
+    field.desc,
+];
+
+export const error_fields = [
+    field.name,
+    field.desc,
+    {
+        name: 'severity',
+        mandatory: false,
+        type: 'enum',
+        items: [
+            { value: 'FATAL' },
+            { value: 'MAJOR' },
+            { value: 'MINOR' },
+            { value: 'WARNING' },
+            { value: 'INFO' },
+            { value: 'NONE' },
+        ],
+        default_value: 'MAJOR',
+    },
+    {
+        name: 'status',
+        mandatory: false,
+        type: 'enum',
+        items: [
+            { value: 'ERROR' },
+            { value: 'RETRY' },
+        ],
+        default_value: 'ERROR',
+        notify_on_remove: true,
+        on_change: 'error-status-changed',
+    },
+    {
+        name: 'business',
+        mandatory: false,
+        type: 'boolean',
+        default_value: false,
+    },
+    {
+        name: 'retry-delay',
+        mandatory: false,
+        disabled: true,
+        type: 'number',
+    },
+    {
+        name: 'level',
+        mandatory: false,
+        type: 'enum',
+        items: [
+            { value: 'AUTO' },
+            { value: 'GLOBAL' },
+            { value: 'WORKFLOW' },
+        ],
+        default_value: 'AUTO',
+    },
+];

@@ -26,7 +26,7 @@ describe('Pipeline tests', function () {
     it('Undo Pipeline to previous state', () => undoPipelineToPreviousState(webview));
     it('Submits Pipeline and checks files', () => submitPipelineAndCheckFiles(webview));
     it('Disables submit for incompatible Pipeline', () => disablesSubmitForIncompatiblePipeline(webview));
-    it('Edits Pipeline and checks files', () => editsPipelineAndChecksFiles(webview));
+//    it('Edits Pipeline and checks files', () => editsPipelineAndChecksFiles(webview));
 
     // Reset the workbench
     this.afterAll(async () => {
