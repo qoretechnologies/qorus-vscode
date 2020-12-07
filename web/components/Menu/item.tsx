@@ -1,16 +1,13 @@
 // @flow
-import React from 'react';
-
+import { Icon, Position, Tooltip } from '@blueprintjs/core';
 import classnames from 'classnames';
 import map from 'lodash/map';
+import React from 'react';
 import compose from 'recompose/compose';
 import lifecycle from 'recompose/lifecycle';
 import mapProps from 'recompose/mapProps';
 import withHandlers from 'recompose/withHandlers';
 import withState from 'recompose/withState';
-
-import { Icon, Position, Tooltip } from '@blueprintjs/core';
-
 import { isActiveMulti } from '../../helpers/menu';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -57,14 +54,8 @@ let SidebarItem: Function = ({
     t,
     ...rest
 }: SidebarItemProps) => {
-    const hasDraft = itemData.tab === 'CreateInterface' && rest.unfinishedWork[itemData?.subtab];
-    const intent = hasDraft ? 'warning' : 'none';
-
     return !itemData.submenu ? (
-        <SidebarItemTooltip
-            isCollapsed={isCollapsed}
-            tooltip={!hasDraft ? t(itemData.name) : `${t(itemData.name)} (${t('Draft')})`}
-        >
+        <SidebarItemTooltip isCollapsed={isCollapsed} tooltip={t(itemData.name)}>
             <div
                 className={classnames('sidebarItem', {
                     sidebarSubItem: subItem,
@@ -77,8 +68,7 @@ let SidebarItem: Function = ({
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
-                <Icon intent={intent} icon={itemData.icon} />{' '}
-                {!isCollapsed ? (!hasDraft ? t(itemData.name) : `${t(itemData.name)} (${t('Draft')})`) : null}
+                <Icon icon={itemData.icon} /> {!isCollapsed ? t(itemData.name) : null}
             </div>
         </SidebarItemTooltip>
     ) : (
@@ -92,7 +82,7 @@ let SidebarItem: Function = ({
                 name={itemData.name}
                 onClick={onExpandClick}
             >
-                <Icon intent={intent} icon={itemData.icon} /> {!isCollapsed && t(itemData.name)}
+                <Icon icon={itemData.icon} /> {!isCollapsed && t(itemData.name)}
                 {onExpandClick && <Icon icon={isExpanded ? 'caret-up' : 'caret-down'} className="submenuExpand" />}
             </div>
         </SidebarItemTooltip>

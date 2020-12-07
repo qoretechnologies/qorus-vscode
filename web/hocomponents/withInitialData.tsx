@@ -106,12 +106,26 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     subtab: subtab || null,
                 }));
 
-            if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab] && !force) {
+            if (
+                initialData.tab === 'CreateInterface' &&
+                unfinishedWork?.[initialData.activeInterface?.type]?.[initialData.activeInterface?.index] &&
+                !force
+            ) {
                 // Check if there is data for the given subtab
                 confirmAction('UnfinishedWork', setTabs, 'Leave', 'danger');
             } else {
                 setTabs();
             }
+        };
+
+        const setActiveInterface = (interfaceType, interfaceIndex) => {
+            setInitialData((current) => ({
+                ...current,
+                activeInterface: {
+                    type: interfaceType,
+                    index: interfaceIndex,
+                },
+            }));
         };
 
         const setStepSubmitCallback: (callback: () => any) => void = (callback): void => {
@@ -271,6 +285,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     unfinishedWork,
                     setUnfinishedWork,
                     toggleSidebar,
+                    setActiveInterface,
                 }}
             >
                 <InitialContext.Consumer>

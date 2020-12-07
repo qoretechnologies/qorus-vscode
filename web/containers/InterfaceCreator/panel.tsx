@@ -254,6 +254,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     useEffect(() => {
         addInterface(type, interfaceIndex);
+
+        if (!onSubmitSuccess) {
+            initialData.setActiveInterface(type, interfaceIndex);
+        }
     }, [data]);
 
     useEffect(() => {
@@ -580,7 +584,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         //* we ignore the `lang` field because it has a default value and fires a change
         //* on mount
         if (value && fieldName !== 'lang') {
-            setAsDraft(type);
+            setAsDraft(type, interfaceIndex);
         }
         setSelectedFields(
             type,

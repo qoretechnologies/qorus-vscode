@@ -250,12 +250,17 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             });
         };
 
-        const setAsDraft: (type: string) => void = (type) => {
-            if (!props.unfinishedWork?.[type]) {
+        const setAsDraft: (type: string, interfaceIndex: number) => void = (type, interfaceIndex) => {
+            if (!props.unfinishedWork?.[`${type}:${interfaceIndex}`]) {
                 props.setUnfinishedWork((current) => {
                     const newResult = { ...current };
+
+                    if (!newResult[type]) {
+                        newResult[type] = {};
+                    }
                     // Set the interface id to null
-                    newResult[type] = true;
+                    newResult[type][interfaceIndex] = true;
+
                     return newResult;
                 });
             }
