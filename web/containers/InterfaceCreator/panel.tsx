@@ -12,7 +12,7 @@ import {
     reduce,
     size,
     uniqBy,
-    upperFirst,
+    upperFirst
 } from 'lodash';
 import isArray from 'lodash/isArray';
 import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
@@ -43,7 +43,7 @@ import withMessageHandler, {
     addMessageListener,
     postMessage,
     TMessageListener,
-    TPostMessage,
+    TPostMessage
 } from '../../hocomponents/withMessageHandler';
 import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withStepsConsumer from '../../hocomponents/withStepsConsumer';
@@ -849,10 +849,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // local fields will be unmounted
                 if (type === 'config-item') {
                     resetFields(type, interfaceIndex);
-                } else {
-                    // Reset the interface data
-                    resetAllInterfaceData(type);
-                    resetClassConnections && resetClassConnections();
                 }
             }
         }

@@ -6,6 +6,7 @@ import { openInterfaceFromTreeView } from '../utils/treeView';
 import {
     addNewMultiSelectItemAndSelectIt,
     clickElement,
+    closeLastDialog,
     fillTextField,
     getElementAttribute,
     getElements,
@@ -109,6 +110,20 @@ export const addsExistingStepFromWorkflowDiagram = async (webview: WebView) => {
     await sleep(3000);
 
     expect(await getElements(webview, 'workflow-diagram-step')).to.have.length(2);
+};
+
+export const canOpenStepForEditingFromDiagram = async (webview: WebView) => {
+    await clickElement(webview, 'workflow-diagram-step', 2);
+    await sleep(500);
+    await clickElement(webview, 'field-step-edit-reference');
+    await sleep(3000);
+
+    expect(await getElementAttribute(webview, 'field-name', 'value')).to.eq('StepForWorkflowTest');
+
+    await closeLastDialog(webview);
+    await sleep(300);
+    await closeLastDialog(webview);
+    await sleep(300);
 };
 
 export const submitsWorkflowAndChecksFiles = async (webview: WebView) => {

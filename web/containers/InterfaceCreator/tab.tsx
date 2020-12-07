@@ -9,7 +9,6 @@ import { Messages } from '../../constants/messages';
 import { TextContext } from '../../context/text';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
-import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 
@@ -189,19 +188,18 @@ const TutorialButton = ({ type, onClick }) => {
     );
 };
 
-const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInterfaceData, updateField }) => {
-    const isEditing: () => boolean = () => !!initialData[type]?.name;
-    const getName: () => string = () => initialData?.[type]?.name || initialData?.[type]?.path;
+const Tab: React.FC<ITabProps> = ({ t, data, type, children, resetAllInterfaceData, updateField, name }) => {
+    const isEditing: () => boolean = () => !!name;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
     const getFilePath = () => {
         if (isEditing()) {
-            const ext = initialData[type].target_file.split('.').pop();
+            const ext = data[type].target_file.split('.').pop();
 
             if (ext === 'yaml') {
                 return null;
             }
 
-            return `${initialData[type].target_dir}/${initialData[type].target_file}`;
+            return `${data[type].target_dir}/${data[type].target_file}`;
         }
 
         return null;
@@ -225,11 +223,11 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
         if (recreateDialog) {
             const { message, iface_kind, orig_lang, iface_id } = recreateDialog;
 
-            initialData.confirmAction(
+            data.confirmAction(
                 message,
                 () => {
-                    initialData.resetInterfaceData(iface_kind);
-                    initialData.changeInitialData('isRecreate', true);
+                    data.resetInterfaceData(iface_kind);
+                    data.changeInitialData('isRecreate', true);
                     setRecreateDialog(null);
                 },
                 'Recreate',
@@ -253,7 +251,7 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
             )}
             <StyledHeader>
                 <h2 id={`${type}-interface-title`}>
-                    {isEditing() ? `Edit ${getTypeName(type, t)} "${getName()}"` : `New ${getTypeName(type, t)}`}
+                    {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
                 </h2>
                 <ButtonGroup>
                     {tutorials[type] && (
@@ -294,10 +292,10 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
                                 text="Delete"
                                 intent="danger"
                                 onClick={() => {
-                                    initialData.confirmAction('ConfirmDeleteInterface', () => {
+                                    data.confirmAction('ConfirmDeleteInterface', () => {
                                         postMessage('delete-interface', {
                                             iface_kind: type,
-                                            name: getName(),
+                                            name: name,
                                         });
                                         resetAllInterfaceData(type);
                                     });
@@ -312,9 +310,4 @@ const Tab: React.FC<ITabProps> = ({ t, initialData, type, children, resetAllInte
     );
 };
 
-export default compose(
-    withFieldsConsumer(),
-    withInitialDataConsumer(),
-    withTextContext(),
-    withGlobalOptionsConsumer()
-)(Tab);
+export default compose(withFieldsConsumer(), withTextContext(), withGlobalOptionsConsumer())(Tab);

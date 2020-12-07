@@ -20,13 +20,19 @@ export interface ICreateInterface {
     initialData: any;
     onSubmit: any;
     context: any;
+    data: any;
 }
 
-export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData, onSubmit, context }) => {
+export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialData, onSubmit, data, context }) => {
+    initialData = { ...initialData, ...data };
+
+    const getName: () => string = () =>
+        initialData?.[initialData.subtab]?.name || initialData?.[initialData.subtab]?.path;
+
     return (
         <Box fill style={{ overflow: 'hidden' }}>
             <div className={'fullHeightTabs'}>
-                <Tab type={initialData.subtab}>
+                <Tab name={getName()} type={initialData.subtab} data={initialData}>
                     {initialData.subtab === 'fsm' && (
                         <FSMView
                             fsm={initialData.fsm}
