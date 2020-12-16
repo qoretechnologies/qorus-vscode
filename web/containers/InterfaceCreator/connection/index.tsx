@@ -46,7 +46,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
     };
 
     useMount(() => {
-        setConnectionReset(() => () => setData({}));
+        setConnectionReset(() => () => setData(connection || {}));
 
         addMessageListener(Messages.FIELDS_FETCHED, ({ fields }) => {
             setFields(fields);

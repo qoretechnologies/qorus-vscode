@@ -57,6 +57,11 @@ const URLField: React.FC<IURLFieldProps> = ({ url, value, name, onChange }) => {
         onChange(name, `${protocol}://${address}`);
     }, [protocol, address]);
 
+    useEffect(() => {
+        setProtocol(getProtocol(value));
+        setAddress(getAddress(value));
+    }, [value]);
+
     return (
         <ControlGroup fill>
             <SelectField
