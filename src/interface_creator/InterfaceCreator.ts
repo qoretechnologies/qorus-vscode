@@ -9,7 +9,7 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
 import { default_lang, default_version, types_with_version } from '../qorus_constants';
 import * as msg from '../qorus_message';
-import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
+import { capitalize, deepCopy, isValidIdentifier, removeDuplicates, sortRanges } from '../qorus_utils';
 import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
@@ -23,6 +23,11 @@ const lang_suffix = {
     python: '.py',
     java: '.java',
 };
+
+const quotesIfNecessary = (value: any): string =>
+    (parseFloat(value) == value || ['true', 'false'].includes(value) || typeof value === 'boolean')
+        ? `"${value}"`
+        : value;
 
 export abstract class InterfaceCreator {
     protected suffix: string = '';
@@ -524,7 +529,7 @@ export abstract class InterfaceCreator {
             if (item.parent) {
                 result += `${indent.repeat(indent_level + 1)}parent:\n`;
                 for (const tag in item.parent) {
-                    result += `${indent.repeat(indent_level + 2)}${tag}: ${quotesIfNum(item.parent[tag])}\n`;
+                    result += `${indent.repeat(indent_level + 2)}${tag}: ${quotesIfNecessary(item.parent[tag])}\n`;
                 }
             }
 
@@ -710,7 +715,8 @@ export abstract class InterfaceCreator {
                     case 'statuses':
                         const [key_name, value_name] = field[tag].fields;
                         for (let item of value) {
-                            result += `${indent}${item[key_name]}: ${item[value_name]}\n`;
+                            const val = tag === 'tags' ? quotesIfNecessary(item[value_name]) : item[value_name];
+                            result += `${indent}${item[key_name]}: ${val}\n`;
                         }
                         break;
                     case 'value-maps':
@@ -844,7 +850,7 @@ export abstract class InterfaceCreator {
                         result += `errors: ${relative_file_name}\n`;
                         break;
                     case 'version':
-                        result += `${tag}: ${quotesIfNum(value)}\n`;
+                        result += `${tag}: ${quotesIfNecessary(value)}\n`;
                         break;
                     case 'type':
                         result += `${tag}: ${value.toLowerCase()}\n`;
