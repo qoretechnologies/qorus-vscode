@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Callout, Classes, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Classes, Colors, Intent, Tooltip } from '@blueprintjs/core';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
@@ -293,25 +293,29 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         }
     };
 
-    const isDataValid = (data, isDefValid = true) => {
+    const isDiagramValid = (data, isDefValid = true) => {
+        return data.reduce((isValid, item) => {
+            if ((item.type === 'queue' || item.type === 'start') && size(item.children) === 0) {
+                isValid = false;
+            }
+
+            if (item.children && item.children.length > 0) {
+                if (!isDiagramValid(item.children, isValid)) {
+                    isValid = false;
+                }
+            }
+
+            if (item.isCompatible === false) {
+                isValid = false;
+            }
+
+            return isValid;
+        }, isDefValid);
+    };
+
+    const isDataValid = (data) => {
         return (
-            data.reduce((isValid, item) => {
-                if ((item.type === 'queue' || item.type === 'start') && size(item.children) === 0) {
-                    isValid = false;
-                }
-
-                if (item.children && item.children.length > 0) {
-                    if (!isDataValid(item.children, isValid)) {
-                        isValid = false;
-                    }
-                }
-
-                if (item.isCompatible === false) {
-                    isValid = false;
-                }
-
-                return isValid;
-            }, isDefValid) &&
+            isDiagramValid(data) &&
             validateField('string', metadata.name) &&
             validateField('string', metadata.desc) &&
             validateField('string', metadata.target_dir)
@@ -629,7 +633,12 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     />
                 </ButtonGroup>
             </StyledToolbarWrapper>
-            <StyledDiagramWrapper ref={wrapperRef} id="pipeline-diagram" path={image_path}>
+            <StyledDiagramWrapper
+                ref={wrapperRef}
+                id="pipeline-diagram"
+                path={image_path}
+                style={{ border: !isDiagramValid(elements) ? `1px solid ${Colors.RED2}` : undefined }}
+            >
                 {wrapperRef.current && (
                     <Tree
                         data={elements}
