@@ -21,7 +21,7 @@ export interface IProcessorField extends IField {
 const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value, onChange, t }) => {
     const initialData = useContext(InitialContext);
     const [inputType, setInputType] = useState<TTypeProvider>(value?.['processor-input-type']);
-    const [outputType, setOutputType] = useState<TTypeProvider>(value?.['processor-input-type']);
+    const [outputType, setOutputType] = useState<TTypeProvider>(value?.['processor-output-type']);
 
     useMount(() => {
         if (!value) {
