@@ -1,14 +1,9 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import StringField from './string';
-import SelectField from './select';
-import { Button, ButtonGroup, ControlGroup, Callout } from '@blueprintjs/core';
-import styled from 'styled-components';
-import { size } from 'lodash';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
+import React, { FunctionComponent } from 'react';
 import compose from 'recompose/compose';
+import { TTranslator } from '../../App';
+import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
 import ConnectorField from './connectors';
 
 const TypeSelectorField: FunctionComponent<TTranslator & IField & IFieldChange> = ({
@@ -17,13 +12,20 @@ const TypeSelectorField: FunctionComponent<TTranslator & IField & IFieldChange> 
     value,
     t,
     initialData,
+    providerType,
 }) => {
     const handleChange: (name: string, val: any) => void = (name, val) => {
         onChange(name, val);
     };
 
     return (
-        <ConnectorField value={value} isInitialEditing={!!initialData.workflow} name={name} onChange={handleChange} />
+        <ConnectorField
+            value={value}
+            isInitialEditing={!!initialData.workflow}
+            name={name}
+            onChange={handleChange}
+            providerType={providerType}
+        />
     );
 };
 

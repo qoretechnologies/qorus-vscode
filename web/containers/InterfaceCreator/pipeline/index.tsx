@@ -571,14 +571,21 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                     isInitialEditing={!!pipeline}
                                     name="input-provider"
                                     onChange={handleMetadataChange}
+                                    providerType="inputs"
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
                         {metadata['input-provider'] && (
                             <FieldWrapper name="selected-field">
                                 <FieldLabel
+                                    info={t('Optional')}
                                     label={t('field-label-input-provider-options')}
-                                    isValid={validateField('pipeline-options', metadata['input-provider-options'])}
+                                    isValid={validateField(
+                                        'pipeline-options',
+                                        metadata['input-provider-options'],
+                                        null,
+                                        true
+                                    )}
                                 />
                                 <FieldInputWrapper>
                                     <Options

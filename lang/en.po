@@ -2157,6 +2157,15 @@ msgstr "User connections"
 msgid "Datasources"
 msgstr "Datasource connections"
 
+msgid "SelectDataProvider"
+msgstr "Select data provider"
+
+msgid "CurrentDataProvider"
+msgstr "Current data provider"
+
+msgid "FactoryOptions"
+msgstr "Factory options"
+
 msgid "InputProvider"
 msgstr "Select input"
 
@@ -2253,8 +2262,8 @@ msgstr "Workflow level config item value ${ name } not found"
 msgid "CannotDetermineConfigItemValueType"
 msgstr "Cannot determine config item value type"
 
-msgid "AutoFieldSelectType"
-msgstr "Please select type"
+msgid "UnknownType"
+msgstr "Unknown data type! Cannot display appropriate field."
 
 msgid "AutoFieldSelectType"
 msgstr "Please select type"

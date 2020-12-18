@@ -116,6 +116,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             return valid;
         }
         case 'int':
+        case 'softint':
         case 'number':
             return !isNaN(value) && getTypeFromValue(value) === 'int';
         case 'float':
@@ -166,8 +167,20 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             if (!value) {
                 return false;
             }
+
+            if (value?.type === 'factory') {
+                let options = true;
+
+                if (value.factory_options) {
+                    options = validateField('system-options', value.factory_options);
+                }
+
+                // Type path and name are required
+                return !!(value.type && value.name && options);
+            }
+
             // Type path and name are required
-            return value.type && value.path && value.name;
+            return !!(value.type && value.path && value.name);
         case 'context-selector':
             if (isString(value)) {
                 const cont: string[] = value.split(':');
@@ -219,6 +232,10 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
         case 'mapper-options':
         case 'system-options': {
             if (!value || size(value) === 0) {
+                if (canBeNull) {
+                    return true;
+                }
+
                 return false;
             }
 

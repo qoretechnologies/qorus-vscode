@@ -7,6 +7,8 @@ import { TTranslator } from '../../../App';
 import Provider, { providers } from '../../../containers/Mapper/provider';
 import withInitialDataConsumer from '../../../hocomponents/withInitialDataConsumer';
 import withTextContext from '../../../hocomponents/withTextContext';
+import SubField from '../../SubField';
+import Options from '../systemOptions';
 
 export interface IConnectorFieldProps {
     title?: string;
@@ -16,6 +18,7 @@ export interface IConnectorFieldProps {
     isInitialEditing?: boolean;
     initialData: any;
     inline?: boolean;
+    providerType?: 'inputs' | 'outputs' | 'event' | 'input-output' | 'condition';
     t: TTranslator;
 }
 
@@ -36,6 +39,7 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     isInitialEditing,
     initialData,
     inline,
+    providerType,
     t,
 }) => {
     const [nodes, setChildren] = useState([]);
@@ -65,17 +69,44 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
     };
 
     useEffect(() => {
-        onChange(name, optionProvider);
+        if (!optionProvider) {
+            onChange(name, optionProvider);
+            return;
+        }
+
+        const val = { ...optionProvider };
+
+        if (!size(val.factory_options)) {
+            delete val.factory_options;
+        }
+
+        onChange(name, val);
     }, [optionProvider, isEditing]);
 
     if (isEditing && value) {
         return (
-            <StyledProviderUrl>
-                {title && <span>{title}:</span>}{' '}
-                <Tag minimal large onRemove={clear}>
-                    {getUrlFromProvider(value)}{' '}
-                </Tag>
-            </StyledProviderUrl>
+            <>
+                <SubField title={t('CurrentDataProvider')}>
+                    <StyledProviderUrl>
+                        {title && <span>{title}:</span>}{' '}
+                        <Tag minimal large onRemove={clear}>
+                            {getUrlFromProvider(value)}{' '}
+                        </Tag>
+                    </StyledProviderUrl>
+                </SubField>
+                {value.type === 'factory' ? (
+                    <SubField title={t('FactoryOptions')}>
+                        <Options
+                            onChange={(nm, val) => {
+                                setOptionProvider((cur) => ({ ...cur, factory_options: val }));
+                            }}
+                            name="factory_options"
+                            value={optionProvider.factory_options}
+                            customUrl={`${getUrlFromProvider(value)}/constructor_options`}
+                        />
+                    </SubField>
+                ) : null}
+            </>
         );
     }
 
@@ -85,22 +116,37 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
     return (
         <>
-            <Provider
-                nodes={nodes}
-                setChildren={setChildren}
-                provider={provider}
-                setProvider={setProvider}
-                setOptionProvider={setOptionProvider}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-                title={title}
-                clear={clear}
-                compact
-                style={{
-                    display: inline ? 'inline-block' : 'block',
-                }}
-            />
+            <SubField title={t('SelectDataProvider')}>
+                <Provider
+                    nodes={nodes}
+                    setChildren={setChildren}
+                    provider={provider}
+                    setProvider={setProvider}
+                    setOptionProvider={setOptionProvider}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                    title={title}
+                    clear={clear}
+                    type={providerType}
+                    compact
+                    style={{
+                        display: inline ? 'inline-block' : 'block',
+                    }}
+                />
+            </SubField>
             {size(nodes) ? <Button intent="danger" icon="cross" onClick={reset} /> : null}
+            {provider === 'factory' && optionProvider ? (
+                <SubField title={t('FactoryOptions')}>
+                    <Options
+                        onChange={(nm, val) => {
+                            setOptionProvider((cur) => ({ ...cur, factory_options: val }));
+                        }}
+                        name="factory_options"
+                        value={optionProvider.factory_options}
+                        customUrl={`${getUrlFromProvider(optionProvider)}/constructor_options`}
+                    />
+                </SubField>
+            ) : null}
         </>
     );
 };
