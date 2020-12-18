@@ -660,6 +660,18 @@ export abstract class InterfaceCreator {
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
 
+        const fixFactoryOptions = (value: any): any => {
+            Object.keys(value.factory_options || {}).forEach(option_key => {
+                let option_value = value.factory_options[option_key];
+                const option_type = option_value.type || '';
+                if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
+                    option_value.value = jsyaml.safeLoad(option_value.value);
+                }
+            });
+
+            return value;
+        };
+
         for (const tag of ordered_tags) {
             if (
                 [
@@ -902,7 +914,7 @@ export abstract class InterfaceCreator {
                         let fixed_value = {};
                         ['processor-input-type', 'processor-output-type'].forEach(key => {
                             if (value[key]) {
-                                fixed_value[key] = value[key];
+                                fixed_value[key] = fixFactoryOptions(value[key]);
                             }
                         });
                         result += `${tag}:\n` + InterfaceCreator.indentYamlDump(fixed_value, 1, true);

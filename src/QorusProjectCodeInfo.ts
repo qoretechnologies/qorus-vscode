@@ -498,6 +498,16 @@ export class QorusProjectCodeInfo {
         };
         fixProcessors(data.children);
 
+        Object.keys(data.processor || {}).forEach(key => {
+            Object.keys(data.processor[key].factory_options || {}).forEach(option_key => {
+                let option_value = data.processor[key].factory_options[option_key];
+                const option_type = option_value.type || '';
+                if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
+                    option_value.value = jsyaml.safeDump(option_value.value).replace(/\r?\n$/, '');
+                }
+            });
+        });
+
         for (const method of data.methods || []) {
             if (method.author) {
                 method.author = method.author.map(value => ({ name: value }));
