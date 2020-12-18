@@ -227,13 +227,18 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                         name="type"
                         defaultItems={[
                             { name: 'bool' },
+                            { name: 'softbool' },
                             { name: 'date' },
                             { name: 'string' },
+                            { name: 'softstring' },
                             { name: 'binary' },
                             { name: 'float' },
+                            { name: 'softfloat' },
                             { name: 'list' },
+                            { name: 'softlist' },
                             { name: 'hash' },
                             { name: 'int' },
+                            { name: 'softint' },
                         ]}
                         value={currentInternalType}
                         onChange={(_name, value) => {

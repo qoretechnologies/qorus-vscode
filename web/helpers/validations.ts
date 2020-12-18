@@ -41,6 +41,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
     switch (type) {
         case 'binary':
         case 'string':
+        case 'softstring':
         case 'select-string':
         case 'file-string':
         case 'long-string':
@@ -146,6 +147,7 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             return true;
         }
         case 'list':
+        case 'softlist':
         case 'list<auto>': {
             // Get the parsed yaml
             const parsedValue: any = maybeParseYaml(value);

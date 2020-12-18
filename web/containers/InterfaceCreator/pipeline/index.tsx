@@ -483,122 +483,122 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     interfaceId={interfaceId}
                 />
             )}
-            <div id="pipeline-fields-wrapper">
-                {!isMetadataHidden && (
-                    <>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                label={t('field-label-target_dir')}
-                                isValid={validateField('file-string', metadata.target_dir)}
+            <div
+                id="pipeline-fields-wrapper"
+                style={{
+                    maxHeight: isMetadataHidden ? '0px' : '30%',
+                    overflow: 'auto',
+                    paddingRight: '10px',
+                    transition: 'all .3s ease-in-out',
+                }}
+            >
+                <>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel
+                            label={t('field-label-target_dir')}
+                            isValid={validateField('file-string', metadata.target_dir)}
+                        />
+                        <FieldInputWrapper>
+                            <FileString
+                                onChange={handleMetadataChange}
+                                name="target_dir"
+                                value={metadata.target_dir}
+                                get_message={{
+                                    action: 'creator-get-directories',
+                                    object_type: 'target_dir',
+                                }}
+                                return_message={{
+                                    action: 'creator-return-directories',
+                                    object_type: 'target_dir',
+                                    return_value: 'directories',
+                                }}
                             />
-                            <FieldInputWrapper>
-                                <FileString
-                                    onChange={handleMetadataChange}
-                                    name="target_dir"
-                                    value={metadata.target_dir}
-                                    get_message={{
-                                        action: 'creator-get-directories',
-                                        object_type: 'target_dir',
-                                    }}
-                                    return_message={{
-                                        action: 'creator-return-directories',
-                                        object_type: 'target_dir',
-                                        return_value: 'directories',
-                                    }}
-                                />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                isValid={validateField('string', metadata.name)}
-                                label={t('field-label-name')}
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel isValid={validateField('string', metadata.name)} label={t('field-label-name')} />
+                        <FieldInputWrapper>
+                            <String onChange={handleMetadataChange} value={metadata.name} name="name" />
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel isValid={validateField('string', metadata.desc)} label={t('field-label-desc')} />
+                        <FieldInputWrapper>
+                            <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel
+                            isValid={
+                                metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
+                            }
+                            info={t('Optional')}
+                            label={t('field-label-groups')}
+                        />
+                        <FieldInputWrapper>
+                            <MultiSelect
+                                onChange={handleMetadataChange}
+                                get_message={{
+                                    action: 'creator-get-objects',
+                                    object_type: 'group',
+                                }}
+                                return_message={{
+                                    action: 'creator-return-objects',
+                                    object_type: 'group',
+                                    return_value: 'objects',
+                                }}
+                                reference={{
+                                    iface_kind: 'other',
+                                    type: 'group',
+                                }}
+                                value={metadata.groups}
+                                name="groups"
                             />
-                            <FieldInputWrapper>
-                                <String onChange={handleMetadataChange} value={metadata.name} name="name" />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                isValid={validateField('string', metadata.desc)}
-                                label={t('field-label-desc')}
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel
+                            info={t('Optional')}
+                            label={t('field-label-input-provider')}
+                            isValid={
+                                metadata['input-provider']
+                                    ? validateField('type-selector', metadata['input-provider'])
+                                    : true
+                            }
+                        />
+                        <FieldInputWrapper>
+                            <ConnectorField
+                                value={metadata['input-provider']}
+                                isInitialEditing={!!pipeline}
+                                name="input-provider"
+                                onChange={handleMetadataChange}
+                                providerType="inputs"
                             />
-                            <FieldInputWrapper>
-                                <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    {metadata['input-provider'] && (
                         <FieldWrapper name="selected-field">
                             <FieldLabel
-                                isValid={
-                                    metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
-                                }
                                 info={t('Optional')}
-                                label={t('field-label-groups')}
+                                label={t('field-label-input-provider-options')}
+                                isValid={validateField(
+                                    'pipeline-options',
+                                    metadata['input-provider-options'],
+                                    null,
+                                    true
+                                )}
                             />
                             <FieldInputWrapper>
-                                <MultiSelect
+                                <Options
+                                    value={metadata?.['input-provider-options']}
                                     onChange={handleMetadataChange}
-                                    get_message={{
-                                        action: 'creator-get-objects',
-                                        object_type: 'group',
-                                    }}
-                                    return_message={{
-                                        action: 'creator-return-objects',
-                                        object_type: 'group',
-                                        return_value: 'objects',
-                                    }}
-                                    reference={{
-                                        iface_kind: 'other',
-                                        type: 'group',
-                                    }}
-                                    value={metadata.groups}
-                                    name="groups"
+                                    name="input-provider-options"
+                                    url="/pipeline"
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                info={t('Optional')}
-                                label={t('field-label-input-provider')}
-                                isValid={
-                                    metadata['input-provider']
-                                        ? validateField('type-selector', metadata['input-provider'])
-                                        : true
-                                }
-                            />
-                            <FieldInputWrapper>
-                                <ConnectorField
-                                    value={metadata['input-provider']}
-                                    isInitialEditing={!!pipeline}
-                                    name="input-provider"
-                                    onChange={handleMetadataChange}
-                                    providerType="inputs"
-                                />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
-                        {metadata['input-provider'] && (
-                            <FieldWrapper name="selected-field">
-                                <FieldLabel
-                                    info={t('Optional')}
-                                    label={t('field-label-input-provider-options')}
-                                    isValid={validateField(
-                                        'pipeline-options',
-                                        metadata['input-provider-options'],
-                                        null,
-                                        true
-                                    )}
-                                />
-                                <FieldInputWrapper>
-                                    <Options
-                                        value={metadata?.['input-provider-options']}
-                                        onChange={handleMetadataChange}
-                                        name="input-provider-options"
-                                        url="/pipeline"
-                                    />
-                                </FieldInputWrapper>
-                            </FieldWrapper>
-                        )}
-                    </>
-                )}
+                    )}
+                </>
             </div>
             <StyledToolbarWrapper id="pipeline-toolbar">
                 <ButtonGroup style={{ float: 'right' }}>
