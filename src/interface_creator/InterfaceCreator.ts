@@ -524,7 +524,7 @@ export abstract class InterfaceCreator {
             if (item.parent) {
                 result += `${indent.repeat(indent_level + 1)}parent:\n`;
                 for (const tag in item.parent) {
-                    result += `${indent.repeat(indent_level + 2)}${tag}: ${InterfaceCreator.indentYamlDump(item.parent[tag].toString(), 0)}\n`;
+                    result += `${indent.repeat(indent_level + 2)}${tag}: ${InterfaceCreator.indentYamlDump(item.parent[tag].toString(), 0)}`;
                 }
             }
 
@@ -847,7 +847,7 @@ export abstract class InterfaceCreator {
                         result += `errors: ${relative_file_name}\n`;
                         break;
                     case 'version':
-                        result += `${tag}: ${InterfaceCreator.indentYamlDump(value.toString(), 0)}\n`;
+                        result += `${tag}: ${InterfaceCreator.indentYamlDump(value.toString(), 0)}`;
                         break;
                     case 'type':
                         result += `${tag}: ${value.toLowerCase()}\n`;
@@ -899,8 +899,13 @@ export abstract class InterfaceCreator {
                         result += `${tag}: ` + InterfaceCreator.indentYamlDump(value, 0);
                         break;
                     case 'processor':
-                        value.options = value.options ? jsyaml.safeLoad(value.options) : null;
-                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(value, 1, true);
+                        let fixed_value = {};
+                        ['processor-input-type', 'processor-output-type'].forEach(key => {
+                            if (value[key]) {
+                                fixed_value[key] = value[key];
+                            }
+                        });
+                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(fixed_value, 1, true);
                         break;
                     case 'class-connections':
                         if (!value || !Object.keys(value).length) {
