@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0
+
+#### Bug fixes
+
+- fixed a bug where 'tags' were not always serialized as strings
+- fixed a bug where the invalid 'option' tag was saved in processor
+- fixed saving of data provider options of complex types
+
 ## 2.1.0
 
 #### New features
