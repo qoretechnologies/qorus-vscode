@@ -516,13 +516,13 @@ export class QorusProjectCodeInfo {
             });
         }
 
-        if (data['class-connectors']) {
+        (data['class-connectors'] || []).forEach(connector => {
             ['input-provider', 'output-provider'].forEach(key => {
-                if (data['class-connectors'][key]) {
-                    data['class-connectors'][key] = fixOptions(data['class-connectors'][key]);
+                if (connector[key]) {
+                    connector[key] = fixOptions(connector[key]);
                 }
             });
-        }
+        });
 
         if (data.mapper_options) {
             ['mapper-input', 'mapper-output'].forEach(key => {
