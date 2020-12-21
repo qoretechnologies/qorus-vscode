@@ -119,7 +119,7 @@ export const disablesSubmitForIncompatiblePipeline = async (webview: WebView) =>
 
     await clickElement(webview, 'bp3-tag-remove', 1, 'className');
     await sleep(1000);
-    await selectProviderData(webview, ['type', 'qore', 'string']);
+    await selectProviderData(webview, ['type', 'qore', 'string'], 'inputs');
     await sleep(1000);
     await submitInterface(webview, 'class');
     await sleep(5000);
@@ -130,13 +130,13 @@ export const disablesSubmitForIncompatiblePipeline = async (webview: WebView) =>
 
     await submitInterface(webview, 'pipeline');
 
-    expect(await getElementAttribute(webview, 'pipeline-submit', 'disabled')).to.eq('true');
+    expect(await getElementAttribute(webview, 'interface-creator-submit-pipeline', 'disabled')).to.eq('true');
 
     await openInterfaceFromTreeView('ProcessorClassTest', webview);
 
     await clickElement(webview, 'bp3-tag-remove', 1, 'className');
     await sleep(1000);
-    await selectProviderData(webview, ['type', 'qore', 'hash']);
+    await selectProviderData(webview, ['type', 'qore', 'hash'], 'inputs');
     await sleep(1000);
     await submitInterface(webview, 'class');
     await sleep(5000);
