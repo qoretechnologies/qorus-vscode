@@ -490,14 +490,16 @@ export class QorusProjectCodeInfo {
         };
         fixProcessors(data.children);
 
-        const fixOptions = (data: any): any => {
-            Object.keys(data.options || {}).forEach(option_key => {
-                let option = data.options[option_key];
+        const fixOptions = (data_with_options: any): any => {
+            Object.keys(data_with_options.options || {}).forEach(option_key => {
+                let option = data_with_options.options[option_key];
                 const option_type = option.type || '';
                 if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
                     option.value = jsyaml.safeDump(option.value).replace(/\r?\n$/, '');
                 }
             });
+
+            return data_with_options;
         };
 
         ['staticdata-type', 'input-provider'].forEach(key => {
