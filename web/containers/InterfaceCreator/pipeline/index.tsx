@@ -67,7 +67,7 @@ export interface IPipelineMetadata {
 
 const StyledDiagramWrapper = styled.div<{ path: string }>`
     width: 100%;
-    height: 100%;
+    flex: 1;
     position: relative;
     background: ${({ path }) => `url(${`${path}/images/tiny_grid.png`})`};
 `;
@@ -224,6 +224,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
     const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
     const [selectedElement, setSelectedElement] = useState<IPipelineElement | null>(null);
     const [interfaceId, setInterfaceId] = useState(pipeline?.iface_id || shortid.generate());
+    const [isDiagramShown, setIsDiagramShown] = useState(false);
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
     const [metadata, setMetadata] = useState<IPipelineMetadata>({
         target_dir: pipeline?.target_dir || null,
@@ -313,9 +314,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         }, isDefValid);
     };
 
-    const isDataValid = (data) => {
+    const isDataValid = (data, fields: boolean) => {
         return (
-            isDiagramValid(data) &&
+            (fields ? true : isDiagramValid(data)) &&
             validateField('string', metadata.name) &&
             validateField('string', metadata.desc) &&
             validateField('string', metadata.target_dir)
@@ -329,7 +330,16 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         }));
     };
 
+    const handleBackClick = async () => {
+        setIsDiagramShown(false);
+    };
+
     const handleSubmitClick = async () => {
+        if (!isDiagramShown) {
+            setIsDiagramShown(true);
+            return;
+        }
+
         let fixedMetadata = { ...metadata };
 
         if (size(metadata.groups) === 0) {
@@ -490,10 +500,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
             <div
                 id="pipeline-fields-wrapper"
                 style={{
-                    maxHeight: isMetadataHidden ? '0px' : '30%',
+                    display: isDiagramShown ? 'none' : 'initial',
+                    flex: 1,
                     overflow: 'auto',
-                    paddingRight: '10px',
-                    transition: 'all .3s ease-in-out',
                 }}
             >
                 <>
@@ -604,111 +613,115 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     )}
                 </>
             </div>
-            <StyledToolbarWrapper id="pipeline-toolbar">
-                <ButtonGroup style={{ float: 'right' }}>
-                    <Button
-                        onClick={() => {
-                            currentHistoryPosition.current -= 1;
-                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-                        }}
-                        disabled={currentHistoryPosition.current <= 0}
-                        text={`(${currentHistoryPosition.current})`}
-                        icon="undo"
-                        name="pipeline-undo"
-                    />
-                    <Button
-                        onClick={() => {
-                            currentHistoryPosition.current += 1;
-                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-                        }}
-                        disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
-                        text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
-                        icon="redo"
-                        name="pipeline-redo"
-                    />
-                    <Button
-                        onClick={() => setIsMetadataHidden((cur) => !cur)}
-                        icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
-                        name="pipeline-hide-metadata"
-                    />
-                </ButtonGroup>
-            </StyledToolbarWrapper>
-            <StyledDiagramWrapper
+            <div
+                style={{
+                    display: isDiagramShown ? 'flex' : 'none',
+                    flex: 1,
+                    overflow: 'hidden',
+                    flexFlow: 'column',
+                }}
                 ref={wrapperRef}
-                id="pipeline-diagram"
-                path={image_path}
-                style={{ border: !isDiagramValid(elements) ? `1px solid ${Colors.RED2}` : undefined }}
             >
-                {wrapperRef.current && (
-                    <Tree
-                        data={elements}
-                        orientation="vertical"
-                        pathFunc="straight"
-                        translate={{ x: wrapperRef.current.getBoundingClientRect().width / 2, y: 100 }}
-                        nodeSize={{ x: 220, y: 110 }}
-                        transitionDuration={0}
-                        textLayout={{
-                            textAnchor: 'middle',
-                        }}
-                        separation={{
-                            siblings: 1,
-                            nonSiblings: 1,
-                        }}
-                        allowForeignObjects
-                        nodeLabelComponent={{
-                            render: (
-                                <NodeLabel
-                                    onEditClick={setSelectedElement}
-                                    onAddClick={setSelectedElement}
-                                    onDeleteClick={(elementData) => removeElement(elementData)}
-                                    onAddQueueClick={handleDataSubmit}
-                                />
-                            ),
-                            foreignObjectWrapper: {
-                                width: '200px',
-                                height: '60px',
-                                y: -30,
-                                x: -100,
-                            },
-                        }}
-                        collapsible={false}
-                        styles={{
-                            links: {
-                                stroke: '#a9a9a9',
-                                strokeWidth: 2,
-                            },
-                            nodes: {
-                                node: {
-                                    ellipse: {
-                                        stroke: '#a9a9a9',
+                <StyledToolbarWrapper id="pipeline-toolbar">
+                    <ButtonGroup style={{ float: 'right' }}>
+                        <Button
+                            onClick={() => {
+                                currentHistoryPosition.current -= 1;
+                                setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current <= 0}
+                            text={`(${currentHistoryPosition.current})`}
+                            icon="undo"
+                            name="pipeline-undo"
+                        />
+                        <Button
+                            onClick={() => {
+                                currentHistoryPosition.current += 1;
+                                setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
+                            text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
+                            icon="redo"
+                            name="pipeline-redo"
+                        />
+                    </ButtonGroup>
+                </StyledToolbarWrapper>
+                <StyledDiagramWrapper
+                    id="pipeline-diagram"
+                    path={image_path}
+                    style={{ border: !isDiagramValid(elements) ? `1px solid ${Colors.RED2}` : undefined }}
+                >
+                    {wrapperRef.current && (
+                        <Tree
+                            data={elements}
+                            orientation="vertical"
+                            pathFunc="straight"
+                            translate={{ x: (wrapperRef.current.getBoundingClientRect().width || 250) / 2, y: 100 }}
+                            nodeSize={{ x: 220, y: 110 }}
+                            transitionDuration={0}
+                            textLayout={{
+                                textAnchor: 'middle',
+                            }}
+                            separation={{
+                                siblings: 1,
+                                nonSiblings: 1,
+                            }}
+                            allowForeignObjects
+                            nodeLabelComponent={{
+                                render: (
+                                    <NodeLabel
+                                        onEditClick={setSelectedElement}
+                                        onAddClick={setSelectedElement}
+                                        onDeleteClick={(elementData) => removeElement(elementData)}
+                                        onAddQueueClick={handleDataSubmit}
+                                    />
+                                ),
+                                foreignObjectWrapper: {
+                                    width: '200px',
+                                    height: '60px',
+                                    y: -30,
+                                    x: -100,
+                                },
+                            }}
+                            collapsible={false}
+                            styles={{
+                                links: {
+                                    stroke: '#a9a9a9',
+                                    strokeWidth: 2,
+                                },
+                                nodes: {
+                                    node: {
+                                        ellipse: {
+                                            stroke: '#a9a9a9',
+                                        },
+                                        rect: {
+                                            stroke: '#a9a9a9',
+                                            rx: 25,
+                                        },
+                                        name: {
+                                            stroke: '#333',
+                                            strokeWidth: 0.8,
+                                        },
                                     },
-                                    rect: {
-                                        stroke: '#a9a9a9',
-                                        rx: 25,
-                                    },
-                                    name: {
-                                        stroke: '#333',
-                                        strokeWidth: 0.8,
+                                    leafNode: {
+                                        ellipse: {
+                                            stroke: '#a9a9a9',
+                                        },
+                                        rect: {
+                                            stroke: '#a9a9a9',
+                                            rx: 25,
+                                        },
+                                        name: {
+                                            stroke: '#333',
+                                            strokeWidth: 0.8,
+                                        },
                                     },
                                 },
-                                leafNode: {
-                                    ellipse: {
-                                        stroke: '#a9a9a9',
-                                    },
-                                    rect: {
-                                        stroke: '#a9a9a9',
-                                        rx: 25,
-                                    },
-                                    name: {
-                                        stroke: '#333',
-                                        strokeWidth: 0.8,
-                                    },
-                                },
-                            },
-                        }}
-                    />
-                )}
-            </StyledDiagramWrapper>
+                            }}
+                        />
+                    )}
+                </StyledDiagramWrapper>
+            </div>
             <ActionsWrapper>
                 <div style={{ float: 'right', width: '100%' }}>
                     <ButtonGroup fill>
@@ -728,12 +741,20 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 }}
                             />
                         </Tooltip>
+                        {isDiagramShown && (
+                            <Button
+                                text={t('Back')}
+                                onClick={handleBackClick}
+                                icon="chevron-left"
+                                name="pipeline-back"
+                            />
+                        )}
                         <Button
-                            text={t('Submit')}
+                            text={isDiagramShown ? t('Submit') : t('NextStep')}
                             onClick={handleSubmitClick}
-                            disabled={!isDataValid(elements)}
+                            disabled={!isDataValid(elements, !isDiagramShown)}
                             icon={'tick'}
-                            name="pipeline-submit"
+                            name="interface-creator-submit-pipeline"
                             intent={Intent.SUCCESS}
                         />
                     </ButtonGroup>

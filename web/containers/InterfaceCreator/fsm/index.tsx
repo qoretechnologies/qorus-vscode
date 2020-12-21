@@ -117,6 +117,7 @@ const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 export const StyledToolbarWrapper = styled.div`
     margin-bottom: 10px;
     margin-top: 10px;
+    overflow: hidden;
 `;
 
 const StyledDiagramWrapper = styled.div`

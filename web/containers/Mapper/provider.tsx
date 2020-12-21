@@ -400,7 +400,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 {compact && title && <span>{title}: </span>}{' '}
                 <ButtonGroup>
                     <SelectField
-                        name={`provider-${type ? `${type}` : ''}`}
+                        name={`provider${type ? `-${type}` : ''}`}
                         disabled={isLoading}
                         defaultItems={getDefaultItems()}
                         onChange={(_name, value) => {

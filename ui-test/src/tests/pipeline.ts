@@ -39,13 +39,13 @@ export const fillPipelineFields = async (webview: WebView) => {
     await fillTextField(webview, 'field-name', 'PipelineTest');
     await fillTextField(webview, 'field-desc', 'Pipeline test');
     await selectMultiselectItemsByNumbers(webview, [1]);
-    await selectProviderData(webview, ['type', 'qore', 'string']);
+    await selectProviderData(webview, ['type', 'qore', 'string'], 'inputs');
     await addAndFillTextOption(webview, 'input_search_options', 'test: test');
-    await clickElement(webview, 'pipeline-hide-metadata');
     await sleep(300);
 };
 
 export const createsPipelineElements = async (webview: WebView) => {
+    await submitInterface(webview, 'pipeline');
     await createPipelineElement(webview, 1, 'mapper', 'MapperForFSMTest:1.0');
     await createPipelineElement(webview, 2, 'queue');
 
@@ -82,7 +82,7 @@ export const undoPipelineToPreviousState = async (webview: WebView) => {
 };
 
 export const submitPipelineAndCheckFiles = async (webview: WebView) => {
-    await clickElement(webview, 'pipeline-submit');
+    await submitInterface(webview, 'pipeline');
 
     await sleep(4000);
 
@@ -128,6 +128,8 @@ export const disablesSubmitForIncompatiblePipeline = async (webview: WebView) =>
 
     await sleep(2000);
 
+    await submitInterface(webview, 'pipeline');
+
     expect(await getElementAttribute(webview, 'pipeline-submit', 'disabled')).to.eq('true');
 
     await openInterfaceFromTreeView('ProcessorClassTest', webview);
@@ -144,13 +146,15 @@ export const editsPipelineAndChecksFiles = async (webview: WebView) => {
     await openInterfaceFromTreeView('PipelineTest', webview);
     await resetAndFillTextField(webview, 'field-name', 'PipelineTestEdited');
 
+    await submitInterface(webview, 'pipeline');
+
     await selectFromContextMenu(webview, 'pipeline-element', 3, 3);
 
     await sleep(500);
 
     expect(await getElementsCount(webview, 'pipeline-element')).to.eq(5);
 
-    await clickElement(webview, 'pipeline-submit');
+    await submitInterface(webview, 'pipeline');
 
     await sleep(4000);
 
