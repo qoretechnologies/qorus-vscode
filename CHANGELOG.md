@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.2.0
+
+#### New features
+
+- new data provider type: Factories
+- pipeline view has been split to 2 pages for a better orientation and usability
+
+#### Bug fixes
+
+- fixed a bug where 'tags' were not always serialized as strings
+- fixed a bug where the invalid 'option' tag was saved in processor
+- fixed saving of data provider options of complex types
+- fixed a bug where FSMs being open from other interfaces opened blank
+- fixed a bug where pipeline could not be submitted unless input provider options, which are optional, were filled
+
 ## 2.1.0
 
 #### New features

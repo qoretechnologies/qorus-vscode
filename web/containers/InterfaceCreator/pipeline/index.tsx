@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Callout, Classes, Intent, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Callout, Classes, Colors, Intent, Tooltip } from '@blueprintjs/core';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
@@ -67,7 +67,7 @@ export interface IPipelineMetadata {
 
 const StyledDiagramWrapper = styled.div<{ path: string }>`
     width: 100%;
-    height: 100%;
+    flex: 1;
     position: relative;
     background: ${({ path }) => `url(${`${path}/images/tiny_grid.png`})`};
 `;
@@ -224,6 +224,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
     const [compatibilityChecked, setCompatibilityChecked] = useState<boolean>(false);
     const [selectedElement, setSelectedElement] = useState<IPipelineElement | null>(null);
     const [interfaceId, setInterfaceId] = useState(pipeline?.iface_id || shortid.generate());
+    const [isDiagramShown, setIsDiagramShown] = useState(false);
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
     const [metadata, setMetadata] = useState<IPipelineMetadata>({
         target_dir: pipeline?.target_dir || null,
@@ -293,25 +294,29 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         }
     };
 
-    const isDataValid = (data, isDefValid = true) => {
+    const isDiagramValid = (data, isDefValid = true) => {
+        return data.reduce((isValid, item) => {
+            if ((item.type === 'queue' || item.type === 'start') && size(item.children) === 0) {
+                isValid = false;
+            }
+
+            if (item.children && item.children.length > 0) {
+                if (!isDiagramValid(item.children, isValid)) {
+                    isValid = false;
+                }
+            }
+
+            if (item.isCompatible === false) {
+                isValid = false;
+            }
+
+            return isValid;
+        }, isDefValid);
+    };
+
+    const isDataValid = (data, fields: boolean) => {
         return (
-            data.reduce((isValid, item) => {
-                if ((item.type === 'queue' || item.type === 'start') && size(item.children) === 0) {
-                    isValid = false;
-                }
-
-                if (item.children && item.children.length > 0) {
-                    if (!isDataValid(item.children, isValid)) {
-                        isValid = false;
-                    }
-                }
-
-                if (item.isCompatible === false) {
-                    isValid = false;
-                }
-
-                return isValid;
-            }, isDefValid) &&
+            (fields ? true : isDiagramValid(data)) &&
             validateField('string', metadata.name) &&
             validateField('string', metadata.desc) &&
             validateField('string', metadata.target_dir)
@@ -325,7 +330,16 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
         }));
     };
 
+    const handleBackClick = async () => {
+        setIsDiagramShown(false);
+    };
+
     const handleSubmitClick = async () => {
+        if (!isDiagramShown) {
+            setIsDiagramShown(true);
+            return;
+        }
+
         let fixedMetadata = { ...metadata };
 
         if (size(metadata.groups) === 0) {
@@ -483,216 +497,231 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                     interfaceId={interfaceId}
                 />
             )}
-            <div id="pipeline-fields-wrapper">
-                {!isMetadataHidden && (
-                    <>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                label={t('field-label-target_dir')}
-                                isValid={validateField('file-string', metadata.target_dir)}
+            <div
+                id="pipeline-fields-wrapper"
+                style={{
+                    display: isDiagramShown ? 'none' : 'initial',
+                    flex: 1,
+                    overflow: 'auto',
+                }}
+            >
+                <>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel
+                            label={t('field-label-target_dir')}
+                            isValid={validateField('file-string', metadata.target_dir)}
+                        />
+                        <FieldInputWrapper>
+                            <FileString
+                                onChange={handleMetadataChange}
+                                name="target_dir"
+                                value={metadata.target_dir}
+                                get_message={{
+                                    action: 'creator-get-directories',
+                                    object_type: 'target_dir',
+                                }}
+                                return_message={{
+                                    action: 'creator-return-directories',
+                                    object_type: 'target_dir',
+                                    return_value: 'directories',
+                                }}
                             />
-                            <FieldInputWrapper>
-                                <FileString
-                                    onChange={handleMetadataChange}
-                                    name="target_dir"
-                                    value={metadata.target_dir}
-                                    get_message={{
-                                        action: 'creator-get-directories',
-                                        object_type: 'target_dir',
-                                    }}
-                                    return_message={{
-                                        action: 'creator-return-directories',
-                                        object_type: 'target_dir',
-                                        return_value: 'directories',
-                                    }}
-                                />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                isValid={validateField('string', metadata.name)}
-                                label={t('field-label-name')}
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel isValid={validateField('string', metadata.name)} label={t('field-label-name')} />
+                        <FieldInputWrapper>
+                            <String onChange={handleMetadataChange} value={metadata.name} name="name" />
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel isValid={validateField('string', metadata.desc)} label={t('field-label-desc')} />
+                        <FieldInputWrapper>
+                            <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel
+                            isValid={
+                                metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
+                            }
+                            info={t('Optional')}
+                            label={t('field-label-groups')}
+                        />
+                        <FieldInputWrapper>
+                            <MultiSelect
+                                onChange={handleMetadataChange}
+                                get_message={{
+                                    action: 'creator-get-objects',
+                                    object_type: 'group',
+                                }}
+                                return_message={{
+                                    action: 'creator-return-objects',
+                                    object_type: 'group',
+                                    return_value: 'objects',
+                                }}
+                                reference={{
+                                    iface_kind: 'other',
+                                    type: 'group',
+                                }}
+                                value={metadata.groups}
+                                name="groups"
                             />
-                            <FieldInputWrapper>
-                                <String onChange={handleMetadataChange} value={metadata.name} name="name" />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                isValid={validateField('string', metadata.desc)}
-                                label={t('field-label-desc')}
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    <FieldWrapper name="selected-field">
+                        <FieldLabel
+                            info={t('Optional')}
+                            label={t('field-label-input-provider')}
+                            isValid={
+                                metadata['input-provider']
+                                    ? validateField('type-selector', metadata['input-provider'])
+                                    : true
+                            }
+                        />
+                        <FieldInputWrapper>
+                            <ConnectorField
+                                value={metadata['input-provider']}
+                                isInitialEditing={!!pipeline}
+                                name="input-provider"
+                                onChange={handleMetadataChange}
+                                providerType="inputs"
                             />
-                            <FieldInputWrapper>
-                                <String onChange={handleMetadataChange} value={metadata.desc} name="desc" />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
+                        </FieldInputWrapper>
+                    </FieldWrapper>
+                    {metadata['input-provider'] && (
                         <FieldWrapper name="selected-field">
                             <FieldLabel
-                                isValid={
-                                    metadata.groups.length === 0 ? true : validateField('select-array', metadata.groups)
-                                }
                                 info={t('Optional')}
-                                label={t('field-label-groups')}
+                                label={t('field-label-input-provider-options')}
+                                isValid={validateField(
+                                    'pipeline-options',
+                                    metadata['input-provider-options'],
+                                    null,
+                                    true
+                                )}
                             />
                             <FieldInputWrapper>
-                                <MultiSelect
+                                <Options
+                                    value={metadata?.['input-provider-options']}
                                     onChange={handleMetadataChange}
-                                    get_message={{
-                                        action: 'creator-get-objects',
-                                        object_type: 'group',
-                                    }}
-                                    return_message={{
-                                        action: 'creator-return-objects',
-                                        object_type: 'group',
-                                        return_value: 'objects',
-                                    }}
-                                    reference={{
-                                        iface_kind: 'other',
-                                        type: 'group',
-                                    }}
-                                    value={metadata.groups}
-                                    name="groups"
+                                    name="input-provider-options"
+                                    url="/pipeline"
                                 />
                             </FieldInputWrapper>
                         </FieldWrapper>
-                        <FieldWrapper name="selected-field">
-                            <FieldLabel
-                                info={t('Optional')}
-                                label={t('field-label-input-provider')}
-                                isValid={
-                                    metadata['input-provider']
-                                        ? validateField('type-selector', metadata['input-provider'])
-                                        : true
-                                }
-                            />
-                            <FieldInputWrapper>
-                                <ConnectorField
-                                    value={metadata['input-provider']}
-                                    isInitialEditing={!!pipeline}
-                                    name="input-provider"
-                                    onChange={handleMetadataChange}
-                                />
-                            </FieldInputWrapper>
-                        </FieldWrapper>
-                        {metadata['input-provider'] && (
-                            <FieldWrapper name="selected-field">
-                                <FieldLabel
-                                    label={t('field-label-input-provider-options')}
-                                    isValid={validateField('pipeline-options', metadata['input-provider-options'])}
-                                />
-                                <FieldInputWrapper>
-                                    <Options
-                                        value={metadata?.['input-provider-options']}
-                                        onChange={handleMetadataChange}
-                                        name="input-provider-options"
-                                        url="/pipeline"
-                                    />
-                                </FieldInputWrapper>
-                            </FieldWrapper>
-                        )}
-                    </>
-                )}
+                    )}
+                </>
             </div>
-            <StyledToolbarWrapper id="pipeline-toolbar">
-                <ButtonGroup style={{ float: 'right' }}>
-                    <Button
-                        onClick={() => {
-                            currentHistoryPosition.current -= 1;
-                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-                        }}
-                        disabled={currentHistoryPosition.current <= 0}
-                        text={`(${currentHistoryPosition.current})`}
-                        icon="undo"
-                        name="pipeline-undo"
-                    />
-                    <Button
-                        onClick={() => {
-                            currentHistoryPosition.current += 1;
-                            setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
-                        }}
-                        disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
-                        text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
-                        icon="redo"
-                        name="pipeline-redo"
-                    />
-                    <Button
-                        onClick={() => setIsMetadataHidden((cur) => !cur)}
-                        icon={isMetadataHidden ? 'eye-open' : 'eye-off'}
-                        name="pipeline-hide-metadata"
-                    />
-                </ButtonGroup>
-            </StyledToolbarWrapper>
-            <StyledDiagramWrapper ref={wrapperRef} id="pipeline-diagram" path={image_path}>
-                {wrapperRef.current && (
-                    <Tree
-                        data={elements}
-                        orientation="vertical"
-                        pathFunc="straight"
-                        translate={{ x: wrapperRef.current.getBoundingClientRect().width / 2, y: 100 }}
-                        nodeSize={{ x: 220, y: 110 }}
-                        transitionDuration={0}
-                        textLayout={{
-                            textAnchor: 'middle',
-                        }}
-                        separation={{
-                            siblings: 1,
-                            nonSiblings: 1,
-                        }}
-                        allowForeignObjects
-                        nodeLabelComponent={{
-                            render: (
-                                <NodeLabel
-                                    onEditClick={setSelectedElement}
-                                    onAddClick={setSelectedElement}
-                                    onDeleteClick={(elementData) => removeElement(elementData)}
-                                    onAddQueueClick={handleDataSubmit}
-                                />
-                            ),
-                            foreignObjectWrapper: {
-                                width: '200px',
-                                height: '60px',
-                                y: -30,
-                                x: -100,
-                            },
-                        }}
-                        collapsible={false}
-                        styles={{
-                            links: {
-                                stroke: '#a9a9a9',
-                                strokeWidth: 2,
-                            },
-                            nodes: {
-                                node: {
-                                    ellipse: {
-                                        stroke: '#a9a9a9',
+            <div
+                style={{
+                    display: isDiagramShown ? 'flex' : 'none',
+                    flex: 1,
+                    overflow: 'hidden',
+                    flexFlow: 'column',
+                }}
+                ref={wrapperRef}
+            >
+                <StyledToolbarWrapper id="pipeline-toolbar">
+                    <ButtonGroup style={{ float: 'right' }}>
+                        <Button
+                            onClick={() => {
+                                currentHistoryPosition.current -= 1;
+                                setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current <= 0}
+                            text={`(${currentHistoryPosition.current})`}
+                            icon="undo"
+                            name="pipeline-undo"
+                        />
+                        <Button
+                            onClick={() => {
+                                currentHistoryPosition.current += 1;
+                                setElements(JSON.parse(changeHistory.current[currentHistoryPosition.current]));
+                            }}
+                            disabled={currentHistoryPosition.current === size(changeHistory.current) - 1}
+                            text={`(${size(changeHistory.current) - (currentHistoryPosition.current + 1)})`}
+                            icon="redo"
+                            name="pipeline-redo"
+                        />
+                    </ButtonGroup>
+                </StyledToolbarWrapper>
+                <StyledDiagramWrapper
+                    id="pipeline-diagram"
+                    path={image_path}
+                    style={{ border: !isDiagramValid(elements) ? `1px solid ${Colors.RED2}` : undefined }}
+                >
+                    {wrapperRef.current && (
+                        <Tree
+                            data={elements}
+                            orientation="vertical"
+                            pathFunc="straight"
+                            translate={{ x: (wrapperRef.current.getBoundingClientRect().width || 250) / 2, y: 100 }}
+                            nodeSize={{ x: 220, y: 110 }}
+                            transitionDuration={0}
+                            textLayout={{
+                                textAnchor: 'middle',
+                            }}
+                            separation={{
+                                siblings: 1,
+                                nonSiblings: 1,
+                            }}
+                            allowForeignObjects
+                            nodeLabelComponent={{
+                                render: (
+                                    <NodeLabel
+                                        onEditClick={setSelectedElement}
+                                        onAddClick={setSelectedElement}
+                                        onDeleteClick={(elementData) => removeElement(elementData)}
+                                        onAddQueueClick={handleDataSubmit}
+                                    />
+                                ),
+                                foreignObjectWrapper: {
+                                    width: '200px',
+                                    height: '60px',
+                                    y: -30,
+                                    x: -100,
+                                },
+                            }}
+                            collapsible={false}
+                            styles={{
+                                links: {
+                                    stroke: '#a9a9a9',
+                                    strokeWidth: 2,
+                                },
+                                nodes: {
+                                    node: {
+                                        ellipse: {
+                                            stroke: '#a9a9a9',
+                                        },
+                                        rect: {
+                                            stroke: '#a9a9a9',
+                                            rx: 25,
+                                        },
+                                        name: {
+                                            stroke: '#333',
+                                            strokeWidth: 0.8,
+                                        },
                                     },
-                                    rect: {
-                                        stroke: '#a9a9a9',
-                                        rx: 25,
-                                    },
-                                    name: {
-                                        stroke: '#333',
-                                        strokeWidth: 0.8,
+                                    leafNode: {
+                                        ellipse: {
+                                            stroke: '#a9a9a9',
+                                        },
+                                        rect: {
+                                            stroke: '#a9a9a9',
+                                            rx: 25,
+                                        },
+                                        name: {
+                                            stroke: '#333',
+                                            strokeWidth: 0.8,
+                                        },
                                     },
                                 },
-                                leafNode: {
-                                    ellipse: {
-                                        stroke: '#a9a9a9',
-                                    },
-                                    rect: {
-                                        stroke: '#a9a9a9',
-                                        rx: 25,
-                                    },
-                                    name: {
-                                        stroke: '#333',
-                                        strokeWidth: 0.8,
-                                    },
-                                },
-                            },
-                        }}
-                    />
-                )}
-            </StyledDiagramWrapper>
+                            }}
+                        />
+                    )}
+                </StyledDiagramWrapper>
+            </div>
             <ActionsWrapper>
                 <div style={{ float: 'right', width: '100%' }}>
                     <ButtonGroup fill>
@@ -712,12 +741,20 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
                                 }}
                             />
                         </Tooltip>
+                        {isDiagramShown && (
+                            <Button
+                                text={t('Back')}
+                                onClick={handleBackClick}
+                                icon="chevron-left"
+                                name="pipeline-back"
+                            />
+                        )}
                         <Button
-                            text={t('Submit')}
+                            text={isDiagramShown ? t('Submit') : t('NextStep')}
                             onClick={handleSubmitClick}
-                            disabled={!isDataValid(elements)}
+                            disabled={!isDataValid(elements, !isDiagramShown)}
                             icon={'tick'}
-                            name="pipeline-submit"
+                            name="interface-creator-submit-pipeline"
                             intent={Intent.SUCCESS}
                         />
                     </ButtonGroup>

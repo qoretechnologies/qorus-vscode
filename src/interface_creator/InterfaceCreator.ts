@@ -9,7 +9,7 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
 import { default_lang, default_version, types_with_version } from '../qorus_constants';
 import * as msg from '../qorus_message';
-import { capitalize, deepCopy, isValidIdentifier, quotesIfNum, removeDuplicates, sortRanges } from '../qorus_utils';
+import { capitalize, deepCopy, isValidIdentifier, removeDuplicates, sortRanges } from '../qorus_utils';
 import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
@@ -459,7 +459,7 @@ export abstract class InterfaceCreator {
         return [...import_lines_to_add, ...code_lines];
     }
 
-    private static indentYamlDump = (value, indent_level, is_on_new_line) => {
+    private static indentYamlDump = (value: any, indent_level: number, is_on_new_line: boolean = false) => {
         let lines = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
         if (/^\s*$/.test(lines.slice(-1)[0])) {
             lines.pop();
@@ -524,7 +524,7 @@ export abstract class InterfaceCreator {
             if (item.parent) {
                 result += `${indent.repeat(indent_level + 1)}parent:\n`;
                 for (const tag in item.parent) {
-                    result += `${indent.repeat(indent_level + 2)}${tag}: ${quotesIfNum(item.parent[tag])}\n`;
+                    result += `${indent.repeat(indent_level + 2)}${tag}: ${InterfaceCreator.indentYamlDump(item.parent[tag].toString(), 0)}`;
                 }
             }
 
@@ -570,7 +570,7 @@ export abstract class InterfaceCreator {
                                 result += `${indent.repeat(indent_level + 1)}type: ` + (item.type[0] === '*' ? `"${item.type}"` : item.type) + '\n';
                                 break;
                             case 'description':
-                                result += `${indent.repeat(indent_level + 1)}${tag}: ` + InterfaceCreator.indentYamlDump(item[tag], 1, false);
+                                result += `${indent.repeat(indent_level + 1)}${tag}: ` + InterfaceCreator.indentYamlDump(item[tag], 1);
                                 break;
                             default:
                                 result += `${indent.repeat(indent_level + 1)}${tag}: ${item[tag]}\n`;
@@ -660,6 +660,18 @@ export abstract class InterfaceCreator {
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
 
+        const fixOptions = (value: any): any => {
+            Object.keys(value.options || {}).forEach(option_key => {
+                let option_value = value.options[option_key];
+                const option_type = option_value.type || '';
+                if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
+                    option_value.value = jsyaml.safeLoad(option_value.value);
+                }
+            });
+
+            return value;
+        };
+
         for (const tag of ordered_tags) {
             if (
                 [
@@ -710,7 +722,10 @@ export abstract class InterfaceCreator {
                     case 'statuses':
                         const [key_name, value_name] = field[tag].fields;
                         for (let item of value) {
-                            result += `${indent}${item[key_name]}: ${item[value_name]}\n`;
+                            if (tag === 'tags') {
+                                item[value_name] = item[value_name].toString();
+                            }
+                            result += `${indent}${item[key_name]}: ${InterfaceCreator.indentYamlDump(item[value_name], 0)}`;
                         }
                         break;
                     case 'value-maps':
@@ -751,17 +766,9 @@ export abstract class InterfaceCreator {
                             result += `${list_indent}name: ${connector.name}\n`;
                             for (const key in connector) {
                                 if (['provider', 'input-provider', 'output-provider'].includes(key) && connector[key]) {
-                                    result += `${indent}${key}:\n`;
-                                    for (const subkey in connector[key]) {
-                                        if (connector[key][subkey] === '') {
-                                            result += `${indent}${indent}${subkey}: ""\n`;
-                                        } else {
-                                            result += `${indent}${indent}${subkey}: ${connector[key][subkey]}\n`;
-                                        }
-                                    }
-                                } else if (
-                                    !['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)
-                                ) {
+                                    connector[key] = fixOptions(connector[key]);
+                                    result += `${indent}${key}:\n` + InterfaceCreator.indentYamlDump(connector[key], 2, true);
+                                } else if (!['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)) {
                                     result += `${indent}${key}: ${connector[key]}\n`;
                                 }
                             }
@@ -788,7 +795,7 @@ export abstract class InterfaceCreator {
                             result += `${list_indent}name: ${error.name}\n`;
                             Object.keys(error).forEach(key => {
                                 if (!['name', 'orig_name'].includes(key)) {
-                                    result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0, false);
+                                    result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0);
                                 }
                             });
                         });
@@ -844,7 +851,7 @@ export abstract class InterfaceCreator {
                         result += `errors: ${relative_file_name}\n`;
                         break;
                     case 'version':
-                        result += `${tag}: ${quotesIfNum(value)}\n`;
+                        result += `${tag}: ${InterfaceCreator.indentYamlDump(value.toString(), 0)}`;
                         break;
                     case 'type':
                         result += `${tag}: ${value.toLowerCase()}\n`;
@@ -859,9 +866,24 @@ export abstract class InterfaceCreator {
                     case 'staticdata-type':
                     case 'input-provider':
                     case 'context':
+                        let fixed_value;
+                        if (['staticdata-type', 'input-provider'].includes(tag)) {
+                            fixed_value = fixOptions(value);
+                        } else {
+                            fixed_value = value;
+                        }
+
+                        if (tag === 'mapper_options') {
+                            ['mapper-input', 'mapper-output'].forEach(key => {
+                                if (value[key]) {
+                                    fixed_value[key] = fixOptions(value[key]);
+                                }
+                            });
+                        }
+
                         result +=
                             `${['mapper_options', 'fsm_options', 'connection_options'].includes(tag) ? 'options' : tag}:\n` +
-                            InterfaceCreator.indentYamlDump(value, 1, true);
+                            InterfaceCreator.indentYamlDump(fixed_value, 1, true);
                         break;
                     case 'states':
                         const dumpStates = (states: any = {}, indent_level: number) => {
@@ -881,11 +903,20 @@ export abstract class InterfaceCreator {
                             delete cloned_state['orig-config-items'];
                             delete cloned_state.class_name;
                             delete cloned_state.states;
+
+                            ['input-type', 'output-type'].forEach(key => {
+                                if (cloned_state[key]) {
+                                    cloned_state[key] = fixOptions(cloned_state[key]);
+                                }
+                            });
+
                             result += `${indent.repeat(indent_level + 1)}'${id}':\n` +
                                 InterfaceCreator.indentYamlDump(cloned_state, indent_level + 2, true);
+
                             if (state.id && iface_data?.specific_data?.[state.id]?.['config-items']?.length) {
                                 result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[state.id]['config-items'], indent_level + 2);
                             }
+
                             dumpStates(state.states, indent_level + 2);
                         };
 
@@ -893,11 +924,16 @@ export abstract class InterfaceCreator {
                         break;
                     case 'desc':
                     case 'description':
-                        result += `${tag}: ` + InterfaceCreator.indentYamlDump(value, 0, false);
+                        result += `${tag}: ` + InterfaceCreator.indentYamlDump(value, 0);
                         break;
                     case 'processor':
-                        value.options = value.options ? jsyaml.safeLoad(value.options) : null;
-                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(value, 1, true);
+                        let processor_value = {};
+                        ['processor-input-type', 'processor-output-type'].forEach(key => {
+                            if (value[key]) {
+                                processor_value[key] = fixOptions(value[key]);
+                            }
+                        });
+                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(processor_value, 1, true);
                         break;
                     case 'class-connections':
                         if (!value || !Object.keys(value).length) {

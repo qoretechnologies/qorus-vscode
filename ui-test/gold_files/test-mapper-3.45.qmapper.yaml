@@ -10,7 +10,7 @@ fields:
 options:
     mapper-input:
         type: factory
-        name: 'null'
+        name: 'db'
         path: /
         custom-fields: {}
     mapper-output:

@@ -23,7 +23,7 @@ export const createPipelineElement = async (
     await sleep(1000);
 
     if (name) {
-        await selectNthFilteredDropdownItem(webview, 'name', name);
+        await selectNthFilteredDropdownItem(webview, 'interface-name', name);
     }
 
     await sleep(2000);

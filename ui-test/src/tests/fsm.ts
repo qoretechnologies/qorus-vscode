@@ -214,7 +214,7 @@ export const transitionsAreRemovedForIncompatibleFSM = async (webview: WebView) 
 
     await clickElement(webview, 'bp3-tag-remove', 2, 'className');
     await sleep(1000);
-    await selectProviderData(webview, ['type', 'qore', 'string']);
+    await selectProviderData(webview, ['type', 'qore', 'string'], 'inputs');
     await sleep(1000);
     await submitInterface(webview, 'class');
     await sleep(5000);
@@ -232,7 +232,7 @@ export const transitionsAreRemovedForIncompatibleFSM = async (webview: WebView) 
 
     await clickElement(webview, 'bp3-tag-remove', 2, 'className');
     await sleep(1000);
-    await selectProviderData(webview, ['type', 'qore', 'hash']);
+    await selectProviderData(webview, ['type', 'qore', 'hash'], 'inputs');
     await sleep(1000);
     await submitInterface(webview, 'class');
     await sleep(5000);

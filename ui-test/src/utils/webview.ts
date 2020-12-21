@@ -304,7 +304,7 @@ export const selectProviderData = async (webview: WebView, data: string[], field
     const suffix = fieldSuffix ? `-${fieldSuffix}` : '';
 
     for await (const [index, datum] of data.entries()) {
-        await selectNthFilteredDropdownItem(webview, `provider${suffix}${index === 0 ? '-' : `-${index - 1}`}`, datum);
+        await selectNthFilteredDropdownItem(webview, `provider${suffix}${index === 0 ? '' : `-${index - 1}`}`, datum);
         await sleep(1500);
     }
 

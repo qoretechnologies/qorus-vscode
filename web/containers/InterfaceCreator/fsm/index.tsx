@@ -117,6 +117,7 @@ const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 export const StyledToolbarWrapper = styled.div`
     margin-bottom: 10px;
     margin-top: 10px;
+    overflow: hidden;
 `;
 
 const StyledDiagramWrapper = styled.div`
@@ -176,11 +177,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
     onHideMetadataClick,
     isExternalMetadataHidden,
     defaultInterfaceId,
+    ...rest
 }) => {
     const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, fsm, qorus_instance } = useContext(
+    const { sidebarOpen, path, image_path, confirmAction, callBackend, qorus_instance, ...init } = useContext(
         InitialContext
     );
+
+    const fsm = rest?.fsm || init?.fsm;
+
     const { resetAllInterfaceData } = useContext(GlobalContext);
     const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || defaultInterfaceId || shortid.generate());
 

@@ -151,9 +151,9 @@ const PipelineElementDialog = ({
                                             iface_kind: newData.type === 'processor' ? 'class' : newData.type,
                                         }}
                                         key={newData.type}
-                                        onChange={handleDataUpdate}
+                                        onChange={(_n, value) => handleDataUpdate('name', value)}
                                         value={newData.name}
-                                        name="name"
+                                        name="interface-name"
                                         get_message={{
                                             action: 'creator-get-objects',
                                             object_type:

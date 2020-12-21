@@ -1,4 +1,5 @@
 import { Callout, Classes, Icon } from '@blueprintjs/core';
+import isArray from 'lodash/isArray';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
@@ -33,19 +34,21 @@ export const fixOptions = (value, options) => {
     );
 };
 
-const Options = ({ name, value, onChange, url, ...rest }) => {
+const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
     const t = useContext(TextContext);
     const [options, setOptions] = useState({});
     //const [selectedOptions, setSelectedOptions] = useState(null);
     const { fetchData, confirmAction, qorus_instance } = useContext(InitialContext);
     const [error, setError] = useState<string>(null);
 
+    const getUrl = () => customUrl || `/options/${url}`;
+
     useMount(() => {
         if (qorus_instance) {
             (async () => {
                 setOptions(null);
                 // Fetch the options for this mapper type
-                const data = await fetchData(`/options/${url}`);
+                const data = await fetchData(getUrl());
 
                 if (data.error) {
                     setError(data.error.error);
@@ -65,7 +68,7 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                 setError(null);
                 removeValue();
                 // Fetch the options for this mapper type
-                const data = await fetchData(`/options/${url}`);
+                const data = await fetchData(getUrl());
                 // Save the new options
                 setOptions(data.data);
                 onChange(name, fixOptions(value, data.data));
@@ -132,9 +135,9 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
 
     const getTypeAndCanBeNull = (type: string, allowed_values: any[]) => {
         let canBeNull = false;
-        let realType = type;
+        let realType = isArray(type) ? type[0] : type;
 
-        if (type?.startsWith('*')) {
+        if (realType?.startsWith('*')) {
             realType = type.replace('*', '');
             canBeNull = true;
         }
@@ -162,7 +165,13 @@ const Options = ({ name, value, onChange, url, ...rest }) => {
                         <AutoField
                             {...getTypeAndCanBeNull(type, options[optionName].allowed_values)}
                             name={optionName}
-                            onChange={(optionName, val) => handleValueChange(optionName, val, type)}
+                            onChange={(optionName, val) =>
+                                handleValueChange(
+                                    optionName,
+                                    val,
+                                    getTypeAndCanBeNull(type, options[optionName].allowed_values).type
+                                )
+                            }
                             value={rest.value}
                             sensitive={options[optionName].sensitive}
                             default_value={options[optionName].default}
