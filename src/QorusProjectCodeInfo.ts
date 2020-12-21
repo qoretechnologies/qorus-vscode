@@ -472,14 +472,6 @@ export class QorusProjectCodeInfo {
 
         fixConfigItems(data['config-items']);
 
-        const fixStates = (states: any = {}) => {
-            Object.keys(states).forEach(id => {
-                fixConfigItems(states[id]['config-items']);
-                fixStates(states[id].states);
-            });
-        };
-        fixStates(data.states);
-
         const fixProcessors = (children: any[] = []) => {
             children.forEach(child => {
                 switch (child.type) {
@@ -498,15 +490,60 @@ export class QorusProjectCodeInfo {
         };
         fixProcessors(data.children);
 
-        Object.keys(data.processor || {}).forEach(key => {
-            Object.keys(data.processor[key].factory_options || {}).forEach(option_key => {
-                let option_value = data.processor[key].factory_options[option_key];
-                const option_type = option_value.type || '';
+        const fixOptions = (data: any): any => {
+            Object.keys(data.options || {}).forEach(option_key => {
+                let option = data.options[option_key];
+                const option_type = option.type || '';
                 if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
-                    option_value.value = jsyaml.safeDump(option_value.value).replace(/\r?\n$/, '');
+                    option.value = jsyaml.safeDump(option.value).replace(/\r?\n$/, '');
                 }
             });
+        };
+
+        ['staticdata-type', 'input-provider'].forEach(key => {
+            if (data[key]) {
+                data[key] = fixOptions(data[key]);
+            }
         });
+
+        if (data.processor) {
+            ['processor-input-type', 'processor-output-type'].forEach(key => {
+                if (data.processor[key]) {
+                    data.processor[key] = fixOptions(data.processor[key]);
+                }
+            });
+        }
+
+        if (data['class-connectors']) {
+            ['input-provider', 'output-provider'].forEach(key => {
+                if (data['class-connectors'][key]) {
+                    data['class-connectors'][key] = fixOptions(data['class-connectors'][key]);
+                }
+            });
+        }
+
+        if (data.mapper_options) {
+            ['mapper-input', 'mapper-output'].forEach(key => {
+                if (data.mapper_options[key]) {
+                    data.mapper_options[key] = fixOptions(data.mapper_options[key]);
+                }
+            });
+        }
+
+        const fixStates = (states: any = {}) => {
+            Object.keys(states).forEach(id => {
+                fixConfigItems(states[id]['config-items']);
+
+                ['input-type', 'output-type'].forEach(key => {
+                    if (states[id][key]) {
+                        states[id][key] = fixOptions(states[id][key]);
+                    }
+                });
+
+                fixStates(states[id].states);
+            });
+        };
+        fixStates(data.states);
 
         for (const method of data.methods || []) {
             if (method.author) {

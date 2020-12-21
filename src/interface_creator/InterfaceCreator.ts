@@ -660,9 +660,9 @@ export abstract class InterfaceCreator {
 
         const iface_data = this.code_info.interface_info.getInfo(iface_id);
 
-        const fixFactoryOptions = (value: any): any => {
-            Object.keys(value.factory_options || {}).forEach(option_key => {
-                let option_value = value.factory_options[option_key];
+        const fixOptions = (value: any): any => {
+            Object.keys(value.options || {}).forEach(option_key => {
+                let option_value = value.options[option_key];
                 const option_type = option_value.type || '';
                 if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
                     option_value.value = jsyaml.safeLoad(option_value.value);
@@ -766,6 +766,7 @@ export abstract class InterfaceCreator {
                             result += `${list_indent}name: ${connector.name}\n`;
                             for (const key in connector) {
                                 if (['provider', 'input-provider', 'output-provider'].includes(key) && connector[key]) {
+                                    connector[key] = fixOptions(connector[key]);
                                     result += `${indent}${key}:\n`;
                                     for (const subkey in connector[key]) {
                                         if (connector[key][subkey] === '') {
@@ -874,9 +875,24 @@ export abstract class InterfaceCreator {
                     case 'staticdata-type':
                     case 'input-provider':
                     case 'context':
+                        let fixed_value;
+                        if (['staticdata-type', 'input-provider'].includes(tag)) {
+                            fixed_value = fixOptions(value);
+                        } else {
+                            fixed_value = value;
+                        }
+
+                        if (tag === 'mapper_options') {
+                            ['mapper-input', 'mapper-output'].forEach(key => {
+                                if (value[key]) {
+                                    fixed_value[key] = fixOptions(value[key]);
+                                }
+                            });
+                        }
+
                         result +=
                             `${['mapper_options', 'fsm_options', 'connection_options'].includes(tag) ? 'options' : tag}:\n` +
-                            InterfaceCreator.indentYamlDump(value, 1, true);
+                            InterfaceCreator.indentYamlDump(fixed_value, 1, true);
                         break;
                     case 'states':
                         const dumpStates = (states: any = {}, indent_level: number) => {
@@ -896,11 +912,20 @@ export abstract class InterfaceCreator {
                             delete cloned_state['orig-config-items'];
                             delete cloned_state.class_name;
                             delete cloned_state.states;
+
+                            ['input-type', 'output-type'].forEach(key => {
+                                if (cloned_state[key]) {
+                                    cloned_state[key] = fixOptions(cloned_state[key]);
+                                }
+                            });
+
                             result += `${indent.repeat(indent_level + 1)}'${id}':\n` +
                                 InterfaceCreator.indentYamlDump(cloned_state, indent_level + 2, true);
+
                             if (state.id && iface_data?.specific_data?.[state.id]?.['config-items']?.length) {
                                 result += InterfaceCreator.createConfigItemHeaders(iface_data.specific_data[state.id]['config-items'], indent_level + 2);
                             }
+
                             dumpStates(state.states, indent_level + 2);
                         };
 
@@ -911,13 +936,13 @@ export abstract class InterfaceCreator {
                         result += `${tag}: ` + InterfaceCreator.indentYamlDump(value, 0);
                         break;
                     case 'processor':
-                        let fixed_value = {};
+                        let processor_value = {};
                         ['processor-input-type', 'processor-output-type'].forEach(key => {
                             if (value[key]) {
-                                fixed_value[key] = fixFactoryOptions(value[key]);
+                                processor_value[key] = fixOptions(value[key]);
                             }
                         });
-                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(fixed_value, 1, true);
+                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(processor_value, 1, true);
                         break;
                     case 'class-connections':
                         if (!value || !Object.keys(value).length) {
