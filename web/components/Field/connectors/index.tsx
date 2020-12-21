@@ -76,8 +76,8 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
 
         const val = { ...optionProvider };
 
-        if (!size(val.factory_options)) {
-            delete val.factory_options;
+        if (!size(val.options)) {
+            delete val.options;
         }
 
         onChange(name, val);
@@ -98,10 +98,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                     <SubField title={t('FactoryOptions')}>
                         <Options
                             onChange={(nm, val) => {
-                                setOptionProvider((cur) => ({ ...cur, factory_options: val }));
+                                setOptionProvider((cur) => ({ ...cur, options: val }));
                             }}
-                            name="factory_options"
-                            value={optionProvider.factory_options}
+                            name="options"
+                            value={optionProvider.options}
                             customUrl={`${getUrlFromProvider(value)}/constructor_options`}
                         />
                     </SubField>
@@ -139,10 +139,10 @@ const ConnectorField: React.FC<IConnectorFieldProps> = ({
                 <SubField title={t('FactoryOptions')}>
                     <Options
                         onChange={(nm, val) => {
-                            setOptionProvider((cur) => ({ ...cur, factory_options: val }));
+                            setOptionProvider((cur) => ({ ...cur, options: val }));
                         }}
-                        name="factory_options"
-                        value={optionProvider.factory_options}
+                        name="options"
+                        value={optionProvider.options}
                         customUrl={`${getUrlFromProvider(optionProvider)}/constructor_options`}
                     />
                 </SubField>

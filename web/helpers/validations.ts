@@ -173,8 +173,8 @@ export const validateField: (type: string, value: any, field?: IField, canBeNull
             if (value?.type === 'factory') {
                 let options = true;
 
-                if (value.factory_options) {
-                    options = validateField('system-options', value.factory_options);
+                if (value.options) {
+                    options = validateField('system-options', value.options);
                 }
 
                 // Type path and name are required
