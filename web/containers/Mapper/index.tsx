@@ -660,12 +660,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
 
     const getCustomFields: (type: string) => any[] = (type) => {
         if (type === 'inputs') {
-            return flattenedInputs.reduce((newInputs, input) => {
-                if (input.firstCustomInHierarchy) {
-                    return { ...newInputs, [input.name]: input };
-                }
-                return newInputs;
-            }, {});
+            if (flattenedInputs) {
+                return flattenedInputs.reduce((newInputs, input) => {
+                    if (input.firstCustomInHierarchy) {
+                        return { ...newInputs, [input.name]: input };
+                    }
+                    return newInputs;
+                }, {});
+            }
+            return {};
         } else {
             return flattenedOutputs.reduce((newOutputs, output) => {
                 if (output.firstCustomInHierarchy) {

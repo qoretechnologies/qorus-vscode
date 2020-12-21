@@ -50,6 +50,7 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
                     value={inputType}
                     isInitialEditing={!!initialData.class}
                     name={name}
+                    providerType="inputs"
                     onChange={(_name, value) => setInputType(value)}
                 />
             )}
@@ -62,6 +63,7 @@ const ProcessorField: React.FC<IFieldChange & IProcessorField> = ({ name, value,
                     value={outputType}
                     isInitialEditing={!!initialData.class}
                     name={name}
+                    providerType="outputs"
                     onChange={(_name, value) => setOutputType(value)}
                 />
             )}

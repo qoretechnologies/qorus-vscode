@@ -11,15 +11,15 @@ import {
     openInterface,
     resetAndFillTextField,
     selectField,
-    selectNthFilteredDropdownItem,
     selectNthFolder,
+    selectProviderData,
     submitInterface,
 } from '../utils/webview';
 
 const target_dir = '_tests';
 const target_file = ['test-mapper-3.45.qmapper.yaml', 'test-mapper-3.4.5.qmapper.yaml'];
 
-export const createMapper = async (webview: WebView) => {
+export const opensMapperCreatePage = async (webview: WebView) => {
     await clickElement(webview, 'CreateInterface');
     await clickElement(webview, 'Mapper');
 
@@ -29,7 +29,9 @@ export const createMapper = async (webview: WebView) => {
 
     // submit disabled by default
     expect(await getElementAttribute(webview, 'interface-creator-submit-mapper', 'disabled')).to.equal('true');
+};
 
+export const fillsMapperFields = async (webview: WebView) => {
     await selectNthFolder(webview, 'target_dir', 1);
     await fillTextField(webview, 'field-name', 'test-mapper');
     await fillTextField(webview, 'field-desc', 'Test mapper');
@@ -37,23 +39,16 @@ export const createMapper = async (webview: WebView) => {
     await sleep(500);
     await submitInterface(webview, 'mapper');
     await sleep(500);
+};
 
-    // next page
-    await selectNthFilteredDropdownItem(webview, 'provider-inputs', 'null');
-    await sleep(1000);
-    await selectNthFilteredDropdownItem(webview, 'provider-outputs', 'type');
-    await sleep(1000);
-    await selectNthFilteredDropdownItem(webview, 'provider-outputs-0', 'qoretechnologies');
-    await sleep(1000);
-    await selectNthFilteredDropdownItem(webview, 'provider-outputs-1', 'qorus-api');
-    await sleep(1000);
-    await selectNthFilteredDropdownItem(webview, 'provider-outputs-2', 'jobs');
-    await sleep(1000);
-    await selectNthFilteredDropdownItem(webview, 'provider-outputs-3', 'context');
-    await sleep(1000);
+export const addsInputOutputProviders = async (webview: WebView) => {
+    await selectProviderData(webview, ['factory', 'db'], 'inputs');
+    await selectProviderData(webview, ['type', 'qoretechnologies', 'qorus-api', 'jobs', 'context'], 'outputs');
     await clickElement(webview, 'provider-outputs-submit');
     await sleep(1000);
+};
 
+export const addMapperMapping = async (webview: WebView) => {
     await clickElement(webview, 'mapper-output-code-button-name');
     await sleep(1000);
     await selectField(webview, 'constant');
@@ -62,15 +57,15 @@ export const createMapper = async (webview: WebView) => {
     await sleep(1000);
     await clickElement(webview, 'submit-mapping-modal');
     await sleep(1000);
+};
+
+export const submitsMapperAndchecksFile = async (webview: WebView) => {
     await submitInterface(webview, 'mapper');
-    await sleep(1000);
+    await sleep(3000);
+    compareWithGoldFiles([target_file[0]]);
 };
 
-export const checkFile = async (file_index: number) => {
-    compareWithGoldFiles([target_file[file_index]]);
-};
-
-export const editMapper = async (workbench: Workbench, editorView: EditorView) => {
+export const editsMapperAndChecksFile = async (workbench: Workbench, editorView: EditorView) => {
     await sleep(1000);
     const webview: WebView = await openInterface(
         workbench,
@@ -87,5 +82,7 @@ export const editMapper = async (workbench: Workbench, editorView: EditorView) =
     await sleep(2000);
     await submitInterface(webview, 'mapper');
     await sleep(2000);
+
+    compareWithGoldFiles([target_file[1]]);
     return webview;
 };

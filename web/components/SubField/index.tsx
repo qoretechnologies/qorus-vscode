@@ -1,15 +1,13 @@
+import { Button, Icon } from '@blueprintjs/core';
 import React from 'react';
-
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-
-import { Button, Icon } from '@blueprintjs/core';
 
 export interface ISubFieldProps {
     title?: string;
     desc?: string;
     children: any;
-    onRemove: () => any;
+    onRemove?: () => any;
 }
 
 const StyledSubFieldTitle = styled.h4`

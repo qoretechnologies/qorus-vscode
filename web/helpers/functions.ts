@@ -168,8 +168,8 @@ export const areTypesCompatible = async (
     }
 
     const comparison = await fetchData('/dataprovider/compareTypes', 'PUT', {
-        base_type: output,
-        type: input,
+        base_type: omit(output, ['options']),
+        type: omit(input, ['options']),
     });
 
     return comparison.data;

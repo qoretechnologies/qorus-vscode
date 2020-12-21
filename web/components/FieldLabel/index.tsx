@@ -1,8 +1,6 @@
+import { Colors, Icon, Intent } from '@blueprintjs/core';
 import React, { FunctionComponent } from 'react';
-
 import styled, { css } from 'styled-components';
-
-import { Icon, Intent, Colors } from '@blueprintjs/core';
 
 const StyledFieldLabel = styled.div<{ fluid?: boolean }>`
     padding: 0px 10px 0 0;
@@ -55,10 +53,7 @@ const FieldLabel: FunctionComponent<IFieldLabel> = ({ label, isValid, info }) =>
             </FieldLabelName>
         )}
         <FieldLabelValid>
-            <Icon
-                icon={isValid === false ? 'cross' : 'blank'}
-                intent={isValid === false ? Intent.DANGER : Intent.NONE}
-            />
+            <Icon icon={!isValid ? 'cross' : 'blank'} intent={!isValid ? Intent.DANGER : Intent.NONE} />
         </FieldLabelValid>
     </StyledFieldLabel>
 );
