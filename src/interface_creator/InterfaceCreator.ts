@@ -767,17 +767,8 @@ export abstract class InterfaceCreator {
                             for (const key in connector) {
                                 if (['provider', 'input-provider', 'output-provider'].includes(key) && connector[key]) {
                                     connector[key] = fixOptions(connector[key]);
-                                    result += `${indent}${key}:\n`;
-                                    for (const subkey in connector[key]) {
-                                        if (connector[key][subkey] === '') {
-                                            result += `${indent}${indent}${subkey}: ""\n`;
-                                        } else {
-                                            result += `${indent}${indent}${subkey}: ${connector[key][subkey]}\n`;
-                                        }
-                                    }
-                                } else if (
-                                    !['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)
-                                ) {
+                                    result += `${indent}${key}:\n` + InterfaceCreator.indentYamlDump(connector[key], 2, true);
+                                } else if (!['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)) {
                                     result += `${indent}${key}: ${connector[key]}\n`;
                                 }
                             }
