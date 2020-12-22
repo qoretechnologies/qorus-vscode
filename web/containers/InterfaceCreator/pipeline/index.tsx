@@ -162,7 +162,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
     );
 };
 
-const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset, onSubmitSuccess }) => {
+const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset, onSubmitSuccess, ...rest }) => {
     const getNodeShapeData = ({ type, children, isCompatible }) => {
         switch (type) {
             case 'mapper':
@@ -217,7 +217,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
 
     const wrapperRef = useRef(null);
     const t = useContext(TextContext);
-    const { image_path, confirmAction, callBackend, pipeline, qorus_instance } = useContext(InitialContext);
+    const { image_path, confirmAction, callBackend, qorus_instance, ...init } = useContext(InitialContext);
+    const pipeline = rest?.pipeline || init?.pipeline;
     const { resetAllInterfaceData } = useContext(GlobalContext);
     const changeHistory = useRef<string[]>([]);
     const currentHistoryPosition = useRef<number>(-1);
