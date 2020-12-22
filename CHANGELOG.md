@@ -12,7 +12,7 @@
 - fixed a bug where 'tags' were not always serialized as strings
 - fixed a bug where the invalid 'option' tag was saved in processor
 - fixed saving of data provider options of complex types
-- fixed a bug where FSMs being open from other interfaces opened blank
+- fixed bugs where FSMs or pipelines being open from other interfaces opened blank
 - fixed a bug where pipeline could not be submitted unless input provider options, which are optional, were filled
 
 ## 2.1.0
