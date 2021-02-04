@@ -230,6 +230,14 @@ export const areConnectorsCompatible = async (
     return isCompatibleWithItem ? true : false;
 };
 
+export const isFSMStateValid = (state: IFSMState) => {
+    if (state.type === 'state') {
+        return !!(state.action?.type && state.action?.value);
+    }
+
+    return true;
+};
+
 const callBackendBasic: (
     getMessage: string,
     returnMessage: string,

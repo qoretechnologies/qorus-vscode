@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, ProgressBar, Tooltip } from '@blueprintjs/core';
 import size from 'lodash/size';
+import { lighten } from 'polished';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import styled, { css, keyframes } from 'styled-components';
@@ -38,6 +39,7 @@ export interface IFSMStateStyleProps {
     isAvailableForTransition: boolean;
     isIsolated: boolean;
     isIncompatible?: boolean;
+    error?: boolean;
 }
 
 const wiggleAnimation = (type) => keyframes`
@@ -82,7 +84,7 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     position: absolute;
     width: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_WIDTH)}px;
     height: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_HEIGHT)}px;
-    background-color: #fff;
+    
     z-index: 20;
     border: 1px solid;
     transition: all 0.2s linear;
@@ -97,10 +99,10 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
         opacity: ${({ isIsolated }) => (isIsolated ? 0.4 : 1)};
     }
 
-    ${({ selected, initial, final, isIncompatible }) => {
+    ${({ selected, initial, final, isIncompatible, error }) => {
         let color: string = '#a9a9a9';
 
-        if (isIncompatible) {
+        if (isIncompatible || error) {
             color = '#d13913';
         } else if (selected) {
             color = '#277fba';
@@ -119,6 +121,10 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
             }
         `;
     }};
+
+    ${({ error }) => css`
+        background-color: ${error ? lighten(0.3, '#d13913') : '#fff'};
+    `}
 
     ${({ isAvailableForTransition, type }) =>
         isAvailableForTransition &&
@@ -183,6 +189,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
     toggleDragging,
     onExecutionOrderClick,
     isIsolated,
+    error,
     ...rest
 }) => {
     const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -252,6 +259,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
             className={isIsolated ? 'isolated-state' : ''}
             isAvailableForTransition={shouldWiggle}
             isIncompatible={selectedState && !shouldWiggle}
+            error={error}
             type={action?.type || type}
             onContextMenu={(event) => {
                 event.persist();

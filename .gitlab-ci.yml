@@ -3,7 +3,7 @@ stages:
 
 uitest:
     stage: build
-    image: alpine:latest
+    image: alpine:3.10
     tags:
         - docker-exec
         - uitest
@@ -61,7 +61,7 @@ uitest:
 
 package_build:
     stage: build
-    image: alpine:latest
+    image: alpine:3.10
     tags:
         - docker-exec
     artifacts:

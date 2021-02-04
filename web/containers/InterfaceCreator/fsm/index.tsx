@@ -25,7 +25,7 @@ import { Messages } from '../../../constants/messages';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { areTypesCompatible, isStateIsolated, ITypeComparatorData } from '../../../helpers/functions';
+import { areTypesCompatible, isFSMStateValid, isStateIsolated, ITypeComparatorData } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
@@ -98,6 +98,8 @@ export interface IFSMState {
     language?: 'qore' | 'python';
     execution_order?: number;
     keyId?: string;
+    disabled?: boolean;
+    error?: boolean;
 }
 
 export interface IFSMStates {
@@ -205,7 +207,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     }
 
     const [metadata, setMetadata] = useState<IFSMMetadata>({
-        target_dir: fsm?.target_dir || null,
+        target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
         name: fsm?.name || null,
         desc: fsm?.desc || null,
         groups: fsm?.groups || [],
@@ -316,11 +318,24 @@ const FSMView: React.FC<IFSMViewProps> = ({
         return type === 'if' ? IF_STATE_SIZE / 2 : STATE_HEIGHT / 2;
     };
 
+    const areStatesValid = (states: IFSMStates): boolean => {
+        let valid = true;
+
+        forEach(states, (state) => {
+            if (!isFSMStateValid(state)) {
+                valid = false;
+            }
+        });
+
+        return valid;
+    };
+
     const isFSMValid = () => {
         return (
             validateField('string', metadata.target_dir) &&
             validateField('string', metadata.name) &&
             validateField('string', metadata.desc) &&
+            areStatesValid(states) &&
             size(states)
         );
     };
@@ -535,6 +550,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     // Filter out any transitions
                     newStates[stateId].transitions = state.transitions.filter((transition) => transition.state !== id);
                 }
+            }
+
+            // Set states without action
+            if (!isFSMStateValid(state)) {
+                newStates[stateId].error = true;
             }
         }
 

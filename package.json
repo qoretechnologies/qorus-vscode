@@ -1973,6 +1973,7 @@
         "js-yaml": "^3.13.1",
         "markdown-it": "^11.0.0",
         "moment": "^2.24.0",
+        "polished": "^4.1.0",
         "react-autocomplete": "^1.8.1",
         "react-d3-tree": "^1.16.1",
         "react-dnd": "^9.4.0",
