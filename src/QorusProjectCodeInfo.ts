@@ -122,6 +122,19 @@ export class QorusProjectCodeInfo {
                 const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
                 raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
             }
+
+            if (!raw_data) {
+                const message = t`YamlDataNotFound ${iface_kind} ${name}`;
+                msg.error(message);
+                qorus_webview.postMessage({
+                    action: `return-interface-data${request_id ? '-complete' : ''}`,
+                    request_id,
+                    ok: false,
+                    message
+                });
+                return;
+            }
+
             const data = this.yaml2FrontEnd(raw_data);
 
             const iface_id = this.iface_info.addIfaceById(data, iface_kind);
