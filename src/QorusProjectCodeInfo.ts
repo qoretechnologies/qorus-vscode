@@ -702,19 +702,8 @@ export class QorusProjectCodeInfo {
 
             (Object.keys(data.states || {})).forEach(state_id => {
                 const state = data.states[state_id];
-                if (['mapper', 'pipeline', 'connector'].includes(state.action?.type)) {
-                    let action_type;
-                    let action_value;
-                    switch (state.action.type) {
-                        case 'connector':
-                            action_type = 'class';
-                            action_value = state.action.value.class;
-                            break;
-                        default:
-                            action_type = state.action.type;
-                            action_value = state.action.value;
-                    }
-                    if (!checkObject(action_type, action_value)) {
+                if (['mapper', 'pipeline'].includes(state.action?.type)) {
+                    if (!checkObject(state.action.type, state.action.value)) {
                         delete state.action;
                     }
                 }
