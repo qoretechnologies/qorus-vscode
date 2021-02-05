@@ -122,6 +122,19 @@ export class QorusProjectCodeInfo {
                 const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
                 raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
             }
+
+            if (!raw_data) {
+                const message = t`YamlDataNotFound ${iface_kind} ${name}`;
+                msg.error(message);
+                qorus_webview.postMessage({
+                    action: `return-interface-data${request_id ? '-complete' : ''}`,
+                    request_id,
+                    ok: false,
+                    message
+                });
+                return;
+            }
+
             const data = this.yaml2FrontEnd(raw_data);
 
             const iface_id = this.iface_info.addIfaceById(data, iface_kind);
@@ -689,8 +702,19 @@ export class QorusProjectCodeInfo {
 
             (Object.keys(data.states || {})).forEach(state_id => {
                 const state = data.states[state_id];
-                if (['mapper', 'pipeline'].includes(state.action?.type)) {
-                    if (!checkObject(state.action.type, state.action.value)) {
+                if (['mapper', 'pipeline', 'connector'].includes(state.action?.type)) {
+                    let action_type;
+                    let action_value;
+                    switch (state.action.type) {
+                        case 'connector':
+                            action_type = 'class';
+                            action_value = state.action.value.class;
+                            break;
+                        default:
+                            action_type = state.action.type;
+                            action_value = state.action.value;
+                    }
+                    if (!checkObject(action_type, action_value)) {
                         delete state.action;
                     }
                 }
