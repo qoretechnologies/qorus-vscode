@@ -26,9 +26,9 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
     let disposable;
 
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow', 'workflow-steps',
-        'service-methods', 'mapper-code-methods', 'fsm', 'pipeline', 'connection'].forEach(iface_kind =>
+        'service-methods', 'mapper-code-methods', 'fsm', 'pipeline', 'connection'].forEach(key =>
     {
-        const command = 'qorus.explorer.edit' + dash2Pascal(iface_kind);
+        const command = 'qorus.explorer.edit' + dash2Pascal(key);
         disposable = vscode.commands.registerCommand(command, (resource: any) => {
             if (!checkPathIsInSourceDirs(resource.fsPath)) {
                 return;
@@ -38,7 +38,9 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
             const data = code_info?.yaml_info.yamlDataBySrcFile(resource.fsPath);
 
             if (data) {
-                switch (iface_kind) {
+                delete data.show_steps;
+                let iface_kind;
+                switch (key) {
                     case 'workflow-steps':
                         data.show_steps = true;
                         iface_kind = 'workflow';
@@ -51,6 +53,8 @@ export const registerQorusExplorerCommands = (context: vscode.ExtensionContext) 
                         data.active_method = 1;
                         iface_kind = 'mapper-code';
                         break;
+                    default:
+                        iface_kind = key;
                 }
                 vscode.commands.executeCommand('qorus.editInterface', data, iface_kind);
             }
