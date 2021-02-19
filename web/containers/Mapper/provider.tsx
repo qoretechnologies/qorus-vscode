@@ -194,7 +194,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Fetch the data
         const { data, error } = await fetchData(`${url}/${value}${suffix}`);
         if (error) {
-            console.log(`${url}/${value}${suffix}`, error);
+            console.error(`${url}/${value}${suffix}`, error);
             setIsLoading(false);
             return;
         }
