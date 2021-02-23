@@ -249,8 +249,8 @@ export class QorusProject {
 
     updateConfigFromWebview(msg_data) {
         const file_data = this.data2file(msg_data);
-        instance_tree.reset(file_data.qorus_instances);
         this.writeConfig(file_data);
+        instance_tree.reset(file_data.qorus_instances);
     }
 
     dirForTypePath = (target_dir, type_path) => {

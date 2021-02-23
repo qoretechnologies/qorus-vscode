@@ -123,7 +123,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                         </CreatorWrapper>
                     )}
                     {initialData.subtab === 'mapper' && (
-                        <MapperView onSubmitSuccess={onSubmit} interfaceContext={context} />
+                        <MapperView onSubmitSuccess={onSubmit} interfaceContext={context} initialData={initialData} />
                     )}
                     {initialData.subtab === 'group' && (
                         <CreatorWrapper>

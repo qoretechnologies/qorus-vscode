@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.3
+
+#### Bug fixes
+
+- fixed a bug where Open Workflow Steps did not work after Open Workflow and vice-versa
+- fixed encryption of passwords contained in Qorus URLs
+- fixed a bug where mappers displayed no data when opened from other interfaces
+
 ## 2.2.0
 
 #### New features

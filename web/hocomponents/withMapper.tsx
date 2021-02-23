@@ -5,6 +5,7 @@ import mapProps from 'recompose/mapProps';
 import { Messages } from '../constants/messages';
 import { providers } from '../containers/Mapper/provider';
 import { MapperContext } from '../context/mapper';
+import withInitialDataConsumer from './withInitialDataConsumer';
 import withMessageHandler from './withMessageHandler';
 import withTextContext from './withTextContext';
 
@@ -254,7 +255,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             const outputs = await props.fetchData(outputUrl);
             // If one of the connections is down
             if (outputs.error) {
-                console.log(outputs);
+                console.error(outputs);
                 setError(outputs.error && 'OutputConnError');
                 return;
             }
@@ -265,7 +266,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                 const resp = await props.fetchData(mapperKeysUrl);
                 // Check if mapper keys call was good
                 if (resp.error) {
-                    console.log(resp);
+                    console.error(resp);
                     setError('MapperKeysFail');
                     return;
                 }
@@ -536,6 +537,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
     };
 
     return compose(
+        withInitialDataConsumer(),
         mapProps(({ mapper, ...rest }) => ({
             initialShow: !!mapper,
             mapper,
