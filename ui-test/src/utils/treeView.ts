@@ -87,9 +87,14 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
         const loginAction: TreeItem = (await instance.findChildItem('Set as active Qorus instance')) as TreeItem;
 
         if (loginAction) {
+            console.log('FOUND LOGIN ACTION');
+
             await loginAction.click();
 
+            console.log('CLICKED LOGIN ACTION');
+
             while (!loggedIn && time < 10000) {
+                console.log(`WAITING FOR ${time} TO LOGIN`);
                 const notifications: Notification[] = await workbench.getNotifications();
 
                 if (!notifications || notifications.length === 0) {
@@ -98,6 +103,8 @@ export const loginFromTreeView = async (workbench: Workbench, instanceName: stri
 
                 for await (const notification of notifications) {
                     const text: string = await notification.getText();
+
+                    console.log(`NOTIFICATION EXISTS: ${text}`);
 
                     if (text === 'Login successful') {
                         loggedIn = true;
