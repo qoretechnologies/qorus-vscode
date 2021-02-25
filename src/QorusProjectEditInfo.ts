@@ -16,10 +16,16 @@ export class QorusProjectEditInfo {
     private edit_info: any = {};
     getInfo = file => this.edit_info[file];
 
-    private setError = (file: string, error: string): string => {
-        this.edit_info[file] = {error};
+    private setError = (file: string, error: string, is_lang_server_error: boolean = false): string => {
+        if (is_lang_server_error) {
+            this.edit_info[file] = {lang_server_error: error};
+        } else {
+            this.edit_info[file] = {error};
+        }
         return error;
     }
+
+    public isLangServerError = (file: string): boolean => !!this.edit_info?.[file]?.lang_server_error;
 
     checkError = (file: string, iface_id: string, iface_kind: string) => {
         if (this.edit_info?.[file]?.error) {
@@ -364,6 +370,10 @@ export class QorusProjectEditInfo {
         };
 
         return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+            if (!symbols) {
+                return Promise.reject(this.setError(file, t`QoreLangServerNotFound`, true));
+            }
+
             if (!symbols.length) {
                 return Promise.reject(this.setError(file, t`ErrorParsingFileOrNoSymbolsFound ${file}`));
             }

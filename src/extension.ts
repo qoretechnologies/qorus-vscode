@@ -123,19 +123,30 @@ export async function activate(context: vscode.ExtensionContext) {
 
         code_info.checkReferencedObjects(iface_id, data);
 
-        qorus_webview.open({
+        const message = {
             tab: 'CreateInterface',
             subtab: iface_kind,
             [iface_kind]: { ...data, iface_id }
-        });
+        };
 
         const { target_dir, target_file } = data;
         if (target_dir && target_file) {
             const file_path = path.join(target_dir, target_file);
             if (path.extname(file_path) !== '.yaml') {
-                code_info.edit_info.setFileInfo(file_path, data);
+                code_info.edit_info.setFileInfo(file_path, data).then(
+                    () => {
+                        qorus_webview.open(message);
+                    },
+                    (_error: any) => {
+                        const lang_server_unavailable = code_info.edit_info.isLangServerError(file_path);
+                        qorus_webview.open({...message, lang_server_unavailable});
+                    }
+                );
+                return;
             }
         }
+
+        qorus_webview.open(message);
     });
     context.subscriptions.push(disposable);
 
