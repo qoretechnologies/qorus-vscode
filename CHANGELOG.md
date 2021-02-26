@@ -2,6 +2,10 @@
 
 ## 2.2.4
 
+#### Bug fixes
+
+- fixed opening mappers with contextual mappings but no interface context
+
 #### New features
 
 - limited editing of Qore interfaces that changes only the metadata but not the source code is now possible even if Qore is not installed
