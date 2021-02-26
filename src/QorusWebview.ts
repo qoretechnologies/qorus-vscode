@@ -230,14 +230,16 @@ class QorusWebview {
                             releaser.savePackage();
                             break;
                         case 'creator-get-fields':
-                            this.panel.webview.postMessage({
-                                action: 'creator-return-fields',
-                                iface_kind: message.iface_kind,
-                                fields: creator.getSortedFields({
-                                    ... message,
-                                    interface_info,
-                                    default_target_dir: message.context?.target_dir || this.uri?.fsPath
-                                }),
+                            creator.getSortedFields({
+                                ... message,
+                                interface_info,
+                                default_target_dir: message.context?.target_dir || this.uri?.fsPath
+                            }).then(fields => {
+                                this.panel.webview.postMessage({
+                                    action: 'creator-return-fields',
+                                    iface_kind: message.iface_kind,
+                                    fields
+                                });
                             });
                             break;
                         case 'creator-get-objects':

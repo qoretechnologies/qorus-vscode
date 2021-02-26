@@ -2,15 +2,17 @@ import * as flattenDeep from 'lodash/flattenDeep';
 import { interface_without_methods_creator } from './InterfaceWithoutMethodsCreator';
 import { interface_with_methods_creator } from './InterfaceWithMethodsCreator';
 import { classFields } from './common_constants';
-import { serviceFields, service_methods } from './service_constants';
+import { serviceFields, serviceMethodFields } from './service_constants';
 import { jobFields } from './job_constants';
 import { workflowFields } from './workflow_constants';
 import { stepFields } from './step_constants';
-import { mapperFields, mapperCodeFields, mapper_method_fields } from './mapper_constants';
+import { mapperFields, mapperCodeFields, mapperMethodFields } from './mapper_constants';
 import { connectionFields } from './connection_constants';
 import { configItemFields } from './config_item_constants';
 import { groupFields, eventFields, queueFields,
          valueMapFields, errorsFields, error_fields } from './other_constants';
+import { isLangClientAvailable } from '../qore_vscode';
+import { default_lang } from '../qorus_constants';
 import { gettext } from 'ttag';
 
 
@@ -20,7 +22,7 @@ export class ActionDispatcher {
             case 'service':
                 return serviceFields(params);
             case 'service-methods':
-                return service_methods;
+                return serviceMethodFields(params);
             case 'job':
                 return jobFields(params);
             case 'workflow':
@@ -38,7 +40,7 @@ export class ActionDispatcher {
             case 'mapper-code':
                 return mapperCodeFields(params);
             case 'mapper-methods':
-                return mapper_method_fields;
+                return mapperMethodFields(params);
             case 'group':
                 return groupFields(params);
             case 'event':
@@ -56,7 +58,9 @@ export class ActionDispatcher {
         }
     }
 
-    static getSortedFields = (params: any): any[] => {
+    static getSortedFields = async (params: any): Promise<any[]> => {
+        params.limited_editing = params.is_editing && (params.lang || default_lang) === 'qore' && !await isLangClientAvailable();
+
         const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc', 'lang'];
         let unsorted = [ ...ActionDispatcher.getFields(params) ];
         let at_the_beginning = [];
@@ -71,7 +75,8 @@ export class ActionDispatcher {
             const nameB = gettext(`field-label-${b.name}`).toUpperCase();
             return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
         };
-        return [...flattenDeep(at_the_beginning), ...unsorted.sort(sorter)];
+
+        return Promise.resolve([...flattenDeep(at_the_beginning), ...unsorted.sort(sorter)]);
     }
 
     static editInterface({iface_kind: iface_kinds, interface_info, ...other_params}) {

@@ -17,14 +17,17 @@ export const jobImports = (lang: string, base_class_name: string) => {
     }
 };
 
-export const jobFields = ({ default_target_dir }) => [
+export const jobFields = ({ default_target_dir, limited_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
     field.desc,
     field.author,
     field.version,
-    field.class_name,
+    {
+        ... field.class_name,
+        disabled: limited_editing,
+    },
     field.lang,
     field.mappers,
     field.vmaps,
@@ -46,6 +49,7 @@ export const jobFields = ({ default_target_dir }) => [
             return_value: 'objects',
         },
         on_change: 'get-config-items',
+        disabled: limited_editing,
     },
     {
         name: 'active',

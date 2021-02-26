@@ -17,7 +17,7 @@ export const workflowImports = (lang: string, base_class_name: string) => {
     }
 };
 
-export const workflowFields = ({ default_target_dir}) => [
+export const workflowFields = ({ default_target_dir, limited_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -29,6 +29,7 @@ export const workflowFields = ({ default_target_dir}) => [
         mandatory: false,
         notify_on_add: true,
         notify_on_remove: true,
+        disabled: limited_editing,
     },
     {
         ...field.lang,
@@ -62,6 +63,7 @@ export const workflowFields = ({ default_target_dir}) => [
         mandatory: false,
         notify_on_add: true,
         notify_on_remove: true,
+        disabled: limited_editing,
     },
     {
         name: 'staticdata-type',

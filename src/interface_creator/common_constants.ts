@@ -111,7 +111,7 @@ export const classImports = (lang: string, base_class_name: string) => {
 
 // ================================================================
 
-export const classFields = ({ default_target_dir }) => [
+export const classFields = ({ default_target_dir, limited_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.desc,
@@ -120,6 +120,7 @@ export const classFields = ({ default_target_dir }) => [
     {
         name: 'class-class-name',
         has_to_be_valid_identifier: true,
+        disabled: limited_editing,
     },
     field.lang,
     {
@@ -137,6 +138,7 @@ export const classFields = ({ default_target_dir }) => [
         },
         on_change: 'get-config-items',
         notify_on_remove: true,
+        disabled: limited_editing,
     },
     {
         name: 'requires',
