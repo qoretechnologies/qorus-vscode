@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.4
+
+#### New features
+
+- limited editing of Qore interfaces that changes only the metadata but not the source code is now possible even if Qore is not installed
+
 ## 2.2.3
 
 #### Bug fixes
