@@ -130,7 +130,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     t,
     isSubItemValid,
     removeSubItemFromFields,
-    initialData: { 'mapper-code': library, lang_server_unavailable },
+    initialData: { 'mapper-code': library, lang_client_unavailable },
     interfaceId,
     onSubmitSuccess,
 }) => {
@@ -190,7 +190,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                         <Selected />
                                                     </>
                                                 )}
-                                                {functionsCount !== 1 && !lang_server_unavailable ? (
+                                                {functionsCount !== 1 && !lang_client_unavailable ? (
                                                     <RemoveButton
                                                         onClick={() => {
                                                             setFunctions((current) =>
@@ -216,7 +216,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                 text={t('AddFunction')}
                                                 icon={'plus'}
                                                 onClick={handleAddFunctionClick}
-                                                disabled={lang_server_unavailable}
+                                                disabled={lang_client_unavailable}
                                             />
                                         </ButtonGroup>
                                     </ActionsWrapper>

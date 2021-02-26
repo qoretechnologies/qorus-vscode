@@ -221,7 +221,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                                     </>
                                                                 )}
                                                                 {methodsCount !== 1 &&
-                                                                !initialData.lang_server_unavailable ? (
+                                                                !initialData.lang_client_unavailable ? (
                                                                     <RemoveButton
                                                                         name={`remove-method-${method.name}`}
                                                                         onClick={() => {
@@ -253,7 +253,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                             text={t('AddMethod')}
                                                             icon={'plus'}
                                                             onClick={handleAddMethodClick}
-                                                            disabled={initialData.lang_server_unavailable}
+                                                            disabled={initialData.lang_client_unavailable}
                                                         />
                                                     </ButtonGroup>
                                                 </ActionsWrapper>
