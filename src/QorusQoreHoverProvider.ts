@@ -2,7 +2,7 @@ import { Hover, Position, TextDocument } from 'vscode';
 
 import { QorusHoverProviderBase } from './QorusHoverProviderBase';
 import { getFilePathFromUri } from './qorus_utils';
-import { qore_vscode } from './qore_vscode';
+import { qore_vscode, isLangClientAvailable } from './qore_vscode';
 
 export class QorusQoreHoverProvider extends QorusHoverProviderBase {
     isSearchedSymbol = (symbol, position) =>
@@ -11,6 +11,11 @@ export class QorusQoreHoverProvider extends QorusHoverProviderBase {
         symbol.location.range.end.character > position.character
 
     async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined> {
+        const lang_client_available = await isLangClientAvailable();
+        if (!lang_client_available) {
+            return undefined;
+        }
+
         let symbols = await qore_vscode.exports.getDocumentSymbols(document);
 
         const filePath = getFilePathFromUri(document.uri);
