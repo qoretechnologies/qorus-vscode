@@ -238,7 +238,7 @@ export const isFSMStateValid = (state: IFSMState) => {
     return true;
 };
 
-const callBackendBasic: (
+export const callBackendBasic: (
     getMessage: string,
     returnMessage: string,
     data: any,
@@ -276,7 +276,7 @@ const callBackendBasic: (
                 ok: false,
                 message: 'Request timed out',
             });
-        }, 30000);
+        }, 300000);
         // Watch for the request to complete
         // if the ID matches then resolve
         addMessageListener(returnMessage || `${getMessage}-complete`, (data) => {
