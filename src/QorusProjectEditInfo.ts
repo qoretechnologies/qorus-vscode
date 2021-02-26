@@ -7,7 +7,7 @@ import { QorusPythonParser }  from './QorusPythonParser';
 import { qoreLoc2Range, pythonLoc2Range, javaLoc2Range,
          pythonNameRange, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
 import { qorus_webview } from './QorusWebview';
-import { qore_vscode } from './qore_vscode';
+import { qore_vscode, isLangClientAvailable } from './qore_vscode';
 import { default_lang } from './qorus_constants';
 import * as msg from './qorus_message';
 import { CONN_CALL_METHOD, GENERATED_TEXT } from './interface_creator/ClassConnectionsCreate';
@@ -288,9 +288,15 @@ export class QorusProjectEditInfo {
         return Promise.resolve(undefined);
     }
 
-    private setQoreFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
+    private async setQoreFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
+
+        const lang_client_available = await isLangClientAvailable();
+        if (!lang_client_available) {
+            return Promise.resolve(undefined);
+        }
+
 
         const addClassConnectionClass = symbols => {
             let has_the_method = false;

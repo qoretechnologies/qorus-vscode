@@ -26,10 +26,12 @@ import { ActionDispatcher as creator } from './interface_creator/ActionDispatche
 import { QorusProjectInterfaceInfo } from './QorusProjectInterfaceInfo';
 import { registerQorusExplorerCommands } from './qorus_explorer_commands';
 import { registerQorusViewsCommands } from './qorus_views_commands';
+import { isLangClientAvailable } from './qore_vscode';
 
 qorus_locale.setLocale();
 
 export async function activate(context: vscode.ExtensionContext) {
+    isLangClientAvailable();
     qorus_vscode.context = context;
     qorusIcons.update(context.extensionPath);
     installQorusJavaApiSources(context.extensionPath);
@@ -129,20 +131,21 @@ export async function activate(context: vscode.ExtensionContext) {
             [iface_kind]: { ...data, iface_id }
         };
 
-        const { target_dir, target_file } = data;
+        const { target_dir, target_file, lang = 'qore' } = data;
         if (target_dir && target_file) {
             const file_path = path.join(target_dir, target_file);
             if (path.extname(file_path) !== '.yaml') {
-                code_info.edit_info.setFileInfo(file_path, data).then(
-                    () => {
-                        qorus_webview.open(message);
-                    },
-                    (_error: any) => {
-                        const lang_server_unavailable = code_info.edit_info.isLangServerError(file_path);
-                        qorus_webview.open({...message, lang_server_unavailable});
-                    }
-                );
-                return;
+                if (lang === 'qore') {
+                    isLangClientAvailable().then(lang_client_available => {
+                        qorus_webview.open({...message, lang_client_unavailable: !lang_client_available});
+                        if (lang_client_available) {
+                            code_info.edit_info.setFileInfo(file_path, data);
+                        }
+                    });
+                    return;
+                }
+
+                code_info.edit_info.setFileInfo(file_path, data);
             }
         }
 

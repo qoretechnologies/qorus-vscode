@@ -13,6 +13,7 @@ import { capitalize, deepCopy, isValidIdentifier, removeDuplicates, sortRanges }
 import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
+import { isLangClientAvailable } from '../qore_vscode';
 
 
 const list_indent = '  - ';
@@ -37,6 +38,7 @@ export abstract class InterfaceCreator {
     protected file_edit_info: any;
     protected has_code = false;
     protected had_code = false;
+    protected is_editable = false;
 
     protected setPaths(
         data: any,
@@ -108,7 +110,9 @@ export abstract class InterfaceCreator {
         }
     }
 
-    edit(params: any) {
+    async edit(params: any) {
+        this.lang = params.data?.lang || default_lang;
+        this.is_editable = this.lang !== 'qore' || await isLangClientAvailable();
         this.code_info = projects.currentProjectCodeInfo();
 
         if (params.orig_data) {
