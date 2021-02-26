@@ -370,9 +370,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 context,
                 iface_id: interfaceId,
                 name: data.name,
+                lang: isEditing ? data.lang : undefined,
             });
         } else {
-            postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
+            postMessage(Messages.GET_FIELDS, {
+                iface_kind: type,
+                is_editing: isEditing,
+                context,
+                lang: isEditing ? data.lang : undefined,
+            });
         }
         // Cleanup on unmount
         return () => {
@@ -446,7 +452,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Set the new message listener
         setMessageListener(() => messageListenerHandler);
         // Fetch the fields
-        postMessage(Messages.GET_FIELDS, { iface_kind: type, is_editing: isEditing, context });
+        postMessage(Messages.GET_FIELDS, {
+            iface_kind: type,
+            is_editing: isEditing,
+            context,
+            lang: isEditing ? data.lang : undefined,
+        });
     };
 
     const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
