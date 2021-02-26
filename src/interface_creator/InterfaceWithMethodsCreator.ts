@@ -134,7 +134,12 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
 
         headers += InterfaceWithMethodsCreator.createMethodHeaders(methods);
 
-        ({ ok, message } = this.writeFiles(contents, headers));
+        if (edit_type === 'create' || this.is_editable) {
+            ({ ok, message } = this.writeFiles(contents, headers));
+        } else {
+            ({ ok, message } = this.writeYamlFile(headers));
+        }
+
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${edit_type}-interface-complete`,
@@ -145,7 +150,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             return;
         }
 
-        if (edit_type !== 'create') {
+        if (edit_type !== 'create' && this.is_editable) {
             new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
         }
         if (open_file_on_success) {
