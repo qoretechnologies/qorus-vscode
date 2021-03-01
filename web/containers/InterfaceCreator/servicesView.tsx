@@ -220,7 +220,8 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                                         <Selected />
                                                                     </>
                                                                 )}
-                                                                {methodsCount !== 1 && (
+                                                                {methodsCount !== 1 &&
+                                                                !initialData.lang_client_unavailable ? (
                                                                     <RemoveButton
                                                                         name={`remove-method-${method.name}`}
                                                                         onClick={() => {
@@ -240,7 +241,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                                             );
                                                                         }}
                                                                     />
-                                                                )}
+                                                                ) : null}
                                                             </MethodSelector>
                                                         )
                                                     )}
@@ -252,6 +253,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                             text={t('AddMethod')}
                                                             icon={'plus'}
                                                             onClick={handleAddMethodClick}
+                                                            disabled={initialData.lang_client_unavailable}
                                                         />
                                                     </ButtonGroup>
                                                 </ActionsWrapper>

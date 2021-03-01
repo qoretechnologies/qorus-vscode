@@ -110,6 +110,18 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             'value-map': [],
         });
 
+        const getSelectedFields = (type: string, interfaceIndex?: number) => {
+            const index = getInterfaceIndex(type, interfaceIndex);
+
+            return selectedFields[type][index];
+        };
+
+        const getSelectedFieldValue = (type: string, field: string, interfaceIndex?: number) => {
+            const fields = getSelectedFields(type, interfaceIndex);
+
+            return fields?.find((f) => f.name === field)?.value;
+        };
+
         const addInterface = (type: string, interfaceIndex: number) => {
             const index = getInterfaceIndex(type, interfaceIndex);
 
@@ -422,6 +434,8 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     updateField,
                     addInterface,
                     removeInterface,
+                    getSelectedFields,
+                    getSelectedFieldValue,
                 }}
             >
                 <Component {...props} />

@@ -130,7 +130,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
     t,
     isSubItemValid,
     removeSubItemFromFields,
-    initialData: { 'mapper-code': library },
+    initialData: { 'mapper-code': library, lang_client_unavailable },
     interfaceId,
     onSubmitSuccess,
 }) => {
@@ -190,7 +190,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                         <Selected />
                                                     </>
                                                 )}
-                                                {functionsCount !== 1 && (
+                                                {functionsCount !== 1 && !lang_client_unavailable ? (
                                                     <RemoveButton
                                                         onClick={() => {
                                                             setFunctions((current) =>
@@ -206,7 +206,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                             setFunctionsCount((current: number) => current - 1);
                                                         }}
                                                     />
-                                                )}
+                                                ) : null}
                                             </MethodSelector>
                                         ))}
                                     </ContentWrapper>
@@ -216,6 +216,7 @@ const LibraryView: FunctionComponent<ILibraryView> = ({
                                                 text={t('AddFunction')}
                                                 icon={'plus'}
                                                 onClick={handleAddFunctionClick}
+                                                disabled={lang_client_unavailable}
                                             />
                                         </ButtonGroup>
                                     </ActionsWrapper>

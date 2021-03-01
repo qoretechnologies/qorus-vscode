@@ -116,6 +116,9 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
     };
 
     const isClassConnectionsManagerEnabled = (interfaceIndex?: number) => {
+        if (!initialData.qorus_instance || initialData.lang_client_unavailable) {
+            return false;
+        }
         // Find the base class name field
         const classes: IField = selectedFields[type][interfaceIndex].find((field: IField) => field.name === 'classes');
         // Check if the field exists

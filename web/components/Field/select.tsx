@@ -281,6 +281,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                             text={value ? value : placeholder || t('PleaseSelect')}
                                             rightIcon="widget-header"
                                             onClick={() => setSelectDialogOpen(true)}
+                                            disabled={disabled}
                                         />
                                     </Tooltip>
                                     {isSelectDialogOpen && (

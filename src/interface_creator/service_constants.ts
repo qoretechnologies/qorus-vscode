@@ -17,14 +17,17 @@ export const serviceImports = (lang: string, base_class_name: string) => {
     }
 };
 
-export const serviceFields = ({ default_target_dir }) => [
+export const serviceFields = ({ default_target_dir, limited_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
     field.desc,
     field.author,
     field.version,
-    field.class_name,
+    {
+        ... field.class_name,
+        disabled: limited_editing,
+    },
     field.lang,
     field.mappers,
     field.vmaps,
@@ -46,6 +49,7 @@ export const serviceFields = ({ default_target_dir }) => [
             return_value: 'objects',
         },
         on_change: 'get-config-items',
+        disabled: limited_editing,
     },
     {
         name: 'service-autostart',
@@ -125,11 +129,12 @@ export const serviceFields = ({ default_target_dir }) => [
     }
 ];
 
-export const service_methods = [
+export const serviceMethodFields = ({ limited_editing }) => [
     {
         ...field.name,
         type: 'method-name',
         has_to_be_valid_identifier: true,
+        disabled: limited_editing,
     },
     field.desc,
     field.author,

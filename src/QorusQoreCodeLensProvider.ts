@@ -4,16 +4,21 @@ import { QorusCodeLensProviderBase } from './QorusCodeLensProviderBase';
 import { QorusProjectEditInfo } from './QorusProjectEditInfo';
 import { QoreTextDocument, qoreLoc2Range } from './QoreTextDocument';
 import { makeFileUri } from './qorus_utils';
-import { qore_vscode } from './qore_vscode';
+import { qore_vscode, isLangClientAvailable } from './qore_vscode';
 import * as msg from './qorus_message';
 
 export class QorusQoreCodeLensProvider extends QorusCodeLensProviderBase {
-    protected provideLanguageSpecificImpl(
+    protected async provideLanguageSpecificImpl(
         document: TextDocument,
         file_path: string,
         iface_kind: string,
         data: any): Promise<CodeLens[]>
     {
+        const lang_client_available = await isLangClientAvailable();
+        if (!lang_client_available) {
+            return [];
+        }
+
         return this.code_info.edit_info.setFileInfo(file_path, data).then(
             () => {
                 const doc: QoreTextDocument = {

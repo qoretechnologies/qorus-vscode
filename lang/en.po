@@ -553,6 +553,9 @@ msgstr "Use existing release file"
 msgid "CurrentBranchInfo"
 msgstr "Your position"
 
+msgid "QoreLangClientNotFound"
+msgstr "Qore Language Client Unavailable"
+
 msgid "branch"
 msgstr "branch"
 

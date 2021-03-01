@@ -1,10 +1,7 @@
+import { Button, Callout, Classes, ControlGroup, InputGroup } from '@blueprintjs/core';
 import React, { FunctionComponent, useContext, useState } from 'react';
-
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
-
-import { Button, Callout, Classes, ControlGroup, InputGroup } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import { StyledDialogBody } from '../../containers/ClassConnectionsManager';
 import { FieldInputWrapper, FieldWrapper, IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
@@ -62,16 +59,16 @@ const MethodNameField: FunctionComponent<IStringField & IField & IFieldChange> =
 
     // When input value changes
     const handleInputChange = (_name, value): void => {
-        setEditManager(cur => {
+        setEditManager((cur) => {
             const newCur = { ...cur };
             cur.value = value;
             return newCur;
         });
     };
 
-    const isNameValid: (name: string) => boolean = name => {
+    const isNameValid: (name: string) => boolean = (name) => {
         // Check if this method name already exists for this service
-        const exists = methods.methods.find(method => method.name === name);
+        const exists = methods.methods.find((method) => method.name === name);
 
         return validateField('string', name) && !exists;
     };
@@ -96,6 +93,7 @@ const MethodNameField: FunctionComponent<IStringField & IField & IFieldChange> =
                         value: val,
                     });
                 }}
+                disabled={disabled}
                 className={Classes.FIXED}
                 icon={'edit'}
             />
