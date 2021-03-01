@@ -58,6 +58,12 @@ export const serviceFields = ({ default_target_dir, limited_editing }) => [
         default_value: false,
     },
     {
+        name: 'stateless',
+        mandatory: false,
+        type: 'boolean',
+        default_value: false,
+    },
+    {
         name: 'resource',
         mandatory: false,
         type: 'file-array',

@@ -1261,8 +1261,14 @@ msgstr "Must be either none, read, or write (default none), to determine how the
 msgid "field-label-service-autostart"
 msgstr "Autostart"
 
+msgid "field-label-stateless"
+msgstr "Stateless"
+
 msgid "field-desc-service-autostart"
 msgstr "The value of the autostart property of the service (default: False, managed by operations)"
+
+msgid "field-desc-stateless"
+msgstr "Is the service stateless?"
 
 msgid "field-label-workflow-autostart"
 msgstr "Autostart"
