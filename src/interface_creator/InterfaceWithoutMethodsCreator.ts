@@ -182,7 +182,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             ... iface_kind === 'step' && data['base-class-name']
                 ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
                 : {},
-            code: this.rel_file_path
+            code: this.rel_file_path.replace(/\\/g, '/')
         }, iface_id, iface_kind);
 
         if (this.has_code) {

@@ -783,7 +783,7 @@ export abstract class InterfaceCreator {
                     case 'bin-resource':
                     case 'template':
                         value.forEach(({ name }) => {
-                            result += `${list_indent}${path.relative(headers.target_dir, name)}\n`;
+                            result += `${list_indent}${path.relative(headers.target_dir, name).replace(/\\/g, '/')}\n`;
                         });
                         break;
                     case 'steps':
