@@ -1,5 +1,16 @@
 # Changelog
 
+
+## 2.2.5
+
+#### Bug fixes
+
+- interface fields containing file paths must use forward slashes ('/') on any operating system
+
+#### New features
+
+- added the 'stateless' tag to services
+
 ## 2.2.4
 
 #### Bug fixes
