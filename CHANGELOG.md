@@ -1,6 +1,12 @@
 # Changelog
 
 
+## 2.2.6
+
+#### Bug fixes
+
+- fixed saving workflows
+
 ## 2.2.5
 
 #### Bug fixes
