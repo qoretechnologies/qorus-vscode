@@ -129,7 +129,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             type: iface_kind,
             ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
-            code: this.rel_file_path.replace(/\\/g, '/')
+            code: this.rel_file_path?.replace(/\\/g, '/')
         }, iface_id);
 
         headers += InterfaceWithMethodsCreator.createMethodHeaders(methods);
