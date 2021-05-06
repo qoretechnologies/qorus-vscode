@@ -789,7 +789,7 @@ export class QorusProjectCodeInfo {
             checkObject('class', data['base-class-name']);
             checkObject('event', data.event);
             checkObject('queue', data.queue);
-            if (data.type === 'workflow') {
+            if (data.type === 'workflow' && data.errors) {
                 const file_name = path.join(data.target_dir, data.errors);
                 const object_name = this.yaml_info.yamlDataByYamlFile(file_name)?.name;
                 checkObject('errors', object_name);
