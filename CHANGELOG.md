@@ -1,6 +1,12 @@
 # Changelog
 
 
+## 2.2.7
+
+#### Bug fixes
+
+- fixed deployment of workflows with dependencies
+
 ## 2.2.6
 
 #### Bug fixes
