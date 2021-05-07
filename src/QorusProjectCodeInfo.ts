@@ -795,6 +795,14 @@ export class QorusProjectCodeInfo {
                 checkObject('errors', object_name);
             }
 
+            if (data.type === 'pipeline') {
+                (data.children || []).forEach(child => {
+                    if (child.type === 'processor') {
+                        checkObject('class', child.name);
+                    }
+                });
+            }
+
             checkObjects('class', data.classes);
             checkObjects('class', data.requires);
             checkObjects('mapper', data.mappers);
