@@ -796,11 +796,17 @@ export class QorusProjectCodeInfo {
             }
 
             if (data.type === 'pipeline') {
-                (data.children || []).forEach(child => {
-                    if (child.type === 'processor') {
-                        checkObject('class', child.name);
-                    }
-                });
+                const checkPipelineClasses = (pipeline: any) => {
+                    (pipeline.children || []).forEach(child => {
+                        if (child.type === 'processor') {
+                            checkObject('class', child.name);
+                        }
+
+                        checkPipelineClasses(child);
+                    });
+                };
+
+                checkPipelineClasses(data);
             }
 
             checkObjects('class', data.classes);
