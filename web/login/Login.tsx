@@ -25,8 +25,6 @@ class Login extends Component {
                 case 'login-error':
                     this.props.setLoginError(event.data.error);
                     break;
-                case 'close-login':
-                    this.props.initialData.changeTab('ProjectConfig');
             }
         });
     }
@@ -71,7 +69,7 @@ class Login extends Component {
                                 flex: '0 auto',
                             }}
                         >
-                            <form onSubmit={this.onSubmit}>
+                            <form>
                                 <div style={{ gridRow: 1, gridColumnStart: 2, gridColumnEnd: 6 }}>
                                     <H4 style={{ textAlign: 'center' }}>
                                         {t('LoginHeader')} &nbsp;
@@ -114,9 +112,9 @@ class Login extends Component {
                                     </Button>
                                     <Button
                                         icon="log-in"
-                                        type="submit"
                                         intent={Intent.SUCCESS}
                                         style={{ width: '50%' }}
+                                        onClick={this.onSubmit}
                                     >
                                         &nbsp; {t('ButtonLogin')} &nbsp;
                                     </Button>

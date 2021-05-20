@@ -167,8 +167,6 @@ const App: FunctionComponent<IApp> = ({
         // Close login
         listeners.push(
             addMessageListener(Messages.CLOSE_LOGIN, (data: any): void => {
-                changeTab('ProjectConfig');
-
                 if (data.qorus_instance) {
                     setActiveInstance(data.qorus_instance);
                 }

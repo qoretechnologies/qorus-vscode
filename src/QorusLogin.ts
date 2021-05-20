@@ -80,6 +80,8 @@ export class QorusLogin extends QorusAuth {
                     qorus_instance: set_active ? qorus_instance : null,
                 });
 
+                qorus_webview.setPreviousInitialDataIfCreateInterface();
+
                 const code_info = projects.currentProjectCodeInfo();
                 code_info && code_info.setCurrentQorusData();
 

@@ -32,6 +32,13 @@ class QorusWebview {
         }
     }
 
+    setPreviousInitialDataIfCreateInterface() {
+        if (this.previous_initial_data?.tab === 'CreateInterface') {
+            this.initial_data = this.previous_initial_data;
+            this.postInitialData();
+        }
+    }
+
     private postInitialData = () => {
         const { authority, path, scheme } = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
 
@@ -46,7 +53,7 @@ class QorusWebview {
         });
 
         // clear initial data except uri
-        if (Object.keys(this.initial_data).length) {
+        if (Object.keys(this.initial_data).length && this.initial_data.tab !== 'Login') {
             this.previous_initial_data = deepCopy(this.initial_data);
         }
         this.initial_data = {}
