@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2.2.8
+
+#### Bug fixes
+
+- fixed deployment of pipelines with processor classes as dependencies
+- fixed continuation of editing an interface after establishing an active qorus connection
+
 ## 2.2.7
 
 #### Bug fixes
