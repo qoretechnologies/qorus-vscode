@@ -92,13 +92,15 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     // edit commands
     ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps', 'connection',
         'workflow', 'service-methods', 'mapper-code-methods', 'group', 'event', 'queue', 'type',
-        'fsm', 'pipeline', 'value-map', 'errors'].forEach(iface_kind =>
+        'fsm', 'pipeline', 'value-map', 'errors'].forEach(key =>
     {
-        const command = 'qorus.views.edit' + dash2Pascal(iface_kind);
+        const command = 'qorus.views.edit' + dash2Pascal(key);
         disposable = commands.registerCommand(command, (data: any) => {
             data = data.data;
+            let iface_kind;
             if (data) {
-                switch (iface_kind) {
+                delete data.show_steps;
+                switch (key) {
                     case 'workflow-steps':
                         data.show_steps = true;
                         iface_kind = 'workflow';
@@ -111,6 +113,8 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
                         data.active_method = 1;
                         iface_kind = 'mapper-code';
                         break;
+                    default:
+                        iface_kind = key;
                 }
                 commands.executeCommand('qorus.editInterface', data, iface_kind);
             }

@@ -1,6 +1,5 @@
 import { workspace, window } from 'vscode';
 import * as jsyaml from 'js-yaml';
-
 import { qorus_webview } from '../QorusWebview';
 import { InterfaceCreator } from './InterfaceCreator';
 import { serviceImports } from './service_constants';
@@ -9,7 +8,6 @@ import { classTemplate, simple_method_template } from './common_constants';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
 import { ClassConnectionsEdit } from './ClassConnectionsEdit';
 import { hasConfigItems, toValidIdentifier, capitalize } from '../qorus_utils';
-import { default_lang } from '../qorus_constants';
 import { t } from 'ttag';
 import * as msg from '../qorus_message';
 
@@ -30,8 +28,6 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             request_id,
             recreate,
         } = params;
-
-        this.lang = data.lang || default_lang;
 
         let suffix: string;
         let methods_key: string;
@@ -85,6 +81,10 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
                 info = t`2FilesCreatedInDir ${this.rel_file_path} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
+                if (!this.is_editable) {
+                    break;
+                }
+
                 const orig_method_names: string[] = (orig_data[methods_key] || []).map(method => method.name);
                 const method_renaming_map = this.methodRenamingMap(orig_method_names, methods);
 
@@ -99,6 +99,10 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
                 contents = code_lines.join('\n');
                 break;
             case 'delete-method':
+                if (!this.is_editable) {
+                    break;
+                }
+
                 if (data.method_index === 'undefined') {
                     break;
                 }
@@ -125,12 +129,17 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             type: iface_kind,
             ...data,
             servicetype: iface_kind === 'service' ? 'USER' : undefined,
-            code: this.rel_file_path
+            code: this.rel_file_path?.replace(/\\/g, '/')
         }, iface_id);
 
         headers += InterfaceWithMethodsCreator.createMethodHeaders(methods);
 
-        ({ ok, message } = this.writeFiles(contents, headers));
+        if (edit_type === 'create' || this.is_editable) {
+            ({ ok, message } = this.writeFiles(contents, headers));
+        } else {
+            ({ ok, message } = this.writeYamlFile(headers));
+        }
+
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${edit_type}-interface-complete`,
@@ -141,7 +150,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             return;
         }
 
-        if (edit_type !== 'create') {
+        if (edit_type !== 'create' && this.is_editable) {
             new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, this.imports);
         }
         if (open_file_on_success) {

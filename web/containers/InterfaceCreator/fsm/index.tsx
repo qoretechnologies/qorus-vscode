@@ -25,7 +25,7 @@ import { Messages } from '../../../constants/messages';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { areTypesCompatible, isStateIsolated, ITypeComparatorData } from '../../../helpers/functions';
+import { areTypesCompatible, isFSMStateValid, isStateIsolated, ITypeComparatorData } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler from '../../../hocomponents/withMessageHandler';
@@ -98,6 +98,8 @@ export interface IFSMState {
     language?: 'qore' | 'python';
     execution_order?: number;
     keyId?: string;
+    disabled?: boolean;
+    error?: boolean;
 }
 
 export interface IFSMStates {
@@ -117,6 +119,7 @@ const DROP_ACCEPTS: string[] = [TOOLBAR_ITEM_TYPE, STATE_ITEM_TYPE];
 export const StyledToolbarWrapper = styled.div`
     margin-bottom: 10px;
     margin-top: 10px;
+    overflow: hidden;
 `;
 
 const StyledDiagramWrapper = styled.div`
@@ -176,19 +179,15 @@ const FSMView: React.FC<IFSMViewProps> = ({
     onHideMetadataClick,
     isExternalMetadataHidden,
     defaultInterfaceId,
+    ...rest
 }) => {
     const t = useContext(TextContext);
-    const {
-        sidebarOpen,
-        path,
-        image_path,
-        confirmAction,
-        callBackend,
-        fsm,
-        qorus_instance,
-        setActiveInterface,
-        setAsDraft,
-    } = useContext(InitialContext);
+    const { sidebarOpen, path, image_path, confirmAction, callBackend, qorus_instance, ...init } = useContext(
+        InitialContext
+    );
+
+    const fsm = rest?.fsm || init?.fsm;
+
     const { resetAllInterfaceData } = useContext(GlobalContext);
     const [interfaceId, setInterfaceId] = useState(fsm?.iface_id || defaultInterfaceId || shortid.generate());
 
@@ -208,7 +207,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
     }
 
     const [metadata, setMetadata] = useState<IFSMMetadata>({
-        target_dir: fsm?.target_dir || null,
+        target_dir: fsm?.target_dir || interfaceContext?.target_dir || null,
         name: fsm?.name || null,
         desc: fsm?.desc || null,
         groups: fsm?.groups || [],
@@ -319,11 +318,24 @@ const FSMView: React.FC<IFSMViewProps> = ({
         return type === 'if' ? IF_STATE_SIZE / 2 : STATE_HEIGHT / 2;
     };
 
+    const areStatesValid = (states: IFSMStates): boolean => {
+        let valid = true;
+
+        forEach(states, (state) => {
+            if (!isFSMStateValid(state)) {
+                valid = false;
+            }
+        });
+
+        return valid;
+    };
+
     const isFSMValid = () => {
         return (
             validateField('string', metadata.target_dir) &&
             validateField('string', metadata.name) &&
             validateField('string', metadata.desc) &&
+            areStatesValid(states) &&
             size(states)
         );
     };
@@ -542,6 +554,11 @@ const FSMView: React.FC<IFSMViewProps> = ({
                     // Filter out any transitions
                     newStates[stateId].transitions = state.transitions.filter((transition) => transition.state !== id);
                 }
+            }
+
+            // Set states without action
+            if (!isFSMStateValid(state)) {
+                newStates[stateId].error = true;
             }
         }
 

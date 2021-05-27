@@ -142,6 +142,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                     <StringField fill {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
                 );
             case 'bool':
+            case 'softbool':
                 return (
                     <BooleanField fill {...rest} name={name} onChange={handleChange} value={value} type={currentType} />
                 );
@@ -152,6 +153,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             case 'hash':
             case 'hash<auto>':
             case 'list':
+            case 'softlist<string>':
             case 'list<auto>':
                 return (
                     <LongStringField
@@ -165,7 +167,9 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                     />
                 );
             case 'int':
+            case 'softint':
             case 'float':
+            case 'softfloat':
                 return (
                     <NumberField {...rest} name={name} onChange={handleChange} value={value} fill type={currentType} />
                 );
@@ -206,7 +210,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             case 'any':
                 return null;
             default:
-                return <Callout>{t('AutoFieldSelectType')}</Callout>;
+                return <Callout intent="danger">{t('UnknownType')}</Callout>;
         }
     };
 
@@ -223,13 +227,18 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                         name="type"
                         defaultItems={[
                             { name: 'bool' },
+                            { name: 'softbool' },
                             { name: 'date' },
                             { name: 'string' },
+                            { name: 'softstring' },
                             { name: 'binary' },
                             { name: 'float' },
+                            { name: 'softfloat' },
                             { name: 'list' },
+                            { name: 'softlist' },
                             { name: 'hash' },
                             { name: 'int' },
+                            { name: 'softint' },
                         ]}
                         value={currentInternalType}
                         onChange={(_name, value) => {

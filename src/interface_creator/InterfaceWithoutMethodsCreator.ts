@@ -2,7 +2,6 @@ import * as jsyaml from 'js-yaml';
 import { t } from 'ttag';
 import { window, workspace } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
-import { default_lang } from '../qorus_constants';
 import * as msg from '../qorus_message';
 import { capitalize, hasConfigItems, toValidIdentifier } from '../qorus_utils';
 import { ClassConnectionsCreate } from './ClassConnectionsCreate';
@@ -12,7 +11,6 @@ import { InterfaceCreator } from './InterfaceCreator';
 import { jobImports } from './job_constants';
 import { stepImports, stepTypeHeaders } from './step_constants';
 import { workflowImports } from './workflow_constants';
-
 
 
 class InterfaceWithoutMethodsCreator extends InterfaceCreator {
@@ -28,8 +26,6 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             request_id,
             recreate,
         } = params;
-
-        this.lang = data.lang || default_lang;
 
         let imports: string[] = [];
         let suffix: string;
@@ -154,7 +150,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                 info = t`2FilesCreatedInDir ${this.rel_file_path} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
             case 'edit':
-                if (!this.has_code) {
+                if (!this.has_code || !this.is_editable) {
                     break;
                 }
 
@@ -186,13 +182,18 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             ... iface_kind === 'step' && data['base-class-name']
                 ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
                 : {},
-            code: this.rel_file_path
+            code: this.rel_file_path?.replace(/\\/g, '/')
         }, iface_id, iface_kind);
 
         if (this.has_code) {
-            ({ ok, message } = this.writeFiles(contents, headers));
+            if (edit_type === 'create' || this.is_editable) {
+                ({ ok, message } = this.writeFiles(contents, headers));
+            } else {
+                ({ ok, message } = this.writeYamlFile(headers));
+            }
+
             if (ok) {
-                if (edit_type !== 'create') {
+                if (edit_type !== 'create' && this.is_editable) {
                     new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, imports);
                 }
                 if (open_file_on_success) {

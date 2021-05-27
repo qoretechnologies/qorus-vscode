@@ -15,6 +15,5 @@ processor:
         name: qore
         can_manage_fields: false
         path: /string
-    options: null
 base-class-name: AbstractDataProcessor
 code: ProcessorClassTest-1.0.qclass

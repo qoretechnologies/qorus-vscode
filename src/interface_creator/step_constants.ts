@@ -17,14 +17,17 @@ export const stepImports = (lang: string, base_class_name: string) => {
     }
 };
 
-export const stepFields = ({ default_target_dir }) => [
+export const stepFields = ({ default_target_dir, limited_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
     field.desc,
     field.author,
     field.version,
-    field.class_name,
+    {
+        ... field.class_name,
+        disabled: limited_editing,
+    },
     field.lang,
     field.classes,
     field.mappers,
@@ -43,6 +46,7 @@ export const stepFields = ({ default_target_dir }) => [
         },
         on_change: ['get-config-items', 'creator-set-fields'],
         notify_on_remove: true,
+        disabled: limited_editing,
     },
     {
         name: 'event',

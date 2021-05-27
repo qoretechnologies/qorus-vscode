@@ -96,11 +96,15 @@ export const providers = {
         type: 'datasource',
     },
     factory: {
-        name: 'null',
-        url: '',
+        name: 'factory',
+        url: 'dataprovider/factories',
         filter: null,
-        suffix: null,
-        recordSuffix: null,
+        inputFilter: 'supports_read',
+        outputFilter: 'supports_create',
+        suffix: '',
+        namekey: 'name',
+        desckey: 'desc',
+        recordSuffix: '',
         requiresRecord: false,
         type: 'factory',
     },
@@ -136,25 +140,10 @@ const MapperProvider: FC<IProviderProps> = ({
             (async () => {
                 // Clear the data
                 clear && clear(true);
-                // If user set null
-                if (provider === 'null') {
-                    setOptionProvider({
-                        type: 'factory',
-                        name: 'null',
-                        path: '/',
-                    });
-                    // Set the record data
-                    setRecord && setRecord({});
-                    setChildren([]);
-                    setFields({});
-                    hide();
-                    // Stop
-                    return;
-                }
                 // Set loading
                 setIsLoading(true);
                 // Select the provider data
-                const { url, filter } = providers[provider];
+                const { url, filter, inputFilter, outputFilter } = providers[provider];
                 // Get the data
                 let { data, error } = await fetchData(url);
                 // Remove loading
@@ -162,6 +151,15 @@ const MapperProvider: FC<IProviderProps> = ({
                 // Filter unwanted data if needed
                 if (filter) {
                     data = data.filter((datum) => datum[filter]);
+                }
+                // Filter input filters and output filters
+                if (type === 'inputs' || type === 'outputs') {
+                    if (type === 'inputs' && inputFilter) {
+                        data = data.filter((datum) => datum[inputFilter]);
+                    }
+                    if (type === 'outputs' && outputFilter) {
+                        data = data.filter((datum) => datum[outputFilter]);
+                    }
                 }
                 // Save the children
                 let children = data.children || data;
@@ -196,7 +194,7 @@ const MapperProvider: FC<IProviderProps> = ({
         // Fetch the data
         const { data, error } = await fetchData(`${url}/${value}${suffix}`);
         if (error) {
-            console.log(`${url}/${value}${suffix}`, error);
+            console.error(`${url}/${value}${suffix}`, error);
             setIsLoading(false);
             return;
         }
@@ -402,7 +400,7 @@ const MapperProvider: FC<IProviderProps> = ({
                 {compact && title && <span>{title}: </span>}{' '}
                 <ButtonGroup>
                     <SelectField
-                        name={`provider-${type ? `${type}` : ''}`}
+                        name={`provider${type ? `-${type}` : ''}`}
                         disabled={isLoading}
                         defaultItems={getDefaultItems()}
                         onChange={(_name, value) => {

@@ -122,6 +122,19 @@ export class QorusProjectCodeInfo {
                 const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
                 raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
             }
+
+            if (!raw_data) {
+                const message = t`YamlDataNotFound ${iface_kind} ${name}`;
+                msg.error(message);
+                qorus_webview.postMessage({
+                    action: `return-interface-data${request_id ? '-complete' : ''}`,
+                    request_id,
+                    ok: false,
+                    message
+                });
+                return;
+            }
+
             const data = this.yaml2FrontEnd(raw_data);
 
             const iface_id = this.iface_info.addIfaceById(data, iface_kind);
@@ -472,14 +485,6 @@ export class QorusProjectCodeInfo {
 
         fixConfigItems(data['config-items']);
 
-        const fixStates = (states: any = {}) => {
-            Object.keys(states).forEach(id => {
-                fixConfigItems(states[id]['config-items']);
-                fixStates(states[id].states);
-            });
-        };
-        fixStates(data.states);
-
         const fixProcessors = (children: any[] = []) => {
             children.forEach(child => {
                 switch (child.type) {
@@ -497,6 +502,63 @@ export class QorusProjectCodeInfo {
             });
         };
         fixProcessors(data.children);
+
+        const fixOptions = (data_with_options: any): any => {
+            Object.keys(data_with_options.options || {}).forEach(option_key => {
+                let option = data_with_options.options[option_key];
+                const option_type = option.type || '';
+                if (option_type.indexOf('list') > -1 || option_type.indexOf('hash') > -1) {
+                    option.value = jsyaml.safeDump(option.value).replace(/\r?\n$/, '');
+                }
+            });
+
+            return data_with_options;
+        };
+
+        ['staticdata-type', 'input-provider'].forEach(key => {
+            if (data[key]) {
+                data[key] = fixOptions(data[key]);
+            }
+        });
+
+        if (data.processor) {
+            ['processor-input-type', 'processor-output-type'].forEach(key => {
+                if (data.processor[key]) {
+                    data.processor[key] = fixOptions(data.processor[key]);
+                }
+            });
+        }
+
+        (data['class-connectors'] || []).forEach(connector => {
+            ['input-provider', 'output-provider'].forEach(key => {
+                if (connector[key]) {
+                    connector[key] = fixOptions(connector[key]);
+                }
+            });
+        });
+
+        if (data.mapper_options) {
+            ['mapper-input', 'mapper-output'].forEach(key => {
+                if (data.mapper_options[key]) {
+                    data.mapper_options[key] = fixOptions(data.mapper_options[key]);
+                }
+            });
+        }
+
+        const fixStates = (states: any = {}) => {
+            Object.keys(states).forEach(id => {
+                fixConfigItems(states[id]['config-items']);
+
+                ['input-type', 'output-type'].forEach(key => {
+                    if (states[id][key]) {
+                        states[id][key] = fixOptions(states[id][key]);
+                    }
+                });
+
+                fixStates(states[id].states);
+            });
+        };
+        fixStates(data.states);
 
         for (const method of data.methods || []) {
             if (method.author) {
@@ -640,8 +702,19 @@ export class QorusProjectCodeInfo {
 
             (Object.keys(data.states || {})).forEach(state_id => {
                 const state = data.states[state_id];
-                if (['mapper', 'pipeline'].includes(state.action?.type)) {
-                    if (!checkObject(state.action.type, state.action.value)) {
+                if (['mapper', 'pipeline', 'connector'].includes(state.action?.type)) {
+                    let action_type;
+                    let action_value;
+                    switch (state.action.type) {
+                        case 'connector':
+                            action_type = 'class';
+                            action_value = state.action.value.class;
+                            break;
+                        default:
+                            action_type = state.action.type;
+                            action_value = state.action.value;
+                    }
+                    if (!checkObject(action_type, action_value)) {
                         delete state.action;
                     }
                 }
@@ -716,10 +789,24 @@ export class QorusProjectCodeInfo {
             checkObject('class', data['base-class-name']);
             checkObject('event', data.event);
             checkObject('queue', data.queue);
-            if (data.type === 'workflow') {
+            if (data.type === 'workflow' && data.errors) {
                 const file_name = path.join(data.target_dir, data.errors);
                 const object_name = this.yaml_info.yamlDataByYamlFile(file_name)?.name;
                 checkObject('errors', object_name);
+            }
+
+            if (data.type === 'pipeline') {
+                const checkPipelineClasses = (pipeline: any) => {
+                    (pipeline.children || []).forEach(child => {
+                        if (child.type === 'processor') {
+                            checkObject('class', child.name);
+                        }
+
+                        checkPipelineClasses(child);
+                    });
+                };
+
+                checkPipelineClasses(data);
             }
 
             checkObjects('class', data.classes);

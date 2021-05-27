@@ -1,5 +1,68 @@
 # Changelog
 
+
+## 2.2.8
+
+#### Bug fixes
+
+- fixed deployment of pipelines with processor classes as dependencies
+- fixed continuation of editing an interface after establishing an active qorus connection
+
+## 2.2.7
+
+#### Bug fixes
+
+- fixed deployment of workflows with dependencies
+
+## 2.2.6
+
+#### Bug fixes
+
+- fixed saving workflows
+
+## 2.2.5
+
+#### Bug fixes
+
+- interface fields containing file paths must use forward slashes ('/') on any operating system
+
+#### New features
+
+- added the 'stateless' tag to services
+
+## 2.2.4
+
+#### Bug fixes
+
+- fixed opening mappers with contextual mappings but no interface context
+
+#### New features
+
+- limited editing of Qore interfaces that changes only the metadata but not the source code is now possible even if Qore is not installed
+
+## 2.2.3
+
+#### Bug fixes
+
+- fixed a bug where Open Workflow Steps did not work after Open Workflow and vice-versa
+- fixed encryption of passwords contained in Qorus URLs
+- fixed a bug where mappers displayed no data when opened from other interfaces
+
+## 2.2.0
+
+#### New features
+
+- new data provider type: Factories
+- pipeline view has been split to 2 pages for a better orientation and usability
+
+#### Bug fixes
+
+- fixed a bug where 'tags' were not always serialized as strings
+- fixed a bug where the invalid 'option' tag was saved in processor
+- fixed saving of data provider options of complex types
+- fixed bugs where FSMs or pipelines being open from other interfaces opened blank
+- fixed a bug where pipeline could not be submitted unless input provider options, which are optional, were filled
+
 ## 2.1.0
 
 #### New features

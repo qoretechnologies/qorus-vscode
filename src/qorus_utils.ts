@@ -84,9 +84,6 @@ const filesInDirImpl = (dir: string, files: string[], filter?: Function) => {
     }
 };
 
-export const quotesIfNum = (value: any): string =>
-    parseFloat(value) == value ? `"${value}"` : value;
-
 export const removeDuplicates = values => {
     let distinct_values = {};
     values.forEach(value => distinct_values[value] = true);

@@ -338,53 +338,61 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     const [mappingDialog, setMappingDialog] = useState({});
 
     useEffect(() => {
-        // Fix relations
-        // If the context and previous context are different
-        // remove all the context fields
-        const contextFields = contextInputs && flattenFields(contextInputs);
-        let hasFixedContext = false;
+        const mapper = selectedFields.mapper[interfaceIndex];
+        const ctx = mapper.find((mapperField) => mapperField.name === 'context');
 
-        setRelations((cur) => {
-            let result = { ...cur };
+        if (ctx && isContextLoaded) {
+            // Fix relations
+            // If the context and previous context are different
+            // remove all the context fields
+            const contextFields = contextInputs && flattenFields(contextInputs);
+            let hasFixedContext = false;
 
-            result = reduce(
-                result,
-                (newResult, relation, outputField) => {
-                    if (relation.context) {
-                        // check if the field exists in inputs
-                        const contextInputFieldName = getStaticDataFieldname(relation.context);
+            setRelations((cur) => {
+                let result = { ...cur };
 
-                        if (!contextFields || !contextFields.find((cF) => cF.path === contextInputFieldName)) {
-                            hasFixedContext = true;
-                            return {
-                                ...newResult,
-                                [outputField]: {
-                                    ...omit(relation, ['context']),
-                                },
-                            };
+                result = reduce(
+                    result,
+                    (newResult, relation, outputField) => {
+                        if (relation.context) {
+                            // check if the field exists in inputs
+                            const contextInputFieldName = getStaticDataFieldname(relation.context);
+
+                            if (
+                                hasStaticDataField(relation.context) &&
+                                (!contextFields || !contextFields.find((cF) => cF.path === contextInputFieldName))
+                            ) {
+                                hasFixedContext = true;
+                                return {
+                                    ...newResult,
+                                    [outputField]: {
+                                        ...omit(relation, ['context']),
+                                    },
+                                };
+                            }
                         }
-                    }
 
-                    return {
-                        ...newResult,
-                        [outputField]: relation,
-                    };
-                },
-                {}
-            );
+                        return {
+                            ...newResult,
+                            [outputField]: relation,
+                        };
+                    },
+                    {}
+                );
 
-            if (hasFixedContext) {
-                AppToaster.show({
-                    message: t('RemovedIncompatibleContext'),
-                    intent: 'warning',
-                    timeout: 3000,
-                    icon: 'warning-sign',
-                });
-            }
+                if (hasFixedContext) {
+                    AppToaster.show({
+                        message: t('RemovedIncompatibleContext'),
+                        intent: 'warning',
+                        timeout: 3000,
+                        icon: 'warning-sign',
+                    });
+                }
 
-            return result;
-        });
-    }, [outputs, contextInputs]);
+                return result;
+            });
+        }
+    }, [outputs, contextInputs, isContextLoaded]);
 
     if (!isContextLoaded || (isEditing && !outputs && !size(relations))) {
         return <p> Loading... </p>;
@@ -660,12 +668,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
 
     const getCustomFields: (type: string) => any[] = (type) => {
         if (type === 'inputs') {
-            return flattenedInputs.reduce((newInputs, input) => {
-                if (input.firstCustomInHierarchy) {
-                    return { ...newInputs, [input.name]: input };
-                }
-                return newInputs;
-            }, {});
+            if (flattenedInputs) {
+                return flattenedInputs.reduce((newInputs, input) => {
+                    if (input.firstCustomInHierarchy) {
+                        return { ...newInputs, [input.name]: input };
+                    }
+                    return newInputs;
+                }, {});
+            }
+            return {};
         } else {
             return flattenedOutputs.reduce((newOutputs, output) => {
                 if (output.firstCustomInHierarchy) {

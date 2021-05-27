@@ -63,12 +63,13 @@ export const mapperFields = ({ default_target_dir, context }) => [
     },
 ];
 
-export const mapperCodeFields = ({ default_target_dir }) => [
+export const mapperCodeFields = ({ default_target_dir, limited_editing }) => [
     field.targetDir(default_target_dir),
     field.targetFile,
     {
         name: 'class-class-name',
         has_to_be_valid_identifier: true,
+        disabled: limited_editing,
     },
     field.version,
     {
@@ -82,10 +83,11 @@ export const mapperCodeFields = ({ default_target_dir }) => [
     field.author,
 ];
 
-export const mapper_method_fields = [
+export const mapperMethodFields = ({ limited_editing }) => [
     {
         ...field.name,
         has_to_be_valid_identifier: true,
+        disabled: limited_editing,
     },
     field.desc
 ];

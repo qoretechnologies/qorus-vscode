@@ -47,8 +47,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     onSubmitSuccess,
     interfaceId,
 }) => {
-    const [interfaceIndex, setInterfaceIndex] = useState(size(interfaceId.mapper));
-
     if (!qorus_instance) {
         return (
             <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
@@ -56,6 +54,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
             </Callout>
         );
     }
+
+    const [interfaceIndex, setInterfaceIndex] = useState(size(interfaceId.mapper));
 
     useLifecycles(
         () => {

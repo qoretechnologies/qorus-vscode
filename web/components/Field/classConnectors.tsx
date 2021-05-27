@@ -1,15 +1,15 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
-import StringField from './string';
-import SelectField from './select';
-import { Button, ButtonGroup, ControlGroup, Callout } from '@blueprintjs/core';
-import styled from 'styled-components';
+import { Button, ButtonGroup, Callout, ControlGroup } from '@blueprintjs/core';
 import { size } from 'lodash';
-import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import withTextContext from '../../hocomponents/withTextContext';
-import { TTranslator } from '../../App';
+import React, { FunctionComponent } from 'react';
 import compose from 'recompose/compose';
+import styled from 'styled-components';
+import { TTranslator } from '../../App';
+import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
+import withTextContext from '../../hocomponents/withTextContext';
 import ConnectorField from './connectors';
+import SelectField from './select';
+import StringField from './string';
 
 type IPair = {
     id: number;
@@ -141,6 +141,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                         isInitialEditing={!!initialData.class}
                                         title={t('InputType')}
                                         name="input-provider"
+                                        providerType={pair.type === 'input' ? 'inputs' : null}
                                         onChange={(fieldName, val) => changePairData(index, fieldName, val)}
                                     />
                                 )}
@@ -150,6 +151,7 @@ const ClassConnectorsField: FunctionComponent<TTranslator & IField & IFieldChang
                                         isInitialEditing={!!initialData.class}
                                         title={t('OutputType')}
                                         name="output-provider"
+                                        providerType={pair.type === 'output' ? 'outputs' : null}
                                         onChange={(fieldName, val) => changePairData(index, fieldName, val)}
                                     />
                                 )}
