@@ -182,9 +182,17 @@ const FSMView: React.FC<IFSMViewProps> = ({
     ...rest
 }) => {
     const t = useContext(TextContext);
-    const { sidebarOpen, path, image_path, confirmAction, callBackend, qorus_instance, ...init } = useContext(
-        InitialContext
-    );
+    const {
+        sidebarOpen,
+        path,
+        image_path,
+        confirmAction,
+        callBackend,
+        qorus_instance,
+        setActiveInterface,
+        setAsDraft,
+        ...init
+    } = useContext(InitialContext);
 
     const fsm = rest?.fsm || init?.fsm;
 

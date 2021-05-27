@@ -125,7 +125,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return fields?.find((f) => f.name === field)?.value;
         };
 
-        const addInterface = (type: string, interfaceIndex: number) => {
+        const addInterface = (type: string, interfaceIndex: number, isFromInterface?: boolean) => {
             const index = getInterfaceIndex(type, interfaceIndex);
 
             if (fields[type][index]) {
