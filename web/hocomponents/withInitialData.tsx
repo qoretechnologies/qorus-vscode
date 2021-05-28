@@ -42,6 +42,13 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         ...current,
                         ...data,
                     })), 0);
+
+                    if (data.subtab) {
+                        setTimeout(() => setUnfinishedWork((current) => ({
+                            ...current,
+                            [data.subtab]: false
+                        })), 200);
+                    }
                 };
 
                 if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab]) {
