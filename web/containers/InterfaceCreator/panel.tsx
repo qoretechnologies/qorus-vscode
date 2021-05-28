@@ -863,6 +863,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 if (type === 'config-item') {
                     resetFields(type, interfaceIndex);
                 }
+
+                if (initialData.subtab) {
+                    initialData.setUnfinishedWork((current) => ({
+                        ...current,
+                        [initialData.subtab]: false
+                    });
+                }
             }
         }
     };
