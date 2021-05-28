@@ -868,7 +868,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     initialData.setUnfinishedWork((current) => ({
                         ...current,
                         [initialData.subtab]: false
-                    });
+                    }));
                 }
             }
         }
