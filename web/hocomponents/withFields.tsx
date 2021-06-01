@@ -264,12 +264,10 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
 
         const setAsDraft: (type: string) => void = (type) => {
             if (!props.unfinishedWork?.[type]) {
-                props.setUnfinishedWork((current) => {
-                    const newResult = { ...current };
-                    // Set the interface id to null
-                    newResult[type] = true;
-                    return newResult;
-                });
+                props.setUnfinishedWork((current) => ({
+                    ...current,
+                    [type]: true
+                }));
             }
         };
 
