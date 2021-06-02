@@ -15,7 +15,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
             return Promise.resolve([]);
         }
 
-        this.code_info = projects.currentProjectCodeInfo();
+        this.code_info = projects.projectCodeInfo(document.uri);
         return this.code_info.waitForPending(['yaml']).then(() => this.provideCodeLensesImpl(document));
     }
 
@@ -26,7 +26,7 @@ export abstract class QorusCodeLensProviderBase implements CodeLensProvider {
 
         const yaml_info = this.code_info.yaml_info.yamlDataBySrcFile(file_path);
         if (!yaml_info) {
-            if (!isTest(file_path)) {
+            if (!isTest(file_path) && projects.getProject(document.uri)?.configFileExists()) {
                 msg.log(t`UnableFindYamlForSrc ${file_name}`);
             }
             return Promise.resolve([]);
