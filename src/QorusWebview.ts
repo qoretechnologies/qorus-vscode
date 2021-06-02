@@ -74,6 +74,18 @@ class QorusWebview {
     }
 
     open(initial_data: any = {}, uri?: vscode.Uri) {
+        const project: QorusProject = projects.getProject();
+
+        if (!project) {
+            msg.error(t`WorkspaceFolderUnsetCannotOpenWebview`);
+            return;
+        }
+
+        if (!project.configFileExists()) {
+            project.createConfigFile();
+            return;
+        }
+
         this.initial_data = initial_data;
         this.uri = uri;
 
@@ -93,11 +105,6 @@ class QorusWebview {
 
             this.panel.reveal(vscode.ViewColumn.One);
             this.postInitialData();
-            return;
-        }
-
-        if (!projects.getProject()) {
-            msg.error(t`WorkspaceFolderUnsetCannotOpenWebview`);
             return;
         }
 

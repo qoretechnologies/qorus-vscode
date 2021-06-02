@@ -364,8 +364,11 @@ msgstr "Overwrite"
 msgid "ButtonLogin"
 msgstr "Log in"
 
+msgid "ConfirmInitializeProjectConfig"
+msgstr "Project configuration does not exist. Do you want it to be initialized?"
+
 msgid "ProjectConfigHasBeenInitialized"
-msgstr "Project configuration has now been initialized from a template"
+msgstr "Project configuration has now been initialized, complete now the configuration."
 
 msgid "ProjectConfigFileHasChangedOnDisk"
 msgstr "Project configuration file has changed on disk"

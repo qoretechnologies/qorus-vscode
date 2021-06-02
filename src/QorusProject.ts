@@ -57,7 +57,7 @@ export class QorusProject {
             const file_content = fs.readFileSync(this.config_file);
             file_data = JSON.parse(file_content.toString());
         } catch (error) {
-            msg.error(JSON.stringify(error, null, 4));
+//            msg.error(JSON.stringify(error, null, 4));
             return false;
         }
 
@@ -74,7 +74,7 @@ export class QorusProject {
 
     validateConfigFileAndDo(onSuccess: Function, onError?: Function) {
         if (!this.configFileExists()) {
-            this.createConfigFileIfNotExists();
+            return;
         }
 
         try {
@@ -122,13 +122,22 @@ export class QorusProject {
         }
     }
 
-    private createConfigFileIfNotExists() {
-        if (!this.configFileExists()) {
-            fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
-            msg.info(t`ProjectConfigHasBeenInitialized`);
-            this.fixJavaClasspathFile();
-            this.fixJavaProjectFile();
-        }
+    createConfigFile() {
+        vscode.window.showInformationMessage(
+            t`ConfirmInitializeProjectConfig`, t`Yes`, t`No`
+        ).then(
+            selection => {
+                if (selection !== t`Yes`) {
+                    return;
+                }
+
+                fs.writeFileSync(this.config_file, JSON.stringify(project_template, null, 4) + '\n');
+                msg.info(t`ProjectConfigHasBeenInitialized`);
+                this.fixJavaClasspathFile();
+                this.fixJavaProjectFile();
+                qorus_webview.open();
+            }
+        );
     }
 
     fixJavaClasspathFile() {
@@ -238,7 +247,14 @@ export class QorusProject {
     }
 
     getConfigForWebview() {
-        this.createConfigFileIfNotExists();
+        if (!this.configFileExists()) {
+            qorus_webview.postMessage({
+                action: 'config-return-data',
+                data: QorusProject.file2data(null),
+            });
+            return;
+        }
+
         this.validateConfigFileAndDo(file_data => {
             qorus_webview.postMessage({
                 action: 'config-return-data',

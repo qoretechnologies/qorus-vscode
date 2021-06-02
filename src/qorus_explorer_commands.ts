@@ -14,8 +14,13 @@ const checkPathIsInSourceDirs = (fs_path: string): boolean => {
         return false;
     }
 
-    if (!project.isInSourceDirs(fs_path)) {
-        msg.error(t`FileNotInSourceDirs ${fs_path}`);
+    if (project.configFileExists()) {
+        if (!project.isInSourceDirs(fs_path)) {
+            msg.error(t`FileNotInSourceDirs ${fs_path}`);
+            return false;
+        }
+    } else {
+        project.createConfigFile();
         return false;
     }
 
