@@ -3,6 +3,7 @@ import { t } from 'ttag';
 import * as vscode from 'vscode';
 import { AuthNeeded } from './QorusAuth';
 import { qorus_request as auth } from './QorusRequest';
+import { projects, QorusProject } from './QorusProject';
 import * as msg from './qorus_message';
 import { isVersion3, modifyUrl } from './qorus_utils';
 
@@ -12,7 +13,7 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
     private qorus_instances: any = {};
 
     private setQorusInstances() {
-        if (!this.data) {
+        if (!Object.keys(this.data || {}).length) {
             msg.error(t`QorusProjectNotSet`);
             return;
         }
@@ -33,6 +34,13 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
         = new vscode.EventEmitter<QorusTreeNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<QorusTreeNode | undefined>
         = this.onTreeDataChanged.event;
+
+    private maybeCreateProjectConfig() {
+        const project: QorusProject = projects.getProject();
+        if (project && !project.configFileExists()) {
+            project.createConfigFile();
+        }
+    }
 
     refresh() {
         // @ts-ignore
@@ -55,8 +63,8 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
 
     getChildren(node?: QorusTreeNode): QorusTreeNode[] {
         if (!node) { // root node
-            if (!this.data) {
-                msg.warning(t`QorusProjectNotSet`);
+            if (!Object.keys(this.data || {}).length) {
+                this.maybeCreateProjectConfig();
                 return [];
             }
             let children: QorusTreeNode[] = [];
