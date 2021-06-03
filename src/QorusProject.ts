@@ -135,7 +135,7 @@ export class QorusProject {
                 msg.info(t`ProjectConfigHasBeenInitialized`);
                 this.fixJavaClasspathFile();
                 this.fixJavaProjectFile();
-                qorus_webview.open();
+                qorus_webview.open({}, { message_on_config_file_change: false });
             }
         );
     }

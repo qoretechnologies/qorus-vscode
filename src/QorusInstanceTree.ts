@@ -54,7 +54,7 @@ class QorusInstanceTree implements vscode.TreeDataProvider<QorusTreeNode> {
     }
 
     focus() {
-        vscode.commands.executeCommand('qorusInstancesExplorer.focus');
+        vscode.commands.executeCommand('qorusInstances.focus');
     }
 
     getTreeItem(node: QorusTreeNode): QorusTreeNode {
