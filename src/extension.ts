@@ -103,7 +103,7 @@ export async function activate(context: vscode.ExtensionContext) {
             qorus_webview.open({
                 tab: 'CreateInterface',
                 subtab: iface_kind,
-            }, uri);
+            }, { uri });
         });
         context.subscriptions.push(disposable);
     });
@@ -175,7 +175,7 @@ export async function activate(context: vscode.ExtensionContext) {
     registerQorusExplorerCommands(context);
     registerQorusViewsCommands(context);
 
-    disposable = vscode.window.registerTreeDataProvider('qorusInstancesExplorer', instance_tree);
+    disposable = vscode.window.registerTreeDataProvider('qorusInstances', instance_tree);
     context.subscriptions.push(disposable);
 
     interface_tree.setExtensionPath(context.extensionPath);

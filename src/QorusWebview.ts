@@ -73,13 +73,25 @@ class QorusWebview {
         }
     }
 
-    open(initial_data: any = {}, uri?: vscode.Uri) {
+    open(initial_data: any = {}, other_params: any = {}) {
+        const project: QorusProject = projects.getProject();
+
+        if (!project) {
+            msg.error(t`WorkspaceFolderUnsetCannotOpenWebview`);
+            return;
+        }
+
+        if (!project.configFileExists()) {
+            project.createConfigFile();
+            return;
+        }
+
         this.initial_data = initial_data;
-        this.uri = uri;
+        this.uri = other_params.uri;
 
         if (this.panel) {
-            if (uri) {
-                if (projects.updateCurrentWorkspaceFolder(uri)) {
+            if (this.uri) {
+                if (projects.updateCurrentWorkspaceFolder(this.uri)) {
                     this.dispose();
                     msg.warning(t`WorkspaceFolderChangedResetWebview`);
                     return this.open(initial_data);
@@ -93,11 +105,6 @@ class QorusWebview {
 
             this.panel.reveal(vscode.ViewColumn.One);
             this.postInitialData();
-            return;
-        }
-
-        if (!projects.getProject()) {
-            msg.error(t`WorkspaceFolderUnsetCannotOpenWebview`);
             return;
         }
 
@@ -119,7 +126,9 @@ class QorusWebview {
                 this.panel.webview.html = html.replace(/{{ csp }}/g, this.panel.webview.cspSource);
 
                 this.config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
-                this.message_on_config_file_change = true;
+                this.message_on_config_file_change = other_params.message_on_config_file_change === undefined
+                    ? true
+                    : other_params.message_on_config_file_change;
                 this.config_file_watcher.onDidChange(() => {
                     if (!this.message_on_config_file_change) {
                         this.message_on_config_file_change = true;

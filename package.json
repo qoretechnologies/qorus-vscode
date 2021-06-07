@@ -66,20 +66,20 @@
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "qorusInstances",
+                    "id": "qorusViews",
                     "title": "Qorus Development",
                     "icon": "images/qorus_logo_28.png"
                 }
             ]
         },
         "views": {
-            "qorusInstances": [
+            "qorusViews": [
                 {
                     "id": "qorusInterfaces",
                     "name": "Interfaces"
                 },
                 {
-                    "id": "qorusInstancesExplorer",
+                    "id": "qorusInstances",
                     "name": "Instances"
                 }
             ]
@@ -1457,27 +1457,27 @@
             "view/item/context": [
                 {
                     "command": "qorus.setActiveInstance",
-                    "when": "view == qorusInstancesExplorer && viewItem =~ /^qorus:inactive:(loggedIn|noAuth|unknown)$/"
+                    "when": "view == qorusInstances && viewItem =~ /^qorus:inactive:(loggedIn|noAuth|unknown)$/"
                 },
                 {
                     "command": "qorus.setInactiveInstanceStayLoggedIn",
-                    "when": "view == qorusInstancesExplorer && viewItem == qorus:active:loggedIn"
+                    "when": "view == qorusInstances && viewItem == qorus:active:loggedIn"
                 },
                 {
                     "command": "qorus.setInactiveInstance",
-                    "when": "view == qorusInstancesExplorer && viewItem =~ /^qorus:active:(noAuth|unknown)$/"
+                    "when": "view == qorusInstances && viewItem =~ /^qorus:active:(noAuth|unknown)$/"
                 },
                 {
                     "command": "qorus.logout",
-                    "when": "view == qorusInstancesExplorer && viewItem =~ /^qorus:(active|inactive):loggedIn$/"
+                    "when": "view == qorusInstances && viewItem =~ /^qorus:(active|inactive):loggedIn$/"
                 },
                 {
                     "command": "qorus.loginAndSetActiveInstance",
-                    "when": "view == qorusInstancesExplorer && viewItem == qorus:inactive:loggedOut"
+                    "when": "view == qorusInstances && viewItem == qorus:inactive:loggedOut"
                 },
                 {
                     "command": "qorus.loginAndStayInactiveInstance",
-                    "when": "view == qorusInstancesExplorer && viewItem == qorus:inactive:loggedOut"
+                    "when": "view == qorusInstances && viewItem == qorus:inactive:loggedOut"
                 },
                 {
                     "command": "qorus.createClass",
