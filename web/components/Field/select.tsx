@@ -88,6 +88,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     iface_kind,
     context,
     editOnly,
+    targetDir,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -390,7 +391,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                         icon="add"
                                         intent="success"
                                         name={`field-${name}-reference-add-new`}
-                                        onClick={() => onCreateClick(reference, handleEditSubmit)}
+                                        onClick={() => {console.log('zzzzzzzzzz CreateAndAddNewItem select ', targetDir); onCreateClick(reference, handleEditSubmit);}}
                                     />
                                 </Tooltip>
                             )}

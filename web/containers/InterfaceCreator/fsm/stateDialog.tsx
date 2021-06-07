@@ -50,6 +50,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     otherStates,
     deleteState,
     fsmName,
+    targetDir,
     interfaceId,
     postMessage,
     disableInitial,
@@ -62,6 +63,8 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const t = useContext(TextContext);
     const { confirmAction, qorus_instance } = useContext(InitialContext);
+
+    console.log('xxxxxxxxxxxxx targetDir, ', targetDir);
 
     useEffect(() => {
         if (newData.action?.value?.['class']) {
@@ -182,6 +185,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                             return_value: 'objects',
                         }}
                         predicate={(name) => fsmName !== name}
+                        targetDir={targetDir}
                         onChange={(_name, value) => handleDataUpdate('action', { type: 'pipeline', value })}
                         value={newData?.action?.value}
                         name="action"
