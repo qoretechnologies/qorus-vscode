@@ -63,7 +63,7 @@ const StyledWrapper = styled.div`
     background-color: #f1f1f1;
 `;
 
-const FSMListField: React.FC<IFSMListFieldProps> = ({ value, reference, name, onChange, iface_kind }) => {
+const FSMListField: React.FC<IFSMListFieldProps> = ({ value, reference, name, onChange, iface_kind, requestFieldData }) => {
     const t = useContext(TextContext);
     const [data, setData] = useState<IFSMList>(
         value || [
@@ -126,6 +126,7 @@ const FSMListField: React.FC<IFSMListFieldProps> = ({ value, reference, name, on
                             onChange={(_name, value) => updateFSMData(index, 'name', value)}
                             name={`fsm-${index}`}
                             value={datum.name}
+                            requestFieldData={requestFieldData}
                             get_message={{
                                 action: 'creator-get-objects',
                                 object_type: 'fsm',
