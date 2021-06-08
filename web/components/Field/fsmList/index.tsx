@@ -63,7 +63,14 @@ const StyledWrapper = styled.div`
     background-color: #f1f1f1;
 `;
 
-const FSMListField: React.FC<IFSMListFieldProps> = ({ value, reference, name, onChange, iface_kind, requestFieldData }) => {
+const FSMListField: React.FC<IFSMListFieldProps> = ({
+    value,
+    reference,
+    name,
+    onChange,
+    iface_kind,
+    requestFieldData
+}) => {
     const t = useContext(TextContext);
     const [data, setData] = useState<IFSMList>(
         value || [

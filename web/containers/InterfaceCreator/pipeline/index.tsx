@@ -234,7 +234,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     const [isDiagramShown, setIsDiagramShown] = useState(false);
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
     const [metadata, setMetadata] = useState<IPipelineMetadata>({
-        target_dir: pipeline?.target_dir || interfaceContext.target_dir || null,
+        target_dir: pipeline?.target_dir || interfaceContext?.target_dir || null,
         name: pipeline?.name || null,
         desc: pipeline?.desc || null,
         groups: pipeline?.groups || [],
