@@ -163,6 +163,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                         }}
                         onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
                         value={newData?.action?.value}
+                        target_dir={target_dir}
                         name="action"
                         reference={{
                             iface_kind: 'mapper',
