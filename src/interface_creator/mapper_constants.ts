@@ -17,51 +17,57 @@ export const mapper_code_method_template = {
 
 // ================================================================
 
-export const mapperFields = ({ default_target_dir, context }) => [
-    field.targetDir(default_target_dir),
-    field.targetFile,
-    field.name,
-    field.desc,
-    field.version,
-    {
-        name: 'mappertype',
-        default_value: 'Mapper',
-        read_only: true,
-    },
-    {
-        name: 'mapper_options',
-        type: 'options',
-        mandatory: false,
-        url: 'mapper',
-        requires_fields: 'mappertype',
-    },
-    field.author,
-    {
-        name: 'codes',
-        type: 'select-array',
-        mandatory: false,
-        get_message: {
-            action: 'creator-get-objects',
-            object_type: 'mapper-code',
+export const mapperFields = ({ default_target_dir, context }) => {
+    if (!Object.keys(context || {}).length) {
+        context = undefined;
+    }
+
+    return [
+        field.targetDir(default_target_dir),
+        field.targetFile,
+        field.name,
+        field.desc,
+        field.version,
+        {
+            name: 'mappertype',
+            default_value: 'Mapper',
+            read_only: true,
         },
-        return_message: {
-            action: 'creator-return-objects',
-            object_type: 'mapper-code',
-            return_value: 'objects',
+        {
+            name: 'mapper_options',
+            type: 'options',
+            mandatory: false,
+            url: 'mapper',
+            requires_fields: 'mappertype',
         },
-        reference: {
-            iface_kind: 'mapper-code',
+        field.author,
+        {
+            name: 'codes',
+            type: 'select-array',
+            mandatory: false,
+            get_message: {
+                action: 'creator-get-objects',
+                object_type: 'mapper-code',
+            },
+            return_message: {
+                action: 'creator-return-objects',
+                object_type: 'mapper-code',
+                return_value: 'objects',
+            },
+            reference: {
+                iface_kind: 'mapper-code',
+            },
         },
-    },
-    field.classes,
-    {
-        name: 'context',
-        type: 'context-selector',
-        default_value: context,
-        mandatory: !!context,
-        disabled: !!context,
-    },
-];
+        field.classes,
+        {
+            name: 'context',
+            type: 'context-selector',
+            default_value: context,
+            mandatory: !!context,
+            disabled: !!context,
+        },
+    ]
+};
 
 export const mapperCodeFields = ({ default_target_dir, limited_editing }) => [
     field.targetDir(default_target_dir),
