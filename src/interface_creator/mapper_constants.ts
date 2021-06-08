@@ -18,8 +18,11 @@ export const mapper_code_method_template = {
 // ================================================================
 
 export const mapperFields = ({ default_target_dir, context }) => {
-    if (!Object.keys(context || {}).length) {
-        context = undefined;
+    if (context) {
+        delete context.target_dir;
+        if (!Object.keys(context).length) {
+            context = undefined;
+        }
     }
 
     return [
