@@ -956,7 +956,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
             {editingState && (
                 <FSMStateDialog
                     fsmName={metadata.name}
-                    targetDir={metadata.target_dir}
+                    target_dir={metadata.target_dir}
                     onSubmit={updateStateData}
                     onClose={() => setEditingState(null)}
                     data={states[editingState]}

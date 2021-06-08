@@ -88,7 +88,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     iface_kind,
     context,
     editOnly,
-    targetDir,
+    target_dir,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -248,7 +248,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
         <FieldEnhancer
             context={{
                 iface_kind,
-                target_dir: requestFieldData && requestFieldData('target_dir', 'value'),
+                target_dir: requestFieldData && requestFieldData('target_dir', 'value') || target_dir,
                 ...context,
             }}
         >
@@ -391,7 +391,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                         icon="add"
                                         intent="success"
                                         name={`field-${name}-reference-add-new`}
-                                        onClick={() => {console.log('zzzzzzzzzz CreateAndAddNewItem select ', targetDir); onCreateClick(reference, handleEditSubmit);}}
+                                        onClick={() => onCreateClick(reference, handleEditSubmit)}
                                     />
                                 </Tooltip>
                             )}
