@@ -197,6 +197,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 return (
                     <ConnectorSelector
                         value={newData?.action?.value}
+                        target_dir={target_dir}
                         onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
                         types={['input', 'input-output', 'output']}
                     />
