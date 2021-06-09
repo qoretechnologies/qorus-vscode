@@ -162,7 +162,13 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
     );
 };
 
-const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineReset, onSubmitSuccess, ...rest }) => {
+const PipelineView: React.FC<IPipelineViewProps> = ({
+    postMessage,
+    setPipelineReset,
+    onSubmitSuccess,
+    interfaceContext,
+    ...rest
+}) => {
     const getNodeShapeData = ({ type, children, isCompatible }) => {
         switch (type) {
             case 'mapper':
@@ -228,7 +234,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({ postMessage, setPipelineRe
     const [isDiagramShown, setIsDiagramShown] = useState(false);
     const [isMetadataHidden, setIsMetadataHidden] = useState<boolean>(false);
     const [metadata, setMetadata] = useState<IPipelineMetadata>({
-        target_dir: pipeline?.target_dir || null,
+        target_dir: pipeline?.target_dir || interfaceContext?.target_dir || null,
         name: pipeline?.name || null,
         desc: pipeline?.desc || null,
         groups: pipeline?.groups || [],

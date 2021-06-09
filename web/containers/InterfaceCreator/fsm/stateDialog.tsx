@@ -50,6 +50,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
     otherStates,
     deleteState,
     fsmName,
+    target_dir,
     interfaceId,
     postMessage,
     disableInitial,
@@ -162,6 +163,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                         }}
                         onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
                         value={newData?.action?.value}
+                        target_dir={target_dir}
                         name="action"
                         reference={{
                             iface_kind: 'mapper',
@@ -182,6 +184,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                             return_value: 'objects',
                         }}
                         predicate={(name) => fsmName !== name}
+                        target_dir={target_dir}
                         onChange={(_name, value) => handleDataUpdate('action', { type: 'pipeline', value })}
                         value={newData?.action?.value}
                         name="action"
@@ -195,6 +198,7 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 return (
                     <ConnectorSelector
                         value={newData?.action?.value}
+                        target_dir={target_dir}
                         onChange={(value) => handleDataUpdate('action', { type: 'connector', value })}
                         types={['input', 'input-output', 'output']}
                     />

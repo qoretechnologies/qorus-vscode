@@ -88,6 +88,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     iface_kind,
     context,
     editOnly,
+    target_dir,
 }) => {
     const [items, setItems] = useState<any[]>(defaultItems || []);
     const [query, setQuery] = useState<string>('');
@@ -247,7 +248,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
         <FieldEnhancer
             context={{
                 iface_kind,
-                target_dir: requestFieldData && requestFieldData('target_dir', 'value'),
+                target_dir: requestFieldData && requestFieldData('target_dir', 'value') || target_dir,
                 ...context,
             }}
         >

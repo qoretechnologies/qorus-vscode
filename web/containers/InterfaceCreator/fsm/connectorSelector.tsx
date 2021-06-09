@@ -13,6 +13,7 @@ export interface IConnectorSelectorProps {
     addMessageListener: TMessageListener;
     postMessage: TPostMessage;
     types: string[];
+    target_dir: string;
 }
 
 export interface IClass {
@@ -26,7 +27,7 @@ export interface IConnector {
     type: 'input' | 'output' | 'input-output' | 'event' | 'condition';
 }
 
-const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, types }: IConnectorSelectorProps) => {
+const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, types, target_dir }: IConnectorSelectorProps) => {
     const [classes, setClasses] = useState<IClass[]>(null);
 
     useMount(() => {
@@ -79,6 +80,7 @@ const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, t
                 onChange={handleChange}
                 value={value?.['class']}
                 name="class"
+                target_dir={target_dir}
                 defaultItems={classes}
                 reference={{
                     iface_kind: 'class',

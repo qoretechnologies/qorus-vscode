@@ -131,25 +131,34 @@ export async function activate(context: vscode.ExtensionContext) {
             [iface_kind]: { ...data, iface_id }
         };
 
-        const { target_dir, target_file, lang = 'qore' } = data;
-        if (target_dir && target_file) {
-            const file_path = path.join(target_dir, target_file);
-            if (path.extname(file_path) !== '.yaml') {
-                if (lang === 'qore') {
-                    isLangClientAvailable().then(lang_client_available => {
-                        qorus_webview.open({...message, lang_client_unavailable: !lang_client_available});
-                        if (lang_client_available) {
-                            code_info.edit_info.setFileInfo(file_path, data);
-                        }
-                    });
-                    return;
-                }
+        let other_opening_params = {};
 
-                code_info.edit_info.setFileInfo(file_path, data);
+        const { target_dir, target_file, lang = 'qore' } = data;
+        if (target_dir) {
+            other_opening_params = { uri: vscode.Uri.file(target_dir) };
+
+            if (target_file) {
+                const file_path = path.join(target_dir, target_file);
+                if (path.extname(file_path) !== '.yaml') {
+                    if (lang === 'qore') {
+                        isLangClientAvailable().then(lang_client_available => {
+                            qorus_webview.open(
+                                { ...message, lang_client_unavailable: !lang_client_available },
+                                other_opening_params
+                            );
+                            if (lang_client_available) {
+                                code_info.edit_info.setFileInfo(file_path, data);
+                            }
+                        });
+                        return;
+                    }
+
+                    code_info.edit_info.setFileInfo(file_path, data);
+                }
             }
         }
 
-        qorus_webview.open(message);
+        qorus_webview.open(message, other_opening_params);
     });
     context.subscriptions.push(disposable);
 
