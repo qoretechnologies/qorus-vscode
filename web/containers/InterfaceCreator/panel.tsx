@@ -390,6 +390,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const resetLocalFields: (newActiveId?: number) => void = (newActiveId) => {
         resetAllInterfaceData(type, type !== 'mapper');
         // Hide the fields until they are fetched
+
         setShow(false);
         // Reset class connecitons
         resetClassConnections && resetClassConnections();
@@ -458,6 +459,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             context,
             lang: isEditing ? data.lang : undefined,
         });
+
+        if (initialData.subtab) {
+            setTimeout(() => initialData.setUnfinishedWork((current) => ({
+                ...current,
+                [initialData.subtab]: false
+            })), 200);
+        }
     };
 
     const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
