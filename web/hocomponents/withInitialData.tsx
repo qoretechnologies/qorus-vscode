@@ -32,8 +32,6 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         useEffect(() => {
             const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
                 const setData = () => {
-                    setInitialData(null);
-
                     if (!data.tab) {
                         data.tab = 'ProjectConfig';
                     }
@@ -47,7 +45,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         setTimeout(() => setUnfinishedWork((current) => ({
                             ...current,
                             [data.subtab]: false
-                        })), 200);
+                        })), 300);
                     }
                 };
 
