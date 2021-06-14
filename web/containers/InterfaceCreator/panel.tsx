@@ -1215,7 +1215,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <div style={{ float: 'right', width: hasConfigManager || hasClassConnections ? '48%' : '100%' }}>
                         <ButtonGroup fill>
                             {onBackClick && (
-                                <Tooltip content={'BackToooltip'}>
+                                <Tooltip content={t('BackTooltip')}>
                                     <Button text={t('Back')} icon={'undo'} onClick={() => onBackClick()} />
                                 </Tooltip>
                             )}
