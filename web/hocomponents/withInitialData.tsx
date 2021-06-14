@@ -32,20 +32,33 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         useEffect(() => {
             const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
                 const setData = () => {
+                    let currentInitialData;
+
+                    setInitialData((current) => {
+                        currentInitialData = { ...current };
+                        return null;
+                    });
+
                     if (!data.tab) {
                         data.tab = 'ProjectConfig';
                     }
 
-                    setTimeout(() => setInitialData((current) => ({
-                        ...current,
+                    setTimeout(() => setInitialData({
+                        ...currentInitialData,
                         ...data,
-                    })), 0);
+                    }), 0);
 
-                    if (data.subtab) {
-                        setTimeout(() => setUnfinishedWork((current) => ({
-                            ...current,
-                            [data.subtab]: false
-                        })), 300);
+                    if (data.subtab || initialData.subtab) {
+                        setTimeout(() => setUnfinishedWork((current) => {
+                            let result = { ...current };
+                            if(data.subtab) {
+                                result[data.subtab] = false;
+                            }
+                            if(initialData.subtab) {
+                                result[initialData.subtab] = false;
+                            }
+                            return result;
+                        }), 300);
                     }
                 };
 
@@ -98,11 +111,17 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     subtab: subtab || null,
                 }));
 
-                if (subtab) {
-                    setTimeout(() => setUnfinishedWork((current) => ({
-                        ...current,
-                        [subtab]: false
-                    })), 200);
+                if (subtab || initialData.subtab) {
+                    setTimeout(() => setUnfinishedWork((current) => {
+                        let result = { ...current };
+                        if(subtab) {
+                            result[subtab] = false;
+                        }
+                        if(initialData.subtab) {
+                            result[initialData.subtab] = false;
+                        }
+                        return result;
+                    }), 200);
                 }
             };
 
