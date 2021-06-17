@@ -327,6 +327,9 @@ class QorusWebview {
                         case 'lang-changed':
                             FormChangesResponder.langChanged(message, project.code_info);
                             break;
+                        case 'stateless-changed':
+                            FormChangesResponder.statelessChanged(message);
+                            break;
                         case 'valuetype-changed':
                             FormChangesResponder.valueTypeChanged(message);
                             break;

@@ -1267,11 +1267,35 @@ msgstr "Autostart"
 msgid "field-label-stateless"
 msgstr "Stateless"
 
-msgid "field-desc-service-autostart"
-msgstr "The value of the autostart property of the service (default: False, managed by operations)"
-
 msgid "field-desc-stateless"
 msgstr "Is the service stateless?"
+
+msgid "field-label-scaling-min-replicas"
+msgstr "Scaling - min replicas"
+
+msgid "field-desc-scaling-min-replicas"
+msgstr "Minimum number of replicas"
+
+msgid "field-label-scaling-max-replicas"
+msgstr "Scaling - max replicas"
+
+msgid "field-desc-scaling-max-replicas"
+msgstr "Maximum number of replicas"
+
+msgid "field-label-scaling-cpu"
+msgstr "Scaling - CPU usage (%)"
+
+msgid "field-desc-scaling-cpu"
+msgstr "CPU usage (%)"
+
+msgid "field-label-scaling-memory"
+msgstr "Scaling - memory usage"
+
+msgid "field-desc-scaling-memory"
+msgstr "Memory usage"
+
+msgid "field-desc-service-autostart"
+msgstr "The value of the autostart property of the service (default: False, managed by operations)"
 
 msgid "field-label-workflow-autostart"
 msgstr "Autostart"
