@@ -1,6 +1,19 @@
 # Changelog
 
 
+## 2.2.9
+
+#### Bug fixes
+
+- show the "unsaved work" confirmation dialog when opening another object from the tree view,
+    don't show the confirmation dialog after successful submit or when no changes have been made
+- prefill the target directory when opening a new interface from another interface (it worked only in some situations)
+- fixed: when a new mapper is opened from an FSM it has the Context field selected with value "undefined:undefined"
+
+#### New features
+
+- make it possible not to use the qorus extension, create the config file only on demand
+
 ## 2.2.8
 
 #### Bug fixes
