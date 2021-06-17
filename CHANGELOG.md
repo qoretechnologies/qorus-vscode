@@ -13,6 +13,7 @@
 #### New features
 
 - make it possible not to use the qorus extension, create the config file only on demand
+- added scaling parameters fields to the service creator form (for stateless services - the fields depend on the Stateless field)
 
 ## 2.2.8
 
