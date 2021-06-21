@@ -85,14 +85,14 @@ export const serviceFields = ({ default_target_dir, limited_editing }) => [
         mandatory: false,
         disabled: true,
         type: 'number',
-        default_value: 50,
+        default_value: 80,
     },
     {
         name: 'scaling-memory',
         mandatory: false,
         disabled: true,
         type: 'string',
-        default_value: '8G',
+        default_value: '400Mi',
     },
     {
         name: 'resource',
