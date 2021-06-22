@@ -17,7 +17,7 @@ export const serviceImports = (lang: string, base_class_name: string) => {
     }
 };
 
-export const serviceFields = ({ default_target_dir, limited_editing }) => [
+export const serviceFields = ({ default_target_dir = undefined, lang = undefined, limited_editing = undefined }): any[] => [
     field.targetDir(default_target_dir),
     field.targetFile,
     field.name,
@@ -91,8 +91,33 @@ export const serviceFields = ({ default_target_dir, limited_editing }) => [
         name: 'scaling-memory',
         mandatory: false,
         disabled: true,
-        type: 'string',
-        default_value: '400Mi',
+        default_value: lang === 'java' ? '1600Mi' : '800Mi',
+    },
+    {
+        name: 'container-memory-request',
+        mandatory: false,
+        disabled: true,
+        default_value: lang === 'java' ? '600Mi' : '300Mi',
+    },
+    {
+        name: 'container-memory-limit',
+        mandatory: false,
+        disabled: true,
+        default_value: lang === 'java' ? '2Gi' : '1Gi',
+    },
+    {
+        name: 'container-cpu-request',
+        mandatory: false,
+        disabled: true,
+        type: 'float',
+        default_value: 0.2,
+    },
+    {
+        name: 'container-cpu-limit',
+        mandatory: false,
+        disabled: true,
+        type: 'float',
+        default_value: 4.0,
     },
     {
         name: 'resource',

@@ -1294,6 +1294,30 @@ msgstr "Scaling - memory usage"
 msgid "field-desc-scaling-memory"
 msgstr "Memory usage"
 
+msgid "field-label-container-memory-request"
+msgstr "Container memory request"
+
+msgid "field-desc-container-memory-request"
+msgstr "Container memory request"
+
+msgid "field-label-container-memory-limit"
+msgstr "Container memory limit"
+
+msgid "field-desc-container-memory-limit"
+msgstr "Container memory limit"
+
+msgid "field-label-container-cpu-request"
+msgstr "Container cpu request"
+
+msgid "field-desc-container-cpu-request"
+msgstr "Container cpu request"
+
+msgid "field-label-container-cpu-limit"
+msgstr "Container cpu limit"
+
+msgid "field-desc-container-cpu-limit"
+msgstr "Container cpu limit"
+
 msgid "field-desc-service-autostart"
 msgstr "The value of the autostart property of the service (default: False, managed by operations)"
 
