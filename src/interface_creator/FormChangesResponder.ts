@@ -119,6 +119,21 @@ export class FormChangesResponder {
         }
     }
 
+    static statelessChanged({stateless, iface_id, iface_kind }) {
+        const fields = ['scaling-min-replicas', 'scaling-max-replicas', 'scaling-cpu', 'scaling-memory'];
+        if (stateless) {
+            fields.forEach(field => {
+                qorus_webview.postMessage({ action: `creator-enable-field`, field, iface_id, iface_kind });
+                qorus_webview.postMessage({ action: `creator-add-field`, field, iface_id, iface_kind });
+            });
+        } else {
+            fields.forEach(field => {
+                qorus_webview.postMessage({ action: `creator-remove-field`, field, iface_id, iface_kind });
+                qorus_webview.postMessage({ action: `creator-disable-field`, field, iface_id, iface_kind });
+            });
+        }
+    }
+
     static fieldAdded({field, iface_id, iface_kind}) {
         const addField = field =>
             qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
@@ -194,6 +209,16 @@ export class FormChangesResponder {
             case 'status':
                 removeField('retry-delay');
                 disableField('retry-delay');
+                break;
+            case 'stateless':
+                removeField('scaling-min-replicas');
+                disableField('scaling-min-replicas');
+                removeField('scaling-max-replicas');
+                disableField('scaling-max-replicas');
+                removeField('scaling-cpu');
+                disableField('scaling-cpu');
+                removeField('scaling-memory');
+                disableField('scaling-memory');
                 break;
         }
     }
