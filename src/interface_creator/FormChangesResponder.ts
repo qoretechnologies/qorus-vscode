@@ -1,5 +1,6 @@
 import { t } from 'ttag';
 import { qorus_webview } from '../QorusWebview';
+import { serviceFields } from './service_constants';
 
 
 export class FormChangesResponder {
@@ -20,6 +21,18 @@ export class FormChangesResponder {
             postMessage('enable', ['can_be_undefined', 'allowed_values']);
             postMessage('add', ['can_be_undefined']);
         }
+    }
+
+    private static changeStatelessServiceDefaultsByLang = (lang: string, iface_id: string, iface_kind: string) => {
+        ['scaling-memory', 'container-memory-request', 'container-memory-limit'].forEach(field => {
+            qorus_webview.postMessage({
+                action: 'creator-change-field-value',
+                field,
+                value: serviceFields({lang}).find(({name}) => name === field)?.default_value,
+                iface_id,
+                iface_kind
+            });
+        });
     }
 
     static langChanged({ lang, orig_lang, iface_id, iface_kind, send_response }, code_info) {
@@ -63,6 +76,12 @@ export class FormChangesResponder {
                 iface_kind
             });
         }
+
+        if ([lang, orig_lang].includes('java') && orig_lang !== lang) {
+            FormChangesResponder.changeStatelessServiceDefaultsByLang(lang, iface_id, iface_kind);
+        }
+
+        code_info.interface_info.last_lang = lang;
     }
 
     static valueTypeChanged({ valuetype, iface_id, iface_kind }) {
@@ -119,13 +138,22 @@ export class FormChangesResponder {
         }
     }
 
-    static statelessChanged({stateless, iface_id, iface_kind }) {
-        const fields = ['scaling-min-replicas', 'scaling-max-replicas', 'scaling-cpu', 'scaling-memory'];
+    static statelessChanged({stateless, iface_id, iface_kind, interface_info }) {
+        const fields = [
+            'scaling-min-replicas', 'scaling-max-replicas', 'scaling-cpu', 'scaling-memory',
+            'container-memory-request', 'container-memory-limit', 'container-cpu-request', 'container-cpu-limit',
+        ];
+
         if (stateless) {
             fields.forEach(field => {
                 qorus_webview.postMessage({ action: `creator-enable-field`, field, iface_id, iface_kind });
                 qorus_webview.postMessage({ action: `creator-add-field`, field, iface_id, iface_kind });
             });
+
+            const lang = interface_info.last_lang;
+            if (lang === 'java') {
+                FormChangesResponder.changeStatelessServiceDefaultsByLang(lang, iface_id, iface_kind);
+            }
         } else {
             fields.forEach(field => {
                 qorus_webview.postMessage({ action: `creator-remove-field`, field, iface_id, iface_kind });
@@ -219,6 +247,14 @@ export class FormChangesResponder {
                 disableField('scaling-cpu');
                 removeField('scaling-memory');
                 disableField('scaling-memory');
+                removeField('container-memory-request');
+                disableField('container-memory-request');
+                removeField('container-memory-limit');
+                disableField('container-memory-limit');
+                removeField('container-cpu-request');
+                disableField('container-cpu-request');
+                removeField('container-cpu-limit');
+                disableField('container-cpu-limit');
                 break;
         }
     }
