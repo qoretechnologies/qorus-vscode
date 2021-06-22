@@ -18,6 +18,7 @@ export class QorusProjectInterfaceInfo {
 
     private last_target_dir: string | undefined;
     private last_conf_group: string | undefined;
+    private last_language: string | undefined;
 
     constructor(code_info: QorusProjectCodeInfo) {
         this.code_info = code_info;
@@ -199,6 +200,14 @@ export class QorusProjectInterfaceInfo {
 
     set last_target_directory(last_target_dir: string | undefined) {
         this.last_target_dir = last_target_dir;
+    }
+
+    get last_lang(): string | undefined {
+        return this.last_language;
+    }
+
+    set last_lang(last_language: string | undefined) {
+        this.last_language = last_language;
     }
 
     updateConfigItemValue = ({
