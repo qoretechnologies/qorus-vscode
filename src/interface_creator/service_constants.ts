@@ -91,8 +91,31 @@ export const serviceFields = ({ default_target_dir, limited_editing }) => [
         name: 'scaling-memory',
         mandatory: false,
         disabled: true,
-        type: 'string',
         default_value: '400Mi',
+    },
+    {
+        name: 'container-memory-request',
+        mandatory: false,
+        disabled: true,
+        default_value: '300Mi',
+    },
+    {
+        name: 'container-memory-limit',
+        mandatory: false,
+        disabled: true,
+        default_value: '1Gi',
+    },
+    {
+        name: 'container-cpu-request',
+        mandatory: false,
+        disabled: true,
+        default_value: '100m',
+    },
+    {
+        name: 'container-cpu-limit',
+        mandatory: false,
+        disabled: true,
+        default_value: '8000m',
     },
     {
         name: 'resource',

@@ -120,7 +120,10 @@ export class FormChangesResponder {
     }
 
     static statelessChanged({stateless, iface_id, iface_kind }) {
-        const fields = ['scaling-min-replicas', 'scaling-max-replicas', 'scaling-cpu', 'scaling-memory'];
+        const fields = [
+            'scaling-min-replicas', 'scaling-max-replicas', 'scaling-cpu', 'scaling-memory',
+            'container-memory-request', 'container-memory-limit', 'container-cpu-request', 'container-cpu-limit',
+        ];
         if (stateless) {
             fields.forEach(field => {
                 qorus_webview.postMessage({ action: `creator-enable-field`, field, iface_id, iface_kind });
@@ -219,6 +222,14 @@ export class FormChangesResponder {
                 disableField('scaling-cpu');
                 removeField('scaling-memory');
                 disableField('scaling-memory');
+                removeField('container-memory-request');
+                disableField('container-memory-request');
+                removeField('container-memory-limit');
+                disableField('container-memory-limit');
+                removeField('container-cpu-request');
+                disableField('container-cpu-request');
+                removeField('container-cpu-limit');
+                disableField('container-cpu-limit');
                 break;
         }
     }
