@@ -858,8 +858,6 @@ export abstract class InterfaceCreator {
                     case 'scaling-memory':
                     case 'container-memory-request':
                     case 'container-memory-limit':
-                    case 'container-cpu-request':
-                    case 'container-cpu-limit':
                         result += `${tag}: ${InterfaceCreator.indentYamlDump(value.toString(), 0)}`;
                         break;
                     case 'type':

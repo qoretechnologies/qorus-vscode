@@ -77,6 +77,7 @@ const Field: FunctionComponent<IFieldProps> = ({ type, interfaceId, interfaceKin
             {type === 'auto' && <AutoField {...rest} type={type} />}
             {type === 'array-auto' && <ArrayAutoField {...rest} type={type} />}
             {type === 'number' && <NumberField {...rest} type={type} />}
+            {type === 'float' && <NumberField {...rest} type={type} />}
             {type === 'class-array' && <ClassArrayField {...rest} type={type} />}
             {type === 'type-selector' && <TypeSelector {...rest} type={type} />}
             {type === 'context-selector' && <ContextField {...rest} type={type} />}

@@ -109,13 +109,15 @@ export const serviceFields = ({ default_target_dir, limited_editing }) => [
         name: 'container-cpu-request',
         mandatory: false,
         disabled: true,
-        default_value: '100m',
+        type: 'float',
+        default_value: 0.2,
     },
     {
         name: 'container-cpu-limit',
         mandatory: false,
         disabled: true,
-        default_value: '8000m',
+        type: 'float',
+        default_value: 4.0,
     },
     {
         name: 'resource',
