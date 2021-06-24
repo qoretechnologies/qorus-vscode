@@ -377,7 +377,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 iface_kind: type,
                 is_editing: isEditing,
                 context,
-                lang: isEditing ? data.lang : undefined,
+                lang: isEditing ? data?.lang : undefined,
             });
         }
         // Cleanup on unmount
