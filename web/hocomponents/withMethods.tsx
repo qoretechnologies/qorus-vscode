@@ -57,6 +57,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     methodsData: props.methodsData,
                     resetMethods,
                     lastMethodId,
+                    setLastMethodId,
                     initialActiveMethod: props.initialActiveId,
                     initialShowMethods: props.initialShowMethods,
                 }}
