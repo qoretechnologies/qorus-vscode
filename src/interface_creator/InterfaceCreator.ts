@@ -115,6 +115,11 @@ export abstract class InterfaceCreator {
         this.is_editable = this.lang !== 'qore' || await isLangClientAvailable();
         this.code_info = projects.currentProjectCodeInfo();
 
+        if (params.recreate) {
+            params.edit_type = 'create';
+            delete params.orig_data;
+        }
+
         if (params.orig_data) {
             if (path.extname(params.orig_data.target_file) === '.yaml') {
                 this.editImpl(params);

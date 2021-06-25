@@ -11,6 +11,7 @@ import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
+import { MethodsContext } from '../../context/methods';
 
 export interface ITabProps {
     initialData: any;
@@ -206,6 +207,8 @@ const Tab: React.FC<ITabProps> = ({ t, data, type, children, resetAllInterfaceDa
     };
     const [recreateDialog, setRecreateDialog] = useState<any>(null);
 
+    const methods = useContext(MethodsContext);
+
     useMount(() => {
         const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
             setRecreateDialog(() => data);
@@ -227,6 +230,12 @@ const Tab: React.FC<ITabProps> = ({ t, data, type, children, resetAllInterfaceDa
                 message,
                 () => {
                     data.resetInterfaceData(iface_kind);
+                    if (iface_kind === 'service') {
+                        methods.setMethods([{id: 1, name: 'init'}]);
+                        methods.setMethodsCount(1);
+                        methods.setLastMethodId(1);
+                        methods.setActiveMethod(1);
+                    }
                     data.changeInitialData('isRecreate', true);
                     setRecreateDialog(null);
                 },
