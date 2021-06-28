@@ -139,7 +139,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                 );
             }
         }
-    }, [hasProcessor]);
+    }, [hasProcessor, return_message?.object_type]);
 
     useEffect(() => {
         setIsProcessorSelected(requestFieldData ? requestFieldData('processor', 'selected') : false);
