@@ -55,9 +55,18 @@ let SidebarItem: Function = ({
     handleMouseLeave,
     initialData,
     t,
+    unfinishedWork,
     ...rest
 }: SidebarItemProps) => {
-    const hasDraft = itemData.tab === 'CreateInterface' && rest.unfinishedWork[itemData?.subtab];
+    let hasDraft: boolean = false;
+    if (itemData.tab === 'CreateInterface') {
+        if (itemData?.subtab === 'service') {
+            hasDraft = [unfinishedWork.service, unfinishedWork['service-methods']].some(x => x);
+        } else {
+            hasDraft = unfinishedWork[itemData.subtab];
+        }
+    }
+
     const intent = hasDraft ? 'warning' : 'none';
 
     return !itemData.submenu ? (
