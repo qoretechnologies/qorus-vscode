@@ -263,6 +263,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setAsDraft: (type: string) => void = (type) => {
+            type = type === 'service-methods' ? 'service' : type;
             if (!props.unfinishedWork?.[type]) {
                 props.setUnfinishedWork((current) => ({
                     ...current,

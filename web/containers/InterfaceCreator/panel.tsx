@@ -297,66 +297,75 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             Messages.FIELDS_FETCHED,
             ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField }; iface_kind: string }) => {
                 // Register only for this interface
-                if (rest.iface_kind === type) {
-                    // Clone initial data
-                    const clonedData = cloneDeep(data);
-                    if (!fields || !fields.length) {
-                        // Mark the selected fields
-                        const transformedFields: IField[] = map(newFields, (field: IField) => ({
-                            ...field,
-                            selected: (clonedData && field.name in clonedData) || field.mandatory !== false,
-                            isValid:
-                                clonedData && field.name in clonedData
-                                    ? validateField(field.type || 'string', clonedData[field.name], field)
-                                    : false,
-                            value: clonedData && field.name in clonedData ? clonedData[field.name] : undefined,
-                            hasValueSet: clonedData && field.name in clonedData,
-                        }));
-                        // Pull the pre-selected fields
-                        const preselectedFields: IField[] = filter(
-                            transformedFields,
-                            (field: IField) => field.selected
-                        );
-                        // Add original name field
-                        if (isEditing) {
-                            preselectedFields.push({
-                                name: 'orig_name',
-                                value: clonedData && clonedData.name,
-                                isValid: true,
-                                selected: true,
-                                internal: true,
-                            });
-                        }
-                        // Save preselected fields
-                        setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
-                        // Save the fields
-                        setFields(type, transformedFields, activeId, interfaceIndex);
-                    }
-                    // Check if onDataFinish function is set
-                    // only do this on initial mount
-                    if (onDataFinishLoading && isInitialMount.current) {
-                        // Run the callback
-                        onDataFinishLoading();
-                        // Set the mount to false
-                        isInitialMount.current = false;
-                    }
+                if (rest.iface_kind !== type) {
+                    return;
+                }
 
-                    // Check if onDataFinishRecur function is set
-                    if (onDataFinishLoadingRecur) {
-                        // Run the callback
-                        onDataFinishLoadingRecur(activeId);
+                // Clone initial data
+                const clonedData = cloneDeep(data);
+                if (!fields || !fields.length) {
+                    // Mark the selected fields
+                    const transformedFields: IField[] = map(newFields, (field: IField) => ({
+                        ...field,
+                        selected: (clonedData && field.name in clonedData) || field.mandatory !== false,
+                        isValid:
+                            clonedData && field.name in clonedData
+                                ? validateField(field.type || 'string', clonedData[field.name], field)
+                                : false,
+                        value: clonedData && field.name in clonedData ? clonedData[field.name] : undefined,
+                        hasValueSet: clonedData && field.name in clonedData,
+                    }));
+                    // Pull the pre-selected fields
+                    const preselectedFields: IField[] = filter(
+                        transformedFields,
+                        (field: IField) => field.selected
+                    );
+                    // Add original name field
+                    if (isEditing) {
+                        preselectedFields.push({
+                            name: 'orig_name',
+                            value: clonedData && clonedData.name,
+                            isValid: true,
+                            selected: true,
+                            internal: true,
+                        });
                     }
-                    const currentInterfaceId = data ? clonedData.iface_id : shortid.generate();
-                    // Check if the interface id exists, which means user
-                    // has already been on this view
-                    if (!interfaceId) {
-                        // Create it if this is brand new interface
-                        setInterfaceId(type, currentInterfaceId, interfaceIndex);
-                    }
-                    // Set show
-                    setShow(true);
-                    // Fetch config items
-                    fetchConfigItems(interfaceId || currentInterfaceId);
+                    // Save preselected fields
+                    setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
+                    // Save the fields
+                    setFields(type, transformedFields, activeId, interfaceIndex);
+                }
+                // Check if onDataFinish function is set
+                // only do this on initial mount
+                if (onDataFinishLoading && isInitialMount.current) {
+                    // Run the callback
+                    onDataFinishLoading();
+                    // Set the mount to false
+                    isInitialMount.current = false;
+                }
+
+                // Check if onDataFinishRecur function is set
+                if (onDataFinishLoadingRecur) {
+                    // Run the callback
+                    onDataFinishLoadingRecur(activeId);
+                }
+                const currentInterfaceId = data ? clonedData.iface_id : shortid.generate();
+                // Check if the interface id exists, which means user
+                // has already been on this view
+                if (!interfaceId) {
+                    // Create it if this is brand new interface
+                    setInterfaceId(type, currentInterfaceId, interfaceIndex);
+                }
+                // Set show
+                setShow(true);
+                // Fetch config items
+                fetchConfigItems(interfaceId || currentInterfaceId);
+
+                if (['service', 'service-methods'].includes(rest.iface_kind) && !initialData.unfinishedWork?.service) {
+                    initialData.setUnfinishedWork((current) => ({
+                        ...current,
+                        service: false
+                    }));
                 }
             }
         );
