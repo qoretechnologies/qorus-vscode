@@ -155,11 +155,13 @@ const FSMStateDialog: React.FC<IFSMStateDialogProps> = ({
                 return (
                     <SelectField
                         get_message={{
-                            action: 'get-mappers',
+                            action: 'creator-get-objects',
+                            object_type: 'mapper',
                         }}
                         return_message={{
-                            action: 'return-mappers',
-                            return_value: 'mappers',
+                            action: 'creator-return-objects',
+                            object_type: 'mapper',
+                            return_value: 'objects',
                         }}
                         onChange={(_name, value) => handleDataUpdate('action', { type: 'mapper', value })}
                         value={newData?.action?.value}
