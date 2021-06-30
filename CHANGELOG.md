@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 2.2.10
+
+#### Bug fixes
+
+- fixed: when a service is recreated on a language change its methods are not destroyed properly
+- fixed: webview crashes when trying to add a service method to an existing service from the webview
+
 ## 2.2.9
 
 #### Bug fixes
