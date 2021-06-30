@@ -221,6 +221,9 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                         const newResult = { ...current };
                         // Reset the fields
                         newResult[type][getInterfaceIndex(type, interfaceIndex)] = getInterfaceCollectionType(type);
+                        if (type === 'service') {
+                            resetFields('service-methods');
+                        }
                         return newResult;
                     });
 
@@ -234,7 +237,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     props.setUnfinishedWork((current) => {
                         const newResult = { ...current };
                         // Set the interface id to null
-                        newResult[type] = null;
+                        newResult[type === 'service-methods' ? 'service' : type] = false;
                         return newResult;
                     });
 
@@ -263,6 +266,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setAsDraft: (type: string) => void = (type) => {
+            type = type === 'service-methods' ? 'service' : type;
             if (!props.unfinishedWork?.[type]) {
                 props.setUnfinishedWork((current) => ({
                     ...current,

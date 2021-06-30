@@ -361,11 +361,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // Fetch config items
                 fetchConfigItems(interfaceId || currentInterfaceId);
 
-                if (['service', 'service-methods'].includes(rest.iface_kind) && ![initialData.unfinishedWork?.service, initialData.unfinishedWork?.['service-methods']].some(x => x)) {
+                if (['service', 'service-methods'].includes(rest.iface_kind) && !initialData.unfinishedWork?.service) {
                     initialData.setUnfinishedWork((current) => ({
                         ...current,
                         service: false,
-                        'service-methods': false,
                     }));
                 }
             }
@@ -458,11 +457,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 setInterfaceId(type, data ? copiedData.iface_id : shortid.generate(), interfaceIndex);
                 // Set show
                 setShow(true);
-
-                setTimeout(() => initialData.setUnfinishedWork((current) => ({
-                    ...current,
-                    [type]: false
-                })), 200);
             }
         );
         // Set the new message listener
@@ -474,6 +468,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             context,
             lang: isEditing ? data.lang : undefined,
         });
+
+        if (type != 'service-methods') {
+            setTimeout(() => initialData.setUnfinishedWork((current) => ({
+                ...current,
+                [type]: false
+            })), 200);
+        }
     };
 
     const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
