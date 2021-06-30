@@ -7,6 +7,8 @@
 
 - fixed: when a service is recreated on a language change its methods are not destroyed properly
 - fixed: webview crashes when trying to add a service method to an existing service from the webview
+- fixed setting the "unsaved work" flag for services when moving between the main service form and the methods form
+    and reseting the changes
 
 ## 2.2.9
 
