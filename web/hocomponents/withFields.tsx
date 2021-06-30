@@ -214,13 +214,23 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
             return interfaceIndex ?? interfaceId[type].length - 1;
         };
 
-        const resetFields: (type: string, interfaceIndex?: number) => void = (type, interfaceIndex) => {
+        const resetFields: (type: string, interfaceIndex?: number, resetRelatedForm: boolean) => void = (
+            type,
+            interfaceIndex,
+            resetRelatedForm = true
+        ) => {
             if (type in fields) {
                 setLocalFields((current) => {
                     setLocalSelectedFields((current) => {
                         const newResult = { ...current };
                         // Reset the fields
                         newResult[type][getInterfaceIndex(type, interfaceIndex)] = getInterfaceCollectionType(type);
+                        if (type === 'service' && resetRelatedForm) {
+                            resetFields('service-methods', interfaceIndex, false);
+                        }
+                        if (type === 'service-methods' && resetRelatedForm) {
+                            resetFields('service', interfaceIndex, false);
+                        }
                         return newResult;
                     });
 
@@ -234,7 +244,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
                     props.setUnfinishedWork((current) => {
                         const newResult = { ...current };
                         // Set the interface id to null
-                        newResult[type] = null;
+                        newResult[type === 'service-methods' ? 'service' : type] = false;
                         return newResult;
                     });
 
@@ -263,6 +273,7 @@ export default () => (Component: FunctionComponent<any>): FunctionComponent<any>
         };
 
         const setAsDraft: (type: string) => void = (type) => {
+            type = type === 'service-methods' ? 'service' : type;
             if (!props.unfinishedWork?.[type]) {
                 props.setUnfinishedWork((current) => ({
                     ...current,
