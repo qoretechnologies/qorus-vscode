@@ -54,6 +54,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'InterfaceWithMethodsCreator'}`);
                 return;
         }
+        //msg.log(`editImpl() kind: ${iface_kind} lang: ${this.lang} bc: ${data['base-class-name']} imports: ${this.imports}`);
 
         this.has_code = this.had_code = true;
 

@@ -855,7 +855,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // remove circular references in the class connections in keys 'previousItemData' and 'nextItemData'
                 let orig_data: object;
                 if (type === 'service-methods' || type === 'mapper-methods' || type === 'error') {
-                    if (initialData[iface_kind]['class-connections']) {
+                    if (initialData[iface_kind] && initialData[iface_kind]['class-connections']) {
                         // strip nextItemData and prevItemData from connections in the initial data
                         orig_data = { ...initialData[iface_kind] };
                         for (let conn_type in orig_data['class-connections']) {
