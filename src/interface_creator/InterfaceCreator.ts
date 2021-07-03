@@ -115,7 +115,7 @@ export abstract class InterfaceCreator {
         this.is_editable = this.lang !== 'qore' || await isLangClientAvailable();
         this.code_info = projects.currentProjectCodeInfo();
 
-        if (params.recreate) {
+        if (params.recreate || !params.orig_data.target_file) {
             params.edit_type = 'create';
             delete params.orig_data;
         }

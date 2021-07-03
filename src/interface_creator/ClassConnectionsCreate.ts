@@ -628,11 +628,9 @@ export class ClassConnectionsCreate {
         if (!trigger.connections.length) {
             if (isValidation(trigger)) {
                 code += `${indent2}return OMQ.StatRetry\n`;
-            }
-            else if (isArray(trigger)) {
+            } else if (isArray(trigger)) {
                 code += `${indent2}return []\n`;
-            }
-            else {
+            } else {
                 code += `${indent2}pass\n`;
             }
         }

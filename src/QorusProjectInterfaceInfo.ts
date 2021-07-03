@@ -390,8 +390,7 @@ export class QorusProjectInterfaceInfo {
 
             existing_item = { ... existing_item, ... item };
             config_items[index] = existing_item;
-        }
-        else {
+        } else {
             config_items.push(item);
         }
 
@@ -514,8 +513,7 @@ export class QorusProjectInterfaceInfo {
                         ... item,
                         ... iface.specific_data[specific_data_id]['config-items'][index]
                     };
-                }
-                else {
+                } else {
                     this.iface_by_id[iface_id].specific_data[specific_data_id]['config-items'].push(item);
                 }
             } else {
@@ -528,8 +526,7 @@ export class QorusProjectInterfaceInfo {
                         ... item,
                         ... iface['config-items'][index]
                     };
-                }
-                else {
+                } else {
                     this.iface_by_id[iface_id]['config-items'].push(item);
                 }
             }

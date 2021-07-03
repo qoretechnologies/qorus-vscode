@@ -850,6 +850,28 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     true_type = getTypeFromValue(maybeParseYaml(newData.default_value));
                 }
 
+                // https://github.com/qoretechnologies/qorus-vscode/issues/740
+                // if we are going to send the original interface data to the back end as JSON, then we have to
+                // remove circular references in the class connections in keys 'previousItemData' and 'nextItemData'
+                let orig_data: object;
+                if (type === 'service-methods' || type === 'mapper-methods' || type === 'error') {
+                    if (initialData[iface_kind]['class-connections']) {
+                        // strip nextItemData and prevItemData from connections in the initial data
+                        orig_data = { ...initialData[iface_kind] };
+                        for (let conn_type in orig_data['class-connections']) {
+                            for (var i = 0; i < orig_data['class-connections'][conn_type].length; ++i) {
+                                // clone and delete keys from clone
+                                orig_data['class-connections'][conn_type][i] = { ...orig_data['class-connections'][conn_type][i] };
+                                delete orig_data['class-connections'][conn_type][i].previousItemData;
+                                delete orig_data['class-connections'][conn_type][i].nextItemData;
+                            }
+                        }
+                    } else {
+                        orig_data = initialData;
+                    }
+                } else {
+                    orig_data = data;
+                }
                 result = await initialData.callBackend(
                     isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
                     undefined,
@@ -860,10 +882,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             'class-connections': classConnectionsData,
                             default_value_true_type: true_type,
                         },
-                        orig_data:
-                            type === 'service-methods' || type === 'mapper-methods' || type === 'error'
-                                ? initialData[iface_kind]
-                                : data,
+                        orig_data: orig_data,
                         open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
                         no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,

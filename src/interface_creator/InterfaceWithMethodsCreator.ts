@@ -29,6 +29,8 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             recreate,
         } = params;
 
+        msg.log(`InterfaceWithMethodsCreator.editImpl() ${edit_type} ${iface_kind}`);
+
         let suffix: string;
         let methods_key: string;
         switch (iface_kind) {
@@ -198,12 +200,10 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
 
             if (method.name === method.orig_name) {
                 mapping.unchanged.push(method.name);
-            }
-            else {
+            } else {
                 if (method.orig_name) {
                     mapping.renamed[method.orig_name] = method.name;
-                }
-                else {
+                } else {
                     mapping.added.push(method.name);
                 }
             }
