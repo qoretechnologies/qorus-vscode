@@ -29,8 +29,6 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             recreate,
         } = params;
 
-        msg.log(`InterfaceWithMethodsCreator.editImpl() ${edit_type} ${iface_kind}`);
-
         let suffix: string;
         let methods_key: string;
         switch (iface_kind) {
