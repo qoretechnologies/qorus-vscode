@@ -61,21 +61,9 @@ export class FormChangesResponder {
             });
         }
 
-        if (lang === 'java' && orig_lang && orig_lang !== lang) {
-            if (['service', 'job', 'workflow', 'step', 'processor'].includes(iface_kind)) {
-                code_info.getObjects({ object_type: `${iface_kind}-base-class`, iface_kind, lang });
-            } else {
-                code_info.getObjects({ object_type: 'base-class', iface_kind, lang });
-            }
-
-            qorus_webview.postMessage({
-                action: 'creator-change-field-value',
-                field: 'base-class-name',
-                value: undefined,
-                iface_id,
-                iface_kind
-            });
-        }
+        // https://github.com/qoretechnologies/qorus-vscode/issues/743
+        // do not reset the base class name when changing the lang to java, as java can inherit qore and python
+        // classes
 
         if ([lang, orig_lang].includes('java') && orig_lang !== lang) {
             FormChangesResponder.changeStatelessServiceDefaultsByLang(lang, iface_id, iface_kind);

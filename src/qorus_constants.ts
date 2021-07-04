@@ -27,10 +27,11 @@ export const classToPythonModule = (class_name: string): string | undefined => {
     }
 };
 
+// all languages are interchangable as of Qorus 5.1
 export const lang_inheritance = {
     qore: [ 'qore', 'python', 'java' ],
     python: [ 'qore', 'python', 'java' ],
-    java: [ 'java' ],
+    java: [ 'qore', 'python', 'java' ],
 };
 
 export const supported_langs = Object.keys(lang_inheritance);
