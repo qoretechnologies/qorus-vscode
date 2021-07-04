@@ -844,7 +844,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 );
             } else {
                 let true_type: string;
-                //* If this is config item get the true type of the default_value field
+                //* If this is a config item get the true type of the default_value field
                 if (type === 'config-item' && newData.default_value) {
                     // Get the default value field
                     true_type = getTypeFromValue(maybeParseYaml(newData.default_value));
@@ -854,20 +854,26 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // if we are going to send the original interface data to the back end as JSON, then we have to
                 // remove circular references in the class connections in keys 'previousItemData' and 'nextItemData'
                 let orig_data: object;
+                //console.log(initialData);
                 if (type === 'service-methods' || type === 'mapper-methods' || type === 'error') {
+                    // https://github.com/qoretechnologies/qorus-vscode/issues/743
+                    // cannot serialize the 'changeTab()' function
+                    orig_data = {
+                        ...initialData[iface_kind],
+                        'changeTab': undefined,
+                    };
                     if (initialData[iface_kind] && initialData[iface_kind]['class-connections']) {
                         // strip nextItemData and prevItemData from connections in the initial data
-                        orig_data = { ...initialData[iface_kind] };
                         for (let conn_type in orig_data['class-connections']) {
                             for (var i = 0; i < orig_data['class-connections'][conn_type].length; ++i) {
-                                // clone and delete keys from clone
-                                orig_data['class-connections'][conn_type][i] = { ...orig_data['class-connections'][conn_type][i] };
-                                delete orig_data['class-connections'][conn_type][i].previousItemData;
-                                delete orig_data['class-connections'][conn_type][i].nextItemData;
+                                // clone and remove keys with recursive references from clone
+                                orig_data['class-connections'][conn_type][i] = {
+                                    ...orig_data['class-connections'][conn_type][i],
+                                    'previousItemData': undefined,
+                                    'nextItemData': undefined,
+                                };
                             }
                         }
-                    } else {
-                        orig_data = initialData;
                     }
                 } else {
                     orig_data = data;

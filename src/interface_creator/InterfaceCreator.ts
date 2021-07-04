@@ -59,6 +59,7 @@ export abstract class InterfaceCreator {
             ({ target_dir: orig_target_dir, target_file: orig_target_file } = orig_data);
         } else if (recreate && iface_id) {
             const info_by_id = this.code_info.interface_info.getInfo(iface_id);
+
             ({ target_dir: orig_target_dir, target_file: orig_target_file } = info_by_id);
             this.code_info.interface_info.deleteInfo(iface_id);
         }
@@ -115,9 +116,14 @@ export abstract class InterfaceCreator {
         this.is_editable = this.lang !== 'qore' || await isLangClientAvailable();
         this.code_info = projects.currentProjectCodeInfo();
 
+        // https://github.com/qoretechnologies/qorus-vscode/issues/740
+        // if there is no target_file name in the original data, treat as create
         if (params.recreate || !params.orig_data.target_file) {
             params.edit_type = 'create';
-            delete params.orig_data;
+            // https://github.com/qoretechnologies/qorus-vscode/issues/743
+            // do not delete orig_data here, otherwise the original context is lost
+            this.editImpl(params);
+            return;
         }
 
         if (params.orig_data) {
