@@ -1959,6 +1959,7 @@
         "@blueprintjs/select": "^3.8.0",
         "@blueprintjs/table": "^3.7.1",
         "@types/js-yaml": "^3.12.5",
+        "@types/lodash": "^4.14.170",
         "@types/styled-components": "^4.1.19",
         "@types/vscode": "^1.47.0",
         "archiver": "^3.1.1",

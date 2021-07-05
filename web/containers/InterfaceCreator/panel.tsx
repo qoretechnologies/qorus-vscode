@@ -316,10 +316,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         hasValueSet: clonedData && field.name in clonedData,
                     }));
                     // Pull the pre-selected fields
-                    const preselectedFields: IField[] = filter(
-                        transformedFields,
-                        (field: IField) => field.selected
-                    );
+                    const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
                     // Add original name field
                     if (isEditing) {
                         preselectedFields.push({
@@ -470,10 +467,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         });
 
         if (type != 'service-methods') {
-            setTimeout(() => initialData.setUnfinishedWork((current) => ({
-                ...current,
-                [type]: false
-            })), 200);
+            setTimeout(
+                () =>
+                    initialData.setUnfinishedWork((current) => ({
+                        ...current,
+                        [type]: false,
+                    })),
+                200
+            );
         }
     };
 
@@ -850,34 +851,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     true_type = getTypeFromValue(maybeParseYaml(newData.default_value));
                 }
 
-                // https://github.com/qoretechnologies/qorus-vscode/issues/740
-                // if we are going to send the original interface data to the back end as JSON, then we have to
-                // remove circular references in the class connections in keys 'previousItemData' and 'nextItemData'
-                let orig_data: object;
-                //console.log(initialData);
-                if (type === 'service-methods' || type === 'mapper-methods' || type === 'error') {
-                    // https://github.com/qoretechnologies/qorus-vscode/issues/743
-                    // cannot serialize the 'changeTab()' function
-                    orig_data = {
-                        ...initialData[iface_kind],
-                        'changeTab': undefined,
-                    };
-                    if (initialData[iface_kind] && initialData[iface_kind]['class-connections']) {
-                        // strip nextItemData and prevItemData from connections in the initial data
-                        for (let conn_type in orig_data['class-connections']) {
-                            for (var i = 0; i < orig_data['class-connections'][conn_type].length; ++i) {
-                                // clone and remove keys with recursive references from clone
-                                orig_data['class-connections'][conn_type][i] = {
-                                    ...orig_data['class-connections'][conn_type][i],
-                                    'previousItemData': undefined,
-                                    'nextItemData': undefined,
-                                };
-                            }
-                        }
-                    }
-                } else {
-                    orig_data = data;
-                }
                 result = await initialData.callBackend(
                     isEditing ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
                     undefined,
@@ -888,7 +861,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             'class-connections': classConnectionsData,
                             default_value_true_type: true_type,
                         },
-                        orig_data: orig_data,
+                        orig_data:
+                            type === 'service-methods' || type === 'mapper-methods' || type === 'error'
+                                ? initialData[iface_kind]
+                                : data,
                         open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
                         no_data_return: !!onSubmitSuccess,
                         iface_id: interfaceId,
@@ -909,7 +885,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 if (initialData.subtab) {
                     initialData.setUnfinishedWork((current) => ({
                         ...current,
-                        [initialData.subtab]: false
+                        [initialData.subtab]: false,
                     }));
                 }
             }
