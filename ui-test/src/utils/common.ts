@@ -60,7 +60,7 @@ export const openQorusActivityBar = async () => {
     }
 
     const activityBar: ActivityBar = new ActivityBar();
-    const control: ViewControl = await activityBar.getViewControl('Qorus Development');
+    const control: ViewControl | undefined = await activityBar.getViewControl('Qorus Development');
 
     if (control) {
         await control.click();
@@ -71,8 +71,14 @@ export const openQorusActivityBar = async () => {
 
 export const closeQorusActivityBar = async () => {
     const activityBar: ActivityBar = new ActivityBar();
-    const control: ViewControl = await activityBar.getViewControl('Qorus Development');
-    await control.click();
+    const control: ViewControl | undefined = await activityBar.getViewControl('Qorus Development');
+
+    if (control) {
+        await control.click();
+    } else {
+        throw new Error('Qorus Development button does not exist');
+    }
+
     await sleep(2000);
 };
 
