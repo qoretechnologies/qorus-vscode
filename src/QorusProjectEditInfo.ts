@@ -297,7 +297,6 @@ export class QorusProjectEditInfo {
             return Promise.resolve(undefined);
         }
 
-
         const addClassConnectionClass = symbols => {
             let has_the_method = false;
 
@@ -755,11 +754,9 @@ export class QorusProjectEditInfo {
                 } else {
                     if(line.indexOf(GENERATED_TEXT.begin) > -1) {
                         is_generated = true;
-                    }
-                    else if(line.indexOf(GENERATED_TEXT.end) > -1) {
+                    } else if(line.indexOf(GENERATED_TEXT.end) > -1) {
                         is_generated = false;
-                    }
-                    else if (!is_generated) {
+                    } else if (!is_generated) {
                         other_constructor_lines.push(line);
                     }
                 }

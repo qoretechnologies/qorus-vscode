@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Classes, ControlGroup, NonIdealState } from '@blueprintjs/core';
+import { cloneDeep } from 'lodash';
 import every from 'lodash/every';
 import forEach from 'lodash/forEach';
 import map from 'lodash/map';
@@ -97,7 +98,7 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         return 1;
     };
 
-    const [connections, setConnections] = useState<IClassConnections>(initialConnections || {});
+    const [connections, setConnections] = useState<IClassConnections>(cloneDeep(initialConnections || {}));
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [classesData, setClassesData] = useState(null);
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
@@ -303,28 +304,26 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     !!connections[manageDialog.newName]
                                 }
                                 onClick={() => {
-                                    setConnections(
-                                        (current: IClassConnections): IClassConnections => {
-                                            const result = reduce(
-                                                current,
-                                                (newConnections, connection, connName) => {
-                                                    // If the connection matches the old name
-                                                    if (connName === manageDialog.name) {
-                                                        // Replace the connection
-                                                        return {
-                                                            ...newConnections,
-                                                            [manageDialog.newName]: connection,
-                                                        };
-                                                    }
-                                                    // Return unchanged
-                                                    return { ...newConnections, [connName]: connection };
-                                                },
-                                                {}
-                                            );
+                                    setConnections((current: IClassConnections): IClassConnections => {
+                                        const result = reduce(
+                                            current,
+                                            (newConnections, connection, connName) => {
+                                                // If the connection matches the old name
+                                                if (connName === manageDialog.name) {
+                                                    // Replace the connection
+                                                    return {
+                                                        ...newConnections,
+                                                        [manageDialog.newName]: connection,
+                                                    };
+                                                }
+                                                // Return unchanged
+                                                return { ...newConnections, [connName]: connection };
+                                            },
+                                            {}
+                                        );
 
-                                            return result;
-                                        }
-                                    );
+                                        return result;
+                                    });
 
                                     setManageDialog({});
                                     setSelectedConnection(manageDialog.newName);

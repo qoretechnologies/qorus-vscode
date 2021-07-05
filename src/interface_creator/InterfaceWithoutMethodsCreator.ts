@@ -123,9 +123,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                         { name: 'run' },
                         false
                     );
-                }
-
-                else if (iface_kind === 'step') {
+                } else if (iface_kind === 'step') {
                     methods = InterfaceCreator.mandatoryStepMethodsCode(
                         this.code_info,
                         data['base-class-name'],

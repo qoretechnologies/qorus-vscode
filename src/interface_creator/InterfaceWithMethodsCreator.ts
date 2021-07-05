@@ -54,6 +54,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
                 msg.log(t`InvalidIfaceKind ${iface_kind} ${'InterfaceWithMethodsCreator'}`);
                 return;
         }
+        //msg.log(`editImpl() kind: ${iface_kind} lang: ${this.lang} bc: ${data['base-class-name']} imports: ${this.imports}`);
 
         this.has_code = this.had_code = true;
 
@@ -198,12 +199,10 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
 
             if (method.name === method.orig_name) {
                 mapping.unchanged.push(method.name);
-            }
-            else {
+            } else {
                 if (method.orig_name) {
                     mapping.renamed[method.orig_name] = method.name;
-                }
-                else {
+                } else {
                     mapping.added.push(method.name);
                 }
             }

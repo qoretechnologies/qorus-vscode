@@ -316,10 +316,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         hasValueSet: clonedData && field.name in clonedData,
                     }));
                     // Pull the pre-selected fields
-                    const preselectedFields: IField[] = filter(
-                        transformedFields,
-                        (field: IField) => field.selected
-                    );
+                    const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
                     // Add original name field
                     if (isEditing) {
                         preselectedFields.push({
@@ -470,10 +467,14 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         });
 
         if (type != 'service-methods') {
-            setTimeout(() => initialData.setUnfinishedWork((current) => ({
-                ...current,
-                [type]: false
-            })), 200);
+            setTimeout(
+                () =>
+                    initialData.setUnfinishedWork((current) => ({
+                        ...current,
+                        [type]: false,
+                    })),
+                200
+            );
         }
     };
 
@@ -844,7 +845,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 );
             } else {
                 let true_type: string;
-                //* If this is config item get the true type of the default_value field
+                //* If this is a config item get the true type of the default_value field
                 if (type === 'config-item' && newData.default_value) {
                     // Get the default value field
                     true_type = getTypeFromValue(maybeParseYaml(newData.default_value));
@@ -884,7 +885,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 if (initialData.subtab) {
                     initialData.setUnfinishedWork((current) => ({
                         ...current,
-                        [initialData.subtab]: false
+                        [initialData.subtab]: false,
                     }));
                 }
             }

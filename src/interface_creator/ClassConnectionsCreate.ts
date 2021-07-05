@@ -2,6 +2,7 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
 import { triggers, stepTriggerSignatures } from './standard_methods';
 import { default_lang } from '../qorus_constants';
+import * as msg from '../qorus_message';
 
 // =================================================================
 
@@ -61,6 +62,11 @@ export class ClassConnectionsCreate {
     private classes_to_import_in_python = {
         'qore': {},
         'java': {}
+    };
+    // https://github.com/qoretechnologies/qorus-vscode/issues/744
+    private classes_to_import_in_java = {
+        'qore': {},
+        'python': {}
     };
 
     constructor(data, code_info, lang = default_lang) {
@@ -151,6 +157,8 @@ export class ClassConnectionsCreate {
                     this.import_java_api = this.import_java_api || ['qore', 'python'].includes(class_lang);
                     if (this.lang === 'python' && ['qore', 'java'].includes(class_lang)) {
                         this.classes_to_import_in_python[class_lang][connector_class] = true;
+                    } else if (this.lang === 'java' && ['qore', 'python'].includes(class_lang)) {
+                        this.classes_to_import_in_java[class_lang][connector_class] = true;
                     }
                 }
                 this.classes[prefixed_class] = { connector_class, prefix, class_lang };
@@ -188,18 +196,23 @@ export class ClassConnectionsCreate {
             trigger_code,
             connections_within_class,
             connections_extra_class,
-            imports: this[`getImports${capitalize(this.lang)}`]()
+            imports: this[`getImports${capitalize(this.lang)}`](event_based_connections.length ? true : false)
         };
     }
 
     private connClassName = () => `${CONN_CLASS}_${this.class_name}`;
 
-    protected getImportsQore = () => [];
+    protected getImportsQore = (_has_event_connectors: boolean) => [];
 
-    protected getImportsPython = () => {
+    protected getImportsPython = (has_event_connectors: boolean) => {
         // qore imports
-        let imports = Object.keys(this.classes_to_import_in_python.qore).map(qore_class =>
-                `from qore.__root__ import ${qore_class}`);
+        let imports = Object.keys(this.classes_to_import_in_python.qore).map(
+            qore_class => `from qore.__root__ import ${qore_class}`
+        );
+
+        if (has_event_connectors) {
+            imports.push(`from qore.__root__.OMQ import ${CONN_BASE_CLASS}`);
+        }
 
         // add java imports
         Object.keys(this.classes_to_import_in_python.java).forEach(java_class => {
@@ -211,10 +224,11 @@ export class ClassConnectionsCreate {
             imports.push(`from qore.__root__.${jni_package} import ${class_name}`);
         });
 
+        //msg.log(`imports: ${imports}`);
         return imports;
     }
 
-    protected getImportsJava = () => {
+    protected getImportsJava = (_has_event_connectors: boolean) => {
         let imports = [
             'import org.qore.jni.QoreObject;',
             'import java.util.Map;',
@@ -232,6 +246,16 @@ export class ClassConnectionsCreate {
         {
             imports.push('import org.qore.lang.mapper.Mapper;');
         }
+
+        // qore imports
+        for (let qore_class in this.classes_to_import_in_java.qore) {
+            imports.push(`import qore.${qore_class};`);
+        }
+
+        // add python imports
+        Object.keys(this.classes_to_import_in_java.python).forEach(python_class => {
+            imports.push(`import python.${python_class};`);
+        });
 
         return imports;
     }
@@ -628,11 +652,9 @@ export class ClassConnectionsCreate {
         if (!trigger.connections.length) {
             if (isValidation(trigger)) {
                 code += `${indent2}return OMQ.StatRetry\n`;
-            }
-            else if (isArray(trigger)) {
+            } else if (isArray(trigger)) {
                 code += `${indent2}return []\n`;
-            }
-            else {
+            } else {
                 code += `${indent2}pass\n`;
             }
         }
