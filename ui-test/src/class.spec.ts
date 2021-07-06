@@ -12,14 +12,7 @@ describe('Class tests', function () {
         ({ editorView, webview, workbench } = await setupTest());
     });
 
-    it('Creates Class from another Class', async () => {
-        // Remove notifications
-        const notifications = await workbench.getNotifications();
-
-        console.log('NOTIFICATIONS LENGTH', notifications.length);
-
-        return createsClassFromClass(webview);
-    });
+    it('Creates Class from another Class', () => createsClassFromClass(webview, workbench));
     it('Edits Class created from another Class', () => editsClassCreatedFromClass(webview));
     it('Edits class', () => editClass(webview));
     it('Check changed files', () => checkFiles());

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { WebView } from 'vscode-extension-tester';
+import { WebView, Workbench } from 'vscode-extension-tester';
 import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { openInterfaceFromTreeView } from '../utils/treeView';
@@ -17,7 +17,7 @@ import {
     submitInterface,
 } from '../utils/webview';
 
-export const createsClassFromClass = async (webview: WebView) => {
+export const createsClassFromClass = async (webview: WebView, workbench: Workbench) => {
     await clickElement(webview, 'CreateInterface');
     await clickElement(webview, 'Class');
 
@@ -35,6 +35,11 @@ export const createsClassFromClass = async (webview: WebView) => {
     await fillTextField(webview, 'field-class-class-name', 'ClassFromClass', 2);
     await fillTextField(webview, 'field-desc', 'Class from class', 2);
     await fillTextField(webview, 'field-version', '1.0', 2);
+
+    // Remove notifications
+    const notifications = await workbench.getNotifications();
+
+    console.log('NOTIFICATIONS LENGTH', notifications.length);
 
     await submitInterface(webview, 'class', 2);
 
