@@ -329,7 +329,7 @@ export class ClassConnectionsCreate {
 
         code += `${indent1}}\n\n` +
             `${indent1}auto ${CONN_CALL_METHOD}(string prefixed_class, string method) {\n` +
-            `${indent2}UserApi::logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class);\n` +
+            `${indent2}UserApi::logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s class: %y", method, prefixed_class);\n` +
             `${indent2}return call_object_method_args(${CONN_CLASS_MAP.qore}{prefixed_class}, method, argv);\n` +
             `${indent1}}\n`;
 
@@ -351,8 +351,8 @@ export class ClassConnectionsCreate {
     protected extraClassCodePython = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;
         if (event_based_connections.length) {
-            code += `(${CONN_BASE_CLASS}):`;
-            code += ` # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
+            code += `(${CONN_BASE_CLASS}):\n`;
+            code += `    # must inherit ${CONN_BASE_CLASS}, because there is an event-based connector\n`;
         } else {
             code += ':\n';
         }
@@ -361,6 +361,9 @@ export class ClassConnectionsCreate {
                                       .some(prefixed_class => this.classes[prefixed_class].class_lang === 'qore');
 
         code += `${indent1}def __init__(self):\n`;
+        if (event_based_connections.length) {
+            code += `${indent2}super(${this.connClassName()}, self).__init__()\n`;
+        }
         if (some_qore_class) {
             code += `${indent2}UserApi.startCapturingObjectsFromPython()\n`;
         }
@@ -387,16 +390,16 @@ export class ClassConnectionsCreate {
 
         code += `\n` +
             `${indent1}def ${CONN_CALL_METHOD}(self, prefixed_class, method, *argv):\n` +
-            `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", method, prefixed_class)\n` +
+            `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s class: %y", method, prefixed_class)\n` +
             `${indent2}return getattr(self.${CONN_CLASS_MAP.python}[prefixed_class], method)(*argv)\n`;
 
         if (event_based_connections.length) {
             code += '\n' +
                 `${indent1}# override ${CONN_BASE_CLASS}'s update()\n` +
-                `${indent1}def update(id, ${CONN_DATA}):\n`;
+                `${indent1}def update(self, id, *${CONN_DATA}):\n`;
             event_based_connections.forEach(event_based => {code +=
-                `${indent2}if (id == "${event_based.prefixed_class}.${event_based.method}"):\n` +
-                `${indent3}${event_based.connection_code_name}(${CONN_DATA})\n`;
+                `${indent2}if (id == "${event_based.prefixed_class}::${event_based.method}"):\n` +
+                `${indent3}self.${event_based.connection_code_name}(*${CONN_DATA})\n`;
             });
         }
 
@@ -407,7 +410,7 @@ export class ClassConnectionsCreate {
         let code = `class ${this.connClassName()}`;
         if (event_based_connections.length) {
             code += ` implements ${CONN_BASE_CLASS} {` +
-                ` // has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
+                ` // must inherit ${CONN_BASE_CLASS}, because there is an event-based connector\n`;
         } else {
             code += ' {\n';
         }
@@ -455,7 +458,7 @@ export class ClassConnectionsCreate {
         code += `${indent1}}\n\n` +
             `${indent1}Object ${CONN_CALL_METHOD}(final String prefixedClass, final String methodName,\n` +
             `${indent1}${' '.repeat(CONN_CALL_METHOD.length + 8)}Object ${CONN_DATA}) ${THROWS} {\n` +
-            `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s, class: %y", methodName, prefixedClass);\n` +
+            `${indent2}UserApi.logDebug("${this.connClassName()}: ${CONN_CALL_METHOD}: method: %s class: %y", methodName, prefixedClass);\n` +
             `${indent2}final Object object = ${CONN_CLASS_MAP.java}.get(prefixedClass);\n\n` +
             `${indent2}if (object instanceof QoreObject) {\n` +
             `${indent3}QoreObject qoreObject = (QoreObject)object;\n` +
@@ -521,9 +524,12 @@ export class ClassConnectionsCreate {
     }
 
     protected methodCodePython = (connection_code_name, connectors) => {
-        let code = `${indent1}def ${connection_code_name}(self, ${CONN_DATA}):\n`;
+        let code = `${indent1}def ${connection_code_name}(self, *${CONN_DATA}):\n`;
 
-        code += `${indent2}UserApi.logDebug("${connection_code_name} called with data: %y", ${CONN_DATA})\n`;
+        code += `${indent2}UserApi.logDebug("${connection_code_name} called with data: %y", ${CONN_DATA})`;
+        code += `\n${indent2}# convert varargs to a single argument if possible`;
+        code += `\n${indent2}if (type(${CONN_DATA}) is list or type(${CONN_DATA}) is tuple) and (len(${CONN_DATA}) == 1):`;
+        code += `\n${indent3}params = params[0]`;
 
         let n = 0;
         connectors.forEach(connector => {
@@ -531,22 +537,26 @@ export class ClassConnectionsCreate {
             const prefixed_class = `${connector.prefix || ''}${connector.class}`;
 
             if (connector.mapper) {
-                code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}")\n` +
-                `${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAuto(${CONN_DATA})\n`;
+                code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}")`;
+                code += `\n${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAuto(${CONN_DATA})`;
+                code += `\n${indent2}# convert mapper output to a single argument if possible, in case we got a single-element list`;
+                code += `\n${indent2}if (type(${CONN_DATA}) is list or type(${CONN_DATA}) is tuple) and (len(${CONN_DATA}) == 1):`;
+                code += `\n${indent3}params = params[0]\n`;
             }
 
             if (connector.type === 'event') {
                 return;
             }
 
-            code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", ${CONN_DATA})\n${indent2}`;
-            if (n !== connectors.length) {
-                code += `${CONN_DATA} = `;
-            } else {
-                code += 'return ';
+            code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", ${CONN_DATA})`;
+            code += `\n${indent2}${CONN_DATA} = self.${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA})`;
+            code += `\n${indent2}# convert connector output to a single argument if possible, in case we got a single-element list`;
+            code += `\n${indent2}if (type(${CONN_DATA}) is list or type(${CONN_DATA}) is tuple) and (len(${CONN_DATA}) == 1):`;
+            code += `\n${indent3}params = params[0]`;
+            code += `\n${indent2}UserApi.logDebug("output from ${connector.name}: %y", ${CONN_DATA})`;
+            if (n === connectors.length) {
+                code += `\n${indent2}return ${CONN_DATA}\n`;
             }
-
-            code += `self.${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA})\n`;
         });
 
         return code;
