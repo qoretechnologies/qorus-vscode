@@ -5,8 +5,6 @@ import {
     By,
     EditorView,
     InputBox,
-    NotificationsCenter,
-    NotificationType,
     VSBrowser,
     WebElement,
     WebView,
@@ -102,8 +100,7 @@ export const clickElement = async (
     webview: WebView,
     name: string,
     position: number = 1,
-    selector: TSelector = 'name',
-    workbench?: Workbench
+    selector: TSelector = 'name'
 ) => {
     console.log('Clicking element', name);
 
@@ -111,20 +108,6 @@ export const clickElement = async (
 
     if (!element) {
         throw new Error(`Element to click ${name} ${position} not found!`);
-    }
-
-    if (workbench) {
-        await webview.switchBack();
-
-        // Remove notifications
-        const notifications = await workbench.getNotifications();
-        const notificationsCentre = await new NotificationsCenter();
-        const notificationsFromCenter = await notificationsCentre.getNotifications(NotificationType.Any);
-
-        console.log('NOTIFICATIONS LENGTH', notifications.length);
-        console.log('NOTIFICATIONS FROM CENTER LENGTH', notificationsFromCenter.length);
-
-        await webview.switchToFrame();
     }
 
     try {
@@ -250,8 +233,8 @@ export const selectMultiselectItemsByNumbers = async (
     await clickElement(webview, 'bp3-fixed-top', 1, 'className');
 };
 
-export const submitInterface = async (webview: WebView, iface: string, position: number = 1, workbench?: Workbench) => {
-    await clickElement(webview, `interface-creator-submit-${iface}`, position, 'name', workbench);
+export const submitInterface = async (webview: WebView, iface: string, position: number = 1) => {
+    await clickElement(webview, `interface-creator-submit-${iface}`, position, 'name');
 };
 
 export const confirmDialog = async (webview: WebView) => {

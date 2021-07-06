@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as path from 'path';
-import { WebView, Workbench } from 'vscode-extension-tester';
+import { NotificationsCenter, WebView, Workbench } from 'vscode-extension-tester';
 import { sleep } from '../utils/common';
 import { compareWithGoldFiles } from '../utils/files';
 import { openInterfaceFromTreeView } from '../utils/treeView';
@@ -38,7 +38,22 @@ export const createsClassFromClass = async (webview: WebView, workbench: Workben
 
     await sleep(20000);
 
-    await submitInterface(webview, 'class', 2, workbench);
+    if (workbench) {
+        await webview.switchBack();
+
+        // Remove notifications
+        const notifications = await workbench.getNotifications();
+        const notificationsCentre = new NotificationsCenter();
+        await notificationsCentre.clearAllNotifications();
+        //const notificationsFromCenter = await notificationsCentre.getNotifications(NotificationType.Any);
+
+        console.log('NOTIFICATIONS LENGTH', notifications.length);
+        //console.log('NOTIFICATIONS FROM CENTER LENGTH', notificationsFromCenter.length);
+
+        await webview.switchToFrame();
+    }
+
+    await submitInterface(webview, 'class', 2);
 
     await sleep(3000);
 
