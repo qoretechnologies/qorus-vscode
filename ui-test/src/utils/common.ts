@@ -47,6 +47,12 @@ export const setupTest = async (loginInstanceName?: string, noWebview?: boolean)
         webview = await setupWebview(workbench, editorView, loginInstanceName);
     }
 
+    const notifications = await workbench.getNotifications();
+
+    for await (const notification of notifications) {
+        await notification.dismiss();
+    }
+
     // @ts-ignore
     return { workbench, editorView, webview };
 };
