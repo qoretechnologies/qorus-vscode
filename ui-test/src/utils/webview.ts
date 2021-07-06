@@ -106,8 +106,6 @@ export const clickElement = async (
 
     const element = await getNthElement(webview, name, position, selector);
 
-    console.log('Element found', element);
-
     if (!element) {
         throw new Error(`Element to click ${name} ${position} not found!`);
     }

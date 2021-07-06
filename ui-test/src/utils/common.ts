@@ -47,11 +47,6 @@ export const setupTest = async (loginInstanceName?: string, noWebview?: boolean)
         webview = await setupWebview(workbench, editorView, loginInstanceName);
     }
 
-    // Remove notifications
-    const notifications = await workbench.getNotifications();
-
-    console.log('NOTIFICATIONS LENGTH', notifications.length, notifications);
-
     // @ts-ignore
     return { workbench, editorView, webview };
 };
