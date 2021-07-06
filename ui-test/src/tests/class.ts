@@ -36,7 +36,7 @@ export const createsClassFromClass = async (webview: WebView, workbench: Workben
     await fillTextField(webview, 'field-desc', 'Class from class', 2);
     await fillTextField(webview, 'field-version', '1.0', 2);
 
-    await sleep(60000);
+    await sleep(20000);
 
     await submitInterface(webview, 'class', 2, workbench);
 

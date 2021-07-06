@@ -5,6 +5,8 @@ import {
     By,
     EditorView,
     InputBox,
+    NotificationsCenter,
+    NotificationType,
     VSBrowser,
     WebElement,
     WebView,
@@ -112,10 +114,17 @@ export const clickElement = async (
     }
 
     if (workbench) {
+        await webview.switchBack();
+
         // Remove notifications
         const notifications = await workbench.getNotifications();
+        const notificationsCentre = await new NotificationsCenter();
+        const notificationsFromCenter = await notificationsCentre.getNotifications(NotificationType.Any);
 
         console.log('NOTIFICATIONS LENGTH', notifications.length);
+        console.log('NOTIFICATIONS FROM CENTER LENGTH', notificationsFromCenter.length);
+
+        await webview.switchToFrame();
     }
 
     try {
