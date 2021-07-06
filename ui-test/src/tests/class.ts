@@ -36,12 +36,7 @@ export const createsClassFromClass = async (webview: WebView, workbench: Workben
     await fillTextField(webview, 'field-desc', 'Class from class', 2);
     await fillTextField(webview, 'field-version', '1.0', 2);
 
-    // Remove notifications
-    const notifications = await workbench.getNotifications();
-
-    console.log('NOTIFICATIONS LENGTH', notifications.length);
-
-    await submitInterface(webview, 'class', 2);
+    await submitInterface(webview, 'class', 2, workbench);
 
     await sleep(3000);
 

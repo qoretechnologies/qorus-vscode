@@ -100,7 +100,8 @@ export const clickElement = async (
     webview: WebView,
     name: string,
     position: number = 1,
-    selector: TSelector = 'name'
+    selector: TSelector = 'name',
+    workbench?: Workbench
 ) => {
     console.log('Clicking element', name);
 
@@ -108,6 +109,13 @@ export const clickElement = async (
 
     if (!element) {
         throw new Error(`Element to click ${name} ${position} not found!`);
+    }
+
+    if (workbench) {
+        // Remove notifications
+        const notifications = await workbench.getNotifications();
+
+        console.log('NOTIFICATIONS LENGTH', notifications.length);
     }
 
     try {
@@ -233,8 +241,8 @@ export const selectMultiselectItemsByNumbers = async (
     await clickElement(webview, 'bp3-fixed-top', 1, 'className');
 };
 
-export const submitInterface = async (webview: WebView, iface: string, position: number = 1) => {
-    await clickElement(webview, `interface-creator-submit-${iface}`, position);
+export const submitInterface = async (webview: WebView, iface: string, position: number = 1, workbench?: Workbench) => {
+    await clickElement(webview, `interface-creator-submit-${iface}`, position, 'name', workbench);
 };
 
 export const confirmDialog = async (webview: WebView) => {
