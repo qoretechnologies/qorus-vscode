@@ -67,13 +67,13 @@ const StyledConnectionsWrapper = styled.div`
 
 export const StyledMapperField = styled.div`
     width: ${({ isChild, level }) => (isChild ? `${300 - level * 15}px` : '300px')};
-    
+
     ${({ input, isChild, level }) =>
         input &&
         css`
             margin-left: ${isChild ? `${level * 15}px` : '0'};
         `}
-    
+
     height: ${({ isInputHash }) => (isInputHash ? '55px' : `${FIELD_HEIGHT}px`)};
     border: 1px solid #d7d7d7;
     border-radius: 3px;
@@ -149,7 +149,7 @@ export const StyledMapperField = styled.div`
 
     p.type {
         background-color: #d7d7d7;
-        
+
         &.string {
             background-color: ${TYPE_COLORS.string};
         }
@@ -394,7 +394,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     }, [outputs, contextInputs, isContextLoaded]);
 
-    if (!isContextLoaded || (isEditing && !outputs && !size(relations))) {
+    if (!isContextLoaded) {
+        console.log(isContextLoaded, isEditing, outputs, relations);
         return <p> Loading... </p>;
     }
 
@@ -607,31 +608,33 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         return null;
     };
 
-    const handleClick = (type) => (field?: any, edit?: boolean, remove?: boolean): void => {
-        if (remove) {
-            editField(type, field.path, null, true);
-            removeFieldRelations(field.path, type);
-        } else {
-            // Save the fields into a accessible object
-            const fields = { inputs, outputs };
+    const handleClick =
+        (type) =>
+        (field?: any, edit?: boolean, remove?: boolean): void => {
+            if (remove) {
+                editField(type, field.path, null, true);
+                removeFieldRelations(field.path, type);
+            } else {
+                // Save the fields into a accessible object
+                const fields = { inputs, outputs };
 
-            setAddDialog({
-                isOpen: true,
-                siblings: field ? field?.type?.fields : fields[type],
-                fieldData: edit ? field : null,
-                type,
-                isParentCustom: field?.isCustom,
-                onSubmit: (data) => {
-                    if (edit) {
-                        editField(type, field.path, data);
-                        renameFieldRelation(field.path, data.path, type);
-                    } else {
-                        addField(type, field?.path || '', data);
-                    }
-                },
-            });
-        }
-    };
+                setAddDialog({
+                    isOpen: true,
+                    siblings: field ? field?.type?.fields : fields[type],
+                    fieldData: edit ? field : null,
+                    type,
+                    isParentCustom: field?.isCustom,
+                    onSubmit: (data) => {
+                        if (edit) {
+                            editField(type, field.path, data);
+                            renameFieldRelation(field.path, data.path, type);
+                        } else {
+                            addField(type, field?.path || '', data);
+                        }
+                    },
+                });
+            }
+        };
 
     const handleManageClick = (output) => {
         setMappingDialog({
