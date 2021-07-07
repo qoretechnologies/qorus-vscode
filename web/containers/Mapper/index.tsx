@@ -395,7 +395,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     }, [outputs, contextInputs, isContextLoaded]);
 
     if (!isContextLoaded) {
-        console.log(isContextLoaded, isEditing, outputs, relations);
         return <p> Loading... </p>;
     }
 
