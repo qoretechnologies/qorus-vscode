@@ -538,10 +538,7 @@ export class ClassConnectionsCreate {
 
             if (connector.mapper) {
                 code += `\n${indent2}${CONN_MAPPER} = UserApi.getMapper("${connector.mapper.split(':')[0]}")`;
-                code += `\n${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAuto(${CONN_DATA})`;
-                code += `\n${indent2}# convert mapper output to a single argument if possible, in case we got a single-element list`;
-                code += `\n${indent2}if (type(${CONN_DATA}) is list or type(${CONN_DATA}) is tuple) and (len(${CONN_DATA}) == 1):`;
-                code += `\n${indent3}params = params[0]\n`;
+                code += `\n${indent2}${CONN_DATA} = ${CONN_MAPPER}.mapAuto(${CONN_DATA})\n`;
             }
 
             if (connector.type === 'event') {
@@ -550,9 +547,6 @@ export class ClassConnectionsCreate {
 
             code += `\n${indent2}UserApi.logDebug("calling ${connector.name}: %y", ${CONN_DATA})`;
             code += `\n${indent2}${CONN_DATA} = self.${CONN_CALL_METHOD}("${prefixed_class}", "${connector.method}", ${CONN_DATA})`;
-            code += `\n${indent2}# convert connector output to a single argument if possible, in case we got a single-element list`;
-            code += `\n${indent2}if (type(${CONN_DATA}) is list or type(${CONN_DATA}) is tuple) and (len(${CONN_DATA}) == 1):`;
-            code += `\n${indent3}params = params[0]`;
             code += `\n${indent2}UserApi.logDebug("output from ${connector.name}: %y", ${CONN_DATA})`;
             if (n === connectors.length) {
                 code += `\n${indent2}return ${CONN_DATA}\n`;
