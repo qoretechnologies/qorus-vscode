@@ -532,7 +532,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
     };
 
     const reset: () => void = () => {
-        resetAllInterfaceData('mapper');
+        resetAllInterfaceData('mapper', true);
     };
 
     const isMapperValid: () => boolean = () => isFormValid && size(filterEmptyRelations(relations)) !== 0;
