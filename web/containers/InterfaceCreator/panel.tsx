@@ -623,6 +623,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'id',
         ]);
 
+        console.log(currentData, origData);
+
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);
         } else {
@@ -906,6 +908,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // local fields will be unmounted
                 if (type === 'config-item') {
                     resetFields(type, interfaceIndex);
+                }
+
+                if (onBackClick) {
+                    onBackClick();
                 }
 
                 unsetDraft(initialData.subtab);
