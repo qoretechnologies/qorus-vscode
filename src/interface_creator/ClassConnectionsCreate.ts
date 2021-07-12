@@ -2,7 +2,6 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { toValidIdentifier, capitalize } from '../qorus_utils';
 import { triggers, stepTriggerSignatures } from './standard_methods';
 import { default_lang } from '../qorus_constants';
-import * as msg from '../qorus_message';
 
 // =================================================================
 
@@ -254,7 +253,8 @@ export class ClassConnectionsCreate {
 
         // add python imports
         Object.keys(this.classes_to_import_in_java.python).forEach(python_class => {
-            imports.push(`import python.${python_class};`);
+            // we have to also use qore.* imports for python classes
+            imports.push(`import qore.${python_class};`);
         });
 
         return imports;
