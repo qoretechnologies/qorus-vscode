@@ -6,6 +6,7 @@ import {
     find,
     forEach,
     includes,
+    isEqual,
     last,
     map,
     omit,
@@ -222,6 +223,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     context,
     onSubmitSuccess,
     setAsDraft,
+    unsetDraft,
     onDataFinishLoadingRecur,
     addInterface,
     removeInterface,
@@ -233,6 +235,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
     const initialData = useContext(InitialContext);
+    const originalData = useRef(data);
 
     const getClasses = () => {
         const classes = selectedFields?.find((field: IField) => field.name === 'classes');
@@ -394,7 +397,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     }, [activeId, interfaceId, initialInterfaceId]);
 
     const resetLocalFields: (newActiveId?: number) => void = (newActiveId) => {
-        resetAllInterfaceData(type, type !== 'mapper');
+        resetAllInterfaceData(type, true);
         // Hide the fields until they are fetched
 
         setShow(false);
@@ -598,6 +601,35 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         addField(fieldName);
     };
 
+    useEffect(() => {
+        let currentData = reduce(
+            selectedFields,
+            (result: { [key: string]: any }, field: IField) => ({
+                ...result,
+                [field.name]: field.value,
+            }),
+            {}
+        );
+
+        currentData = omit(currentData, ['orig_name']);
+        const origData = omit(originalData.current, [
+            'iface_id',
+            'type',
+            'yaml_file',
+            'class-connections',
+            'code',
+            'config-items',
+            'servicetype',
+            'id',
+        ]);
+
+        if (!isEqual(currentData, origData)) {
+            setAsDraft(type);
+        } else {
+            unsetDraft(type);
+        }
+    }, [selectedFields, data]);
+
     const handleFieldChange: (
         fieldName: string,
         value: any,
@@ -606,12 +638,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         explicit?: boolean,
         metadata?: any
     ) => void = (fieldName, value, forcedType, canBeNull, explicit, metadata) => {
-        //* The first change of any field saves the current interface as in draft
-        //* we ignore the `lang` field because it has a default value and fires a change
-        //* on mount
-        if (value && fieldName !== 'lang') {
-            setAsDraft(type);
-        }
         setSelectedFields(
             type,
             (currentFields: IField[]): IField[] => {
@@ -882,12 +908,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     resetFields(type, interfaceIndex);
                 }
 
-                if (initialData.subtab) {
-                    initialData.setUnfinishedWork((current) => ({
-                        ...current,
-                        [initialData.subtab]: false,
-                    }));
-                }
+                unsetDraft(initialData.subtab);
             }
         }
     };

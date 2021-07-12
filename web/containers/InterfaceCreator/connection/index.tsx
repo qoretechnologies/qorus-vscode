@@ -120,12 +120,21 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
                             }
                             isValid={
                                 field.mandatory !== false || data[field.name]
-                                    ? validateField(field.type || 'string', data[field.name])
+                                    ? validateField(field.type || 'string', data[field.name], field)
                                     : true
                             }
                         />
                         <FieldInputWrapper>
-                            <Field {...field} value={data[field.name]} onChange={handleDataChange} />
+                            <Field
+                                {...field}
+                                isValid={
+                                    field.mandatory !== false || data[field.name]
+                                        ? validateField(field.type || 'string', data[field.name], field)
+                                        : true
+                                }
+                                value={data[field.name]}
+                                onChange={handleDataChange}
+                            />
                         </FieldInputWrapper>
                         <FieldActions desc={t(`field-desc-${field.name}`)} />
                     </FieldWrapper>
