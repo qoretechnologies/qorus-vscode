@@ -223,7 +223,6 @@ export default () =>
             };
 
             const getInputsData = async () => {
-                console.log('setting');
                 // Set loading of inputs and outputs
                 setInputsLoading(true);
                 // Hide input and output selectors
@@ -328,7 +327,6 @@ export default () =>
             }, [contextInputs]);
 
             useEffect(() => {
-                console.log('mapper updated');
                 if (qorus_instance) {
                     let mapperKeys;
                     // Fetch the mapper keys

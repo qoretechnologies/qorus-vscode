@@ -175,7 +175,7 @@ export class ClassConnectionsEdit {
 
         if (this.lang === 'python' && !edit_data.is_class_empty) {
             lines = this.possiblyRemoveUselessPass(edit_data);
-            lines = this.fixPythonImports([...imports, ...more_imports]);
+            lines = this.fixPythonImports(lines, [...imports, ...more_imports]);
 
             writeFile(lines);
 
@@ -393,7 +393,7 @@ export class ClassConnectionsEdit {
             ranges = [...ranges, ...(class_connections_trigger_ranges || [])];
         }
 
-        let lines = this.removeRanges([...text_lines], ranges);
+        let lines: any[] = this.removeRanges([...text_lines], ranges);
         if (this.lang === 'python') {
             lines.splice(class_def_range.start.line + 1, 0, `${indent}pass`);
         }
@@ -570,24 +570,23 @@ export class ClassConnectionsEdit {
         return lines;
     };
 
-    private fixPythonImports = (imports) => {
-        const doc: QoreTextDocument = qoreTextDocument(this.file);
-        let lines = doc.text.split(/\r?\n/);
+    private fixPythonImports = (lines, imports) => {
+        const newLines = [...lines];
 
-        while (lines[lines.length - 1] === '') {
-            lines.pop();
+        while (newLines[newLines.length - 1] === '') {
+            newLines.pop();
         }
 
-        while (lines[0] === '' || lines[0].startsWith('from ')) {
-            lines.shift();
+        while (newLines[0] === '' || newLines[0].startsWith('from ')) {
+            newLines.shift();
         }
 
-        lines.unshift('');
+        newLines.unshift('');
         imports.reverse().forEach((imp) => {
-            lines.unshift(imp);
+            newLines.unshift(imp);
         });
 
-        return lines;
+        return newLines;
     };
 
     private possiblyRemoveFirstEmptyLine = (edit_data) => {
@@ -632,7 +631,7 @@ export class ClassConnectionsEdit {
     };
 
     private possiblyRemoveUselessPass = (edit_data) => {
-        const { text_lines: lines, class_def_range } = edit_data;
+        const { text_lines: lines, class_def_range }: { text_lines: any[]; class_def_range: any } = edit_data;
         let any_removed = false;
         const to_remove = `${indent}pass`;
         for (let i = class_def_range.end.line - 1; i > class_def_range.start.line; i--) {
