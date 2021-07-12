@@ -1,14 +1,13 @@
 import * as fs from 'fs';
+import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { QorusProjectEditInfo } from '../QorusProjectEditInfo';
-import { ClassConnectionsCreate, GENERATED_TEXT, indent } from './ClassConnectionsCreate';
-import { InterfaceCreator } from './InterfaceCreator';
-import { QoreTextDocument, qoreTextDocument } from '../QoreTextDocument';
-import { simple_method_template } from './common_constants';
-import { triggers } from './standard_methods';
-import { sortRanges, capitalize } from '../qorus_utils';
 import { default_lang } from '../qorus_constants';
-
+import { capitalize, sortRanges } from '../qorus_utils';
+import { ClassConnectionsCreate, GENERATED_TEXT, indent } from './ClassConnectionsCreate';
+import { simple_method_template } from './common_constants';
+import { InterfaceCreator } from './InterfaceCreator';
+import { triggers } from './standard_methods';
 
 export class ClassConnectionsEdit {
     private file: string;
@@ -22,9 +21,9 @@ export class ClassConnectionsEdit {
         new_data: any,
         orig_data: any,
         iface_kind: string,
-        imports: string[]) =>
-    {
-        Object.assign(this, {file, iface_kind});
+        imports: string[]
+    ) => {
+        Object.assign(this, { file, iface_kind });
 
         const edit_info: QorusProjectEditInfo = code_info.edit_info;
         let edit_data: any;
@@ -42,12 +41,12 @@ export class ClassConnectionsEdit {
 
         const data = {
             ...new_data,
-            iface_kind
+            iface_kind,
         };
 
         const mixed_data = {
             ...data,
-            'class-connections': orig_data?.['class-connections']
+            'class-connections': orig_data?.['class-connections'],
         };
 
         this.lang = data.lang || default_lang;
@@ -56,13 +55,13 @@ export class ClassConnectionsEdit {
             return await edit_info.setFileInfo(file, params);
         };
 
-        const writeFile = lines => fs.writeFileSync(file, lines.join('\n') + '\n');
+        const writeFile = (lines) => fs.writeFileSync(file, lines.join('\n') + '\n');
 
         // remove original class connections code
         if (had_class_connections) {
             edit_data = await setFileInfo(mixed_data);
             if (iface_kind === 'step') {
-                trigger_names = triggers(code_info, {iface_kind, 'base-class-name': orig_data['base-class-name']});
+                trigger_names = triggers(code_info, { iface_kind, 'base-class-name': orig_data['base-class-name'] });
             }
             lines = this.removeClassConnectionsCode(edit_data, trigger_names);
             lines = this.cleanup(lines);
@@ -85,7 +84,13 @@ export class ClassConnectionsEdit {
         // add new class connections code
         if (has_class_connections) {
             this.class_connections = new ClassConnectionsCreate({ ...data }, code_info, this.lang);
-            let { imports: cc_imports, triggers, trigger_code, connections_extra_class } = this.class_connections.code();
+
+            let {
+                imports: cc_imports,
+                triggers,
+                trigger_code,
+                connections_extra_class,
+            } = this.class_connections.code();
             more_imports = cc_imports;
             trigger_names = triggers;
 
@@ -104,7 +109,7 @@ export class ClassConnectionsEdit {
             lines = this.insertTriggerCode(trigger_code, edit_data, lines, line_shift);
             let extra_class_code_lines = connections_extra_class.split(/\r?\n/);
             extra_class_code_lines.pop();
-            lines = [ ...lines, ...extra_class_code_lines ];
+            lines = [...lines, ...extra_class_code_lines];
 
             lines = this.cleanup(lines);
             writeFile(lines);
@@ -134,23 +139,21 @@ export class ClassConnectionsEdit {
                 new_code_lines.pop();
             }
 
-            if (lines_before.length && lines_before[lines_before.length - 1] !== '' &&
-                new_code_lines.length && new_code_lines[0] !== '')
-            {
+            if (
+                lines_before.length &&
+                lines_before[lines_before.length - 1] !== '' &&
+                new_code_lines.length &&
+                new_code_lines[0] !== ''
+            ) {
                 new_code_lines.unshift('');
             }
 
-            lines = [
-                ...lines_before,
-                ...new_code_lines,
-                line_after,
-                ...lines_after
-            ];
+            lines = [...lines_before, ...new_code_lines, line_after, ...lines_after];
 
             writeFile(lines);
         } else {
             let methods_to_add = [];
-            (method_names || []).forEach(method_name => {
+            (method_names || []).forEach((method_name) => {
                 if (!trigger_names?.includes(method_name)) {
                     methods_to_add.push(method_name);
                 }
@@ -164,13 +167,18 @@ export class ClassConnectionsEdit {
         }
 
         if (this.lang === 'java') {
-            lines = this.fixJavaImports([ ...imports, ...more_imports ]);
+            lines = this.fixJavaImports([...imports, ...more_imports]);
             writeFile(lines);
         }
 
         edit_data = await setFileInfo();
+
         if (this.lang === 'python' && !edit_data.is_class_empty) {
             lines = this.possiblyRemoveUselessPass(edit_data);
+            lines = this.fixPythonImports([...imports, ...more_imports]);
+
+            writeFile(lines);
+
             if (lines) {
                 lines = this.cleanup(lines);
                 writeFile(lines);
@@ -182,7 +190,7 @@ export class ClassConnectionsEdit {
         if (lines) {
             writeFile(lines);
         }
-    }
+    };
 
     private insertMemberInitJava = (edit_data, lines, line_shift) => {
         const { constructor_range } = edit_data;
@@ -205,16 +213,11 @@ export class ClassConnectionsEdit {
         line_shift += member_initialization_code_lines.length;
 
         return { lines, line_shift };
-    }
+    };
 
-    protected insertMemberDeclarationQore = edit_data => {
-        const {
-            text_lines,
-            private_member_block_range,
-            last_class_line,
-            last_base_class_range,
-        } = edit_data;
-        let lines = [ ...text_lines ];
+    protected insertMemberDeclarationQore = (edit_data) => {
+        const { text_lines, private_member_block_range, last_class_line, last_base_class_range } = edit_data;
+        let lines = [...text_lines];
         let line_shift = 0;
 
         const member_decl_code: string = this.class_connections.memberDeclAndInitCodeQore();
@@ -238,7 +241,9 @@ export class ClassConnectionsEdit {
         } else {
             let target_line: number; // line where to insert the private member block
             // make sure that there is nothing after the opening '{' of the main class
-            const class_decl_line_rest = lines[last_base_class_range.end.line].substr(last_base_class_range.end.character);
+            const class_decl_line_rest = lines[last_base_class_range.end.line].substr(
+                last_base_class_range.end.character
+            );
             // find the line with the '{'
             if (class_decl_line_rest.match(/^\s*\{\s*$/)) {
                 target_line = last_base_class_range.end.line + 1;
@@ -260,7 +265,7 @@ export class ClassConnectionsEdit {
                 }
             }
 
-            lines.splice(target_line, 0, `${indent}private {`, `${indent}}` , '');
+            lines.splice(target_line, 0, `${indent}private {`, `${indent}}`, '');
             line_shift += 3;
 
             lines.splice(target_line + 1, 0, ...member_decl_code_lines);
@@ -268,16 +273,12 @@ export class ClassConnectionsEdit {
         }
 
         return { lines, line_shift };
-    }
+    };
 
-    protected insertMemberDeclarationPython = edit_data => {
-        const {
-            text_lines,
-            constructor_range,
-            class_def_range,
-        } = edit_data;
+    protected insertMemberDeclarationPython = (edit_data) => {
+        const { text_lines, constructor_range, class_def_range } = edit_data;
 
-        let lines = [ ...text_lines ];
+        let lines = [...text_lines];
         let member_decl_code: string;
         let target_line: number; // line after which to insert the member_decl_code
 
@@ -296,21 +297,17 @@ export class ClassConnectionsEdit {
         const line_shift = member_decl_code_lines.length;
 
         return { lines, line_shift };
-    }
+    };
 
-    protected insertMemberDeclarationJava = edit_data => {
-        const {
-            text_lines,
-            last_class_line,
-            last_base_class_range,
-            constructor_range
-        } = edit_data;
-        let lines = [ ...text_lines ];
+    protected insertMemberDeclarationJava = (edit_data) => {
+        const { text_lines, last_class_line, last_base_class_range, constructor_range } = edit_data;
+        let lines = [...text_lines];
         let line_shift = 0;
 
-        const member_decl_code: string = constructor_range !== undefined
-            ? this.class_connections.memberDeclCodeJava()
-            : this.class_connections.memberDeclAndInitAllCodeJava();
+        const member_decl_code: string =
+            constructor_range !== undefined
+                ? this.class_connections.memberDeclCodeJava()
+                : this.class_connections.memberDeclAndInitAllCodeJava();
 
         let member_decl_code_lines = member_decl_code.split(/\r?\n/);
         member_decl_code_lines.pop();
@@ -343,11 +340,11 @@ export class ClassConnectionsEdit {
         line_shift += member_decl_code_lines.length;
 
         return { lines, line_shift };
-    }
+    };
 
     private insertTriggerCode = (trigger_code, edit_data, lines, line_shift) => {
         if (!trigger_code) {
-            return lines ;
+            return lines;
         }
 
         const { last_class_line } = edit_data;
@@ -357,7 +354,7 @@ export class ClassConnectionsEdit {
         line_shift += trigger_code_lines.length;
 
         return lines;
-    }
+    };
 
     private removeClassConnectionsCode = (edit_data, trigger_names) => {
         const {
@@ -384,16 +381,16 @@ export class ClassConnectionsEdit {
             ranges.push(class_connections_member_declaration_range);
         }
 
-        ranges = ranges.filter(range => range !== undefined);
+        ranges = ranges.filter((range) => range !== undefined);
 
         if (this.iface_kind === 'step' && trigger_names) {
-            Object.keys(method_decl_ranges).forEach(method_name => {
+            Object.keys(method_decl_ranges).forEach((method_name) => {
                 if (trigger_names.includes(method_name)) {
                     ranges.push(method_decl_ranges[method_name]);
                 }
             });
         } else {
-            ranges = [ ...ranges, ... class_connections_trigger_ranges || [] ];
+            ranges = [...ranges, ...(class_connections_trigger_ranges || [])];
         }
 
         let lines = this.removeRanges([...text_lines], ranges);
@@ -401,16 +398,16 @@ export class ClassConnectionsEdit {
             lines.splice(class_def_range.start.line + 1, 0, `${indent}pass`);
         }
         return lines;
-    }
+    };
 
     private removeRanges = (lines, ranges) => {
         const sorted_ranges = sortRanges(ranges).reverse();
-        sorted_ranges.forEach(range => {
+        sorted_ranges.forEach((range) => {
             lines = this.removeRange(lines, range);
         });
 
         return lines;
-    }
+    };
 
     private removeRange = (orig_lines, range) => {
         let lines = [];
@@ -431,7 +428,7 @@ export class ClassConnectionsEdit {
             if (line_b) {
                 line_b = ' '.repeat(range.end.character + 1) + line_b.substr(range.end.character + 1);
             }
-            [line_a, line_b].forEach(line => {
+            [line_a, line_b].forEach((line) => {
                 if (line.match(/\S/)) {
                     lines.push(line);
                 }
@@ -442,13 +439,13 @@ export class ClassConnectionsEdit {
         }
 
         return lines;
-    }
+    };
 
     private addMethods = (method_names, edit_data) => {
         const { text_lines, class_def_range } = edit_data;
 
         const lines = InterfaceCreator.addClassMethods(
-            [ ... text_lines ],
+            [...text_lines],
             method_names,
             class_def_range,
             simple_method_template[this.lang],
@@ -456,25 +453,21 @@ export class ClassConnectionsEdit {
         );
 
         return lines;
-    }
+    };
 
     private removeMethods = (method_names, edit_data) => {
         const { text_lines, class_def_range, method_decl_ranges } = edit_data;
 
-        const lines = InterfaceCreator.removeClassMethods(
-            [ ... text_lines ],
-            method_names,
-            method_decl_ranges
-        );
+        const lines = InterfaceCreator.removeClassMethods([...text_lines], method_names, method_decl_ranges);
 
         if (this.lang === 'python') {
             lines.splice(class_def_range.start.line + 1, 0, `${indent}pass`);
         }
 
         return lines;
-    }
+    };
 
-    private deleteEmptyPrivateMemberBlock = edit_data => {
+    private deleteEmptyPrivateMemberBlock = (edit_data) => {
         const { text_lines, private_member_block_range: block } = edit_data;
         let lines = [];
 
@@ -492,11 +485,11 @@ export class ClassConnectionsEdit {
         }
 
         return lines;
-    }
+    };
 
-    private cleanup = dirty_lines => {
-        const isGeneratedBegin = line => line.indexOf(GENERATED_TEXT.begin) > -1;
-        const isGeneratedEnd = line => line.indexOf(GENERATED_TEXT.end) > -1;
+    private cleanup = (dirty_lines) => {
+        const isGeneratedBegin = (line) => line.indexOf(GENERATED_TEXT.begin) > -1;
+        const isGeneratedEnd = (line) => line.indexOf(GENERATED_TEXT.end) > -1;
 
         // 1. trim ending whitespaces of each line
         // 2. remove sections of generated code (between BEGIN and END) with only empty lines inside
@@ -540,18 +533,18 @@ export class ClassConnectionsEdit {
         }
 
         // 5.
-        while (lines[lines.length-1] === '') {
+        while (lines[lines.length - 1] === '') {
             lines.pop();
         }
 
         return lines;
-    }
+    };
 
-    private fixJavaImports = imports => {
+    private fixJavaImports = (imports) => {
         const doc: QoreTextDocument = qoreTextDocument(this.file);
         let lines = doc.text.split(/\r?\n/);
 
-        while (lines[lines.length-1] === '') {
+        while (lines[lines.length - 1] === '') {
             lines.pop();
         }
 
@@ -566,7 +559,7 @@ export class ClassConnectionsEdit {
         }
 
         lines.unshift('');
-        imports.reverse().forEach(imp => {
+        imports.reverse().forEach((imp) => {
             lines.unshift(imp);
         });
         if (package_line) {
@@ -575,9 +568,29 @@ export class ClassConnectionsEdit {
         }
 
         return lines;
-    }
+    };
 
-    private possiblyRemoveFirstEmptyLine = edit_data => {
+    private fixPythonImports = (imports) => {
+        const doc: QoreTextDocument = qoreTextDocument(this.file);
+        let lines = doc.text.split(/\r?\n/);
+
+        while (lines[lines.length - 1] === '') {
+            lines.pop();
+        }
+
+        while (lines[0] === '' || lines[0].startsWith('from ')) {
+            lines.shift();
+        }
+
+        lines.unshift('');
+        imports.reverse().forEach((imp) => {
+            lines.unshift(imp);
+        });
+
+        return lines;
+    };
+
+    private possiblyRemoveFirstEmptyLine = (edit_data) => {
         const { text_lines: lines, class_name_range, last_class_line, last_base_class_range } = edit_data;
 
         // if lang is python then the first line is the one after the class declaration line
@@ -616,9 +629,9 @@ export class ClassConnectionsEdit {
             return lines;
         }
         return undefined;
-    }
+    };
 
-    private possiblyRemoveUselessPass = edit_data => {
+    private possiblyRemoveUselessPass = (edit_data) => {
         const { text_lines: lines, class_def_range } = edit_data;
         let any_removed = false;
         const to_remove = `${indent}pass`;
@@ -629,5 +642,5 @@ export class ClassConnectionsEdit {
             }
         }
         return any_removed ? lines : undefined;
-    }
+    };
 }
