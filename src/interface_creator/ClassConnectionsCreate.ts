@@ -252,7 +252,7 @@ export class ClassConnectionsCreate {
                 this.connections[connection].some((connector) => !!connector.mapper)
             )
         ) {
-            imports.push('import org.qore.lang.mapper.Mapper;');
+            imports.push('import qore.Mapper.Mapper;');
         }
 
         // qore imports
@@ -304,8 +304,8 @@ export class ClassConnectionsCreate {
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;
         if (event_based_connections.length) {
-            code += ` inherits ${CONN_BASE_CLASS} {`;
-            code += ` # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
+            code += ` inherits ${CONN_BASE_CLASS} {\n`;
+            code += `    # has to inherit ${CONN_BASE_CLASS} because there is an event-based connector\n`;
         } else {
             code += ' {\n';
         }
@@ -424,8 +424,8 @@ export class ClassConnectionsCreate {
         let code = `class ${this.connClassName()}`;
         if (event_based_connections.length) {
             code +=
-                ` implements ${CONN_BASE_CLASS} {` +
-                ` // must inherit ${CONN_BASE_CLASS}, because there is an event-based connector\n`;
+                ` extends ${CONN_BASE_CLASS} {\n` +
+                `    // must inherit ${CONN_BASE_CLASS}, because there is an event-based connector\n`;
         } else {
             code += ' {\n';
         }
@@ -442,7 +442,7 @@ export class ClassConnectionsCreate {
         );
 
         if (do_capturing) {
-            code += `${indent2}UserApi.startCapturingObjects();\n` + `${indent2}try {\n`;
+            code += `${indent2}UserApi.startCapturingObjectsFromJava();\n` + `${indent2}try {\n`;
         }
 
         for (const prefixed_class in this.classes) {
@@ -459,7 +459,7 @@ export class ClassConnectionsCreate {
         }
 
         if (do_capturing) {
-            code += `${indent2}} finally {\n` + `${indent3}UserApi.stopCapturingObjects();\n` + `${indent2}}\n`;
+            code += `${indent2}} finally {\n` + `${indent3}UserApi.stopCapturingObjectsFromJava();\n` + `${indent2}}\n`;
         }
 
         if (event_based_connections.length) {
@@ -490,7 +490,7 @@ export class ClassConnectionsCreate {
             code +=
                 '\n' +
                 `${indent1}// override ${CONN_BASE_CLASS}'s update()\n` +
-                `${indent1}public void update(String id, Map<String, Object> ${CONN_DATA}) ${THROWS} {\n`;
+                `${indent1}public void update(String id, Hash ${CONN_DATA}) ${THROWS} {\n`;
             event_based_connections.forEach((event_based) => {
                 code +=
                     `${indent2}if (id.equals("${event_based.prefixed_class}::${event_based.method}")) {\n` +
@@ -576,6 +576,11 @@ export class ClassConnectionsCreate {
 
     protected methodCodeJava = (connection_code_name, connectors) => {
         let code = `${indent1}public Object ${connection_code_name}(Object ${CONN_DATA}) ${THROWS} {\n`;
+
+        code += `${indent2}// convert varargs to a single argument if possible\n`;
+        code += `${indent2}if (params != null && params.getClass().isArray() && ((Object[])params).length == 1) {\n`;
+        code +=     `${indent3}params = ((Object[])params)[0];\n`;
+        code += `${indent2}}\n`;
 
         if (connectors.some((connector) => connector.mapper)) {
             code += `${indent2}Mapper ${CONN_MAPPER};\n`;

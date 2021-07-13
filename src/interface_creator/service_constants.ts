@@ -13,7 +13,11 @@ export const serviceImports = (lang: string, base_class_name: string) => {
                 ? [`from ${classToPythonModule(root_service)} import ${base_class_name}`]
                 : [`from qore.__root__ import ${base_class_name}`];
         case 'java':
-            return ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.service.*;'];
+            return [
+                'import qore.OMQ.*;',
+                'import qore.OMQ.UserApi.*;',
+                'import qore.OMQ.UserApi.Service.*;'
+            ];
         default:
             return [];
     }

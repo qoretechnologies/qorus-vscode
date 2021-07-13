@@ -13,7 +13,11 @@ export const stepImports = (lang: string, base_class_name: string) => {
                 ? [`from ${classToPythonModule(base_class_name)} import ${base_class_name}`]
                 : [`from qore.__root__ import ${base_class_name}`];
         case 'java':
-            return ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.workflow.*;'];
+            return [
+                'import qore.OMQ.*;',
+                'import qore.OMQ.UserApi.*;',
+                'import qore.OMQ.UserApi.Workflow.*;'
+            ];
         default:
             return [];
     }
