@@ -624,8 +624,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'active_method',
         ]);
 
-        console.log(currentData, origData);
-
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);
         } else {

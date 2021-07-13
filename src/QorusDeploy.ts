@@ -1,19 +1,16 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as urlJoin from 'url-join';
 import * as fs from 'fs';
 import * as glob from 'glob';
-
+import * as path from 'path';
+import { t } from 'ttag';
+import * as urlJoin from 'url-join';
+import * as vscode from 'vscode';
 import { projects } from './QorusProject';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
-import { qorus_request, QorusRequestTexts } from './QorusRequest';
+import { QorusRequestTexts, qorus_request } from './QorusRequest';
 import * as msg from './qorus_message';
-import { t } from 'ttag';
 import { filesInDir, isDeployable, isVersion3, removeDuplicates } from './qorus_utils';
 
-
 class QorusDeploy {
-
     private code_info: QorusProjectCodeInfo | undefined = undefined;
 
     private setCodeInfo = (paths: string[]): boolean => {
@@ -28,14 +25,14 @@ class QorusDeploy {
             return false;
         }
 
-        if (paths.some(file_or_dir => projects.getProjectFolder(file_or_dir) !== folder0)) {
+        if (paths.some((file_or_dir) => projects.getProjectFolder(file_or_dir) !== folder0)) {
             msg.error(t`SelectedFilesAndDirsNotFromOneProject`);
             return false;
         }
 
         this.code_info = projects.projectCodeInfo(paths[0]);
         return true;
-    }
+    };
 
     deployCurrentFile(with_dependencies: boolean) {
         const editor = vscode.window.activeTextEditor;
@@ -98,8 +95,8 @@ class QorusDeploy {
         if (with_dependencies) {
             this.doDeploy(this.code_info.getFilesOfReferencedObjects(files));
         } else {
-            const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
-            this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
+            const pair_files: string[] = files.map((file) => this.code_info.pairFile(file)).filter((file) => !!file);
+            this.doDeploy(removeDuplicates([...files, ...pair_files]));
         }
     }
 
@@ -109,9 +106,9 @@ class QorusDeploy {
         }
 
         let files = [];
-        paths.forEach(file_or_dir => {
+        paths.forEach((file_or_dir) => {
             if (fs.lstatSync(file_or_dir).isDirectory()) {
-                files = [ ...files, ...filesInDir(file_or_dir, isDeployable)];
+                files = [...files, ...filesInDir(file_or_dir, isDeployable)];
             } else {
                 files.push(file_or_dir);
             }
@@ -120,10 +117,10 @@ class QorusDeploy {
         if (with_dependencies) {
             this.doDeploy(this.code_info.getFilesOfReferencedObjects(removeDuplicates(files)));
         } else {
-            const pair_files: string[] = files.map(file => this.code_info.pairFile(file)).filter(file => !!file);
-            this.doDeploy(removeDuplicates([ ...files, ...pair_files ]));
+            const pair_files: string[] = files.map((file) => this.code_info.pairFile(file)).filter((file) => !!file);
+            this.doDeploy(removeDuplicates([...files, ...pair_files]));
         }
-    }
+    };
 
     // returns true if the process got to the stage of checking the result
     // returns false if the process failed earlier
@@ -139,8 +136,21 @@ class QorusDeploy {
         }
 
         const ifaceKinds = [
-            'connection', 'error', 'group', 'event', 'queue', 'fsm', 'pipeline', 'value-map',
-            'class', 'mapper-code', 'mapper', 'step', 'service', 'job', 'workflow'
+            'connection',
+            'error',
+            'group',
+            'event',
+            'queue',
+            'fsm',
+            'pipeline',
+            'value-map',
+            'class',
+            'mapper-code',
+            'mapper',
+            'step',
+            'service',
+            'job',
+            'workflow',
         ];
 
         code_info.waitForPending(['yaml']).then(() => {
@@ -155,7 +165,6 @@ class QorusDeploy {
         });
     }
 
-
     private deployFileAndPairFile(file_path: string) {
         if (!this.setCodeInfo([file_path])) {
             return;
@@ -165,8 +174,7 @@ class QorusDeploy {
 
         if (pair_file_path) {
             this.doDeploy([file_path, pair_file_path]);
-        }
-        else {
+        } else {
             this.doDeploy([file_path]);
         }
     }
@@ -174,7 +182,7 @@ class QorusDeploy {
     // returns true if the process got to the stage of checking the result
     // returns false if the process failed earlier
     private doDeploy(file_paths: string[], is_release: boolean = false): Thenable<boolean> {
-        const {ok, active_instance, token} = qorus_request.activeQorusInstanceAndToken();
+        const { ok, active_instance, token } = qorus_request.activeQorusInstanceAndToken();
         if (!ok) {
             return Promise.resolve(false);
         }
@@ -184,8 +192,7 @@ class QorusDeploy {
             if (is_release) {
                 msg.error(t`PackageDeploymentNotSupportedForQorus3`);
                 return Promise.resolve(false);
-            }
-            else {
+            } else {
                 url = urlJoin(url, 'deployment');
             }
         } else {
@@ -199,12 +206,13 @@ class QorusDeploy {
             msg.log(`    ${file}`);
             const file_content = fs.readFileSync(file);
             const buffer: Buffer = Buffer.from(file_content);
-            data = [{
-                file_name: path.basename(file),
-                file_content: buffer.toString('base64')
-            }];
-        }
-        else {
+            data = [
+                {
+                    file_name: path.basename(file),
+                    file_content: buffer.toString('base64'),
+                },
+            ];
+        } else {
             this.prepareData(file_paths, data);
         }
 
@@ -221,9 +229,9 @@ class QorusDeploy {
             },
             headers: {
                 'qorus-token': token,
-                'content-type': 'application/json;charset=utf-8'
+                'content-type': 'application/json;charset=utf-8',
             },
-            json: true
+            json: true,
         };
 
         const texts: QorusRequestTexts = {
@@ -253,8 +261,8 @@ class QorusDeploy {
             const file_content = fs.readFileSync(file_path);
             const buffer: Buffer = Buffer.from(file_content);
             data.push({
-                'file_name': file_relative_path.replace(/\\/g, '/'),
-                'file_content': buffer.toString('base64')
+                file_name: file_relative_path.replace(/\\/g, '/'),
+                file_content: buffer.toString('base64'),
             });
 
             if (file_path.endsWith('.qsd.yaml')) {
@@ -269,13 +277,21 @@ class QorusDeploy {
 
         if (resources.length) {
             const dir_path = path.dirname(file_path);
-            resources = resources.map(basename => path.join(dir_path, basename));
+            resources = resources.map((basename) => {
+                let resourcePath = path.join(dir_path, basename);
+
+                if (resourcePath.endsWith('/*')) {
+                    resourcePath = resourcePath.replace('/*', '/**/*');
+                }
+
+                return resourcePath;
+            });
             const pattern: string = resources.length == 1 ? `${resources}` : `{${resources}}`;
-            return glob.sync(pattern, {nodir: true});
+            return glob.sync(pattern, { nodir: true });
         }
 
         return [];
-    }
+    };
 }
 
 export const deployer = new QorusDeploy();
