@@ -621,7 +621,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'config-items',
             'servicetype',
             'id',
+            'active_method',
         ]);
+
+        console.log(currentData, origData);
 
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);
@@ -898,6 +901,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     t(`Saving ${iface_kind}...`)
                 );
             }
+
             if (result.ok) {
                 if (onSubmitSuccess) {
                     onSubmitSuccess(newData);
@@ -906,6 +910,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // local fields will be unmounted
                 if (type === 'config-item') {
                     resetFields(type, interfaceIndex);
+                }
+
+                if (onBackClick) {
+                    onBackClick();
                 }
 
                 unsetDraft(initialData.subtab);

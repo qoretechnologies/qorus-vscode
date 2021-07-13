@@ -166,16 +166,26 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             );
         }
         if (open_file_on_success) {
-            workspace.openTextDocument(this.file_path).then((doc) => window.showTextDocument(doc));
-        }
-
-        if (['create', 'edit'].includes(edit_type)) {
-            qorus_webview.postMessage({
-                action: `creator-${edit_type}-interface-complete`,
-                request_id,
-                ok: true,
-                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`,
+            workspace.openTextDocument(this.file_path).then((doc) => {
+                if (['create', 'edit'].includes(edit_type)) {
+                    qorus_webview.postMessage({
+                        action: `creator-${edit_type}-interface-complete`,
+                        request_id,
+                        ok: true,
+                        message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`,
+                    });
+                }
+                window.showTextDocument(doc);
             });
+        } else {
+            if (['create', 'edit'].includes(edit_type)) {
+                qorus_webview.postMessage({
+                    action: `creator-${edit_type}-interface-complete`,
+                    request_id,
+                    ok: true,
+                    message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${data.name}`,
+                });
+            }
         }
 
         if (info) {
