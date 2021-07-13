@@ -1,10 +1,7 @@
 import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { default_lang } from '../qorus_constants';
-<<<<<<< HEAD
-=======
 import { capitalize, toValidIdentifier } from '../qorus_utils';
 import { stepTriggerSignatures, triggers } from './standard_methods';
->>>>>>> origin/develop
 
 // =================================================================
 
@@ -207,7 +204,7 @@ export class ClassConnectionsCreate {
             connections_extra_class,
             imports: this[`getImports${capitalize(this.lang)}`](event_based_connections.length ? true : false),
         };
-    };
+    }
 
     private connClassName = () => `${CONN_CLASS}_${this.class_name}`;
 
@@ -235,7 +232,7 @@ export class ClassConnectionsCreate {
 
         //msg.log(`imports: ${imports}`);
         return imports;
-    };
+    }
 
     protected getImportsJava = (_has_event_connectors: boolean) => {
         let imports = [
@@ -270,39 +267,39 @@ export class ClassConnectionsCreate {
         });
 
         return imports;
-    };
+    }
 
     protected memberDeclAndInitAllCodeQore = () =>
-        `${indent1}private {\n` + this.memberDeclAndInitCodeQore() + `${indent1}}\n`;
+        `${indent1}private {\n` + this.memberDeclAndInitCodeQore() + `${indent1}}\n`
 
     memberDeclAndInitAllCodePython = () => `${indent1}def __init__(self):\n` + this.memberDeclAndInitCodePython();
 
     memberDeclAndInitCodeQore = () =>
         `${indent2}${GENERATED.qore.begin}\n` +
         `${indent2}${this.connClassName()} ${CONN_MEMBER.qore}();\n` +
-        `${indent2}${GENERATED.qore.end}\n`;
+        `${indent2}${GENERATED.qore.end}\n`
 
     memberDeclAndInitCodePython = () =>
         `${indent2}${GENERATED.python.begin}\n` +
         `${indent2}self.${CONN_MEMBER.python} = ${this.connClassName()}()\n` +
-        `${indent2}${GENERATED.python.end}\n`;
+        `${indent2}${GENERATED.python.end}\n`
 
     memberDeclAndInitAllCodeJava = () =>
         this.memberDeclCodeJava() +
         `${indent1}\n\n` +
         `${indent1}${this.class_name}() ${THROWS} {\n` +
         this.memberInitCodeJava() +
-        `${indent1}}\n`;
+        `${indent1}}\n`
 
     memberDeclCodeJava = () =>
         `${indent1}${GENERATED.java.begin}\n` +
         `${indent1}${this.connClassName()} ${CONN_MEMBER.java};\n` +
-        `${indent1}${GENERATED.java.end}\n`;
+        `${indent1}${GENERATED.java.end}\n`
 
     memberInitCodeJava = () =>
         `${indent2}${GENERATED.java.begin}\n` +
         `${indent2}${CONN_MEMBER.java} = new ${this.connClassName()}();\n` +
-        `${indent2}${GENERATED.java.end}\n`;
+        `${indent2}${GENERATED.java.end}\n`
 
     protected extraClassCodeQore = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;
@@ -358,7 +355,7 @@ export class ClassConnectionsCreate {
         }
 
         return code;
-    };
+    }
 
     protected extraClassCodePython = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;
@@ -421,7 +418,7 @@ export class ClassConnectionsCreate {
         }
 
         return code;
-    };
+    }
 
     protected extraClassCodeJava = (event_based_connections) => {
         let code = `class ${this.connClassName()}`;
@@ -504,7 +501,7 @@ export class ClassConnectionsCreate {
         }
 
         return code;
-    };
+    }
 
     protected methodCodeQore = (connection_code_name, connectors) => {
         let code = `${indent1}auto ${connection_code_name}(auto ${CONN_DATA}) {\n`;
@@ -542,7 +539,7 @@ export class ClassConnectionsCreate {
 
         code += `${indent1}}\n`;
         return code;
-    };
+    }
 
     protected methodCodePython = (connection_code_name, connectors) => {
         let code = `${indent1}def ${connection_code_name}(self, *${CONN_DATA}):\n`;
@@ -575,7 +572,7 @@ export class ClassConnectionsCreate {
         });
 
         return code;
-    };
+    }
 
     protected methodCodeJava = (connection_code_name, connectors) => {
         let code = `${indent1}public Object ${connection_code_name}(Object ${CONN_DATA}) ${THROWS} {\n`;
@@ -612,7 +609,7 @@ export class ClassConnectionsCreate {
 
         code += `${indent1}}\n`;
         return code;
-    };
+    }
 
     protected triggerCodeQore = (trigger) => {
         let code = `${indent1}${trigger.signature} {\n`;
@@ -651,7 +648,7 @@ export class ClassConnectionsCreate {
 
         code += `${indent1}}\n`;
         return code;
-    };
+    }
 
     protected triggerCodePython = (trigger) => {
         let code = `${indent1}def ${trigger.signature}:\n`;
@@ -691,7 +688,7 @@ export class ClassConnectionsCreate {
         }
 
         return code;
-    };
+    }
 
     protected triggerCodeJava = (trigger) => {
         let code = `${indent1}${trigger.signature} {\n`;
@@ -736,5 +733,5 @@ export class ClassConnectionsCreate {
 
         code += `${indent1}}\n`;
         return code;
-    };
+    }
 }
