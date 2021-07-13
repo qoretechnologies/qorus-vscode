@@ -1,4 +1,4 @@
-import * as flattenDeep from 'lodash/flattenDeep';
+import { flattenDeep } from 'lodash/flattenDeep';
 import { interface_without_methods_creator } from './InterfaceWithoutMethodsCreator';
 import { interface_with_methods_creator } from './InterfaceWithMethodsCreator';
 import { classFields } from './common_constants';

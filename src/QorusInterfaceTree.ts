@@ -5,7 +5,6 @@ import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleSta
 import { qorusIcons } from './QorusIcons';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 
-import * as msg from './qorus_message';
 class QorusInterfaceTree implements TreeDataProvider<QorusInterfaceTreeNode> {
     private extensionPath: string;
     private data: any;
