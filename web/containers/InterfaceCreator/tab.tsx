@@ -239,18 +239,16 @@ const Tab: React.FC<ITabProps> = ({
             data.confirmAction(
                 message,
                 () => {
-                    data.resetInterfaceData(iface_kind);
-
                     if (iface_kind === 'service') {
                         // Get the removed methods
                         const removedMethods: any[] = methods.filter((method) => method.name !== 'init');
                         const initMethod = methods.find((method) => method.name === 'init');
                         // Set the methods to only leave the init method
-                        setMethods(
-                            initMethod
-                                ? methods.filter((method) => method.name === 'init')
-                                : [{ name: 'init', desc: '' }]
-                        );
+                        setMethods((cur) => {
+                            return initMethod
+                                ? [...cur].filter((method) => method.name === 'init')
+                                : [{ name: 'init', desc: '' }];
+                        });
                         // Remove each of the removed methods from the fields
                         removedMethods.forEach((method) => {
                             removeSubItemFromFields(method.id, 'service-methods');
