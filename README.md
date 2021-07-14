@@ -4,10 +4,10 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
-## Version 2.2.11 overview - What's new:
+## Version 2.3.0 overview - What's new:
 
 - This version of the extension requires Qorus 5.1+ when working with Python or Java; it assumes that Qorus supports dynamic bytecode generation for Qorus APIs and for 3-way compatibility for Qore, Python, and Java
-- Code generation (and regeneration - when retargeting an interface for another language) for Python and Java has been greatly improved in all areas
+- Code generation (and regeneration - when re-targeting an interface for another language) for Python and Java has been greatly improved in all areas
 - Many bug fixes have been made regarding editing and code and metadata alignment
 
 ## Version 2.2.0 overview - What's new:

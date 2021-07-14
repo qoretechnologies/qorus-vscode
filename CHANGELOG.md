@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.0
+
+#### Bug fixes
+
+- Code generation (and regeneration - when re-targeting an interface for another language) for Python and Java has been greatly improved in all areas
+- Many bug fixes have been made regarding editing and code and metadata alignment
 
 ## 2.2.10
 
