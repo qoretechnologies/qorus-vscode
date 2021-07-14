@@ -253,7 +253,8 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                             text={t('AddMethod')}
                                                             icon={'plus'}
                                                             onClick={handleAddMethodClick}
-                                                            disabled={initialData.lang_client_unavailable}
+                                                            // Figure out why is this here
+                                                            //disabled={initialData.lang_client_unavailable}
                                                         />
                                                     </ButtonGroup>
                                                 </ActionsWrapper>

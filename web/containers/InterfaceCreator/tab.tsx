@@ -1,4 +1,5 @@
 import { Button, ButtonGroup } from '@blueprintjs/core';
+import { size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -189,7 +190,16 @@ const TutorialButton = ({ type, onClick }) => {
     );
 };
 
-const Tab: React.FC<ITabProps> = ({ t, data, type, children, resetAllInterfaceData, updateField, name }) => {
+const Tab: React.FC<ITabProps> = ({
+    t,
+    data,
+    type,
+    children,
+    resetAllInterfaceData,
+    updateField,
+    removeSubItemFromFields,
+    name,
+}) => {
     const isEditing: () => boolean = () => !!name;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
     const getFilePath = () => {
@@ -207,7 +217,7 @@ const Tab: React.FC<ITabProps> = ({ t, data, type, children, resetAllInterfaceDa
     };
     const [recreateDialog, setRecreateDialog] = useState<any>(null);
 
-    const methods = useContext(MethodsContext);
+    const { methods, setMethods, setMethodsCount }: any = useContext(MethodsContext);
 
     useMount(() => {
         const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
@@ -229,7 +239,25 @@ const Tab: React.FC<ITabProps> = ({ t, data, type, children, resetAllInterfaceDa
             data.confirmAction(
                 message,
                 () => {
-                    //data.resetInterfaceData(iface_kind);
+                    data.resetInterfaceData(iface_kind);
+
+                    if (iface_kind === 'service') {
+                        // Get the removed methods
+                        const removedMethods: any[] = methods.filter((method) => method.name !== 'init');
+                        const initMethod = methods.find((method) => method.name === 'init');
+                        // Set the methods to only leave the init method
+                        setMethods(
+                            initMethod
+                                ? methods.filter((method) => method.name === 'init')
+                                : [{ name: 'init', desc: '' }]
+                        );
+                        // Remove each of the removed methods from the fields
+                        removedMethods.forEach((method) => {
+                            removeSubItemFromFields(method.id, 'service-methods');
+                        });
+
+                        setMethodsCount((current: number) => current - size(removedMethods));
+                    }
                     data.changeInitialData('isRecreate', true);
                     setRecreateDialog(null);
                 },
