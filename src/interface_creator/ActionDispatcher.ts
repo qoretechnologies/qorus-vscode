@@ -1,20 +1,18 @@
-import * as flattenDeep from 'lodash/flattenDeep';
-import { interface_without_methods_creator } from './InterfaceWithoutMethodsCreator';
-import { interface_with_methods_creator } from './InterfaceWithMethodsCreator';
-import { classFields } from './common_constants';
-import { serviceFields, serviceMethodFields } from './service_constants';
-import { jobFields } from './job_constants';
-import { workflowFields } from './workflow_constants';
-import { stepFields } from './step_constants';
-import { mapperFields, mapperCodeFields, mapperMethodFields } from './mapper_constants';
-import { connectionFields } from './connection_constants';
-import { configItemFields } from './config_item_constants';
-import { groupFields, eventFields, queueFields,
-         valueMapFields, errorsFields, error_fields } from './other_constants';
+import { flattenDeep } from 'lodash';
+import { gettext } from 'ttag';
 import { isLangClientAvailable } from '../qore_vscode';
 import { default_lang } from '../qorus_constants';
-import { gettext } from 'ttag';
-
+import { classFields } from './common_constants';
+import { configItemFields } from './config_item_constants';
+import { connectionFields } from './connection_constants';
+import { interface_with_methods_creator } from './InterfaceWithMethodsCreator';
+import { interface_without_methods_creator } from './InterfaceWithoutMethodsCreator';
+import { jobFields } from './job_constants';
+import { mapperCodeFields, mapperFields, mapperMethodFields } from './mapper_constants';
+import { errorsFields, error_fields, eventFields, groupFields, queueFields, valueMapFields } from './other_constants';
+import { serviceFields, serviceMethodFields } from './service_constants';
+import { stepFields } from './step_constants';
+import { workflowFields } from './workflow_constants';
 
 export class ActionDispatcher {
     private static getFields = (params: any): any[] => {
@@ -56,16 +54,17 @@ export class ActionDispatcher {
             default:
                 return [];
         }
-    }
+    };
 
     static getSortedFields = async (params: any): Promise<any[]> => {
-        params.limited_editing = params.is_editing && (params.lang || default_lang) === 'qore' && !await isLangClientAvailable();
+        params.limited_editing =
+            params.is_editing && (params.lang || default_lang) === 'qore' && !(await isLangClientAvailable());
 
         const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc', 'lang'];
-        let unsorted = [ ...ActionDispatcher.getFields(params) ];
+        let unsorted = [...ActionDispatcher.getFields(params)];
         let at_the_beginning = [];
-        not_to_sort.forEach(field_name => {
-            const index = unsorted.findIndex(({name}) => name === field_name);
+        not_to_sort.forEach((field_name) => {
+            const index = unsorted.findIndex(({ name }) => name === field_name);
             if (index > -1) {
                 at_the_beginning.push(unsorted.splice(index, 1));
             }
@@ -77,15 +76,15 @@ export class ActionDispatcher {
         };
 
         return Promise.resolve([...flattenDeep(at_the_beginning), ...unsorted.sort(sorter)]);
-    }
+    };
 
-    static editInterface({iface_kind: iface_kinds, interface_info, ...other_params}) {
+    static editInterface({ iface_kind: iface_kinds, interface_info, ...other_params }) {
         const [iface_kind, sub_iface_kind] = iface_kinds.split(/:/);
 
         switch (sub_iface_kind || iface_kind) {
             case 'service':
             case 'mapper-code':
-                interface_with_methods_creator.edit({...other_params, iface_kind});
+                interface_with_methods_creator.edit({ ...other_params, iface_kind });
                 break;
             case 'workflow':
             case 'job':
@@ -101,10 +100,10 @@ export class ActionDispatcher {
             case 'connection':
             case 'value-map':
             case 'errors':
-                interface_without_methods_creator.edit({...other_params, iface_kind});
+                interface_without_methods_creator.edit({ ...other_params, iface_kind });
                 break;
             case 'config-item':
-                interface_info.updateConfigItem({...other_params, iface_kind});
+                interface_info.updateConfigItem({ ...other_params, iface_kind });
                 break;
         }
     }

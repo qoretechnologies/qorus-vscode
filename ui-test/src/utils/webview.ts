@@ -91,7 +91,9 @@ export const getElements = async (webview: WebView, name: string, selector: TSel
 };
 
 export const getElementsCount = async (webview: WebView, name: string, selector: TSelector = 'name') => {
-    return await (await getElements(webview, name, selector)).length;
+    return await (
+        await getElements(webview, name, selector)
+    ).length;
 };
 
 export const clickElement = async (
@@ -100,13 +102,19 @@ export const clickElement = async (
     position: number = 1,
     selector: TSelector = 'name'
 ) => {
+    console.log('Clicking element', name);
+
     const element = await getNthElement(webview, name, position, selector);
 
     if (!element) {
         throw new Error(`Element to click ${name} ${position} not found!`);
     }
 
-    await (await getNthElement(webview, name, position, selector)).click();
+    try {
+        await (await getNthElement(webview, name, position, selector)).click();
+    } catch (e) {
+        throw new Error(`Unable to click element ${name} ${position} because: ${e}`);
+    }
 };
 
 export const clickSwitchElement = async (webview: WebView, name: string, position: number = 1) => {
@@ -226,7 +234,7 @@ export const selectMultiselectItemsByNumbers = async (
 };
 
 export const submitInterface = async (webview: WebView, iface: string, position: number = 1) => {
-    await clickElement(webview, `interface-creator-submit-${iface}`, position);
+    await clickElement(webview, `interface-creator-submit-${iface}`, position, 'name');
 };
 
 export const confirmDialog = async (webview: WebView) => {

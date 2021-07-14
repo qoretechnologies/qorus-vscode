@@ -1,37 +1,21 @@
 import { classToPythonModule, default_lang } from '../qorus_constants';
 
 export const default_parse_options = {
-    qore:
-        '%new-style\n' +
-        '%strict-args\n' +
-        '%require-types\n' +
-        '%enable-all-warnings\n\n'
+    qore: '%new-style\n' + '%strict-args\n' + '%require-types\n' + '%enable-all-warnings\n\n',
 };
 
 // ================================================================
 
 export const empty_class_template = {
-    qore:
-        'class ${this.class_name} {\n' +
-        '}\n',
-    python:
-        'class ${this.class_name}:\n' +
-        '    pass\n',
-    java:
-        'class ${this.class_name} {\n' +
-        '}'
+    qore: 'class ${this.class_name} {\n' + '}\n',
+    python: 'class ${this.class_name}:\n' + '    pass\n',
+    java: 'class ${this.class_name} {\n' + '}',
 };
 
 export const empty_subclass_template = {
-    qore:
-        'class ${this.class_name} inherits ${this.base_class_name} {\n' +
-        '}\n',
-    python:
-        'class ${this.class_name}(${this.base_class_name}):\n' +
-        '    pass\n',
-    java:
-        'class ${this.class_name} extends ${this.base_class_name} {\n' +
-        '}'
+    qore: 'class ${this.class_name} inherits ${this.base_class_name} {\n' + '}\n',
+    python: 'class ${this.class_name}(${this.base_class_name}):\n' + '    pass\n',
+    java: 'class ${this.class_name} extends ${this.base_class_name} {\n' + '}',
 };
 
 export const class_template = {
@@ -51,7 +35,7 @@ export const class_template = {
         '${this.methods}' +
         '${this.connections_within_class}' +
         '}' +
-        '${this.connections_extra_class}'
+        '${this.connections_extra_class}',
 };
 
 export const subclass_template = {
@@ -71,7 +55,7 @@ export const subclass_template = {
         '${this.methods}' +
         '${this.connections_within_class}' +
         '}' +
-        '${this.connections_extra_class}'
+        '${this.connections_extra_class}',
 };
 
 export const classTemplate = (lang, is_subclass, is_empty) =>
@@ -80,21 +64,15 @@ export const classTemplate = (lang, is_subclass, is_empty) =>
             ? empty_subclass_template[lang]
             : subclass_template[lang]
         : is_empty
-            ? empty_class_template[lang]
-            : class_template[lang];
+        ? empty_class_template[lang]
+        : class_template[lang];
 
 // ================================================================
 
 export const simple_method_template = {
-    qore:
-        '    ${this.name}() {\n' +
-        '    }\n',
-    python:
-        '    def ${this.name}(self):\n' +
-        '        pass\n',
-    java:
-        '    public void ${this.name}() throws Throwable {\n' +
-        '    }\n'
+    qore: '    ${this.name}() {\n' + '    }\n',
+    python: '    def ${this.name}(self):\n' + '        pass\n',
+    java: '    public void ${this.name}() throws Throwable {\n' + '    }\n',
 };
 
 // ================================================================
@@ -103,7 +81,7 @@ export const classImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
             const module = classToPythonModule(base_class_name);
-            return module ? [ `from ${module} import ${base_class_name}` ] : [];
+            return module ? [`from ${module} import ${base_class_name}`] : [];
         default:
             return [];
     }
@@ -174,7 +152,7 @@ export const classFields = ({ default_target_dir, limited_editing }) => [
 ];
 
 export const field = {
-    targetDir: default_target_dir => ({
+    targetDir: (default_target_dir) => ({
         name: 'target_dir',
         type: 'file-string',
         default_value: default_target_dir,

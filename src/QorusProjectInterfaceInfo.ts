@@ -1,15 +1,14 @@
 import * as jsyaml from 'js-yaml';
+import { flattenDeep } from 'lodash';
 import * as shortid from 'shortid';
-import * as flattenDeep from 'lodash/flattenDeep';
-import { qorus_webview } from './QorusWebview';
+import { t } from 'ttag';
+import { configItemFields, defaultValue } from './interface_creator/config_item_constants';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import { QorusProjectYamlInfo } from './QorusProjectYamlInfo';
+import { qorus_webview } from './QorusWebview';
 import { default_version } from './qorus_constants';
-import { defaultValue, configItemFields } from './interface_creator/config_item_constants';
-import { hasConfigItems, deepCopy } from './qorus_utils';
-import { t } from 'ttag';
 import * as msg from './qorus_message';
-
+import { deepCopy, hasConfigItems } from './qorus_utils';
 
 export class QorusProjectInterfaceInfo {
     private code_info: QorusProjectCodeInfo;
@@ -25,7 +24,7 @@ export class QorusProjectInterfaceInfo {
         this.yaml_info = code_info.yaml_info;
     }
 
-    private hasSpecificData = iface_kind => ['fsm', 'pipeline'].includes(iface_kind);
+    private hasSpecificData = (iface_kind) => ['fsm', 'pipeline'].includes(iface_kind);
 
     private specificDataId = (iface_kind, state_id, processor_id) => {
         switch (iface_kind) {
@@ -42,9 +41,9 @@ export class QorusProjectInterfaceInfo {
         }
 
         return undefined;
-    }
+    };
 
-    private maybeInitIfaceId = ({iface_id, iface_kind, state_id = undefined, processor_id = undefined}) => {
+    private maybeInitIfaceId = ({ iface_id, iface_kind, state_id = undefined, processor_id = undefined }) => {
         if (!this.iface_by_id[iface_id]) {
             this.iface_by_id[iface_id] = {};
         }
@@ -55,7 +54,7 @@ export class QorusProjectInterfaceInfo {
             this.iface_by_id[iface_id]['config-item-values'] = [];
         }
 
-        if (this.hasSpecificData(iface_kind)){
+        if (this.hasSpecificData(iface_kind)) {
             if (!this.iface_by_id[iface_id].specific_data) {
                 this.iface_by_id[iface_id].specific_data = {};
             }
@@ -65,15 +64,15 @@ export class QorusProjectInterfaceInfo {
                 this.maybeInitSpecificDataId(iface_id, specific_data_id);
             }
         }
-    }
+    };
 
     private maybeInitSpecificDataId = (iface_id, specific_data_id) => {
         if (!this.iface_by_id[iface_id].specific_data[specific_data_id]) {
             this.iface_by_id[iface_id].specific_data[specific_data_id] = {};
         }
-    }
+    };
 
-    resetConfigItemsToOrig = ({iface_id, state_id, processor_id}) => {
+    resetConfigItemsToOrig = ({ iface_id, state_id, processor_id }) => {
         if (!this.checkIfaceId(iface_id)) {
             return;
         }
@@ -81,17 +80,20 @@ export class QorusProjectInterfaceInfo {
         const iface = this.iface_by_id[iface_id];
         if (this.hasSpecificData(iface.type)) {
             const specific_data_id = this.specificDataId(iface.type, state_id, processor_id);
-            const specific_data_ids = specific_data_id ? [specific_data_id] : (Object.keys(iface.specific_data) || []);
-            specific_data_ids.forEach(id => {
+            const specific_data_ids = specific_data_id ? [specific_data_id] : Object.keys(iface.specific_data) || [];
+            specific_data_ids.forEach((id) => {
                 const specific_data = iface.specific_data[id];
                 specific_data['config-items'] = deepCopy(specific_data['orig-config-items'] || []);
             });
         } else {
             iface['config-items'] = deepCopy(iface['orig-config-items'] || []);
         }
-    }
+    };
 
-    setOrigConfigItems = ({iface_id, state_id = undefined, processor_id = undefined}, report_unknown_iface_id = true) => {
+    setOrigConfigItems = (
+        { iface_id, state_id = undefined, processor_id = undefined },
+        report_unknown_iface_id = true
+    ) => {
         if (!this.checkIfaceId(iface_id, report_unknown_iface_id)) {
             return;
         }
@@ -99,15 +101,15 @@ export class QorusProjectInterfaceInfo {
         const iface = this.iface_by_id[iface_id];
         if (this.hasSpecificData(iface.type)) {
             const specific_data_id = this.specificDataId(iface.type, state_id, processor_id);
-            const specific_data_ids = specific_data_id ? [specific_data_id] : (Object.keys(iface.specific_data) || []);
-            specific_data_ids.forEach(id => {
+            const specific_data_ids = specific_data_id ? [specific_data_id] : Object.keys(iface.specific_data) || [];
+            specific_data_ids.forEach((id) => {
                 const specific_data = iface.specific_data[id];
                 specific_data['orig-config-items'] = deepCopy(specific_data['config-items'] || []);
             });
         } else {
             iface['orig-config-items'] = deepCopy(iface['config-items'] || []);
         }
-    }
+    };
 
     private checkIfaceId = (iface_id, report_unknown_iface_id = true): boolean => {
         if (!this.iface_by_id[iface_id]) {
@@ -117,20 +119,19 @@ export class QorusProjectInterfaceInfo {
             return false;
         }
         return true;
-    }
+    };
 
     addIfaceById = (data: any, iface_kind: string): string => {
         const iface_id = shortid.generate();
-        this.maybeInitIfaceId({iface_id, iface_kind});
+        this.maybeInitIfaceId({ iface_id, iface_kind });
         this.iface_by_id[iface_id] = {
-            ... this.iface_by_id[iface_id],
-            ... data
+            ...this.iface_by_id[iface_id],
+            ...data,
         };
 
         if (iface_kind === 'fsm') {
-
             const addStateData = (states: {} = {}) => {
-                Object.keys(states).forEach(state_id => {
+                Object.keys(states).forEach((state_id) => {
                     const state = states[state_id];
 
                     switch (state.type) {
@@ -143,21 +144,21 @@ export class QorusProjectInterfaceInfo {
                             }
                             this.maybeInitSpecificDataId(iface_id, state.id);
                             if (state.id && state?.action?.value?.class) {
-                                this.iface_by_id[iface_id].specific_data[state.id].class_name = state.action.value.class;
+                                this.iface_by_id[iface_id].specific_data[state.id].class_name =
+                                    state.action.value.class;
                             }
                             if (state['config-items']?.length) {
-                                this.iface_by_id[iface_id].specific_data[state.id]['config-items'] = state['config-items'];
+                                this.iface_by_id[iface_id].specific_data[state.id]['config-items'] =
+                                    state['config-items'];
                             }
                             break;
                     }
                 });
             };
             addStateData(data.states);
-
         } else if (iface_kind === 'pipeline') {
-
             const addChildrenData = (children: any[] = []) => {
-                children.forEach(child => {
+                children.forEach((child) => {
                     switch (child.type) {
                         case 'queue':
                             addChildrenData(child.children);
@@ -167,7 +168,8 @@ export class QorusProjectInterfaceInfo {
                                 this.maybeInitSpecificDataId(iface_id, child.pid);
                                 this.iface_by_id[iface_id].specific_data[child.pid].class_name = child.name;
                                 if (child['config-items']?.length) {
-                                    this.iface_by_id[iface_id].specific_data[child.pid]['config-items'] = child['config-items'];
+                                    this.iface_by_id[iface_id].specific_data[child.pid]['config-items'] =
+                                        child['config-items'];
                                 }
                             }
                             break;
@@ -175,20 +177,19 @@ export class QorusProjectInterfaceInfo {
                 });
             };
             addChildrenData(data.children);
-
         }
 
-        this.setOrigConfigItems({iface_id});
+        this.setOrigConfigItems({ iface_id });
         return iface_id;
-    }
+    };
 
     getInfo = (id: string): any => {
         return this.iface_by_id[id];
-    }
+    };
 
     deleteInfo = (id: string) => {
         delete this.iface_by_id[id];
-    }
+    };
 
     get last_config_group(): string | undefined {
         return this.last_conf_group;
@@ -221,9 +222,9 @@ export class QorusProjectInterfaceInfo {
         is_templated_string,
         value_true_type,
         state_id,
-        processor_id
+        processor_id,
     }) => {
-        this.maybeInitIfaceId({iface_id, iface_kind, state_id, processor_id});
+        this.maybeInitIfaceId({ iface_id, iface_kind, state_id, processor_id });
 
         const specific_data_id = this.specificDataId(iface_kind, state_id, processor_id);
         const state_data = { id: state_id };
@@ -236,7 +237,7 @@ export class QorusProjectInterfaceInfo {
                 this.addClassConfigItems(iface_id, parent_class);
             }
 
-            this.getConfigItems({iface_id, iface_kind, state_data, processor_data});
+            this.getConfigItems({ iface_id, iface_kind, state_data, processor_data });
 
             return;
         }
@@ -245,14 +246,12 @@ export class QorusProjectInterfaceInfo {
             level = 'local';
         }
 
-        const parseIfComplex = item => {
+        const parseIfComplex = (item) => {
             const type = item.type === 'any' && value_true_type ? value_true_type : item.type;
             return ['list', 'hash', '*list', '*hash'].includes(type) ? jsyaml.safeLoad(value) : value;
         };
 
-        const templated_key = level === 'global'
-            ? 'is_global_value_templated_string'
-            : 'is_value_templated_string';
+        const templated_key = level === 'global' ? 'is_global_value_templated_string' : 'is_value_templated_string';
 
         if (level === 'workflow') {
             if (iface_kind !== 'workflow') {
@@ -260,8 +259,9 @@ export class QorusProjectInterfaceInfo {
                 return;
             }
 
-            let index = this.iface_by_id[iface_id]['config-item-values']
-                            .findIndex(ci_value => ci_value.name === name);
+            let index = this.iface_by_id[iface_id]['config-item-values'].findIndex(
+                (ci_value) => ci_value.name === name
+            );
 
             if (value === null && remove) {
                 if (index > -1) {
@@ -290,7 +290,7 @@ export class QorusProjectInterfaceInfo {
                 config_items = iface['config-items'];
             }
 
-            let item = (config_items || []).find(ci_value => ci_value.name === name);
+            let item = (config_items || []).find((ci_value) => ci_value.name === name);
 
             if (item === undefined) {
                 msg.error(t`ConfigItemNotFound ${name}`);
@@ -309,14 +309,14 @@ export class QorusProjectInterfaceInfo {
             }
         }
 
-        this.getConfigItems({iface_id, iface_kind, state_data, processor_data});
-    }
+        this.getConfigItems({ iface_id, iface_kind, state_data, processor_data });
+    };
 
-    updateConfigItem = ({iface_id, iface_kind, data: item, request_id, edit_type, state_id, processor_id}) => {
-        this.maybeInitIfaceId({iface_id, iface_kind, state_id, processor_id});
+    updateConfigItem = ({ iface_id, iface_kind, data: item, request_id, edit_type, state_id, processor_id }) => {
+        this.maybeInitIfaceId({ iface_id, iface_kind, state_id, processor_id });
 
         let iface = this.iface_by_id[iface_id];
-/*
+        /*
         if (!item.parent) {
             // check existence of saved config items with the same name and prefix
             const existing_item = this.yaml_info.getConfigItem(item);
@@ -335,9 +335,8 @@ export class QorusProjectInterfaceInfo {
             }
         }
 */
-        const default_value_true_type = item.type === 'any' && item.default_value_true_type
-            ? item.default_value_true_type
-            : item.type;
+        const default_value_true_type =
+            item.type === 'any' && item.default_value_true_type ? item.default_value_true_type : item.type;
 
         if (['list', 'hash'].includes(default_value_true_type)) {
             if (item.default_value) {
@@ -345,7 +344,7 @@ export class QorusProjectInterfaceInfo {
             }
 
             if (item.allowed_values) {
-                item.allowed_values = item.allowed_values.map(value => jsyaml.safeLoad(value));
+                item.allowed_values = item.allowed_values.map((value) => jsyaml.safeLoad(value));
             }
         }
 
@@ -366,7 +365,7 @@ export class QorusProjectInterfaceInfo {
         config_items = config_items || [];
 
         const name_to_search = item.orig_name || item.name;
-        const index = config_items.findIndex(item2 => item2.name === name_to_search);
+        const index = config_items.findIndex((item2) => item2.name === name_to_search);
 
         if (index > -1) {
             let existing_item = config_items[index];
@@ -375,23 +374,21 @@ export class QorusProjectInterfaceInfo {
             }
 
             const orig_type = existing_item.type || defaultValue('type');
-            const orig_value_true_type = orig_type === 'any' && existing_item.value_true_type
-                ? existing_item.value_true_type
-                : orig_type;
+            const orig_value_true_type =
+                orig_type === 'any' && existing_item.value_true_type ? existing_item.value_true_type : orig_type;
 
             if (![orig_value_true_type, 'any'].includes(item.type)) {
                 delete existing_item['local-value'];
             }
 
-            const field_names = configItemFields(this).map(field => field.name);
-            field_names.forEach(field_name => {
+            const field_names = configItemFields(this).map((field) => field.name);
+            field_names.forEach((field_name) => {
                 delete existing_item[field_name];
             });
 
-            existing_item = { ... existing_item, ... item };
+            existing_item = { ...existing_item, ...item };
             config_items[index] = existing_item;
-        }
-        else {
+        } else {
             config_items.push(item);
         }
 
@@ -409,23 +406,23 @@ export class QorusProjectInterfaceInfo {
             action: `creator-${edit_type}-interface-complete`,
             request_id,
             ok: true,
-            message: t`ConfigItemUpdatedSuccessfully ${item.name}`
+            message: t`ConfigItemUpdatedSuccessfully ${item.name}`,
         });
 
-        const {'base-class-name': base_class_name, classes, requires, steps} = iface;
+        const { 'base-class-name': base_class_name, classes, requires, steps } = iface;
         this.getConfigItems({
-             iface_id,
-             iface_kind,
-             'base-class-name': base_class_name,
-             classes,
-             requires,
-             steps,
-             state_data: {id: state_id},
-             processor_data: {pid: processor_id}
+            iface_id,
+            iface_kind,
+            'base-class-name': base_class_name,
+            classes,
+            requires,
+            steps,
+            state_data: { id: state_id },
+            processor_data: { pid: processor_id },
         });
-    }
+    };
 
-    deleteConfigItem = ({iface_id, iface_kind, name, state_id, processor_id}) => {
+    deleteConfigItem = ({ iface_id, iface_kind, name, state_id, processor_id }) => {
         if (!this.checkIfaceId(iface_id)) {
             return;
         }
@@ -441,7 +438,7 @@ export class QorusProjectInterfaceInfo {
             config_items = iface['config-items'];
         }
 
-        const index = (config_items || []).findIndex(item => item.name === name);
+        const index = (config_items || []).findIndex((item) => item.name === name);
         if (index > -1) {
             config_items.splice(index, 1);
         } else {
@@ -451,12 +448,12 @@ export class QorusProjectInterfaceInfo {
         this.getConfigItems({
             iface_id,
             iface_kind,
-            state_data: {id: state_id},
-            processor_data: {pid: processor_id}
+            state_data: { id: state_id },
+            processor_data: { pid: processor_id },
         });
-    }
+    };
 
-    private configItemInheritedData = this_item => {
+    private configItemInheritedData = (this_item) => {
         if (!this_item.parent) {
             return this_item;
         }
@@ -467,16 +464,16 @@ export class QorusProjectInterfaceInfo {
             return this_item;
         }
 
-        const index = (parent_data['config-items'] || []).findIndex(item => item.name === this_item.name);
+        const index = (parent_data['config-items'] || []).findIndex((item) => item.name === this_item.name);
         if (index === -1) {
-//            msg.error(t`AncestorDoesNotHaveConfigItem ${'class'} ${parent_name} ${this_item.name}`);
+            //            msg.error(t`AncestorDoesNotHaveConfigItem ${'class'} ${parent_name} ${this_item.name}`);
             return this_item;
         }
 
         const inherited_item = this.configItemInheritedData(parent_data['config-items'][index]);
 
         return { ...inherited_item, ...this_item };
-    }
+    };
 
     private addClassConfigItems = (iface_id, class_name, prefix?, specific_data_id?) => {
         const class_yaml_data = this.yaml_info.yamlDataByName('class', class_name);
@@ -486,14 +483,14 @@ export class QorusProjectInterfaceInfo {
 
         const version = (class_yaml_data.version || default_version).toString();
 
-        (class_yaml_data['config-items'] || []).forEach(raw_item => {
+        (class_yaml_data['config-items'] || []).forEach((raw_item) => {
             let item = { ...this.configItemInheritedData(raw_item) };
 
             item.parent_data = { ...item };
             item.parent = {
                 'interface-type': 'class',
                 'interface-name': class_name,
-                'interface-version': version
+                'interface-version': version,
             };
             item.parent_class = class_name;
             if (prefix) {
@@ -505,38 +502,36 @@ export class QorusProjectInterfaceInfo {
                 if (!iface.specific_data[specific_data_id]['config-items']) {
                     iface.specific_data[specific_data_id]['config-items'] = [];
                 }
-                const index = iface.specific_data[specific_data_id]?.['config-items'].findIndex(item2 =>
-                    item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
+                const index = iface.specific_data[specific_data_id]?.['config-items'].findIndex(
+                    (item2) => item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
                 );
 
                 if (index > -1) {
                     this.iface_by_id[iface_id].specific_data[specific_data_id]['config-items'][index] = {
-                        ... item,
-                        ... iface.specific_data[specific_data_id]['config-items'][index]
+                        ...item,
+                        ...iface.specific_data[specific_data_id]['config-items'][index],
                     };
-                }
-                else {
+                } else {
                     this.iface_by_id[iface_id].specific_data[specific_data_id]['config-items'].push(item);
                 }
             } else {
-                const index = this.iface_by_id[iface_id]['config-items'].findIndex(item2 =>
-                    item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
+                const index = this.iface_by_id[iface_id]['config-items'].findIndex(
+                    (item2) => item2.name === raw_item.name && (!item2.prefix || item2.prefix === raw_item.prefix)
                 );
 
                 if (index > -1) {
                     this.iface_by_id[iface_id]['config-items'][index] = {
-                        ... item,
-                        ... iface['config-items'][index]
+                        ...item,
+                        ...iface['config-items'][index],
                     };
-                }
-                else {
+                } else {
                     this.iface_by_id[iface_id]['config-items'].push(item);
                 }
             }
         });
-    }
+    };
 
-    private findConfigItem = ({iface_id, name, state_id, processor_id}) => {
+    private findConfigItem = ({ iface_id, name, state_id, processor_id }) => {
         const iface = iface_id && this.iface_by_id[iface_id];
         if (!iface) {
             return undefined;
@@ -550,10 +545,10 @@ export class QorusProjectInterfaceInfo {
             config_items = iface['config-items'];
         }
 
-        return (config_items || []).find(item => item.name === name);
-    }
+        return (config_items || []).find((item) => item.name === name);
+    };
 
-    getConfigItem = params => {
+    getConfigItem = (params) => {
         const found_item = this.findConfigItem(params);
         if (!found_item) {
             return;
@@ -566,9 +561,8 @@ export class QorusProjectInterfaceInfo {
             item.can_be_undefined = true;
         }
 
-        const default_value_true_type = item.type === 'any' && item.default_value_true_type
-            ? item.default_value_true_type
-            : item.type;
+        const default_value_true_type =
+            item.type === 'any' && item.default_value_true_type ? item.default_value_true_type : item.type;
 
         if (item.default_value !== undefined && ['list', 'hash'].includes(default_value_true_type)) {
             item.default_value = jsyaml.safeDump(item.default_value).replace(/\r?\n$/, '');
@@ -576,14 +570,14 @@ export class QorusProjectInterfaceInfo {
 
         const message = {
             action: 'return-config-item',
-            item
+            item,
         };
 
         qorus_webview.postMessage(message);
-    }
+    };
 
-    removeBaseClass = ({iface_id, iface_kind}) => {
-        this.maybeInitIfaceId({iface_id, iface_kind});
+    removeBaseClass = ({ iface_id, iface_kind }) => {
+        this.maybeInitIfaceId({ iface_id, iface_kind });
         let iface = this.iface_by_id[iface_id];
 
         const base_class_name = iface['base-class-name'];
@@ -598,14 +592,14 @@ export class QorusProjectInterfaceInfo {
         }
 
         const classes = iface.requires || iface.classes || [];
-        if (classes.findIndex(({name, prefix = ''}) => base_class_name === name && prefix === '') > -1) {
+        if (classes.findIndex(({ name, prefix = '' }) => base_class_name === name && prefix === '') > -1) {
             return;
         }
 
-        this.iface_by_id[iface_id]['config-items'] = iface['config-items'].filter(item =>
-            !item.parent || item.parent['interface-name'] !== base_class_name || item.prefix
+        this.iface_by_id[iface_id]['config-items'] = iface['config-items'].filter(
+            (item) => !item.parent || item.parent['interface-name'] !== base_class_name || item.prefix
         );
-    }
+    };
 
     private removeClassFromSpecificData = (iface_id, specific_data_id) => {
         const specific_data = this.iface_by_id[iface_id]?.specific_data?.[specific_data_id];
@@ -613,38 +607,38 @@ export class QorusProjectInterfaceInfo {
             delete specific_data.class_name;
             delete specific_data['config-items'];
         }
-    }
+    };
 
-    removeAllClasses = ({iface_id, iface_kind}) => {
-        this.maybeInitIfaceId({iface_id, iface_kind});
+    removeAllClasses = ({ iface_id, iface_kind }) => {
+        this.maybeInitIfaceId({ iface_id, iface_kind });
         this.removeClassesConfigItems(iface_id);
         delete this.iface_by_id[iface_id].classes;
         delete this.iface_by_id[iface_id].requires;
-        this.getConfigItems({iface_id, iface_kind});
-    }
+        this.getConfigItems({ iface_id, iface_kind });
+    };
 
     private removeClassesConfigItems = (iface_id, classes?) => {
         const removeClassConfigItems = (class_name, is_base_class) => {
-            this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(item =>
-                !item.parent || item.parent['interface-name'] !== class_name ||
-                (is_base_class && !item.prefix)
+            this.iface_by_id[iface_id]['config-items'] = this.iface_by_id[iface_id]['config-items'].filter(
+                (item) =>
+                    !item.parent || item.parent['interface-name'] !== class_name || (is_base_class && !item.prefix)
             );
         };
 
         const iface_data = this.iface_by_id[iface_id];
         const base_class_name = iface_data['base-class-name'];
 
-        (iface_data.classes || iface_data.requires || []).forEach(class_data => {
-            const index = (classes || []).findIndex(class_data_2 => class_data_2.name === class_data.name);
+        (iface_data.classes || iface_data.requires || []).forEach((class_data) => {
+            const index = (classes || []).findIndex((class_data_2) => class_data_2.name === class_data.name);
             if (index === -1) {
                 removeClassConfigItems(class_data.name, class_data.name === base_class_name);
             }
         });
-    }
+    };
 
-    private workflowStepsConfigItems = steps => {
+    private workflowStepsConfigItems = (steps) => {
         let items = [];
-        flattenDeep(steps).forEach(name => {
+        flattenDeep(steps).forEach((name) => {
             const step_data: any = this.yaml_info.yamlDataByName('step', name);
             if (!step_data) {
                 msg.error(t`YamlDataNotFound ${'step'} ${name}`);
@@ -654,17 +648,17 @@ export class QorusProjectInterfaceInfo {
             if (step_data['base-class-name']) {
                 this.addClassConfigItems(iface_id, step_data['base-class-name']);
             }
-            (step_data.classes || []).forEach(class_data => {
+            (step_data.classes || []).forEach((class_data) => {
                 class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
             });
-            (step_data['config-items'] || []).forEach(item => {
-                if (items.findIndex(item2 => item2.name === item.name) === -1) {
+            (step_data['config-items'] || []).forEach((item) => {
+                if (items.findIndex((item2) => item2.name === item.name) === -1) {
                     items.push(item);
                 }
             });
         });
         return deepCopy(items);
-    }
+    };
 
     private addClasses = (iface_id, classes_key, classes) => {
         let iface_data = this.iface_by_id[iface_id];
@@ -673,14 +667,16 @@ export class QorusProjectInterfaceInfo {
         }
 
         iface_data[classes_key] = iface_data[classes_key] || [];
-        classes.forEach(({name, prefix = ''}) => {
-            if (iface_data[classes_key].findIndex(({name: name2, prefix: prefix2 = ''}) =>
-                name === name2 && prefix === prefix2) === -1)
-            {
-                iface_data[classes_key].push({name, prefix});
+        classes.forEach(({ name, prefix = '' }) => {
+            if (
+                iface_data[classes_key].findIndex(
+                    ({ name: name2, prefix: prefix2 = '' }) => name === name2 && prefix === prefix2
+                ) === -1
+            ) {
+                iface_data[classes_key].push({ name, prefix });
             }
         });
-    }
+    };
 
     removeClasses = (iface_id, classes_key, classes) => {
         let iface_data = this.iface_by_id[iface_id];
@@ -688,28 +684,31 @@ export class QorusProjectInterfaceInfo {
             return;
         }
 
-        iface_data[classes_key] = (iface_data[classes_key] || []).filter(({name, prefix = ''}) =>
-            classes.findIndex(({name: name2, prefix: prefix2 = ''}) => name === name2 && prefix === prefix2) !== -1);
-    }
+        iface_data[classes_key] = (iface_data[classes_key] || []).filter(
+            ({ name, prefix = '' }) =>
+                classes.findIndex(({ name: name2, prefix: prefix2 = '' }) => name === name2 && prefix === prefix2) !==
+                -1
+        );
+    };
 
-    addClassNames = classes => {
+    addClassNames = (classes) => {
         if (!classes) {
             return undefined;
         }
 
-        return classes.map(class_data => ({
+        return classes.map((class_data) => ({
             ...class_data,
-            'class-name': class_data.name
+            'class-name': class_data.name,
         }));
-    }
+    };
 
-    removeSpecificData = ({iface_id, state_id, processor_id}) => {
+    removeSpecificData = ({ iface_id, state_id, processor_id }) => {
         const iface = this.iface_by_id[iface_id];
         const specific_data_id = this.specificDataId(iface?.type, state_id, processor_id);
         if (specific_data_id && iface.specific_data?.[specific_data_id]) {
             delete iface.specific_data[specific_data_id];
         }
-    }
+    };
 
     isConfigItemFieldSet = (params, field_name) => {
         const item = this.findConfigItem(params);
@@ -724,11 +723,11 @@ export class QorusProjectInterfaceInfo {
 
         const parent_field_value = this.parentConfigItemFieldValue(params, field_name);
         return field_value !== parent_field_value;
-    }
+    };
 
     isConfigItemFieldSetByParent = (params, field_name) => {
         return this.parentConfigItemFieldValue(params, field_name) !== undefined;
-    }
+    };
 
     parentConfigItemFieldValue = (params, field_name) => {
         const item = this.findConfigItem(params);
@@ -742,18 +741,18 @@ export class QorusProjectInterfaceInfo {
             return undefined;
         }
 
-        const parent_item = parent_data['config-items'].find(item2 => item.name === item2.name);
+        const parent_item = parent_data['config-items'].find((item2) => item.name === item2.name);
         if (!parent_item) {
             return undefined;
         }
 
         const inherited_data = this.configItemInheritedData(parent_item);
         return inherited_data[field_name];
-    }
+    };
 
-    getConfigItems = params => {
+    getConfigItems = (params) => {
         this.code_info.waitForPending(['yaml'], 500).then(() => this.getConfigItemsImpl(params));
-    }
+    };
 
     private getConfigItemsImpl = ({
         'base-class-name': base_class_name,
@@ -762,8 +761,8 @@ export class QorusProjectInterfaceInfo {
         iface_id,
         iface_kind,
         steps,
-        state_data = {id: undefined, class_name: undefined},
-        processor_data = {pid: undefined, class_name: undefined}
+        state_data = { id: undefined, class_name: undefined },
+        processor_data = { pid: undefined, class_name: undefined },
     }) => {
         if (!iface_id) {
             return;
@@ -772,11 +771,11 @@ export class QorusProjectInterfaceInfo {
             return;
         }
 
-        const {id: state_id, class_name: state_class_name} = state_data;
-        const {pid: processor_id, class_name: processor_class_name} = processor_data;
+        const { id: state_id, class_name: state_class_name } = state_data;
+        const { pid: processor_id, class_name: processor_class_name } = processor_data;
         const specific_data_class_name = state_class_name || processor_class_name;
         const specific_data_id = this.specificDataId(iface_kind, state_id, processor_id);
-        this.maybeInitIfaceId({iface_id, iface_kind, state_id, processor_id});
+        this.maybeInitIfaceId({ iface_id, iface_kind, state_id, processor_id });
 
         const classes_key = requires ? 'requires' : 'classes';
         let classes_or_requires = requires ? requires : classes;
@@ -790,9 +789,9 @@ export class QorusProjectInterfaceInfo {
                 ? jsyaml.safeDump(value).replace(/\r?\n$/, '')
                 : value;
 
-        if (base_class_name ) {
+        if (base_class_name) {
             if (base_class_name !== this.iface_by_id[iface_id]['base-class-name']) {
-                this.removeBaseClass({iface_id, iface_kind});
+                this.removeBaseClass({ iface_id, iface_kind });
             }
             this.addClassConfigItems(iface_id, base_class_name);
             this.iface_by_id[iface_id]['base-class-name'] = base_class_name;
@@ -801,13 +800,17 @@ export class QorusProjectInterfaceInfo {
             this.removeClassesConfigItems(iface_id, classes_or_requires);
             this.removeClasses(iface_id, classes_key, classes_or_requires);
         }
-        (classes_or_requires || []).forEach(class_data => {
+        (classes_or_requires || []).forEach((class_data) => {
             class_data.name && this.addClassConfigItems(iface_id, class_data.name, class_data.prefix);
         });
 
         if (specific_data_id) {
             const orig_specific_data_class_name = this.iface_by_id[iface_id].specific_data[specific_data_id].class_name;
-            if (specific_data_class_name && orig_specific_data_class_name && specific_data_class_name !== orig_specific_data_class_name) {
+            if (
+                specific_data_class_name &&
+                orig_specific_data_class_name &&
+                specific_data_class_name !== orig_specific_data_class_name
+            ) {
                 this.removeClassFromSpecificData(iface_id, specific_data_id);
             }
             this.addClassConfigItems(iface_id, specific_data_class_name, '', specific_data_id);
@@ -820,10 +823,10 @@ export class QorusProjectInterfaceInfo {
             (level === 'global' && item.is_global_value_templated_string) ||
             (level !== 'global' && item.is_value_templated_string);
 
-        const valueTrueType = item =>
+        const valueTrueType = (item) =>
             item.type === 'any' && item.value_true_type ? item.value_true_type : item.type;
 
-        const defaultValueTrueType = item =>
+        const defaultValueTrueType = (item) =>
             item.type === 'any' && item.default_value_true_type ? item.default_value_true_type : item.type;
 
         const fixLocalItem = (item: any): any => {
@@ -834,7 +837,7 @@ export class QorusProjectInterfaceInfo {
             }
 
             if (item.allowed_values) {
-                item.allowed_values = item.allowed_values.map(value => toYamlIfComplex(value, valueTrueType(item)));
+                item.allowed_values = item.allowed_values.map((value) => toYamlIfComplex(value, valueTrueType(item)));
             }
 
             if (item.value !== undefined) {
@@ -886,18 +889,16 @@ export class QorusProjectInterfaceInfo {
                     ? value
                     : jsyaml.safeDump(value).replace(/\r?\n$/, '');
 
-            const hasNormalValue = value => typeof value !== 'undefined' && value !== null;
+            const hasNormalValue = (value) => typeof value !== 'undefined' && value !== null;
 
             let yaml_data_tag = {
-                ... hasNormalValue(item.value)
-                    ? {value: toYamlIfNotComplex(item.value)}
-                    : {},
-                ... hasNormalValue(item.default_value)
-                    ? {default_value: toYamlIfNotComplex(item.default_value, defaultValueTrueType(item))}
-                    : {},
-                ... item.allowed_values
-                    ? {allowed_values: item.allowed_values.map(value => toYamlIfNotComplex(value))}
-                    : {}
+                ...(hasNormalValue(item.value) ? { value: toYamlIfNotComplex(item.value) } : {}),
+                ...(hasNormalValue(item.default_value)
+                    ? { default_value: toYamlIfNotComplex(item.default_value, defaultValueTrueType(item)) }
+                    : {}),
+                ...(item.allowed_values
+                    ? { allowed_values: item.allowed_values.map((value) => toYamlIfNotComplex(value)) }
+                    : {}),
             };
 
             return { ...item, yamlData: yaml_data_tag };
@@ -908,49 +909,55 @@ export class QorusProjectInterfaceInfo {
             if (steps) {
                 this.iface_by_id[iface_id].steps = steps;
             }
-            items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps)
-                        .filter(item => !item.strictly_local);
+            items = this.workflowStepsConfigItems(this.iface_by_id[iface_id].steps).filter(
+                (item) => !item.strictly_local
+            );
 
             const workflow_values = this.iface_by_id[iface_id]['config-item-values'] || [];
 
-            items.forEach(item => {
+            items.forEach((item) => {
                 delete item.default_value;
-                const workflow_value = workflow_values.find(item2 => item2.name === item.name);
+                const workflow_value = workflow_values.find((item2) => item2.name === item.name);
                 if (workflow_value !== undefined) {
-                    item['workflow-value'] = toYamlIfComplex(workflow_value.value, valueTrueType(item), workflow_value.is_value_templated_string);
+                    item['workflow-value'] = toYamlIfComplex(
+                        workflow_value.value,
+                        valueTrueType(item),
+                        workflow_value.is_value_templated_string
+                    );
                     item.is_value_templated_string = workflow_value.is_value_templated_string;
                 }
             });
         } else {
             if (specific_data_id) {
                 const specific_data = this.iface_by_id[iface_id].specific_data[specific_data_id];
-                items = [ ...specific_data?.['config-items'] || [] ];
+                items = [...(specific_data?.['config-items'] || [])];
             } else {
-                items = [ ...this.iface_by_id[iface_id]['config-items'] || [] ];
+                items = [...(this.iface_by_id[iface_id]['config-items'] || [])];
             }
         }
 
-        const local_items = (items || []).map(item => fixLocalItem({ ...item }));
+        const local_items = (items || []).map((item) => fixLocalItem({ ...item }));
 
-        const global_items = local_items.filter(item => !item.strictly_local)
-                                        .map(item => checkValueLevel({ ...item }, 'global'));
+        const global_items = local_items
+            .filter((item) => !item.strictly_local)
+            .map((item) => checkValueLevel({ ...item }, 'global'));
 
         let message: any;
         if (iface_kind === 'workflow') {
-            const workflow_items = local_items.map(item => checkValueLevel({ ...item }, 'workflow'));
+            const workflow_items = local_items.map((item) => checkValueLevel({ ...item }, 'workflow'));
 
             message = {
                 action: 'return-config-items',
-                workflow_items: workflow_items.map(item => addYamlData(item)),
+                workflow_items: workflow_items.map((item) => addYamlData(item)),
             };
         } else {
             message = {
                 action: 'return-config-items',
-                items: local_items.map(item => addYamlData(item)),
-                global_items: global_items.map(item => addYamlData(item))
+                items: local_items.map((item) => addYamlData(item)),
+                global_items: global_items.map((item) => addYamlData(item)),
             };
         }
 
         qorus_webview.postMessage(message);
-    }
+    };
 }

@@ -10,7 +10,7 @@ import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 export abstract class QorusHoverProviderBase implements HoverProvider {
     protected code_info: QorusProjectCodeInfo = undefined;
 
-    abstract async provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined>;
+    abstract provideHoverImpl(document: TextDocument, position: Position): Promise<Hover|undefined>;
 
     async provideHover(document: TextDocument, position: Position, _token: CancellationToken): Promise<Hover|undefined> {
         this.code_info = projects.currentProjectCodeInfo();

@@ -7,11 +7,17 @@ import { field } from './common_constants';
 export const jobImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
+            // FIXME: we need to know the language of the base class to generate the import statement correctly
+            // here we just assume Qore for now
             return base_class_name === root_job
                 ? [`from ${classToPythonModule(root_job)} import ${base_class_name}`]
-                : [];
+                : [`from qore.__root__ import ${base_class_name}`];
         case 'java':
-            return ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.job.*;'];
+            return [
+                'import qore.OMQ.*;',
+                'import qore.OMQ.UserApi.*;',
+                'import qore.OMQ.UserApi.Job.*;'
+            ];
         default:
             return [];
     }

@@ -7,11 +7,17 @@ import { field } from './common_constants';
 export const stepImports = (lang: string, base_class_name: string) => {
     switch (lang) {
         case 'python':
+            // FIXME: we need to know the language of the base class to generate the import statement correctly
+            // here we just assume Qore for now
             return root_steps.includes(base_class_name)
                 ? [`from ${classToPythonModule(base_class_name)} import ${base_class_name}`]
-                : [];
+                : [`from qore.__root__ import ${base_class_name}`];
         case 'java':
-            return ['import com.qoretechnologies.qorus.*;', 'import com.qoretechnologies.qorus.workflow.*;'];
+            return [
+                'import qore.OMQ.*;',
+                'import qore.OMQ.UserApi.*;',
+                'import qore.OMQ.UserApi.Workflow.*;'
+            ];
         default:
             return [];
     }
