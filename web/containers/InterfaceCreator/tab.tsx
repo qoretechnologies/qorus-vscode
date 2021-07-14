@@ -6,12 +6,12 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import Tutorial from '../../components/Tutorial';
 import { Messages } from '../../constants/messages';
+import { MethodsContext } from '../../context/methods';
 import { TextContext } from '../../context/text';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
-import { MethodsContext } from '../../context/methods';
 
 export interface ITabProps {
     initialData: any;
@@ -229,13 +229,7 @@ const Tab: React.FC<ITabProps> = ({ t, data, type, children, resetAllInterfaceDa
             data.confirmAction(
                 message,
                 () => {
-                    data.resetInterfaceData(iface_kind);
-                    if (iface_kind === 'service') {
-                        methods.setMethods([{id: 1, name: 'init'}]);
-                        methods.setMethodsCount(1);
-                        methods.setLastMethodId(1);
-                        methods.setActiveMethod(1);
-                    }
+                    //data.resetInterfaceData(iface_kind);
                     data.changeInitialData('isRecreate', true);
                     setRecreateDialog(null);
                 },
