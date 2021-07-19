@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1
+
+#### Bug fixes
+
+- Added default constructor code generation for Java classes to declare the default exception (`Throwable`) added to
+  all dynamically imported classes
+
 ## 2.3.0
 
 #### Bug fixes
