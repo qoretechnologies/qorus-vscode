@@ -52,6 +52,9 @@ export const subclass_template = {
         '${this.connections_extra_class}',
     java:
         'class ${this.class_name} extends ${this.base_class_name} {\n' +
+        '    ${this.class_name}() throws Throwable {\n' +
+        '        super();\n' +
+        '    }\n\n' +
         '${this.methods}' +
         '${this.connections_within_class}' +
         '}' +
@@ -64,8 +67,8 @@ export const classTemplate = (lang, is_subclass, is_empty) =>
             ? empty_subclass_template[lang]
             : subclass_template[lang]
         : is_empty
-        ? empty_class_template[lang]
-        : class_template[lang];
+            ? empty_class_template[lang]
+            : class_template[lang];
 
 // ================================================================
 
