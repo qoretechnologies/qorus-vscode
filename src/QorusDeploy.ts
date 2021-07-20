@@ -12,6 +12,7 @@ import { filesInDir, isDeployable, isVersion3, removeDuplicates } from './qorus_
 
 class QorusDeploy {
     private code_info: QorusProjectCodeInfo | undefined = undefined;
+    public isRunning: boolean = false;
 
     private setCodeInfo = (paths: string[]): boolean => {
         if (!paths.length) {
@@ -182,7 +183,14 @@ class QorusDeploy {
     // returns true if the process got to the stage of checking the result
     // returns false if the process failed earlier
     private doDeploy(file_paths: string[], is_release: boolean = false): Thenable<boolean> {
+        if (this.isRunning) {
+            return Promise.resolve(false);
+        }
+
+        this.isRunning = true;
+
         const { ok, active_instance, token } = qorus_request.activeQorusInstanceAndToken();
+
         if (!ok) {
             return Promise.resolve(false);
         }
@@ -246,7 +254,9 @@ class QorusDeploy {
             checking_status_failed: t`CheckingDeploymentStatusFailed`,
         };
 
-        return qorus_request.doRequestAndCheckResult(options, texts);
+        return qorus_request.doRequestAndCheckResult(options, texts, () => {
+            this.isRunning = false;
+        });
     }
 
     private prepareData(files: string[], data: object[]) {
