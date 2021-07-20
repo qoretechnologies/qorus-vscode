@@ -1,99 +1,147 @@
 import { join } from 'path';
 import { t } from 'ttag';
 import { commands, ExtensionContext, Uri, window as vswindow, workspace } from 'vscode';
-
-import * as msg from './qorus_message';
-import { dash2Pascal } from './qorus_utils';
+import { deployer } from './QorusDeploy';
 import { interface_tree } from './QorusInterfaceTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
-import { deployer } from './QorusDeploy';
+import * as msg from './qorus_message';
+import { dash2Pascal } from './qorus_utils';
 
 export const registerQorusViewsCommands = (context: ExtensionContext) => {
     let disposable;
 
     // view switching commands
-    disposable = commands.registerCommand(
-        'qorus.views.switchToCategoryView', () => interface_tree.setCategoryView()
-    );
-    disposable = commands.registerCommand(
-        'qorus.views.switchToFolderView', () => interface_tree.setFolderView()
-    );
+    disposable = commands.registerCommand('qorus.views.switchToCategoryView', () => interface_tree.setCategoryView());
+    disposable = commands.registerCommand('qorus.views.switchToFolderView', () => interface_tree.setFolderView());
 
     // delete commands
-    ['class', 'connection', 'errors', 'event', 'group', 'job', 'mapper', 'mapper-code',
-        'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
-    {
+    [
+        'class',
+        'connection',
+        'errors',
+        'event',
+        'group',
+        'job',
+        'mapper',
+        'mapper-code',
+        'queue',
+        'service',
+        'step',
+        'value-map',
+        'workflow',
+        'type',
+        'fsm',
+        'pipeline',
+    ].forEach((iface_kind) => {
         const command = 'qorus.views.delete' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
-            vswindow.showWarningMessage(
-                t`ConfirmDeleteInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`
-            ).then(
-                selection => {
+            vswindow
+                .showWarningMessage(t`ConfirmDeleteInterface ${iface_kind} ${data.name}`, t`Yes`, t`No`)
+                .then((selection) => {
                     if (selection !== t`Yes`) {
                         return;
                     }
 
                     const iface_data = data.data;
-                    QorusProjectCodeInfo.deleteInterface({iface_kind, iface_data});
-                }
-            );
+                    QorusProjectCodeInfo.deleteInterface({ iface_kind, iface_data });
+                });
         });
         context.subscriptions.push(disposable);
     });
 
     // deploy commands
-    ['class', 'connection', 'errors', 'event', 'group', 'job', 'mapper', 'mapper-code',
-        'queue', 'service', 'step', 'value-map', 'workflow', 'type', 'fsm', 'pipeline'].forEach(iface_kind =>
-    {
+    [
+        'class',
+        'connection',
+        'errors',
+        'event',
+        'group',
+        'job',
+        'mapper',
+        'mapper-code',
+        'queue',
+        'service',
+        'step',
+        'value-map',
+        'workflow',
+        'type',
+        'fsm',
+        'pipeline',
+    ].forEach((iface_kind) => {
         const command = 'qorus.views.deploy' + dash2Pascal(iface_kind);
         disposable = commands.registerCommand(command, (data: any) => {
-            vswindow.showInformationMessage(
-                t`ConfirmDeployInterface ${iface_kind} ${data.name}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
-            ).then(
-                selection => {
-                    if (selection === t`No`) {
-                        return;
-                    }
+            if (!deployer.isRunning) {
+                vswindow
+                    .showInformationMessage(
+                        t`ConfirmDeployInterface ${iface_kind} ${data.name}`,
+                        t`YesWithDep`,
+                        t`YesWithoutDep`,
+                        t`No`
+                    )
+                    .then((selection) => {
+                        if (!selection || selection === t`No`) {
+                            return;
+                        }
 
-                    if (!data.data?.yaml_file) {
-                        msg.error(t`MissingDeploymentData`);
-                        return;
-                    }
+                        if (!data.data?.yaml_file) {
+                            msg.error(t`MissingDeploymentData`);
+                            return;
+                        }
 
-                    deployer.deployFile(data.data.yaml_file, selection === t`YesWithDep`);
-                }
-            );
+                        deployer.deployFile(data.data.yaml_file, selection === t`YesWithDep`);
+                    });
+            }
         });
         context.subscriptions.push(disposable);
     });
     disposable = commands.registerCommand('qorus.views.deployAllInterfaces', () => {
-        vswindow.showInformationMessage(
-            t`ConfirmDeployAllInterfaces`, t`Yes`, t`No`
-        ).then(
-            selection => {
+        if (!deployer.isRunning) {
+            vswindow.showInformationMessage(t`ConfirmDeployAllInterfaces`, t`Yes`, t`No`).then((selection) => {
                 if (selection === t`Yes`) {
                     deployer.deployAllInterfaces();
                 }
-            }
-        );
+            });
+        }
     });
     disposable = commands.registerCommand('qorus.views.deployDir', (data: any) => {
-        vswindow.showInformationMessage(
-            t`ConfirmDeployDirectory ${data.getDirectoryName()}`, t`YesWithDep`, t`YesWithoutDep`, t`No`
-        ).then(
-            selection => {
-                if (selection !== t`No`) {
-                    deployer.deployDir(data.getVscodeUri(), selection === t`YesWithDep`);
-                }
-            }
-        );
+        if (!deployer.isRunning) {
+            vswindow
+                .showInformationMessage(
+                    t`ConfirmDeployDirectory ${data.getDirectoryName()}`,
+                    t`YesWithDep`,
+                    t`YesWithoutDep`,
+                    t`No`
+                )
+                .then((selection) => {
+                    if (selection && selection !== t`No`) {
+                        deployer.deployDir(data.getVscodeUri(), selection === t`YesWithDep`);
+                    }
+                });
+        }
     });
 
     // edit commands
-    ['class', 'job', 'mapper', 'mapper-code', 'service', 'step', 'workflow-steps', 'connection',
-        'workflow', 'service-methods', 'mapper-code-methods', 'group', 'event', 'queue', 'type',
-        'fsm', 'pipeline', 'value-map', 'errors'].forEach(key =>
-    {
+    [
+        'class',
+        'job',
+        'mapper',
+        'mapper-code',
+        'service',
+        'step',
+        'workflow-steps',
+        'connection',
+        'workflow',
+        'service-methods',
+        'mapper-code-methods',
+        'group',
+        'event',
+        'queue',
+        'type',
+        'fsm',
+        'pipeline',
+        'value-map',
+        'errors',
+    ].forEach((key) => {
         const command = 'qorus.views.edit' + dash2Pascal(key);
         disposable = commands.registerCommand(command, (data: any) => {
             data = data.data;
@@ -123,8 +171,7 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     });
 
     // open interface command, used when clicking on interface in the tree
-    disposable = commands.registerCommand('qorus.views.openInterface', (data: any) =>
-    {
+    disposable = commands.registerCommand('qorus.views.openInterface', (data: any) => {
         if (!data || !data.data) {
             return;
         }
@@ -141,16 +188,14 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
                 if (iface_data.target_dir && iface_data.target_file) {
                     const filePath = join(iface_data.target_dir, iface_data.target_file);
                     workspace.openTextDocument(Uri.file(filePath)).then(
-                        doc => {
-                            if (vswindow.activeTextEditor &&
-                                vswindow.activeTextEditor.document.fileName === filePath)
-                            {
+                        (doc) => {
+                            if (vswindow.activeTextEditor && vswindow.activeTextEditor.document.fileName === filePath) {
                                 vswindow.showTextDocument(doc, { preview: false });
                             } else {
                                 vswindow.showTextDocument(doc);
                             }
                         },
-                        err => {
+                        (err) => {
                             console.log(t`ErrorOpeningFile ${filePath} ${err}`);
                         }
                     );
