@@ -637,6 +637,7 @@ export abstract class InterfaceCreator {
         headers[classes_or_requires] = this.code_info.interface_info.addClassNames(headers[classes_or_requires]);
 
         const base_class_name = headers['base-class-name'];
+
         if (base_class_name && !QorusProjectCodeInfo.isRootBaseClass(base_class_name)) {
             headers[classes_or_requires] = headers[classes_or_requires] || [];
             if (
@@ -650,6 +651,7 @@ export abstract class InterfaceCreator {
 
         let classes = {};
         let exists_prefix = false;
+
         (headers[classes_or_requires] || []).forEach((class_data) => {
             if (!classes[class_data.name]) {
                 classes[class_data.name] = {
