@@ -4,182 +4,185 @@
 
 #### Bug fixes
 
-- Added default constructor code generation for Java classes to declare the default exception (`Throwable`) added to
-  all dynamically imported classes
+-   Added default constructor code generation for Java classes to declare the default exception (`Throwable`) added to
+    all dynamically imported classes
+-   Fixed a bug where class package name for Java would contain forbidden characters
+-   Fixed a bug where initiating the deploy command would run multiple deployments in parallel and bypass the confirmation dialog
+-   Fixed a bug where the confirmation dialog would display after opening a saved interface that modified the Required or Classes tags
 
 ## 2.3.0
 
 #### Bug fixes
 
-- Code generation (and regeneration - when re-targeting an interface for another language) for Python and Java has been greatly improved in all areas
-- Many bug fixes have been made regarding editing and code and metadata alignment
+-   Code generation (and regeneration - when re-targeting an interface for another language) for Python and Java has been greatly improved in all areas
+-   Many bug fixes have been made regarding editing and code and metadata alignment
 
 ## 2.2.10
 
 #### Bug fixes
 
-- fixed: when a service is recreated on a language change its methods are not destroyed properly
-- webview crashes when trying to add a service method to an existing service from the webview
-- fixed setting the "unsaved work" flag for services when moving between the main service form and the methods form
+-   fixed: when a service is recreated on a language change its methods are not destroyed properly
+-   webview crashes when trying to add a service method to an existing service from the webview
+-   fixed setting the "unsaved work" flag for services when moving between the main service form and the methods form
     and reseting the changes
-- show the "unsaved work" confirmation dialog when opening another object,
+-   show the "unsaved work" confirmation dialog when opening another object,
     don't show it when no changes have been made (fixed again)
 
 ## 2.2.9
 
 #### Bug fixes
 
-- show the "unsaved work" confirmation dialog when opening another object from the tree view,
+-   show the "unsaved work" confirmation dialog when opening another object from the tree view,
     don't show the confirmation dialog after successful submit or when no changes have been made
-- prefill the target directory when opening a new interface from another interface (it worked only in some situations)
-- fixed: when a new mapper is opened from an FSM it has the Context field selected with value "undefined:undefined"
+-   prefill the target directory when opening a new interface from another interface (it worked only in some situations)
+-   fixed: when a new mapper is opened from an FSM it has the Context field selected with value "undefined:undefined"
 
 #### New features
 
-- make it possible not to use the qorus extension, create the config file only on demand
-- added container resource limits and scaling parameters fields to the stateless service definition
+-   make it possible not to use the qorus extension, create the config file only on demand
+-   added container resource limits and scaling parameters fields to the stateless service definition
 
 ## 2.2.8
 
 #### Bug fixes
 
-- fixed deployment of pipelines with processor classes as dependencies
-- fixed continuation of editing an interface after establishing an active qorus connection
+-   fixed deployment of pipelines with processor classes as dependencies
+-   fixed continuation of editing an interface after establishing an active qorus connection
 
 ## 2.2.7
 
 #### Bug fixes
 
-- fixed deployment of workflows with dependencies
+-   fixed deployment of workflows with dependencies
 
 ## 2.2.6
 
 #### Bug fixes
 
-- fixed saving workflows
+-   fixed saving workflows
 
 ## 2.2.5
 
 #### Bug fixes
 
-- interface fields containing file paths must use forward slashes ('/') on any operating system
+-   interface fields containing file paths must use forward slashes ('/') on any operating system
 
 #### New features
 
-- added the 'stateless' tag to services
+-   added the 'stateless' tag to services
 
 ## 2.2.4
 
 #### Bug fixes
 
-- fixed opening mappers with contextual mappings but no interface context
+-   fixed opening mappers with contextual mappings but no interface context
 
 #### New features
 
-- limited editing of Qore interfaces that changes only the metadata but not the source code is now possible even if Qore is not installed
+-   limited editing of Qore interfaces that changes only the metadata but not the source code is now possible even if Qore is not installed
 
 ## 2.2.3
 
 #### Bug fixes
 
-- fixed a bug where Open Workflow Steps did not work after Open Workflow and vice-versa
-- fixed encryption of passwords contained in Qorus URLs
-- fixed a bug where mappers displayed no data when opened from other interfaces
+-   fixed a bug where Open Workflow Steps did not work after Open Workflow and vice-versa
+-   fixed encryption of passwords contained in Qorus URLs
+-   fixed a bug where mappers displayed no data when opened from other interfaces
 
 ## 2.2.0
 
 #### New features
 
-- new data provider type: Factories
-- pipeline view has been split to 2 pages for a better orientation and usability
+-   new data provider type: Factories
+-   pipeline view has been split to 2 pages for a better orientation and usability
 
 #### Bug fixes
 
-- fixed a bug where 'tags' were not always serialized as strings
-- fixed a bug where the invalid 'option' tag was saved in processor
-- fixed saving of data provider options of complex types
-- fixed bugs where FSMs or pipelines being open from other interfaces opened blank
-- fixed a bug where pipeline could not be submitted unless input provider options, which are optional, were filled
+-   fixed a bug where 'tags' were not always serialized as strings
+-   fixed a bug where the invalid 'option' tag was saved in processor
+-   fixed saving of data provider options of complex types
+-   fixed bugs where FSMs or pipelines being open from other interfaces opened blank
+-   fixed a bug where pipeline could not be submitted unless input provider options, which are optional, were filled
 
 ## 2.1.0
 
 #### New features
 
-- new interface: Errors
-- workflows can now have a errors assigned
-- deployment of an interface now (optionally) includes all referenced interfaces
+-   new interface: Errors
+-   workflows can now have a errors assigned
+-   deployment of an interface now (optionally) includes all referenced interfaces
 
 #### Bug fixes
 
-- fixed a bug where the the IDE would crash when opening step for editing from the step diagram
-- it is now properly possible to create a Class from another Class
-- icons representing types of interfaces were unified, now they are the same in the tree view and in the webview
+-   fixed a bug where the the IDE would crash when opening step for editing from the step diagram
+-   it is now properly possible to create a Class from another Class
+-   icons representing types of interfaces were unified, now they are the same in the tree view and in the webview
 
 ## 2.0.2
 
 #### New features
 
-- new interface: Value map
-- it is now possible to create or edit two interfaces of the same kind at the same time (create Class from a Class for example)
-- groups, event and queues are now edited separately
+-   new interface: Value map
+-   it is now possible to create or edit two interfaces of the same kind at the same time (create Class from a Class for example)
+-   groups, event and queues are now edited separately
 
 #### Bug fixes
 
-- config item with allowed values can now be given a template string instead
-- check referenced interfaces on opening an interface
-- fixed filtering the base class list for source language when creating a new interface
+-   config item with allowed values can now be given a template string instead
+-   check referenced interfaces on opening an interface
+-   fixed filtering the base class list for source language when creating a new interface
 
 ## 2.0.1
 
 #### New features
 
-- step diagram for Workflows has been redesigned for better user experience
+-   step diagram for Workflows has been redesigned for better user experience
 
 #### Bug fixes
 
-- connection now properly saves the port
-- target directory is now properly pre set when creating a step from workflow
-- target directory is now shown when selected
-- fixed opening service methods with author for editing
-- description is mandatory for events, groups and queues
-- fixed opening events, groups and queues for editing from the file browser
-- fixed updating the file list after adding new directory
-- removed incorrect message on adding new step from the workflow diagram
-- fixed switching an interface into another language
+-   connection now properly saves the port
+-   target directory is now properly pre set when creating a step from workflow
+-   target directory is now shown when selected
+-   fixed opening service methods with author for editing
+-   description is mandatory for events, groups and queues
+-   fixed opening events, groups and queues for editing from the file browser
+-   fixed updating the file list after adding new directory
+-   removed incorrect message on adding new step from the workflow diagram
+-   fixed switching an interface into another language
 
 ## 2.0.0
 
 #### Requires
 
-  Qorus 5.0.0
+Qorus 5.0.0
 
 #### New features
 
-- support for Python
-- pipelines
-- finite state machines
-- connections
-- deployment of multiple files or directories
-- in the config item form it's now clear whether a field value has been inherited or overwritten or is new and it's possible to reset the field to the parent value
-- possibility to create subdirectories from the environment manager in the webview
-- encrypted passwords in the qorus instances configuration
-- use username and passwords in the qorus instances configuration for automatic login or at least for prefilling the username in the login form
-- extension is now 20 times smaller in size
-- code sharing among different languages (Qore, Python, Java):
+-   support for Python
+-   pipelines
+-   finite state machines
+-   connections
+-   deployment of multiple files or directories
+-   in the config item form it's now clear whether a field value has been inherited or overwritten or is new and it's possible to reset the field to the parent value
+-   possibility to create subdirectories from the environment manager in the webview
+-   encrypted passwords in the qorus instances configuration
+-   use username and passwords in the qorus instances configuration for automatic login or at least for prefilling the username in the login form
+-   extension is now 20 times smaller in size
+-   code sharing among different languages (Qore, Python, Java):
     everything is possible except that a Java class cannot inherit another language class
-- remember last target directory and use it as default for next new interface
-- re-creation of an interface with another programming language
-- re-creation of an interface with a broken source code
-- forms are no longer cleared on submit
-- view and delete interface directly from the webview
-- new tutorial feature to guide you through some of the more complex interfaces
-- many visual improvements
+-   remember last target directory and use it as default for next new interface
+-   re-creation of an interface with another programming language
+-   re-creation of an interface with a broken source code
+-   forms are no longer cleared on submit
+-   view and delete interface directly from the webview
+-   new tutorial feature to guide you through some of the more complex interfaces
+-   many visual improvements
 
 #### Bug fixes
 
-- behaviour on write file error, e.g. when target directory is invalid
-- saving codeless interfaces
-- fixed service method management
+-   behaviour on write file error, e.g. when target directory is invalid
+-   saving codeless interfaces
+-   fixed service method management
 
 ## 1.3.0
 
@@ -201,7 +204,7 @@
 
 ## 1.2.1
 
-- re-release of 1.2.0 without garbage files as part of the package
+-   re-release of 1.2.0 without garbage files as part of the package
 
 ## 1.2.0
 
