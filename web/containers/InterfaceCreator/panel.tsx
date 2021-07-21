@@ -622,6 +622,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'servicetype',
             'id',
             'active_method',
+            'requires',
+            'classes',
         ]);
 
         if (!isEqual(currentData, origData)) {

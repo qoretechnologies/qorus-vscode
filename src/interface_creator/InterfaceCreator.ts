@@ -76,7 +76,9 @@ export abstract class InterfaceCreator {
             case 'java':
                 this.file_base = data['class-name'];
                 this.yaml_file_base = data.version !== undefined ? `${data.name}-${data.version}` : data.name;
-                this.target_subdir = iface_kind ? `${this.yaml_file_base}-${iface_kind}` : this.yaml_file_base;
+                this.target_subdir = iface_kind
+                    ? `${this.yaml_file_base.replace('.', '_').replace('-', '_')}_${iface_kind}`.toLowerCase()
+                    : this.yaml_file_base.toLowerCase();
                 break;
             default:
                 if (target_file) {
@@ -635,6 +637,7 @@ export abstract class InterfaceCreator {
         headers[classes_or_requires] = this.code_info.interface_info.addClassNames(headers[classes_or_requires]);
 
         const base_class_name = headers['base-class-name'];
+
         if (base_class_name && !QorusProjectCodeInfo.isRootBaseClass(base_class_name)) {
             headers[classes_or_requires] = headers[classes_or_requires] || [];
             if (
@@ -648,6 +651,7 @@ export abstract class InterfaceCreator {
 
         let classes = {};
         let exists_prefix = false;
+
         (headers[classes_or_requires] || []).forEach((class_data) => {
             if (!classes[class_data.name]) {
                 classes[class_data.name] = {
