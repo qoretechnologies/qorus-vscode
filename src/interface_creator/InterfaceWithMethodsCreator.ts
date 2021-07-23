@@ -347,6 +347,17 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             } = new ClassConnectionsCreate({ ...data, iface_kind }, this.code_info, this.lang).code());
             method_objects = method_objects.filter((method_object) => !triggers.includes(method_object.name));
             both_connections_and_methods = !!method_objects.length;
+        } else if (this.lang == 'java' && !!data['base-class-name']) {
+            // FIXME: need to check if the base class is or inherits a Qore or Python class, we only need to generate
+            // the constructor with the Throwable declaration if so - only applies to mapper code, services always
+            // inherit the Qore QorusService base class
+            // must add default constructor for subclasses
+            connections_within_class =
+                `    // ==== GENERATED SECTION! DON'T EDIT! ==== //\n` +
+                '    ${this.class_name}() throws Throwable {\n' +
+                '        super();\n' +
+                '    }\n' +
+                '    // ======== GENERATED SECTION END ========= //\n';
         }
 
         let method_strings = [];
