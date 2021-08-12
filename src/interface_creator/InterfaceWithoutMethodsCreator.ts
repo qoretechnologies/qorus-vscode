@@ -101,7 +101,17 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             InterfaceWithoutMethodsCreator.fixClassConnections(data);
             ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
                   = new ClassConnectionsCreate({...data, iface_kind}, this.code_info, this.lang).code());
-        }
+        } else if (this.has_code && this.lang == 'java' && !!data['class-name'] && !!data['base-class-name']) {
+            // FIXME: need to check if the base class is or inherits a Qore or Python class, we only need to generate
+            // the constructor with the Throwable declaration if so
+            // must add default constructor for subclasses
+            connections_within_class =
+                `    // ==== GENERATED SECTION! DON'T EDIT! ==== //\n` +
+                `    ${data['class-name']}() throws Throwable {\n` +
+                '        super();\n' +
+                '    }\n' +
+                '    // ======== GENERATED SECTION END ========= //\n';
+    }
 
         let methods = '';
         let template: string;
