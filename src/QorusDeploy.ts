@@ -192,6 +192,7 @@ class QorusDeploy {
         const { ok, active_instance, token } = qorus_request.activeQorusInstanceAndToken();
 
         if (!ok) {
+            this.isRunning = false;
             return Promise.resolve(false);
         }
 
@@ -199,6 +200,7 @@ class QorusDeploy {
         if (isVersion3(active_instance.version)) {
             if (is_release) {
                 msg.error(t`PackageDeploymentNotSupportedForQorus3`);
+                this.isRunning = false;
                 return Promise.resolve(false);
             } else {
                 url = urlJoin(url, 'deployment');

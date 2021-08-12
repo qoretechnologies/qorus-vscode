@@ -1,10 +1,16 @@
 # Changelog
 
-## 2.3.2
+## 2.3.3
 
 #### Bug fixes
 
 -   Fixed code generation of default constructors in Java when extending dynamic classes and connectors exist
+
+## 2.3.2
+
+#### Bug fixes
+
+-   Fixed a bug that would block any deployment after a deployment failed
 
 ## 2.3.1
 
