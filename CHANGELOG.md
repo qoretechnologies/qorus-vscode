@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.2
+
+#### Bug fixes
+
+-   Fixed a bug that would block any deployment after a deployment failed
+
 ## 2.3.1
 
 #### Bug fixes
