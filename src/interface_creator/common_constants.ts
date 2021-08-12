@@ -15,7 +15,11 @@ export const empty_class_template = {
 export const empty_subclass_template = {
     qore: 'class ${this.class_name} inherits ${this.base_class_name} {\n' + '}\n',
     python: 'class ${this.class_name}(${this.base_class_name}):\n' + '    pass\n',
-    java: 'class ${this.class_name} extends ${this.base_class_name} {\n' + '}',
+    java: 'class ${this.class_name} extends ${this.base_class_name} {\n' +
+          '    ${this.class_name}() throws Throwable {\n' +
+          '        super();\n' +
+          '    }\n' +
+          '}',
 };
 
 export const class_template = {
@@ -52,9 +56,6 @@ export const subclass_template = {
         '${this.connections_extra_class}',
     java:
         'class ${this.class_name} extends ${this.base_class_name} {\n' +
-        '    ${this.class_name}() throws Throwable {\n' +
-        '        super();\n' +
-        '    }\n\n' +
         '${this.methods}' +
         '${this.connections_within_class}' +
         '}' +
