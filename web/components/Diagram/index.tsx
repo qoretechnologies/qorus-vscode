@@ -928,38 +928,39 @@ const StyledAddStepButton = styled.div<{ position: string }>`
     border-radius: 99px;
     background-color: #fff;
     border: 1px solid #ccc;
-    position: absolute;
+    position: fixed;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 300;
 
     ${({ position }) => {
         switch (position) {
             case 'top': {
                 return css`
                     left: 50%;
-                    top: -11px;
+                    top: 0px;
                     transform: translateX(-50%);
                 `;
             }
             case 'bottom': {
                 return css`
                     left: 50%;
-                    bottom: -10px;
+                    bottom: 0px;
                     transform: translateX(-50%);
                 `;
             }
             case 'left': {
                 return css`
                     top: 50%;
-                    left: -10px;
+                    left: 0px;
                     transform: translateY(-50%);
                 `;
             }
             default: {
                 return css`
                     top: 50%;
-                    right: -10px;
+                    right: 0px;
                     transform: translateY(-50%);
                 `;
             }
@@ -1126,36 +1127,28 @@ const StepBox = ({
                     onClick={(event) => handleAddStep(event, true, false, t('AddSequentialStepBefore'))}
                     name={`add-sequential-step-before-${stepData.name}`}
                 >
-                    <Tooltip content={t('AddSequentialStepBefore')}>
-                        <Icon intent="success" icon="add" iconSize={16} />
-                    </Tooltip>
+                    <Icon intent="success" icon="add" iconSize={16} />
                 </StyledAddStepButton>
                 <StyledAddStepButton
                     position="left"
                     onClick={(event) => handleAddStep(event, true, true, t('AddParallelStepBefore'))}
                     name={`add-parallel-step-before-${stepData.name}`}
                 >
-                    <Tooltip content={t('AddParallelStepBefore')}>
-                        <Icon intent="success" icon="add" iconSize={16} />
-                    </Tooltip>
+                    <Icon intent="success" icon="add" iconSize={16} />
                 </StyledAddStepButton>
                 <StyledAddStepButton
                     position="bottom"
                     onClick={(event) => handleAddStep(event, false, false, t('AddSequentialStepAfter'))}
                     name={`add-sequential-step-after-${stepData.name}`}
                 >
-                    <Tooltip content={t('AddSequentialStepAfter')}>
-                        <Icon intent="success" icon="add" iconSize={16} />
-                    </Tooltip>
+                    <Icon intent="success" icon="add" iconSize={16} />
                 </StyledAddStepButton>
                 <StyledAddStepButton
                     position="right"
                     onClick={(event) => handleAddStep(event, false, true, t('AddParallelStepAfter'))}
                     name={`add-parallel-step-after-${stepData.name}`}
                 >
-                    <Tooltip content={t('AddParallelStepAfter')}>
-                        <Icon intent="success" icon="add" iconSize={16} />
-                    </Tooltip>
+                    <Icon intent="success" icon="add" iconSize={16} />
                 </StyledAddStepButton>
                 <div
                     style={{
@@ -1175,7 +1168,7 @@ const StepBox = ({
                         {stepData.name}:{stepData.version}
                     </FieldName>
 
-                    <FieldType>{t(stepData.type)}</FieldType>
+                    <FieldType>{t(stepData.type || '-')}</FieldType>
                 </div>
             </StyledStep>
         </>

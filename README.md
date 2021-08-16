@@ -7,40 +7,12 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 2.3.4 overview - What's new:
 
 -   Fixed Java code generation of validation methods to use dynamically imported values
+-   Fixed a bug where dashes would not be allowed in connection names
+-   Fixed a rendering bug that sometimes would prevent rendering of icons on the step diagram
 
 ## Version 2.3.3 overview - What's new:
 
 -   Fixed code generation of default constructors in Java when extending dynamic classes and connectors exist
-
-## Version 2.3.2 overview - What's new:
-
--   Fixed a bug that would block any deployment after a deployment failed
-
-## Version 2.3.1 overview - What's new:
-
--   Added code generation of default constructors in Java when extending dynamic classes
--   Fixed a bug where class package name for Java would contain forbidden characters
--   Fixed a bug where initiating the deploy command would run multiple deployments in parallel and bypass the confirmation dialog
--   Fixed a bug where the confirmation dialog would display after opening a saved interface that modified the Required or Classes tags
-
-## Version 2.3.0 overview - What's new:
-
--   This version of the extension requires Qorus 5.1+ when working with Python or Java; it assumes that Qorus supports dynamic bytecode generation for Qorus APIs and for 3-way compatibility for Qore, Python, and Java
--   Code generation (and regeneration - when re-targeting an interface for another language) for Python and Java has been greatly improved in all areas
--   Many bug fixes have been made regarding editing and code and metadata alignment
-
-## Version 2.2.0 overview - What's new:
-
--   New data provider type: Factories
--   Pipeline view has been split to 2 pages for a better orientation and usability
-
-#### Bug fixes
-
--   Fixed a bug where 'tags' were not always serialized as strings
--   Fixed a bug where the invalid 'option' tag was saved in processor
--   Fixed saving of data provider options of complex types
--   Fixed bugs where FSMs or pipelines being open from other interfaces opened blank
--   Fixed a bug where pipeline could not be submitted unless input provider options, which are optional, were filledthe webview
 
 ---
 
