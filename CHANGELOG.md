@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.4
+
+#### Bug Fixes
+
+-   Fixed Java code generation of validation methods to use dynamically imported values
+-   Fixed a bug where dashes would not be allowed in connection names
+-   Fixed a rendering bug that sometimes would prevent rendering of icons on the step diagram
+
 ## 2.3.3
 
 #### Bug fixes
