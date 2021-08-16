@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.4
+
+#### Bug Fixes
+
+-   Fixed Java code generation of validation methods to use dynamically imported values
+
 ## 2.3.3
 
 #### Bug fixes
