@@ -354,7 +354,7 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             // must add default constructor for subclasses
             connections_within_class =
                 `    // ==== GENERATED SECTION! DON'T EDIT! ==== //\n` +
-                '    ${this.class_name}() throws Throwable {\n' +
+                `    ${this.class_name}() throws Throwable {\n` +
                 '        super();\n' +
                 '    }\n' +
                 '    // ======== GENERATED SECTION END ========= //\n';
