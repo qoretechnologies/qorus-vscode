@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.5
+
+#### Bug Fixes
+
+-   Fixed the default connection URL to use HTTPS on port 8011; HTTP on port 8001 is no longer used by default
+
 ## 2.3.4
 
 #### Bug Fixes
