@@ -7,6 +7,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 2.3.5 overview - What's new:
 
 -   Fixed the default connection URL to use HTTPS on port 8011; HTTP on port 8001 is no longer used by default
+-   Fixed a bug in Java code generation
 
 ## Version 2.3.4 overview - What's new:
 
