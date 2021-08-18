@@ -31,8 +31,7 @@ jobs:
           npm install
       - name: Publish
         id: publish
-        run: |
-          ./node_modules/.bin/vsce publish
+        run: ./node_modules/.bin/vsce publish
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
       - name: Create a release
