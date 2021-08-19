@@ -77,7 +77,9 @@ export abstract class InterfaceCreator {
                 this.file_base = data['class-name'];
                 this.yaml_file_base = data.version !== undefined ? `${data.name}-${data.version}` : data.name;
                 this.target_subdir = iface_kind
-                    ? `${this.yaml_file_base.replaceAll('.', '_').replaceAll('-', '_')}_${iface_kind}`.toLowerCase()
+                    ? `${this.yaml_file_base.replaceAll('.', '_').replaceAll('-', '_')}_${iface_kind
+                          .replaceAll('.', '_')
+                          .replaceAll('-', '_')}`.toLowerCase()
                     : this.yaml_file_base.toLowerCase();
                 break;
             default:
