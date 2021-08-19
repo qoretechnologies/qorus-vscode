@@ -106,7 +106,7 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
 
     return (
         <>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, overflow: 'auto' }}>
                 {map(fields, (field: IField) => (
                     <FieldWrapper name="selected-field">
                         <FieldLabel
