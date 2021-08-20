@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.3.7
+
+#### Bug Fixes
+
+-   Fixed a bug in Java folder creation - all invalid characters are now transformed
+-   Fixed bugs in Java code generation for constant values
+
+## 2.3.6
+
+#### Bug Fixes
+
+-   Added proper scrolling to connection creation view
+
 ## 2.3.5
 
 #### Bug Fixes

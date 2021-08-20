@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2016",
+        "target": "es2021",
         "outDir": "../out",
-        "lib": ["es7", "dom"],
+        "lib": ["es7", "es2017", "es2018", "es2019", "es2020", "es2021", "DOM", "dom"],
         "sourceMap": true,
         "moduleResolution": "node",
         "rootDir": "./",
