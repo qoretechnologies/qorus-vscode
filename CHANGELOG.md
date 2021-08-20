@@ -5,6 +5,7 @@
 #### Bug Fixes
 
 -   Fixed a bug in Java folder creation - all invalid characters are now transformed
+-   Fixed bugs in Java code generation for constant values
 
 ## 2.3.6
 

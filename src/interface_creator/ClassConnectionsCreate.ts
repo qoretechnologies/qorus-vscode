@@ -730,7 +730,7 @@ export class ClassConnectionsCreate {
 
         if (!trigger.connections.length) {
             if (isValidation(trigger)) {
-                code += `${indent2}return StatRetry;\n`;
+                code += `${indent2}return qore.OMQ.$Constants.StatRetry;\n`;
             } else if (isArray(trigger)) {
                 code += `${indent2}return new Object[0];\n`;
             }

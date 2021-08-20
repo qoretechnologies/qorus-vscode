@@ -7,6 +7,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 2.3.7 overview - What's new:
 
 -   Fixed a bug in Java folder creation - all invalid characters are now transformed
+-   Fixed bugs in Java code generation for constant values
 
 ## Version 2.3.6 overview - What's new:
 
