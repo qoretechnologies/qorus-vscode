@@ -611,9 +611,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
         );
 
-        currentData = omit(currentData, ['orig_name']);
-        const origData = omit(originalData.current, [
+        const filt = [
             'iface_id',
+            'orig_name',
             'type',
             'yaml_file',
             'class-connections',
@@ -624,7 +624,17 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'active_method',
             'requires',
             'classes',
-        ]);
+            'steps-info',
+            'base_class_name',
+            'define-auth-label',
+            'step-type',
+            'steptype',
+        ];
+
+        currentData = omit(currentData, filt);
+        const origData = omit(originalData.current, filt);
+
+        console.log(currentData, origData);
 
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);

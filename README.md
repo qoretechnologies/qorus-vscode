@@ -7,6 +7,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 2.3.8 overview - What's new:
 
 -   Fixed a bug that prevented creation of more than one service method
+-   Fixed a few more cases where confirmation dialog would incorrectly appear
 
 ## Version 2.3.7 overview - What's new:
 
