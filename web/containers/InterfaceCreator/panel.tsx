@@ -611,9 +611,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
         );
 
-        currentData = omit(currentData, ['orig_name', 'base_class_name', 'define-auth-label']);
-        const origData = omit(originalData.current, [
+        const filt = [
             'iface_id',
+            'orig_name',
             'type',
             'yaml_file',
             'class-connections',
@@ -627,7 +627,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'steps-info',
             'base_class_name',
             'define-auth-label',
-        ]);
+            'step-type',
+            'steptype',
+        ];
+
+        currentData = omit(currentData, filt);
+        const origData = omit(originalData.current, filt);
 
         console.log(currentData, origData);
 
