@@ -22,13 +22,14 @@ export default () =>
                 setActiveMethod(1);
             };
 
-            useEffect(() => {
-                if (size(props.initialMethods)) {
-                    setMethods(props.initialMethods);
-                    setMethodsCount(props.initialCount);
-                    setLastMethodId(props.initialId);
-                }
-            }, [props.initialMethods]);
+            // useEffect(() => {
+            //     console.log('initial methods changed');
+            //     if (size(props.initialMethods)) {
+            //         setMethods(props.initialMethods);
+            //         setMethodsCount(props.initialCount);
+            //         setLastMethodId(props.initialId);
+            //     }
+            // }, [props.initialMethods]);
 
             useEffect(() => {
                 // Some kind of hack to force this function
