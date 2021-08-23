@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.8
+
+#### Bug Fixes
+
+-   Fixed a bug that prevented creation of more than one service method
+
 ## 2.3.7
 
 #### Bug Fixes
