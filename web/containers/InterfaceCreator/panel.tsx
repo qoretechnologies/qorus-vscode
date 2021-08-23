@@ -611,7 +611,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             {}
         );
 
-        currentData = omit(currentData, ['orig_name']);
+        currentData = omit(currentData, ['orig_name', 'base_class_name', 'define-auth-label']);
         const origData = omit(originalData.current, [
             'iface_id',
             'type',
@@ -624,7 +624,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'active_method',
             'requires',
             'classes',
+            'steps-info',
+            'base_class_name',
+            'define-auth-label',
         ]);
+
+        console.log(currentData, origData);
 
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);
