@@ -6,6 +6,7 @@
 
 -   Fixed a bug that prevented creation of more than one service method
 -   Fixed a few more cases where confirmation dialog would incorrectly appear
+-   Fixed a bug that caused visual artifacts when hovering over a select button with tooltip
 
 ## 2.3.7
 
