@@ -9,6 +9,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 -   Fixed a bug that prevented creation of more than one service method
 -   Fixed a few more cases where confirmation dialog would incorrectly appear
 -   Fixed a bug that caused visual artifacts when hovering over a select button with tooltip
+-   Fixed a bug in Java service code generation
 
 ## Version 2.3.7 overview - What's new:
 
