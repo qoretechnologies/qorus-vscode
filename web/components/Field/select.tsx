@@ -248,7 +248,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
         <FieldEnhancer
             context={{
                 iface_kind,
-                target_dir: requestFieldData && requestFieldData('target_dir', 'value') || target_dir,
+                target_dir: (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,
                 ...context,
             }}
         >
@@ -261,6 +261,8 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                             {hasItemsWithDesc(items) ? (
                                 <>
                                     <Tooltip
+                                        position="top"
+                                        boundary="viewport"
                                         targetProps={{
                                             style: {
                                                 width: '100%',
