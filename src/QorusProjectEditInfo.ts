@@ -481,6 +481,7 @@ export class QorusProjectEditInfo {
 
         const maybeAddConstructorInfo = (parsed_constructor) => {
             const constructor_range = javaLoc2Range(parsed_constructor.loc);
+            console.log(parsed_constructor);
             this.edit_info[file].constructor_range = constructor_range;
 
             // does the constructor contain something more then possibly
