@@ -237,6 +237,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const initialData = useContext(InitialContext);
     const originalData = useRef(data);
 
+    useEffect(() => {
+        originalData.current = data;
+    }, [data]);
+
     const getClasses = () => {
         const classes = selectedFields?.find((field: IField) => field.name === 'classes');
 
@@ -636,6 +640,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         currentData = omit(currentData, filt);
         const origData = omit(originalData.current, filt);
 
+        console.log(currentData, origData);
+
+        if (!size(currentData) || !size(origData)) {
+            unsetDraft(type);
+            return;
+        }
+
+        console.log(currentData, origData);
+
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);
         } else {
@@ -756,6 +769,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     const handleSubmitClick: () => void = async () => {
+        unsetDraft(type);
         // Set the value flag for all selected fields
         setSelectedFields(
             type,
@@ -926,7 +940,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     onBackClick();
                 }
 
-                unsetDraft(initialData.subtab);
+                console.log('SETTING DRAFT TO NO PLS THX');
             }
         }
     };

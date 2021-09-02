@@ -512,6 +512,10 @@ export class QorusProjectEditInfo {
             // join the lines and remove the expected constructor signature parts
             const remaining_constructor_code = remaining_constructor_lines
                 .join(' ')
+                .replace(
+                    '// constructor requires explicit exception declaration due to imported base Qorus base class',
+                    ''
+                )
                 .replace('public', '')
                 .replace(class_name, '')
                 .replace('(', '')
