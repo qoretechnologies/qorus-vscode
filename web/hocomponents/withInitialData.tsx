@@ -68,7 +68,7 @@ export default () =>
                                         }
                                         return result;
                                     }),
-                                300
+                                0
                             );
                         }
                     };

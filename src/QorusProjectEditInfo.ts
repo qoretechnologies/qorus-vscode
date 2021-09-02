@@ -1,29 +1,34 @@
-import * as vscode from 'vscode';
 import { existsSync } from 'fs';
 import { t } from 'ttag';
-
-import { QorusJavaParser }  from './QorusJavaParser';
-import { QorusPythonParser }  from './QorusPythonParser';
-import { qoreLoc2Range, pythonLoc2Range, javaLoc2Range,
-         pythonNameRange, QoreTextDocument, qoreTextDocument } from './QoreTextDocument';
+import * as vscode from 'vscode';
+import { CONN_CALL_METHOD, GENERATED_TEXT } from './interface_creator/ClassConnectionsCreate';
+import {
+    javaLoc2Range,
+    pythonLoc2Range,
+    pythonNameRange,
+    qoreLoc2Range,
+    QoreTextDocument,
+    qoreTextDocument,
+} from './QoreTextDocument';
+import { isLangClientAvailable, qore_vscode } from './qore_vscode';
+import { QorusJavaParser } from './QorusJavaParser';
+import { QorusPythonParser } from './QorusPythonParser';
 import { qorus_webview } from './QorusWebview';
-import { qore_vscode, isLangClientAvailable } from './qore_vscode';
 import { default_lang } from './qorus_constants';
 import * as msg from './qorus_message';
-import { CONN_CALL_METHOD, GENERATED_TEXT } from './interface_creator/ClassConnectionsCreate';
 
 export class QorusProjectEditInfo {
     private edit_info: any = {};
-    getInfo = file => this.edit_info[file];
+    getInfo = (file) => this.edit_info[file];
 
     private setError = (file: string, error: string, is_lang_client_error: boolean = false): string => {
         if (is_lang_client_error) {
-            this.edit_info[file] = {lang_client_error: error};
+            this.edit_info[file] = { lang_client_error: error };
         } else {
-            this.edit_info[file] = {error};
+            this.edit_info[file] = { error };
         }
         return error;
-    }
+    };
 
     public isLangClientError = (file: string): boolean => !!this.edit_info?.[file]?.lang_client_error;
 
@@ -34,10 +39,10 @@ export class QorusProjectEditInfo {
                 action: 'maybe-recreate-interface',
                 message: t`BadEditDataRecreateQuestion`,
                 iface_id,
-                iface_kind
+                iface_kind,
             });
         }
-    }
+    };
 
     private addTextLines = (file: string, contents: string) => {
         if (!this.edit_info[file]) {
@@ -48,19 +53,14 @@ export class QorusProjectEditInfo {
         while (lines[0] === '') {
             lines.shift();
         }
-        while (lines[lines.length-1] === '') {
+        while (lines[lines.length - 1] === '') {
             lines.pop();
         }
 
         this.edit_info[file].text_lines = lines;
-    }
+    };
 
-    private addMethodInfo = (
-        file: string,
-        method_name: string,
-        decl_range: any,
-        name_range: any) =>
-    {
+    private addMethodInfo = (file: string, method_name: string, decl_range: any, name_range: any) => {
         if (!this.edit_info[file]) {
             this.edit_info[file] = {};
         }
@@ -70,26 +70,22 @@ export class QorusProjectEditInfo {
         }
         this.edit_info[file].method_decl_ranges[method_name] = decl_range;
         this.edit_info[file].method_name_ranges[method_name] = name_range;
-    }
+    };
 
-    private static isQoreSymbolClass = (symbol: any): boolean =>
-        symbol.nodetype === 1 &&
-        symbol.kind === 1
+    private static isQoreSymbolClass = (symbol: any): boolean => symbol.nodetype === 1 && symbol.kind === 1;
 
     static isQoreSymbolExpectedClass = (symbol: any, class_name?: string): boolean =>
-        class_name &&
-        symbol.nodetype === 1 &&
-        symbol.kind === 1 &&
-        class_name === symbol.name?.name
+        class_name && symbol.nodetype === 1 && symbol.kind === 1 && class_name === symbol.name?.name;
 
     static isJavaSymbolExpectedClass = (parsed_class: any, class_name?: string): boolean =>
-        class_name && class_name === parsed_class.name.identifier
+        class_name && class_name === parsed_class.name.identifier;
 
     static isPythonSymbolExpectedClass = (parsed_class: any, class_name?: string): boolean =>
-        class_name && class_name === parsed_class.name
+        class_name && class_name === parsed_class.name;
 
     static isQoreDeclPublicMethod = (decl: any): boolean => {
-        if (decl.nodetype !== 1 || decl.kind !== 4) { // declaration && function
+        if (decl.nodetype !== 1 || decl.kind !== 4) {
+            // declaration && function
             return false;
         }
 
@@ -98,20 +94,19 @@ export class QorusProjectEditInfo {
         }
 
         return true;
-    }
+    };
 
     static isJavaDeclPublicMethod = (parsed_method: any): boolean =>
-        !parsed_method.modifiers || parsed_method.modifiers.some(({name}) => name === 'public')
+        !parsed_method.modifiers || parsed_method.modifiers.some(({ name }) => name === 'public');
 
-    static isPythonDeclPublicMethod = (parsed_method: any): boolean =>
-        !parsed_method?.name?.startsWith('__')
+    static isPythonDeclPublicMethod = (parsed_method: any): boolean => !parsed_method?.name?.startsWith('__');
 
     private addQoreClassInfo = (file: string, symbol: any, base_class_name?: string) => {
         const class_def_range: vscode.Range = qoreLoc2Range(symbol.loc);
         const class_name_range: vscode.Range = qoreLoc2Range(symbol.name.loc, 'class ');
 
         const num_inherited = (symbol.inherits || []).length;
-        const base_class_names = (symbol.inherits || []).map(inherited => inherited.name.name);
+        const base_class_names = (symbol.inherits || []).map((inherited) => inherited.name.name);
 
         const addClass = (main_base_class_ord: number = -1) => {
             if (!this.edit_info[file]) {
@@ -120,25 +115,25 @@ export class QorusProjectEditInfo {
             Object.assign(this.edit_info[file], {
                 class_def_range,
                 class_name_range,
-                main_base_class_name_range: main_base_class_ord === -1
-                    ? undefined
-                    : qoreLoc2Range(symbol.inherits[main_base_class_ord].name.loc),
-                first_base_class_line: num_inherited > 0
-                    ? qoreLoc2Range(symbol.inherits[0].name.loc).start.line
-                    : undefined,
-                last_base_class_range: num_inherited > 0
-                    ? qoreLoc2Range(symbol.inherits[symbol.inherits.length-1].loc)
-                    : undefined,
+                main_base_class_name_range:
+                    main_base_class_ord === -1
+                        ? undefined
+                        : qoreLoc2Range(symbol.inherits[main_base_class_ord].name.loc),
+                first_base_class_line:
+                    num_inherited > 0 ? qoreLoc2Range(symbol.inherits[0].name.loc).start.line : undefined,
+                last_base_class_range:
+                    num_inherited > 0 ? qoreLoc2Range(symbol.inherits[symbol.inherits.length - 1].loc) : undefined,
                 last_class_line: qoreLoc2Range(symbol.loc).end.line,
                 base_class_names,
-                main_base_class_ord
+                main_base_class_ord,
             });
         };
 
         if (num_inherited > 0) {
             if (base_class_name) {
-                const index = symbol.inherits.findIndex(inherited =>
-                    inherited.name && inherited.name.name === base_class_name);
+                const index = symbol.inherits.findIndex(
+                    (inherited) => inherited.name && inherited.name.name === base_class_name
+                );
 
                 if (index > -1) {
                     addClass(index);
@@ -155,7 +150,7 @@ export class QorusProjectEditInfo {
             }
             addClass();
         }
-    }
+    };
 
     private addPythonClassInfo = (file: string, parsed_class: any, base_class_name?: string) => {
         const class_def_range: vscode.Range = pythonLoc2Range(parsed_class.loc);
@@ -171,7 +166,7 @@ export class QorusProjectEditInfo {
         }
 
         const num_inherited = (parsed_class.extends || []).length;
-        const base_class_names = (parsed_class.extends || []).map(inherited => inherited.name);
+        const base_class_names = (parsed_class.extends || []).map((inherited) => inherited.name);
 
         const addClass = (main_base_class_ord: number = -1) => {
             if (!this.edit_info[file]) {
@@ -180,24 +175,25 @@ export class QorusProjectEditInfo {
             Object.assign(this.edit_info[file], {
                 class_def_range,
                 class_name_range,
-                main_base_class_name_range: main_base_class_ord === -1
-                    ? undefined
-                    : pythonLoc2Range(parsed_class.extends[main_base_class_ord].loc),
-                first_base_class_line: num_inherited > 0
-                    ? pythonLoc2Range(parsed_class.extends[0].loc).start.line
-                    : undefined,
-                last_base_class_range: num_inherited > 0
-                    ? pythonLoc2Range(parsed_class.extends[parsed_class.extends.length-1].loc)
-                    : undefined,
+                main_base_class_name_range:
+                    main_base_class_ord === -1
+                        ? undefined
+                        : pythonLoc2Range(parsed_class.extends[main_base_class_ord].loc),
+                first_base_class_line:
+                    num_inherited > 0 ? pythonLoc2Range(parsed_class.extends[0].loc).start.line : undefined,
+                last_base_class_range:
+                    num_inherited > 0
+                        ? pythonLoc2Range(parsed_class.extends[parsed_class.extends.length - 1].loc)
+                        : undefined,
                 last_class_line: class_def_range.end.line,
                 base_class_names,
-                main_base_class_ord
+                main_base_class_ord,
             });
         };
 
         if (num_inherited > 0) {
             if (base_class_name) {
-                const index = parsed_class.extends.findIndex(({name}) => name === base_class_name);
+                const index = parsed_class.extends.findIndex(({ name }) => name === base_class_name);
 
                 if (index > -1) {
                     addClass(index);
@@ -214,7 +210,7 @@ export class QorusProjectEditInfo {
             }
             addClass();
         }
-    }
+    };
 
     private addJavaClassInfo = (file: string, parsed_class: any, base_class_name?: string) => {
         const class_def_range: vscode.Range = javaLoc2Range(parsed_class.loc);
@@ -227,18 +223,15 @@ export class QorusProjectEditInfo {
             Object.assign(this.edit_info[file], {
                 class_def_range,
                 class_name_range,
-                main_base_class_name_range: main_base_class_ord === -1
-                    ? undefined
-                    : javaLoc2Range(parsed_class.superclass.name.loc),
-                first_base_class_line: parsed_class.superclass
-                    ? parsed_class.superclass.loc.startLine - 1
-                    : undefined,
+                main_base_class_name_range:
+                    main_base_class_ord === -1 ? undefined : javaLoc2Range(parsed_class.superclass.name.loc),
+                first_base_class_line: parsed_class.superclass ? parsed_class.superclass.loc.startLine - 1 : undefined,
                 last_base_class_range: parsed_class.superclass
                     ? javaLoc2Range(parsed_class.superclass.loc, ' extends')
                     : undefined,
                 last_class_line: class_def_range.end.line,
                 base_class_names: base_class_name ? [base_class_name] : [],
-                main_base_class_ord
+                main_base_class_ord,
             });
         };
 
@@ -259,7 +252,7 @@ export class QorusProjectEditInfo {
             }
             addClass();
         }
-    }
+    };
 
     setFileInfo(file: string, data: any): Promise<any> {
         if (!existsSync(file)) {
@@ -270,7 +263,7 @@ export class QorusProjectEditInfo {
             iface_kind = data.type,
             'class-name': class_name,
             'base-class-name': base_class_name,
-            'class-connections': class_connections
+            'class-connections': class_connections,
         } = data;
 
         if (!iface_kind) {
@@ -280,15 +273,23 @@ export class QorusProjectEditInfo {
         this.edit_info[file] = undefined;
 
         switch (data.lang || default_lang) {
-            case 'python': return this.setPythonFileInfo(file, class_name, base_class_name, class_connections);
-            case 'java': return this.setJavaFileInfo(file, class_name, base_class_name, class_connections);
-            case 'qore': return this.setQoreFileInfo(file, class_name, base_class_name, class_connections);
+            case 'python':
+                return this.setPythonFileInfo(file, class_name, base_class_name, class_connections);
+            case 'java':
+                return this.setJavaFileInfo(file, class_name, base_class_name, class_connections);
+            case 'qore':
+                return this.setQoreFileInfo(file, class_name, base_class_name, class_connections);
         }
 
         return Promise.resolve(undefined);
     }
 
-    private async setQoreFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
+    private async setQoreFileInfo(
+        file: string,
+        class_name: string,
+        base_class_name: string,
+        class_connections: any
+    ): Promise<any> {
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
@@ -297,14 +298,15 @@ export class QorusProjectEditInfo {
             return Promise.resolve(undefined);
         }
 
-        const addClassConnectionClass = symbols => {
+        const addClassConnectionClass = (symbols) => {
             let has_the_method = false;
 
             const class_connection_names = Object.keys(class_connections);
             for (const symbol of symbols) {
-                if (QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, class_name) ||
-                    !QorusProjectEditInfo.isQoreSymbolClass(symbol))
-                {
+                if (
+                    QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, class_name) ||
+                    !QorusProjectEditInfo.isQoreSymbolClass(symbol)
+                ) {
                     continue;
                 }
 
@@ -323,8 +325,9 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddClassConnectionMemberDeclaration = decl => {
-            if (decl.nodetype !== 1 || decl.kind !== 7) { // declaration && member group
+        const maybeAddClassConnectionMemberDeclaration = (decl) => {
+            if (decl.nodetype !== 1 || decl.kind !== 7) {
+                // declaration && member group
                 return;
             }
 
@@ -337,8 +340,9 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddPrivateMemberBlock = decl => {
-            if (decl.nodetype !== 1 || decl.kind !== 7) { // declaration && member group
+        const maybeAddPrivateMemberBlock = (decl) => {
+            if (decl.nodetype !== 1 || decl.kind !== 7) {
+                // declaration && member group
                 return;
             }
 
@@ -350,31 +354,35 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddTriggerStatements = decl => {
-            if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) { // declaration && function
+        const maybeAddTriggerStatements = (decl) => {
+            if (decl.nodetype !== 1 || decl.kind !== 4 || !decl.body?.statements?.length) {
+                // declaration && function
                 return;
             }
 
             for (const statement of decl.body.statements) {
-                const var_name = statement.retval?.target?.variable?.name?.name ||
-                                 statement.expression?.target?.variable?.name?.name;
+                const var_name =
+                    statement.retval?.target?.variable?.name?.name ||
+                    statement.expression?.target?.variable?.name?.name;
 
-                if (var_name && var_name === this.edit_info[file].class_connections_member_name &&
-                    !(this.edit_info[file].class_connections_trigger_names || []).includes(decl.name?.name) )
-                {
+                if (
+                    var_name &&
+                    var_name === this.edit_info[file].class_connections_member_name &&
+                    !(this.edit_info[file].class_connections_trigger_names || []).includes(decl.name?.name)
+                ) {
                     this.edit_info[file].class_connections_trigger_ranges = [
-                        ... this.edit_info[file].class_connections_trigger_ranges || [],
-                        qoreLoc2Range(decl.loc)
+                        ...(this.edit_info[file].class_connections_trigger_ranges || []),
+                        qoreLoc2Range(decl.loc),
                     ];
                     this.edit_info[file].class_connections_trigger_names = [
-                        ... this.edit_info[file].class_connections_trigger_names || [],
-                        decl.name?.name
+                        ...(this.edit_info[file].class_connections_trigger_names || []),
+                        decl.name?.name,
                     ];
                 }
             }
         };
 
-        return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then(symbols => {
+        return qore_vscode.exports.getDocumentSymbols(doc, 'node_info').then((symbols) => {
             if (!symbols) {
                 return Promise.reject(this.setError(file, t`QoreLangClientNotFound`, true));
             }
@@ -386,8 +394,10 @@ export class QorusProjectEditInfo {
             if (class_connections) {
                 addClassConnectionClass(symbols);
             }
-            symbols.forEach(symbol => {
+            symbols.forEach((symbol) => {
                 if (!QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, class_name)) {
+                    // NOTE: a return stmt in a forEach() body continues with the next element
+                    // like a "continue" statement in a regular loop
                     return;
                 }
 
@@ -402,12 +412,7 @@ export class QorusProjectEditInfo {
                     }
 
                     if (QorusProjectEditInfo.isQoreDeclPublicMethod(decl)) {
-                        this.addMethodInfo(
-                            file,
-                            decl.name.name,
-                            qoreLoc2Range(decl.loc),
-                            qoreLoc2Range(decl.name.loc)
-                        );
+                        this.addMethodInfo(file, decl.name.name, qoreLoc2Range(decl.loc), qoreLoc2Range(decl.name.loc));
                     }
                 }
             });
@@ -415,10 +420,15 @@ export class QorusProjectEditInfo {
         });
     }
 
-    private setJavaFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
+    private setJavaFileInfo(
+        file: string,
+        class_name: string,
+        base_class_name: string,
+        class_connections: any
+    ): Promise<any> {
         let expected_trigger_names = [];
-        Object.keys(class_connections || {}).forEach(connection => {
-            class_connections[connection].forEach(connector => {
+        Object.keys(class_connections || {}).forEach((connection) => {
+            class_connections[connection].forEach((connector) => {
                 if (connector.trigger) {
                     expected_trigger_names.push(connector.trigger);
                 }
@@ -428,7 +438,7 @@ export class QorusProjectEditInfo {
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
-        const addClassConnectionClass = parsed_classes => {
+        const addClassConnectionClass = (parsed_classes) => {
             let has_the_method = false;
 
             const class_connection_names = Object.keys(class_connections);
@@ -456,7 +466,7 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddClassConnectionMemberDeclaration = decl => {
+        const maybeAddClassConnectionMemberDeclaration = (decl) => {
             if (decl.type.identifier !== this.edit_info[file].class_connections_class_name) {
                 return;
             }
@@ -469,46 +479,52 @@ export class QorusProjectEditInfo {
             this.edit_info[file].class_connections_member_declaration_range = javaLoc2Range(decl.loc);
         };
 
-        const maybeAddConstructorInfo = parsed_constructor => {
+        const maybeAddConstructorInfo = (parsed_constructor) => {
             const constructor_range = javaLoc2Range(parsed_constructor.loc);
+            console.log(parsed_constructor);
             this.edit_info[file].constructor_range = constructor_range;
 
             // does the constructor contain something more then possibly
             // the member initialization command?
             let constructor_lines = [];
-            constructor_lines.push(this.edit_info[file].text_lines[constructor_range.start.line]
-                .substr(constructor_range.start.character));
+            constructor_lines.push(
+                this.edit_info[file].text_lines[constructor_range.start.line].substr(constructor_range.start.character)
+            );
             for (let i = constructor_range.start.line + 1; i < constructor_range.end.line; i++) {
                 constructor_lines.push(this.edit_info[file].text_lines[i]);
             }
-            constructor_lines.push(this.edit_info[file].text_lines[constructor_range.end.line]
-                .substr(0, constructor_range.end.character));
+            constructor_lines.push(
+                this.edit_info[file].text_lines[constructor_range.end.line].substr(0, constructor_range.end.character)
+            );
 
             // remove lines between the comments GENERATED BEGIN/END (including those lines)
             let remaining_constructor_lines = [];
             let is_generated = false;
-            constructor_lines.forEach(line => {
-                if(line.indexOf(GENERATED_TEXT.begin) > -1) {
+            constructor_lines.forEach((line) => {
+                if (line.indexOf(GENERATED_TEXT.begin) > -1) {
                     is_generated = true;
-                    return;
-                }
-                if(line.indexOf(GENERATED_TEXT.end) > -1) {
+                } else if (line.indexOf(GENERATED_TEXT.end) > -1) {
                     is_generated = false;
-                    return;
-                }
-                if (!is_generated) {
+                } else if (!is_generated) {
                     remaining_constructor_lines.push(line);
                 }
             });
 
             // join the lines and remove the expected constructor signature parts
-            const remaining_constructor_code = remaining_constructor_lines.join(' ')
+            const remaining_constructor_code = remaining_constructor_lines
+                .join(' ')
+                .replace(
+                    '// constructor requires explicit exception declaration due to imported base Qorus base class',
+                    ''
+                )
+                .replace('public', '')
                 .replace(class_name, '')
                 .replace('(', '')
                 .replace(')', '')
                 .replace('throws', '')
                 .replace('Throwable', '')
                 .replace('{', '')
+                .replace('super();', '')
                 .replace('}', '');
 
             this.edit_info[file].is_constructor_empty = !remaining_constructor_code.match(/\S/);
@@ -528,7 +544,8 @@ export class QorusProjectEditInfo {
                 }
 
                 for (let ii = i; ii <= constructor_range.end.line; ii++) {
-                    const class_name_start_pos = this.edit_info[file].text_lines[i].indexOf(class_connections_class_name);
+                    const class_name_start_pos =
+                        this.edit_info[file].text_lines[i].indexOf(class_connections_class_name);
                     if (class_name_start_pos === -1) {
                         continue;
                     }
@@ -539,16 +556,19 @@ export class QorusProjectEditInfo {
                     let possibly_the_command_string;
 
                     if (i === ii) {
-                         possibly_the_command_string = this.edit_info[file].text_lines[i]
-                             .substring(start_pos, class_name_start_pos + class_connections_class_name.length);
-
+                        possibly_the_command_string = this.edit_info[file].text_lines[i].substring(
+                            start_pos,
+                            class_name_start_pos + class_connections_class_name.length
+                        );
                     } else {
                         possibly_the_command_string = this.edit_info[file].text_lines[i].substr(start_pos);
                         for (let iii = i + 1; iii < ii; iii++) {
-                             possibly_the_command_string = this.edit_info[file].text_lines[iii];
+                            possibly_the_command_string = this.edit_info[file].text_lines[iii];
                         }
-                        possibly_the_command_string += this.edit_info[file].text_lines[ii]
-                            .substr(0, class_name_start_pos + class_connections_class_name.length);
+                        possibly_the_command_string += this.edit_info[file].text_lines[ii].substr(
+                            0,
+                            class_name_start_pos + class_connections_class_name.length
+                        );
                     }
 
                     // remove the expected parts of the command and if nothing is left let's suppose
@@ -568,19 +588,21 @@ export class QorusProjectEditInfo {
                     // ok, so find the "();" to find the end of the range
 
                     // first examine the part of the line after the class_connections_class_name
-                    const line_rest = this.edit_info[file].text_lines[ii]
-                        .substr(class_name_start_pos + class_connections_class_name.length);
+                    const line_rest = this.edit_info[file].text_lines[ii].substr(
+                        class_name_start_pos + class_connections_class_name.length
+                    );
                     if (line_rest.match(/^\s*\(\s*\)\s*;/)) {
                         const semicolon_relative_pos = line_rest.indexOf(';');
                         this.edit_info[file].class_connections_member_initialization_range = {
                             start: {
                                 line: i,
-                                character: start_pos
+                                character: start_pos,
                             },
                             end: {
                                 line: ii,
-                                character: class_name_start_pos + class_connections_class_name.length + semicolon_relative_pos
-                            }
+                                character:
+                                    class_name_start_pos + class_connections_class_name.length + semicolon_relative_pos,
+                            },
                         };
                         return;
                     } else {
@@ -594,12 +616,12 @@ export class QorusProjectEditInfo {
                             this.edit_info[file].class_connections_member_initialization_range = {
                                 start: {
                                     line: i,
-                                    character: start_pos
+                                    character: start_pos,
                                 },
                                 end: {
                                     line: iii,
-                                    character: semicolon_pos
-                                }
+                                    character: semicolon_pos,
+                                },
                             };
                             return;
                         }
@@ -608,18 +630,18 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddTriggerStatements = parsed_method => {
+        const maybeAddTriggerStatements = (parsed_method) => {
             if (!expected_trigger_names.includes(parsed_method.name.identifier)) {
                 return;
             }
 
             this.edit_info[file].class_connections_trigger_ranges = [
-                ... this.edit_info[file].class_connections_trigger_ranges || [],
-                javaLoc2Range(parsed_method.loc)
+                ...(this.edit_info[file].class_connections_trigger_ranges || []),
+                javaLoc2Range(parsed_method.loc),
             ];
             this.edit_info[file].class_connections_trigger_names = [
-                ... this.edit_info[file].class_connections_trigger_names || [],
-                parsed_method.name.identifier
+                ...(this.edit_info[file].class_connections_trigger_names || []),
+                parsed_method.name.identifier,
             ];
         };
 
@@ -627,7 +649,7 @@ export class QorusProjectEditInfo {
         try {
             parsed_data = QorusJavaParser.parseFile(file);
         } catch (error) {
-            msg.debug({error});
+            msg.debug({ error });
             return Promise.reject(this.setError(file, t`ErrorParsingFile ${file}`));
         }
 
@@ -635,8 +657,10 @@ export class QorusProjectEditInfo {
             addClassConnectionClass(parsed_data.classes);
         }
 
-        parsed_data.classes.forEach(parsed_class => {
+        parsed_data.classes.forEach((parsed_class) => {
             if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(parsed_class, class_name)) {
+                // NOTE: a return stmt in a forEach() body continues with the next element
+                // like a "continue" statement in a regular loop
                 return;
             }
 
@@ -673,10 +697,15 @@ export class QorusProjectEditInfo {
         return Promise.resolve(this.edit_info[file]);
     }
 
-    private setPythonFileInfo(file: string, class_name: string, base_class_name: string, class_connections: any): Promise<any> {
+    private setPythonFileInfo(
+        file: string,
+        class_name: string,
+        base_class_name: string,
+        class_connections: any
+    ): Promise<any> {
         let expected_trigger_names = [];
-        Object.keys(class_connections || {}).forEach(connection => {
-            class_connections[connection].forEach(connector => {
+        Object.keys(class_connections || {}).forEach((connection) => {
+            class_connections[connection].forEach((connector) => {
                 if (connector.trigger) {
                     expected_trigger_names.push(connector.trigger);
                 }
@@ -686,7 +715,7 @@ export class QorusProjectEditInfo {
         const doc: QoreTextDocument = qoreTextDocument(file);
         this.addTextLines(file, doc.text);
 
-        const addClassConnectionClass = parsed_classes => {
+        const addClassConnectionClass = (parsed_classes) => {
             let has_the_method = false;
 
             const class_connection_names = Object.keys(class_connections);
@@ -711,32 +740,31 @@ export class QorusProjectEditInfo {
             }
         };
 
-        const maybeAddTriggerStatements = parsed_method => {
+        const maybeAddTriggerStatements = (parsed_method) => {
             if (!expected_trigger_names.includes(parsed_method.name)) {
                 return;
             }
 
             this.edit_info[file].class_connections_trigger_ranges = [
-                ... this.edit_info[file].class_connections_trigger_ranges || [],
-                pythonLoc2Range(parsed_method.loc)
+                ...(this.edit_info[file].class_connections_trigger_ranges || []),
+                pythonLoc2Range(parsed_method.loc),
             ];
 
             this.edit_info[file].class_connections_trigger_names = [
-                ... this.edit_info[file].class_connections_trigger_names || [],
-                parsed_method.name
+                ...(this.edit_info[file].class_connections_trigger_names || []),
+                parsed_method.name,
             ];
         };
 
-        const addConstructorInfo = parsed_constructor => {
+        const addConstructorInfo = (parsed_constructor) => {
             const constructor_range = pythonLoc2Range(parsed_constructor.loc);
             this.edit_info[file].constructor_range = constructor_range;
 
             let other_constructor_lines = [];
             let is_generated = false;
 
-            const regexp = 'self\\.(\\S+)\\s*=\\s*' +
-                this.edit_info[file].class_connections_class_name +
-                '\\s*\\(\\s*\\)';
+            const regexp =
+                'self\\.(\\S+)\\s*=\\s*' + this.edit_info[file].class_connections_class_name + '\\s*\\(\\s*\\)';
 
             for (let i = constructor_range.start.line + 1; i < constructor_range.end.line; i++) {
                 const line = this.edit_info[file].text_lines[i];
@@ -752,9 +780,9 @@ export class QorusProjectEditInfo {
                         member_declaration_command_start + member_declaration_command.length
                     );
                 } else {
-                    if(line.indexOf(GENERATED_TEXT.begin) > -1) {
+                    if (line.indexOf(GENERATED_TEXT.begin) > -1) {
                         is_generated = true;
-                    } else if(line.indexOf(GENERATED_TEXT.end) > -1) {
+                    } else if (line.indexOf(GENERATED_TEXT.end) > -1) {
                         is_generated = false;
                     } else if (!is_generated) {
                         other_constructor_lines.push(line);
@@ -769,7 +797,7 @@ export class QorusProjectEditInfo {
         try {
             parsed_data = QorusPythonParser.parseFile(file);
         } catch (error) {
-            msg.debug({error});
+            msg.debug({ error });
             return Promise.reject(this.setError(file, t`ErrorParsingFile ${file}`));
         }
 
@@ -777,8 +805,10 @@ export class QorusProjectEditInfo {
             addClassConnectionClass(parsed_data.classes);
         }
 
-        parsed_data.classes.forEach(parsed_class => {
+        parsed_data.classes.forEach((parsed_class) => {
             if (!QorusProjectEditInfo.isPythonSymbolExpectedClass(parsed_class, class_name)) {
+                // NOTE: a return stmt in a forEach() body continues with the next element
+                // like a "continue" statement in a regular loop
                 return;
             }
 
