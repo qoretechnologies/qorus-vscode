@@ -373,7 +373,7 @@ export class ClassConnectionsEdit {
 
         if (is_constructor_empty) {
             ranges.push(constructor_range);
-        } else if (this.lang !== 'java') {
+        } else {
             ranges.push(class_connections_member_initialization_range);
         }
 
