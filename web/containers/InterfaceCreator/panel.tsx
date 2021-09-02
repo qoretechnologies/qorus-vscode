@@ -540,6 +540,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         setFields(
             type,
             (current: IField[]) => {
+                if (!current) {
+                    return [];
+                }
                 // Check if this field has a remove event
                 const field: IField = current.find((f: IField) => f.name === fieldName);
 
