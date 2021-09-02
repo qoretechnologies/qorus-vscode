@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.9
+
+#### Bug Fixes
+
+-   Fixed a bug where Java class connections were regenerated multiple times in the source code in some situations
+
 ## 2.3.8
 
 #### Bug Fixes
