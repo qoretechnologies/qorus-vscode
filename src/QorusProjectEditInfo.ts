@@ -512,12 +512,14 @@ export class QorusProjectEditInfo {
             // join the lines and remove the expected constructor signature parts
             const remaining_constructor_code = remaining_constructor_lines
                 .join(' ')
+                .replace('public', '')
                 .replace(class_name, '')
                 .replace('(', '')
                 .replace(')', '')
                 .replace('throws', '')
                 .replace('Throwable', '')
                 .replace('{', '')
+                .replace('super();', '')
                 .replace('}', '');
 
             this.edit_info[file].is_constructor_empty = !remaining_constructor_code.match(/\S/);
