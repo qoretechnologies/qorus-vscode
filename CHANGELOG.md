@@ -5,6 +5,7 @@
 #### Bug Fixes
 
 -   Fixed a bug where Java class connections were regenerated multiple times in the source code in some situations
+-   Fixed a bug where the WebView would crash when opening a service that was just created
 
 ## 2.3.8
 
