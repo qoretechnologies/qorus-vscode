@@ -388,6 +388,8 @@ export class QorusProjectEditInfo {
             }
             symbols.forEach(symbol => {
                 if (!QorusProjectEditInfo.isQoreSymbolExpectedClass(symbol, class_name)) {
+                    // NOTE: a return stmt in a forEach() body continues with the next element
+                    // like a "continue" statement in a regular loop
                     return;
                 }
 
@@ -488,15 +490,11 @@ export class QorusProjectEditInfo {
             let remaining_constructor_lines = [];
             let is_generated = false;
             constructor_lines.forEach(line => {
-                if(line.indexOf(GENERATED_TEXT.begin) > -1) {
+                if (line.indexOf(GENERATED_TEXT.begin) > -1) {
                     is_generated = true;
-                    return;
-                }
-                if(line.indexOf(GENERATED_TEXT.end) > -1) {
+                } else if (line.indexOf(GENERATED_TEXT.end) > -1) {
                     is_generated = false;
-                    return;
-                }
-                if (!is_generated) {
+                } else if (!is_generated) {
                     remaining_constructor_lines.push(line);
                 }
             });
@@ -637,6 +635,8 @@ export class QorusProjectEditInfo {
 
         parsed_data.classes.forEach(parsed_class => {
             if (!QorusProjectEditInfo.isJavaSymbolExpectedClass(parsed_class, class_name)) {
+                // NOTE: a return stmt in a forEach() body continues with the next element
+                // like a "continue" statement in a regular loop
                 return;
             }
 
@@ -779,6 +779,8 @@ export class QorusProjectEditInfo {
 
         parsed_data.classes.forEach(parsed_class => {
             if (!QorusProjectEditInfo.isPythonSymbolExpectedClass(parsed_class, class_name)) {
+                // NOTE: a return stmt in a forEach() body continues with the next element
+                // like a "continue" statement in a regular loop
                 return;
             }
 

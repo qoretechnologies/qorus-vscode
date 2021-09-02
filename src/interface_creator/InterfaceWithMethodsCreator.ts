@@ -352,12 +352,13 @@ class InterfaceWithMethodsCreator extends InterfaceCreator {
             // the constructor with the Throwable declaration if so - only applies to mapper code, services always
             // inherit the Qore QorusService base class
             // must add default constructor for subclasses
+            // NOTE: issue #812: do not wrap this code with "generated" markers; it will break things when later
+            //       adding connectors
             connections_within_class =
-                `    // ==== GENERATED SECTION! DON'T EDIT! ==== //\n` +
-                `    ${data['class-name']}() throws Throwable {\n` +
+                '    // constructor requires explicit exception declaration due to imported base Qorus class\n' +
+                `    public ${data['class-name']}() throws Throwable {\n` +
                 '        super();\n' +
-                '    }\n' +
-                '    // ======== GENERATED SECTION END ========= //\n';
+                '    }\n';
         }
 
         let method_strings = [];
