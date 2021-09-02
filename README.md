@@ -7,6 +7,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 2.3.9 overview - What's new:
 
 -   Fixed a bug where Java class connections were regenerated multiple times in the source code in some situations
+-   Fixed a bug where the WebView would crash when opening a service that was just created
 
 ## Version 2.3.8 overview - What's new:
 

@@ -106,11 +106,10 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             // the constructor with the Throwable declaration if so
             // must add default constructor for subclasses
             connections_within_class =
-                `    // ==== GENERATED SECTION! DON'T EDIT! ==== //\n` +
+                '    // constructor requires explicit exception declaration due to imported base Qorus class\n' +
                 `    ${data['class-name']}() throws Throwable {\n` +
                 '        super();\n' +
-                '    }\n' +
-                '    // ======== GENERATED SECTION END ========= //\n';
+                '    }\n';
     }
 
         let methods = '';
