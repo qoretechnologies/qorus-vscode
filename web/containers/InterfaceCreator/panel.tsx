@@ -540,9 +540,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         setFields(
             type,
             (current: IField[]) => {
-                if (!current) {
-                    return [];
-                }
                 // Check if this field has a remove event
                 const field: IField = current.find((f: IField) => f.name === fieldName);
 
@@ -632,12 +629,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             'define-auth-label',
             'step-type',
             'steptype',
+            'target_file',
+            'target_dir',
         ];
 
         currentData = omit(currentData, filt);
         const origData = omit(originalData.current, filt);
-
-        console.log(currentData, origData);
 
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);
