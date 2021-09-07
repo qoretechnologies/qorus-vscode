@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.10
+
+#### Bug Fixes
+
+-   Fixed a bug notification toasters would be rendered outside of the view
+
 ## 2.3.9
 
 #### Bug Fixes
