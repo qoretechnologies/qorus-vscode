@@ -145,3 +145,5 @@ Context menus of instances in the _Qorus Instances_ tree view contain also the f
     -   switch to the Workspace tab
     -   search for "watcher exclude"
     -   add a pattern there
+
+-   If you are not using the Qore programming language and would not like to see messages relating to missing Qore infrastructure for the Qore Language Server, unset the `Qore: Use QLS` setting in Settings (or add `"qore.useQLS": false` in `settings.json`)
