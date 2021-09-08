@@ -18,8 +18,10 @@ $green5: lighten($qore-green, 20);
 @import '~@blueprintjs/core/src/blueprint.scss';
 
 #toastContainer {
-    position: absolute;
+    top: 0;
+    position: fixed;
     z-index: 12000;
+    left: 50%;
 
     .bp3-toast-container,
     .bp3-toast,

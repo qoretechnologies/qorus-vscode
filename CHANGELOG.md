@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.10
+
+#### Bug Fixes
+
+-   Fixed a bug notification toasters would be rendered outside of the view
+-   Fixed a bug that prevented going back to service from the methods page
+
 ## 2.3.9
 
 #### Bug Fixes
