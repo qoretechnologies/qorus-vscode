@@ -50,6 +50,8 @@ export default () =>
                 setMethodsCount((current: number) => current + 1);
             };
 
+            console.log(showMethods);
+
             return (
                 <MethodsContext.Provider
                     value={{

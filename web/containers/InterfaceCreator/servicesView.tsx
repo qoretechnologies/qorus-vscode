@@ -182,6 +182,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                             {...classConnectionsProps}
                                             hasConfigManager
                                             onSubmit={() => {
+                                                initialData.changeInitialData('service.active_method', 1);
                                                 setActiveMethod(1);
                                                 setShowMethods(true);
                                             }}
@@ -265,10 +266,10 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 interfaceIndex={methodsIndex}
                                                 onBackClick={() => {
                                                     hasAllMethodsLoaded = false;
-                                                    setActiveMethod(1);
+                                                    setActiveMethod(null);
                                                     setShowMethods(false);
                                                     if (service) {
-                                                        initialData.changeInitialData('service.active_method', 1);
+                                                        initialData.changeInitialData('service.active_method', null);
                                                     }
                                                 }}
                                                 onDataFinishLoadingRecur={(id) => {
