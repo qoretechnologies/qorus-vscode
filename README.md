@@ -7,6 +7,7 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 2.3.10 overview - What's new:
 
 -   Fixed a bug notification toasters would be rendered outside of the view
+-   Fixed a bug that prevented going back to service from the methods page
 
 ## Version 2.3.9 overview - What's new:
 
