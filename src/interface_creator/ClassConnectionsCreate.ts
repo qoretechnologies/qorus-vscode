@@ -287,7 +287,6 @@ export class ClassConnectionsCreate {
     memberDeclAndInitAllCodeJava = () =>
         this.memberDeclCodeJava() +
         `${indent1}\n\n` +
-        `${indent1}// constructor requires explicit exception declaration due to imported base Qorus base class\n` +
         `${indent1}public ${this.class_name}() ${THROWS} {\n` +
         this.memberInitCodeJava() +
         `${indent1}}\n`;

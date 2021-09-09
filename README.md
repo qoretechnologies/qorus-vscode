@@ -6,6 +6,10 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 ## Version 2.3.10 overview - What's new:
 
+-   Fixed a bug where Java code would be incorrectly generated after a connection has been added
+
+## Version 2.3.10 overview - What's new:
+
 -   Fixed a bug notification toasters would be rendered outside of the view
 
 ## Version 2.3.9 overview - What's new:
