@@ -9,6 +9,8 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 -   Fixed a bug where Java code would be incorrectly generated after a connection has been added
 -   Added missing color for the mapper relation of type AUTO
 -   It is now possible & supported to add spaces in custom mapper field names
+-   Added field descriptions to the mapper field mapping dialog
+-   It is no longer possible to select soft types in the mapper field mapping dialog
 
 ## Version 2.3.10 overview - What's new:
 
