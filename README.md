@@ -4,9 +4,11 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
-## Version 2.3.10 overview - What's new:
+## Version 2.3.11 overview - What's new:
 
 -   Fixed a bug where Java code would be incorrectly generated after a connection has been added
+-   Added missing color for the mapper relation of type AUTO
+-   It is no longer possible to add spaces in custom mapper field names
 
 ## Version 2.3.10 overview - What's new:
 

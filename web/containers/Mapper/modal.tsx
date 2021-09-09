@@ -155,7 +155,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                 />
                                 <FieldInputWrapper>
                                     <String
-                                        onChange={(path, value) => onChange(path, value.trim())}
+                                        onChange={(path, value) => onChange(path, value.trim().replace(/ /g, ''))}
                                         name="name"
                                         value={field.name}
                                     />

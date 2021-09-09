@@ -42,6 +42,7 @@ const TYPE_COLORS = {
     binary: '#e6b12e',
 
     any: '#a9a9a9',
+    auto: '#d7d7d7',
 };
 
 export const StyledMapperWrapper = styled.div`
@@ -784,6 +785,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             resetAllInterfaceData('mapper');
         }
     };
+
+    console.log(relations);
 
     return (
         <>

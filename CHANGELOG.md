@@ -5,6 +5,8 @@
 #### Bug Fixes
 
 -   Fixed a bug where Java code would be incorrectly generated after a connection has been added
+-   Added missing color for the mapper relation of type AUTO
+-   It is no longer possible to add spaces in custom mapper field names
 
 ## 2.3.10
 
