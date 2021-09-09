@@ -197,6 +197,7 @@ export class ClassConnectionsEdit {
 
         const member_initialization_code_lines = this.class_connections.memberInitCodeJava().split(/\r?\n/);
         member_initialization_code_lines.pop();
+        member_initialization_code_lines.shift();
 
         const constructor_end_line = constructor_range.end.line;
         const end_line = lines[constructor_end_line];

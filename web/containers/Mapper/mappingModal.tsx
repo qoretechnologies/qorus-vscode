@@ -1,13 +1,10 @@
-import React, { FC, useState } from 'react';
-
+import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
 import every from 'lodash/every';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import size from 'lodash/size';
+import React, { FC, useState } from 'react';
 import compose from 'recompose/compose';
-
-import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
@@ -287,45 +284,49 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                     </ContentWrapper>
                 </SidePanel>
                 <Content title={t('FillValues')} style={{ height: 'unset' }}>
-                    <ContentWrapper>
+                    <ContentWrapper style={{ padding: '15px' }}>
                         {size(relation) ? (
                             map(relation, (value: string, key: string) => (
-                                <FieldWrapper>
-                                    <FieldLabel label={key} isValid={getIsFieldValid(key, value)} />
-                                    <FieldInputWrapper>
-                                        {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
-                                            <MapperCodeField
-                                                onChange={handleChange}
-                                                defaultCode={value && value.split('::')[0]}
-                                                defaultMethod={value && value.split('::')[1]}
-                                            />
-                                        ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
-                                            <OptionHashField
-                                                name={key}
-                                                value={value || undefined}
-                                                onChange={handleOptionHashChange}
-                                                items={getOptions()}
-                                                options={output.type.supported_options}
-                                            />
-                                        ) : key === 'name' ? (
-                                            <SelectField
-                                                name={key}
-                                                value={value}
-                                                defaultItems={getPossibleInputs}
-                                                onChange={handleChange}
-                                            />
-                                        ) : (
-                                            <Field
-                                                name={key}
-                                                value={value}
-                                                type="auto"
-                                                defaultType={getKeyType(key, mapperKeys, output)}
-                                                onChange={handleChange}
-                                            />
-                                        )}
-                                    </FieldInputWrapper>
-                                    <FieldActions name={key} onClick={handleRemoveClick} removable />
-                                </FieldWrapper>
+                                <>
+                                    <p>{mapperKeys[key].desc}</p>
+                                    <FieldWrapper>
+                                        <FieldLabel label={key} isValid={getIsFieldValid(key, value)} />
+                                        <FieldInputWrapper>
+                                            {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
+                                                <MapperCodeField
+                                                    onChange={handleChange}
+                                                    defaultCode={value && value.split('::')[0]}
+                                                    defaultMethod={value && value.split('::')[1]}
+                                                />
+                                            ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
+                                                <OptionHashField
+                                                    name={key}
+                                                    value={value || undefined}
+                                                    onChange={handleOptionHashChange}
+                                                    items={getOptions()}
+                                                    options={output.type.supported_options}
+                                                />
+                                            ) : key === 'name' ? (
+                                                <SelectField
+                                                    name={key}
+                                                    value={value}
+                                                    defaultItems={getPossibleInputs}
+                                                    onChange={handleChange}
+                                                />
+                                            ) : (
+                                                <Field
+                                                    name={key}
+                                                    value={value}
+                                                    type="auto"
+                                                    noSoft={true}
+                                                    defaultType={getKeyType(key, mapperKeys, output)}
+                                                    onChange={handleChange}
+                                                />
+                                            )}
+                                        </FieldInputWrapper>
+                                        <FieldActions name={key} onClick={handleRemoveClick} removable />
+                                    </FieldWrapper>
+                                </>
                             ))
                         ) : (
                             <p className={Classes.TEXT_MUTED}>No fields available</p>

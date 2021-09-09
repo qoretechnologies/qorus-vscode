@@ -41,7 +41,7 @@ export const pythonLoc2Range = (loc: any): Range =>
     );
 
 export const javaLoc2Range = (loc: any, offset_string: string = ''): Range =>
-    new Range(loc.startLine - 2, loc.startColumn + offset_string.length - 1, loc.endLine - 1, loc.endColumn);
+    new Range(loc.startLine - 1, loc.startColumn + offset_string.length - 1, loc.endLine - 1, loc.endColumn);
 
 export const pythonNameRange = (
     line: string,

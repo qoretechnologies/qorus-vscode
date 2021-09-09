@@ -42,6 +42,7 @@ const TYPE_COLORS = {
     binary: '#e6b12e',
 
     any: '#a9a9a9',
+    auto: '#d7d7d7',
 };
 
 export const StyledMapperWrapper = styled.div`
@@ -785,6 +786,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     };
 
+    console.log(relations);
+
     return (
         <>
             {!hideInputSelector && (
@@ -983,7 +986,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath}
+                                                        id={outputPath.replace(/ /g, '')}
                                                         x1="0"
                                                         y1={
                                                             (flattenedInputs.findIndex(
@@ -1019,8 +1022,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     </linearGradient>
                                                 </defs>
                                                 <StyledLine
-                                                    key={outputPath}
-                                                    stroke={`url(#${outputPath})`}
+                                                    key={outputPath.replace(/ /g, '')}
+                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
                                                     onClick={() => removeRelation(outputPath)}
                                                     x1={0}
                                                     y1={
@@ -1051,7 +1054,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath}
+                                                        id={outputPath.replace(/ /g, '')}
                                                         x1="0"
                                                         y1={27}
                                                         x2={0}
@@ -1080,8 +1083,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                     </linearGradient>
                                                 </defs>
                                                 <StyledLine
-                                                    key={outputPath}
-                                                    stroke={`url(#${outputPath})`}
+                                                    key={outputPath.replace(/ /g, '')}
+                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
                                                     onClick={() => removeRelation(outputPath, false, true)}
                                                     x1={0}
                                                     y1={27}
@@ -1105,7 +1108,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath}
+                                                        id={outputPath.replace(/ /g, '')}
                                                         x1="0"
                                                         y1={
                                                             63 +
@@ -1149,7 +1152,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 </defs>
                                                 <StyledLine
                                                     key={outputPath}
-                                                    stroke={`url(#${outputPath})`}
+                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
                                                     onClick={() => removeRelation(outputPath, true, true)}
                                                     x1={0}
                                                     y1={
@@ -1186,7 +1189,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath}
+                                                        id={outputPath.replace(/ /g, '')}
                                                         x1="0"
                                                         y1={
                                                             63 +
@@ -1223,7 +1226,7 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 </defs>
                                                 <StyledLine
                                                     key={outputPath}
-                                                    stroke={`url(#${outputPath})`}
+                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
                                                     onClick={() => removeRelation(outputPath, true)}
                                                     x1={0}
                                                     y1={

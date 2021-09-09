@@ -25,6 +25,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
     requestFieldData,
     type,
     t,
+    noSoft,
     ...rest
 }) => {
     const [currentType, setType] = useState<string>(null);
@@ -136,6 +137,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
         // Render the field based on the type
         switch (currentType) {
             case 'string':
+            case 'softstring':
             case 'data':
             case 'binary':
                 return (
@@ -209,6 +211,8 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
             }
             case 'any':
                 return null;
+            case 'auto':
+                return <Callout>Please select data type</Callout>;
             default:
                 return <Callout intent="danger">{t('UnknownType')}</Callout>;
         }
@@ -218,6 +222,33 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
         !isSetToNull &&
         (defaultType === 'auto' || defaultType === 'any' || currentType === 'auto' || currentType === 'any');
 
+    const types = !noSoft
+        ? [
+              { name: 'bool' },
+              { name: 'softbool' },
+              { name: 'date' },
+              { name: 'string' },
+              { name: 'softstring' },
+              { name: 'binary' },
+              { name: 'float' },
+              { name: 'softfloat' },
+              { name: 'list' },
+              { name: 'softlist' },
+              { name: 'hash' },
+              { name: 'int' },
+              { name: 'softint' },
+          ]
+        : [
+              { name: 'bool' },
+              { name: 'date' },
+              { name: 'string' },
+              { name: 'binary' },
+              { name: 'float' },
+              { name: 'list' },
+              { name: 'hash' },
+              { name: 'int' },
+          ];
+
     // Render type picker if the type is auto or any
     return (
         <>
@@ -225,21 +256,7 @@ const AutoField: FunctionComponent<IField & IFieldChange> = ({
                 {showPicker && (
                     <SelectField
                         name="type"
-                        defaultItems={[
-                            { name: 'bool' },
-                            { name: 'softbool' },
-                            { name: 'date' },
-                            { name: 'string' },
-                            { name: 'softstring' },
-                            { name: 'binary' },
-                            { name: 'float' },
-                            { name: 'softfloat' },
-                            { name: 'list' },
-                            { name: 'softlist' },
-                            { name: 'hash' },
-                            { name: 'int' },
-                            { name: 'softint' },
-                        ]}
+                        defaultItems={types}
                         value={currentInternalType}
                         onChange={(_name, value) => {
                             handleChange(name, null);

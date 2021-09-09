@@ -481,7 +481,6 @@ export class QorusProjectEditInfo {
 
         const maybeAddConstructorInfo = (parsed_constructor) => {
             const constructor_range = javaLoc2Range(parsed_constructor.loc);
-            console.log(parsed_constructor);
             this.edit_info[file].constructor_range = constructor_range;
 
             // does the constructor contain something more then possibly
@@ -510,13 +509,12 @@ export class QorusProjectEditInfo {
                 }
             });
 
+            console.log(remaining_constructor_lines.join(' ').replace(/ /g, '').replace());
+
             // join the lines and remove the expected constructor signature parts
             const remaining_constructor_code = remaining_constructor_lines
                 .join(' ')
-                .replace(
-                    '// constructor requires explicit exception declaration due to imported base Qorus base class',
-                    ''
-                )
+                .replace(/ /g, '')
                 .replace('public', '')
                 .replace(class_name, '')
                 .replace('(', '')
@@ -524,7 +522,6 @@ export class QorusProjectEditInfo {
                 .replace('throws', '')
                 .replace('Throwable', '')
                 .replace('{', '')
-                .replace('super();', '')
                 .replace('}', '');
 
             this.edit_info[file].is_constructor_empty = !remaining_constructor_code.match(/\S/);
