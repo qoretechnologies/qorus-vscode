@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.11
+
+#### Bug Fixes
+
+-   Fixed a bug where Java code would be incorrectly generated after a connection has been added
+
 ## 2.3.10
 
 #### Bug Fixes
