@@ -57,8 +57,8 @@ export class ActionDispatcher {
     };
 
     static getSortedFields = async (params: any): Promise<any[]> => {
-        params.limited_editing =
-            params.is_editing && (params.lang || default_lang) === 'qore' && !(await isLangClientAvailable());
+        const lang = params.lang || default_lang;
+        params.limited_editing = params.is_editing && lang === 'qore' && !(await isLangClientAvailable());
 
         const not_to_sort = ['target_dir', 'name', 'class-class-name', 'description', 'desc', 'lang'];
         let unsorted = [...ActionDispatcher.getFields(params)];

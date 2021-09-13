@@ -618,10 +618,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         const filt = [
             'iface_id',
             'orig_name',
+            'name',
+            'desc',
             'type',
             'yaml_file',
             'class-connections',
             'code',
+            'lang',
             'config-items',
             'servicetype',
             'id',

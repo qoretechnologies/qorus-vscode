@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.12
+
+#### Bug Fixes
+
+-   Various bugs fixes and improvements for service methods handling for Python and Java
+
 ## 2.3.11
 
 #### Bug Fixes
