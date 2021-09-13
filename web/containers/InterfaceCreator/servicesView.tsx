@@ -206,7 +206,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                         (method: { id: number; name?: string }, index: number) => (
                                                             <MethodSelector
                                                                 name={`select-method-${method.name}`}
-                                                                key={method.id}
+                                                                key={index}
                                                                 active={method.id === activeMethod}
                                                                 valid={isSubItemValid(
                                                                     method.id,
