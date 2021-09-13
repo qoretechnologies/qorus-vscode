@@ -1,5 +1,5 @@
 import { Button, ButtonGroup } from '@blueprintjs/core';
-import { size } from 'lodash';
+import { forEach, size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -235,18 +235,40 @@ const Tab: React.FC<ITabProps> = ({
     useEffect(() => {
         if (recreateDialog) {
             const { message, iface_kind, orig_lang, iface_id } = recreateDialog;
+            console.log(recreateDialog);
+
+            const isMethodUsedInCC = (name, classConnections): boolean => {
+                let isUsed = false;
+
+                forEach(classConnections, (connectorList) => {
+                    forEach(connectorList, (connectorData) => {
+                        if (connectorData.trigger === name) {
+                            isUsed = true;
+                        }
+                    });
+                });
+
+                return isUsed;
+            };
 
             data.confirmAction(
                 message,
                 () => {
                     if (iface_kind === 'service') {
-                        // Get the removed methods
-                        const removedMethods: any[] = methods.filter((method) => method.name !== 'init');
-                        const initMethod = methods.find((method) => method.name === 'init');
+                        // Get the removed methods, only remove methods that are not
+                        // used in class connections as triggers
+                        const { 'class-connections': classConnections } = data.service;
+                        const removedMethods: any[] = methods.filter((method) => {
+                            return method.name !== 'init' && !isMethodUsedInCC(method.name, classConnections);
+                        });
                         // Set the methods to only leave the init method
+                        // only if no methods were left
                         setMethods((cur) => {
-                            return initMethod
-                                ? [...cur].filter((method) => method.name === 'init')
+                            return size(removedMethods) !== size(methods)
+                                ? [...cur].filter(
+                                      (method) =>
+                                          method.name === 'init' || isMethodUsedInCC(method.name, classConnections)
+                                  )
                                 : [{ name: 'init', desc: '' }];
                         });
                         // Remove each of the removed methods from the fields
