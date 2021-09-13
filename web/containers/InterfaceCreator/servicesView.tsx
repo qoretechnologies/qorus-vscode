@@ -266,7 +266,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                 interfaceIndex={methodsIndex}
                                                 onBackClick={() => {
                                                     hasAllMethodsLoaded = false;
-                                                    setActiveMethod(null);
+                                                    setActiveMethod(1);
                                                     setShowMethods(false);
                                                     if (service) {
                                                         initialData.changeInitialData('service.active_method', null);
@@ -297,10 +297,10 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                                                     hasAllMethodsLoaded = false;
                                                 }}
                                                 forceSubmit
-                                                data={
-                                                    methodsData &&
-                                                    methodsData.find((method) => method.id === activeMethod)
-                                                }
+                                                data={{
+                                                    ...(methodsData || []).find((method) => method.id === activeMethod),
+                                                    lang: service?.lang,
+                                                }}
                                                 onNameChange={(
                                                     methodId: number,
                                                     name: string,
