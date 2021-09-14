@@ -31,6 +31,7 @@ const removeMethodTriggers = (methods, connectionData) =>
     }, []);
 
 const ClassConnectionsStateProvider = ({ selectedFields, type, children, initialData, methods }) => {
+    console.log(initialData);
     const [showClassConnectionsManager, setShowClassConnectionsManager] = useState<boolean>(false);
     const [classConnectionsData, setClassConnectionsData] = useState<IClassConnections>(
         initialData[type]?.['class-connections']

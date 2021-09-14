@@ -311,12 +311,6 @@ export default () =>
             };
 
             const setSelectedFields = (type, value, activeId, interfaceIndex) => {
-                console.log('SETTING SELECTED FIELDS', {
-                    type,
-                    value,
-                    activeId,
-                    interfaceIndex,
-                });
                 setLocalSelectedFields((current) => {
                     const index = getInterfaceIndex(type, interfaceIndex);
                     const newResult = { ...current };
@@ -400,10 +394,6 @@ export default () =>
                 interfaceIndex
             ) => {
                 const index = getInterfaceIndex(type, interfaceIndex);
-
-                console.log(itemId, type, interfaceIndex, index);
-
-                console.log(selectedFields?.[type]);
 
                 if (itemId) {
                     return (

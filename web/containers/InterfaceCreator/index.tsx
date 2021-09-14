@@ -104,7 +104,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({ initialDa
                     )}
                     {initialData.subtab === 'step' && (
                         <CreatorWrapper>
-                            <ClassConnectionsStateProvider type="step">
+                            <ClassConnectionsStateProvider initialData={initialData} type="step">
                                 {(classConnectionsProps) => (
                                     <InterfaceCreatorPanel
                                         type={'step'}
