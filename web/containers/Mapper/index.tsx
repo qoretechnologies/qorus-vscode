@@ -786,8 +786,6 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     };
 
-    console.log(relations);
-
     return (
         <>
             {!hideInputSelector && (

@@ -643,14 +643,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         currentData = omit(currentData, filt);
         const origData = omit(originalData.current, filt);
 
-        console.log(currentData, origData);
-
         if (!size(currentData) || !size(origData)) {
             unsetDraft(type);
             return;
         }
-
-        console.log(currentData, origData);
 
         if (!isEqual(currentData, origData)) {
             setAsDraft(type);
@@ -942,8 +938,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 if (onBackClick) {
                     onBackClick();
                 }
-
-                console.log('SETTING DRAFT TO NO PLS THX');
             }
         }
     };

@@ -235,7 +235,6 @@ const Tab: React.FC<ITabProps> = ({
     useEffect(() => {
         if (recreateDialog) {
             const { message, iface_kind, orig_lang, iface_id } = recreateDialog;
-            console.log(recreateDialog);
 
             const isMethodUsedInCC = (name, classConnections): boolean => {
                 let isUsed = false;
