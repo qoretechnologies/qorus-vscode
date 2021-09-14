@@ -4,6 +4,10 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
+## Version 2.3.13 overview - What's new:
+
+-   Fixed a bug that prevented steps opened from workflow to get the correct data
+
 ## Version 2.3.12 overview - What's new:
 
 -   Various bugs fixes and improvements for service methods handling for Python and Java
@@ -20,42 +24,6 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 
 -   Fixed a bug notification toasters would be rendered outside of the view
 -   Fixed a bug that prevented going back to service from the methods page
-
-## Version 2.3.9 overview - What's new:
-
--   Fixed a bug where Java class connections were regenerated multiple times in the source code in some situations
--   Fixed a bug where the WebView would crash when opening a service that was just created
-
-## Version 2.3.8 overview - What's new:
-
--   Fixed a bug that prevented creation of more than one service method
--   Fixed a few more cases where confirmation dialog would incorrectly appear
--   Fixed a bug that caused visual artifacts when hovering over a select button with tooltip
--   Fixed a bug in Java service code generation
-
-## Version 2.3.7 overview - What's new:
-
--   Fixed a bug in Java folder creation - all invalid characters are now transformed
--   Fixed bugs in Java code generation for constant values
-
-## Version 2.3.6 overview - What's new:
-
--   Added proper scrolling to connection creation view
-
-## Version 2.3.5 overview - What's new:
-
--   Fixed the default connection URL to use HTTPS on port 8011; HTTP on port 8001 is no longer used by default
--   Fixed a bug in Java code generation
-
-## Version 2.3.4 overview - What's new:
-
--   Fixed Java code generation of validation methods to use dynamically imported values
--   Fixed a bug where dashes would not be allowed in connection names
--   Fixed a rendering bug that sometimes would prevent rendering of icons on the step diagram
-
-## Version 2.3.3 overview - What's new:
-
--   Fixed code generation of default constructors in Java when extending dynamic classes and connectors exist
 
 ---
 

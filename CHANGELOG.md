@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.13
+
+#### Bug Fixes
+
+-   Fixed a bug that prevented steps opened from workflow to get the correct data
+
 ## 2.3.12
 
 #### Bug Fixes
