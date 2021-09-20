@@ -449,12 +449,33 @@ export default () =>
                             newPath += `.type.fields.${fieldName}`;
                         }
                     });
-                    // Get the object at the exact path
+
+                    // Always remove the original object
+                    unset(result, newPath);
                     if (remove) {
-                        unset(result, newPath);
-                    } else {
-                        set(result, newPath, data);
+                        return result;
                     }
+                    // Build the updated path
+                    const oldFields: string[] = path.split('.');
+                    // Remove the last value from the fields
+                    oldFields.pop();
+                    // Add the new name to the end of the fields list
+                    oldFields.push(data.name);
+
+                    let newUpdatedPath: string;
+
+                    oldFields.forEach((fieldName) => {
+                        if (!newUpdatedPath) {
+                            newUpdatedPath = fieldName;
+                        } else {
+                            newUpdatedPath += `.type.fields.${fieldName}`;
+                        }
+                    });
+                    // Get the object at the exact path
+                    set(result, newUpdatedPath, {
+                        ...data,
+                        path: oldFields.join('.'),
+                    });
                     // Return new data
                     return result;
                 });
