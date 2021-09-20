@@ -509,8 +509,6 @@ export class QorusProjectEditInfo {
                 }
             });
 
-            console.log(remaining_constructor_lines.join(' ').replace(/ /g, '').replace());
-
             // join the lines and remove the expected constructor signature parts
             const remaining_constructor_code = remaining_constructor_lines
                 .join(' ')

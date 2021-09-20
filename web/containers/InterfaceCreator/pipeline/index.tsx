@@ -439,8 +439,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
             result = transformNodeData(result, '');
 
-            updateHistory(result);
-
             return result;
         });
     };
@@ -471,8 +469,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
             result = filterRemovedElements(result);
             result = transformNodeData(result, '');
-
-            updateHistory(result);
 
             return result;
         });

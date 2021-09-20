@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3.14
+
+#### Bug Fixes
+
+-   Fixed a bug that prevented editing of pipeline elements
+-   Fixed a bug that stored old and incorrect connections settings in local state when connection URL / options would change
+-   Requires field in classes with processor is no longer limited to only processor classes
+-   Fixed a bug that would cause the webview to crash when removing the classes field from workflow fields
+
 ## 2.3.13
 
 #### Bug Fixes
