@@ -439,45 +439,51 @@ export default () =>
                     result = reduce(
                         result,
                         (newResult, relation, relationOutputName) => {
-                            console.log(relation);
-                            if (relationOutputName === oldName) {
+                            if (type === 'outputs') {
+                                if (relationOutputName === oldName) {
+                                    return {
+                                        ...newResult,
+                                        [newName]: relation,
+                                    };
+                                }
+
+                                if (relationOutputName.includes(`${oldName}.`)) {
+                                    return {
+                                        ...newResult,
+                                        [relationOutputName.replace(`${oldName}.`, `${newName}.`)]: relation,
+                                    };
+                                }
+
                                 return {
                                     ...newResult,
-                                    [newName]: relation,
+                                    [relationOutputName]: relation,
                                 };
-                            }
+                            } else {
+                                if (relation.name === oldName) {
+                                    return {
+                                        ...newResult,
+                                        [relationOutputName]: {
+                                            ...relation,
+                                            name: newName,
+                                        },
+                                    };
+                                }
 
-                            if (relationOutputName.includes(`${oldName}.`)) {
+                                if (relation.name?.includes(`${oldName}.`)) {
+                                    return {
+                                        ...newResult,
+                                        [relationOutputName]: {
+                                            ...relation,
+                                            name: relation.name.replace(`${oldName}.`, `${newName}.`),
+                                        },
+                                    };
+                                }
+
                                 return {
                                     ...newResult,
-                                    [relationOutputName.replace(`${oldName}.`, `${newName}.`)]: relation,
+                                    [relationOutputName]: relation,
                                 };
                             }
-
-                            if (relation.name === oldName) {
-                                return {
-                                    ...newResult,
-                                    [relationOutputName]: {
-                                        ...relation,
-                                        name: newName,
-                                    },
-                                };
-                            }
-
-                            if (relation.name?.includes(`${oldName}.`)) {
-                                return {
-                                    ...newResult,
-                                    [relationOutputName]: {
-                                        ...relation,
-                                        name: relation.name.replace(`${oldName}.`, `${newName}.`),
-                                    },
-                                };
-                            }
-
-                            return {
-                                ...newResult,
-                                [relationOutputName]: relation,
-                            };
                         },
                         {}
                     );
