@@ -58,9 +58,9 @@ export default class ConfigItemsModal extends Component {
     };
 
     getTemplateKey = (value) => {
-        const [_type, key] = value.replace(/'/g, '').split(':');
+        const [_type, ...rest] = value.replace(/'/g, '').split(':');
 
-        return key;
+        return rest.join(':');
     };
 
     state: {

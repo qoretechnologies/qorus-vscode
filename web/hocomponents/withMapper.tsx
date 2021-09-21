@@ -432,6 +432,68 @@ export default () =>
                 });
             };
 
+            const updateRelations = (type: 'inputs' | 'outputs', oldName: string, newName: string) => {
+                setRelations((cur) => {
+                    let result = { ...cur };
+
+                    result = reduce(
+                        result,
+                        (newResult, relation, relationOutputName) => {
+                            if (type === 'outputs') {
+                                if (relationOutputName === oldName) {
+                                    return {
+                                        ...newResult,
+                                        [newName]: relation,
+                                    };
+                                }
+
+                                if (relationOutputName.includes(`${oldName}.`)) {
+                                    return {
+                                        ...newResult,
+                                        [relationOutputName.replace(`${oldName}.`, `${newName}.`)]: relation,
+                                    };
+                                }
+
+                                return {
+                                    ...newResult,
+                                    [relationOutputName]: relation,
+                                };
+                            } else {
+                                if (relation.name === oldName) {
+                                    return {
+                                        ...newResult,
+                                        [relationOutputName]: {
+                                            ...relation,
+                                            name: newName,
+                                        },
+                                    };
+                                }
+
+                                if (relation.name?.includes(`${oldName}.`)) {
+                                    return {
+                                        ...newResult,
+                                        [relationOutputName]: {
+                                            ...relation,
+                                            name: relation.name.replace(`${oldName}.`, `${newName}.`),
+                                        },
+                                    };
+                                }
+
+                                return {
+                                    ...newResult,
+                                    [relationOutputName]: relation,
+                                };
+                            }
+                        },
+                        {}
+                    );
+
+                    console.log(oldName, newName, result);
+
+                    return result;
+                });
+            };
+
             const editField = (fieldsType, path, data, remove: boolean) => {
                 // Save the field setters to be easily accessible
                 const fieldSetters: any = { inputs: setInputs, outputs: setOutputs };
@@ -449,12 +511,35 @@ export default () =>
                             newPath += `.type.fields.${fieldName}`;
                         }
                     });
-                    // Get the object at the exact path
+
+                    // Always remove the original object
+                    unset(result, newPath);
                     if (remove) {
-                        unset(result, newPath);
-                    } else {
-                        set(result, newPath, data);
+                        return result;
                     }
+                    // Build the updated path
+                    const oldFields: string[] = path.split('.');
+                    // Remove the last value from the fields
+                    oldFields.pop();
+                    // Add the new name to the end of the fields list
+                    oldFields.push(data.name);
+
+                    let newUpdatedPath: string;
+
+                    oldFields.forEach((fieldName) => {
+                        if (!newUpdatedPath) {
+                            newUpdatedPath = fieldName;
+                        } else {
+                            newUpdatedPath += `.type.fields.${fieldName}`;
+                        }
+                    });
+                    // Get the object at the exact path
+                    set(result, newUpdatedPath, {
+                        ...data,
+                        path: oldFields.join('.'),
+                    });
+
+                    updateRelations(fieldsType, path, oldFields.join('.'));
                     // Return new data
                     return result;
                 });

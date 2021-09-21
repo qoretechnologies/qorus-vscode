@@ -106,7 +106,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     });
 
     useEffect(() => {
-        if (hasProcessor) {
+        if (hasProcessor && name === 'base-class-name') {
             listener && listener();
             setListener(() =>
                 addMessageListener(return_message.action, (data: any) => {
@@ -191,7 +191,7 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             className = classClassName || cName;
         }
 
-        if (hasProcessor) {
+        if (hasProcessor && name === 'base-class-name') {
             // Get only the processor related classes
             postMessage('creator-get-objects', {
                 object_type: 'processor-base-class',

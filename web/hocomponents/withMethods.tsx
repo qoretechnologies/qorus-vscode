@@ -22,15 +22,6 @@ export default () =>
                 setActiveMethod(1);
             };
 
-            // useEffect(() => {
-            //     console.log('initial methods changed');
-            //     if (size(props.initialMethods)) {
-            //         setMethods(props.initialMethods);
-            //         setMethodsCount(props.initialCount);
-            //         setLastMethodId(props.initialId);
-            //     }
-            // }, [props.initialMethods]);
-
             useEffect(() => {
                 // Some kind of hack to force this function
                 // to work like componentDidUpdate instead
@@ -49,8 +40,6 @@ export default () =>
                 setMethods((current: any[]) => [...current, { id: lastMethodId + 1 }]);
                 setMethodsCount((current: number) => current + 1);
             };
-
-            console.log(showMethods);
 
             return (
                 <MethodsContext.Provider

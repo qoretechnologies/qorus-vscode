@@ -509,8 +509,6 @@ export class QorusProjectEditInfo {
                 }
             });
 
-            console.log(remaining_constructor_lines.join(' ').replace(/ /g, '').replace());
-
             // join the lines and remove the expected constructor signature parts
             const remaining_constructor_code = remaining_constructor_lines
                 .join(' ')
@@ -795,6 +793,7 @@ export class QorusProjectEditInfo {
             parsed_data = QorusPythonParser.parseFile(file);
         } catch (error) {
             msg.debug({ error });
+            console.log(error);
             return Promise.reject(this.setError(file, t`ErrorParsingFile ${file}`));
         }
 
