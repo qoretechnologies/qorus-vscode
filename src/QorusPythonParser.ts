@@ -1,5 +1,5 @@
+import { parse } from '@qoretechnologies/python-parser';
 import { readFileSync } from 'fs';
-import { parse } from '@andrewhead/python-program-analysis';
 
 // a function for test printing out parsed AST of a file (output from the python-program-analysis module)
 /*import { writeFileSync } from 'fs';
@@ -21,7 +21,7 @@ export class QorusPythonParser {
             targets.push({
                 loc: targ.location,
                 type: targ.type,
-                name: targ.id
+                name: targ.id,
             });
         }
 
@@ -29,24 +29,24 @@ export class QorusPythonParser {
             sources.push({
                 loc: src?.location,
                 type: src?.type,
-                value: src?.type === 'literal' ? src.value : undefined
+                value: src?.type === 'literal' ? src.value : undefined,
             });
         }
 
-        return assignNode.location ? {
-            loc: assignNode.location,
-            targets: targets,
-            sources: sources
-        } : undefined;
+        return assignNode.location
+            ? {
+                  loc: assignNode.location,
+                  targets: targets,
+                  sources: sources,
+              }
+            : undefined;
     }
 
     private static _parseParamDefArg(defArgNode): object | undefined {
         return {
             loc: defArgNode.location,
             type: defArgNode.type,
-            val: defArgNode.type === 'literal'
-                ? defArgNode.value
-                : undefined
+            val: defArgNode.type === 'literal' ? defArgNode.value : undefined,
         };
     }
 
@@ -62,7 +62,7 @@ export class QorusPythonParser {
             params.push({
                 loc: param.location,
                 name: param.name,
-                default: param.default ? QorusPythonParser._parseParamDefArg(param.default) : undefined
+                default: param.default ? QorusPythonParser._parseParamDefArg(param.default) : undefined,
             });
         }
         return params.length > 0 ? params : undefined;
@@ -75,7 +75,7 @@ export class QorusPythonParser {
         return {
             loc: defNode.location,
             name: defNode.name,
-            params: QorusPythonParser._parseDefParams(defNode.params)
+            params: QorusPythonParser._parseDefParams(defNode.params),
         };
     }
 
@@ -86,7 +86,7 @@ export class QorusPythonParser {
 
         const body = {
             methods: [],
-            assignments: []
+            assignments: [],
         };
         for (const node of codeArr) {
             const type = node?.type;
@@ -118,7 +118,7 @@ export class QorusPythonParser {
             }
             exts.push({
                 loc: ext.location,
-                name: ext?.actual?.id
+                name: ext?.actual?.id,
             });
         }
         return exts.length > 0 ? exts : undefined;
@@ -132,7 +132,7 @@ export class QorusPythonParser {
             loc: clsNode.location,
             name: clsNode.name,
             body: QorusPythonParser._parseClassBody(clsNode.code),
-            extends: QorusPythonParser._parseExtends(clsNode.extends)
+            extends: QorusPythonParser._parseExtends(clsNode.extends),
         };
     }
 
@@ -141,15 +141,17 @@ export class QorusPythonParser {
         for (const imp of impNode?.imports ?? []) {
             imports.push({
                 loc: imp.location,
-                path: imp.path
+                path: imp.path,
             });
         }
 
-        return imports.length > 0 ? {
-            loc: impNode.location,
-            from: impNode.base,
-            imports: imports
-        } : undefined;
+        return imports.length > 0
+            ? {
+                  loc: impNode.location,
+                  from: impNode.base,
+                  imports: imports,
+              }
+            : undefined;
     }
 
     private static _parseImport(impNode): object | undefined {
@@ -157,26 +159,28 @@ export class QorusPythonParser {
         for (const imp of impNode?.names ?? []) {
             names.push({
                 loc: imp.location,
-                path: imp.path
+                path: imp.path,
             });
         }
 
-        return names.length > 0 ? {
-            loc: impNode.location,
-            names: names
-        } : undefined;
+        return names.length > 0
+            ? {
+                  loc: impNode.location,
+                  names: names,
+              }
+            : undefined;
     }
-    
+
     private static _extractInfo(tree): object | undefined {
         let info = {
             classes: [],
             functions: [],
             fromimports: [],
             imports: [],
-            assignments: []
+            assignments: [],
         };
 
-        if (tree?.type !== "module") {
+        if (tree?.type !== 'module') {
             return undefined;
         }
 
@@ -232,7 +236,7 @@ export class QorusPythonParser {
 
     /** Parse Python file from a filepath. Throws on syntax errors. */
     public static parseFile(filePath: string, encoding: string = 'utf-8'): object | undefined {
-        const contents = readFileSync(filePath, {encoding: encoding});
+        const contents = readFileSync(filePath, { encoding: encoding });
         return QorusPythonParser.parse(contents);
     }
 

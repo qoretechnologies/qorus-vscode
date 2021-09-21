@@ -18,7 +18,7 @@ import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper } from 
 export interface IMapperFieldModalProps {
     type: 'inputs' | 'outputs';
     onClose: () => any;
-    onSubmit: (data: any) => any;
+    onSubmit: (data: any, oldData: any) => any;
     t: TTranslator;
     initialData: any;
     siblings: any;
@@ -136,7 +136,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             newField.firstCustomInHierarchy = true;
         }
         // Submit the field
-        onSubmit(newField);
+        onSubmit(newField, fieldData);
         onClose();
     };
 

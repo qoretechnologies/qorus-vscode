@@ -46,7 +46,7 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
     useMount(() => {
         if (qorus_instance) {
             (async () => {
-                setOptions(null);
+                setOptions({});
                 // Fetch the options for this mapper type
                 const data = await fetchData(getUrl());
 
@@ -64,14 +64,14 @@ const Options = ({ name, value, onChange, url, customUrl, ...rest }) => {
     useUpdateEffect(() => {
         if (url && qorus_instance) {
             (async () => {
-                setOptions(null);
+                setOptions({});
                 setError(null);
                 removeValue();
                 // Fetch the options for this mapper type
                 const data = await fetchData(getUrl());
                 // Save the new options
                 setOptions(data.data);
-                onChange(name, fixOptions(value, data.data));
+                onChange(name, fixOptions({}, data.data));
             })();
         }
     }, [url, qorus_instance]);

@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Callout, Classes, Colors, Intent, Tooltip } from '@blueprintjs/core';
+import { cloneDeep } from 'lodash';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
@@ -208,7 +209,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     };
     const transformNodeData = (data, path) => {
         return data.reduce((newData, item, index) => {
-            const newItem = { ...item };
+            let newItem = cloneDeep(item);
+            newItem = omit(newItem, ['parent', '_children']);
 
             newItem.nodeSvgShape = getNodeShapeData(item);
             newItem.path = `${path}[${index}]`;
@@ -353,6 +355,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             delete fixedMetadata.groups;
         }
 
+        console.log(elements);
+
         const result = await callBackend(
             pipeline ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
             undefined,
@@ -422,6 +426,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     };
 
     const handleDataSubmit = (data) => {
+        let dt = { ...data };
+        dt = omit(dt, ['parent']);
+        console.log(dt);
         setElements((cur) => {
             let result = [...cur];
             // We are adding a child to a queue
@@ -438,8 +445,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             }
 
             result = transformNodeData(result, '');
-
-            updateHistory(result);
 
             return result;
         });
@@ -472,8 +477,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             result = filterRemovedElements(result);
             result = transformNodeData(result, '');
 
-            updateHistory(result);
-
             return result;
         });
     };
@@ -485,6 +488,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             </Callout>
         );
     }
+
+    console.log(elements);
 
     return (
         <>
@@ -660,7 +665,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                 >
                     {wrapperRef.current && (
                         <Tree
-                            data={elements}
+                            data={cloneDeep(elements)}
                             orientation="vertical"
                             pathFunc="straight"
                             translate={{ x: (wrapperRef.current.getBoundingClientRect().width || 250) / 2, y: 100 }}
