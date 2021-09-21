@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.15
+
+#### Bug Fixes
+
+-   Fixed a bug that caused internal config item data to be incorrectly saved
+
 ## 2.3.14
 
 #### Bug Fixes
