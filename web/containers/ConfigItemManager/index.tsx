@@ -1,20 +1,13 @@
-import React, {
-    FunctionComponent, useEffect, useState
-} from 'react';
-
+import { Button } from '@blueprintjs/core';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
-
-import { Button } from '@blueprintjs/core';
-
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { Messages } from '../../constants/messages';
 import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
-import withMessageHandler, {
-    TMessageListener, TPostMessage
-} from '../../hocomponents/withMessageHandler';
+import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import InterfaceCreatorPanel from '../InterfaceCreator/panel';
 import GlobalTable from './globalTable';
@@ -108,29 +101,24 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
         }
     }, [configItemData]);
 
-    const handleSubmit: (
-        name: string,
-        value: string,
-        parent: string | null,
-        level: string,
-        remove?: boolean
-    ) => void = (name, value, parent, level, isTemplatedString, remove) => {
-        // Send message that the config item has been updated
-        postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
-            name,
-            value,
-            value_true_type: getTypeFromValue(maybeParseYaml(value)),
-            file_name: configItems.file_name,
-            remove,
-            level,
-            iface_id: interfaceId,
-            parent_class: parent,
-            iface_kind: type,
-            is_templated_string: isTemplatedString,
-            state_id: stateData?.id,
-            processor_id: processorData?.pid,
-        });
-    };
+    const handleSubmit: (name: string, value: string, parent: string | null, level: string, remove?: boolean) => void =
+        (name, value, parent, level, isTemplatedString, remove) => {
+            // Send message that the config item has been updated
+            postMessage(Messages.UPDATE_CONFIG_ITEM_VALUE, {
+                name,
+                value,
+                value_true_type: getTypeFromValue(maybeParseYaml(value)).toString(),
+                file_name: configItems.file_name,
+                remove,
+                level,
+                iface_id: interfaceId,
+                parent_class: parent,
+                iface_kind: type,
+                is_templated_string: isTemplatedString,
+                state_id: stateData?.id,
+                processor_id: processorData?.pid,
+            });
+        };
 
     const handleEditStructureClick: (configItemName: string) => void = (configItemName) => {
         // Request the config item data
