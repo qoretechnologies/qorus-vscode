@@ -432,6 +432,62 @@ export default () =>
                 });
             };
 
+            const updateRelations = (type: 'inputs' | 'outputs', oldName: string, newName: string) => {
+                setRelations((cur) => {
+                    let result = { ...cur };
+
+                    result = reduce(
+                        result,
+                        (newResult, relation, relationOutputName) => {
+                            console.log(relation);
+                            if (relationOutputName === oldName) {
+                                return {
+                                    ...newResult,
+                                    [newName]: relation,
+                                };
+                            }
+
+                            if (relationOutputName.includes(`${oldName}.`)) {
+                                return {
+                                    ...newResult,
+                                    [relationOutputName.replace(`${oldName}.`, `${newName}.`)]: relation,
+                                };
+                            }
+
+                            if (relation.name === oldName) {
+                                return {
+                                    ...newResult,
+                                    [relationOutputName]: {
+                                        ...relation,
+                                        name: newName,
+                                    },
+                                };
+                            }
+
+                            if (relation.name?.includes(`${oldName}.`)) {
+                                return {
+                                    ...newResult,
+                                    [relationOutputName]: {
+                                        ...relation,
+                                        name: relation.name.replace(`${oldName}.`, `${newName}.`),
+                                    },
+                                };
+                            }
+
+                            return {
+                                ...newResult,
+                                [relationOutputName]: relation,
+                            };
+                        },
+                        {}
+                    );
+
+                    console.log(oldName, newName, result);
+
+                    return result;
+                });
+            };
+
             const editField = (fieldsType, path, data, remove: boolean) => {
                 // Save the field setters to be easily accessible
                 const fieldSetters: any = { inputs: setInputs, outputs: setOutputs };
@@ -476,6 +532,8 @@ export default () =>
                         ...data,
                         path: oldFields.join('.'),
                     });
+
+                    updateRelations(fieldsType, path, oldFields.join('.'));
                     // Return new data
                     return result;
                 });

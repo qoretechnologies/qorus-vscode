@@ -1958,6 +1958,7 @@
         "@blueprintjs/datetime": "^3.9.2",
         "@blueprintjs/select": "^3.8.0",
         "@blueprintjs/table": "^3.7.1",
+        "@qoretechnologies/python-parser": "^0.4.10",
         "@types/js-yaml": "^3.12.5",
         "@types/lodash": "^4.14.170",
         "@types/styled-components": "^4.1.19",
