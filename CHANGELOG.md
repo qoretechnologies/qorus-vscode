@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.16
+
+#### Bug Fixes
+
+-   Addressed usability issues with pipeline diagrams
+-   Added a `Remove value` button to configuration item modals to implement another possibility for removing the configuration item value
+
 ## 2.3.15
 
 #### Bug Fixes
