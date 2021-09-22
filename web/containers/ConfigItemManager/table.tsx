@@ -154,8 +154,19 @@ let ItemsTable: Function = ({
     type,
     definitionsOnly,
     disableAdding,
+    initialItems,
 }: ConfigItemsTableProps) => {
     const initContext = useContext(InitialContext);
+
+    const isInitialItemValueSame = (item) => {
+        const initialItem = initialItems.find((inItem) => inItem.name === item.name && inItem.group === item.group);
+
+        if (!initialItem) {
+            return false;
+        }
+
+        return initialItem.value === item.value;
+    };
 
     return (
         <React.Fragment>
@@ -216,6 +227,7 @@ let ItemsTable: Function = ({
                                         className={classnames({
                                             'row-alert': !item.value && !item.is_set,
                                         })}
+                                        highlight={!isInitialItemValueSame(item)}
                                     >
                                         <Td className="name">{item.name}</Td>
                                         {!definitionsOnly && (

@@ -28,12 +28,23 @@ const WorkflowConfigItemsTable: Function = ({
     globalConfig,
     onSubmit,
     globalItems,
+    initialItems,
     modalData,
     handleModalToggle,
     workflow,
     t,
     definitionsOnly,
 }) => {
+    const isInitialItemValueSame = (item) => {
+        const initialItem = initialItems.find((inItem) => inItem.name === item.name && inItem.group === item.group);
+
+        if (!initialItem) {
+            return false;
+        }
+
+        return initialItem.value === item.value;
+    };
+
     return (
         <>
             {modalData && (
@@ -100,73 +111,80 @@ const WorkflowConfigItemsTable: Function = ({
                     >
                         {(props) => (
                             <Tbody {...props}>
-                                {globalConfig.map((item: any, index: number) => (
-                                    <React.Fragment>
-                                        <Tr key={item.name} first={index === 0}>
-                                            <Td className="name">{item.name}</Td>
-                                            {!definitionsOnly && (
-                                                <ActionColumn>
-                                                    <ButtonGroup>
-                                                        <Button
-                                                            icon="edit"
-                                                            small
-                                                            title={t('button.edit-this-value')}
-                                                            onClick={() => {
-                                                                handleModalToggle({
-                                                                    onSubmit: (
-                                                                        name,
-                                                                        value,
-                                                                        parent,
-                                                                        isTemplatedString
-                                                                    ) => {
+                                {globalConfig.map(
+                                    (item: any, index: number) =>
+                                        console.log(item.value, initialItems[index].value) || (
+                                            <React.Fragment>
+                                                <Tr
+                                                    key={item.name}
+                                                    first={index === 0}
+                                                    highlight={!isInitialItemValueSame(item)}
+                                                >
+                                                    <Td className="name">{item.name}</Td>
+                                                    {!definitionsOnly && (
+                                                        <ActionColumn>
+                                                            <ButtonGroup>
+                                                                <Button
+                                                                    icon="edit"
+                                                                    small
+                                                                    title={t('button.edit-this-value')}
+                                                                    onClick={() => {
+                                                                        handleModalToggle({
+                                                                            onSubmit: (
+                                                                                name,
+                                                                                value,
+                                                                                parent,
+                                                                                isTemplatedString
+                                                                            ) => {
+                                                                                onSubmit(
+                                                                                    name,
+                                                                                    value,
+                                                                                    parent,
+                                                                                    workflow ? 'workflow' : 'global',
+                                                                                    isTemplatedString
+                                                                                );
+                                                                                handleModalToggle(null);
+                                                                            },
+                                                                            globalConfig: globalItems,
+                                                                            item,
+                                                                            isGlobal: true,
+                                                                        });
+                                                                    }}
+                                                                />
+                                                                <Button
+                                                                    small
+                                                                    icon="trash"
+                                                                    title={t('button.remove-this-value')}
+                                                                    intent={Intent.DANGER}
+                                                                    onClick={() => {
                                                                         onSubmit(
-                                                                            name,
-                                                                            value,
-                                                                            parent,
+                                                                            item.name,
+                                                                            null,
+                                                                            item.parent_class,
                                                                             workflow ? 'workflow' : 'global',
-                                                                            isTemplatedString
+                                                                            item.is_templated_string,
+                                                                            true
                                                                         );
-                                                                        handleModalToggle(null);
-                                                                    },
-                                                                    globalConfig: globalItems,
-                                                                    item,
-                                                                    isGlobal: true,
-                                                                });
-                                                            }}
-                                                        />
-                                                        <Button
-                                                            small
-                                                            icon="trash"
-                                                            title={t('button.remove-this-value')}
-                                                            intent={Intent.DANGER}
-                                                            onClick={() => {
-                                                                onSubmit(
-                                                                    item.name,
-                                                                    null,
-                                                                    item.parent_class,
-                                                                    workflow ? 'workflow' : 'global',
-                                                                    item.is_templated_string,
-                                                                    true
-                                                                );
-                                                            }}
-                                                        />
-                                                    </ButtonGroup>
-                                                </ActionColumn>
-                                            )}
-                                            <Td
-                                                className={`text ${
-                                                    item.level === 'workflow' || item.level === 'global'
-                                                }`}
-                                                style={{ position: 'relative' }}
-                                            >
-                                                <Value item={item} />
-                                            </Td>
-                                            <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
-                                                item.type
-                                            }/>`}</Td>
-                                        </Tr>
-                                    </React.Fragment>
-                                ))}
+                                                                    }}
+                                                                />
+                                                            </ButtonGroup>
+                                                        </ActionColumn>
+                                                    )}
+                                                    <Td
+                                                        className={`text ${
+                                                            item.level === 'workflow' || item.level === 'global'
+                                                        }`}
+                                                        style={{ position: 'relative' }}
+                                                    >
+                                                        <Value item={item} />
+                                                    </Td>
+                                                    <Td className="narrow">{`<${item.can_be_undefined ? '*' : ''}${
+                                                        item.type
+                                                    }/>`}</Td>
+                                                </Tr>
+                                            </React.Fragment>
+                                        )
+                                )}
                             </Tbody>
                         )}
                     </DataOrEmptyTable>
