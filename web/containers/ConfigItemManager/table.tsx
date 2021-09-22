@@ -240,13 +240,14 @@ let ItemsTable: Function = ({
                                                         onClick={() => {
                                                             handleModalToggle(
                                                                 { ...item },
-                                                                (name, value, parent, isTemplatedString) => {
+                                                                (name, value, parent, isTemplatedString, remove) => {
                                                                     onSubmit(
                                                                         name,
                                                                         value,
                                                                         parent,
                                                                         type,
-                                                                        isTemplatedString
+                                                                        isTemplatedString,
+                                                                        remove
                                                                     );
                                                                     handleModalToggle(null);
                                                                 },

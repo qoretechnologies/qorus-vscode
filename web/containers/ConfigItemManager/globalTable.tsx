@@ -134,14 +134,16 @@ const WorkflowConfigItemsTable: Function = ({
                                                                                 name,
                                                                                 value,
                                                                                 parent,
-                                                                                isTemplatedString
+                                                                                isTemplatedString,
+                                                                                remove
                                                                             ) => {
                                                                                 onSubmit(
                                                                                     name,
                                                                                     value,
                                                                                     parent,
                                                                                     workflow ? 'workflow' : 'global',
-                                                                                    isTemplatedString
+                                                                                    isTemplatedString,
+                                                                                    remove
                                                                                 );
                                                                                 handleModalToggle(null);
                                                                             },
