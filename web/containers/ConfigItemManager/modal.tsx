@@ -123,7 +123,7 @@ export default class ConfigItemsModal extends Component {
     };
 
     handleRemoveClick: Function = (): void => {
-        this.props.onSubmit(this.state.item.name, null, this.state.item.parent_class, false);
+        this.props.onSubmit(this.state.item.name, null, this.state.item.parent_class, false, true);
     };
 
     renderAllowedItems: Function = (item) => {

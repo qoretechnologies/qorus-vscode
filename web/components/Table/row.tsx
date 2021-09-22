@@ -1,7 +1,7 @@
 /* @flow */
+import classNames from 'classnames';
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
-import classNames from 'classnames';
 import updateOnlyForKeys from 'recompose/onlyUpdateForKeys';
 import ResizeObserver from 'resize-observer-polyfill';
 
@@ -42,7 +42,7 @@ export default class Tr extends Component {
                 setTimeout(() => {
                     this.recalculateSizes();
                 }, 300);
-                const ro = new ResizeObserver(entries => {
+                const ro = new ResizeObserver((entries) => {
                     for (const _entry of entries) {
                         this.recalculateSizes();
                     }
@@ -146,8 +146,7 @@ export default class Tr extends Component {
     };
 
     render() {
-        const { children, className, sortData, onSortChange, title, active } = this.props;
-        const { highlight } = this.state;
+        const { children, className, sortData, onSortChange, title, active, highlight } = this.props;
 
         return (
             <tr
