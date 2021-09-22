@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.17
+
+#### Bug Fixes
+
+-   Configuration items that have not yet been submitted are highlighted in the configuration item modal
+
 ## 2.3.16
 
 #### Bug Fixes
