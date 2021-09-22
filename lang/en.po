@@ -2457,6 +2457,9 @@ msgstr "Reloading webview ..."
 msgid "Draft"
 msgstr "Draft"
 
+msgid "RemoveValue"
+msgstr "Remove value"
+
 msgid "AddErrorsTitle"
 msgstr "1. Add Errors"
 
