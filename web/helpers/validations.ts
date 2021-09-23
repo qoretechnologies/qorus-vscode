@@ -291,7 +291,7 @@ export const maybeParseYaml: (yaml: any) => any = (yaml) => {
     let parsedData;
     // Parse the yaml
     try {
-        parsedData = jsyaml.safeLoad(yaml);
+        parsedData = jsyaml.safeLoad(String(yaml));
     } catch (e) {
         yamlCorrect = false;
     }

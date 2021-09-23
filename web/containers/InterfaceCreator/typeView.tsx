@@ -206,8 +206,6 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
 
     const flattenedFields = flattenFields(fields);
 
-    console.log(fields);
-
     return (
         <>
             <FieldWrapper name="selected-field">
