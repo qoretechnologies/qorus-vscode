@@ -427,7 +427,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     const handleDataSubmit = (data) => {
         let dt = { ...data };
         dt = omit(dt, ['parent']);
-        console.log(dt);
         setElements((cur) => {
             let result = [...cur];
             // We are adding a child to a queue
@@ -487,8 +486,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             </Callout>
         );
     }
-
-    console.log(window);
 
     return (
         <>

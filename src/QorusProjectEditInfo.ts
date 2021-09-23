@@ -793,7 +793,6 @@ export class QorusProjectEditInfo {
             parsed_data = QorusPythonParser.parseFile(file);
         } catch (error) {
             msg.debug({ error });
-            console.log(error);
             return Promise.reject(this.setError(file, t`ErrorParsingFile ${file}`));
         }
 

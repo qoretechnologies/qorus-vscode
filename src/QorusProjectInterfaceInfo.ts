@@ -226,7 +226,8 @@ export class QorusProjectInterfaceInfo {
     }) => {
         this.maybeInitIfaceId({ iface_id, iface_kind, state_id, processor_id });
 
-        value_true_type = `"${value_true_type}"`;
+        value_true_type =
+            value_true_type === 'null' || value_true_type === null ? `"${value_true_type}"` : value_true_type;
 
         const specific_data_id = this.specificDataId(iface_kind, state_id, processor_id);
         const state_data = { id: state_id };
