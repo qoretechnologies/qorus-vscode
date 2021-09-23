@@ -98,6 +98,7 @@ const NodeLabel = ({ nodeData, onEditClick, onDeleteClick, onAddClick, onAddQueu
             onClick={nodeData.type === 'start' ? undefined : () => onEditClick({ nodeData })}
             onContextMenu={(event) => {
                 event.persist();
+                event.preventDefault();
 
                 let menu = { event, data: [] };
 
@@ -355,8 +356,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             delete fixedMetadata.groups;
         }
 
-        console.log(elements);
-
         const result = await callBackend(
             pipeline ? Messages.EDIT_INTERFACE : Messages.CREATE_INTERFACE,
             undefined,
@@ -428,7 +427,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     const handleDataSubmit = (data) => {
         let dt = { ...data };
         dt = omit(dt, ['parent']);
-        console.log(dt);
         setElements((cur) => {
             let result = [...cur];
             // We are adding a child to a queue
@@ -488,8 +486,6 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
             </Callout>
         );
     }
-
-    console.log(elements);
 
     return (
         <>
@@ -662,13 +658,14 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
                     id="pipeline-diagram"
                     path={image_path}
                     style={{ border: !isDiagramValid(elements) ? `1px solid ${Colors.RED2}` : undefined }}
+                    onContextMenu={(e) => void e.preventDefault()}
                 >
                     {wrapperRef.current && (
                         <Tree
                             data={cloneDeep(elements)}
                             orientation="vertical"
                             pathFunc="straight"
-                            translate={{ x: (wrapperRef.current.getBoundingClientRect().width || 250) / 2, y: 100 }}
+                            translate={{ x: window.innerWidth / 2 - 50, y: 100 }}
                             nodeSize={{ x: 220, y: 110 }}
                             transitionDuration={0}
                             textLayout={{

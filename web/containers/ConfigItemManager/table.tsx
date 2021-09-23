@@ -1,29 +1,28 @@
 // @flow
-import React, { useState, useEffect, useContext } from 'react';
-import compose from 'recompose/compose';
+import { Button, ButtonGroup, Icon, Intent } from '@blueprintjs/core';
 import classnames from 'classnames';
+import map from 'lodash/map';
+import reduce from 'lodash/reduce';
+import size from 'lodash/size';
+import React, { useContext, useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import compose from 'recompose/compose';
+import mapProps from 'recompose/mapProps';
 import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
-import { ActionColumnHeader, ActionColumn } from '../../components/ActionColumn';
-import DataOrEmptyTable from '../../components/DataOrEmptyTable';
-import { Table, Thead, Tr, Th, Tbody, Td, FixedRow } from '../../components/Table';
-import Pull from '../../components/Pull';
+import withHandlers from 'recompose/withHandlers';
+import withState from 'recompose/withState';
+import { isNull, isUndefined } from 'util';
+import { ActionColumn, ActionColumnHeader } from '../../components/ActionColumn';
 import ContentByType from '../../components/ContentByType';
+import DataOrEmptyTable from '../../components/DataOrEmptyTable';
+import Pull from '../../components/Pull';
+import { FixedRow, Table, Tbody, Td, Th, Thead, Tr } from '../../components/Table';
 //import ConfigItemsModal from './modal';
 import Tree from '../../components/Tree';
-import withState from 'recompose/withState';
-import withHandlers from 'recompose/withHandlers';
-import mapProps from 'recompose/mapProps';
-import reduce from 'lodash/reduce';
-import map from 'lodash/map';
-import size from 'lodash/size';
-import { ButtonGroup, Button, Icon } from '@blueprintjs/core';
+import { InitialContext } from '../../context/init';
+import { getTypeFromValue, maybeParseYaml } from '../../helpers/validations';
 import withTextContext from '../../hocomponents/withTextContext';
 import Modal from './modal';
-import ReactMarkdown from 'react-markdown';
-import { maybeParseYaml, getTypeFromValue } from '../../helpers/validations';
-import { isNull, isUndefined } from 'util';
-import useMount from 'react-use/lib/useMount';
-import { InitialContext } from '../../context/init';
 
 type ConfigItemsTableProps = {
     items: Object;
@@ -155,8 +154,19 @@ let ItemsTable: Function = ({
     type,
     definitionsOnly,
     disableAdding,
+    initialItems,
 }: ConfigItemsTableProps) => {
     const initContext = useContext(InitialContext);
+
+    const isInitialItemValueSame = (item) => {
+        const initialItem = initialItems.find((inItem) => inItem.name === item.name && inItem.group === item.group);
+
+        if (!initialItem) {
+            return false;
+        }
+
+        return initialItem.value === item.value;
+    };
 
     return (
         <React.Fragment>
@@ -217,6 +227,7 @@ let ItemsTable: Function = ({
                                         className={classnames({
                                             'row-alert': !item.value && !item.is_set,
                                         })}
+                                        highlight={!isInitialItemValueSame(item)}
                                     >
                                         <Td className="name">{item.name}</Td>
                                         {!definitionsOnly && (
@@ -229,13 +240,14 @@ let ItemsTable: Function = ({
                                                         onClick={() => {
                                                             handleModalToggle(
                                                                 { ...item },
-                                                                (name, value, parent, isTemplatedString) => {
+                                                                (name, value, parent, isTemplatedString, remove) => {
                                                                     onSubmit(
                                                                         name,
                                                                         value,
                                                                         parent,
                                                                         type,
-                                                                        isTemplatedString
+                                                                        isTemplatedString,
+                                                                        remove
                                                                     );
                                                                     handleModalToggle(null);
                                                                 },
@@ -246,7 +258,8 @@ let ItemsTable: Function = ({
                                                     />
                                                     <Button
                                                         small
-                                                        icon="cross"
+                                                        icon="trash"
+                                                        intent={Intent.DANGER}
                                                         title={t('button.remove-this-value')}
                                                         disabled={
                                                             item.level ? !item.level.startsWith(levelType || '') : true
@@ -342,9 +355,11 @@ let ItemsTable: Function = ({
 ItemsTable = compose(
     withState('showDescription', 'toggleDescription', false),
     withHandlers({
-        handleToggleDescription: ({ toggleDescription }) => () => {
-            toggleDescription((value) => !value);
-        },
+        handleToggleDescription:
+            ({ toggleDescription }) =>
+            () => {
+                toggleDescription((value) => !value);
+            },
     }),
     withTextContext()
 )(ItemsTable);
@@ -353,21 +368,25 @@ export default compose(
     withState('modalData', 'toggleModalData', null),
     withState('isGrouped', 'setIsGrouped', true),
     withHandlers({
-        handleModalToggle: ({ toggleModalData }) => (item, onSubmit, intrf, levelType) => {
-            toggleModalData((value) =>
-                value
-                    ? null
-                    : {
-                          item,
-                          onSubmit,
-                          intrf,
-                          levelType,
-                      }
-            );
-        },
-        handleGroupedToggle: ({ setIsGrouped }) => () => {
-            setIsGrouped((value) => !value);
-        },
+        handleModalToggle:
+            ({ toggleModalData }) =>
+            (item, onSubmit, intrf, levelType) => {
+                toggleModalData((value) =>
+                    value
+                        ? null
+                        : {
+                              item,
+                              onSubmit,
+                              intrf,
+                              levelType,
+                          }
+                );
+            },
+        handleGroupedToggle:
+            ({ setIsGrouped }) =>
+            () => {
+                setIsGrouped((value) => !value);
+            },
     }),
     mapProps(({ configItems, ...rest }) => ({
         data: reduce(

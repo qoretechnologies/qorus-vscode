@@ -1,25 +1,21 @@
-// @flow
+// @flowa
+import { Button, ButtonGroup, Intent } from '@blueprintjs/core';
+import size from 'lodash/size';
 import React from 'react';
 import compose from 'recompose/compose';
-import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import mapProps from 'recompose/mapProps';
+import onlyUpdateForKeys from 'recompose/onlyUpdateForKeys';
 import withHandlers from 'recompose/withHandlers';
 import withState from 'recompose/withState';
-import { ActionColumnHeader, ActionColumn } from '../../components/ActionColumn';
-import DataOrEmptyTable from '../../components/DataOrEmptyTable';
-import { Table, Thead, Tr, Th, Tbody, Td, FixedRow } from '../../components/Table';
-import Pull from '../../components/Pull';
-import ContentByType from '../../components/ContentByType';
-import { ButtonGroup, Button } from '@blueprintjs/core';
-import Tree from '../../components/Tree';
-import AddConfigItemModal from './modal';
-import size from 'lodash/size';
-import withTextContext from '../../hocomponents/withTextContext';
 import styled from 'styled-components';
 import { StyledSeparator } from '.';
-import { getItemType, Value } from './table';
-import { maybeParseYaml } from '../../helpers/validations';
-import { isNull, isUndefined } from 'util';
+import { ActionColumn, ActionColumnHeader } from '../../components/ActionColumn';
+import DataOrEmptyTable from '../../components/DataOrEmptyTable';
+import Pull from '../../components/Pull';
+import { FixedRow, Table, Tbody, Td, Th, Thead, Tr } from '../../components/Table';
+import withTextContext from '../../hocomponents/withTextContext';
+import AddConfigItemModal from './modal';
+import { Value } from './table';
 
 const StyledToolbarRow = styled.div`
     clear: both;
@@ -32,12 +28,23 @@ const WorkflowConfigItemsTable: Function = ({
     globalConfig,
     onSubmit,
     globalItems,
+    initialItems,
     modalData,
     handleModalToggle,
     workflow,
     t,
     definitionsOnly,
 }) => {
+    const isInitialItemValueSame = (item) => {
+        const initialItem = initialItems.find((inItem) => inItem.name === item.name && inItem.group === item.group);
+
+        if (!initialItem) {
+            return false;
+        }
+
+        return initialItem.value === item.value;
+    };
+
     return (
         <>
             {modalData && (
@@ -102,11 +109,15 @@ const WorkflowConfigItemsTable: Function = ({
                         cols={definitionsOnly ? 3 : 4}
                         small
                     >
-                        {props => (
+                        {(props) => (
                             <Tbody {...props}>
                                 {globalConfig.map((item: any, index: number) => (
                                     <React.Fragment>
-                                        <Tr key={item.name} first={index === 0}>
+                                        <Tr
+                                            key={item.name}
+                                            first={index === 0}
+                                            highlight={!isInitialItemValueSame(item)}
+                                        >
                                             <Td className="name">{item.name}</Td>
                                             {!definitionsOnly && (
                                                 <ActionColumn>
@@ -121,14 +132,16 @@ const WorkflowConfigItemsTable: Function = ({
                                                                         name,
                                                                         value,
                                                                         parent,
-                                                                        isTemplatedString
+                                                                        isTemplatedString,
+                                                                        remove
                                                                     ) => {
                                                                         onSubmit(
                                                                             name,
                                                                             value,
                                                                             parent,
                                                                             workflow ? 'workflow' : 'global',
-                                                                            isTemplatedString
+                                                                            isTemplatedString,
+                                                                            remove
                                                                         );
                                                                         handleModalToggle(null);
                                                                     },
@@ -140,9 +153,9 @@ const WorkflowConfigItemsTable: Function = ({
                                                         />
                                                         <Button
                                                             small
-                                                            icon="cross"
+                                                            icon="trash"
                                                             title={t('button.remove-this-value')}
-                                                            intent="danger"
+                                                            intent={Intent.DANGER}
                                                             onClick={() => {
                                                                 onSubmit(
                                                                     item.name,
@@ -158,8 +171,9 @@ const WorkflowConfigItemsTable: Function = ({
                                                 </ActionColumn>
                                             )}
                                             <Td
-                                                className={`text ${item.level === 'workflow' ||
-                                                    item.level === 'global'}`}
+                                                className={`text ${
+                                                    item.level === 'workflow' || item.level === 'global'
+                                                }`}
                                                 style={{ position: 'relative' }}
                                             >
                                                 <Value item={item} />
@@ -182,22 +196,24 @@ const WorkflowConfigItemsTable: Function = ({
 
 export default compose(
     mapProps(({ configItems, ...rest }) => ({
-        globalConfig: configItems.filter(configItem => configItem.is_set),
-        globalItems: configItems.filter(configItem => !configItem.is_set),
+        globalConfig: configItems.filter((configItem) => configItem.is_set),
+        globalItems: configItems.filter((configItem) => !configItem.is_set),
         configItems,
         ...rest,
     })),
     withState('modalData', 'toggleModalData', null),
     withHandlers({
-        handleModalToggle: ({ toggleModalData }) => options => {
-            toggleModalData(value =>
-                value
-                    ? null
-                    : {
-                          ...options,
-                      }
-            );
-        },
+        handleModalToggle:
+            ({ toggleModalData }) =>
+            (options) => {
+                toggleModalData((value) =>
+                    value
+                        ? null
+                        : {
+                              ...options,
+                          }
+                );
+            },
     }),
     withTextContext(),
     onlyUpdateForKeys(['configItems', 'showDescription', 'globalConfig', 'modalData'])

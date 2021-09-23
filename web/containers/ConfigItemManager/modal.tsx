@@ -122,6 +122,10 @@ export default class ConfigItemsModal extends Component {
         this.props.onSubmit(this.state.item.name, newValue, this.state.item.parent_class, this.state.isTemplatedString);
     };
 
+    handleRemoveClick: Function = (): void => {
+        this.props.onSubmit(this.state.item.name, null, this.state.item.parent_class, false, true);
+    };
+
     renderAllowedItems: Function = (item) => {
         if (this.state.type === 'hash' || this.state.type === '*hash') {
             return (
@@ -337,6 +341,15 @@ export default class ConfigItemsModal extends Component {
                     ) : null}
                     {yamlData ? (
                         <div>
+                            <ButtonGroup className="pull-left">
+                                <Button
+                                    fill
+                                    icon="trash"
+                                    text={t('RemoveValue')}
+                                    intent={Intent.DANGER}
+                                    onClick={this.handleRemoveClick}
+                                />
+                            </ButtonGroup>
                             <ButtonGroup className="pull-right">
                                 <Button text={t('Cancel')} onClick={onClose} />
                                 {!isGlobal && this.state.tab !== 'template' && value === item.default_value ? (

@@ -488,8 +488,6 @@ export default () =>
                         {}
                     );
 
-                    console.log(oldName, newName, result);
-
                     return result;
                 });
             };

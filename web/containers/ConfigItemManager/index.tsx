@@ -1,5 +1,5 @@
 import { Button } from '@blueprintjs/core';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import useEffectOnce from 'react-use/lib/useEffectOnce';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
@@ -62,9 +62,13 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
     const [showConfigItemPanel, setShowConfigItemPanel] = useState<boolean>(false);
     const [configItemData, setConfigItemData] = useState<any>(false);
     const [configItems, setConfigItems] = useState<any>({});
+    const initialConfigItems = useRef(null);
 
     useEffectOnce(() => {
         addMessageListener(Messages.RETURN_CONFIG_ITEMS, (data) => {
+            if (!initialConfigItems.current) {
+                initialConfigItems.current = data;
+            }
             setConfigItems(data);
         });
         // Listen for config items data request
@@ -160,6 +164,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                         <GlobalTable
                             definitionsOnly={definitionsOnly}
                             configItems={configItems.global_items}
+                            initialItems={initialConfigItems.current.global_items}
                             onSubmit={handleSubmit}
                         />
                     )}
@@ -167,6 +172,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                         <GlobalTable
                             definitionsOnly={definitionsOnly}
                             configItems={configItems.workflow_items}
+                            initialItems={initialConfigItems.current.workflow_items}
                             workflow
                             onSubmit={handleSubmit}
                         />
@@ -176,6 +182,7 @@ const ConfigItemManager: FunctionComponent<IConfigItemManager> = ({
                             configItems={{
                                 data: configItems.items,
                             }}
+                            initialItems={initialConfigItems.current.items}
                             definitionsOnly={definitionsOnly}
                             onEditStructureClick={handleEditStructureClick}
                             onDeleteStructureClick={handleDeleteStructureClick}
