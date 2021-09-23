@@ -1,4 +1,4 @@
-// @flow
+// @flowa
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core';
 import size from 'lodash/size';
 import React from 'react';
