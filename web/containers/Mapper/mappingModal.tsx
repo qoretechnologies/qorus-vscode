@@ -17,10 +17,17 @@ import FieldLabel from '../../components/FieldLabel';
 import FieldSelector from '../../components/FieldSelector';
 import Box from '../../components/ResponsiveBox';
 import SidePanel from '../../components/SidePanel';
+import { unEscapeMapperName } from '../../helpers/mapper';
 import { validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
-import { ActionsWrapper, ContentWrapper, FieldInputWrapper, FieldWrapper, IField } from '../InterfaceCreator/panel';
+import {
+    ActionsWrapper,
+    ContentWrapper,
+    FieldInputWrapper,
+    FieldWrapper,
+    IField,
+} from '../InterfaceCreator/panel';
 
 export interface IMapperFieldModalProps {
     onClose: () => any;
@@ -68,10 +75,10 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         });
     };
 
-    const handleOptionHashChange: (name: string, value: { id: number; name: string; value: string }[]) => void = (
-        _name,
-        value
-    ) => {
+    const handleOptionHashChange: (
+        name: string,
+        value: { id: number; name: string; value: string }[]
+    ) => void = (_name, value) => {
         setRelation((current) => {
             const newField = { ...current };
             newField.type_options = value;
@@ -138,7 +145,9 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             const updatedRoles: string[] = reduce(
                 result,
                 (roles, _value, key) =>
-                    mapperKeys[key].unique_roles ? [...roles, ...mapperKeys[key].unique_roles] : roles,
+                    mapperKeys[key].unique_roles
+                        ? [...roles, ...mapperKeys[key].unique_roles]
+                        : roles,
                 []
             );
             // Filter any items that are dependent on the removed item
@@ -172,7 +181,8 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 
     const uniqueRoles: string[] = reduce(
         relation,
-        (roles, _value, key) => (mapperKeys[key].unique_roles ? [...roles, ...mapperKeys[key].unique_roles] : roles),
+        (roles, _value, key) =>
+            mapperKeys[key].unique_roles ? [...roles, ...mapperKeys[key].unique_roles] : roles,
         []
     );
 
@@ -188,7 +198,9 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         // Code field is disabled if user did not add
         // any mapper code
         if (name === 'code') {
-            if (!size(selectedFields.mapper.find((field: IField) => field.name === 'codes')?.value)) {
+            if (
+                !size(selectedFields.mapper.find((field: IField) => field.name === 'codes')?.value)
+            ) {
                 isDisabled = true;
             }
         }
@@ -218,7 +230,10 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
         } else {
             // Check if none of the keys roles & a * role isn't
             // yet included
-            if (!unique_roles.every((role) => !uniqueRoles.includes(role)) || uniqueRoles.includes('*')) {
+            if (
+                !unique_roles.every((role) => !uniqueRoles.includes(role)) ||
+                uniqueRoles.includes('*')
+            ) {
                 isDisabled = true;
             }
         }
@@ -254,7 +269,9 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             .filter((input) => {
                 return (
                     size(input.type.types_returned) <= size(output.type.types_accepted) &&
-                    output.type.types_accepted.some((type: string) => input.type.types_returned.includes(type))
+                    output.type.types_accepted.some((type: string) =>
+                        input.type.types_returned.includes(type)
+                    )
                 );
             })
             .map((input) => ({
@@ -265,7 +282,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
     return (
         <CustomDialog
             isOpen
-            title={`${t('ManageOutputMapping')} for field "${output.name}"`}
+            title={`${t('ManageOutputMapping')} for field "${unEscapeMapperName(output.name)}"`}
             onClose={onClose}
             style={{ paddingBottom: 0, width: '70vw' }}
         >
@@ -290,15 +307,20 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                 <>
                                     <p>{mapperKeys[key].desc}</p>
                                     <FieldWrapper>
-                                        <FieldLabel label={key} isValid={getIsFieldValid(key, value)} />
+                                        <FieldLabel
+                                            label={key}
+                                            isValid={getIsFieldValid(key, value)}
+                                        />
                                         <FieldInputWrapper>
-                                            {getKeyType(key, mapperKeys, output) === 'mapper-code' ? (
+                                            {getKeyType(key, mapperKeys, output) ===
+                                            'mapper-code' ? (
                                                 <MapperCodeField
                                                     onChange={handleChange}
                                                     defaultCode={value && value.split('::')[0]}
                                                     defaultMethod={value && value.split('::')[1]}
                                                 />
-                                            ) : getKeyType(key, mapperKeys, output) === 'option_hash' ? (
+                                            ) : getKeyType(key, mapperKeys, output) ===
+                                              'option_hash' ? (
                                                 <OptionHashField
                                                     name={key}
                                                     value={value || undefined}
@@ -309,7 +331,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                             ) : key === 'name' ? (
                                                 <SelectField
                                                     name={key}
-                                                    value={value}
+                                                    value={unEscapeMapperName(value)}
                                                     defaultItems={getPossibleInputs}
                                                     onChange={handleChange}
                                                 />
@@ -319,12 +341,20 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
                                                     value={value}
                                                     type="auto"
                                                     noSoft={true}
-                                                    defaultType={getKeyType(key, mapperKeys, output)}
+                                                    defaultType={getKeyType(
+                                                        key,
+                                                        mapperKeys,
+                                                        output
+                                                    )}
                                                     onChange={handleChange}
                                                 />
                                             )}
                                         </FieldInputWrapper>
-                                        <FieldActions name={key} onClick={handleRemoveClick} removable />
+                                        <FieldActions
+                                            name={key}
+                                            onClick={handleRemoveClick}
+                                            removable
+                                        />
                                     </FieldWrapper>
                                 </>
                             ))
@@ -335,7 +365,11 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
 
                     <ActionsWrapper style={{ marginTop: 20 }}>
                         <ButtonGroup fill>
-                            <Button text="Reset" icon="history" onClick={() => setRelation(relationData || {})} />
+                            <Button
+                                text="Reset"
+                                icon="history"
+                                onClick={() => setRelation(relationData || {})}
+                            />
                             <Button
                                 name="submit-mapping-modal"
                                 intent="success"

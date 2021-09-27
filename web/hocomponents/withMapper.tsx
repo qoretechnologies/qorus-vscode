@@ -3,9 +3,11 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import { Messages } from '../constants/messages';
+import { formatFields } from '../containers/InterfaceCreator/typeView';
 import { providers } from '../containers/Mapper/provider';
 import { MapperContext } from '../context/mapper';
 import { callBackendBasic } from '../helpers/functions';
+import { fixRelations, flattenFields } from '../helpers/mapper';
 import withFieldsConsumer from './withFieldsConsumer';
 import withInitialDataConsumer from './withInitialDataConsumer';
 import withMessageHandler from './withMessageHandler';
@@ -159,11 +161,18 @@ export default () =>
 
             const getMapperKeysUrl: (fieldType: 'input' | 'output') => string = (fieldType) => {
                 // Get the mapper options data
-                const { type, name, path = '', subtype } = mapper.mapper_options[`mapper-${fieldType}`];
+                const {
+                    type,
+                    name,
+                    path = '',
+                    subtype,
+                } = mapper.mapper_options[`mapper-${fieldType}`];
                 // Get the rules for the given provider
                 const { url, suffix } = providers[type];
                 // Build the URL
-                const newUrl: string = `${url}/${name}${suffix}${addTrailingSlash(path)}/mapper_keys`;
+                const newUrl: string = `${url}/${name}${suffix}${addTrailingSlash(
+                    path
+                )}/mapper_keys`;
                 // Build the URL based on the provider type
                 return subtype ? newUrl.replace(subtype, '') : newUrl;
             };
@@ -173,17 +182,17 @@ export default () =>
                 // Loop throught the custom fields
                 forEach(customFields, (field) => {
                     // Build the path
-                    const fields: string[] = field.path.split('.');
-                    let newPath: string;
+                    const fields: string[] = field.path.split(/(?<!\\)\./g);
+                    let newPathList: string[];
                     fields.forEach((fieldName) => {
-                        if (!newPath) {
-                            newPath = fieldName;
+                        if (!newPathList) {
+                            newPathList = [fieldName];
                         } else {
-                            newPath += `.type.fields.${fieldName}`;
+                            newPathList.push('type', 'fields', fieldName);
                         }
                     });
                     // Insert the top custom field based on the path
-                    set(newFields, newPath, field);
+                    set(newFields, newPathList, field);
                 });
 
                 return newFields;
@@ -252,7 +261,12 @@ export default () =>
                 const inputFields = inputs.data.fields || inputs.data;
                 // Save the inputs & outputs
                 setInputs(
-                    insertCustomFields(inputFields, mapper.mapper_options['mapper-input']['custom-fields'] || {})
+                    formatFields(
+                        insertCustomFields(
+                            inputFields,
+                            mapper.mapper_options['mapper-input']['custom-fields'] || {}
+                        )
+                    )
                 );
                 // Cancel loading
                 setInputsLoading(false);
@@ -293,7 +307,12 @@ export default () =>
                 // Save the fields
                 const outputFields = outputs.data.fields || outputs.data;
                 setOutputs(
-                    insertCustomFields(outputFields, mapper.mapper_options['mapper-output']['custom-fields'] || {})
+                    formatFields(
+                        insertCustomFields(
+                            outputFields,
+                            mapper.mapper_options['mapper-output']['custom-fields'] || {}
+                        )
+                    )
                 );
                 setRelations(checkMapperKeys(mapper.fields, mapperKeys) || {});
                 // Cancel loading
@@ -305,14 +324,17 @@ export default () =>
                 const url = getUrlFromProvider(null, staticData);
 
                 // Send the URL to backend
-                const listener = props.addMessageListener(Messages.RETURN_FIELDS_FROM_TYPE, ({ data }) => {
-                    if (data) {
-                        // Save the inputs if the data exist
-                        setContextInputs(data.fields || data);
-                    }
+                const listener = props.addMessageListener(
+                    Messages.RETURN_FIELDS_FROM_TYPE,
+                    ({ data }) => {
+                        if (data) {
+                            // Save the inputs if the data exist
+                            setContextInputs(data.fields || data);
+                        }
 
-                    listener();
-                });
+                        listener();
+                    }
+                );
                 // Ask backend for the fields for this particular type
                 props.postMessage(Messages.GET_FIELDS_FROM_TYPE, {
                     ...staticData,
@@ -345,7 +367,8 @@ export default () =>
                             if (mapper.mapper_options?.['mapper-output']) {
                                 await getOutputsData(mapperKeys);
                             }
-                            const mapperContext = mapper.interfaceContext || props.currentMapperContext;
+                            const mapperContext =
+                                mapper.interfaceContext || props.currentMapperContext;
                             // If this mapper has context
                             if (mapperContext) {
                                 // If the context also has the static data
@@ -372,7 +395,8 @@ export default () =>
                                         data[data.custom_data.iface_kind]['staticdata-type']
                                     ) {
                                         // Save the static data
-                                        const staticData = data[data.custom_data.iface_kind]['staticdata-type'];
+                                        const staticData =
+                                            data[data.custom_data.iface_kind]['staticdata-type'];
                                         // Get all the needed data from static data
                                         getFieldsFromStaticData(staticData);
                                         setIsContextLoaded(true);
@@ -414,17 +438,17 @@ export default () =>
                         return result;
                     }
                     // Build the path
-                    const fields: string[] = path.split('.');
-                    let newPath: string;
+                    const fields: string[] = path.split(/(?<!\\)\./g);
+                    let newPathList: string[];
                     fields.forEach((fieldName) => {
-                        if (!newPath) {
-                            newPath = fieldName;
+                        if (!newPathList) {
+                            newPathList = [fieldName];
                         } else {
-                            newPath += `.type.fields.${fieldName}`;
+                            newPathList.push('type', 'fields', fieldName);
                         }
                     });
                     // Get the object at the exact path
-                    const obj: any = get(result, newPath);
+                    const obj: any = get(result, newPathList);
                     // Add new object
                     obj.type.fields[data.name] = data;
                     // Return new data
@@ -432,7 +456,11 @@ export default () =>
                 });
             };
 
-            const updateRelations = (type: 'inputs' | 'outputs', oldName: string, newName: string) => {
+            const updateRelations = (
+                type: 'inputs' | 'outputs',
+                oldName: string,
+                newName: string
+            ) => {
                 setRelations((cur) => {
                     let result = { ...cur };
 
@@ -450,7 +478,8 @@ export default () =>
                                 if (relationOutputName.includes(`${oldName}.`)) {
                                     return {
                                         ...newResult,
-                                        [relationOutputName.replace(`${oldName}.`, `${newName}.`)]: relation,
+                                        [relationOutputName.replace(`${oldName}.`, `${newName}.`)]:
+                                            relation,
                                     };
                                 }
 
@@ -474,7 +503,10 @@ export default () =>
                                         ...newResult,
                                         [relationOutputName]: {
                                             ...relation,
-                                            name: relation.name.replace(`${oldName}.`, `${newName}.`),
+                                            name: relation.name.replace(
+                                                `${oldName}.`,
+                                                `${newName}.`
+                                            ),
                                         },
                                     };
                                 }
@@ -500,39 +532,40 @@ export default () =>
                     // Clone the current fields
                     const result: any = { ...current };
                     // Build the path
-                    const fields: string[] = path.split('.');
-                    let newPath: string;
+                    const fields: string[] = path.split(/(?<!\\)\./g);
+                    let newPathList: string[];
                     fields.forEach((fieldName) => {
-                        if (!newPath) {
-                            newPath = fieldName;
+                        if (!newPathList) {
+                            newPathList = [fieldName];
                         } else {
-                            newPath += `.type.fields.${fieldName}`;
+                            newPathList.push('type', 'fields', fieldName);
                         }
                     });
 
                     // Always remove the original object
-                    unset(result, newPath);
+                    unset(result, newPathList);
+
                     if (remove) {
                         return result;
                     }
                     // Build the updated path
-                    const oldFields: string[] = path.split('.');
+                    const oldFields: string[] = path.split(/(?<!\\)\./g);
                     // Remove the last value from the fields
                     oldFields.pop();
                     // Add the new name to the end of the fields list
                     oldFields.push(data.name);
 
-                    let newUpdatedPath: string;
+                    let newUpdatedPathList: string[];
 
                     oldFields.forEach((fieldName) => {
-                        if (!newUpdatedPath) {
-                            newUpdatedPath = fieldName;
+                        if (!newUpdatedPathList) {
+                            newUpdatedPathList = [fieldName];
                         } else {
-                            newUpdatedPath += `.type.fields.${fieldName}`;
+                            newUpdatedPathList.push('type', 'fields', fieldName);
                         }
                     });
                     // Get the object at the exact path
-                    set(result, newUpdatedPath, {
+                    set(result, newUpdatedPathList, {
                         ...data,
                         path: oldFields.join('.'),
                     });
@@ -556,7 +589,10 @@ export default () =>
                                 // Check if the code matches the removed code
                                 // or if the removed mapper code is empty
                                 // which means all code needs to be removed
-                                if (!removedMapperCode || removedMapperCode.includes(mapperCodeName)) {
+                                if (
+                                    !removedMapperCode ||
+                                    removedMapperCode.includes(mapperCodeName)
+                                ) {
                                     // Delete the code
                                     delete newRelationData.code;
                                 }
@@ -599,7 +635,11 @@ export default () =>
                         setInputProvider,
                         outputProvider,
                         setOutputProvider,
-                        relations,
+                        relations: fixRelations(
+                            relations,
+                            flattenFields(outputs),
+                            flattenFields(inputs)
+                        ),
                         setRelations,
                         inputsLoading,
                         setInputsLoading,
