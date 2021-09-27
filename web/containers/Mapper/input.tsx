@@ -63,8 +63,13 @@ const MapperInput: FC<IMapperInputProps> = ({
             title={field?.desc}
             name="diagram-field"
         >
-            <StyledDragHandle ref={hasAvailableOutput ? dragRef : undefined} style={{ opacity: finalOpacity }}>
-                <h4 style={{ fontSize: isWholeInput ? '16px' : '14px' }}>{name}</h4>
+            <StyledDragHandle
+                ref={hasAvailableOutput ? dragRef : undefined}
+                style={{ opacity: finalOpacity }}
+            >
+                <h4 style={{ fontSize: isWholeInput ? '16px' : '14px' }}>
+                    {typeof name === 'string' ? name.replace(/\\./g, '.') : name}
+                </h4>
                 {!isWholeInput && (
                     <p className={`${types.join(' ').replace(/</g, '').replace(/>/g, '')} type`}>
                         {`${types.includes('nothing') ? '*' : ''}${type.base_type}`}

@@ -1,13 +1,18 @@
+import { Button, Tooltip } from '@blueprintjs/core';
+import size from 'lodash/size';
 import React, { FC } from 'react';
 import { useDrop } from 'react-dnd';
 import { StyledMapperField } from '.';
-import size from 'lodash/size';
-import AddFieldButton from './add';
-import { Button, Tooltip } from '@blueprintjs/core';
 import { TTranslator } from '../../App';
+import AddFieldButton from './add';
 
 export interface IMapperOutputProps {
-    onDrop: (inputPath: string, outputPath: string, usesContext?: boolean, isInputHash?: boolean) => any;
+    onDrop: (
+        inputPath: string,
+        outputPath: string,
+        usesContext?: boolean,
+        isInputHash?: boolean
+    ) => any;
     id: number;
     accepts: string[];
     name: string;
@@ -45,21 +50,22 @@ const MapperOutput: FC<IMapperOutputProps> = ({
 }) => {
     const [{ canDrop, isDragging }, dropRef] = useDrop({
         accept: 'input',
-        drop: item => {
+        drop: (item) => {
             onDrop(item.id, path, item.usesContext, item.isWholeInput);
         },
-        canDrop: item => {
+        canDrop: (item) => {
             if (
                 !hasRelation &&
                 (item.types.includes('any') ||
                     accepts.includes('any') ||
-                    (size(item.types) <= size(accepts) && accepts.some((type: string) => item.types.includes(type))))
+                    (size(item.types) <= size(accepts) &&
+                        accepts.some((type: string) => item.types.includes(type))))
             ) {
                 return true;
             }
             return false;
         },
-        collect: monitor => ({
+        collect: (monitor) => ({
             isDragging: !!monitor.getItem(),
             canDrop: monitor.canDrop(),
         }),
@@ -80,7 +86,7 @@ const MapperOutput: FC<IMapperOutputProps> = ({
             isDragging={isDragging && canDrop}
             childrenCount={lastChildIndex}
         >
-            <h4>{name}</h4>
+            <h4>{typeof name === 'string' ? name.replace(/\\./g, '.') : name}</h4>
             <p
                 className={`${type.types_returned
                     .join(' ')

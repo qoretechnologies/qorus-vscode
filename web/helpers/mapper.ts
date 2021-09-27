@@ -18,9 +18,12 @@ export const flattenFields: (
             const newPath = level === 0 ? name : `${path}.${name}`;
             const parentPath = level !== 0 && `${path}`;
             // Add the current field
-            res = [...res, { name, ...{ ...field, isChild, level, parent, path: newPath, parentPath } }];
+            res = [
+                ...res,
+                { name, ...{ ...field, isChild, level, parent, path: newPath, parentPath } },
+            ];
             // Check if this field has hierarchy
-            if (size(field.type.fields)) {
+            if (size(field.type?.fields)) {
                 // Recursively add deep fields
                 res = [...res, ...flattenFields(field.type.fields, true, name, level + 1, newPath)];
             }
@@ -40,13 +43,13 @@ export const getLastChildIndex = (field: any, fields: any[]) => {
         );
         // Get the index of the last field in this
         // hierarchy based on the name
-        return findIndex(fields, curField => curField.path === `${field.path}.${name}`);
+        return findIndex(fields, (curField) => curField.path === `${field.path}.${name}`);
     }
     // Return nothing
     return 0;
 };
 
-export const filterInternalData = fields => {
+export const filterInternalData = (fields) => {
     return reduce(
         fields,
         (newFields, fieldData, field) => {
@@ -81,12 +84,43 @@ export const getStaticDataFieldname = (context: string) => {
 
 export const rebuildOptions = (options) => {
     return options
-            ? options.reduce(
-                  (newOptions, opt) => ({
-                      ...newOptions,
-                      [opt.name]: opt.value,
-                  }),
-                  {}
-              )
-            : {}
-}
+        ? options.reduce(
+              (newOptions, opt) => ({
+                  ...newOptions,
+                  [opt.name]: opt.value,
+              }),
+              {}
+          )
+        : {};
+};
+
+export const fixRelations = (relations: {}, outputs: any[], inputs: any[]) => {
+    return reduce(
+        relations,
+        (newRelations, relationData: any, outputPath) => {
+            let newOutputPath = outputPath;
+            let newRelationData = { ...relationData };
+            // Check if the outputPath exists in the outputs
+            if (!outputs.find((output) => output.path === outputPath)) {
+                // Assume it's a field name if it does not
+                newOutputPath = outputPath.replace(/(?<!\\)\./g, '\\.');
+            }
+
+            // Check if the relation data name exists & and exists in the inputs
+            if (relationData.name && !inputs.find((input) => input.path === relationData.name)) {
+                // Assume it's a field name if it does not and escape dots
+                newRelationData.name = relationData.name.replace(/(?<!\\)\./g, '\\.');
+            }
+
+            return {
+                ...newRelations,
+                [newOutputPath]: newRelationData,
+            };
+        },
+        {}
+    );
+};
+
+export const unEscapeMapperName = (name: string): string => {
+    return typeof name === 'string' ? name.replace(/\\./g, '.') : name;
+};
