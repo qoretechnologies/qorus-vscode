@@ -54,6 +54,7 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             // Set the maybe type
             fieldData.canBeNull = true;
         }
+        fieldData.name = fieldData.name.replace(/\\./g, '.');
         // Return the fieldData
         return fieldData;
     };
@@ -136,7 +137,13 @@ const MapperFieldModal: FC<IMapperFieldModalProps> = ({
             newField.firstCustomInHierarchy = true;
         }
         // Submit the field
-        onSubmit(newField, fieldData);
+        onSubmit(
+            {
+                ...newField,
+                name: newField.name.replace(/\./g, '\\.'),
+            },
+            fieldData
+        );
         onClose();
     };
 

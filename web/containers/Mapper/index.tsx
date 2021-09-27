@@ -11,7 +11,12 @@ import styled, { css } from 'styled-components';
 import { TTranslator } from '../../App';
 import { AppToaster } from '../../components/Toast';
 import { Messages } from '../../constants/messages';
-import { flattenFields, getLastChildIndex, getStaticDataFieldname, hasStaticDataField } from '../../helpers/mapper';
+import {
+    flattenFields,
+    getLastChildIndex,
+    getStaticDataFieldname,
+    hasStaticDataField,
+} from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -361,7 +366,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
 
                             if (
                                 hasStaticDataField(relation.context) &&
-                                (!contextFields || !contextFields.find((cF) => cF.path === contextInputFieldName))
+                                (!contextFields ||
+                                    !contextFields.find((cF) => cF.path === contextInputFieldName))
                             ) {
                                 hasFixedContext = true;
                                 return {
@@ -399,7 +405,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         return <p> Loading... </p>;
     }
 
-    const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (outputPath, data, merge) => {
+    const saveRelationData: (outputPath: string, data: any, merge?: boolean) => void = (
+        outputPath,
+        data,
+        merge
+    ) => {
         setRelations((current) => {
             const result = { ...current };
             // Check if this output already exists
@@ -423,11 +433,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         });
     };
 
-    const removeRelation: (outputPath: string, usesContext?: boolean, isInputHash?: boolean) => void = (
-        outputPath,
-        usesContext,
-        isInputHash
-    ) => {
+    const removeRelation: (
+        outputPath: string,
+        usesContext?: boolean,
+        isInputHash?: boolean
+    ) => void = (outputPath, usesContext, isInputHash) => {
         // Remove the selected relation
         // @ts-ignore
         setRelations((current: any): any =>
@@ -439,7 +449,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             ...newRelations,
                             [relationOutput]: omit(
                                 rel,
-                                usesContext ? ['context'] : isInputHash ? ['use_input_record'] : ['name']
+                                usesContext
+                                    ? ['context']
+                                    : isInputHash
+                                    ? ['use_input_record']
+                                    : ['name']
                             ),
                         };
                     }
@@ -476,7 +490,11 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
     };
 
-    const renameFieldRelation: (oldPath: string, newPath: string, type: string) => void = (oldPath, newPath, type) => {
+    const renameFieldRelation: (oldPath: string, newPath: string, type: string) => void = (
+        oldPath,
+        newPath,
+        type
+    ) => {
         // Remove the selected relation
         // @ts-ignore
         setRelations((current) =>
@@ -536,7 +554,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         resetAllInterfaceData('mapper', true);
     };
 
-    const isMapperValid: () => boolean = () => isFormValid && size(filterEmptyRelations(relations)) !== 0;
+    const isMapperValid: () => boolean = () =>
+        isFormValid && size(filterEmptyRelations(relations)) !== 0;
     const flattenedInputs = inputs && flattenFields(inputs);
     const flattenedContextInputs = contextInputs && flattenFields(contextInputs);
     const flattenedOutputs = outputs && flattenFields(outputs);
@@ -579,17 +598,20 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         );
         // Check if none of the keys roles & a * role isn't
         // yet included
-        if (unique_roles.every((role) => !uniqueRoles.includes(role)) && !uniqueRoles.includes('*')) {
+        if (
+            unique_roles.every((role) => !uniqueRoles.includes(role)) &&
+            !uniqueRoles.includes('*')
+        ) {
             return true;
         }
         return false;
     };
 
-    const getFieldTypeColor: (type: 'inputs' | 'outputs' | 'context', name: string, types?: string[]) => string = (
-        type,
-        name,
-        types
-    ) => {
+    const getFieldTypeColor: (
+        type: 'inputs' | 'outputs' | 'context',
+        name: string,
+        types?: string[]
+    ) => string = (type, name, types) => {
         if (types) {
             // Return the color
             return TYPE_COLORS[types[0].replace(/</g, '').replace(/>/g, '')];
@@ -690,7 +712,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     };
 
-    const handleDrop = (inputPath: string, outputPath: string, usesContext?: boolean, isInputHash?: boolean): void => {
+    const handleDrop = (
+        inputPath: string,
+        outputPath: string,
+        usesContext?: boolean,
+        isInputHash?: boolean
+    ): void => {
         // If the user is mapping the whole input hash
         if (isInputHash) {
             // If the user is mapping static data inputi
@@ -786,6 +813,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
         }
     };
 
+    console.log(relations);
+
     return (
         <>
             {!hideInputSelector && (
@@ -829,7 +858,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
             <div
                 style={{
                     width: '100%',
-                    marginTop: isFromConnectors || isEditing || (hideInputSelector && hideOutputSelector) ? 0 : '15px',
+                    marginTop:
+                        isFromConnectors || isEditing || (hideInputSelector && hideOutputSelector)
+                            ? 0
+                            : '15px',
                     padding: 10,
                     flex: 1,
                     overflow: 'auto',
@@ -869,8 +901,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         />
                                                     </Tooltip>
                                                 )}
-                                                <Tooltip targetTagName="div" content={getUrlFromProvider('input')}>
-                                                    <StyledUrlMessage style={{ height: '12px', lineHeight: '12px' }}>
+                                                <Tooltip
+                                                    targetTagName="div"
+                                                    content={getUrlFromProvider('input')}
+                                                >
+                                                    <StyledUrlMessage
+                                                        style={{
+                                                            height: '12px',
+                                                            lineHeight: '12px',
+                                                        }}
+                                                    >
                                                         {getUrlFromProvider('input') === ''
                                                             ? '-'
                                                             : getUrlFromProvider('input')}
@@ -878,7 +918,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                 </Tooltip>
                                             </>
                                         ) : (
-                                            <StyledUrlMessage style={{ height: '12px', lineHeight: '12px' }}>
+                                            <StyledUrlMessage
+                                                style={{ height: '12px', lineHeight: '12px' }}
+                                            >
                                                 -
                                             </StyledUrlMessage>
                                         )}
@@ -903,9 +945,13 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       {...input}
                                       field={input}
                                       id={index + 1}
-                                      lastChildIndex={getLastChildIndex(input, flattenedInputs) - index}
+                                      lastChildIndex={
+                                          getLastChildIndex(input, flattenedInputs) - index
+                                      }
                                       onClick={handleClick('inputs')}
-                                      hasAvailableOutput={hasAvailableRelation(input.type.types_returned)}
+                                      hasAvailableOutput={hasAvailableRelation(
+                                          input.type.types_returned
+                                      )}
                                   />
                               ))
                             : null}
@@ -934,7 +980,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                     <>
                                         <span>{t('StaticData')}</span>
 
-                                        <StyledUrlMessage style={{ height: '12px', lineHeight: '12px' }}>
+                                        <StyledUrlMessage
+                                            style={{ height: '12px', lineHeight: '12px' }}
+                                        >
                                             {t('StaticDataFieldDesc')}
                                         </StyledUrlMessage>
                                     </>
@@ -959,9 +1007,13 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       {...input}
                                       field={input}
                                       id={(flattenedInputs?.length || 0) + (index + 1)}
-                                      lastChildIndex={getLastChildIndex(input, flattenedContextInputs) - index}
+                                      lastChildIndex={
+                                          getLastChildIndex(input, flattenedContextInputs) - index
+                                      }
                                       usesContext
-                                      hasAvailableOutput={hasAvailableRelation(input.type.types_returned)}
+                                      hasAvailableOutput={hasAvailableRelation(
+                                          input.type.types_returned
+                                      )}
                                   />
                               ))
                             : null}
@@ -971,7 +1023,10 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                             <svg
                                 height={
                                     Math.max(
-                                        [...(flattenedInputs || []), ...(flattenedContextInputs || [])]?.length,
+                                        [
+                                            ...(flattenedInputs || []),
+                                            ...(flattenedContextInputs || []),
+                                        ]?.length,
                                         flattenedOutputs?.length
                                     ) *
                                         (FIELD_HEIGHT + FIELD_MARGIN) +
@@ -984,11 +1039,15 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath.replace(/ /g, '')}
+                                                        id={outputPath
+                                                            .replace(/ /g, '')
+                                                            .replace(/\./g, '')
+                                                            .replace(/\\/g, '')}
                                                         x1="0"
                                                         y1={
                                                             (flattenedInputs.findIndex(
-                                                                (input) => input.path === relation.name
+                                                                (input) =>
+                                                                    input.path === relation.name
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -999,7 +1058,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                (output) => output.path === outputPath
+                                                                (output) =>
+                                                                    output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1010,18 +1070,27 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         gradientUnits="userSpaceOnUse"
                                                     >
                                                         <stop
-                                                            stop-color={getFieldTypeColor('inputs', relation.name)}
+                                                            stop-color={getFieldTypeColor(
+                                                                'inputs',
+                                                                relation.name
+                                                            )}
                                                             offset="0"
                                                         />
                                                         <stop
-                                                            stop-color={getFieldTypeColor('outputs', outputPath)}
+                                                            stop-color={getFieldTypeColor(
+                                                                'outputs',
+                                                                outputPath
+                                                            )}
                                                             offset="1"
                                                         />
                                                     </linearGradient>
                                                 </defs>
                                                 <StyledLine
                                                     key={outputPath.replace(/ /g, '')}
-                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
+                                                    stroke={`url(#${outputPath
+                                                        .replace(/ /g, '')
+                                                        .replace(/\./g, '')
+                                                        .replace(/\\/g, '')})`}
                                                     onClick={() => removeRelation(outputPath)}
                                                     x1={0}
                                                     y1={
@@ -1052,13 +1121,17 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath.replace(/ /g, '')}
+                                                        id={outputPath
+                                                            .replace(/ /g, '')
+                                                            .replace(/\./g, '')
+                                                            .replace(/\\/g, '')}
                                                         x1="0"
                                                         y1={27}
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                (output) => output.path === outputPath
+                                                                (output) =>
+                                                                    output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1069,21 +1142,31 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         gradientUnits="userSpaceOnUse"
                                                     >
                                                         <stop
-                                                            stop-color={getFieldTypeColor('inputs', null, [
-                                                                'hash<auto>',
-                                                            ])}
+                                                            stop-color={getFieldTypeColor(
+                                                                'inputs',
+                                                                null,
+                                                                ['hash<auto>']
+                                                            )}
                                                             offset="0"
                                                         />
                                                         <stop
-                                                            stop-color={getFieldTypeColor('outputs', outputPath)}
+                                                            stop-color={getFieldTypeColor(
+                                                                'outputs',
+                                                                outputPath
+                                                            )}
                                                             offset="1"
                                                         />
                                                     </linearGradient>
                                                 </defs>
                                                 <StyledLine
                                                     key={outputPath.replace(/ /g, '')}
-                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
-                                                    onClick={() => removeRelation(outputPath, false, true)}
+                                                    stroke={`url(#${outputPath
+                                                        .replace(/ /g, '')
+                                                        .replace(/\./g, '')
+                                                        .replace(/\\/g, '')})`}
+                                                    onClick={() =>
+                                                        removeRelation(outputPath, false, true)
+                                                    }
                                                     x1={0}
                                                     y1={27}
                                                     x2={300}
@@ -1106,17 +1189,24 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath.replace(/ /g, '')}
+                                                        id={outputPath
+                                                            .replace(/ /g, '')
+                                                            .replace(/\./g, '')
+                                                            .replace(/\\/g, '')}
                                                         x1="0"
                                                         y1={
                                                             63 +
                                                             63 +
                                                             (size(flattenedInputs) +
-                                                                (inputOptionProvider?.can_manage_fields ? 1 : 0) +
+                                                                (inputOptionProvider?.can_manage_fields
+                                                                    ? 1
+                                                                    : 0) +
                                                                 flattenedContextInputs.findIndex(
                                                                     (input) =>
                                                                         input.path ===
-                                                                        getStaticDataFieldname(relation.context)
+                                                                        getStaticDataFieldname(
+                                                                            relation.context
+                                                                        )
                                                                 ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1125,7 +1215,8 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                (output) => output.path === outputPath
+                                                                (output) =>
+                                                                    output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1138,30 +1229,44 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         <stop
                                                             stop-color={getFieldTypeColor(
                                                                 'context',
-                                                                getStaticDataFieldname(relation.context)
+                                                                getStaticDataFieldname(
+                                                                    relation.context
+                                                                )
                                                             )}
                                                             offset="0"
                                                         />
                                                         <stop
-                                                            stop-color={getFieldTypeColor('outputs', outputPath)}
+                                                            stop-color={getFieldTypeColor(
+                                                                'outputs',
+                                                                outputPath
+                                                            )}
                                                             offset="1"
                                                         />
                                                     </linearGradient>
                                                 </defs>
                                                 <StyledLine
                                                     key={outputPath}
-                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
-                                                    onClick={() => removeRelation(outputPath, true, true)}
+                                                    stroke={`url(#${outputPath
+                                                        .replace(/ /g, '')
+                                                        .replace(/\./g, '')
+                                                        .replace(/\\/g, '')})`}
+                                                    onClick={() =>
+                                                        removeRelation(outputPath, true, true)
+                                                    }
                                                     x1={0}
                                                     y1={
                                                         63 +
                                                         63 +
                                                         (size(flattenedInputs) +
-                                                            (inputOptionProvider?.can_manage_fields ? 1 : 0) +
+                                                            (inputOptionProvider?.can_manage_fields
+                                                                ? 1
+                                                                : 0) +
                                                             flattenedContextInputs.findIndex(
                                                                 (input) =>
                                                                     input.path ===
-                                                                    getStaticDataFieldname(relation.context)
+                                                                    getStaticDataFieldname(
+                                                                        relation.context
+                                                                    )
                                                             ) +
                                                             1) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1187,20 +1292,26 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             <>
                                                 <defs>
                                                     <linearGradient
-                                                        id={outputPath.replace(/ /g, '')}
+                                                        id={outputPath
+                                                            .replace(/ /g, '')
+                                                            .replace(/\./g, '')
+                                                            .replace(/\\/g, '')}
                                                         x1="0"
                                                         y1={
                                                             63 +
                                                             63 +
                                                             (size(flattenedInputs) +
-                                                                (inputOptionProvider?.can_manage_fields ? 1 : 0)) *
+                                                                (inputOptionProvider?.can_manage_fields
+                                                                    ? 1
+                                                                    : 0)) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
                                                             31.5
                                                         }
                                                         x2={0}
                                                         y2={
                                                             (flattenedOutputs.findIndex(
-                                                                (output) => output.path === outputPath
+                                                                (output) =>
+                                                                    output.path === outputPath
                                                             ) +
                                                                 1) *
                                                                 (FIELD_HEIGHT + FIELD_MARGIN) -
@@ -1211,27 +1322,37 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                                         gradientUnits="userSpaceOnUse"
                                                     >
                                                         <stop
-                                                            stop-color={getFieldTypeColor('context', null, [
-                                                                'hash<auto>',
-                                                            ])}
+                                                            stop-color={getFieldTypeColor(
+                                                                'context',
+                                                                null,
+                                                                ['hash<auto>']
+                                                            )}
                                                             offset="0"
                                                         />
                                                         <stop
-                                                            stop-color={getFieldTypeColor('outputs', outputPath)}
+                                                            stop-color={getFieldTypeColor(
+                                                                'outputs',
+                                                                outputPath
+                                                            )}
                                                             offset="1"
                                                         />
                                                     </linearGradient>
                                                 </defs>
                                                 <StyledLine
                                                     key={outputPath}
-                                                    stroke={`url(#${outputPath.replace(/ /g, '')})`}
+                                                    stroke={`url(#${outputPath
+                                                        .replace(/ /g, '')
+                                                        .replace(/\./g, '')
+                                                        .replace(/\\/g, '')})`}
                                                     onClick={() => removeRelation(outputPath, true)}
                                                     x1={0}
                                                     y1={
                                                         63 +
                                                         63 +
                                                         (size(flattenedInputs) +
-                                                            (inputOptionProvider?.can_manage_fields ? 1 : 0)) *
+                                                            (inputOptionProvider?.can_manage_fields
+                                                                ? 1
+                                                                : 0)) *
                                                             (FIELD_HEIGHT + FIELD_MARGIN) -
                                                         31.5
                                                     }
@@ -1278,8 +1399,13 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                             />
                                         </Tooltip>
                                     )}
-                                    <Tooltip targetTagName="div" content={getUrlFromProvider('output')}>
-                                        <StyledUrlMessage>{getUrlFromProvider('output')}</StyledUrlMessage>
+                                    <Tooltip
+                                        targetTagName="div"
+                                        content={getUrlFromProvider('output')}
+                                    >
+                                        <StyledUrlMessage>
+                                            {getUrlFromProvider('output')}
+                                        </StyledUrlMessage>
                                     </Tooltip>
                                 </>
                             )}
@@ -1296,7 +1422,9 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                       onDrop={handleDrop}
                                       id={index + 1}
                                       accepts={output.type.types_accepted}
-                                      lastChildIndex={getLastChildIndex(output, flattenedOutputs) - index}
+                                      lastChildIndex={
+                                          getLastChildIndex(output, flattenedOutputs) - index
+                                      }
                                       onClick={handleClick('outputs')}
                                       onManageClick={() => handleManageClick(output)}
                                       t={t}
@@ -1328,7 +1456,12 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                                 icon={'history'}
                                 disabled={inputsLoading || outputsLoading}
                                 onClick={() => {
-                                    initialData.confirmAction('ResetFieldsConfirm', reset, 'Reset', 'warning');
+                                    initialData.confirmAction(
+                                        'ResetFieldsConfirm',
+                                        reset,
+                                        'Reset',
+                                        'warning'
+                                    );
                                 }}
                             />
                         </Tooltip>
@@ -1351,9 +1484,16 @@ const MapperCreator: React.FC<IMapperCreatorProps> = ({
                     </ButtonGroup>
                 </div>
             </ActionsWrapper>
-            {addDialog.isOpen && <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />}
+            {addDialog.isOpen && (
+                <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />
+            )}
             {mappingDialog.isOpen && (
-                <MappingModal t={t} onClose={() => setMappingDialog({})} {...mappingDialog} methods={methods} />
+                <MappingModal
+                    t={t}
+                    onClose={() => setMappingDialog({})}
+                    {...mappingDialog}
+                    methods={methods}
+                />
             )}
         </>
     );

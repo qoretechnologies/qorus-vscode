@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.18
+
+#### New features
+
+-   Mappers and Types now support fields with dots in their names (with backwards compatibility).
+
 ## 2.3.17
 
 #### Bug Fixes

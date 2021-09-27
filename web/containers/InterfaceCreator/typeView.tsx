@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
-import { cloneDeep, get, map, set, size, unset } from 'lodash';
+import { cloneDeep, get, map, reduce, set, size, unset } from 'lodash';
 import React, { useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -19,11 +19,37 @@ import MapperInput from '../Mapper/input';
 import MapperFieldModal from '../Mapper/modal';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper } from './panel';
 
+export const formatFields = (fields) => {
+    const newFields = reduce(
+        fields,
+        (formattedFields, field, fieldName) => {
+            const name = fieldName.replace(/(?<!\\)\./g, '\\.');
+
+            return {
+                ...formattedFields,
+                [name]: {
+                    ...field,
+                    name,
+                    type: {
+                        ...field.type,
+                        fields: formatFields(field.type?.fields || {}),
+                    },
+                },
+            };
+        },
+        {}
+    );
+
+    return newFields;
+};
+
 const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     const [val, setVal] = useState(initialData?.type?.path || '');
     const [types, setTypes] = useState([]);
     const [addDialog, setAddDialog] = useState({});
-    const [fields, setFields] = useState(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {});
+    const [fields, setFields] = useState(
+        formatFields(initialData.type ? cloneDeep(initialData.type.typeinfo.fields) : {})
+    );
     const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
     const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
 
@@ -66,7 +92,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         );
     }
 
-    const addField = (path, data) => {
+    const addField = (path: string, data) => {
         // Set the new fields
         setFields((current) => {
             // Clone the current fields
@@ -78,17 +104,21 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                 return result;
             }
             // Build the path
-            const fields: string[] = path.split('.');
+            const fields: string[] = path.split(/(?<!\\)\./g);
             let newPath: string;
+            let newPathList: string[];
             fields.forEach((fieldName) => {
                 if (!newPath) {
                     newPath = fieldName;
+                    newPathList = [fieldName];
                 } else {
                     newPath += `.type.fields.${fieldName}`;
+                    newPathList.push('type', 'fields', fieldName);
                 }
             });
+            console.log(path, newPath);
             // Get the object at the exact path
-            const obj: any = get(result, newPath);
+            const obj: any = get(result, newPathList);
             // Add new object
             obj.type.fields[data.name] = data;
             // Return new data
@@ -100,44 +130,51 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         // Set the new fields
         setFields((current) => {
             // Clone the current fields
-            const result: any = { ...current };
+            const result: any = cloneDeep(current);
             // Build the path
-            const fields: string[] = path.split('.');
+            const fields: string[] = path.split(/(?<!\\)\./g);
             let newPath: string;
+            let newPathList: string[];
             fields.forEach((fieldName) => {
                 if (!newPath) {
                     newPath = fieldName;
+                    newPathList = [fieldName];
                 } else {
                     newPath += `.type.fields.${fieldName}`;
+                    newPathList.push('type', 'fields', fieldName);
                 }
             });
-
+            console.log(newPath);
             // Always remove the original object
-            unset(result, newPath);
+            unset(result, newPathList);
             if (remove) {
                 return result;
             }
             // Build the updated path
-            const oldFields: string[] = path.split('.');
+            const oldFields: string[] = path.split(/(?<!\\)\./g);
             // Remove the last value from the fields
             oldFields.pop();
             // Add the new name to the end of the fields list
             oldFields.push(data.name);
 
             let newUpdatedPath: string;
-
+            let newUpdatedPathList: string[];
             oldFields.forEach((fieldName) => {
                 if (!newUpdatedPath) {
                     newUpdatedPath = fieldName;
+                    newUpdatedPathList = [fieldName];
                 } else {
                     newUpdatedPath += `.type.fields.${fieldName}`;
+                    newUpdatedPathList.push('type', 'fields', fieldName);
                 }
             });
+            console.log(newUpdatedPath, newUpdatedPathList, newPathList);
             // Get the object at the exact path
-            set(result, newUpdatedPath, {
+            set(result, newUpdatedPathList, {
                 ...data,
                 path: oldFields.join('.'),
             });
+            console.log(result);
             // Return new data
             return result;
         });
