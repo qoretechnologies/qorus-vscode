@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.19
+
+-   Fixed a bug that prevented setting and saving inherited config items to `null`
+
 ## 2.3.18
 
 #### New features
