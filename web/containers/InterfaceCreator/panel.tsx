@@ -16,8 +16,15 @@ import {
     upperFirst,
 } from 'lodash';
 import isArray from 'lodash/isArray';
-import React, { FormEvent, FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
-import { useMount } from 'react-use';
+import React, {
+    FormEvent,
+    FunctionComponent,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
+import { useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import withState from 'recompose/withState';
@@ -106,7 +113,12 @@ export interface IInterfaceCreatorPanel {
 }
 
 export interface IField {
-    get_message?: { action: string; object_type: string; return_value?: string; message_data?: any };
+    get_message?: {
+        action: string;
+        object_type: string;
+        return_value?: string;
+        message_data?: any;
+    };
     return_message?: { action: string; object_type: string; return_value?: string };
     style?: string;
     type?: string;
@@ -264,6 +276,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         addInterface(type, interfaceIndex);
     });
 
+    useUpdateEffect(() => {
+        console.log(interfaceId, selectedFields);
+    }, [selectedFields]);
+
     useEffect(() => {
         // Remove the current listeners
         fieldListeners.forEach((listener) => {
@@ -302,7 +318,13 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         // Create a message listener for this activeId
         const messageListenerHandler = addMessageListener(
             Messages.FIELDS_FETCHED,
-            ({ fields: newFields, ...rest }: { newFields: { [key: string]: IField }; iface_kind: string }) => {
+            ({
+                fields: newFields,
+                ...rest
+            }: {
+                newFields: { [key: string]: IField };
+                iface_kind: string;
+            }) => {
                 // Register only for this interface
                 if (rest.iface_kind !== type) {
                     return;
@@ -314,16 +336,27 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
-                        selected: (clonedData && field.name in clonedData) || field.mandatory !== false,
+                        selected:
+                            (clonedData && field.name in clonedData) || field.mandatory !== false,
                         isValid:
                             clonedData && field.name in clonedData
-                                ? validateField(field.type || 'string', clonedData[field.name], field)
+                                ? validateField(
+                                      field.type || 'string',
+                                      clonedData[field.name],
+                                      field
+                                  )
                                 : false,
-                        value: clonedData && field.name in clonedData ? clonedData[field.name] : undefined,
+                        value:
+                            clonedData && field.name in clonedData
+                                ? clonedData[field.name]
+                                : undefined,
                         hasValueSet: clonedData && field.name in clonedData,
                     }));
                     // Pull the pre-selected fields
-                    const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
+                    const preselectedFields: IField[] = filter(
+                        transformedFields,
+                        (field: IField) => field.selected
+                    );
                     // Add original name field
                     if (isEditing) {
                         preselectedFields.push({
@@ -365,7 +398,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // Fetch config items
                 fetchConfigItems(interfaceId || currentInterfaceId);
 
-                if (['service', 'service-methods'].includes(rest.iface_kind) && !initialData.unfinishedWork?.service) {
+                if (
+                    ['service', 'service-methods'].includes(rest.iface_kind) &&
+                    !initialData.unfinishedWork?.service
+                ) {
                     initialData.setUnfinishedWork((current) => ({
                         ...current,
                         service: false,
@@ -424,16 +460,24 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Mark the selected fields
                     const transformedFields: IField[] = map(newFields, (field: IField) => ({
                         ...field,
-                        selected: (copiedData && copiedData[field.name]) || field.mandatory !== false,
+                        selected:
+                            (copiedData && copiedData[field.name]) || field.mandatory !== false,
                         isValid:
                             copiedData && copiedData[field.name]
-                                ? validateField(field.type || 'string', copiedData[field.name], field)
+                                ? validateField(
+                                      field.type || 'string',
+                                      copiedData[field.name],
+                                      field
+                                  )
                                 : false,
                         value: copiedData ? copiedData[field.name] : undefined,
                         hasValueSet: copiedData && copiedData[field.name],
                     }));
                     // Pull the pre-selected fields
-                    const preselectedFields: IField[] = filter(transformedFields, (field: IField) => field.selected);
+                    const preselectedFields: IField[] = filter(
+                        transformedFields,
+                        (field: IField) => field.selected
+                    );
                     // Add original name field
                     if (isEditing) {
                         preselectedFields.push({
@@ -458,7 +502,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     isInitialMount.current = false;
                 }
                 // Create / set interface id
-                setInterfaceId(type, data ? copiedData.iface_id : shortid.generate(), interfaceIndex);
+                setInterfaceId(
+                    type,
+                    data ? copiedData.iface_id : shortid.generate(),
+                    interfaceIndex
+                );
                 // Set show
                 setShow(true);
             }
@@ -487,7 +535,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
     const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
         // Check if the field is already selected
-        const selectedField: IField = find(selectedFields, (field: IField) => field.name === fieldName);
+        const selectedField: IField = find(
+            selectedFields,
+            (field: IField) => field.name === fieldName
+        );
         // Add it if it's not
         if (!selectedField) {
             // Remove the field
@@ -531,7 +582,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         }
     };
 
-    const removeField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
+    const removeField: (fieldName: string, notify?: boolean) => void = (
+        fieldName,
+        notify = true
+    ) => {
         // If mapper code was removed, try to remove relations
         if (type === 'mapper' && fieldName === 'codes') {
             // Remove the code from relations
@@ -558,7 +612,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 // Add the field to selected list
                 setSelectedFields(
                     type,
-                    (current: IField[]) => filter(current, (field: IField) => field.name !== fieldName),
+                    (current: IField[]) =>
+                        filter(current, (field: IField) => field.name !== fieldName),
                     activeId,
                     interfaceIndex
                 );
@@ -576,7 +631,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         );
     };
 
-    const toggleDisableField: (fieldName: string, disabled: boolean) => void = (fieldName, disabled) => {
+    const toggleDisableField: (fieldName: string, disabled: boolean) => void = (
+        fieldName,
+        disabled
+    ) => {
         setTimeout(() => {
             setFields(
                 type,
@@ -666,91 +724,117 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         setSelectedFields(
             type,
             (currentFields: IField[]): IField[] => {
-                return currentFields.reduce((newFields: IField[], currentField: IField): IField[] => {
-                    // Check if the field matches
-                    if (currentField.name === fieldName) {
-                        // Check if this field prefills any other fields
-                        const prefills: IField[] = currentFields.filter((field: IField) => field.prefill === fieldName);
-                        // Update the value of all of the prefill field
-                        // But only if they did not set the value themselves
-                        if (prefills.length) {
-                            prefills.forEach((field: IField) => {
-                                // Check if the field already has a value set
-                                // by its self
-                                if (!field.hasValueSet && !isEditing) {
-                                    // Modify the field
-                                    setTimeout(() => {
-                                        handleFieldChange(field.name, value, null, canBeNull, true);
-                                    }, 300);
-                                }
-                            });
-                        }
-                        // Check if this field needs style changes
-                        if (
-                            currentField.style &&
-                            // Quick hack for classes and mapper codes
-                            (currentField.name === 'class-class-name' || !currentField.hasValueSet)
-                        ) {
-                            // Modify the value based on the style
-                            switch (currentField.style) {
-                                case 'PascalCase':
-                                    value = upperFirst(camelCase(value));
-                                    break;
-                                case 'camelCase':
-                                    value = camelCase(value);
-                                    break;
-                                default:
-                                    break;
+                return currentFields.reduce(
+                    (newFields: IField[], currentField: IField): IField[] => {
+                        // Check if the field matches
+                        if (currentField.name === fieldName) {
+                            // Check if this field prefills any other fields
+                            const prefills: IField[] = currentFields.filter(
+                                (field: IField) => field.prefill === fieldName
+                            );
+                            // Update the value of all of the prefill field
+                            // But only if they did not set the value themselves
+                            if (prefills.length) {
+                                prefills.forEach((field: IField) => {
+                                    // Check if the field already has a value set
+                                    // by its self
+                                    if (!field.hasValueSet && !isEditing) {
+                                        // Modify the field
+                                        setTimeout(() => {
+                                            handleFieldChange(
+                                                field.name,
+                                                value,
+                                                null,
+                                                canBeNull,
+                                                true
+                                            );
+                                        }, 300);
+                                    }
+                                });
                             }
-                        }
-                        // Validate the field
-                        let isValid;
-                        const finalFieldType = forcedType || currentField.type;
-                        // If this is auto field
-                        if (finalFieldType === 'auto' || finalFieldType === 'array-auto') {
-                            // Get the type
-                            const fieldType = requestFieldData(currentField['type-depends-on'], 'value');
-                            // If this is a single field
-                            if (finalFieldType === 'auto') {
-                                // Validate single field
-                                isValid = validateField(fieldType, value, currentField);
-                            } else {
-                                // Check if the type is in allowed types
-                                if (allowedTypes.includes(fieldType)) {
-                                    // Validate all values
-                                    isValid = value.every((val: string | number) =>
-                                        validateField(fieldType, val, currentField, canBeNull)
-                                    );
+                            // Check if this field needs style changes
+                            if (
+                                currentField.style &&
+                                // Quick hack for classes and mapper codes
+                                (currentField.name === 'class-class-name' ||
+                                    !currentField.hasValueSet)
+                            ) {
+                                // Modify the value based on the style
+                                switch (currentField.style) {
+                                    case 'PascalCase':
+                                        value = upperFirst(camelCase(value));
+                                        break;
+                                    case 'camelCase':
+                                        value = camelCase(value);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            // Validate the field
+                            let isValid;
+                            const finalFieldType = forcedType || currentField.type;
+                            // If this is auto field
+                            if (finalFieldType === 'auto' || finalFieldType === 'array-auto') {
+                                // Get the type
+                                const fieldType = requestFieldData(
+                                    currentField['type-depends-on'],
+                                    'value'
+                                );
+                                // If this is a single field
+                                if (finalFieldType === 'auto') {
+                                    // Validate single field
+                                    isValid = validateField(fieldType, value, currentField);
                                 } else {
-                                    isValid = false;
+                                    // Check if the type is in allowed types
+                                    if (allowedTypes.includes(fieldType)) {
+                                        // Validate all values
+                                        isValid = value.every((val: string | number) =>
+                                            validateField(fieldType, val, currentField, canBeNull)
+                                        );
+                                    } else {
+                                        isValid = false;
+                                    }
                                 }
+                            } else {
+                                // Basic field with predefined type
+                                isValid = validateField(
+                                    finalFieldType || 'string',
+                                    value,
+                                    currentField,
+                                    canBeNull
+                                );
                             }
-                        } else {
-                            // Basic field with predefined type
-                            isValid = validateField(finalFieldType || 'string', value, currentField, canBeNull);
-                        }
-                        // Check if we should change the name of the
-                        // method
-                        if (fieldName === 'name' && onNameChange) {
-                            // Change the method name in the side panel
-                            onNameChange(activeId, value, metadata?.originalName);
-                        }
-                        // On change events
-                        maybeSendOnChangeEvent(currentField, value, type, interfaceId, isEditing);
-                        // Add the value
-                        return [
-                            ...newFields,
-                            {
-                                ...currentField,
+                            // Check if we should change the name of the
+                            // method
+                            if (fieldName === 'name' && onNameChange) {
+                                // Change the method name in the side panel
+                                onNameChange(activeId, value, metadata?.originalName);
+                            }
+                            // On change events
+                            maybeSendOnChangeEvent(
+                                currentField,
                                 value,
-                                hasValueSet: !explicit,
-                                isValid,
-                            },
-                        ];
-                    }
-                    // Return unchanged fields
-                    return [...newFields, { ...currentField }];
-                }, []);
+                                type,
+                                interfaceId,
+                                isEditing
+                            );
+                            // Add the value
+                            return [
+                                ...newFields,
+                                {
+                                    ...currentField,
+                                    value,
+                                    hasValueSet: !explicit,
+                                    isValid,
+                                },
+                            ];
+                        }
+                        // Return unchanged fields
+                        return [...newFields, { ...currentField }];
+                    },
+                    []
+                );
             },
             activeId,
             interfaceIndex
@@ -773,16 +857,19 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         setSelectedFields(
             type,
             (currentFields: IField[]): IField[] => {
-                return currentFields.reduce((newFields: IField[], currentField: IField): IField[] => {
-                    // Add the value
-                    return [
-                        ...newFields,
-                        {
-                            ...currentField,
-                            hasValueSet: true,
-                        },
-                    ];
-                }, []);
+                return currentFields.reduce(
+                    (newFields: IField[], currentField: IField): IField[] => {
+                        // Add the value
+                        return [
+                            ...newFields,
+                            {
+                                ...currentField,
+                                hasValueSet: true,
+                            },
+                        ];
+                    },
+                    []
+                );
             },
             activeId,
             interfaceIndex
@@ -829,16 +916,19 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     {}
                 );
                 // Add the methods
-                newData[subItemType] = map(allSelectedFields[type][interfaceIndex], (serviceMethod) => {
-                    return reduce(
-                        serviceMethod,
-                        (result: { [key: string]: any }, field: IField) => ({
-                            ...result,
-                            [field.name]: field.value,
-                        }),
-                        {}
-                    );
-                });
+                newData[subItemType] = map(
+                    allSelectedFields[type][interfaceIndex],
+                    (serviceMethod) => {
+                        return reduce(
+                            serviceMethod,
+                            (result: { [key: string]: any }, field: IField) => ({
+                                ...result,
+                                [field.name]: field.value,
+                            }),
+                            {}
+                        );
+                    }
+                );
                 // Filter deleted methods
                 if (methodsList) {
                     newData[subItemType] = newData[subItemType].filter((m) =>
@@ -914,7 +1004,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             default_value_true_type: true_type,
                         },
                         orig_data:
-                            type === 'service-methods' || type === 'mapper-methods' || type === 'error'
+                            type === 'service-methods' ||
+                            type === 'mapper-methods' ||
+                            type === 'error'
                                 ? initialData[iface_kind]
                                 : data,
                         open_file_on_success: !onSubmitSuccess && openFileOnSubmit !== false,
@@ -976,7 +1068,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         }
     });
 
-    const requestFieldData: (fieldName: string, fieldKey?: string) => string = (fieldName, fieldKey) => {
+    const requestFieldData: (fieldName: string, fieldKey?: string) => string = (
+        fieldName,
+        fieldKey
+    ) => {
         // Find this field
         const field: IField = selectedFields.find((field: IField) => field.name === fieldName);
         // Check if this field exists & is selected
@@ -994,9 +1089,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (field.disabled) {
             return true;
         } else if (field.requires_fields) {
-            const req = isArray(field.requires_fields) ? field.requires_fields : [field.requires_fields];
+            const req = isArray(field.requires_fields)
+                ? field.requires_fields
+                : [field.requires_fields];
             // Check if the required field is valid
-            if (selectedFields.filter((sField) => req.includes(sField.name)).every((sField) => sField.isValid)) {
+            if (
+                selectedFields
+                    .filter((sField) => req.includes(sField.name))
+                    .every((sField) => sField.isValid)
+            ) {
                 return false;
             }
             return true;
@@ -1105,8 +1206,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const getInterfaceNameForContext = () => {
         const ifaceType: string = type === 'step' ? 'workflow' : type;
 
-        const iName: IField = last(allSelectedFields[ifaceType])?.find((field) => field.name === 'name');
-        const iVersion: IField = last(allSelectedFields[ifaceType])?.find((field) => field.name === 'version');
+        const iName: IField = last(allSelectedFields[ifaceType])?.find(
+            (field) => field.name === 'name'
+        );
+        const iVersion: IField = last(allSelectedFields[ifaceType])?.find(
+            (field) => field.name === 'version'
+        );
         const iStaticData: IField = last(allSelectedFields[ifaceType])?.find(
             (field) => field.name === 'staticdata-type'
         );
@@ -1152,7 +1257,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     <InputGroup
                         placeholder={t('FilterAvailableFields')}
                         value={query}
-                        onChange={(event: FormEvent<HTMLInputElement>) => setQuery(type, event.currentTarget.value)}
+                        onChange={(event: FormEvent<HTMLInputElement>) =>
+                            setQuery(type, event.currentTarget.value)
+                        }
                         leftIcon={'search'}
                         intent={query !== '' ? Intent.PRIMARY : Intent.NONE}
                     />
@@ -1203,7 +1310,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         selectedFieldList,
                         (field: IField) =>
                             !field.internal && (
-                                <FieldWrapper key={field.name} name="selected-field" style={{ paddingLeft: '15px' }}>
+                                <FieldWrapper
+                                    key={field.name}
+                                    name="selected-field"
+                                    style={{ paddingLeft: '15px' }}
+                                >
                                     <FieldLabel
                                         info={field.markdown && t('MarkdownSupported')}
                                         label={t(`field-label-${field.name}`)}
@@ -1223,7 +1334,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                             prefill={
                                                 field.prefill &&
                                                 selectedFieldList.find(
-                                                    (preField: IField) => preField.name === field.prefill
+                                                    (preField: IField) =>
+                                                        preField.name === field.prefill
                                                 )
                                             }
                                             disabled={isFieldDisabled(field)}
@@ -1253,7 +1365,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             <ButtonGroup fill>
                                 {hasClassConnections && (
                                     <Button
-                                        icon={areClassConnectionsValid() ? 'code-block' : 'warning-sign'}
+                                        icon={
+                                            areClassConnectionsValid()
+                                                ? 'code-block'
+                                                : 'warning-sign'
+                                        }
                                         intent={areClassConnectionsValid() ? 'none' : 'warning'}
                                         disabled={!isClassConnectionsManagerEnabled(interfaceIndex)}
                                         onClick={() => setShowClassConnectionsManager(true)}
@@ -1272,11 +1388,20 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                             </ButtonGroup>
                         </div>
                     )}
-                    <div style={{ float: 'right', width: hasConfigManager || hasClassConnections ? '48%' : '100%' }}>
+                    <div
+                        style={{
+                            float: 'right',
+                            width: hasConfigManager || hasClassConnections ? '48%' : '100%',
+                        }}
+                    >
                         <ButtonGroup fill>
                             {onBackClick && (
                                 <Tooltip content={t('BackTooltip')}>
-                                    <Button text={t('Back')} icon={'undo'} onClick={() => onBackClick()} />
+                                    <Button
+                                        text={t('Back')}
+                                        icon={'undo'}
+                                        onClick={() => onBackClick()}
+                                    />
                                 </Tooltip>
                             )}
                             <Tooltip content={t('ResetTooltip')}>
@@ -1316,7 +1441,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     isOpen
                     title={t('ClassConnectionsManager')}
                     onClose={() => setShowClassConnectionsManager(false)}
-                    style={{ width: '80vw', minHeight: '40vh', maxHeight: '90vh', backgroundColor: '#fff' }}
+                    style={{
+                        width: '80vw',
+                        minHeight: '40vh',
+                        maxHeight: '90vh',
+                        backgroundColor: '#fff',
+                    }}
                 >
                     <ClassConnectionsManager
                         ifaceType={type === 'service-methods' ? 'service' : type}
@@ -1369,7 +1499,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                         type={type}
                         baseClassName={
                             selectedFields &&
-                            selectedFields.find((field: IField) => field.name === 'base-class-name')?.value
+                            selectedFields.find((field: IField) => field.name === 'base-class-name')
+                                ?.value
                         }
                         classes={getClasses()}
                         definitionsOnly={definitionsOnly}
@@ -1392,9 +1523,13 @@ export default compose(
     withMapperConsumer(),
     withStepsConsumer(),
     withFieldsConsumer(),
-    withState('interfaceIndex', 'setInterfaceIndex', ({ type, interfaceId, interfaceIndex, selectedFields }) => {
-        return interfaceIndex ?? size(interfaceId[type]);
-    }),
+    withState(
+        'interfaceIndex',
+        'setInterfaceIndex',
+        ({ type, interfaceId, interfaceIndex, selectedFields }) => {
+            return interfaceIndex ?? size(interfaceId[type]);
+        }
+    ),
     mapProps(
         ({
             type,
@@ -1408,7 +1543,9 @@ export default compose(
             interfaceIndex,
             ...rest
         }) => ({
-            fields: activeId ? fields[type]?.[interfaceIndex]?.[activeId] : fields[type][interfaceIndex],
+            fields: activeId
+                ? fields[type]?.[interfaceIndex]?.[activeId]
+                : fields[type][interfaceIndex],
             selectedFields: activeId
                 ? selectedFields[type]?.[interfaceIndex]?.[activeId]
                 : selectedFields[type][interfaceIndex],
