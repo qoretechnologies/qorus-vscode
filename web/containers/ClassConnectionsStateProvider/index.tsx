@@ -30,7 +30,13 @@ const removeMethodTriggers = (methods, connectionData) =>
         return [...newData, newConnector];
     }, []);
 
-const ClassConnectionsStateProvider = ({ selectedFields, type, children, initialData, methods }) => {
+const ClassConnectionsStateProvider = ({
+    selectedFields,
+    type,
+    children,
+    initialData,
+    methods,
+}) => {
     const [showClassConnectionsManager, setShowClassConnectionsManager] = useState<boolean>(false);
     const [classConnectionsData, setClassConnectionsData] = useState<IClassConnections>(
         initialData[type]?.['class-connections']
@@ -52,7 +58,8 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
 
     const areAllConnectionsValid = () => {
         return (
-            size(classConnectionsData) === 0 || every(classConnectionsData, (_conn, name) => isConnectionValid(name))
+            size(classConnectionsData) === 0 ||
+            every(classConnectionsData, (_conn, name) => isConnectionValid(name))
         );
     };
 
@@ -72,7 +79,10 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
                     const modifiedConnectionsData = reduce(
                         classConnectionsData,
                         (newConnections, connectionData, connName) => {
-                            return { ...newConnections, [connName]: removeMethodTriggers(methods, connectionData) };
+                            return {
+                                ...newConnections,
+                                [connName]: removeMethodTriggers(methods, connectionData),
+                            };
                         },
                         {}
                     );
@@ -116,11 +126,13 @@ const ClassConnectionsStateProvider = ({ selectedFields, type, children, initial
     };
 
     const isClassConnectionsManagerEnabled = (interfaceIndex?: number) => {
-        if (!initialData.qorus_instance || initialData.lang_client_unavailable) {
+        if (!initialData.qorus_instance) {
             return false;
         }
         // Find the base class name field
-        const classes: IField = selectedFields[type][interfaceIndex].find((field: IField) => field.name === 'classes');
+        const classes: IField = selectedFields[type][interfaceIndex].find(
+            (field: IField) => field.name === 'classes'
+        );
         // Check if the field exists
         if (classes) {
             // The field has to be selected and valid
