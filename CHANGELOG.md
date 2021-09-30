@@ -1,6 +1,14 @@
 # Changelog
 
+## 2.3.20
+
+#### Bug Fixes
+
+-   Moved the buttons inside class connections dialog under the box, so that the full connector name can be seen at all times
+
 ## 2.3.19
+
+#### Bug Fixes
 
 -   Fixed a bug that prevented setting and saving inherited config items to `null`
 
