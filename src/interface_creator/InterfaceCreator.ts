@@ -10,7 +10,13 @@ import { QorusProjectCodeInfo } from '../QorusProjectCodeInfo';
 import { qorus_webview } from '../QorusWebview';
 import { default_lang, default_version, types_with_version } from '../qorus_constants';
 import * as msg from '../qorus_message';
-import { capitalize, deepCopy, isValidIdentifier, removeDuplicates, sortRanges } from '../qorus_utils';
+import {
+    capitalize,
+    deepCopy,
+    isValidIdentifier,
+    removeDuplicates,
+    sortRanges,
+} from '../qorus_utils';
 import { default_parse_options, field } from './common_constants';
 import { defaultValue } from './config_item_constants';
 import { mandatoryStepMethods } from './standard_methods';
@@ -75,9 +81,12 @@ export abstract class InterfaceCreator {
         switch (this.lang) {
             case 'java':
                 this.file_base = data['class-name'];
-                this.yaml_file_base = data.version !== undefined ? `${data.name}-${data.version}` : data.name;
+                this.yaml_file_base =
+                    data.version !== undefined ? `${data.name}-${data.version}` : data.name;
                 this.target_subdir = iface_kind
-                    ? `${this.yaml_file_base.replace(/\./g, '_').replace(/\-/g, '_')}_${iface_kind}`.toLowerCase()
+                    ? `${this.yaml_file_base
+                          .replace(/\./g, '_')
+                          .replace(/\-/g, '_')}_${iface_kind}`.toLowerCase()
                     : this.yaml_file_base.toLowerCase();
                 break;
             default:
@@ -107,7 +116,8 @@ export abstract class InterfaceCreator {
                         this.file_base = path.basename(this.file_base, `.${suffix}`);
                     });
                 } else {
-                    this.file_base = data.version !== undefined ? `${data.name}-${data.version}` : data.name;
+                    this.file_base =
+                        data.version !== undefined ? `${data.name}-${data.version}` : data.name;
                 }
                 this.yaml_file_base = this.file_base;
                 this.target_subdir = '';
@@ -117,7 +127,8 @@ export abstract class InterfaceCreator {
             const orig_path = path.join(orig_target_dir, orig_target_file);
             if (this.had_code) {
                 this.orig_file_path = orig_path;
-                this.orig_yaml_file_path = this.code_info.yaml_info.yamlDataBySrcFile(orig_path)?.yaml_file;
+                this.orig_yaml_file_path =
+                    this.code_info.yaml_info.yamlDataBySrcFile(orig_path)?.yaml_file;
                 this.file_edit_info = this.code_info.edit_info.getInfo(orig_path);
             } else {
                 this.orig_yaml_file_path = orig_path;
@@ -304,23 +315,39 @@ export abstract class InterfaceCreator {
             return { ok: true };
         }
 
-        const { name: orig_name, version: orig_version, 'class-name': orig_class_name } = orig_data || {};
+        const {
+            name: orig_name,
+            version: orig_version,
+            'class-name': orig_class_name,
+        } = orig_data || {};
 
         const with_version = types_with_version.includes(iface_kind);
 
         const iface_name = with_version ? `${name}:${version || default_version}` : name;
-        const orig_iface_name = with_version ? `${orig_name}:${orig_version || default_version}` : orig_name;
+        const orig_iface_name = with_version
+            ? `${orig_name}:${orig_version || default_version}`
+            : orig_name;
 
         if (iface_name !== orig_iface_name) {
             const iface = this.code_info.yaml_info.yamlDataByName(iface_kind, iface_name);
             if (iface) {
-                return { ok: false, message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}` };
+                return {
+                    ok: false,
+                    message: t`IfaceAlreadyExists ${capitalize(iface_kind)} ${iface_name}`,
+                };
             }
         }
-        if (class_name && class_name !== orig_class_name && !['class', 'mapper-code'].includes(iface_kind)) {
+        if (
+            class_name &&
+            class_name !== orig_class_name &&
+            !['class', 'mapper-code'].includes(iface_kind)
+        ) {
             const iface = this.code_info.yaml_info.yamlDataByClass(iface_kind, class_name);
             if (iface) {
-                return { ok: false, message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}` };
+                return {
+                    ok: false,
+                    message: t`ClassAlreadyExists ${capitalize(iface_kind)} ${class_name}`,
+                };
             }
         }
 
@@ -363,7 +390,8 @@ export abstract class InterfaceCreator {
         }
 
         const num_inherited = base_class_names.length;
-        const has_other_base_class = num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);
+        const has_other_base_class =
+            num_inherited > 1 || (num_inherited > 0 && main_base_class_ord === -1);
 
         const replace = (position: Position, orig_str: string, new_name: string) => {
             let chars = lines[position.line].split('');
@@ -379,7 +407,11 @@ export abstract class InterfaceCreator {
 
         const eraseInheritsBefore = () => {
             const inherits_before = inherits_kw.before.trim();
-            const strings_to_erase = [` ${inherits_before}`, `${inherits_before} `, `${inherits_before}`];
+            const strings_to_erase = [
+                ` ${inherits_before}`,
+                `${inherits_before} `,
+                `${inherits_before}`,
+            ];
 
             for (let n = class_name_range.start.line; n <= first_base_class_line; n++) {
                 for (const string_to_erase of strings_to_erase) {
@@ -394,11 +426,14 @@ export abstract class InterfaceCreator {
         const eraseStrAfterBaseClassName = (str: string) => {
             for (let n = main_base_class_name_range.start.line; n <= last_class_line; n++) {
                 const pos_from =
-                    n === main_base_class_name_range.start.line ? main_base_class_name_range.end.character : 0;
+                    n === main_base_class_name_range.start.line
+                        ? main_base_class_name_range.end.character
+                        : 0;
                 for (const string_to_erase of [`${str} `, `${str}`]) {
                     const pos = lines[n].indexOf(string_to_erase, pos_from);
                     if (pos > -1) {
-                        lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
+                        lines[n] =
+                            lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
                         return;
                     }
                 }
@@ -408,11 +443,14 @@ export abstract class InterfaceCreator {
         const eraseStrBeforeBaseClassName = (str: string) => {
             for (let n = main_base_class_name_range.start.line; n >= first_base_class_line; n--) {
                 const pos_from =
-                    n === main_base_class_name_range.start.line ? main_base_class_name_range.start.character : 0;
+                    n === main_base_class_name_range.start.line
+                        ? main_base_class_name_range.start.character
+                        : 0;
                 for (const string_to_erase of [`${str} `, `${str}`]) {
                     const pos = lines[n].lastIndexOf(string_to_erase, pos_from);
                     if (pos > -1) {
-                        lines[n] = lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
+                        lines[n] =
+                            lines[n].substr(0, pos) + lines[n].substr(pos + string_to_erase.length);
                         return;
                     }
                 }
@@ -422,7 +460,9 @@ export abstract class InterfaceCreator {
         const eraseBaseClassName = (without_space: boolean = false) => {
             const n = main_base_class_name_range.start.line;
             const pos = main_base_class_name_range.start.character;
-            const length = main_base_class_name_range.end.character - main_base_class_name_range.start.character;
+            const length =
+                main_base_class_name_range.end.character -
+                main_base_class_name_range.start.character;
 
             if (!without_space) {
                 if (lines[n].substr(pos, length + 1) === `${orig_base_class_name} `) {
@@ -446,7 +486,11 @@ export abstract class InterfaceCreator {
                     replace(class_name_range.end, '', `${inherits_kw.before}${base_class_name},`);
                 }
             } else {
-                replace(class_name_range.end, '', `${inherits_kw.before}${base_class_name}${inherits_kw.after}`);
+                replace(
+                    class_name_range.end,
+                    '',
+                    `${inherits_kw.before}${base_class_name}${inherits_kw.after}`
+                );
             }
         } else if (!base_class_name && orig_base_class_name) {
             if (has_other_base_class) {
@@ -487,7 +531,9 @@ export abstract class InterfaceCreator {
         };
 
         const existing_import_lines: string[] = code_lines.filter((line) => isImportLine(line));
-        let import_lines_to_add: string[] = imports.filter((line) => !existing_import_lines.includes(line));
+        let import_lines_to_add: string[] = imports.filter(
+            (line) => !existing_import_lines.includes(line)
+        );
 
         if (!existing_import_lines.length && import_lines_to_add.length) {
             import_lines_to_add.push('');
@@ -495,7 +541,11 @@ export abstract class InterfaceCreator {
         return [...import_lines_to_add, ...code_lines];
     };
 
-    private static indentYamlDump = (value: any, indent_level: number, is_on_new_line: boolean = false) => {
+    private static indentYamlDump = (
+        value: any,
+        indent_level: number,
+        is_on_new_line: boolean = false
+    ) => {
         let lines = jsyaml.safeDump(value, { indent: 4 }).split(/\r?\n/);
         if (/^\s*$/.test(lines.slice(-1)[0])) {
             lines.pop();
@@ -525,8 +575,13 @@ export abstract class InterfaceCreator {
             }
 
             for (const tag of ['value', 'local-value', 'default_value']) {
-                if (item[tag] !== undefined && (!item.parent_data || item.parent_data[tag] != item[tag])) {
-                    result += `${indent.repeat(indent_level + 1)}${tag === 'local-value' ? 'value' : tag}:\n`;
+                if (
+                    item[tag] !== undefined &&
+                    (!item.parent_data || item.parent_data[tag] !== item[tag])
+                ) {
+                    result += `${indent.repeat(indent_level + 1)}${
+                        tag === 'local-value' ? 'value' : tag
+                    }:\n`;
 
                     let type = item.type;
                     if (type === 'any') {
@@ -548,12 +603,19 @@ export abstract class InterfaceCreator {
                         }
                         if (non_star_type === 'list') {
                             result +=
-                                lines.map((str) => `${indent.repeat(indent_level + 1)}  ${str}`).join('\n') + '\n';
+                                lines
+                                    .map((str) => `${indent.repeat(indent_level + 1)}  ${str}`)
+                                    .join('\n') + '\n';
                         } else {
-                            result += lines.map((str) => `${indent.repeat(indent_level + 2)}${str}`).join('\n') + '\n';
+                            result +=
+                                lines
+                                    .map((str) => `${indent.repeat(indent_level + 2)}${str}`)
+                                    .join('\n') + '\n';
                         }
                     } else {
-                        result += `${indent.repeat(indent_level + 2)}${JSON.stringify(item[tag])}\n`;
+                        result += `${indent.repeat(indent_level + 2)}${JSON.stringify(
+                            item[tag]
+                        )}\n`;
                     }
                 }
             }
@@ -561,10 +623,9 @@ export abstract class InterfaceCreator {
             if (item.parent) {
                 result += `${indent.repeat(indent_level + 1)}parent:\n`;
                 for (const tag in item.parent) {
-                    result += `${indent.repeat(indent_level + 2)}${tag}: ${InterfaceCreator.indentYamlDump(
-                        item.parent[tag].toString(),
-                        0
-                    )}`;
+                    result += `${indent.repeat(
+                        indent_level + 2
+                    )}${tag}: ${InterfaceCreator.indentYamlDump(item.parent[tag].toString(), 0)}`;
                 }
             }
 
@@ -595,7 +656,8 @@ export abstract class InterfaceCreator {
                     continue;
                 }
 
-                const has_parent_data: boolean = (item.parent_data || false) && item.parent_data[tag] !== undefined;
+                const has_parent_data: boolean =
+                    (item.parent_data || false) && item.parent_data[tag] !== undefined;
 
                 if (
                     (!has_parent_data && item[tag] !== defaultValue(tag)) ||
@@ -604,7 +666,9 @@ export abstract class InterfaceCreator {
                     if (Array.isArray(item[tag])) {
                         result += `${indent.repeat(indent_level + 1)}${tag}:\n`;
                         for (let entry of item[tag]) {
-                            result += `${indent.repeat(indent_level + 1)}${list_indent}${JSON.stringify(entry)}\n`;
+                            result += `${indent.repeat(
+                                indent_level + 1
+                            )}${list_indent}${JSON.stringify(entry)}\n`;
                         }
                     } else {
                         switch (tag) {
@@ -620,7 +684,9 @@ export abstract class InterfaceCreator {
                                     InterfaceCreator.indentYamlDump(item[tag], 1);
                                 break;
                             default:
-                                result += `${indent.repeat(indent_level + 1)}${tag}: ${item[tag]}\n`;
+                                result += `${indent.repeat(indent_level + 1)}${tag}: ${
+                                    item[tag]
+                                }\n`;
                         }
                     }
                 }
@@ -634,7 +700,9 @@ export abstract class InterfaceCreator {
         let result: string = '';
 
         const classes_or_requires = headers.type === 'class' ? 'requires' : 'classes';
-        headers[classes_or_requires] = this.code_info.interface_info.addClassNames(headers[classes_or_requires]);
+        headers[classes_or_requires] = this.code_info.interface_info.addClassNames(
+            headers[classes_or_requires]
+        );
 
         const base_class_name = headers['base-class-name'];
 
@@ -642,7 +710,8 @@ export abstract class InterfaceCreator {
             headers[classes_or_requires] = headers[classes_or_requires] || [];
             if (
                 !headers[classes_or_requires].some(
-                    (class_data) => class_data['class-name'] === base_class_name && !class_data.prefix
+                    (class_data) =>
+                        class_data['class-name'] === base_class_name && !class_data.prefix
                 )
             ) {
                 headers[classes_or_requires].unshift({ name: base_class_name });
@@ -674,13 +743,18 @@ export abstract class InterfaceCreator {
                 if (field.code) {
                     const [name, method, ...other] = field.code.split('::');
                     if (name && method && !other.length) {
-                        const mapper_code = this.code_info.yaml_info.yamlDataByName('mapper-code', name);
+                        const mapper_code = this.code_info.yaml_info.yamlDataByName(
+                            'mapper-code',
+                            name
+                        );
                         field.code = `${mapper_code.name}::${method}`;
                     }
                 }
 
                 Object.keys(field).forEach((key) => {
-                    const type_info = types.find((type) => type.outputField === field_name && type.field === key);
+                    const type_info = types.find(
+                        (type) => type.outputField === field_name && type.field === key
+                    );
                     if (['list', 'hash'].some((type) => type_info?.type.startsWith(type))) {
                         field[key] = jsyaml.safeLoad(field[key]);
                     }
@@ -774,10 +848,9 @@ export abstract class InterfaceCreator {
                             if (tag === 'tags') {
                                 item[value_name] = item[value_name].toString();
                             }
-                            result += `${indent}${item[key_name]}: ${InterfaceCreator.indentYamlDump(
-                                item[value_name],
-                                0
-                            )}`;
+                            result += `${indent}${
+                                item[key_name]
+                            }: ${InterfaceCreator.indentYamlDump(item[value_name], 0)}`;
                         }
                         break;
                     case 'value-maps':
@@ -818,12 +891,24 @@ export abstract class InterfaceCreator {
                         for (const connector of value) {
                             result += `${list_indent}name: ${connector.name}\n`;
                             for (const key in connector) {
-                                if (['provider', 'input-provider', 'output-provider'].includes(key) && connector[key]) {
+                                if (
+                                    ['provider', 'input-provider', 'output-provider'].includes(
+                                        key
+                                    ) &&
+                                    connector[key]
+                                ) {
                                     connector[key] = fixOptions(connector[key]);
                                     result +=
-                                        `${indent}${key}:\n` + InterfaceCreator.indentYamlDump(connector[key], 2, true);
+                                        `${indent}${key}:\n` +
+                                        InterfaceCreator.indentYamlDump(connector[key], 2, true);
                                 } else if (
-                                    !['name', 'id', 'provider', 'input-provider', 'output-provider'].includes(key)
+                                    ![
+                                        'name',
+                                        'id',
+                                        'provider',
+                                        'input-provider',
+                                        'output-provider',
+                                    ].includes(key)
                                 ) {
                                     result += `${indent}${key}: ${connector[key]}\n`;
                                 }
@@ -835,7 +920,9 @@ export abstract class InterfaceCreator {
                     case 'bin-resource':
                     case 'template':
                         value.forEach(({ name }) => {
-                            result += `${list_indent}${path.relative(headers.target_dir, name).replace(/\\/g, '/')}\n`;
+                            result += `${list_indent}${path
+                                .relative(headers.target_dir, name)
+                                .replace(/\\/g, '/')}\n`;
                         });
                         break;
                     case 'steps':
@@ -851,13 +938,18 @@ export abstract class InterfaceCreator {
                             result += `${list_indent}name: ${error.name}\n`;
                             Object.keys(error).forEach((key) => {
                                 if (!['name', 'orig_name'].includes(key)) {
-                                    result += `${indent}${key}: ` + InterfaceCreator.indentYamlDump(error[key], 0);
+                                    result +=
+                                        `${indent}${key}: ` +
+                                        InterfaceCreator.indentYamlDump(error[key], 0);
                                 }
                             });
                         });
                         break;
                     case 'children':
-                        const dumpChildren = (children: any[] | undefined, indent_level: number) => {
+                        const dumpChildren = (
+                            children: any[] | undefined,
+                            indent_level: number
+                        ) => {
                             if (!children?.length) {
                                 return;
                             }
@@ -868,13 +960,17 @@ export abstract class InterfaceCreator {
                             });
                         };
                         const dumpChild = (child: any, indent_level: number) => {
-                            result += `${indent.repeat(indent_level)}${list_indent}type: ${child.type}\n`;
+                            result += `${indent.repeat(indent_level)}${list_indent}type: ${
+                                child.type
+                            }\n`;
                             if (child.name) {
                                 result += `${indent.repeat(indent_level + 1)}name: ${child.name}\n`;
                             }
                             if (child.pid) {
                                 result += `${indent.repeat(indent_level + 1)}pid: ${child.pid}\n`;
-                                if (iface_data?.specific_data?.[child.pid]?.['config-items']?.length) {
+                                if (
+                                    iface_data?.specific_data?.[child.pid]?.['config-items']?.length
+                                ) {
                                     result += InterfaceCreator.createConfigItemHeaders(
                                         iface_data.specific_data[child.pid]['config-items'],
                                         indent_level + 1
@@ -905,7 +1001,10 @@ export abstract class InterfaceCreator {
                         result += `autostart: ${value}\n`;
                         break;
                     case 'workflow_errors':
-                        const file_name = this.code_info.yaml_info.yamlDataByName('errors', value)?.yaml_file;
+                        const file_name = this.code_info.yaml_info.yamlDataByName(
+                            'errors',
+                            value
+                        )?.yaml_file;
                         const relative_file_name = path.relative(headers.target_dir, file_name);
                         result += `errors: ${relative_file_name}\n`;
                         break;
@@ -945,7 +1044,11 @@ export abstract class InterfaceCreator {
 
                         result +=
                             `${
-                                ['mapper_options', 'fsm_options', 'connection_options'].includes(tag) ? 'options' : tag
+                                ['mapper_options', 'fsm_options', 'connection_options'].includes(
+                                    tag
+                                )
+                                    ? 'options'
+                                    : tag
                             }:\n` + InterfaceCreator.indentYamlDump(fixed_value, 1, true);
                         break;
                     case 'states':
@@ -975,9 +1078,16 @@ export abstract class InterfaceCreator {
 
                             result +=
                                 `${indent.repeat(indent_level + 1)}'${id}':\n` +
-                                InterfaceCreator.indentYamlDump(cloned_state, indent_level + 2, true);
+                                InterfaceCreator.indentYamlDump(
+                                    cloned_state,
+                                    indent_level + 2,
+                                    true
+                                );
 
-                            if (state.id && iface_data?.specific_data?.[state.id]?.['config-items']?.length) {
+                            if (
+                                state.id &&
+                                iface_data?.specific_data?.[state.id]?.['config-items']?.length
+                            ) {
                                 result += InterfaceCreator.createConfigItemHeaders(
                                     iface_data.specific_data[state.id]['config-items'],
                                     indent_level + 2
@@ -1000,7 +1110,8 @@ export abstract class InterfaceCreator {
                                 processor_value[key] = fixOptions(value[key]);
                             }
                         });
-                        result += `${tag}:\n` + InterfaceCreator.indentYamlDump(processor_value, 1, true);
+                        result +=
+                            `${tag}:\n` + InterfaceCreator.indentYamlDump(processor_value, 1, true);
                         break;
                     case 'class-connections':
                         if (!value || !Object.keys(value).length) {
@@ -1012,7 +1123,9 @@ export abstract class InterfaceCreator {
                             for (const connector of value[connection_name]) {
                                 result += `${indent}${list_indent}class: ${connector.class}\n`;
                                 for (const key in connector) {
-                                    if (['connector', 'trigger', 'mapper', 'prefix'].includes(key)) {
+                                    if (
+                                        ['connector', 'trigger', 'mapper', 'prefix'].includes(key)
+                                    ) {
                                         result += `${indent}${indent}${key}: ${connector[key]}\n`;
                                     }
                                 }
@@ -1036,7 +1149,10 @@ export abstract class InterfaceCreator {
 
         if (iface_kind === 'workflow' && iface_data?.['config-item-values']?.length) {
             result += jsyaml
-                .safeDump({ 'config-item-values': iface_data['config-item-values'] }, { indent: 2, skipInvalid: true })
+                .safeDump(
+                    { 'config-item-values': iface_data['config-item-values'] },
+                    { indent: 2, skipInvalid: true }
+                )
                 .replace(/\r?\n  -\r?\n/g, '\n  - ');
         }
 
@@ -1081,7 +1197,13 @@ export abstract class InterfaceCreator {
         });
     }
 
-    static addClassMethods(lines: string[], methods: string[], class_def_range, template, lang): string[] {
+    static addClassMethods(
+        lines: string[],
+        methods: string[],
+        class_def_range,
+        template,
+        lang
+    ): string[] {
         const end: Position = class_def_range.end;
 
         const lines_before = lines.splice(0, end.line);
@@ -1092,7 +1214,8 @@ export abstract class InterfaceCreator {
 
         let new_code = line_before || '';
         for (let name of methods) {
-            new_code += '\n' + InterfaceCreator.fillTemplate(template, lang, undefined, { name }, false);
+            new_code +=
+                '\n' + InterfaceCreator.fillTemplate(template, lang, undefined, { name }, false);
         }
         const new_code_lines = new_code.split(/\r?\n/);
         if (new_code_lines[new_code_lines.length - 1] === '') {
@@ -1136,7 +1259,12 @@ export abstract class InterfaceCreator {
         return lines;
     }
 
-    static mandatoryStepMethodsCode = (code_info: QorusProjectCodeInfo, base_class_name, lang, skip: string[] = []) => {
+    static mandatoryStepMethodsCode = (
+        code_info: QorusProjectCodeInfo,
+        base_class_name,
+        lang,
+        skip: string[] = []
+    ) => {
         const mandatory_step_methods = mandatoryStepMethods(code_info, base_class_name, lang);
 
         let method_strings = [];
