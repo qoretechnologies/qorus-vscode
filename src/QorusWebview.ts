@@ -1,19 +1,20 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import { t, gettext } from 'ttag';
+import { writeFileSync } from 'fs';
 import * as map from 'lodash/map';
-import * as msg from './qorus_message';
-import { instance_tree } from './QorusInstanceTree';
-import { projects, QorusProject, config_filename } from './QorusProject';
-import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
-import { qorus_request } from './QorusRequest';
-import { releaser } from './QorusRelease';
-import { deleter } from './QorusDelete';
+import * as path from 'path';
+import { gettext, t } from 'ttag';
+import * as vscode from 'vscode';
 import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
 import { FormChangesResponder } from './interface_creator/FormChangesResponder';
-import { deepCopy } from './qorus_utils';
 import { triggers } from './interface_creator/standard_methods';
+import { deleter } from './QorusDelete';
+import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
+import { config_filename, projects, QorusProject } from './QorusProject';
+import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
+import { releaser } from './QorusRelease';
+import { qorus_request } from './QorusRequest';
+import * as msg from './qorus_message';
+import { deepCopy } from './qorus_utils';
 
 const web_path = path.join(__dirname, '..', 'dist');
 
@@ -40,7 +41,9 @@ class QorusWebview {
     }
 
     private postInitialData = () => {
-        const { authority, path, scheme } = this.panel.webview.asWebviewUri(vscode.Uri.file(web_path));
+        const { authority, path, scheme } = this.panel.webview.asWebviewUri(
+            vscode.Uri.file(web_path)
+        );
 
         this.postMessage({
             action: 'return-initial-data',
@@ -48,7 +51,7 @@ class QorusWebview {
                 path: web_path,
                 image_path: `${scheme}://${authority}${path}`,
                 qorus_instance: qorus_request.activeQorusInstance(),
-                ... this.initial_data,
+                ...this.initial_data,
             },
         });
 
@@ -56,11 +59,11 @@ class QorusWebview {
         if (Object.keys(this.initial_data).length && this.initial_data.tab !== 'Login') {
             this.previous_initial_data = deepCopy(this.initial_data);
         }
-        this.initial_data = {}
-    }
+        this.initial_data = {};
+    };
 
     private checkError = (code_info: QorusProjectCodeInfo) => {
-        const initial_data = { ... this.initial_data, ... this.previous_initial_data }; 
+        const initial_data = { ...this.initial_data, ...this.previous_initial_data };
         const iface_kind = initial_data.subtab;
         if (iface_kind && initial_data[iface_kind]) {
             const { target_dir, target_file, iface_id } = initial_data[iface_kind];
@@ -68,10 +71,14 @@ class QorusWebview {
             code_info.sendErrorMessages(iface_id);
 
             if (target_dir && target_file) {
-                code_info.edit_info.checkError(path.join(target_dir, target_file), iface_id, iface_kind);
+                code_info.edit_info.checkError(
+                    path.join(target_dir, target_file),
+                    iface_id,
+                    iface_kind
+                );
             }
         }
-    }
+    };
 
     open(initial_data: any = {}, other_params: any = {}) {
         const project: QorusProject = projects.getProject();
@@ -109,7 +116,7 @@ class QorusWebview {
         }
 
         vscode.workspace.openTextDocument(path.join(web_path, 'index.html')).then(
-            doc => {
+            (doc) => {
                 this.panel = vscode.window.createWebviewPanel(
                     'qorusWebview',
                     t`QorusWebviewTitle`,
@@ -125,10 +132,13 @@ class QorusWebview {
                 let html = doc.getText().replace(/{{ path }}/g, uri as string);
                 this.panel.webview.html = html.replace(/{{ csp }}/g, this.panel.webview.cspSource);
 
-                this.config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
-                this.message_on_config_file_change = other_params.message_on_config_file_change === undefined
-                    ? true
-                    : other_params.message_on_config_file_change;
+                this.config_file_watcher = vscode.workspace.createFileSystemWatcher(
+                    '**/' + config_filename
+                );
+                this.message_on_config_file_change =
+                    other_params.message_on_config_file_change === undefined
+                        ? true
+                        : other_params.message_on_config_file_change;
                 this.config_file_watcher.onDidChange(() => {
                     if (!this.message_on_config_file_change) {
                         this.message_on_config_file_change = true;
@@ -147,7 +157,7 @@ class QorusWebview {
                     }
                 });
 
-                this.panel.webview.onDidReceiveMessage(message => {
+                this.panel.webview.onDidReceiveMessage((message) => {
                     const project: QorusProject = projects.getProject();
                     if (!project) {
                         this.dispose();
@@ -168,11 +178,11 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'return-all-text',
                                 data: qorus_locale.translations
-                                    ?   map(qorus_locale.translations, parsed_data => ({
-                                            id: parsed_data.msgid,
-                                            text: gettext(parsed_data.msgid),
-                                        }))
-                                    :   {},
+                                    ? map(qorus_locale.translations, (parsed_data) => ({
+                                          id: parsed_data.msgid,
+                                          text: gettext(parsed_data.msgid),
+                                      }))
+                                    : {},
                             });
                             break;
                         case 'get-active-tab':
@@ -246,17 +256,20 @@ class QorusWebview {
                             releaser.savePackage();
                             break;
                         case 'creator-get-fields':
-                            creator.getSortedFields({
-                                ... message,
-                                interface_info,
-                                default_target_dir: message.context?.target_dir || this.uri?.fsPath
-                            }).then(fields => {
-                                this.panel.webview.postMessage({
-                                    action: 'creator-return-fields',
-                                    iface_kind: message.iface_kind,
-                                    fields
+                            creator
+                                .getSortedFields({
+                                    ...message,
+                                    interface_info,
+                                    default_target_dir:
+                                        message.context?.target_dir || this.uri?.fsPath,
+                                })
+                                .then((fields) => {
+                                    this.panel.webview.postMessage({
+                                        action: 'creator-return-fields',
+                                        iface_kind: message.iface_kind,
+                                        fields,
+                                    });
                                 });
-                            });
                             break;
                         case 'creator-get-objects':
                         case 'creator-get-resources':
@@ -264,16 +277,24 @@ class QorusWebview {
                             project.code_info.getObjects(message);
                             break;
                         case 'get-all-directories':
-                            project.code_info.getObjects({object_type: 'all_dirs'});
+                            project.code_info.getObjects({ object_type: 'all_dirs' });
                             break;
                         case 'get-initial-data':
                             this.postInitialData();
                             break;
                         case 'creator-create-interface':
-                            creator.editInterface({ ...message, edit_type: 'create', interface_info });
+                            creator.editInterface({
+                                ...message,
+                                edit_type: 'create',
+                                interface_info,
+                            });
                             break;
                         case 'creator-edit-interface':
-                            creator.editInterface({ ...message, edit_type: 'edit', interface_info });
+                            creator.editInterface({
+                                ...message,
+                                edit_type: 'edit',
+                                interface_info,
+                            });
                             break;
                         case 'check-edit-data':
                             this.checkError(project.code_info);
@@ -358,24 +379,33 @@ class QorusWebview {
                             this.panel.webview.postMessage({
                                 action: 'return-triggers',
                                 data: {
-                                    ... message.data,
-                                    triggers: triggers(project.code_info, message.data).map(name => ({name}))
-                                }
+                                    ...message.data,
+                                    triggers: triggers(project.code_info, message.data).map(
+                                        (name) => ({ name })
+                                    ),
+                                },
                             });
                             break;
                         case 'open-file':
-                            vscode.workspace.openTextDocument(message.file_path)
-                                  .then(doc => vscode.window.showTextDocument(doc));
+                            vscode.workspace
+                                .openTextDocument(message.file_path)
+                                .then((doc) => vscode.window.showTextDocument(doc));
                             break;
                         case 'delete-interface':
                             project.code_info.deleteInterfaceFromWebview(message);
                             break;
+                        case 'save-draft':
+                            console.log(__dirname, message);
+                            writeFileSync(
+                                path.join('/', `${message.iface_id}.json`),
+                                JSON.stringify(message.data)
+                            );
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
                     }
                 });
             },
-            error => {
+            (error) => {
                 msg.error(t`UnableOpenQorusConfigPage`);
                 msg.log(JSON.stringify(error));
             }

@@ -277,6 +277,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     });
 
     useUpdateEffect(() => {
+        postMessage(Messages.SAVE_DRAFT, {
+            iface_id: interfaceId,
+            data: selectedFields,
+        });
         console.log(interfaceId, selectedFields);
     }, [selectedFields]);
 

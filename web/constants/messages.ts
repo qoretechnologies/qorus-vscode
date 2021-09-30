@@ -46,4 +46,5 @@ export const Messages = {
     GET_OBJECTS_WITH_STATIC_DATA: 'get-objects-with-static-data',
     RETURN_OBJECTS_WITH_STATIC_DATA: 'return-objects-with-static-data',
     MAYBE_RECREATE_INTERFACE: 'maybe-recreate-interface',
+    SAVE_DRAFT: 'save-draft',
 };
