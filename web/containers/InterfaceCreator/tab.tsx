@@ -100,13 +100,21 @@ const tutorials = {
                 title: 'tutorial-fsm-fields-title',
                 text: 'tutorial-fsm-fields-content',
             },
-            { id: 'fsm-toolbar', title: 'tutorial-fsm-tools-title', text: 'tutorial-fsm-tools-content' },
+            {
+                id: 'fsm-toolbar',
+                title: 'tutorial-fsm-tools-title',
+                text: 'tutorial-fsm-tools-content',
+            },
             {
                 id: 'fsm-diagram',
                 title: 'tutorial-fsm-diagram-title',
                 text: 'tutorial-fsm-diagram-content',
             },
-            { id: 'pan-element-toolbar', title: 'tutorial-fsm-toolbar-title', text: 'tutorial-fsm-toolbar-content' },
+            {
+                id: 'pan-element-toolbar',
+                title: 'tutorial-fsm-toolbar-title',
+                text: 'tutorial-fsm-toolbar-content',
+            },
         ],
     },
     pipeline: {
@@ -258,7 +266,10 @@ const Tab: React.FC<ITabProps> = ({
                         // used in class connections as triggers
                         const { 'class-connections': classConnections } = data.service;
                         const removedMethods: any[] = methods.filter((method) => {
-                            return method.name !== 'init' && !isMethodUsedInCC(method.name, classConnections);
+                            return (
+                                method.name !== 'init' &&
+                                !isMethodUsedInCC(method.name, classConnections)
+                            );
                         });
                         // Set the methods to only leave the init method
                         // only if no methods were left
@@ -266,7 +277,8 @@ const Tab: React.FC<ITabProps> = ({
                             return size(removedMethods) !== size(methods)
                                 ? [...cur].filter(
                                       (method) =>
-                                          method.name === 'init' || isMethodUsedInCC(method.name, classConnections)
+                                          method.name === 'init' ||
+                                          isMethodUsedInCC(method.name, classConnections)
                                   )
                                 : [{ name: 'init', desc: '' }];
                         });
@@ -297,11 +309,16 @@ const Tab: React.FC<ITabProps> = ({
     return (
         <StyledTab>
             {tutorialData.isOpen && (
-                <Tutorial data={tutorialData.elements} onClose={() => setTutorialData({ isOpen: false })} />
+                <Tutorial
+                    data={tutorialData.elements}
+                    onClose={() => setTutorialData({ isOpen: false })}
+                />
             )}
             <StyledHeader>
                 <h2 id={`${type}-interface-title`}>
-                    {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
+                    {isEditing()
+                        ? `Edit ${getTypeName(type, t)} "${name}"`
+                        : `New ${getTypeName(type, t)}`}
                 </h2>
                 <ButtonGroup>
                     {tutorials[type] && (
@@ -313,6 +330,16 @@ const Tab: React.FC<ITabProps> = ({
                                     elements,
                                 })
                             }
+                        />
+                    )}
+                    {!isEditing() && (
+                        <Button
+                            id="button-show-drafts"
+                            icon="add"
+                            text="Drafts"
+                            onClick={() => {
+                                resetAllInterfaceData(type);
+                            }}
                         />
                     )}
                     {isEditing() && (

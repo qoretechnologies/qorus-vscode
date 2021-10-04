@@ -24,7 +24,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { useMount, useUpdateEffect } from 'react-use';
+import { useDebounce, useMount } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import withState from 'recompose/withState';
@@ -43,6 +43,7 @@ import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
+import { callBackendBasic } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -276,13 +277,24 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         addInterface(type, interfaceIndex);
     });
 
-    useUpdateEffect(() => {
-        postMessage(Messages.SAVE_DRAFT, {
-            iface_id: interfaceId,
-            data: selectedFields,
-        });
-        console.log(interfaceId, selectedFields);
-    }, [selectedFields]);
+    useDebounce(
+        () => {
+            (async () => {
+                await callBackendBasic(
+                    Messages.SAVE_DRAFT,
+                    undefined,
+                    {
+                        iface_id: interfaceId,
+                        iface_kind: type === 'service-methods' ? 'service' : type,
+                        data: selectedFields,
+                    },
+                    t('SavingDraft')
+                );
+            })();
+        },
+        1500,
+        [selectedFields]
+    );
 
     useEffect(() => {
         // Remove the current listeners

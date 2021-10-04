@@ -1,5 +1,7 @@
-import { writeFileSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
+import * as fse from 'fs-extra';
 import * as map from 'lodash/map';
+import * as os from 'os';
 import * as path from 'path';
 import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
@@ -17,6 +19,23 @@ import * as msg from './qorus_message';
 import { deepCopy } from './qorus_utils';
 
 const web_path = path.join(__dirname, '..', 'dist');
+
+const unsavedFilesLocation = {
+    WINDOWS: '%appdata%/Code/Backups',
+    LINUX: '.config/Code/Backups',
+    MACOS: 'Library/Application Support/Code/Backups',
+};
+
+const getOs = () => {
+    switch (os.platform()) {
+        case 'darwin':
+            return 'MACOS';
+        case 'win32':
+            return 'WINDOWS';
+        default:
+            return 'LINUX';
+    }
+};
 
 class QorusWebview {
     private panel: vscode.WebviewPanel | undefined = undefined;
@@ -394,12 +413,65 @@ class QorusWebview {
                         case 'delete-interface':
                             project.code_info.deleteInterfaceFromWebview(message);
                             break;
-                        case 'save-draft':
-                            console.log(__dirname, message);
-                            writeFileSync(
-                                path.join('/', `${message.iface_id}.json`),
-                                JSON.stringify(message.data)
+                        case 'get-drafts':
+                            const drafts: any[] = [];
+                            const draftFiles = readdirSync(
+                                path.join(
+                                    process.env.HOME,
+                                    unsavedFilesLocation[getOs()],
+                                    message.iface_kind
+                                )
                             );
+
+                            draftFiles.forEach((fileName) => {
+                                const fileContent = readFileSync(
+                                    path.join(
+                                        process.env.HOME,
+                                        unsavedFilesLocation[getOs()],
+                                        message.iface_kind,
+                                        fileName
+                                    )
+                                );
+                                const buffer: Buffer = Buffer.from(fileContent);
+                                const contents = buffer.toString();
+                                drafts.push(JSON.parse(contents));
+                            });
+
+                            console.log(drafts);
+
+                            this.panel.webview.postMessage({
+                                action: 'get-drafts-complete',
+                                request_id: message.request_id,
+                                ok: true,
+                                data: {
+                                    drafts,
+                                },
+                            });
+                        case 'save-draft':
+                            if (!message.iface_id) {
+                                return;
+                            }
+
+                            fse.outputFile(
+                                path.join(
+                                    process.env.HOME,
+                                    unsavedFilesLocation[getOs()],
+                                    message.iface_kind,
+                                    `${message.iface_id}.json`
+                                ),
+                                JSON.stringify(message.data)
+                            )
+                                .then(() => {
+                                    this.panel.webview.postMessage({
+                                        action: 'save-draft-complete',
+                                        request_id: message.request_id,
+                                        ok: true,
+                                        message: t`DraftSaved`,
+                                    });
+                                })
+                                .catch((e) => {
+                                    console.log(e);
+                                });
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
                     }
