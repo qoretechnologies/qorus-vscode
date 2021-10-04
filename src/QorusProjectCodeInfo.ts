@@ -1,6 +1,13 @@
 import * as fs from 'fs';
 import * as jsyaml from 'js-yaml';
-import { filter, flattenDeep, isArray as lodashIsArray, isObject as lodashIsObject, size, sortBy } from 'lodash';
+import {
+    filter,
+    flattenDeep,
+    isArray as lodashIsArray,
+    isObject as lodashIsObject,
+    size,
+    sortBy,
+} from 'lodash';
 import * as path from 'path';
 import { gettext, t } from 'ttag';
 import * as vscode from 'vscode';
@@ -114,13 +121,22 @@ export class QorusProjectCodeInfo {
         });
     };
 
-    getInterfaceData = ({ iface_kind, name, class_name, include_tabs, custom_data, request_id }) => {
+    getInterfaceData = ({
+        iface_kind,
+        name,
+        class_name,
+        include_tabs,
+        custom_data,
+        request_id,
+    }) => {
         this.waitForPending(['yaml', 'edit_info']).then(() => {
             let raw_data;
             if (class_name) {
                 raw_data = this.yaml_info.yamlDataByName('class', class_name);
             } else {
-                const name_key = types_with_version.includes(iface_kind) ? name : name.split(/:/)[0];
+                const name_key = types_with_version.includes(iface_kind)
+                    ? name
+                    : name.split(/:/)[0];
                 raw_data = this.yaml_info.yamlDataByName(iface_kind, name_key);
             }
 
@@ -364,13 +380,21 @@ export class QorusProjectCodeInfo {
             delete data.errors;
         }
 
-        ['mappers', 'value_maps', 'vmaps', 'author', 'mapper-code', 'groups', 'events', 'queues', 'keylist'].forEach(
-            (tag) => {
-                if (data[tag]) {
-                    data[tag] = data[tag].map((name) => ({ name }));
-                }
+        [
+            'mappers',
+            'value_maps',
+            'vmaps',
+            'author',
+            'mapper-code',
+            'groups',
+            'events',
+            'queues',
+            'keylist',
+        ].forEach((tag) => {
+            if (data[tag]) {
+                data[tag] = data[tag].map((name) => ({ name }));
             }
-        );
+        });
 
         ['resource', 'text-resource', 'bin-resource', 'template'].forEach((tag) => {
             if (data[tag]) {
@@ -408,7 +432,10 @@ export class QorusProjectCodeInfo {
                     const code_parts = field.code.split('::');
                     if (code_parts.length === 2) {
                         const [class_name, method] = code_parts;
-                        const mapper_code = this.yaml_info.yamlDataByName('mapper-code', class_name);
+                        const mapper_code = this.yaml_info.yamlDataByName(
+                            'mapper-code',
+                            class_name
+                        );
                         if (mapper_code) {
                             field.code = `${mapper_code.name}::${method}`;
                         }
@@ -424,7 +451,11 @@ export class QorusProjectCodeInfo {
             });
         }
 
-        if (['class', 'mapper-code'].includes(data.type) && data['class-name'] && data.name !== data['class-name']) {
+        if (
+            ['class', 'mapper-code'].includes(data.type) &&
+            data['class-name'] &&
+            data.name !== data['class-name']
+        ) {
             data.name = data['class-name'];
         }
 
@@ -444,7 +475,13 @@ export class QorusProjectCodeInfo {
             data[classes_or_requires] = classes;
         }
 
-        const array_of_pairs_fields = ['tags', 'define-auth-label', 'workflow_options', 'statuses', 'value-maps'];
+        const array_of_pairs_fields = [
+            'tags',
+            'define-auth-label',
+            'workflow_options',
+            'statuses',
+            'value-maps',
+        ];
         array_of_pairs_fields.forEach((tag) => {
             if (!data[tag]) {
                 return;
@@ -473,7 +510,8 @@ export class QorusProjectCodeInfo {
                     const global_value = globals.get(item.name);
                     if (global_value !== undefined) {
                         item['global-value'] = global_value.value;
-                        item.is_global_value_templated_string = global_value.is_value_templated_string;
+                        item.is_global_value_templated_string =
+                            global_value.is_value_templated_string;
                     }
                 }
 
@@ -578,7 +616,9 @@ export class QorusProjectCodeInfo {
         }
 
         if (data.schedule) {
-            const ordered_values = ['minutes', 'hours', 'days', 'months', 'dow'].map((key) => data.schedule[key]);
+            const ordered_values = ['minutes', 'hours', 'days', 'months', 'dow'].map(
+                (key) => data.schedule[key]
+            );
             data.schedule = ordered_values.join(' ');
         }
 
@@ -651,7 +691,11 @@ export class QorusProjectCodeInfo {
             }
         };
 
-        const checkParentConfigItem = (name: string, parent_type: string, parent_name: string): boolean => {
+        const checkParentConfigItem = (
+            name: string,
+            parent_type: string,
+            parent_name: string
+        ): boolean => {
             const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
             if (!parent_yaml_data) {
                 addMessage(t`AncestorDoesNotExist ${parent_type} ${parent_name} ${name}`);
@@ -691,14 +735,20 @@ export class QorusProjectCodeInfo {
 
             Object.keys(data['class-connections'] || {}).forEach((connection) => {
                 let connectors = data['class-connections'][connection];
-                connectors = connectors.filter((connector) => checkObject('class', connector.class));
+                connectors = connectors.filter((connector) =>
+                    checkObject('class', connector.class)
+                );
             });
 
             if (data['config-items']) {
                 data['config-items'] = data['config-items'].filter(
                     (item) =>
                         !item.parent ||
-                        checkParentConfigItem(item.name, item.parent['interface-type'], item.parent['interface-name'])
+                        checkParentConfigItem(
+                            item.name,
+                            item.parent['interface-type'],
+                            item.parent['interface-name']
+                        )
                 );
             }
 
@@ -783,7 +833,11 @@ export class QorusProjectCodeInfo {
                 return;
             }
 
-            checkParentConfigItem(name, parent_item.parent['interface-type'], parent_item.parent['interface-name']);
+            checkParentConfigItem(
+                name,
+                parent_item.parent['interface-type'],
+                parent_item.parent['interface-name']
+            );
         };
 
         const getObjects = (data: any) => {
@@ -837,7 +891,11 @@ export class QorusProjectCodeInfo {
             (data['config-items'] || []).forEach(
                 (item) =>
                     item.parent &&
-                    checkParentConfigItem(item.name, item.parent['interface-type'], item.parent['interface-name'])
+                    checkParentConfigItem(
+                        item.name,
+                        item.parent['interface-type'],
+                        item.parent['interface-name']
+                    )
             );
         };
 
@@ -859,7 +917,9 @@ export class QorusProjectCodeInfo {
         this.all_files_watcher.onDidDelete(() => this.update(['file_tree']));
 
         this.yaml_files_watcher = vscode.workspace.createFileSystemWatcher('**/*.yaml');
-        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) => this.addSingleYamlInfo(uri.fsPath));
+        this.yaml_files_watcher.onDidCreate((uri: vscode.Uri) =>
+            this.addSingleYamlInfo(uri.fsPath)
+        );
         this.yaml_files_watcher.onDidChange(() => this.update(['yaml']));
         this.yaml_files_watcher.onDidDelete(() => this.update(['yaml']));
 
@@ -867,7 +927,9 @@ export class QorusProjectCodeInfo {
         this.module_files_watcher.onDidCreate(() => this.update(['modules']));
         this.module_files_watcher.onDidDelete(() => this.update(['modules']));
 
-        this.config_file_watcher = vscode.workspace.createFileSystemWatcher('**/' + config_filename);
+        this.config_file_watcher = vscode.workspace.createFileSystemWatcher(
+            '**/' + config_filename
+        );
         this.config_file_watcher.onDidCreate(() => this.checkSourceDirectoriesChange());
         this.config_file_watcher.onDidChange(() => this.checkSourceDirectoriesChange());
         this.config_file_watcher.onDidDelete(() => this.initInfo());
@@ -878,12 +940,16 @@ export class QorusProjectCodeInfo {
             const new_source_directories = file_data.source_directories || [];
 
             let any_added = false;
-            const any_removed = this.source_directories.some((dir) => !new_source_directories.includes(dir));
+            const any_removed = this.source_directories.some(
+                (dir) => !new_source_directories.includes(dir)
+            );
 
             if (any_removed) {
                 this.initInfo();
             } else {
-                any_added = new_source_directories.some((dir) => !this.source_directories.includes(dir));
+                any_added = new_source_directories.some(
+                    (dir) => !this.source_directories.includes(dir)
+                );
             }
 
             if (any_removed || any_added) {
@@ -892,7 +958,11 @@ export class QorusProjectCodeInfo {
         });
     };
 
-    async waitForPending(info_list: string[], sleep_before: number = 0, timeout: number = 30000): Promise<void> {
+    async waitForPending(
+        info_list: string[],
+        sleep_before: number = 0,
+        timeout: number = 30000
+    ): Promise<void> {
         // "waiting for pending" need not be enough, specifically in cases when the updated info is required
         // before the update process has even started (before the pending flag has been set),
         // this can happen when the update process is triggered by a file watcher
@@ -912,7 +982,9 @@ export class QorusProjectCodeInfo {
                     if (n === 0) {
                         msg.error(
                             t`CodeInfoUpdateTimedOut` +
-                                pending_list.map((key) => gettext(key + '_info_update_pending')).join(', ')
+                                pending_list
+                                    .map((key) => gettext(key + '_info_update_pending'))
+                                    .join(', ')
                         );
                         pending_list.forEach((key) => this.setPending(key, false));
                     }
@@ -988,7 +1060,11 @@ export class QorusProjectCodeInfo {
                     const isAnyConnectorOfType = (
                         connectors: { name: string; method: string; type: string }[]
                     ): boolean =>
-                        connector_type ? connectors.some((connector) => connector_type.includes(connector.type)) : true;
+                        connector_type
+                            ? connectors.some((connector) =>
+                                  connector_type.includes(connector.type)
+                              )
+                            : true;
                     const classes = filter(
                         this.yaml_info.yamlDataByType('class'),
                         ({ 'class-connectors': class_connectors }) => {
@@ -1012,9 +1088,12 @@ export class QorusProjectCodeInfo {
                 break;
             case 'class-with-processor':
                 this.waitForPending(['yaml']).then(() => {
-                    const classes = filter(this.yaml_info.yamlDataByType('class'), ({ processor }) => {
-                        return !!processor;
-                    }).map(({ name, desc, ...rest }) => ({
+                    const classes = filter(
+                        this.yaml_info.yamlDataByType('class'),
+                        ({ processor }) => {
+                            return !!processor;
+                        }
+                    ).map(({ name, desc, ...rest }) => ({
                         name,
                         desc,
                         processor: rest.processor,
@@ -1024,17 +1103,26 @@ export class QorusProjectCodeInfo {
                 break;
             case 'service-base-class':
                 this.waitForPending(['yaml']).then(() =>
-                    postMessage('objects', this.addDescToClasses(this.yaml_info.serviceClasses(lang), [root_service]))
+                    postMessage(
+                        'objects',
+                        this.addDescToClasses(this.yaml_info.serviceClasses(lang), [root_service])
+                    )
                 );
                 break;
             case 'job-base-class':
                 this.waitForPending(['yaml']).then(() =>
-                    postMessage('objects', this.addDescToClasses(this.yaml_info.jobClasses(lang), [root_job]))
+                    postMessage(
+                        'objects',
+                        this.addDescToClasses(this.yaml_info.jobClasses(lang), [root_job])
+                    )
                 );
                 break;
             case 'workflow-base-class':
                 this.waitForPending(['yaml']).then(() =>
-                    postMessage('objects', this.addDescToClasses(this.yaml_info.workflowClasses(lang), [root_workflow]))
+                    postMessage(
+                        'objects',
+                        this.addDescToClasses(this.yaml_info.workflowClasses(lang), [root_workflow])
+                    )
                 );
                 break;
             case 'step-base-class':
@@ -1056,7 +1144,9 @@ export class QorusProjectCodeInfo {
                     const classes = this.yaml_info.yamlDataByType('class');
 
                     let user_classes = Object.keys(classes)
-                        .filter((key) => lang_inheritance[lang].includes(classes[key].lang || default_lang))
+                        .filter((key) =>
+                            lang_inheritance[lang].includes(classes[key].lang || default_lang)
+                        )
                         .map((key) => ({
                             name: key,
                             desc: classes[key].desc,
@@ -1068,7 +1158,10 @@ export class QorusProjectCodeInfo {
                         );
                     }
 
-                    const qorus_root_classes = this.addDescToClasses(all_root_classes, all_root_classes);
+                    const qorus_root_classes = this.addDescToClasses(
+                        all_root_classes,
+                        all_root_classes
+                    );
 
                     postMessage('objects', [...user_classes, ...qorus_root_classes]);
                 });
@@ -1077,12 +1170,16 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['yaml']).then(() =>
                     postMessage(
                         'objects',
-                        this.addDescToClasses(this.yaml_info.processorClasses(lang), [root_processor])
+                        this.addDescToClasses(this.yaml_info.processorClasses(lang), [
+                            root_processor,
+                        ])
                     )
                 );
                 break;
             case 'author':
-                this.waitForPending(['yaml']).then(() => postMessage('objects', this.yaml_info.getAuthors()));
+                this.waitForPending(['yaml']).then(() =>
+                    postMessage('objects', this.yaml_info.getAuthors())
+                );
                 break;
             case 'mapper':
             case 'value-map':
@@ -1096,7 +1193,9 @@ export class QorusProjectCodeInfo {
                 this.waitForPending(['yaml']).then(() =>
                     postMessage(
                         'objects',
-                        Object.keys(this.yaml_info.yamlDataByType(object_type)).map((name) => ({ name }))
+                        Object.keys(this.yaml_info.yamlDataByType(object_type)).map((name) => ({
+                            name,
+                        }))
                     )
                 );
                 break;
@@ -1112,10 +1211,14 @@ export class QorusProjectCodeInfo {
             case 'text-resource':
             case 'bin-resource':
             case 'template':
-                this.waitForPending(['file_tree']).then(() => postMessage('resources', this.file_tree, false));
+                this.waitForPending(['file_tree']).then(() =>
+                    postMessage('resources', this.file_tree, false)
+                );
                 break;
             case 'target_dir':
-                this.waitForPending(['file_tree'], 800).then(() => postMessage('directories', this.dir_tree, false));
+                this.waitForPending(['file_tree'], 800).then(() =>
+                    postMessage('directories', this.dir_tree, false)
+                );
                 break;
             case 'all_dirs':
                 this.waitForPending(['file_tree'], 1000).then(() =>
@@ -1139,7 +1242,9 @@ export class QorusProjectCodeInfo {
         }
         const update = gettext(info_key + '_info_update_pending');
         const is_pending = this.info_update_pending[info_key];
-        msg.log(update + ': ' + ' '.repeat(45 - update.length) + (is_pending ? t`pending` : t`finished`));
+        msg.log(
+            update + ': ' + ' '.repeat(45 - update.length) + (is_pending ? t`pending` : t`finished`)
+        );
     }
 
     static isRootBaseClass = (base_class_name) => all_root_classes.includes(base_class_name);
@@ -1163,7 +1268,9 @@ export class QorusProjectCodeInfo {
             }
 
             if (is_initial_update) {
-                msg.log(t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString());
+                msg.log(
+                    t`CodeInfoUpdateStarted ${this.project.folder}` + ' ' + new Date().toString()
+                );
             }
 
             if (info_list.includes('yaml')) {
@@ -1184,8 +1291,16 @@ export class QorusProjectCodeInfo {
                     if (log_update_messages) {
                         msg.log(t`seconds ${++sec}`);
                     }
-                    if (!info_keys.map((key) => this.info_update_pending[key]).some((value) => value)) {
-                        msg.log(t`CodeInfoUpdateFinished ${this.project.folder}` + ' ' + new Date().toString());
+                    if (
+                        !info_keys
+                            .map((key) => this.info_update_pending[key])
+                            .some((value) => value)
+                    ) {
+                        msg.log(
+                            t`CodeInfoUpdateFinished ${this.project.folder}` +
+                                ' ' +
+                                new Date().toString()
+                        );
                         clearInterval(interval_id);
                     }
                 };
@@ -1213,7 +1328,12 @@ export class QorusProjectCodeInfo {
             qorus_webview.postMessage({ action: 'creator-add-field', field, iface_id, iface_kind });
 
         const removeField = (field) =>
-            qorus_webview.postMessage({ action: 'creator-remove-field', field, iface_id, iface_kind });
+            qorus_webview.postMessage({
+                action: 'creator-remove-field',
+                field,
+                iface_id,
+                iface_kind,
+            });
 
         switch (this.stepType(base_class_name)) {
             case 'QorusEventStep':
@@ -1360,8 +1480,8 @@ export class QorusProjectCodeInfo {
 
     getMappers = ({ 'input-condition': input_condition, 'output-condition': output_condition }) => {
         this.waitForPending(['yaml']).then(() => {
-            const all_mappers: any[] = Object.keys(this.yaml_info.yamlDataByType('mapper')).map((name) =>
-                this.yaml2FrontEnd(this.yaml_info.yamlDataByName('mapper', name))
+            const all_mappers: any[] = Object.keys(this.yaml_info.yamlDataByType('mapper')).map(
+                (name) => this.yaml2FrontEnd(this.yaml_info.yamlDataByName('mapper', name))
             );
 
             const filtered_mappers = all_mappers
@@ -1382,7 +1502,8 @@ export class QorusProjectCodeInfo {
                         (!input_condition?.type || input_condition.type === input.type) &&
                         (!output_condition?.name || output_condition.name === output.name) &&
                         (!output_condition?.type || output_condition.type === output.type) &&
-                        (!output_condition?.subtype || output_condition.subtype === output.subtype) &&
+                        (!output_condition?.subtype ||
+                            output_condition.subtype === output.subtype) &&
                         (!output_condition?.path || output_condition.path === output.path)
                     );
                 })
@@ -1407,7 +1528,9 @@ export class QorusProjectCodeInfo {
         iface_data = iface_data || {};
         const yaml_file = iface_data.yaml_file;
         const code_file =
-            iface_data.target_dir && iface_data.target_file && path.join(iface_data.target_dir, iface_data.target_file);
+            iface_data.target_dir &&
+            iface_data.target_file &&
+            path.join(iface_data.target_dir, iface_data.target_file);
 
         if (yaml_file) {
             fs.unlink(yaml_file, (err) => {

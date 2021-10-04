@@ -116,7 +116,6 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     newPathList.push('type', 'fields', fieldName);
                 }
             });
-            console.log(path, newPath);
             // Get the object at the exact path
             const obj: any = get(result, newPathList);
             // Add new object
@@ -144,7 +143,6 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     newPathList.push('type', 'fields', fieldName);
                 }
             });
-            console.log(newPath);
             // Always remove the original object
             unset(result, newPathList);
             if (remove) {
@@ -168,13 +166,11 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     newUpdatedPathList.push('type', 'fields', fieldName);
                 }
             });
-            console.log(newUpdatedPath, newUpdatedPathList, newPathList);
             // Get the object at the exact path
             set(result, newUpdatedPathList, {
                 ...data,
                 path: oldFields.join('.'),
             });
-            console.log(result);
             // Return new data
             return result;
         });
@@ -246,7 +242,10 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     return (
         <>
             <FieldWrapper name="selected-field">
-                <FieldLabel label={t('field-label-target_dir')} isValid={validateField('file-string', targetDir)} />
+                <FieldLabel
+                    label={t('field-label-target_dir')}
+                    isValid={validateField('file-string', targetDir)}
+                />
                 <FieldInputWrapper>
                     <FileField
                         onChange={(_name, value) => setTargetDir(value)}
@@ -267,13 +266,22 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
             <FieldWrapper name="selected-field">
                 <FieldLabel label={t('field-label-target_file')} info={t('Optional')} isValid />
                 <FieldInputWrapper>
-                    <String onChange={(_name, value) => setTargetFile(value)} name="target-dir" value={targetFile} />
+                    <String
+                        onChange={(_name, value) => setTargetFile(value)}
+                        name="target-dir"
+                        value={targetFile}
+                    />
                 </FieldInputWrapper>
             </FieldWrapper>
             <FieldWrapper name="selected-field">
                 <FieldLabel label={t('Path')} isValid={validateField('string', val)} />
                 <FieldInputWrapper>
-                    <Suggest defaultItems={types} value={val} name="path" onChange={(_name, value) => setVal(value)} />
+                    <Suggest
+                        defaultItems={types}
+                        value={val}
+                        name="path"
+                        onChange={(_name, value) => setVal(value)}
+                    />
                 </FieldInputWrapper>
             </FieldWrapper>
             <div
@@ -297,7 +305,9 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                                       {...input}
                                       field={input}
                                       id={index + 1}
-                                      lastChildIndex={getLastChildIndex(input, flattenedFields) - index}
+                                      lastChildIndex={
+                                          getLastChildIndex(input, flattenedFields) - index
+                                      }
                                       onClick={handleClick}
                                       hasAvailableOutput={true}
                                   />
@@ -345,7 +355,9 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
                     </ButtonGroup>
                 </div>
             </ActionsWrapper>
-            {addDialog.isOpen && <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />}
+            {addDialog.isOpen && (
+                <MapperFieldModal t={t} onClose={() => setAddDialog({})} {...addDialog} />
+            )}
         </>
     );
 };
