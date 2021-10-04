@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.21
+
+#### Bug Fixes
+
+-   Fixed inherited config items not being deleted when the parent config item is removed
+
 ## 2.3.20
 
 #### Bug Fixes
