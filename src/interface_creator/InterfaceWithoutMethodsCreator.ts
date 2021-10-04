@@ -12,9 +12,8 @@ import { jobImports } from './job_constants';
 import { stepImports, stepTypeHeaders } from './step_constants';
 import { workflowImports } from './workflow_constants';
 
-
 class InterfaceWithoutMethodsCreator extends InterfaceCreator {
-    editImpl = params => {
+    editImpl = (params) => {
         const {
             data,
             orig_data,
@@ -81,14 +80,14 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
 
         this.setPaths(data, orig_data, suffix, iface_kind, recreate, iface_id, edit_type);
 
-        let {ok, message} = this.checkData(params);
+        let { ok, message } = this.checkData(params);
 
         if (!ok) {
             qorus_webview.postMessage({
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok,
-                message
+                message,
             });
             return;
         }
@@ -99,9 +98,22 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
         let more_imports: string[] = [];
         if (Object.keys(data['class-connections'] || {}).length) {
             InterfaceWithoutMethodsCreator.fixClassConnections(data);
-            ({connections_within_class, connections_extra_class, triggers, imports: more_imports = []}
-                  = new ClassConnectionsCreate({...data, iface_kind}, this.code_info, this.lang).code());
-        } else if (this.has_code && this.lang == 'java' && !!data['class-name'] && !!data['base-class-name']) {
+            ({
+                connections_within_class,
+                connections_extra_class,
+                triggers,
+                imports: more_imports = [],
+            } = new ClassConnectionsCreate(
+                { ...data, iface_kind },
+                this.code_info,
+                this.lang
+            ).code());
+        } else if (
+            this.has_code &&
+            this.lang == 'java' &&
+            !!data['class-name'] &&
+            !!data['base-class-name']
+        ) {
             // FIXME: need to check if the base class is or inherits a Qore or Python class, we only need to generate
             // the constructor with the Throwable declaration if so
             // must add default constructor for subclasses
@@ -110,7 +122,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                 `    ${data['class-name']}() throws Throwable {\n` +
                 '        super();\n' +
                 '    }\n';
-    }
+        }
 
         let methods = '';
         let template: string;
@@ -145,14 +157,23 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                     methods += '\n';
                 }
 
-                template = classTemplate(this.lang, !!data['base-class-name'], !methods && !connections_within_class);
-                contents = InterfaceCreator.fillTemplate(template, this.lang, [...imports, ...more_imports], {
-                    class_name: data['class-name'],
-                    base_class_name: data['base-class-name'],
-                    methods,
-                    connections_within_class,
-                    connections_extra_class
-                });
+                template = classTemplate(
+                    this.lang,
+                    !!data['base-class-name'],
+                    !methods && !connections_within_class
+                );
+                contents = InterfaceCreator.fillTemplate(
+                    template,
+                    this.lang,
+                    [...imports, ...more_imports],
+                    {
+                        class_name: data['class-name'],
+                        base_class_name: data['base-class-name'],
+                        methods,
+                        connections_within_class,
+                        connections_extra_class,
+                    }
+                );
 
                 info = t`2FilesCreatedInDir ${this.rel_file_path} ${this.yaml_file_name} ${this.target_dir}`;
                 break;
@@ -168,14 +189,23 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                     contents = code_lines.join('\n');
                 } else {
                     // has code now, but didn't have before this edit
-                    template = classTemplate(this.lang, !!data['base-class-name'], !methods && !connections_within_class);
-                    contents = InterfaceCreator.fillTemplate(template, this.lang, [...imports, ...more_imports], {
-                        class_name: data['class-name'],
-                        base_class_name: data['base-class-name'],
-                        methods,
-                        connections_within_class,
-                        connections_extra_class
-                    });
+                    template = classTemplate(
+                        this.lang,
+                        !!data['base-class-name'],
+                        !methods && !connections_within_class
+                    );
+                    contents = InterfaceCreator.fillTemplate(
+                        template,
+                        this.lang,
+                        [...imports, ...more_imports],
+                        {
+                            class_name: data['class-name'],
+                            base_class_name: data['base-class-name'],
+                            methods,
+                            connections_within_class,
+                            connections_extra_class,
+                        }
+                    );
                 }
                 break;
             default:
@@ -183,14 +213,18 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                 return;
         }
 
-        let headers = this.createHeaders({
-            type: iface_kind,
-            ... data,
-            ... iface_kind === 'step' && data['base-class-name']
-                ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
-                : {},
-            code: this.rel_file_path?.replace(/\\/g, '/')
-        }, iface_id, iface_kind);
+        let headers = this.createHeaders(
+            {
+                type: iface_kind,
+                ...data,
+                ...(iface_kind === 'step' && data['base-class-name']
+                    ? stepTypeHeaders(this.code_info.stepType(data['base-class-name']))
+                    : {}),
+                code: this.rel_file_path?.replace(/\\/g, '/'),
+            },
+            iface_id,
+            iface_kind
+        );
 
         if (this.has_code) {
             if (edit_type === 'create' || this.is_editable) {
@@ -201,10 +235,19 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
 
             if (ok) {
                 if (edit_type !== 'create' && this.is_editable) {
-                    new ClassConnectionsEdit().doChanges(this.file_path, this.code_info, data, orig_data, iface_kind, imports);
+                    new ClassConnectionsEdit().doChanges(
+                        this.file_path,
+                        this.code_info,
+                        data,
+                        orig_data,
+                        iface_kind,
+                        imports
+                    );
                 }
                 if (open_file_on_success) {
-                    workspace.openTextDocument(this.file_path).then(doc => window.showTextDocument(doc));
+                    workspace
+                        .openTextDocument(this.file_path)
+                        .then((doc) => window.showTextDocument(doc));
                 }
             }
         } else {
@@ -216,7 +259,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: false,
-                message
+                message,
             });
             return;
         }
@@ -227,7 +270,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                 action: `creator-${edit_type}-interface-complete`,
                 request_id,
                 ok: true,
-                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${name}`
+                message: t`IfaceSavedSuccessfully ${capitalize(iface_kind)} ${name}`,
             });
         }
 
@@ -237,18 +280,21 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
 
         this.deleteOrigFilesIfDifferent();
         if (hasConfigItems(iface_kind) || iface_kind === 'fsm') {
-            this.code_info.interface_info.setOrigConfigItems({iface_id}, edit_type === 'edit');
+            this.code_info.interface_info.setOrigConfigItems({ iface_id }, edit_type === 'edit');
         }
 
         if (!no_data_return) {
             const headers_data: any = jsyaml.safeLoad(headers);
-            this.returnData({
-                ...headers_data,
-                target_dir: this.target_dir,
-                target_file: this.has_code ? this.rel_file_path : this.yaml_file_name,
-            }, iface_id);
+            this.returnData(
+                {
+                    ...headers_data,
+                    target_dir: this.target_dir,
+                    target_file: this.has_code ? this.rel_file_path : this.yaml_file_name,
+                },
+                iface_id
+            );
         }
-    }
+    };
 }
 
 export const interface_without_methods_creator = new InterfaceWithoutMethodsCreator();
