@@ -603,7 +603,6 @@ export abstract class InterfaceCreator {
                 code_info
             )
         );
-        console.log('CONFIG_ITEMS', items);
 
         for (const item of [...items]) {
             result += `${indent.repeat(indent_level)}${list_indent}name: ${item.name}\n`;

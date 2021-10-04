@@ -1071,8 +1071,6 @@ export class QorusProjectInterfaceInfo {
             )
         );
 
-        console.log(local_items, global_items);
-
         let message: any;
         if (iface_kind === 'workflow') {
             const workflow_items = local_items.map((item) =>

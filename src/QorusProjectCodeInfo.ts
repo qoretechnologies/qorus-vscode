@@ -740,8 +740,6 @@ export class QorusProjectCodeInfo {
                 );
             });
 
-            console.log(data['config-items']);
-
             if (data['config-items']) {
                 data['config-items'] = data['config-items'].filter(
                     (item) =>
@@ -753,8 +751,6 @@ export class QorusProjectCodeInfo {
                         )
                 );
             }
-
-            console.log(data['config-items']);
 
             Object.keys(data.states || {}).forEach((state_id) => {
                 const state = data.states[state_id];

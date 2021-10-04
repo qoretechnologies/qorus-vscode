@@ -4,6 +4,10 @@ Qorus developer tools for the [Qorus Integration Engine](https://qoretechnologie
 This extension makes it possible to easily create, deploy, and test Qorus interfaces directly from the Visual Studio Code editor.
 It is a perfect tool for creating no-code solutions for the Qorus Integration Engine. The Qorus Developer Tools allow to create building blocks that can be reused later and setup an initial configuration for them.
 
+## Version 2.3.21 overview - What's new:
+
+-   Fixed inherited config items not being deleted when the parent config item is removed
+
 ## Version 2.3.20 overview - What's new:
 
 -   Moved the buttons inside class connections dialog under the box, so that the full connector name can be seen at all times
@@ -11,52 +15,6 @@ It is a perfect tool for creating no-code solutions for the Qorus Integration En
 ## Version 2.3.19 overview - What's new:
 
 -   Fixed a bug that prevented setting and saving inherited config items to `null`
-
-## Version 2.3.18 overview - What's new:
-
--   Mappers and Types now support fields with dots in their names (with backwards compatibility).
-
-## Version 2.3.17 overview - What's new:
-
--   Configuration items that have not yet been submitted are highlighted in the configuration item modal
-
-## Version 2.3.16 overview - What's new:
-
--   Addressed usability issues with pipeline diagrams
--   Added a `Remove value` button to configuration item modals to implement another possibility for removing the configuration item value
-
-## Version 2.3.15 overview - What's new:
-
--   Fixed a bug that caused internal config item data to be incorrectly saved
-
-## Version 2.3.14 overview - What's new:
-
--   Fixed a bug that prevented editing of pipeline elements
--   Fixed a bug that stored old and incorrect connections settings in local state when connection URL / options would change
--   Requires field in classes with processor is no longer limited to only processor classes
--   Fixed a bug that would cause the webview to crash when removing the classes field from workflow fields
--   Fixed a bug where changing the mapper / data type field name would not properly change the name in the internal data
-
-## Version 2.3.13 overview - What's new:
-
--   Fixed a bug that prevented steps opened from workflow to get the correct data
-
-## Version 2.3.12 overview - What's new:
-
--   Various bugs fixes and improvements for service methods handling for Python and Java
-
-## Version 2.3.11 overview - What's new:
-
--   Fixed a bug where Java code would be incorrectly generated after a connection has been added
--   Added missing color for the mapper relation of type AUTO
--   It is now possible & supported to add spaces in custom mapper field names
--   Added field descriptions to the mapper field mapping dialog
--   It is no longer possible to select soft types in the mapper field mapping dialog
-
-## Version 2.3.10 overview - What's new:
-
--   Fixed a bug notification toasters would be rendered outside of the view
--   Fixed a bug that prevented going back to service from the methods page
 
 ---
 

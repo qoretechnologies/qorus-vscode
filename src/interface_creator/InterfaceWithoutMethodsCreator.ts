@@ -26,8 +26,6 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
             recreate,
         } = params;
 
-        console.log(data);
-
         let imports: string[] = [];
         let suffix: string;
         this.has_code = false;
@@ -215,8 +213,6 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                 return;
         }
 
-        console.log(data);
-
         let headers = this.createHeaders(
             {
                 type: iface_kind,
@@ -257,8 +253,6 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
         } else {
             ({ ok, message } = this.writeYamlFile(headers));
         }
-
-        console.log(headers);
 
         if (!ok) {
             qorus_webview.postMessage({

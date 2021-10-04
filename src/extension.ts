@@ -163,9 +163,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             const iface_id = iface_info.addIfaceById(data, iface_kind);
 
-            console.log('BEFORE', data);
             code_info.checkReferencedObjects(iface_id, data);
-            console.log('AFTER', data);
 
             const message = {
                 tab: 'CreateInterface',
