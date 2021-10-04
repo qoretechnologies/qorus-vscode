@@ -963,6 +963,31 @@ export class QorusProjectInterfaceInfo {
             return item;
         };
 
+        const checkParentConfigItem = (
+            name: string,
+            parent_type: string,
+            parent_name: string
+        ): boolean => {
+            const parent_yaml_data = this.yaml_info.yamlDataByName(parent_type, parent_name);
+            if (!parent_yaml_data) {
+                return false;
+            }
+
+            const parent_item = parent_yaml_data['config-items'].find((item) => item.name === name);
+            if (!parent_item) {
+                return false;
+            }
+            if (!parent_item.parent) {
+                return true;
+            }
+
+            return checkParentConfigItem(
+                name,
+                parent_item.parent['interface-type'],
+                parent_item.parent['interface-name']
+            );
+        };
+
         const addYamlData = (item: any): any => {
             const toYamlIfNotComplex = (value, type = valueTrueType(item)) =>
                 !item.is_templated_string && ['list', 'hash'].includes(type)
@@ -1025,11 +1050,28 @@ export class QorusProjectInterfaceInfo {
             }
         }
 
-        const local_items = (items || []).map((item) => fixLocalItem({ ...item }));
+        let local_items = (items || []).map((item) => fixLocalItem({ ...item }));
 
-        const global_items = local_items
+        let global_items = local_items
             .filter((item) => !item.strictly_local)
             .map((item) => checkValueLevel({ ...item }, 'global'));
+
+        local_items = local_items.filter((item) =>
+            checkParentConfigItem(
+                item.name,
+                item.parent['interface-type'],
+                item.parent['interface-name']
+            )
+        );
+        global_items = global_items.filter((item) =>
+            checkParentConfigItem(
+                item.name,
+                item.parent['interface-type'],
+                item.parent['interface-name']
+            )
+        );
+
+        console.log(local_items, global_items);
 
         let message: any;
         if (iface_kind === 'workflow') {

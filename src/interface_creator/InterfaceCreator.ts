@@ -561,8 +561,49 @@ export abstract class InterfaceCreator {
         return result;
     };
 
-    protected static createConfigItemHeaders = (items: any[], indent_level = 0): string => {
+    public static checkParentConfigItem = (
+        name: string,
+        parent_type: string,
+        parent_name: string,
+        code_info: any
+    ): boolean => {
+        const parent_yaml_data = code_info.yaml_info.yamlDataByName(parent_type, parent_name);
+        if (!parent_yaml_data) {
+            return false;
+        }
+
+        const parent_item = parent_yaml_data['config-items'].find((item) => item.name === name);
+        if (!parent_item) {
+            return false;
+        }
+        if (!parent_item.parent) {
+            return true;
+        }
+
+        return InterfaceCreator.checkParentConfigItem(
+            name,
+            parent_item.parent['interface-type'],
+            parent_item.parent['interface-name'],
+            code_info
+        );
+    };
+
+    protected static createConfigItemHeaders = (
+        items: any[],
+        indent_level = 0,
+        code_info: any
+    ): string => {
         let result: string = `${indent.repeat(indent_level)}config-items:\n`;
+
+        items = items.filter((item) =>
+            InterfaceCreator.checkParentConfigItem(
+                item.name,
+                item.parent['interface-type'],
+                item.parent['interface-name'],
+                code_info
+            )
+        );
+        console.log('CONFIG_ITEMS', items);
 
         for (const item of [...items]) {
             result += `${indent.repeat(indent_level)}${list_indent}name: ${item.name}\n`;
@@ -973,7 +1014,8 @@ export abstract class InterfaceCreator {
                                 ) {
                                     result += InterfaceCreator.createConfigItemHeaders(
                                         iface_data.specific_data[child.pid]['config-items'],
-                                        indent_level + 1
+                                        indent_level + 1,
+                                        this.code_info
                                     );
                                 }
                             }
@@ -1090,7 +1132,8 @@ export abstract class InterfaceCreator {
                             ) {
                                 result += InterfaceCreator.createConfigItemHeaders(
                                     iface_data.specific_data[state.id]['config-items'],
-                                    indent_level + 2
+                                    indent_level + 2,
+                                    this.code_info
                                 );
                             }
 
@@ -1144,7 +1187,11 @@ export abstract class InterfaceCreator {
         }
 
         if (iface_data?.['config-items']?.length) {
-            result += InterfaceCreator.createConfigItemHeaders(iface_data['config-items']);
+            result += InterfaceCreator.createConfigItemHeaders(
+                iface_data['config-items'],
+                undefined,
+                this.code_info
+            );
         }
 
         if (iface_kind === 'workflow' && iface_data?.['config-item-values']?.length) {

@@ -39,7 +39,12 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerTextEditorCommand('qorus.deployCurrentFile', () => {
         if (!deployer.isRunning) {
             vscode.window
-                .showInformationMessage(t`ConfirmDeployCurrentFile`, t`YesWithDep`, t`YesWithoutDep`, t`No`)
+                .showInformationMessage(
+                    t`ConfirmDeployCurrentFile`,
+                    t`YesWithDep`,
+                    t`YesWithoutDep`,
+                    t`No`
+                )
                 .then((selection) => {
                     if (selection !== t`No`) {
                         deployer.deployCurrentFile(selection === t`YesWithDep`);
@@ -49,19 +54,25 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () => tester.testCurrentFile());
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) => tester.testDir(uri));
-    context.subscriptions.push(disposable);
-
-    disposable = vscode.commands.registerCommand('qorus.setActiveInstance', (tree_item: string | vscode.TreeItem) =>
-        qorus_request.setActiveInstance(tree_item)
+    disposable = vscode.commands.registerTextEditorCommand('qorus.testCurrentFile', () =>
+        tester.testCurrentFile()
     );
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.loginAndSetActiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.setActiveInstance(tree_item)
+    disposable = vscode.commands.registerCommand('qorus.testDir', (uri: vscode.Uri) =>
+        tester.testDir(uri)
+    );
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand(
+        'qorus.setActiveInstance',
+        (tree_item: string | vscode.TreeItem) => qorus_request.setActiveInstance(tree_item)
+    );
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand(
+        'qorus.loginAndSetActiveInstance',
+        (tree_item: vscode.TreeItem) => qorus_request.setActiveInstance(tree_item)
     );
     context.subscriptions.push(disposable);
 
@@ -70,8 +81,9 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.loginAndStayInactiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.login(tree_item, false)
+    disposable = vscode.commands.registerCommand(
+        'qorus.loginAndStayInactiveInstance',
+        (tree_item: vscode.TreeItem) => qorus_request.login(tree_item, false)
     );
     context.subscriptions.push(disposable);
 
@@ -81,18 +93,24 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.setInactiveInstance', (tree_item: vscode.TreeItem) =>
-        qorus_request.unsetActiveInstance(tree_item)
+    disposable = vscode.commands.registerCommand(
+        'qorus.setInactiveInstance',
+        (tree_item: vscode.TreeItem) => qorus_request.unsetActiveInstance(tree_item)
     );
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.openUrlInExternalBrowser', openUrlInExternalBrowser);
+    disposable = vscode.commands.registerCommand(
+        'qorus.openUrlInExternalBrowser',
+        openUrlInExternalBrowser
+    );
     context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand('qorus.openWebview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.closeWebview', () => qorus_webview.dispose());
+    disposable = vscode.commands.registerCommand('qorus.closeWebview', () =>
+        qorus_webview.dispose()
+    );
     context.subscriptions.push(disposable);
 
     [
@@ -114,17 +132,20 @@ export async function activate(context: vscode.ExtensionContext) {
         'errors',
     ].forEach((iface_kind) => {
         const command = 'qorus.create' + dash2Pascal(iface_kind);
-        disposable = vscode.commands.registerCommand(command, (data: vscode.TreeItem | vscode.Uri) => {
-            const uri = data instanceof vscode.Uri ? data : undefined;
+        disposable = vscode.commands.registerCommand(
+            command,
+            (data: vscode.TreeItem | vscode.Uri) => {
+                const uri = data instanceof vscode.Uri ? data : undefined;
 
-            qorus_webview.open(
-                {
-                    tab: 'CreateInterface',
-                    subtab: iface_kind,
-                },
-                { uri }
-            );
-        });
+                qorus_webview.open(
+                    {
+                        tab: 'CreateInterface',
+                        subtab: iface_kind,
+                    },
+                    { uri }
+                );
+            }
+        );
         context.subscriptions.push(disposable);
     });
 
@@ -142,7 +163,9 @@ export async function activate(context: vscode.ExtensionContext) {
             }
             const iface_id = iface_info.addIfaceById(data, iface_kind);
 
+            console.log('BEFORE', data);
             code_info.checkReferencedObjects(iface_id, data);
+            console.log('AFTER', data);
 
             const message = {
                 tab: 'CreateInterface',
@@ -197,8 +220,9 @@ export async function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disposable);
 
-    disposable = vscode.commands.registerCommand('qorus.deleteMethod', (data: any, iface_kind: string) =>
-        creator.deleteMethod(data, iface_kind)
+    disposable = vscode.commands.registerCommand(
+        'qorus.deleteMethod',
+        (data: any, iface_kind: string) => creator.deleteMethod(data, iface_kind)
     );
     context.subscriptions.push(disposable);
 
@@ -312,7 +336,8 @@ function openUrlInExternalBrowser(url: string, name: string) {
         default:
             cfg_name = '';
     }
-    const command: string = vscode.workspace.getConfiguration('qorus').get(cfg_name) + ' "' + url + '"';
+    const command: string =
+        vscode.workspace.getConfiguration('qorus').get(cfg_name) + ' "' + url + '"';
     msg.info(t`OpeningUrlInExternalBrowser ${name} ${url}`);
     msg.log(command);
     try {
