@@ -595,13 +595,15 @@ export abstract class InterfaceCreator {
     ): string => {
         let result: string = `${indent.repeat(indent_level)}config-items:\n`;
 
-        items = items.filter((item) =>
-            InterfaceCreator.checkParentConfigItem(
-                item.name,
-                item.parent['interface-type'],
-                item.parent['interface-name'],
-                code_info
-            )
+        items = items.filter(
+            (item) =>
+                !item.parent ||
+                InterfaceCreator.checkParentConfigItem(
+                    item.name,
+                    item.parent['interface-type'],
+                    item.parent['interface-name'],
+                    code_info
+                )
         );
 
         for (const item of [...items]) {

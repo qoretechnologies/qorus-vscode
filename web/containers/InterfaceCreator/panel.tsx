@@ -280,13 +280,25 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     useDebounce(
         () => {
             (async () => {
+                let fileData: any = {};
+
+                switch (type) {
+                    case 'service':
+                    case 'service-methods':
+                        fileData.data = allSelectedFields['service'][interfaceIndex];
+                        fileData.methods = allSelectedFields['service-methods'][interfaceIndex];
+                        break;
+                    default:
+                        fileData.data = allSelectedFields[type][interfaceIndex];
+                }
+
                 await callBackendBasic(
                     Messages.SAVE_DRAFT,
                     undefined,
                     {
                         iface_id: interfaceId,
                         iface_kind: type === 'service-methods' ? 'service' : type,
-                        data: selectedFields,
+                        fileData,
                     },
                     t('SavingDraft')
                 );
@@ -368,23 +380,32 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 : undefined,
                         hasValueSet: clonedData && field.name in clonedData,
                     }));
-                    // Pull the pre-selected fields
-                    const preselectedFields: IField[] = filter(
-                        transformedFields,
-                        (field: IField) => field.selected
-                    );
-                    // Add original name field
-                    if (isEditing) {
-                        preselectedFields.push({
-                            name: 'orig_name',
-                            value: clonedData && clonedData.name,
-                            isValid: true,
-                            selected: true,
-                            internal: true,
-                        });
+                    console.log(type, size(selectedFields), selectedFields);
+                    if (!size(selectedFields)) {
+                        // Pull the pre-selected fields
+                        const preselectedFields: IField[] = filter(
+                            transformedFields,
+                            (field: IField) => field.selected
+                        );
+                        // Add original name field
+                        if (isEditing) {
+                            preselectedFields.push({
+                                name: 'orig_name',
+                                value: clonedData && clonedData.name,
+                                isValid: true,
+                                selected: true,
+                                internal: true,
+                            });
+                        }
+                        // Save preselected fields
+                        console.log(
+                            'SETTING SELECTED FIELDS FROM INSIDE PANEL',
+                            type,
+                            activeId,
+                            interfaceIndex
+                        );
+                        setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
                     }
-                    // Save preselected fields
-                    setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
                     // Save the fields
                     setFields(type, transformedFields, activeId, interfaceIndex);
                 }
@@ -402,7 +423,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Run the callback
                     onDataFinishLoadingRecur(activeId);
                 }
-                const currentInterfaceId = data ? clonedData.iface_id : shortid.generate();
+                const currentInterfaceId = data
+                    ? clonedData.iface_id
+                    : type === 'service-methods' || type === 'mapper-methods'
+                    ? interfaceId
+                    : shortid.generate();
                 // Check if the interface id exists, which means user
                 // has already been on this view
                 if (!interfaceId) {
@@ -1568,7 +1593,9 @@ export default compose(
             query: query[type][interfaceIndex],
             selectedQuery: selectedQuery[type][interfaceIndex],
             allSelectedFields: selectedFields,
-            interfaceId: initialInterfaceId || interfaceId[type][interfaceIndex],
+            interfaceId:
+                initialInterfaceId ||
+                interfaceId[type === 'service-methods' ? 'service' : type][interfaceIndex],
             type,
             activeId,
             interfaceIndex,

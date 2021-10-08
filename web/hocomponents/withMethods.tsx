@@ -1,7 +1,16 @@
-import { size } from 'lodash';
+import { map, size } from 'lodash';
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import mapProps from 'recompose/mapProps';
 import { MethodsContext } from '../context/methods';
+
+const getNameFromFields = (data, id) => {
+    const nameField = data.find(
+        (field) =>
+            field.name === 'name' || field.name === 'Name' || field.name === 'class-class-name'
+    );
+
+    return nameField?.value || `Method ${id}`;
+};
 
 // A HoC helper that holds all the state for interface creations
 export default () =>
@@ -13,6 +22,7 @@ export default () =>
             const [methodsCount, setMethodsCount] = useState<number>(props.initialCount);
             const [lastMethodId, setLastMethodId] = useState<number>(props.initialId);
             const [activeMethod, setActiveMethod] = useState<any>(1);
+            const [methodsData, setMethodsData] = useState(props.methodsData);
 
             const resetMethods = () => {
                 setShowMethods(false);
@@ -20,6 +30,18 @@ export default () =>
                 setMethodsCount(props.initialCount);
                 setLastMethodId(props.initialId);
                 setActiveMethod(1);
+            };
+
+            const setMethodsFromDraft = (methods) => {
+                console.log(methods);
+                const methodsList = map(methods, (methodFields, methodId) => ({
+                    name: getNameFromFields(methodFields, methodId),
+                    id: methodId,
+                }));
+                setMethods(methodsList);
+                setMethodsData(methodsList);
+                setMethodsCount(size(methods));
+                setActiveMethod(methodsList[0].id || 1);
             };
 
             useEffect(() => {
@@ -41,6 +63,8 @@ export default () =>
                 setMethodsCount((current: number) => current + 1);
             };
 
+            console.log(methods);
+
             return (
                 <MethodsContext.Provider
                     value={{
@@ -53,12 +77,13 @@ export default () =>
                         setActiveMethod,
                         setMethods,
                         setMethodsCount,
-                        methodsData: props.methodsData,
+                        methodsData,
                         resetMethods,
                         lastMethodId,
                         setLastMethodId,
                         initialActiveMethod: props.initialActiveId,
                         initialShowMethods: props.initialShowMethods,
+                        setMethodsFromDraft,
                     }}
                 >
                     <Component {...props} />

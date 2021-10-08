@@ -5,6 +5,8 @@ import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
+import CustomDialog from '../../components/CustomDialog';
+import { DraftsTable } from '../../components/DraftsTable';
 import Tutorial from '../../components/Tutorial';
 import { Messages } from '../../constants/messages';
 import { MethodsContext } from '../../context/methods';
@@ -12,6 +14,7 @@ import { TextContext } from '../../context/text';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
+import withMethodsConsumer from '../../hocomponents/withMethodsConsumer';
 import withTextContext from '../../hocomponents/withTextContext';
 
 export interface ITabProps {
@@ -206,7 +209,10 @@ const Tab: React.FC<ITabProps> = ({
     resetAllInterfaceData,
     updateField,
     removeSubItemFromFields,
+    setSelectedFields,
+    setInterfaceId,
     name,
+    setMethodsFromDraft,
 }) => {
     const isEditing: () => boolean = () => !!name;
     const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
@@ -224,6 +230,7 @@ const Tab: React.FC<ITabProps> = ({
         return null;
     };
     const [recreateDialog, setRecreateDialog] = useState<any>(null);
+    const [draftsOpen, setDraftsOpen] = useState<boolean>(false);
 
     const { methods, setMethods, setMethodsCount }: any = useContext(MethodsContext);
 
@@ -332,27 +339,27 @@ const Tab: React.FC<ITabProps> = ({
                             }
                         />
                     )}
+                    <Button
+                        id="button-create-new"
+                        icon="add"
+                        text="Create new"
+                        intent="success"
+                        onClick={() => {
+                            resetAllInterfaceData(type);
+                        }}
+                    />
                     {!isEditing() && (
                         <Button
                             id="button-show-drafts"
-                            icon="add"
+                            icon="list"
                             text="Drafts"
                             onClick={() => {
-                                resetAllInterfaceData(type);
+                                setDraftsOpen(true);
                             }}
                         />
                     )}
                     {isEditing() && (
                         <>
-                            <Button
-                                id="button-create-new"
-                                icon="add"
-                                text="Create new"
-                                intent="success"
-                                onClick={() => {
-                                    resetAllInterfaceData(type);
-                                }}
-                            />
                             {getFilePath() && (
                                 <Button
                                     icon="document-share"
@@ -383,8 +390,40 @@ const Tab: React.FC<ITabProps> = ({
                 </ButtonGroup>
             </StyledHeader>
             <StyledContent>{children}</StyledContent>
+            {draftsOpen && (
+                <CustomDialog
+                    isOpen
+                    onClose={() => setDraftsOpen(false)}
+                    noBottomPad
+                    title={t(`${type}Drafts`)}
+                >
+                    <DraftsTable
+                        interfaceKind={type}
+                        onClick={(interfaceId, data, methods) => {
+                            setInterfaceId(type, interfaceId);
+
+                            if (methods) {
+                                setMethodsFromDraft(methods);
+                                setSelectedFields(
+                                    type === 'service' ? 'service-methods' : 'mapper-methods',
+                                    methods
+                                );
+                            }
+
+                            setSelectedFields(type, data);
+
+                            setDraftsOpen(false);
+                        }}
+                    />
+                </CustomDialog>
+            )}
         </StyledTab>
     );
 };
 
-export default compose(withFieldsConsumer(), withTextContext(), withGlobalOptionsConsumer())(Tab);
+export default compose(
+    withFieldsConsumer(),
+    withMethodsConsumer(),
+    withTextContext(),
+    withGlobalOptionsConsumer()
+)(Tab);

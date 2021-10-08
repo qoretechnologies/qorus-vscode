@@ -1056,19 +1056,23 @@ export class QorusProjectInterfaceInfo {
             .filter((item) => !item.strictly_local)
             .map((item) => checkValueLevel({ ...item }, 'global'));
 
-        local_items = local_items.filter((item) =>
-            checkParentConfigItem(
-                item.name,
-                item.parent['interface-type'],
-                item.parent['interface-name']
-            )
+        local_items = local_items.filter(
+            (item) =>
+                !item.parent ||
+                checkParentConfigItem(
+                    item.name,
+                    item.parent['interface-type'],
+                    item.parent['interface-name']
+                )
         );
-        global_items = global_items.filter((item) =>
-            checkParentConfigItem(
-                item.name,
-                item.parent['interface-type'],
-                item.parent['interface-name']
-            )
+        global_items = global_items.filter(
+            (item) =>
+                !item.parent ||
+                checkParentConfigItem(
+                    item.name,
+                    item.parent['interface-type'],
+                    item.parent['interface-name']
+                )
         );
 
         let message: any;

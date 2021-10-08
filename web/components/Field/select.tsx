@@ -8,7 +8,10 @@ import { compose } from 'recompose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { IField, IFieldChange } from '../../containers/InterfaceCreator/panel';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+    TMessageListener,
+    TPostMessage,
+} from '../../hocomponents/withMessageHandler';
 import withTextContext from '../../hocomponents/withTextContext';
 import CustomDialog from '../CustomDialog';
 import FieldEnhancer from '../FieldEnhancer';
@@ -31,7 +34,7 @@ export interface ISelectField {
     autoSelect?: boolean;
 }
 
-const StyledDialogSelectItem = styled.div`
+export const StyledDialogSelectItem = styled.div`
     &:not(:last-child) {
         margin-bottom: 10px;
     }
@@ -132,7 +135,10 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                     addMessageListener(return_message.action, (data: any) => {
                         // Check if this is the correct
                         // object type
-                        if (!return_message.object_type || data.object_type === return_message.object_type) {
+                        if (
+                            !return_message.object_type ||
+                            data.object_type === return_message.object_type
+                        ) {
                             setItems(get(data, return_message.return_value));
                         }
                     })
@@ -142,7 +148,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
     }, [hasProcessor, return_message?.object_type]);
 
     useEffect(() => {
-        setIsProcessorSelected(requestFieldData ? requestFieldData('processor', 'selected') : false);
+        setIsProcessorSelected(
+            requestFieldData ? requestFieldData('processor', 'selected') : false
+        );
     });
 
     // Check if the processor field exists on every change
@@ -225,7 +233,14 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
             handleSelectClick(filteredItems[0]);
         }
         // Show readonly string
-        return <StringField value={value || filteredItems[0].name} read_only name={name} onChange={() => {}} />;
+        return (
+            <StringField
+                value={value || filteredItems[0].name}
+                read_only
+                name={name}
+                onChange={() => {}}
+            />
+        );
     }
 
     if (!reference && (!filteredItems || filteredItems.length === 0)) {
@@ -248,14 +263,21 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
         <FieldEnhancer
             context={{
                 iface_kind,
-                target_dir: (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,
+                target_dir:
+                    (requestFieldData && requestFieldData('target_dir', 'value')) || target_dir,
                 ...context,
             }}
         >
             {(onEditClick, onCreateClick) => (
                 <ControlGroup fill={fill}>
                     {!filteredItems || filteredItems.length === 0 ? (
-                        <StringField value={t('NothingToSelect')} read_only disabled name={name} onChange={() => {}} />
+                        <StringField
+                            value={t('NothingToSelect')}
+                            read_only
+                            disabled
+                            name={name}
+                            onChange={() => {}}
+                        />
                     ) : (
                         <>
                             {hasItemsWithDesc(items) ? (
@@ -272,7 +294,8 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                             <ReactMarkdown
                                                 source={
                                                     value
-                                                        ? getItemDescription(value) || t('NoDescription')
+                                                        ? getItemDescription(value) ||
+                                                          t('NoDescription')
                                                         : t('PleaseSelect')
                                                 }
                                             />
@@ -313,7 +336,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                                 <Spacer size={10} />
                                                 {filterItems(filteredItems).map((item) => (
                                                     <StyledDialogSelectItem
-                                                        className={item.name === value ? 'selected' : ''}
+                                                        className={
+                                                            item.name === value ? 'selected' : ''
+                                                        }
                                                         name={`field-${name}-item`}
                                                         onClick={() => {
                                                             handleSelectClick(item);
@@ -323,13 +348,20 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                                     >
                                                         <h5>
                                                             {item.name === value && (
-                                                                <Icon icon="small-tick" style={{ color: '#7fba27' }} />
+                                                                <Icon
+                                                                    icon="small-tick"
+                                                                    style={{ color: '#7fba27' }}
+                                                                />
                                                             )}{' '}
                                                             {item.name}
                                                         </h5>
 
                                                         <p className={Classes.TEXT_MUTED}>
-                                                            <ReactMarkdown source={item.desc || t('NoDescription')} />
+                                                            <ReactMarkdown
+                                                                source={
+                                                                    item.desc || t('NoDescription')
+                                                                }
+                                                            />
                                                         </p>
                                                     </StyledDialogSelectItem>
                                                 ))}
@@ -339,7 +371,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                 </>
                             ) : (
                                 <Select
-                                    items={query === '' ? filteredItems : filterItems(filteredItems)}
+                                    items={
+                                        query === '' ? filteredItems : filterItems(filteredItems)
+                                    }
                                     itemRenderer={(item, data) => (
                                         <MenuItem
                                             name={`field-${name}-item`}
@@ -383,7 +417,9 @@ const SelectField: React.FC<ISelectField & IField & IFieldChange> = ({
                                     <Button
                                         icon="edit"
                                         name={`field-${name}-edit-reference`}
-                                        onClick={() => onEditClick(value, reference, handleEditSubmit)}
+                                        onClick={() =>
+                                            onEditClick(value, reference, handleEditSubmit)
+                                        }
                                     />
                                 </Tooltip>
                             )}

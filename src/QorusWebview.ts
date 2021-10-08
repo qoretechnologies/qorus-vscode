@@ -447,9 +447,41 @@ class QorusWebview {
                                     drafts,
                                 },
                             });
+                            break;
+                        case 'delete-draft':
+                            fse.remove(
+                                path.join(
+                                    process.env.HOME,
+                                    unsavedFilesLocation[getOs()],
+                                    message.iface_kind,
+                                    `${message.iface_id}.json`
+                                )
+                            )
+                                .then(() => {
+                                    this.panel.webview.postMessage({
+                                        action: 'delete-draft-complete',
+                                        request_id: message.request_id,
+                                        ok: true,
+                                        message: t`DeletingDraftCompleted`,
+                                    });
+                                })
+                                .catch((e) => {
+                                    this.panel.webview.postMessage({
+                                        action: 'delete-draft-complete',
+                                        request_id: message.request_id,
+                                        ok: false,
+                                        message: t`DeletingDraftFailed` + e,
+                                    });
+                                });
+                            break;
                         case 'save-draft':
                             if (!message.iface_id) {
-                                return;
+                                this.panel.webview.postMessage({
+                                    action: 'save-draft-complete',
+                                    request_id: message.request_id,
+                                    ok: false,
+                                    message: t`SavingDraftFailed` + t`missingIfaceId`,
+                                });
                             }
 
                             fse.outputFile(
@@ -459,7 +491,12 @@ class QorusWebview {
                                     message.iface_kind,
                                     `${message.iface_id}.json`
                                 ),
-                                JSON.stringify(message.data)
+                                JSON.stringify({
+                                    date: Date.now(),
+                                    interfaceId: message.iface_id,
+                                    interfaceKind: message.iface_kind,
+                                    ...message.fileData,
+                                })
                             )
                                 .then(() => {
                                     this.panel.webview.postMessage({
@@ -470,8 +507,14 @@ class QorusWebview {
                                     });
                                 })
                                 .catch((e) => {
-                                    console.log(e);
+                                    this.panel.webview.postMessage({
+                                        action: 'save-draft-complete',
+                                        request_id: message.request_id,
+                                        ok: false,
+                                        message: t`SavingDraftFailed` + e,
+                                    });
                                 });
+                            break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);
                     }
