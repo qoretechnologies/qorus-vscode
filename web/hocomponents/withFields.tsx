@@ -220,9 +220,8 @@ export default () =>
 
             const getInterfaceIndex = (type: string, interfaceIndex?: number) => {
                 const theIndex =
-                    interfaceIndex ?? interfaceId[type].length - 1 <= 0
-                        ? 0
-                        : interfaceId[type].length - 1;
+                    interfaceIndex ??
+                    (interfaceId[type].length - 1 <= 0 ? 0 : interfaceId[type].length - 1);
 
                 return theIndex < 0 ? 0 : theIndex;
             };
@@ -327,15 +326,6 @@ export default () =>
             };
 
             const setSelectedFields = (type, value, activeId, interfaceIndex) => {
-                if (type === 'service-methods') {
-                    console.log(
-                        'SETTING SM FIELDS, FOR SOME WEIRD REASON????',
-                        type,
-                        value,
-                        activeId,
-                        interfaceIndex
-                    );
-                }
                 setLocalSelectedFields((current) => {
                     const index = getInterfaceIndex(type, interfaceIndex);
                     const newResult = cloneDeep(current);
@@ -352,11 +342,6 @@ export default () =>
                                 ? value(current?.[type]?.[index] || [])
                                 : value;
                     }
-
-                    console.log(
-                        'NEW SELECTED FIELDS OMFG PLEASE?????????????',
-                        cloneDeep(newResult)
-                    );
 
                     return newResult;
                 });
@@ -470,14 +455,10 @@ export default () =>
                         },
                         {}
                     );
-                    console.log('DELETING METHOD', itemId, type, interfaceIndex);
-                    console.log(newResult);
                     // Return new data
                     return newResult;
                 });
             };
-
-            console.log({ fields, selectedFields });
 
             return (
                 <FieldContext.Provider

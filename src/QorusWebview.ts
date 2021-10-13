@@ -413,6 +413,13 @@ class QorusWebview {
                         case 'delete-interface':
                             project.code_info.deleteInterfaceFromWebview(message);
                             break;
+                        case 'get-all-drafts':
+                            const allDraftFiles = readdirSync(
+                                path.join(process.env.HOME, unsavedFilesLocation[getOs()])
+                            );
+
+                            console.log(allDraftFiles);
+                            break;
                         case 'get-drafts':
                             const drafts: any[] = [];
                             const draftFiles = readdirSync(

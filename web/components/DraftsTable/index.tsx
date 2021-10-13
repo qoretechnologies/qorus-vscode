@@ -1,4 +1,4 @@
-import { Button, Callout, Classes } from '@blueprintjs/core';
+import { Button, Classes } from '@blueprintjs/core';
 import { size, sortBy } from 'lodash';
 import moment from 'moment';
 import React, { useContext, useState } from 'react';
@@ -8,7 +8,6 @@ import { Messages } from '../../constants/messages';
 import { TextContext } from '../../context/text';
 import { callBackendBasic } from '../../helpers/functions';
 import { StyledDialogSelectItem } from '../Field/select';
-import Spacer from '../Spacer';
 
 export const DraftsTable = ({ interfaceKind, onClick }: any) => {
     const t = useContext(TextContext);
@@ -53,39 +52,32 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
     const sortedDrafts = sortBy(drafts, (draft) => draft.date).reverse();
 
     return (
-        <div className={Classes.DIALOG_BODY}>
-            <Callout intent="primary">{t('DraftsDescription')}</Callout>
-            <Spacer size={10} />
+        <div>
             {size(sortedDrafts) ? (
                 <>
-                    {sortedDrafts.map(
-                        ({ date, data, methods, interfaceId }) =>
-                            console.log(methods) || (
-                                <StyledDialogSelectItem
-                                    onClick={() => onClick(interfaceId, data, methods)}
-                                >
-                                    <h5>
-                                        {getNameFromData(data)}{' '}
-                                        <Button
-                                            style={{ float: 'right' }}
-                                            intent="danger"
-                                            icon="trash"
-                                            small
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onDeleteClick(interfaceId);
-                                            }}
-                                        />{' '}
-                                    </h5>
-                                    <p className={Classes.TEXT_MUTED}>
-                                        {moment(date).format(DATE_FORMATS.DISPLAY)}
-                                    </p>
-                                </StyledDialogSelectItem>
-                            )
-                    )}
+                    {sortedDrafts.map(({ date, data, methods, interfaceId }) => (
+                        <StyledDialogSelectItem onClick={() => onClick(interfaceId, data, methods)}>
+                            <h5>
+                                {getNameFromData(data)}{' '}
+                                <Button
+                                    style={{ float: 'right' }}
+                                    intent="danger"
+                                    icon="trash"
+                                    small
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDeleteClick(interfaceId);
+                                    }}
+                                />{' '}
+                            </h5>
+                            <p className={Classes.TEXT_MUTED}>
+                                {moment(date).format(DATE_FORMATS.DISPLAY)}
+                            </p>
+                        </StyledDialogSelectItem>
+                    ))}
                 </>
             ) : (
-                <p> Loading ... </p>
+                <p> No drafts found for this interface type </p>
             )}
         </div>
     );

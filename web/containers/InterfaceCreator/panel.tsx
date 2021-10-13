@@ -6,7 +6,6 @@ import {
     find,
     forEach,
     includes,
-    isEqual,
     last,
     map,
     omit,
@@ -41,6 +40,7 @@ import FieldSelector from '../../components/FieldSelector';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
+import { DraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
 import { callBackendBasic } from '../../helpers/functions';
@@ -248,6 +248,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
     const [fieldListeners, setFieldListeners] = useState([]);
     const initialData = useContext(InitialContext);
+    const { maybeApplyDraft } = useContext(DraftsContext);
     const originalData = useRef(data);
 
     useEffect(() => {
@@ -280,6 +281,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     useDebounce(
         () => {
             (async () => {
+                const hasAnyChanges = (selectedFields || []).some((field) => {
+                    if (field.value) {
+                        return field.value !== field.default_value;
+                    }
+
+                    return false;
+                });
+
+                if (!hasAnyChanges) {
+                    return;
+                }
+
                 let fileData: any = {};
 
                 switch (type) {
@@ -357,7 +370,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 if (rest.iface_kind !== type) {
                     return;
                 }
-
                 // Clone initial data
                 const clonedData = cloneDeep(data);
                 if (!fields || !fields.length) {
@@ -380,7 +392,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 : undefined,
                         hasValueSet: clonedData && field.name in clonedData,
                     }));
-                    console.log(type, size(selectedFields), selectedFields);
                     if (!size(selectedFields)) {
                         // Pull the pre-selected fields
                         const preselectedFields: IField[] = filter(
@@ -397,13 +408,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                                 internal: true,
                             });
                         }
-                        // Save preselected fields
-                        console.log(
-                            'SETTING SELECTED FIELDS FROM INSIDE PANEL',
-                            type,
-                            activeId,
-                            interfaceIndex
-                        );
                         setSelectedFields(type, preselectedFields, activeId, interfaceIndex);
                     }
                     // Save the fields
@@ -434,20 +438,12 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                     // Create it if this is brand new interface
                     setInterfaceId(type, currentInterfaceId, interfaceIndex);
                 }
+                // Add draft if one exists
+                maybeApplyDraft(type);
                 // Set show
                 setShow(true);
                 // Fetch config items
                 fetchConfigItems(interfaceId || currentInterfaceId);
-
-                if (
-                    ['service', 'service-methods'].includes(rest.iface_kind) &&
-                    !initialData.unfinishedWork?.service
-                ) {
-                    initialData.setUnfinishedWork((current) => ({
-                        ...current,
-                        service: false,
-                    }));
-                }
             }
         );
         // Set the new message listener
@@ -561,17 +557,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             context,
             lang: isEditing ? data.lang : undefined,
         });
-
-        if (type != 'service-methods') {
-            setTimeout(
-                () =>
-                    initialData.setUnfinishedWork((current) => ({
-                        ...current,
-                        [type]: false,
-                    })),
-                200
-            );
-        }
     };
 
     const addField: (fieldName: string, notify?: boolean) => void = (fieldName, notify = true) => {
@@ -703,56 +688,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     const handleAddClick: (fieldName: string) => void = (fieldName) => {
         addField(fieldName);
     };
-
-    useEffect(() => {
-        let currentData = reduce(
-            selectedFields,
-            (result: { [key: string]: any }, field: IField) => ({
-                ...result,
-                [field.name]: field.value,
-            }),
-            {}
-        );
-
-        const filt = [
-            'iface_id',
-            'orig_name',
-            'name',
-            'desc',
-            'type',
-            'yaml_file',
-            'class-connections',
-            'code',
-            'lang',
-            'config-items',
-            'servicetype',
-            'id',
-            'active_method',
-            'requires',
-            'classes',
-            'steps-info',
-            'base_class_name',
-            'define-auth-label',
-            'step-type',
-            'steptype',
-            'target_file',
-            'target_dir',
-        ];
-
-        currentData = omit(currentData, filt);
-        const origData = omit(originalData.current, filt);
-
-        if (!size(currentData) || !size(origData)) {
-            unsetDraft(type);
-            return;
-        }
-
-        if (!isEqual(currentData, origData)) {
-            setAsDraft(type);
-        } else {
-            unsetDraft(type);
-        }
-    }, [selectedFields, data]);
 
     const handleFieldChange: (
         fieldName: string,
@@ -893,7 +828,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
     };
 
     const handleSubmitClick: () => void = async () => {
-        unsetDraft(type);
         // Set the value flag for all selected fields
         setSelectedFields(
             type,

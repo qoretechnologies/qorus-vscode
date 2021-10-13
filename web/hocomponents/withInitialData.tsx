@@ -31,64 +31,73 @@ export default () =>
             });
 
             useEffect(() => {
-                const initialDataListener = addMessageListener(Messages.RETURN_INITIAL_DATA, ({ data }) => {
-                    const setData = () => {
-                        setInitialData({});
+                const initialDataListener = addMessageListener(
+                    Messages.RETURN_INITIAL_DATA,
+                    ({ data }) => {
+                        const setData = () => {
+                            setInitialData({});
 
-                        let currentInitialData;
+                            let currentInitialData;
 
-                        setInitialData((current) => {
-                            currentInitialData = { ...current };
-                            return null;
-                        });
+                            setInitialData((current) => {
+                                currentInitialData = { ...current };
+                                return null;
+                            });
 
-                        if (!data.tab) {
-                            data.tab = 'ProjectConfig';
-                        }
+                            if (!data.tab) {
+                                data.tab = 'ProjectConfig';
+                            }
 
-                        setTimeout(
-                            () =>
-                                setInitialData({
-                                    ...currentInitialData,
-                                    ...data,
-                                }),
-                            0
-                        );
-
-                        if (data.subtab || initialData.subtab) {
                             setTimeout(
                                 () =>
-                                    setUnfinishedWork((current) => {
-                                        let result = { ...current };
-                                        if (data.subtab) {
-                                            result[data.subtab] = false;
-                                        }
-                                        if (initialData.subtab) {
-                                            result[initialData.subtab] = false;
-                                        }
-                                        return result;
+                                    setInitialData({
+                                        ...currentInitialData,
+                                        ...data,
                                     }),
                                 0
                             );
+
+                            if (data.subtab || initialData.subtab) {
+                                setTimeout(
+                                    () =>
+                                        setUnfinishedWork((current) => {
+                                            let result = { ...current };
+                                            if (data.subtab) {
+                                                result[data.subtab] = false;
+                                            }
+                                            if (initialData.subtab) {
+                                                result[initialData.subtab] = false;
+                                            }
+                                            return result;
+                                        }),
+                                    0
+                                );
+                            }
+                        };
+
+                        if (
+                            initialData.tab === 'CreateInterface' &&
+                            unfinishedWork[initialData.subtab]
+                        ) {
+                            confirmAction('UnfinishedWork', setData, 'Leave', 'warning');
+                        } else {
+                            setData();
                         }
-                    };
-
-                    if (initialData.tab === 'CreateInterface' && unfinishedWork[initialData.subtab]) {
-                        confirmAction('UnfinishedWork', setData, 'Leave', 'warning');
-                    } else {
-                        setData();
                     }
-                });
+                );
 
-                const interfaceDataListener = addMessageListener(Messages.RETURN_INTERFACE_DATA, ({ data }) => {
-                    // only set initial data if we are switching tabs
-                    if (data.tab) {
-                        setInitialData((current) => ({
-                            ...current,
-                            ...data,
-                        }));
+                const interfaceDataListener = addMessageListener(
+                    Messages.RETURN_INTERFACE_DATA,
+                    ({ data }) => {
+                        // only set initial data if we are switching tabs
+                        if (data.tab) {
+                            setInitialData((current) => ({
+                                ...current,
+                                ...data,
+                            }));
+                        }
                     }
-                });
+                );
 
                 return () => {
                     // removes the listeners
@@ -97,13 +106,12 @@ export default () =>
                 };
             });
 
-            const confirmAction: (text: string, action: () => any, btnText?: string, btnIntent?: string) => void = (
-                text,
-                action,
-                btnText,
-                btnIntent,
-                onCancel
-            ) => {
+            const confirmAction: (
+                text: string,
+                action: () => any,
+                btnText?: string,
+                btnIntent?: string
+            ) => void = (text, action, btnText, btnIntent, onCancel) => {
                 setConfirmDialog({
                     isOpen: true,
                     text,
@@ -114,44 +122,20 @@ export default () =>
                 });
             };
 
-            const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (tab, subtab, force) => {
+            const changeTab: (tab: string, subtab?: string, force?: boolean) => void = (
+                tab,
+                subtab,
+                force
+            ) => {
                 const setTabs = () => {
                     setInitialData((current) => ({
                         ...current,
                         tab,
                         subtab: subtab || null,
                     }));
-
-                    if (subtab || initialData.subtab) {
-                        setTimeout(
-                            () =>
-                                setUnfinishedWork((current) => {
-                                    let result = { ...current };
-                                    if (subtab) {
-                                        result[subtab] = false;
-                                    }
-                                    if (initialData.subtab) {
-                                        result[initialData.subtab] = false;
-                                    }
-                                    return result;
-                                }),
-                            200
-                        );
-                    }
                 };
 
-                if (
-                    initialData.tab === 'CreateInterface' &&
-                    subtab &&
-                    subtab !== initialData.subtab &&
-                    unfinishedWork[initialData.subtab] &&
-                    !force
-                ) {
-                    // Check if there is data for the given subtab
-                    confirmAction('UnfinishedWork', setTabs, 'Leave', 'warning');
-                } else {
-                    setTabs();
-                }
+                setTabs();
             };
 
             const setStepSubmitCallback: (callback: () => any) => void = (callback): void => {
@@ -191,7 +175,10 @@ export default () =>
                 });
             };
 
-            const fetchData: (url: string, method: string) => Promise<any> = async (url, method = 'GET') => {
+            const fetchData: (url: string, method: string) => Promise<any> = async (
+                url,
+                method = 'GET'
+            ) => {
                 // Create the unique ID for this request
                 const uniqueId: string = shortid.generate();
 

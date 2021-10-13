@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from '@blueprintjs/core';
+import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
 import { forEach, size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
@@ -9,6 +9,7 @@ import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
 import Tutorial from '../../components/Tutorial';
 import { Messages } from '../../constants/messages';
+import { DraftsContext, IDraftsContext } from '../../context/drafts';
 import { MethodsContext } from '../../context/methods';
 import { TextContext } from '../../context/text';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
@@ -34,7 +35,7 @@ const StyledTab = styled.div`
     overflow: hidden;
 `;
 
-const StyledHeader = styled.div`
+export const StyledHeader = styled.div`
     margin: 0 0 15px 0;
     padding: 0 0 10px 0;
     border-bottom: 1px solid #eee;
@@ -233,6 +234,7 @@ const Tab: React.FC<ITabProps> = ({
     const [draftsOpen, setDraftsOpen] = useState<boolean>(false);
 
     const { methods, setMethods, setMethodsCount }: any = useContext(MethodsContext);
+    const { maybeApplyDraft } = useContext<IDraftsContext>(DraftsContext);
 
     useMount(() => {
         const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
@@ -397,24 +399,21 @@ const Tab: React.FC<ITabProps> = ({
                     noBottomPad
                     title={t(`${type}Drafts`)}
                 >
-                    <DraftsTable
-                        interfaceKind={type}
-                        onClick={(interfaceId, data, methods) => {
-                            setInterfaceId(type, interfaceId);
+                    <div className={Classes.DIALOG_BODY}>
+                        <DraftsTable
+                            interfaceKind={type}
+                            onClick={(interfaceId, data, methods) => {
+                                maybeApplyDraft(type, {
+                                    interfaceId,
+                                    interfaceKind: type,
+                                    fields: data,
+                                    methods,
+                                });
 
-                            if (methods) {
-                                setMethodsFromDraft(methods);
-                                setSelectedFields(
-                                    type === 'service' ? 'service-methods' : 'mapper-methods',
-                                    methods
-                                );
-                            }
-
-                            setSelectedFields(type, data);
-
-                            setDraftsOpen(false);
-                        }}
-                    />
+                                setDraftsOpen(false);
+                            }}
+                        />
+                    </div>
                 </CustomDialog>
             )}
         </StyledTab>

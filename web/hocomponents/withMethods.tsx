@@ -33,7 +33,6 @@ export default () =>
             };
 
             const setMethodsFromDraft = (methods) => {
-                console.log(methods);
                 const methodsList = map(methods, (methodFields, methodId) => ({
                     name: getNameFromFields(methodFields, methodId),
                     id: methodId,
@@ -62,8 +61,6 @@ export default () =>
                 setMethods((current: any[]) => [...current, { id: lastMethodId + 1 }]);
                 setMethodsCount((current: number) => current + 1);
             };
-
-            console.log(methods);
 
             return (
                 <MethodsContext.Provider
