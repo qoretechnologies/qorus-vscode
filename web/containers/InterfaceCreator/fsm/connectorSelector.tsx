@@ -1,8 +1,10 @@
 import { ButtonGroup, Spinner } from '@blueprintjs/core';
-import React, { useState } from 'react';
-import useMount from 'react-use/lib/useMount';
+import React, { useEffect, useState } from 'react';
 import SelectField from '../../../components/Field/select';
-import withMessageHandler, { TMessageListener, TPostMessage } from '../../../hocomponents/withMessageHandler';
+import withMessageHandler, {
+    TMessageListener,
+    TPostMessage,
+} from '../../../hocomponents/withMessageHandler';
 
 export interface IConnectorSelectorProps {
     value: {
@@ -27,10 +29,17 @@ export interface IConnector {
     type: 'input' | 'output' | 'input-output' | 'event' | 'condition';
 }
 
-const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, types, target_dir }: IConnectorSelectorProps) => {
+const ConnectorSelector = ({
+    value,
+    onChange,
+    addMessageListener,
+    postMessage,
+    types,
+    target_dir,
+}: IConnectorSelectorProps) => {
     const [classes, setClasses] = useState<IClass[]>(null);
 
-    useMount(() => {
+    useEffect(() => {
         addMessageListener('creator-return-objects', (data) => {
             if (data.object_type === 'class-with-connectors') {
                 setClasses(data.objects);
@@ -48,7 +57,9 @@ const ConnectorSelector = ({ value, onChange, addMessageListener, postMessage, t
     const getConnectors = (): IConnector[] => {
         const selectedClass: IClass = classes.find((clss) => clss.name === value['class']);
 
-        return selectedClass['class-connectors'].filter((connector) => types.includes(connector.type));
+        return selectedClass?.['class-connectors'].filter((connector) =>
+            types.includes(connector.type)
+        );
     };
 
     const handleChange = (name: string, val: any) => {
