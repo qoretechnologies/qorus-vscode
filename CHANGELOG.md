@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.22
+
+#### Bug Fixes
+
+-   Fixed a bug that would cause the webview to crash after creating new class with connectors from an FSM state
+-   Replaced the X icon with a trash icon on all FSM states
+
 ## 2.3.21
 
 #### Bug Fixes
