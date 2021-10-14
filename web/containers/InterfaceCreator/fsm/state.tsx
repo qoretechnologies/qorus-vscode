@@ -44,15 +44,21 @@ export interface IFSMStateStyleProps {
 
 const wiggleAnimation = (type) => keyframes`
     0% {
-        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${type === 'connector' ? 'skew(15deg)' : ''};
+        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${
+    type === 'connector' ? 'skew(15deg)' : ''
+};
     }
 
     50% {
-        transform: ${type === 'if' ? 'rotate(47deg)' : 'rotate(2deg)'} ${type === 'connector' ? 'skew(15deg)' : ''};
+        transform: ${type === 'if' ? 'rotate(47deg)' : 'rotate(2deg)'} ${
+    type === 'connector' ? 'skew(15deg)' : ''
+};
     }
 
     100% {
-        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${type === 'connector' ? 'skew(15deg)' : ''};
+        transform: ${type === 'if' ? 'rotate(43deg)' : 'rotate(-2deg)'} ${
+    type === 'connector' ? 'skew(15deg)' : ''
+};
     }
 `;
 
@@ -84,7 +90,7 @@ const StyledFSMState = styled.div<IFSMStateStyleProps>`
     position: absolute;
     width: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_WIDTH)}px;
     height: ${({ type }) => (type === 'if' ? IF_STATE_SIZE : STATE_HEIGHT)}px;
-    
+
     z-index: 20;
     border: 1px solid;
     transition: all 0.2s linear;
@@ -166,7 +172,9 @@ export const getStateType = ({ type, action, ...rest }: IFSMState) => {
         return '';
     }
 
-    return `${action.value.class ? `${action.value.class}:${action.value.connector}` : action.value} ${action.type}`;
+    return `${
+        action.value.class ? `${action.value.class}:${action.value.connector}` : action.value
+    } ${action.type}`;
 };
 
 const FSMState: React.FC<IFSMStateProps> = ({
@@ -290,7 +298,7 @@ const FSMState: React.FC<IFSMStateProps> = ({
                         onClick: () => {
                             onUpdate(id, { transitions: null });
                         },
-                        icon: 'cross',
+                        icon: 'trash',
                     },
                     {
                         item: t('Edit'),
@@ -338,7 +346,9 @@ const FSMState: React.FC<IFSMStateProps> = ({
                         </>
                     ) : (
                         <>
-                            <StyledStateName style={{ fontSize: calculateFontSize(name) }}>{name}</StyledStateName>
+                            <StyledStateName style={{ fontSize: calculateFontSize(name) }}>
+                                {name}
+                            </StyledStateName>
                             <StyledStateAction style={{ fontSize: calculateFontSize(name, true) }}>
                                 {getStateType({ type, action, ...rest })}
                             </StyledStateAction>
@@ -351,11 +361,17 @@ const FSMState: React.FC<IFSMStateProps> = ({
                     <Button
                         icon="edit"
                         disabled={type === 'block' && !qorus_instance}
-                        title={type === 'block' && !qorus_instance ? t('CannotManageBlock') : t('Edit')}
+                        title={
+                            type === 'block' && !qorus_instance ? t('CannotManageBlock') : t('Edit')
+                        }
                         intent="warning"
                         onClick={(e) => handleClick(e, onEditClick)}
                     />
-                    <Button icon="cross" intent="danger" onClick={(e) => handleClick(e, onDeleteClick)} />
+                    <Button
+                        icon="trash"
+                        intent="danger"
+                        onClick={(e) => handleClick(e, onDeleteClick)}
+                    />
                 </ButtonGroup>
             ) : null}
         </StyledFSMState>
