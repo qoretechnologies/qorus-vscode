@@ -1,8 +1,18 @@
+import { Button, ButtonGroup, InputGroup } from '@blueprintjs/core';
 import React, { FunctionComponent, useState } from 'react';
-import { ControlGroup, InputGroup, Button, ButtonGroup } from '@blueprintjs/core';
-import withTextContext from '../hocomponents/withTextContext';
 import styled from 'styled-components';
+import urlParse from 'url-parse';
 import { TTranslator } from '../App';
+import withTextContext from '../hocomponents/withTextContext';
+
+const getUrlWithoutCredentials = (url) => {
+    const { protocol, slashes, host, query, pathname, hash } = urlParse(url);
+
+    url = `${protocol}${slashes ? '//' : ''}`;
+    url += `${host}${pathname}${query}${hash}`;
+
+    return url;
+};
 
 export interface IAddProjectData {
     withUrl?: boolean;
@@ -28,10 +38,27 @@ const StyledAddWrapper = styled.div`
 `;
 
 export default withTextContext()(
-    ({ withUrl, big, t, onCancel, name, url, onSubmit, fill, text, defaultAdding = false, minimal = true, id }) => {
+    ({
+        withUrl,
+        big,
+        t,
+        onCancel,
+        name,
+        url,
+        onSubmit,
+        fill,
+        text,
+        defaultAdding = false,
+        minimal = true,
+        id,
+    }) => {
         const [isAdding, setIsAdding] = useState<boolean>(defaultAdding);
         const [newName, setName] = useState<string>(name);
-        const [newUrl, setUrl] = useState<string>(url);
+        const [newUrl, setUrl] = useState<string>(getUrlWithoutCredentials(url));
+        const [newUser, setUser] = useState<string>(urlParse(url)?.username || '');
+        const [newPassword, setPassword] = useState<string>(
+            decodeURIComponent(urlParse(url)?.password || '')
+        );
 
         const handleAddClick = () => {
             setIsAdding(true);
@@ -51,12 +78,20 @@ export default withTextContext()(
             }
         };
 
-        const handleNameChange: (event: React.FormEvent<HTMLElement>) => void = event => {
+        const handleNameChange: (event: React.FormEvent<HTMLElement>) => void = (event) => {
             setName(event.target.value);
         };
 
-        const handleUrlChange: (event: React.FormEvent<HTMLElement>) => void = event => {
+        const handleUrlChange: (event: React.FormEvent<HTMLElement>) => void = (event) => {
             setUrl(event.target.value);
+        };
+
+        const handleUSerChange: (event: React.FormEvent<HTMLElement>) => void = (event) => {
+            setUser(event.target.value);
+        };
+
+        const handlePasswordChange: (event: React.FormEvent<HTMLElement>) => void = (event) => {
+            setPassword(event.target.value);
         };
 
         const handleCreateClick = () => {
@@ -74,11 +109,29 @@ export default withTextContext()(
                 // Do not submit
                 submit = false;
             }
+            // if username or password is set, the other one has to also be set
+            if (newUser && newUser !== '' && (!newPassword || newPassword === '')) {
+                submit = false;
+            }
+
+            if (newPassword && newPassword !== '' && (!newUser || newUser === '')) {
+                submit = false;
+            }
+
             // Submit the new data if all conditions
             // are met
             if (submit) {
+                // Build the URL
+                const { protocol, slashes, host, query, pathname, hash } = urlParse(newUrl);
+                const credentials =
+                    newUser && newPassword && newUser !== '' && newPassword !== ''
+                        ? `${newUser}:${encodeURIComponent(newPassword)}@`
+                        : '';
+                let url = `${protocol}${slashes ? '//' : ''}${credentials}`;
+                url += `${host}${pathname}${query}${hash}`;
+
                 // Pass the data
-                onSubmit(newName, newUrl);
+                onSubmit(newName, url);
                 // Remove editing
                 setIsAdding(false);
             }
@@ -106,14 +159,32 @@ export default withTextContext()(
                             }}
                         />
                         {withUrl && (
-                            <InputGroup
-                                value={newUrl}
-                                placeholder={t('Url')}
-                                onChange={handleUrlChange}
-                                onKeyUp={handleEnterPress}
-                                small={!big}
-                                name={`${id}-url`}
-                            />
+                            <>
+                                <InputGroup
+                                    value={newUrl}
+                                    placeholder={t('Url')}
+                                    onChange={handleUrlChange}
+                                    onKeyUp={handleEnterPress}
+                                    small={!big}
+                                    name={`${id}-url`}
+                                />
+                                <InputGroup
+                                    value={newUser}
+                                    placeholder={t('Username')}
+                                    onChange={handleUSerChange}
+                                    onKeyUp={handleEnterPress}
+                                    small={!big}
+                                    name={`${id}-username`}
+                                />
+                                <InputGroup
+                                    value={newPassword}
+                                    placeholder={t('Password')}
+                                    onChange={handlePasswordChange}
+                                    onKeyUp={handleEnterPress}
+                                    small={!big}
+                                    name={`${id}-password`}
+                                />
+                            </>
                         )}
 
                         <Button icon="cross" onClick={handleCancelClick} small={!big} />
