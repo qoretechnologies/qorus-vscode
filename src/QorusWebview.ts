@@ -9,6 +9,7 @@ import { ActionDispatcher as creator } from './interface_creator/ActionDispatche
 import { FormChangesResponder } from './interface_creator/FormChangesResponder';
 import { triggers } from './interface_creator/standard_methods';
 import { deleter } from './QorusDelete';
+import { drafts_tree } from './QorusDraftsTree';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
 import { config_filename, projects, QorusProject } from './QorusProject';
@@ -20,13 +21,13 @@ import { deepCopy } from './qorus_utils';
 
 const web_path = path.join(__dirname, '..', 'dist');
 
-const unsavedFilesLocation = {
+export const unsavedFilesLocation = {
     WINDOWS: '%appdata%/Code/Backups',
     LINUX: '.config/Code/Backups',
     MACOS: 'Library/Application Support/Code/Backups',
 };
 
-const getOs = () => {
+export const getOs = () => {
     switch (os.platform()) {
         case 'darwin':
             return 'MACOS';
@@ -465,6 +466,7 @@ class QorusWebview {
                                 )
                             )
                                 .then(() => {
+                                    drafts_tree.refresh();
                                     this.panel.webview.postMessage({
                                         action: 'delete-draft-complete',
                                         request_id: message.request_id,
@@ -506,6 +508,7 @@ class QorusWebview {
                                 })
                             )
                                 .then(() => {
+                                    drafts_tree.refresh();
                                     this.panel.webview.postMessage({
                                         action: 'save-draft-complete',
                                         request_id: message.request_id,

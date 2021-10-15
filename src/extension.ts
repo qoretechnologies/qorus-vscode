@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
 import { isLangClientAvailable } from './qore_vscode';
 import { deployer } from './QorusDeploy';
+import { drafts_tree } from './QorusDraftsTree';
 import { qorusIcons } from './QorusIcons';
 import { instance_tree } from './QorusInstanceTree';
 import { interface_tree } from './QorusInterfaceTree';
@@ -233,6 +234,9 @@ export async function activate(context: vscode.ExtensionContext) {
     interface_tree.setExtensionPath(context.extensionPath);
 
     disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', interface_tree);
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.window.registerTreeDataProvider('qorusDrafts', drafts_tree);
     context.subscriptions.push(disposable);
 
     disposable = vscode.languages.registerCodeLensProvider(

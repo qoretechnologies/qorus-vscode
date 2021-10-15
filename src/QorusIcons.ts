@@ -25,8 +25,7 @@ const WorkflowIconName = 'exchange.svg';
 const FsmIconName = 'layout.svg';
 const PipelineIconName = 'graph.svg';
 
-
-export class QorusIcons  {
+export class QorusIcons {
     private classIcon;
     private connectionIcon;
     private errorsIcon;
@@ -47,85 +46,84 @@ export class QorusIcons  {
     private fsmIcon;
     private pipelineIcon;
 
-    constructor() {
-    }
+    constructor() {}
 
     update(extensionPath: string) {
         this.classIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ClassIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ClassIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ClassIconName)),
         };
         this.connectionIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ConnectionIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ConnectionIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ConnectionIconName)),
         };
         this.errorsIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ErrorsIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ErrorsIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ErrorsIconName)),
         };
         this.eventIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, EventIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, EventIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, EventIconName)),
         };
         this.folderIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, FolderIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, FolderIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, FolderIconName)),
         };
         this.groupIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, GroupIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, GroupIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, GroupIconName)),
         };
         this.interfaceIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, InterfaceIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, InterfaceIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, InterfaceIconName)),
         };
         this.jobIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, JobIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, JobIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, JobIconName)),
         };
         this.mapperCodeIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, MapperCodeIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, MapperCodeIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, MapperCodeIconName)),
         };
         this.mapperIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, MapperIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, MapperIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, MapperIconName)),
         };
         this.packageIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, PackageIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, PackageIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, PackageIconName)),
         };
         this.queueIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, QueueIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, QueueIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, QueueIconName)),
         };
         this.serviceIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ServiceIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ServiceIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ServiceIconName)),
         };
         this.stepIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, StepIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, StepIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, StepIconName)),
         };
         this.typeIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, TypeIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, TypeIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, TypeIconName)),
         };
         this.valueMapIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, ValueMapIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ValueMapIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, ValueMapIconName)),
         };
         this.workflowIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, WorkflowIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, WorkflowIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, WorkflowIconName)),
         };
         this.fsmIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, FsmIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, FsmIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, FsmIconName)),
         };
         this.pipelineIcon = {
             dark: Uri.file(join(extensionPath, DarkIconsDirRelPath, PipelineIconName)),
-            light: Uri.file(join(extensionPath, LightIconsDirRelPath, PipelineIconName))
+            light: Uri.file(join(extensionPath, LightIconsDirRelPath, PipelineIconName)),
         };
     }
 
@@ -138,6 +136,10 @@ export class QorusIcons  {
     }
 
     getErrorsIcon() {
+        return this.errorsIcon;
+    }
+
+    getErrorIcon() {
         return this.errorsIcon;
     }
 
@@ -162,6 +164,10 @@ export class QorusIcons  {
     }
 
     getMapperCodeIcon() {
+        return this.mapperCodeIcon;
+    }
+
+    getMappercodeIcon() {
         return this.mapperCodeIcon;
     }
 
@@ -190,6 +196,10 @@ export class QorusIcons  {
     }
 
     getValueMapIcon() {
+        return this.valueMapIcon;
+    }
+
+    getValuemapIcon() {
         return this.valueMapIcon;
     }
 
