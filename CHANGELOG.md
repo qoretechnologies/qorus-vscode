@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.23
+
+#### Bug Fixes
+
+-   Passwords for Qorus with special characters are now supported
+    _Existing passwords with special characters need to be updated manually in the environments view_
+
 ## 2.3.22
 
 #### Bug Fixes
