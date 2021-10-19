@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { ActionDispatcher as creator } from './interface_creator/ActionDispatcher';
 import { isLangClientAvailable } from './qore_vscode';
 import { deployer } from './QorusDeploy';
+import { QorusDraftsInstance } from './QorusDrafts';
 import { drafts_tree } from './QorusDraftsTree';
 import { qorusIcons } from './QorusIcons';
 import { instance_tree } from './QorusInstanceTree';
@@ -149,6 +150,31 @@ export async function activate(context: vscode.ExtensionContext) {
         );
         context.subscriptions.push(disposable);
     });
+
+    disposable = vscode.commands.registerCommand('qorus.deleteDraft', (data) => {
+        const [interfaceKind, interfaceId] = data.tooltip.split('|');
+
+        vscode.window.showInformationMessage(t`DeleteDraft`, t`Yes`, t`No`).then((selection) => {
+            if (selection === t`Yes`) {
+                QorusDraftsInstance.deleteDraftOrDrafts(interfaceKind, interfaceId);
+            }
+        });
+    });
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand('qorus.deleteInterfaceDrafts', (data) => {
+        const [interfaceKind] = data.tooltip.split('|');
+
+        vscode.window
+            .showInformationMessage(t`DeleteInterfaceDrafts`, t`Yes`, t`No`)
+            .then((selection) => {
+                if (selection === t`Yes`) {
+                    QorusDraftsInstance.deleteDraftOrDrafts(interfaceKind);
+                }
+            });
+    });
+
+    context.subscriptions.push(disposable);
 
     disposable = vscode.commands.registerCommand(
         'qorus.editInterface',

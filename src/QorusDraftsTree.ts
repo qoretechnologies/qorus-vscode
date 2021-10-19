@@ -1,9 +1,12 @@
-import { readdirSync, readFileSync } from 'fs';
-import { capitalize, size, sortBy } from 'lodash';
-import * as path from 'path';
+const tago = require('javascript-time-ago');
+import * as en from 'javascript-time-ago/locale/en.json';
+import { capitalize } from 'lodash';
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from 'vscode';
+import { QorusDraftsInstance } from './QorusDrafts';
 import { qorusIcons } from './QorusIcons';
-import { getOs, unsavedFilesLocation } from './QorusWebview';
+
+tago.addDefaultLocale(en);
+const timeAgo = new tago('en-US');
 
 class QorusDraftsTree implements TreeDataProvider<QorusDraftItem> {
     private onTreeDataChanged: EventEmitter<QorusDraftItem | undefined> = new EventEmitter<
@@ -27,59 +30,29 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftItem> {
     async getChildren(el): Promise<QorusDraftItem[]> {
         // Fetch the draft folders if we are rendering the root
         if (!el) {
-            const allDraftFolders = readdirSync(
-                path.join(process.env.HOME, unsavedFilesLocation[getOs()])
-            );
+            const allDraftFolders = QorusDraftsInstance.getDraftsFolders();
 
             return allDraftFolders.map((folder) => {
-                // Get the number of drafts for this interface
-                const draftFiles = readdirSync(
-                    path.join(process.env.HOME, unsavedFilesLocation[getOs()], folder)
-                );
-
                 return new QorusDraftItem(
-                    capitalize(folder),
-                    `(${size(draftFiles).toString()})`,
+                    capitalize(folder.replace('-', ' ')),
+                    `(${QorusDraftsInstance.getDraftsCountForInterface(folder).toString()})`,
                     TreeItemCollapsibleState.Collapsed,
                     folder
                 );
             });
         }
+        const label = el.label.toLowerCase();
         // A category has been expanded, we need to fetch the individual drafts for this
         // folder
-        const drafts: any[] = [];
-        const draftFiles = readdirSync(
-            path.join(process.env.HOME, unsavedFilesLocation[getOs()], el.label.toLowerCase())
-        );
-
-        draftFiles.forEach((fileName) => {
-            const fileContent = readFileSync(
-                path.join(
-                    process.env.HOME,
-                    unsavedFilesLocation[getOs()],
-                    el.label.toLowerCase(),
-                    fileName
-                )
-            );
-            const buffer: Buffer = Buffer.from(fileContent);
-            const contents = buffer.toString();
-            drafts.push(JSON.parse(contents));
-        });
-
-        const sortedDrafts = sortBy(drafts, (draft) => draft.date).reverse();
+        const sortedDrafts = QorusDraftsInstance.getDraftsForInterface(label);
 
         return sortedDrafts.map((draft) => {
-            console.log(draft);
-            const name =
-                (draft.data || []).find(
-                    (field) => field.name === 'name' || field.name === 'class-class-name'
-                )?.value || 'Unnamed Interface';
-
             return new QorusDraftItem(
-                name,
-                draft.date.toString(),
+                draft.name,
+                `[${timeAgo.format(draft.date)}]` as string,
                 TreeItemCollapsibleState.None,
-                el.label.toLowerCase()
+                el.label.toLowerCase(),
+                draft.interfaceId
             );
         });
     }
@@ -90,12 +63,17 @@ class QorusDraftItem extends TreeItem {
         public readonly label: string,
         private date: string,
         public readonly collapsibleState: TreeItemCollapsibleState,
-        interfaceKind: string
+        interfaceKind: string,
+        interfaceId?: string
     ) {
         super(label, collapsibleState);
-        this.tooltip = `${this.label}-${this.date}`;
+        this.tooltip = `${interfaceKind}${interfaceId ? `|${interfaceId}` : ''}`;
         this.description = this.date;
         this.iconPath = qorusIcons[`get${capitalize(interfaceKind).replace('-', '')}Icon`]?.();
+
+        if (interfaceId) {
+            this.contextValue = 'draft';
+        }
     }
 }
 

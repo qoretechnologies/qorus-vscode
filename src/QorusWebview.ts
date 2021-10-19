@@ -1,5 +1,4 @@
-import { readdirSync, readFileSync } from 'fs';
-import * as fse from 'fs-extra';
+import { readdirSync } from 'fs';
 import * as map from 'lodash/map';
 import * as os from 'os';
 import * as path from 'path';
@@ -9,7 +8,7 @@ import { ActionDispatcher as creator } from './interface_creator/ActionDispatche
 import { FormChangesResponder } from './interface_creator/FormChangesResponder';
 import { triggers } from './interface_creator/standard_methods';
 import { deleter } from './QorusDelete';
-import { drafts_tree } from './QorusDraftsTree';
+import { QorusDraftsInstance } from './QorusDrafts';
 import { instance_tree } from './QorusInstanceTree';
 import { qorus_locale } from './QorusLocale';
 import { config_filename, projects, QorusProject } from './QorusProject';
@@ -422,108 +421,61 @@ class QorusWebview {
                             console.log(allDraftFiles);
                             break;
                         case 'get-drafts':
-                            const drafts: any[] = [];
-                            const draftFiles = readdirSync(
-                                path.join(
-                                    process.env.HOME,
-                                    unsavedFilesLocation[getOs()],
-                                    message.iface_kind
-                                )
-                            );
-
-                            draftFiles.forEach((fileName) => {
-                                const fileContent = readFileSync(
-                                    path.join(
-                                        process.env.HOME,
-                                        unsavedFilesLocation[getOs()],
-                                        message.iface_kind,
-                                        fileName
-                                    )
-                                );
-                                const buffer: Buffer = Buffer.from(fileContent);
-                                const contents = buffer.toString();
-                                drafts.push(JSON.parse(contents));
-                            });
-
-                            console.log(drafts);
-
                             this.panel.webview.postMessage({
                                 action: 'get-drafts-complete',
                                 request_id: message.request_id,
                                 ok: true,
                                 data: {
-                                    drafts,
+                                    drafts: QorusDraftsInstance.getDraftsForInterface(
+                                        message.iface_kind
+                                    ),
                                 },
                             });
                             break;
                         case 'delete-draft':
-                            fse.remove(
-                                path.join(
-                                    process.env.HOME,
-                                    unsavedFilesLocation[getOs()],
-                                    message.iface_kind,
-                                    `${message.iface_id}.json`
-                                )
-                            )
-                                .then(() => {
-                                    drafts_tree.refresh();
+                            QorusDraftsInstance.deleteDraftOrDrafts(
+                                message.iface_kind,
+                                message.iface_id,
+                                () => {
                                     this.panel.webview.postMessage({
                                         action: 'delete-draft-complete',
                                         request_id: message.request_id,
                                         ok: true,
                                         message: t`DeletingDraftCompleted`,
                                     });
-                                })
-                                .catch((e) => {
+                                },
+                                (e) => {
                                     this.panel.webview.postMessage({
                                         action: 'delete-draft-complete',
                                         request_id: message.request_id,
                                         ok: false,
                                         message: t`DeletingDraftFailed` + e,
                                     });
-                                });
+                                }
+                            );
                             break;
                         case 'save-draft':
-                            if (!message.iface_id) {
-                                this.panel.webview.postMessage({
-                                    action: 'save-draft-complete',
-                                    request_id: message.request_id,
-                                    ok: false,
-                                    message: t`SavingDraftFailed` + t`missingIfaceId`,
-                                });
-                            }
-
-                            fse.outputFile(
-                                path.join(
-                                    process.env.HOME,
-                                    unsavedFilesLocation[getOs()],
-                                    message.iface_kind,
-                                    `${message.iface_id}.json`
-                                ),
-                                JSON.stringify({
-                                    date: Date.now(),
-                                    interfaceId: message.iface_id,
-                                    interfaceKind: message.iface_kind,
-                                    ...message.fileData,
-                                })
-                            )
-                                .then(() => {
-                                    drafts_tree.refresh();
+                            QorusDraftsInstance.saveDraft(
+                                message.iface_kind,
+                                message.iface_id,
+                                message.fileData,
+                                () => {
                                     this.panel.webview.postMessage({
                                         action: 'save-draft-complete',
                                         request_id: message.request_id,
                                         ok: true,
                                         message: t`DraftSaved`,
                                     });
-                                })
-                                .catch((e) => {
+                                },
+                                (e) => {
                                     this.panel.webview.postMessage({
                                         action: 'save-draft-complete',
                                         request_id: message.request_id,
                                         ok: false,
                                         message: t`SavingDraftFailed` + e,
                                     });
-                                });
+                                }
+                            );
                             break;
                         default:
                             msg.log(t`UnknownWebviewMessage ${JSON.stringify(message, null, 4)}`);

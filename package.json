@@ -981,6 +981,24 @@
                     "dark": "images/icons/dark/folder-view.svg",
                     "light": "images/icons/light/folder-view.svg"
                 }
+            },
+            {
+                "command": "qorus.deleteDraft",
+                "title": "Delete draft",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
+            },
+            {
+                "command": "qorus.deleteInterfaceDrafts",
+                "title": "Delete all drafts for this interface",
+                "category": "Qorus",
+                "icon": {
+                    "dark": "images/icons/dark/trash.svg",
+                    "light": "images/icons/light/trash.svg"
+                }
             }
         ],
         "keybindings": [
@@ -1832,6 +1850,16 @@
                     "command": "qorus.views.editWorkflowSteps",
                     "when": "view == qorusInterfaces && viewItem == workflow",
                     "group": "inline"
+                },
+                {
+                    "command": "qorus.deleteInterfaceDrafts",
+                    "when": "view == qorusDrafts && viewItem != draft",
+                    "group": "inline"
+                },
+                {
+                    "command": "qorus.deleteDraft",
+                    "when": "view == qorusDrafts && viewItem == draft",
+                    "group": "inline"
                 }
             ]
         },
@@ -1977,6 +2005,7 @@
         "gettext-parser": "^2.0.0",
         "hoist-non-react-statics": "^3.3.2",
         "java-parser": "^0.8.0",
+        "javascript-time-ago": "^2.3.9",
         "js-yaml": "^3.13.1",
         "markdown-it": "^11.0.0",
         "moment": "^2.24.0",
