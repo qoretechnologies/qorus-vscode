@@ -48,5 +48,6 @@ export const Messages = {
     MAYBE_RECREATE_INTERFACE: 'maybe-recreate-interface',
     SAVE_DRAFT: 'save-draft',
     GET_DRAFTS: 'get-drafts',
+    GET_DRAFT: 'get-draft',
     DELETE_DRAFT: 'delete-draft',
 };

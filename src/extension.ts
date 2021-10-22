@@ -110,6 +110,24 @@ export async function activate(context: vscode.ExtensionContext) {
     disposable = vscode.commands.registerCommand('qorus.openWebview', () => qorus_webview.open());
     context.subscriptions.push(disposable);
 
+    disposable = vscode.commands.registerCommand('qorus.openDrafts', () =>
+        qorus_webview.open({ tab: 'Drafts' })
+    );
+    context.subscriptions.push(disposable);
+
+    disposable = vscode.commands.registerCommand(
+        'qorus.openDraft',
+        (interfaceKind, interfaceId) => {
+            qorus_webview.open({
+                draftData: {
+                    interfaceKind,
+                    interfaceId,
+                },
+            });
+        }
+    );
+    context.subscriptions.push(disposable);
+
     disposable = vscode.commands.registerCommand('qorus.closeWebview', () =>
         qorus_webview.dispose()
     );

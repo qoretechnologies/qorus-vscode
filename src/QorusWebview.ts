@@ -432,6 +432,17 @@ class QorusWebview {
                                 },
                             });
                             break;
+                        case 'get-draft':
+                            this.panel.webview.postMessage({
+                                action: 'get-draft-complete',
+                                request_id: message.request_id,
+                                ok: true,
+                                data: QorusDraftsInstance.getSingleDraftContent(
+                                    message.interfaceKind,
+                                    `${message.interfaceId}.json`
+                                ),
+                            });
+                            break;
                         case 'delete-draft':
                             QorusDraftsInstance.deleteDraftOrDrafts(
                                 message.iface_kind,

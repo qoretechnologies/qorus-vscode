@@ -1,12 +1,32 @@
-import { readdirSync, readFileSync } from 'fs';
+import { mkdirSync, readdirSync, readFileSync } from 'fs';
 import * as fse from 'fs-extra';
 import { capitalize, find, size, sortBy } from 'lodash';
+import * as os from 'os';
 import * as path from 'path';
 import { drafts_tree } from './QorusDraftsTree';
-import { getOs } from './QorusWebview';
+
+export const getOs = () => {
+    switch (os.platform()) {
+        case 'darwin':
+            return 'MACOS';
+        case 'win32':
+            return 'WINDOWS';
+        default:
+            return 'LINUX';
+    }
+};
 
 class QorusDrafts {
-    constructor() {}
+    constructor() {
+        // Precreate the backups folder if it does not exist
+        try {
+            readdirSync(path.join(process.env.HOME, this.getDraftsLocation()));
+        } catch (e) {
+            mkdirSync(path.join(process.env.HOME, this.getDraftsLocation()), {
+                recursive: true,
+            });
+        }
+    }
 
     private getDraftsLocation() {
         const os = getOs();

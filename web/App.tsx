@@ -30,6 +30,7 @@ import { DraftsContext, IDraftData } from './context/drafts';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import { DraftsView } from './DraftsView';
+import { callBackendBasic } from './helpers/functions';
 import withErrors from './hocomponents/withErrors';
 import withFields from './hocomponents/withFields';
 import withFunctions from './hocomponents/withFunctions';
@@ -85,7 +86,7 @@ export interface IApp {
     project_folder: string;
     qorus_instance: any;
     login_visible: boolean;
-    changeTab: (activeTab: string) => void;
+    changeTab: (activeTab: string, subTab?: string) => void;
     openLogin: () => void;
     closeLogin: () => void;
     setActiveInstance: (inst: string) => void;
@@ -112,6 +113,7 @@ const App: FunctionComponent<IApp> = ({
     setInterfaceId,
     setMethodsFromDraft,
     setSelectedFields,
+    draftData,
 }) => {
     const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
     const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
@@ -125,6 +127,24 @@ const App: FunctionComponent<IApp> = ({
     const removeDraft = () => {
         setDraft(null);
     };
+
+    useEffect(() => {
+        const { interfaceKind, interfaceId } = draftData || {};
+
+        if (interfaceKind && interfaceId) {
+            (async () => {
+                const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
+                    interfaceKind,
+                    interfaceId,
+                });
+
+                if (fetchedDraft.ok) {
+                    addDraft({ ...fetchedDraft.data, fields: fetchedDraft.data.data });
+                    changeTab('CreateInterface', fetchedDraft.data.interfaceKind);
+                }
+            })();
+        }
+    }, [draftData]);
 
     const maybeApplyDraft = (interfaceKind: string, draftData: IDraftData) => {
         const shouldApplyDraft = draftData ? true : draft?.interfaceKind === interfaceKind;

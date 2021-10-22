@@ -25,6 +25,7 @@ export default () =>
                 btnStyle?: string;
             }>({});
             const [unfinishedWork, setUnfinishedWork] = useState<{ [key: string]: boolean }>({});
+            const [draftData, setDraftData] = useState(null);
 
             useMount(() => {
                 postMessage(Messages.GET_INITIAL_DATA);
@@ -34,55 +35,27 @@ export default () =>
                 const initialDataListener = addMessageListener(
                     Messages.RETURN_INITIAL_DATA,
                     ({ data }) => {
-                        const setData = () => {
-                            setInitialData({});
+                        setInitialData({});
 
-                            let currentInitialData;
+                        let currentInitialData;
 
-                            setInitialData((current) => {
-                                currentInitialData = { ...current };
-                                return null;
-                            });
+                        setInitialData((current) => {
+                            currentInitialData = { ...current };
+                            return null;
+                        });
 
-                            if (!data.tab) {
-                                data.tab = 'ProjectConfig';
-                            }
-
-                            setTimeout(
-                                () =>
-                                    setInitialData({
-                                        ...currentInitialData,
-                                        ...data,
-                                    }),
-                                0
-                            );
-
-                            if (data.subtab || initialData.subtab) {
-                                setTimeout(
-                                    () =>
-                                        setUnfinishedWork((current) => {
-                                            let result = { ...current };
-                                            if (data.subtab) {
-                                                result[data.subtab] = false;
-                                            }
-                                            if (initialData.subtab) {
-                                                result[initialData.subtab] = false;
-                                            }
-                                            return result;
-                                        }),
-                                    0
-                                );
-                            }
-                        };
-
-                        if (
-                            initialData.tab === 'CreateInterface' &&
-                            unfinishedWork[initialData.subtab]
-                        ) {
-                            confirmAction('UnfinishedWork', setData, 'Leave', 'warning');
-                        } else {
-                            setData();
+                        if (!data.tab) {
+                            data.tab = 'ProjectConfig';
                         }
+
+                        if (data.draftData) {
+                            setDraftData(data.draftData);
+                        }
+
+                        setInitialData({
+                            ...currentInitialData,
+                            ...data,
+                        });
                     }
                 );
 
@@ -298,6 +271,7 @@ export default () =>
                         unfinishedWork,
                         setUnfinishedWork,
                         toggleSidebar,
+                        draftData,
                     }}
                 >
                     <InitialContext.Consumer>
