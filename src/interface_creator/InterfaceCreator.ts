@@ -235,7 +235,7 @@ export abstract class InterfaceCreator {
         while (contents.match(/\n\n\n/)) {
             contents = contents.replace(/\n\n\n/g, '\n\n');
         }
-        contents.replace(/\n\n$/, '\n');
+        contents.replace(/\n\n$/g, '\n');
         if (contents[contents.length - 1] !== '\n') {
             contents += '\n';
         }

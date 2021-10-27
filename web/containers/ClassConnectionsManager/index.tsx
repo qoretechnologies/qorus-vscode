@@ -280,6 +280,11 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
             isValid = false;
         }
 
+        // Check if the name is proper
+        if (!validateField('string', name, { has_to_be_valid_identifier: true })) {
+            isValid = false;
+        }
+
         return isValid;
     };
 
@@ -323,12 +328,19 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                         <br />
                         <ControlGroup fill>
                             <Button
-                                intent="success"
+                                intent={
+                                    !validateField('string', manageDialog.newName, {
+                                        has_to_be_valid_identifier: true,
+                                    })
+                                        ? 'danger'
+                                        : 'success'
+                                }
                                 text={t('Submit')}
                                 icon="small-tick"
                                 disabled={
-                                    !validateField('string', manageDialog.newName) ||
-                                    !!connections[manageDialog.newName]
+                                    !validateField('string', manageDialog.newName, {
+                                        has_to_be_valid_identifier: true,
+                                    }) || !!connections[manageDialog.newName]
                                 }
                                 onClick={() => {
                                     setConnections(
