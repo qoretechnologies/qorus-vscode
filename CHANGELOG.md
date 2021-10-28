@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.24
+
+#### Bug Fixes
+
+-   Spaces in class connections are no longer allowed & supported
+
 ## 2.3.23
 
 #### Bug Fixes

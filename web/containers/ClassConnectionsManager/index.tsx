@@ -98,14 +98,22 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         return 1;
     };
 
-    const [connections, setConnections] = useState<IClassConnections>(cloneDeep(initialConnections || {}));
+    const [connections, setConnections] = useState<IClassConnections>(
+        cloneDeep(initialConnections || {})
+    );
     const [selectedConnection, setSelectedConnection] = useState(null);
     const [classesData, setClassesData] = useState(null);
     const [manageDialog, setManageDialog] = useState<IClassConnectionsManageDialog>({});
-    const [lastConnectorId, setLastConnectorId] = useState<number>(getConnectorsCount(initialConnections));
-    const [lastConnectionId, setLastConnectionId] = useState<number>(initialConnections ? size(initialConnections) : 0);
+    const [lastConnectorId, setLastConnectorId] = useState<number>(
+        getConnectorsCount(initialConnections)
+    );
+    const [lastConnectionId, setLastConnectionId] = useState<number>(
+        initialConnections ? size(initialConnections) : 0
+    );
     const [isCheckingCompatibility, setIsCheckingCompatibility] = useState<boolean>(false);
-    const classes = selectedFields[ifaceType][interfaceIndex].find((field: IField) => field.name === 'classes').value;
+    const classes = selectedFields[ifaceType][interfaceIndex].find(
+        (field: IField) => field.name === 'classes'
+    ).value;
     const initContext = useContext(InitialContext);
 
     // Get the classes data
@@ -142,8 +150,16 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
             connData.previousItemData = data[index - 1];
             connData.nextItemData = data[index + 1];
 
-            const isInputCompatible = await areConnectorsCompatible('input', connData.connector, connData);
-            const isOutputCompatible = await areConnectorsCompatible('output', connData.connector, connData);
+            const isInputCompatible = await areConnectorsCompatible(
+                'input',
+                connData.connector,
+                connData
+            );
+            const isOutputCompatible = await areConnectorsCompatible(
+                'output',
+                connData.connector,
+                connData
+            );
 
             newData[index] = {
                 ...connData,
@@ -169,11 +185,11 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
         }
     }, [selectedConnection]);
 
-    const handleAddConnector: (name: string, data: IClassConnection, changedConnector?: boolean) => void = async (
-        name,
-        data,
-        changedConnector
-    ) => {
+    const handleAddConnector: (
+        name: string,
+        data: IClassConnection,
+        changedConnector?: boolean
+    ) => void = async (name, data, changedConnector) => {
         let modifiedConnection: IClassConnection[] =
             !data.index && data.index !== 0
                 ? [{ ...data, id: lastConnectorId }]
@@ -183,7 +199,10 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                           if (data.isEditing) {
                               if (changedConnector) {
                                   // Replace the current data and remove the mapper
-                                  return [...newConnectors, omit({ ...connector, ...data }, ['mapper'])];
+                                  return [
+                                      ...newConnectors,
+                                      omit({ ...connector, ...data }, ['mapper']),
+                                  ];
                               }
                               // Replace data without removing the mapper
                               return [...newConnectors, { ...connector, ...data }];
@@ -216,15 +235,18 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
     };
 
     const handleDeleteConnector: (name: string, id: number) => void = async (name, id) => {
-        let modifiedConnection: IClassConnection[] = connections[name].reduce((newConnectors, connector, index) => {
-            // Check if the index matches the passed index
-            if (index === id) {
-                // Add new connector
-                return [...newConnectors];
-            }
-            // Return unchanged
-            return [...newConnectors, connector];
-        }, []);
+        let modifiedConnection: IClassConnection[] = connections[name].reduce(
+            (newConnectors, connector, index) => {
+                // Check if the index matches the passed index
+                if (index === id) {
+                    // Add new connector
+                    return [...newConnectors];
+                }
+                // Return unchanged
+                return [...newConnectors, connector];
+            },
+            []
+        );
 
         modifiedConnection = await checkConnectionCompatibility(modifiedConnection);
 
@@ -258,11 +280,18 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
             isValid = false;
         }
 
+        // Check if the name is proper
+        if (!validateField('string', name, { has_to_be_valid_identifier: true })) {
+            isValid = false;
+        }
+
         return isValid;
     };
 
     const areAllConnectionsValid = () => {
-        return size(connections) === 0 || every(connections, (_conn, name) => isConnectionValid(name));
+        return (
+            size(connections) === 0 || every(connections, (_conn, name) => isConnectionValid(name))
+        );
     };
 
     const getUniqueClasses = () => {
@@ -290,40 +319,55 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                             placeholder={t('Name')}
                             value={manageDialog.newName}
                             onChange={(_fieldName, value) =>
-                                setManageDialog((current) => ({ ...current, newName: value }))
+                                setManageDialog((current) => ({
+                                    ...current,
+                                    newName: value.replace(/ /g, ''),
+                                }))
                             }
                         />
                         <br />
                         <ControlGroup fill>
                             <Button
-                                intent="success"
+                                intent={
+                                    !validateField('string', manageDialog.newName, {
+                                        has_to_be_valid_identifier: true,
+                                    })
+                                        ? 'danger'
+                                        : 'success'
+                                }
                                 text={t('Submit')}
                                 icon="small-tick"
                                 disabled={
-                                    !validateField('string', manageDialog.newName) ||
-                                    !!connections[manageDialog.newName]
+                                    !validateField('string', manageDialog.newName, {
+                                        has_to_be_valid_identifier: true,
+                                    }) || !!connections[manageDialog.newName]
                                 }
                                 onClick={() => {
-                                    setConnections((current: IClassConnections): IClassConnections => {
-                                        const result = reduce(
-                                            current,
-                                            (newConnections, connection, connName) => {
-                                                // If the connection matches the old name
-                                                if (connName === manageDialog.name) {
-                                                    // Replace the connection
+                                    setConnections(
+                                        (current: IClassConnections): IClassConnections => {
+                                            const result = reduce(
+                                                current,
+                                                (newConnections, connection, connName) => {
+                                                    // If the connection matches the old name
+                                                    if (connName === manageDialog.name) {
+                                                        // Replace the connection
+                                                        return {
+                                                            ...newConnections,
+                                                            [manageDialog.newName]: connection,
+                                                        };
+                                                    }
+                                                    // Return unchanged
                                                     return {
                                                         ...newConnections,
-                                                        [manageDialog.newName]: connection,
+                                                        [connName]: connection,
                                                     };
-                                                }
-                                                // Return unchanged
-                                                return { ...newConnections, [connName]: connection };
-                                            },
-                                            {}
-                                        );
+                                                },
+                                                {}
+                                            );
 
-                                        return result;
-                                    });
+                                            return result;
+                                        }
+                                    );
 
                                     setManageDialog({});
                                     setSelectedConnection(manageDialog.newName);
@@ -336,7 +380,9 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
             <PanelWrapper style={{ padding: '20px 20px 0 20px', margin: 0 }}>
                 <SidePanel title={t('AddClassConnectionsTitle')}>
                     <ContentWrapper>
-                        {size(connections) === 0 && <p className={Classes.TEXT_MUTED}>No connections added</p>}
+                        {size(connections) === 0 && (
+                            <p className={Classes.TEXT_MUTED}>No connections added</p>
+                        )}
                         {map(connections, (connection, name: string) => (
                             <MethodSelector
                                 key={name}
@@ -349,7 +395,9 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                     <Button
                                         icon="edit"
                                         minimal
-                                        onClick={() => setManageDialog({ isOpen: true, name, newName: name })}
+                                        onClick={() =>
+                                            setManageDialog({ isOpen: true, name, newName: name })
+                                        }
                                     />
                                     <Button
                                         icon="trash"
@@ -357,21 +405,24 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                         minimal
                                         onClick={(event) => {
                                             event.stopPropagation();
-                                            initContext.confirmAction('ConfirmRemoveConnection', () => {
-                                                setConnections((current) => {
-                                                    if (selectedConnection === name) {
-                                                        setSelectedConnection(null);
-                                                    }
-                                                    const result = { ...current };
-                                                    delete result[name];
-                                                    // Check if there are any connections left
-                                                    if (!size(result)) {
-                                                        // reset the ID
-                                                        setLastConnectionId(1);
-                                                    }
-                                                    return result;
-                                                });
-                                            });
+                                            initContext.confirmAction(
+                                                'ConfirmRemoveConnection',
+                                                () => {
+                                                    setConnections((current) => {
+                                                        if (selectedConnection === name) {
+                                                            setSelectedConnection(null);
+                                                        }
+                                                        const result = { ...current };
+                                                        delete result[name];
+                                                        // Check if there are any connections left
+                                                        if (!size(result)) {
+                                                            // reset the ID
+                                                            setLastConnectionId(1);
+                                                        }
+                                                        return result;
+                                                    });
+                                                }
+                                            );
                                         }}
                                     />
                                 </ButtonGroup>
@@ -390,7 +441,9 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                             [`${t('Connection')}_${lastConnectionId + 1}`]: [],
                                         })
                                     );
-                                    setSelectedConnection(`${t('Connection')}_${lastConnectionId + 1}`);
+                                    setSelectedConnection(
+                                        `${t('Connection')}_${lastConnectionId + 1}`
+                                    );
                                     setLastConnectionId((cur) => cur + 1);
                                 }}
                             />
@@ -410,7 +463,14 @@ const ClassConnectionsManager: React.FC<IClassConnectionsManagerProps> = ({
                                 <Loader text={t('CheckingCompatibility')} />
                             </StyledCompatibilityLoader>
                         ) : (
-                            <div style={{ width: '100%', display: 'flex', flex: '1 1 auto', justifyContent: 'center' }}>
+                            <div
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    flex: '1 1 auto',
+                                    justifyContent: 'center',
+                                }}
+                            >
                                 {selectedConnection ? (
                                     <ClassConnectionsDiagram
                                         t={t}

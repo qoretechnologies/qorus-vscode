@@ -1,4 +1,5 @@
 import * as jsyaml from 'js-yaml';
+import { size } from 'lodash';
 import { t } from 'ttag';
 import { window, workspace } from 'vscode';
 import { qorus_webview } from '../QorusWebview';
@@ -153,7 +154,7 @@ class InterfaceWithoutMethodsCreator extends InterfaceCreator {
                     );
                 }
 
-                if (methods && data['class-connections']) {
+                if (methods && size(data['class-connections'])) {
                     methods += '\n';
                 }
 

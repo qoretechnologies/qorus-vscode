@@ -30,6 +30,17 @@ const removeMethodTriggers = (methods, connectionData) =>
         return [...newData, newConnector];
     }, []);
 
+const transformClassConnections = (connections: IClassConnections): IClassConnections => {
+    return reduce(
+        connections,
+        (newConnections, data, name) => ({
+            ...newConnections,
+            [name.replace(/ /g, '')]: data,
+        }),
+        {}
+    );
+};
+
 const ClassConnectionsStateProvider = ({
     selectedFields,
     type,
@@ -39,7 +50,7 @@ const ClassConnectionsStateProvider = ({
 }) => {
     const [showClassConnectionsManager, setShowClassConnectionsManager] = useState<boolean>(false);
     const [classConnectionsData, setClassConnectionsData] = useState<IClassConnections>(
-        initialData[type]?.['class-connections']
+        transformClassConnections(initialData[type]?.['class-connections'])
     );
     const [methodsCount, setMethodsCount] = useState<number>(null);
 
