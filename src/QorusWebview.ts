@@ -1,4 +1,3 @@
-import { readdirSync } from 'fs';
 import * as map from 'lodash/map';
 import * as os from 'os';
 import * as path from 'path';
@@ -405,9 +404,14 @@ class QorusWebview {
               project.code_info.deleteInterfaceFromWebview(message);
               break;
             case 'get-all-drafts':
-              const allDraftFiles = readdirSync(
-                path.join(process.env.HOME, unsavedFilesLocation[getOs()])
-              );
+              this.panel.webview.postMessage({
+                action: 'get-all-drafts-complete',
+                request_id: message.request_id,
+                ok: true,
+                data: {
+                  drafts: QorusDraftsInstance.getAllDraftCategoriesWithCount(),
+                },
+              });
               break;
             case 'get-drafts':
               this.panel.webview.postMessage({

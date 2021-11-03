@@ -1,7 +1,8 @@
-import { size } from 'lodash';
+import { map, size } from 'lodash';
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import mapProps from 'recompose/mapProps';
 import { ErrorsContext } from '../context/errors';
+import { getNameFromFields } from './withMethods';
 
 // A HoC helper that holds all the state for interface creations
 export default () =>
@@ -13,6 +14,7 @@ export default () =>
       const [errorsCount, setErrorsCount] = useState<number>(props.initialErrorsCount);
       const [lastErrorId, setLastErrorId] = useState<number>(props.initialErrorsId);
       const [activeError, setActiveError] = useState<any>(1);
+      const [errorsData, setErrorsData] = useState(props.errorsData);
 
       const resetErrors = () => {
         setShowErrors(false);
@@ -20,6 +22,17 @@ export default () =>
         setErrorsCount(props.initialErrorsCount);
         setLastErrorId(props.initialErrorsId);
         setActiveError(1);
+      };
+
+      const setErrorsFromDraft = (errors) => {
+        const errorsList = map(errors, (methodFields, methodId) => ({
+          name: getNameFromFields(methodFields, methodId),
+          id: methodId,
+        }));
+        setSubErrors(errorsList);
+        setErrorsData(errorsList);
+        setErrorsCount(size(errors));
+        setActiveError(errorsList[0].id || 1);
       };
 
       useEffect(() => {
@@ -53,10 +66,11 @@ export default () =>
             setActiveError,
             setSubErrors,
             setErrorsCount,
-            errorsData: props.errorsData,
+            errorsData,
             resetErrors,
             lastErrorId,
             initialActiveError: 1,
+            setErrorsFromDraft,
           }}
         >
           <Component {...props} />

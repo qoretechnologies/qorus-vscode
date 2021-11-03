@@ -5,10 +5,11 @@ export interface IDraftData {
   interfaceId: string;
   fields: any[];
   methods?: any;
-  steps: {
+  steps?: {
     steps: any[];
     stepsData: any[];
   };
+  diagram?: any;
 }
 
 export interface IDraftsContext {

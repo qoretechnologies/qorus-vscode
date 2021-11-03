@@ -48,15 +48,22 @@ class QorusDrafts {
 
   public getSingleDraftContent(interfaceKind: string, fileName: string) {
     const file = readFileSync(
-      path.join(process.env.HOME, this.getDraftsLocation(), interfaceKind, fileName)
+      path.join(
+        process.env.HOME,
+        this.getDraftsLocation(),
+        interfaceKind.toLowerCase().replace(/ /g, '-'),
+        fileName
+      )
     );
     const buffer: Buffer = Buffer.from(file);
     const contents = buffer.toString();
     const draft = JSON.parse(contents);
     // build the name
     const name =
-      find(draft.data || [], (field) => field.name === 'name' || field.name === 'class-class-name')
-        ?.value || `Unnamed ${capitalize(interfaceKind)}`;
+      find(
+        draft.selectedFields || [],
+        (field) => field.name === 'name' || field.name === 'class-class-name'
+      )?.value || `Unnamed ${capitalize(interfaceKind)}`;
 
     return {
       ...draft,
@@ -67,7 +74,11 @@ class QorusDrafts {
   public getDraftsForInterface(interfaceKind: string) {
     const drafts: any[] = [];
     const draftFiles = readdirSync(
-      path.join(process.env.HOME, this.getDraftsLocation(), interfaceKind)
+      path.join(
+        process.env.HOME,
+        this.getDraftsLocation(),
+        interfaceKind.toLowerCase().replace(/ /g, '-')
+      )
     );
 
     draftFiles.forEach((fileName) => {
@@ -81,6 +92,18 @@ class QorusDrafts {
     return size(this.getDraftsForInterface(interfaceKind));
   }
 
+  public getAllDraftCategoriesWithCount(): { [interfaceKind: string]: number } {
+    const folders = this.getDraftsFolders();
+
+    return folders.reduce(
+      (newFolders, folder) => ({
+        ...newFolders,
+        [folder]: this.getDraftsCountForInterface(folder),
+      }),
+      {}
+    );
+  }
+
   public deleteDraftOrDrafts(
     interfaceKind: string,
     interfaceId?: string,
@@ -90,7 +113,7 @@ class QorusDrafts {
     const loc = path.join(
       process.env.HOME,
       this.getDraftsLocation(),
-      interfaceKind,
+      interfaceKind.toLowerCase().replace(/ /g, '-'),
       interfaceId && interfaceId !== 'undefined' ? `${interfaceId}.json` : ''
     );
     fse
@@ -111,6 +134,7 @@ class QorusDrafts {
     onSuccess?: () => void,
     onError?: (error: string) => void
   ) {
+    console.log(interfaceData);
     fse
       .outputFile(
         path.join(process.env.HOME, this.getDraftsLocation(), interfaceKind, `${interfaceId}.json`),

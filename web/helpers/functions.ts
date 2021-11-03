@@ -14,6 +14,7 @@ import set from 'lodash/set';
 import size from 'lodash/size';
 import shortid from 'shortid';
 import { AppToaster } from '../components/Toast';
+import { interfaceKindTransform } from '../constants/interfaces';
 import { Messages } from '../constants/messages';
 import { IFSMState, IFSMStates, IFSMTransition } from '../containers/InterfaceCreator/fsm';
 import { addMessageListener, postMessage } from '../hocomponents/withMessageHandler';
@@ -261,8 +262,8 @@ export const isFSMStateValid = (state: IFSMState) => {
 
 export const callBackendBasic: (
   getMessage: string,
-  returnMessage: string,
-  data: any,
+  returnMessage?: string,
+  data?: any,
   toastMessage?: string
 ) => Promise<any> = async (getMessage, returnMessage, data, toastMessage) => {
   // Create the unique ID for this request
@@ -433,14 +434,6 @@ const fetchData: (url: string, method: string, body?: { [key: string]: any }) =>
 export { functionOrStringExp, getType };
 
 export const saveDraft = async (interfaceKind, interfaceId, fileData) => {
-  const interfaceKindTransform = {
-    'service-methods': 'service',
-    step: 'workflow',
-    'mapper-methods': 'mapper-code',
-    error: 'errors',
-    workflow: 'workflow',
-  };
-
   await callBackendBasic(
     Messages.SAVE_DRAFT,
     undefined,

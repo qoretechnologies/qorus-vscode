@@ -9,7 +9,7 @@ import {
 } from '@blueprintjs/core';
 import last from 'lodash/last';
 import size from 'lodash/size';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
 import { useEffectOnce } from 'react-use';
@@ -27,6 +27,7 @@ import InterfaceCreator from './containers/InterfaceCreator';
 import { ContextMenuContext, IContextMenu } from './context/contextMenu';
 import { DialogsContext } from './context/dialogs';
 import { DraftsContext, IDraftData } from './context/drafts';
+import { ErrorsContext } from './context/errors';
 import { TextContext } from './context/text';
 import { DeleteInterfacesContainer as DeleteInterfaces } from './delete_interfaces/DeleteInterfaces';
 import { DraftsView } from './DraftsView';
@@ -112,14 +113,19 @@ const App: FunctionComponent<IApp> = ({
   setConfirmDialog,
   setInterfaceId,
   setMethodsFromDraft,
+  setFunctionsFromDraft,
+  setMapperFromDraft,
   setSelectedFields,
   draftData,
   setStepsFromDraft,
+  setFieldsFromDraft,
+  ...rest
 }) => {
   const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
   const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
   const [contextMenu, setContextMenu] = useState<IContextMenu>(null);
   const [draft, setDraft] = useState(null);
+  const { setErrorsFromDraft }: any = useContext(ErrorsContext);
 
   const addDraft = (draftData: any) => {
     setDraft(draftData);
@@ -140,7 +146,7 @@ const App: FunctionComponent<IApp> = ({
         });
 
         if (fetchedDraft.ok) {
-          addDraft({ ...fetchedDraft.data, fields: fetchedDraft.data.data });
+          addDraft({ ...fetchedDraft.data });
           changeTab('CreateInterface', fetchedDraft.data.interfaceKind);
         }
       })();
@@ -159,23 +165,43 @@ const App: FunctionComponent<IApp> = ({
     const shouldApplyDraft = draftData ? true : draft?.interfaceKind === interfaceKind;
     // Check if draft for this interface kind exists
     if (shouldApplyDraft) {
-      const { interfaceKind, interfaceId, fields, methods, steps } = draftData || draft;
+      const {
+        interfaceKind,
+        interfaceId,
+        fields,
+        selectedFields,
+        methods,
+        selectedMethods,
+        steps,
+        diagram,
+      } = draftData || draft;
 
       setInterfaceId(interfaceKind, interfaceId);
 
-      if (methods) {
-        setMethodsFromDraft(methods);
-        setSelectedFields(
-          interfaceKind === 'service' ? 'service-methods' : 'mapper-methods',
-          methods
-        );
+      if (interfaceKind === 'service') {
+        setMethodsFromDraft(selectedMethods);
+        setFieldsFromDraft('service-methods', methods, selectedMethods);
+      }
+
+      if (interfaceKind === 'mapper-code') {
+        setFunctionsFromDraft(selectedMethods);
+        setFieldsFromDraft('mapper-methods', methods, selectedMethods);
+      }
+
+      if (interfaceKind === 'errors') {
+        setErrorsFromDraft(selectedMethods);
+        setFieldsFromDraft('error', methods, selectedMethods);
+      }
+
+      if (interfaceKind === 'mapper') {
+        setMapperFromDraft(diagram);
       }
 
       if (steps) {
         setStepsFromDraft(steps.steps, steps.stepsData, steps.lastStepId);
       }
 
-      setSelectedFields(interfaceKind, fields);
+      setFieldsFromDraft(interfaceKind, fields, selectedFields);
 
       // Remove the draft
       removeDraft();

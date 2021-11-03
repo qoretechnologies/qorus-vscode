@@ -43,7 +43,7 @@ import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
-import { callBackendBasic } from '../../helpers/functions';
+import { saveDraft } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -242,6 +242,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   removeInterface,
   interfaceIndex,
   lastStepId,
+  allFields,
+  ...rest
 }) => {
   const isInitialMount = useRef(true);
   const [show, setShow] = useState<boolean>(false);
@@ -300,11 +302,32 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           switch (type) {
             case 'service':
             case 'service-methods':
-              fileData.data = allSelectedFields['service'][interfaceIndex];
-              fileData.methods = allSelectedFields['service-methods'][interfaceIndex];
+              fileData.fields = allFields['service'][interfaceIndex];
+              fileData.selectedFields = allSelectedFields['service'][interfaceIndex];
+              fileData.methods = allFields['service-methods'][interfaceIndex];
+              fileData.selectedMethods = allSelectedFields['service-methods'][interfaceIndex];
               break;
+            case 'mapper-code':
+            case 'mapper-methods':
+              fileData.fields = allFields['mapper-code'][interfaceIndex];
+              fileData.selectedFields = allSelectedFields['mapper-code'][interfaceIndex];
+              fileData.methods = allFields['mapper-methods'][interfaceIndex];
+              fileData.selectedMethods = allSelectedFields['mapper-methods'][interfaceIndex];
+              break;
+            case 'errors':
+            case 'error':
+              fileData.fields = allFields.errors[interfaceIndex];
+              fileData.selectedFields = allSelectedFields.errors[interfaceIndex];
+              fileData.methods = allFields.error[interfaceIndex];
+              fileData.selectedMethods = allSelectedFields.error[interfaceIndex];
+              break;
+            case 'mapper':
+              fileData.fields = allFields.mapper[interfaceIndex];
+              fileData.selectedFields = allSelectedFields.mapper[interfaceIndex];
+              fileData.diagram = rest.mapperData;
             case 'workflow':
-              fileData.data = allSelectedFields['workflow'][interfaceIndex];
+              fileData.fields = allFields['workflow'][interfaceIndex];
+              fileData.selectedFields = allSelectedFields['workflow'][interfaceIndex];
               fileData.steps = {
                 steps,
                 stepsData,
@@ -312,19 +335,11 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               };
               break;
             default:
-              fileData.data = allSelectedFields[type][interfaceIndex];
+              fileData.fields = allFields[type][interfaceIndex];
+              fileData.selectedFields = allSelectedFields[type][interfaceIndex];
           }
 
-          await callBackendBasic(
-            Messages.SAVE_DRAFT,
-            undefined,
-            {
-              iface_id: interfaceId,
-              iface_kind: type === 'service-methods' ? 'service' : type,
-              fileData,
-            },
-            t('SavingDraft')
-          );
+          await saveDraft(type, interfaceId, fileData);
         })();
       }
     },
@@ -432,7 +447,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         }
         const currentInterfaceId = data
           ? clonedData.iface_id
-          : type === 'service-methods' || type === 'mapper-methods'
+          : type === 'service-methods' || type === 'mapper-methods' || type === 'error'
           ? interfaceId
           : shortid.generate();
         // Check if the interface id exists, which means user
@@ -1468,6 +1483,7 @@ export default compose(
       query: query[type][interfaceIndex],
       selectedQuery: selectedQuery[type][interfaceIndex],
       allSelectedFields: selectedFields,
+      allFields: fields,
       interfaceId:
         initialInterfaceId ||
         interfaceId[type === 'service-methods' ? 'service' : type][interfaceIndex],

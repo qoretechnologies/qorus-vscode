@@ -210,10 +210,7 @@ const Tab: React.FC<ITabProps> = ({
   resetAllInterfaceData,
   updateField,
   removeSubItemFromFields,
-  setSelectedFields,
-  setInterfaceId,
   name,
-  setMethodsFromDraft,
 }) => {
   const isEditing: () => boolean = () => !!name;
   const [tutorialData, setTutorialData] = useState<any>({ isOpen: false });
@@ -393,13 +390,11 @@ const Tab: React.FC<ITabProps> = ({
           <div className={Classes.DIALOG_BODY}>
             <DraftsTable
               interfaceKind={type}
-              onClick={(interfaceId, data, methods, steps) => {
+              onClick={(interfaceId, draftData) => {
                 maybeApplyDraft(type, {
                   interfaceId,
                   interfaceKind: type,
-                  fields: data,
-                  methods,
-                  steps,
+                  ...draftData,
                 });
 
                 setDraftsOpen(false);
