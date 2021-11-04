@@ -1,7 +1,4 @@
-import {
-    classToPythonModule,
-    root_job
-} from '../qorus_constants';
+import { classToPythonModule, root_job } from '../qorus_constants';
 import { field } from './common_constants';
 
 export const jobImports = (lang: string, base_class_name: string) => {
@@ -16,7 +13,7 @@ export const jobImports = (lang: string, base_class_name: string) => {
             return [
                 'import qore.OMQ.*;',
                 'import qore.OMQ.UserApi.*;',
-                'import qore.OMQ.UserApi.Job.*;'
+                'import qore.OMQ.UserApi.Job.*;',
             ];
         default:
             return [];
@@ -31,7 +28,7 @@ export const jobFields = ({ default_target_dir, limited_editing }) => [
     field.author,
     field.version,
     {
-        ... field.class_name,
+        ...field.class_name,
         disabled: limited_editing,
     },
     field.lang,
@@ -83,6 +80,7 @@ export const jobFields = ({ default_target_dir, limited_editing }) => [
     {
         name: 'schedule',
         type: 'cron',
+        default_value: '0 0 * * *',
     },
     {
         name: 'fsm',
@@ -97,5 +95,5 @@ export const jobFields = ({ default_target_dir, limited_editing }) => [
         type: 'options',
         url: 'system',
         mandatory: false,
-    }
+    },
 ];
