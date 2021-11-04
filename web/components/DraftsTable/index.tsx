@@ -1,22 +1,25 @@
-import { Button, Classes } from '@blueprintjs/core';
+import { Button, Callout, Classes, InputGroup, Tag } from '@blueprintjs/core';
 import { size, sortBy } from 'lodash';
-import moment from 'moment';
 import React, { useContext, useState } from 'react';
 import { useMount } from 'react-use';
-import { DATE_FORMATS } from '../../constants/dates';
+import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { TextContext } from '../../context/text';
-import { callBackendBasic } from '../../helpers/functions';
+import { callBackendBasic, deleteDraft } from '../../helpers/functions';
 import { StyledDialogSelectItem } from '../Field/select';
+import HorizontalSpacer from '../HorizontalSpacer';
+import Spacer from '../Spacer';
+import { TimeAgo } from '../TimeAgo';
 
 export const DraftsTable = ({ interfaceKind, onClick }: any) => {
   const t = useContext(TextContext);
   const [drafts, setDrafts] = useState<any[]>([]);
+  const [query, setQuery] = useState('');
 
   useMount(() => {
     (async () => {
       const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
-        iface_kind: interfaceKind === 'service-methods' ? 'service' : interfaceKind,
+        iface_kind: interfaceKindTransform[interfaceKind],
       });
 
       if (fetchedDrafts.ok) {
@@ -25,22 +28,11 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
     })();
   });
 
-  const getNameFromData = (data) => {
-    const nameField = data.find(
-      (field) => field.name === 'name' || field.name === 'Name' || field.name === 'class-class-name'
-    );
-
-    return nameField?.value || t('UnnamedInterface');
-  };
-
   const onDeleteClick = async (interfaceId) => {
-    await callBackendBasic(Messages.DELETE_DRAFT, undefined, {
-      iface_kind: interfaceKind === 'service-methods' ? 'service' : interfaceKind,
-      iface_id: interfaceId,
-    });
+    await deleteDraft(interfaceKindTransform[interfaceKind], interfaceId);
 
     const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
-      iface_kind: interfaceKind === 'service-methods' ? 'service' : interfaceKind,
+      iface_kind: interfaceKindTransform[interfaceKind],
     });
 
     if (fetchedDrafts.ok) {
@@ -48,16 +40,37 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
     }
   };
 
-  const sortedDrafts = sortBy(drafts, (draft) => draft.date).reverse();
+  const sortedDrafts = sortBy(drafts, (draft) => draft.date)
+    .reverse()
+    .filter((draft) => {
+      return draft.name.toLowerCase().includes(query.toLowerCase());
+    });
+
+  // Function that returns true or false based on whether every field in the list is valid or not
+  const isValid = (fields) => {
+    return fields.every((field) => {
+      return field.isValid;
+    });
+  };
 
   return (
     <div>
+      {size(drafts) > 0 && (
+        <>
+          <InputGroup
+            leftIcon="search"
+            placeholder={t('Filter')}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Spacer size={10} />
+        </>
+      )}
       {size(sortedDrafts) ? (
         <>
           {sortedDrafts.map(({ date, interfaceId, ...rest }) => (
-            <StyledDialogSelectItem onClick={() => onClick(interfaceId, rest)}>
+            <StyledDialogSelectItem onClick={() => onClick(interfaceId, rest)} key={interfaceId}>
               <h5>
-                {getNameFromData(rest.selectedFields)}{' '}
+                {rest.name}{' '}
                 <Button
                   style={{ float: 'right' }}
                   intent="danger"
@@ -69,12 +82,40 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
                   }}
                 />{' '}
               </h5>
-              <p className={Classes.TEXT_MUTED}>{moment(date).format(DATE_FORMATS.DISPLAY)}</p>
+              <p className={Classes.TEXT_MUTED}>
+                [<TimeAgo time={date} />] <HorizontalSpacer size={20} /> {t('FieldsSelected')}:
+                <HorizontalSpacer size={10} />
+                <Tag round>{rest.selectedFields.length}</Tag>
+                {size(rest.selectedMethods) ? (
+                  <>
+                    <HorizontalSpacer size={20} />
+                    {t('Methods')}:<HorizontalSpacer size={10} />
+                    <Tag round>{size(rest.selectedMethods)}</Tag>
+                  </>
+                ) : null}
+                {size(rest.steps) ? (
+                  <>
+                    <HorizontalSpacer size={20} />
+                    {t('Steps')}:<HorizontalSpacer size={10} />
+                    <Tag round>{size(rest.steps)}</Tag>
+                  </>
+                ) : null}
+                <HorizontalSpacer size={20} />
+                {t('Status')}:<HorizontalSpacer size={10} />
+                <Tag round intent={isValid(rest.selectedFields) ? 'success' : 'danger'}>
+                  {t(isValid(rest.selectedFields) ? 'Valid' : 'Invalid')}
+                </Tag>
+              </p>
             </StyledDialogSelectItem>
           ))}
         </>
       ) : (
-        <p> No drafts found for this interface type </p>
+        <Callout intent="warning">
+          {' '}
+          No drafts found for {query && query !== ''
+            ? 'your search query'
+            : 'this interface type'}{' '}
+        </Callout>
       )}
     </div>
   );

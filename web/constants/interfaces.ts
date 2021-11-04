@@ -9,4 +9,11 @@ export const interfaceKindTransform = {
   job: 'job',
   'mapper-code': 'mapper-code',
   mapper: 'mapper',
+  group: 'group',
+  event: 'event',
+  queue: 'queue',
+  connection: 'connection',
+  fsm: 'fsm',
+  pipeline: 'pipeline',
+  'value-map': 'value-map',
 };

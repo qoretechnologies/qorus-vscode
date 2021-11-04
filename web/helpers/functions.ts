@@ -445,3 +445,15 @@ export const saveDraft = async (interfaceKind, interfaceId, fileData) => {
     'SavingDraft'
   );
 };
+
+export const deleteDraft = async (interfaceKind, interfaceId) => {
+  await callBackendBasic(
+    Messages.DELETE_DRAFT,
+    undefined,
+    {
+      iface_id: interfaceId,
+      iface_kind: interfaceKindTransform[interfaceKind],
+    },
+    'DeletingDraft'
+  );
+};

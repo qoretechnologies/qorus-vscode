@@ -76,7 +76,7 @@ class QorusDraftItem extends TreeItem {
       : undefined;
     this.description = this.date;
     this.iconPath = interfaceKind
-      ? qorusIcons[`get${capitalize(interfaceKind).replace('-', '')}Icon`]?.()
+      ? qorusIcons[`get${capitalize(interfaceKind).replace('-', '').replace(' ', '')}Icon`]?.()
       : undefined;
 
     if (!interfaceKind) {

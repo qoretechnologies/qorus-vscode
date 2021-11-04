@@ -43,7 +43,7 @@ import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
-import { saveDraft } from '../../helpers/functions';
+import { deleteDraft, saveDraft } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -966,6 +966,8 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
         if (onSubmitSuccess) {
           onSubmitSuccess(newData);
         }
+        // Delete the draft for this interface
+        deleteDraft(type, interfaceId);
         // If this is config item, reset only the fields
         // local fields will be unmounted
         if (type === 'config-item') {

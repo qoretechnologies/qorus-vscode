@@ -1004,6 +1004,15 @@
         }
       },
       {
+        "command": "qorus.openInterfaceDrafts",
+        "title": "View all drafts for this interface inside the webview",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/list.svg",
+          "light": "images/icons/light/list.svg"
+        }
+      },
+      {
         "command": "qorus.deleteInterfaceDrafts",
         "title": "Delete all drafts for this interface",
         "category": "Qorus",
@@ -1870,6 +1879,11 @@
           "group": "inline"
         },
         {
+          "command": "qorus.openInterfaceDrafts",
+          "when": "view == qorusDrafts && viewItem != draft && viewItem != empty",
+          "group": "inline"
+        },
+        {
           "command": "qorus.deleteInterfaceDrafts",
           "when": "view == qorusDrafts && viewItem != draft && viewItem != empty",
           "group": "inline"
@@ -2018,6 +2032,7 @@
     "cron-validator": "^1.0.2",
     "cronstrue": "^1.81.0",
     "crypto-js": "^4.0.0",
+    "epoch-timeago": "^1.1.9",
     "eventlistener": "0.0.1",
     "fs-extra": "^8.1.0",
     "gettext-parser": "^2.0.0",

@@ -2457,6 +2457,27 @@ msgstr "Reloading webview ..."
 msgid "Draft"
 msgstr "Draft"
 
+msgid "DraftsDescription"
+msgstr "Drafts are unfinished interfaces that were automatically saved for you"
+
+msgid "DeleteInterfaceDrafts"
+msgstr "Delete all drafts for this interface?"
+
+msgid "DeleteDraft"
+msgstr "Are you sure you want to delete this draft?"
+
+msgid "FieldsSelected"
+msgstr "Fields selected"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Valid"
+msgstr "Valid"
+
+msgid "invalid"
+msgstr "Invalid"
+
 msgid "RemoveValue"
 msgstr "Remove value"
 

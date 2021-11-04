@@ -1,5 +1,5 @@
 import { Callout, Tab, Tabs } from '@blueprintjs/core';
-import { capitalize, map } from 'lodash';
+import { capitalize, map, reduce } from 'lodash';
 import React, { useContext, useState } from 'react';
 import { useMount } from 'react-use';
 import Box from './components/Box';
@@ -13,12 +13,11 @@ import { InitialContext } from './context/init';
 import { TextContext } from './context/text';
 import { callBackendBasic } from './helpers/functions';
 
-const interfaces = ['workflow', 'job', 'service', 'step', 'class'];
-
 export const DraftsView = () => {
   const [categories, setCategories] = useState(null);
   const { addDraft } = useContext(DraftsContext);
-  const { changeTab }: any = useContext(InitialContext);
+  const { changeTab, subtab }: any = useContext(InitialContext);
+  const [tab, setTab] = useState(subtab);
   const t = useContext(TextContext);
 
   useMount(() => {
@@ -38,11 +37,13 @@ export const DraftsView = () => {
   return (
     <Box fill style={{ flexFlow: 'column', overflowY: 'auto' }}>
       <StyledHeader>
-        <h2>{t('Drafts')}</h2>
+        <h2>
+          {t('Drafts')} ({reduce(categories, (totalCount, count) => totalCount + count, 0)})
+        </h2>
       </StyledHeader>
       <Callout intent="primary">{t('DraftsDescription')}</Callout>
       <Spacer size={10} />
-      <Tabs id="draftTabs">
+      <Tabs id="draftTabs" selectedTabId={tab} onChange={(newTabId) => setTab(newTabId)}>
         {map(categories, (count, iface) => (
           <Tab
             id={iface}
