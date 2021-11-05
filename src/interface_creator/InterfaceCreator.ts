@@ -890,9 +890,7 @@ export abstract class InterfaceCreator {
                             if (tag === 'tags') {
                                 item[value_name] = item[value_name].toString();
                             }
-                            result += `${indent}${
-                                item[key_name]
-                            }: ${InterfaceCreator.indentYamlDump(item[value_name], 0)}`;
+                            result += `${indent}${item[key_name]}: ${item[value_name]}\n`;
                         }
                         break;
                     case 'value-maps':
