@@ -1,79 +1,79 @@
 stages:
-    - build
+  - build
 
 uitest:
-    stage: build
-    image: alpine:3.10
-    tags:
-        - docker-exec
-        - uitest
-    artifacts:
-        name: '$CI_JOB_NAME-$CI_COMMIT_REF_SLUG'
-        paths:
-            - qorus-vscode-uitest.mp4
-        when: on_failure
-        expire_in: 2 day
-    script:
-        - export rootdir=`pwd`
-        - apk add openssh-client git gzip curl
-        - |
-            curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
-            -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
-            -d "{\"state\": \"pending\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
+  stage: build
+  image: alpine:3.10
+  tags:
+    - docker-exec
+    - uitest
+  artifacts:
+    name: '$CI_JOB_NAME-$CI_COMMIT_REF_SLUG'
+    paths:
+      - qorus-vscode-uitest.mp4
+    when: on_failure
+    expire_in: 2 day
+  script:
+    - export rootdir=`pwd`
+    - apk add openssh-client git gzip curl
+    - |
+      curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
+      -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
+      -d "{\"state\": \"pending\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
 
-        - cd ${rootdir}/..
-        - tar czf qorus-vscode.tar.gz qorus-vscode
-        - mv qorus-vscode.tar.gz qorus-vscode/
-        - cd ${rootdir}
+    - cd ${rootdir}/..
+    - tar czf qorus-vscode.tar.gz qorus-vscode
+    - mv qorus-vscode.tar.gz qorus-vscode/
+    - cd ${rootdir}
 
-        - mkdir -p ~/.ssh
-        - echo "${UITEST_KNOWN_HOST_GATEWAY}" >> ~/.ssh/known_hosts
-        - echo "${UITEST_KNOWN_HOST}" >> ~/.ssh/known_hosts
-        - echo "${UITEST_SSH_PUB}" > ~/.ssh/id_rsa.pub
-        - echo "${UITEST_SSH_PRIV}" > ~/.ssh/id_rsa
-        - chmod 700 ~/.ssh
-        - chmod 600 ~/.ssh/id_rsa
-        - chmod 644 ~/.ssh/id_rsa.pub ~/.ssh/known_hosts
+    - mkdir -p ~/.ssh
+    - echo "${UITEST_KNOWN_HOST_GATEWAY}" >> ~/.ssh/known_hosts
+    - echo "${UITEST_KNOWN_HOST}" >> ~/.ssh/known_hosts
+    - echo "${UITEST_SSH_PUB}" > ~/.ssh/id_rsa.pub
+    - echo "${UITEST_SSH_PRIV}" > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh
+    - chmod 600 ~/.ssh/id_rsa
+    - chmod 644 ~/.ssh/id_rsa.pub ~/.ssh/known_hosts
 
-        - export testdir=`head -c 192 /dev/urandom | tr -dc A-Za-z0-9 | head -c 24`
-        - echo "rm -rf /home/test/.vscode && mkdir -p ${UITEST_TEST_PATH}/${testdir}" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
-        - scp -J ${UITEST_USER}@${UITEST_GATEWAY} qorus-vscode.tar.gz ${UITEST_USER}@${UITEST_SERVER}:${UITEST_TEST_PATH}/${testdir}/
-        - echo "cd ${UITEST_TEST_PATH}/${testdir} && tar xzf qorus-vscode.tar.gz" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
+    - export testdir=`head -c 192 /dev/urandom | tr -dc A-Za-z0-9 | head -c 24`
+    - echo "rm -rf /home/test/.vscode && mkdir -p ${UITEST_TEST_PATH}/${testdir}" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
+    - scp -J ${UITEST_USER}@${UITEST_GATEWAY} qorus-vscode.tar.gz ${UITEST_USER}@${UITEST_SERVER}:${UITEST_TEST_PATH}/${testdir}/
+    - echo "cd ${UITEST_TEST_PATH}/${testdir} && tar xzf qorus-vscode.tar.gz" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
 
-        - |
-            set +e
-            if echo "cd ${UITEST_TEST_PATH}/${testdir}/qorus-vscode && ./docker-ui-test.sh" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}; then
-              curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
-                -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
-                -d "{\"state\": \"success\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
-              echo "rm -rf ${UITEST_TEST_PATH}/${testdir}" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
-              exit 0
-            else
-              curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
-                -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
-                -d "{\"state\": \"failure\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
-              echo "rm -rf ${UITEST_TEST_PATH}/${testdir}" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
-              exit 1
-            fi
+    - |
+      set +e
+      if echo "cd ${UITEST_TEST_PATH}/${testdir}/qorus-vscode && ./docker-ui-test.sh" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}; then
+        curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
+          -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
+          -d "{\"state\": \"success\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
+        echo "rm -rf ${UITEST_TEST_PATH}/${testdir}" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
+        exit 0
+      else
+        curl "https://api.github.com/repos/qoretechnologies/qorus-vscode/statuses/${CI_COMMIT_SHA}" \
+          -X POST -u omusil24:${GITHUB_ACCESS_TOKEN} -H "Content-Type: application/json" \
+          -d "{\"state\": \"failure\", \"context\": \"qorus-vscode-ui-test\", \"description\": \"Gitlab CI\", \"target_url\": \"${CI_JOB_URL}\"}"
+        echo "rm -rf ${UITEST_TEST_PATH}/${testdir}" | ssh -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}
+        exit 1
+      fi
 
-        - |
-            set +e
-            scp -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}:/tmp/qorus-vscode-uitest.mp4 ${rootdir}/
+    - |
+      set +e
+      scp -J ${UITEST_USER}@${UITEST_GATEWAY} ${UITEST_USER}@${UITEST_SERVER}:/tmp/qorus-vscode-uitest.mp4 ${rootdir}/
 
 package_build:
-    stage: build
-    image: alpine:3.10
-    tags:
-        - docker-exec
-    artifacts:
-        name: '$CI_JOB_NAME-$CI_COMMIT_REF_SLUG'
-        paths:
-            - qorus-vscode-*.vsix
-        when: on_success
-        expire_in: 2 day
-    script:
-        - apk add git nodejs npm
-        - npm -g i vsce
-        - npm install
-        - npm run build
-        - vsce package --no-yarn
+  stage: build
+  image: alpine:3.10
+  tags:
+    - docker-exec
+  artifacts:
+    name: '$CI_JOB_NAME-$CI_COMMIT_REF_SLUG'
+    paths:
+      - qorus-vscode-*.vsix
+    when: on_success
+    expire_in: 2 day
+  script:
+    - apk add git nodejs npm
+    - npm -g i vsce@1.100.2
+    - npm install
+    - npm run build
+    - vsce package --no-yarn
