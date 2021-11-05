@@ -161,7 +161,11 @@ const App: FunctionComponent<IApp> = ({
     });
   };
 
-  const maybeApplyDraft = (interfaceKind: string, draftData: IDraftData) => {
+  const maybeApplyDraft = (
+    interfaceKind: string,
+    draftData: IDraftData,
+    customFunction?: (draft: IDraftData) => void
+  ) => {
     const shouldApplyDraft = draftData ? true : draft?.interfaceKind === interfaceKind;
     // Check if draft for this interface kind exists
     if (shouldApplyDraft) {
@@ -175,6 +179,13 @@ const App: FunctionComponent<IApp> = ({
         steps,
         diagram,
       } = draftData || draft;
+
+      // If the custom function is provided, call it, remove the draft and stop here
+      if (customFunction) {
+        customFunction(draftData || draft);
+        removeDraft();
+        return;
+      }
 
       setInterfaceId(interfaceKind, interfaceId);
 

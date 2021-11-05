@@ -16,4 +16,5 @@ export const interfaceKindTransform = {
   fsm: 'fsm',
   pipeline: 'pipeline',
   'value-map': 'value-map',
+  type: 'type',
 };

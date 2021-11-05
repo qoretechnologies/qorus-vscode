@@ -433,14 +433,17 @@ const fetchData: (url: string, method: string, body?: { [key: string]: any }) =>
 
 export { functionOrStringExp, getType };
 
-export const saveDraft = async (interfaceKind, interfaceId, fileData) => {
+export const saveDraft = async (interfaceKind, interfaceId, fileData, name?: string) => {
   await callBackendBasic(
     Messages.SAVE_DRAFT,
     undefined,
     {
       iface_id: interfaceId,
       iface_kind: interfaceKindTransform[interfaceKind],
-      fileData,
+      fileData: {
+        name,
+        ...fileData,
+      },
     },
     'SavingDraft'
   );

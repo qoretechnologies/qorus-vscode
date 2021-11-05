@@ -60,10 +60,12 @@ class QorusDrafts {
     const draft = JSON.parse(contents);
     // build the name
     const name =
+      draft.name ||
       find(
         draft.selectedFields || [],
         (field) => field.name === 'name' || field.name === 'class-class-name'
-      )?.value || `Unnamed ${capitalize(interfaceKind)}`;
+      )?.value ||
+      `Unnamed ${capitalize(interfaceKind)}`;
 
     return {
       ...draft,
@@ -134,7 +136,6 @@ class QorusDrafts {
     onSuccess?: () => void,
     onError?: (error: string) => void
   ) {
-    console.log(interfaceData);
     fse
       .outputFile(
         path.join(process.env.HOME, this.getDraftsLocation(), interfaceKind, `${interfaceId}.json`),
