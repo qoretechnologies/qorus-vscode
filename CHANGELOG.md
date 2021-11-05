@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.25
+
+#### Bug Fixes
+
+-   Fixed indentation for tags in generated YAML files
+
 ## 2.3.24
 
 #### Bug Fixes
