@@ -43,7 +43,7 @@ import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
-import { deleteDraft, saveDraft } from '../../helpers/functions';
+import { deleteDraft } from '../../helpers/functions';
 import { getTypeFromValue, maybeParseYaml, validateField } from '../../helpers/validations';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -235,8 +235,6 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   definitionsOnly,
   context,
   onSubmitSuccess,
-  setAsDraft,
-  unsetDraft,
   onDataFinishLoadingRecur,
   addInterface,
   removeInterface,
@@ -339,7 +337,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               fileData.selectedFields = allSelectedFields[type][interfaceIndex];
           }
 
-          await saveDraft(type, interfaceId, fileData);
+          await initialData.saveDraft(type, interfaceId, fileData);
         })();
       }
     },

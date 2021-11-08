@@ -75,19 +75,23 @@ class QorusDrafts {
 
   public getDraftsForInterface(interfaceKind: string) {
     const drafts: any[] = [];
-    const draftFiles = readdirSync(
-      path.join(
-        process.env.HOME,
-        this.getDraftsLocation(),
-        interfaceKind.toLowerCase().replace(/ /g, '-')
-      )
-    );
+    try {
+      const draftFiles = readdirSync(
+        path.join(
+          process.env.HOME,
+          this.getDraftsLocation(),
+          interfaceKind.toLowerCase().replace(/ /g, '-')
+        )
+      );
 
-    draftFiles.forEach((fileName) => {
-      drafts.push(this.getSingleDraftContent(interfaceKind, fileName));
-    });
+      draftFiles.forEach((fileName) => {
+        drafts.push(this.getSingleDraftContent(interfaceKind, fileName));
+      });
 
-    return sortBy(drafts, (draft) => draft.date).reverse();
+      return sortBy(drafts, (draft) => draft.date).reverse();
+    } catch (e) {
+      return [];
+    }
   }
 
   public getDraftsCountForInterface(interfaceKind: string): number {

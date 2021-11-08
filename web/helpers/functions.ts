@@ -433,22 +433,6 @@ const fetchData: (url: string, method: string, body?: { [key: string]: any }) =>
 
 export { functionOrStringExp, getType };
 
-export const saveDraft = async (interfaceKind, interfaceId, fileData, name?: string) => {
-  await callBackendBasic(
-    Messages.SAVE_DRAFT,
-    undefined,
-    {
-      iface_id: interfaceId,
-      iface_kind: interfaceKindTransform[interfaceKind],
-      fileData: {
-        name,
-        ...fileData,
-      },
-    },
-    'SavingDraft'
-  );
-};
-
 export const deleteDraft = async (interfaceKind, interfaceId) => {
   await callBackendBasic(
     Messages.DELETE_DRAFT,
@@ -460,3 +444,5 @@ export const deleteDraft = async (interfaceKind, interfaceId) => {
     'DeletingDraft'
   );
 };
+
+export const hasValue = (value) => value && value !== '';

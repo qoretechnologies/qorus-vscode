@@ -4,6 +4,8 @@ import React, { useContext, useState } from 'react';
 import { useMount } from 'react-use';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
+import { IDraftData } from '../../context/drafts';
+import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { callBackendBasic, deleteDraft } from '../../helpers/functions';
 import { StyledDialogSelectItem } from '../Field/select';
@@ -13,6 +15,8 @@ import { TimeAgo } from '../TimeAgo';
 
 export const DraftsTable = ({ interfaceKind, onClick }: any) => {
   const t = useContext(TextContext);
+  // Get the last draft from the initial data context
+  const { lastDraft } = useContext(InitialContext);
   const [drafts, setDrafts] = useState<any[]>([]);
   const [query, setQuery] = useState('');
 
@@ -47,10 +51,12 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
     });
 
   // Function that returns true or false based on whether every field in the list is valid or not
-  const isValid = (fields) => {
-    return fields.every((field) => {
-      return field.isValid;
-    });
+  const isValid = (draftData: IDraftData) => {
+    if (draftData.selectedFields) {
+      return draftData.selectedFields.every((field) => field.valid);
+    }
+
+    return draftData.isValid;
   };
 
   return (
@@ -67,47 +73,59 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
       )}
       {size(sortedDrafts) ? (
         <>
-          {sortedDrafts.map(({ date, interfaceId, ...rest }) => (
-            <StyledDialogSelectItem onClick={() => onClick(interfaceId, rest)} key={interfaceId}>
-              <h5>
-                {rest.name}{' '}
-                <Button
-                  style={{ float: 'right' }}
-                  intent="danger"
-                  icon="trash"
-                  small
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteClick(interfaceId);
-                  }}
-                />{' '}
-              </h5>
-              <p className={Classes.TEXT_MUTED}>
-                [<TimeAgo time={date} />] <HorizontalSpacer size={20} /> {t('FieldsSelected')}:
-                <HorizontalSpacer size={10} />
-                <Tag round>{rest.selectedFields.length}</Tag>
-                {size(rest.selectedMethods) ? (
-                  <>
+          {sortedDrafts.map(
+            ({ date, interfaceId, ...rest }) =>
+              console.log(interfaceId, lastDraft) || (
+                <StyledDialogSelectItem
+                  onClick={interfaceId === lastDraft ? undefined : () => onClick(interfaceId, rest)}
+                  key={interfaceId}
+                  className={interfaceId === lastDraft ? 'selected' : ''}
+                >
+                  <h5>
+                    {rest.name}{' '}
+                    <Button
+                      style={{ float: 'right' }}
+                      intent="danger"
+                      icon="trash"
+                      small
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteClick(interfaceId);
+                      }}
+                    />{' '}
+                  </h5>
+                  <p className={Classes.TEXT_MUTED}>
+                    [<TimeAgo time={date} />] <HorizontalSpacer size={20} />
+                    {rest.selectedFields && (
+                      <>
+                        {t('FieldsSelected')}:
+                        <HorizontalSpacer size={10} />
+                        <Tag round>{size(rest.selectedFields)}</Tag>
+                      </>
+                    )}
+                    {size(rest.selectedMethods) ? (
+                      <>
+                        <HorizontalSpacer size={20} />
+                        {t('Methods')}:<HorizontalSpacer size={10} />
+                        <Tag round>{size(rest.selectedMethods)}</Tag>
+                      </>
+                    ) : null}
+                    {size(rest.steps) ? (
+                      <>
+                        <HorizontalSpacer size={20} />
+                        {t('Steps')}:<HorizontalSpacer size={10} />
+                        <Tag round>{size(rest.steps)}</Tag>
+                      </>
+                    ) : null}
                     <HorizontalSpacer size={20} />
-                    {t('Methods')}:<HorizontalSpacer size={10} />
-                    <Tag round>{size(rest.selectedMethods)}</Tag>
-                  </>
-                ) : null}
-                {size(rest.steps) ? (
-                  <>
-                    <HorizontalSpacer size={20} />
-                    {t('Steps')}:<HorizontalSpacer size={10} />
-                    <Tag round>{size(rest.steps)}</Tag>
-                  </>
-                ) : null}
-                <HorizontalSpacer size={20} />
-                {t('Status')}:<HorizontalSpacer size={10} />
-                <Tag round intent={isValid(rest.selectedFields) ? 'success' : 'danger'}>
-                  {t(isValid(rest.selectedFields) ? 'Valid' : 'Invalid')}
-                </Tag>
-              </p>
-            </StyledDialogSelectItem>
-          ))}
+                    {t('Status')}:<HorizontalSpacer size={10} />
+                    <Tag round intent={isValid(rest) ? 'success' : 'danger'}>
+                      {t(isValid(rest) ? 'Valid' : 'Invalid')}
+                    </Tag>
+                  </p>
+                </StyledDialogSelectItem>
+              )
+          )}
         </>
       ) : (
         <Callout intent="warning">

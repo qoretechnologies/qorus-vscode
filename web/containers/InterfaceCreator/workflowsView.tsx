@@ -9,7 +9,6 @@ import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import StepDiagram from '../../components/Diagram';
 import { Messages } from '../../constants/messages';
-import { saveDraft } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -92,7 +91,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   useDebounce(
     () => {
       if (size(steps)) {
-        saveDraft('workflow', interfaceId.workflow[workflowIndex], {
+        initialData.saveDraft('workflow', interfaceId.workflow[workflowIndex], {
           fields: fields.workflow[workflowIndex],
           selectedFields: selectedFields.workflow[workflowIndex],
           steps: {

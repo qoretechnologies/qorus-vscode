@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Classes } from '@blueprintjs/core';
-import { forEach, size } from 'lodash';
+import { capitalize, forEach, size } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
@@ -7,11 +7,15 @@ import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import CustomDialog from '../../components/CustomDialog';
 import { DraftsTable } from '../../components/DraftsTable';
+import HorizontalSpacer from '../../components/HorizontalSpacer';
 import Tutorial from '../../components/Tutorial';
+import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftsContext } from '../../context/drafts';
+import { InitialContext } from '../../context/init';
 import { MethodsContext } from '../../context/methods';
 import { TextContext } from '../../context/text';
+import { callBackendBasic } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import { addMessageListener, postMessage } from '../../hocomponents/withMessageHandler';
@@ -145,10 +149,12 @@ const tutorials = {
 
 const TutorialButton = ({ type, onClick }) => {
   const [isReady, setIsReady] = useState<boolean>(false);
+  const [isSuccessful, setIsSuccessful] = useState<boolean>(false);
   const t = useContext(TextContext);
 
-  useMount(() => {
+  useEffect(() => {
     let remainingElements = tutorials[type].elements;
+    let timeLeft = 2000;
     let interval = setInterval(() => {
       remainingElements = remainingElements.reduce((newElements, element) => {
         const el = document.querySelector(`#${element.id}`);
@@ -164,12 +170,15 @@ const TutorialButton = ({ type, onClick }) => {
         ];
       }, []);
 
-      if (remainingElements.length === 0) {
+      timeLeft -= 500;
+
+      if (remainingElements.length === 0 || timeLeft === 0) {
         clearInterval(interval);
         interval = null;
         setIsReady(true);
+        setIsSuccessful(timeLeft !== 0);
       }
-    }, 500);
+    }, 200);
 
     return () => {
       clearInterval(interval);
@@ -177,26 +186,30 @@ const TutorialButton = ({ type, onClick }) => {
   });
 
   return isReady ? (
-    <Button
-      icon="help"
-      text="Tutorial"
-      onClick={() => {
-        tutorials[type].elements = tutorials[type].elements.map((element) => {
-          const el = document.querySelector(`#${element.id}`);
+    <>
+      {isSuccessful && (
+        <Button
+          icon="help"
+          text="Tutorial"
+          onClick={() => {
+            tutorials[type].elements = tutorials[type].elements.map((element) => {
+              const el = document.querySelector(`#${element.id}`);
 
-          if (!el) {
-            return undefined;
-          }
+              if (!el) {
+                return undefined;
+              }
 
-          return {
-            ...element,
-            elementData: el.getBoundingClientRect(),
-          };
-        });
+              return {
+                ...element,
+                elementData: el.getBoundingClientRect(),
+              };
+            });
 
-        onClick([...tutorials.default.elements, ...tutorials[type].elements]);
-      }}
-    />
+            onClick([...tutorials.default.elements, ...tutorials[type].elements]);
+          }}
+        />
+      )}
+    </>
   ) : (
     <Button loading text={t('WaitingForElements')} />
   );
@@ -229,9 +242,11 @@ const Tab: React.FC<ITabProps> = ({
   };
   const [recreateDialog, setRecreateDialog] = useState<any>(null);
   const [draftsOpen, setDraftsOpen] = useState<boolean>(false);
-
+  const { changeTab, isSavingDraft }: any = useContext(InitialContext);
   const { methods, setMethods, setMethodsCount }: any = useContext(MethodsContext);
-  const { maybeApplyDraft } = useContext<IDraftsContext>(DraftsContext);
+  const { maybeApplyDraft, addDraft } = useContext<IDraftsContext>(DraftsContext);
+  const [draftsCount, setDraftsCount] = useState<number>(0);
+  const [isDraftSaved, setIsDraftSaved] = useState<boolean>(false);
 
   useMount(() => {
     const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
@@ -245,6 +260,40 @@ const Tab: React.FC<ITabProps> = ({
       recreateListener();
     };
   });
+
+  useEffect(() => {
+    if (isSavingDraft) {
+      setIsDraftSaved(true);
+    } else if (isSavingDraft === false) {
+      (async () => {
+        const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
+          iface_kind: interfaceKindTransform[type],
+        });
+
+        if (fetchedDrafts.ok) {
+          setDraftsCount(size(fetchedDrafts.data.drafts));
+        } else {
+          setDraftsCount(0);
+        }
+      })();
+    }
+  }, [isSavingDraft]);
+
+  // Fetch new drafts count when the type changes
+  useEffect(() => {
+    setIsDraftSaved(false);
+    (async () => {
+      const fetchedDrafts = await callBackendBasic(Messages.GET_DRAFTS, undefined, {
+        iface_kind: interfaceKindTransform[type],
+      });
+
+      if (fetchedDrafts.ok) {
+        setDraftsCount(size(fetchedDrafts.data.drafts));
+      } else {
+        setDraftsCount(0);
+      }
+    })();
+  }, [type]);
 
   useEffect(() => {
     if (recreateDialog) {
@@ -314,70 +363,90 @@ const Tab: React.FC<ITabProps> = ({
         <Tutorial data={tutorialData.elements} onClose={() => setTutorialData({ isOpen: false })} />
       )}
       <StyledHeader>
-        <h2 id={`${type}-interface-title`}>
-          {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
-        </h2>
-        <ButtonGroup>
-          {tutorials[type] && (
-            <TutorialButton
-              type={type}
-              onClick={(elements) =>
-                setTutorialData({
-                  isOpen: true,
-                  elements,
-                })
-              }
-            />
-          )}
+        <div>
+          <h2 id={`${type}-interface-title`}>
+            {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
+          </h2>
+        </div>
+        {!isEditing() && isDraftSaved ? (
           <Button
-            id="button-create-new"
-            icon="add"
-            text="Create new"
-            intent="success"
-            onClick={() => {
-              resetAllInterfaceData(type);
-            }}
-          />
-          {!isEditing() && (
+            minimal
+            loading={isSavingDraft}
+            intent={isSavingDraft ? 'warning' : 'success'}
+            icon="small-tick"
+          >
+            {t(isSavingDraft ? 'SavingDraft' : 'DraftSaved')}
+          </Button>
+        ) : null}
+        <div>
+          <ButtonGroup>
+            {tutorials[type] && (
+              <TutorialButton
+                type={type}
+                onClick={(elements) =>
+                  setTutorialData({
+                    isOpen: true,
+                    elements,
+                  })
+                }
+              />
+            )}
             <Button
-              id="button-show-drafts"
-              icon="list"
-              text="Drafts"
+              id="button-create-new"
+              icon="add"
+              text="Create new"
+              intent="success"
               onClick={() => {
-                setDraftsOpen(true);
+                setIsDraftSaved(false);
+                resetAllInterfaceData(type);
               }}
             />
-          )}
-          {isEditing() && (
-            <>
-              {getFilePath() && (
+            {isEditing() && (
+              <>
+                {getFilePath() && (
+                  <Button
+                    icon="document-share"
+                    text="View File"
+                    onClick={() => {
+                      postMessage('open-file', {
+                        file_path: getFilePath(),
+                      });
+                    }}
+                  />
+                )}
                 <Button
-                  icon="document-share"
-                  text="View File"
+                  icon="trash"
+                  text="Delete"
+                  intent="danger"
                   onClick={() => {
-                    postMessage('open-file', {
-                      file_path: getFilePath(),
+                    data.confirmAction('ConfirmDeleteInterface', () => {
+                      postMessage('delete-interface', {
+                        iface_kind: type,
+                        name: name,
+                      });
+                      setIsDraftSaved(false);
+                      resetAllInterfaceData(type);
                     });
                   }}
                 />
-              )}
+              </>
+            )}
+          </ButtonGroup>
+          <HorizontalSpacer size={10} />
+          <ButtonGroup>
+            {!isEditing() && (
               <Button
-                icon="trash"
-                text="Delete"
-                intent="danger"
+                id="button-show-drafts"
+                icon="list"
+                text={`Drafts (${draftsCount})`}
+                disabled={!draftsCount}
                 onClick={() => {
-                  data.confirmAction('ConfirmDeleteInterface', () => {
-                    postMessage('delete-interface', {
-                      iface_kind: type,
-                      name: name,
-                    });
-                    resetAllInterfaceData(type);
-                  });
+                  setDraftsOpen(true);
                 }}
               />
-            </>
-          )}
-        </ButtonGroup>
+            )}
+          </ButtonGroup>
+        </div>
       </StyledHeader>
       <StyledContent>{children}</StyledContent>
       {draftsOpen && (
@@ -385,19 +454,23 @@ const Tab: React.FC<ITabProps> = ({
           isOpen
           onClose={() => setDraftsOpen(false)}
           noBottomPad
-          title={t(`${type}Drafts`)}
+          title={`${t(capitalize(type))} ${t(`Drafts`)}`}
+          style={{ width: '80vw' }}
         >
           <div className={Classes.DIALOG_BODY}>
             <DraftsTable
               interfaceKind={type}
               onClick={(interfaceId, draftData) => {
-                maybeApplyDraft(type, {
-                  interfaceId,
+                setDraftsOpen(false);
+                addDraft({
                   interfaceKind: type,
+                  interfaceId,
                   ...draftData,
                 });
-
-                setDraftsOpen(false);
+                changeTab('Loading');
+                setTimeout(() => {
+                  changeTab('CreateInterface', type);
+                }, 1000);
               }}
             />
           </div>

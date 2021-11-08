@@ -249,13 +249,6 @@ export default () =>
               return newResult;
             });
 
-            props.setUnfinishedWork((current) => {
-              const newResult = { ...current };
-              // Set the interface id to null
-              newResult[type === 'service-methods' ? 'service' : type] = false;
-              return newResult;
-            });
-
             const newResult = { ...current };
             // Reset the fields
             newResult[type][getInterfaceIndex(type, interfaceIndex)] =
@@ -279,26 +272,6 @@ export default () =>
           newResult[interfaceType][index] = id;
           return newResult;
         });
-      };
-
-      const setAsDraft: (type: string) => void = (type) => {
-        type = type === 'service-methods' ? 'service' : type;
-        if (!props.unfinishedWork?.[type]) {
-          props.setUnfinishedWork((current) => ({
-            ...current,
-            [type]: true,
-          }));
-        }
-      };
-
-      const unsetDraft: (type: string) => void = (type) => {
-        type = type === 'service-methods' ? 'service' : type;
-        if (props.unfinishedWork?.[type]) {
-          props.setUnfinishedWork((current) => ({
-            ...current,
-            [type]: false,
-          }));
-        }
       };
 
       const setFields = (type, value, activeId?: number, interfaceIndex?: number) => {
@@ -468,9 +441,6 @@ export default () =>
             resetFields,
             interfaceId,
             setInterfaceId,
-            unfinishedWork: props.unfinishedWork,
-            setAsDraft,
-            unsetDraft,
             requestInterfaceData,
             updateField,
             addInterface,

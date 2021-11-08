@@ -2457,6 +2457,12 @@ msgstr "Reloading webview ..."
 msgid "Draft"
 msgstr "Draft"
 
+msgid "SavingDraft"
+msgstr "Saving draft..."
+
+msgid "DraftSaved"
+msgstr "Draft saved"
+
 msgid "DraftsDescription"
 msgstr "Drafts are unfinished interfaces that were automatically saved for you"
 

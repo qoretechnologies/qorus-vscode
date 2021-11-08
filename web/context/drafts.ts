@@ -1,4 +1,5 @@
 import { createContext } from 'react';
+import { IPipelineElement, IPipelineMetadata } from '../containers/InterfaceCreator/pipeline';
 
 export interface IDraftData {
   interfaceKind: string;
@@ -13,6 +14,11 @@ export interface IDraftData {
   };
   diagram?: any;
   typeData?: any;
+  pipelineData?: {
+    metadata: IPipelineMetadata;
+    elements: IPipelineElement[];
+  };
+  isValid?: boolean;
 }
 
 export interface IDraftsContext {

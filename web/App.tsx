@@ -180,6 +180,9 @@ const App: FunctionComponent<IApp> = ({
         diagram,
       } = draftData || draft;
 
+      // Set the last saved draft with the interface id
+      rest.setLastDraft(interfaceId);
+
       // If the custom function is provided, call it, remove the draft and stop here
       if (customFunction) {
         customFunction(draftData || draft);
@@ -401,6 +404,7 @@ const App: FunctionComponent<IApp> = ({
                 {tab !== 'Login' && <Menu isCollapsed menu={MENU} />}
                 <>
                   {tab == 'Login' && <LoginContainer />}
+                  {tab == 'Loading' && <Loader text={t('Loading')} />}
                   {tab == 'ProjectConfig' && <ProjectConfig />}
                   {tab == 'ReleasePackage' && <ReleasePackage />}
                   {tab == 'DeleteInterfaces' && <DeleteInterfaces />}

@@ -7,7 +7,6 @@ import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { AppToaster } from '../../components/Toast';
-import { saveDraft } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
@@ -49,6 +48,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   onSubmitSuccess,
   interfaceId,
   mapperData,
+  saveDraft,
 }) => {
   if (!qorus_instance) {
     return (
