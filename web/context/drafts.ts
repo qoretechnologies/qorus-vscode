@@ -1,4 +1,5 @@
 import { createContext } from 'react';
+import { IFSMMetadata, IFSMStates } from '../containers/InterfaceCreator/fsm';
 import { IPipelineElement, IPipelineMetadata } from '../containers/InterfaceCreator/pipeline';
 
 export interface IDraftData {
@@ -17,6 +18,10 @@ export interface IDraftData {
   pipelineData?: {
     metadata: IPipelineMetadata;
     elements: IPipelineElement[];
+  };
+  fsmData?: {
+    metadata: IFSMMetadata;
+    states: IFSMStates;
   };
   isValid?: boolean;
 }
