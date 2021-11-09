@@ -323,6 +323,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               fileData.fields = allFields.mapper[interfaceIndex];
               fileData.selectedFields = allSelectedFields.mapper[interfaceIndex];
               fileData.diagram = rest.mapperData;
+              break;
             case 'workflow':
               fileData.fields = allFields['workflow'][interfaceIndex];
               fileData.selectedFields = allSelectedFields['workflow'][interfaceIndex];

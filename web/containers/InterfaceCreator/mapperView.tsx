@@ -34,6 +34,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   isFormValid,
   selectedFields,
   mapper,
+  initialData,
   fields,
   showMapperConnections,
   setShowMapperConnections,
@@ -48,7 +49,6 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   onSubmitSuccess,
   interfaceId,
   mapperData,
-  saveDraft,
 }) => {
   if (!qorus_instance) {
     return (
@@ -76,14 +76,16 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
 
   useDebounce(
     () => {
-      saveDraft('mapper', interfaceId.mapper[interfaceIndex], {
-        fields: fields.mapper[interfaceIndex],
-        selectedFields: selectedFields.mapper[interfaceIndex],
-        diagram: mapperData,
-      });
+      if (showMapperConnections) {
+        initialData.saveDraft('mapper', interfaceId.mapper[interfaceIndex], {
+          fields: fields.mapper[interfaceIndex],
+          selectedFields: selectedFields.mapper[interfaceIndex],
+          diagram: mapperData,
+        });
+      }
     },
     1500,
-    [mapperData]
+    [JSON.stringify(mapperData)]
   );
 
   return error ? (
@@ -131,6 +133,7 @@ export default compose(
     mapper: defaultMapper || initialData.mapper,
     qorus_instance: initialData.qorus_instance,
     changeInitialData: initialData.changeInitialData,
+    initialData,
     ...rest,
   })),
   withTextContext(),
