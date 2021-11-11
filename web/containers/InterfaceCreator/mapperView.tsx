@@ -1,12 +1,13 @@
 import { Callout } from '@blueprintjs/core';
 import { omit, size } from 'lodash';
-import React, { FunctionComponent, useState } from 'react';
-import { useDebounce, useLifecycles } from 'react-use';
+import React, { FunctionComponent, useContext, useState } from 'react';
+import { useDebounce, useLifecycles, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
 import { AppToaster } from '../../components/Toast';
+import { DraftsContext } from '../../context/drafts';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
 import withMapperConsumer from '../../hocomponents/withMapperConsumer';
@@ -24,7 +25,7 @@ export const CreatorWrapper = styled.div`
 export interface IMapperViewProps {
   t: TTranslator;
   mapper: any;
-  isFormValid: (type: string) => boolean;
+  isFormValid: (type: string, interfaceIndex?: number) => boolean;
   inConnections?: boolean;
   isEditing?: boolean;
 }
@@ -50,6 +51,8 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
   interfaceId,
   mapperData,
 }) => {
+  const { maybeApplyDraft, draft } = useContext(DraftsContext);
+
   if (!qorus_instance) {
     return (
       <Callout title={t('NoInstanceTitle')} icon="warning-sign" intent="warning">
@@ -58,7 +61,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     );
   }
 
-  const [interfaceIndex, setInterfaceIndex] = useState(size(interfaceId.mapper));
+  const [interfaceIndex] = useState(size(interfaceId.mapper));
 
   useLifecycles(
     () => {
@@ -74,6 +77,12 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
     }
   );
 
+  useUpdateEffect(() => {
+    if (draft && showMapperConnections) {
+      maybeApplyDraft('mapper', null, null);
+    }
+  }, [draft, showMapperConnections]);
+
   useDebounce(
     () => {
       if (showMapperConnections) {
@@ -81,6 +90,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
           fields: fields.mapper[interfaceIndex],
           selectedFields: selectedFields.mapper[interfaceIndex],
           diagram: mapperData,
+          isValid: isFormValid('mapper', interfaceIndex) && size(mapperData.relations),
         });
       }
     },
@@ -115,7 +125,7 @@ const MapperView: FunctionComponent<IMapperViewProps> = ({
               changeInitialData('mapper.show_diagram', false);
             }
           }}
-          isFormValid={isFormValid('mapper')}
+          isFormValid={isFormValid('mapper', interfaceIndex)}
           methods={selectedFields.mapper.find((field: IField) => field.name === 'functions')?.value}
           context={selectedFields.mapper.find((field: IField) => field.name === 'context')?.value}
           isEditing={isEditing || !!mapper}

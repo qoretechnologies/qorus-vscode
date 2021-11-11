@@ -118,6 +118,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(disposable);
 
+  disposable = vscode.commands.registerCommand('qorus.createInterfaceFromDrafts', (data) => {
+    const [interfaceKind] = data.tooltip.split('|');
+
+    qorus_webview.open({ tab: 'CreateInterface', subtab: interfaceKind });
+  });
+
+  context.subscriptions.push(disposable);
+
   disposable = vscode.commands.registerCommand('qorus.openDraft', (interfaceKind, interfaceId) => {
     qorus_webview.open({
       draftData: {
@@ -181,6 +189,26 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.window.showWarningMessage(t`DeleteInterfaceDrafts`, t`Yes`, t`No`).then((selection) => {
       if (selection === t`Yes`) {
         QorusDraftsInstance.deleteDraftOrDrafts(interfaceKind);
+      }
+    });
+  });
+
+  disposable = vscode.commands.registerCommand('qorus.createInter', (data) => {
+    const [interfaceKind] = data.tooltip.split('|');
+
+    vscode.window.showWarningMessage(t`DeleteInterfaceDrafts`, t`Yes`, t`No`).then((selection) => {
+      if (selection === t`Yes`) {
+        QorusDraftsInstance.deleteDraftOrDrafts(interfaceKind);
+      }
+    });
+  });
+
+  context.subscriptions.push(disposable);
+
+  disposable = vscode.commands.registerCommand('qorus.deleteAllDrafts', () => {
+    vscode.window.showWarningMessage(t`DeleteAllDrafts`, t`Yes`, t`No`).then((selection) => {
+      if (selection === t`Yes`) {
+        QorusDraftsInstance.deleteAllDrafts();
       }
     });
   });

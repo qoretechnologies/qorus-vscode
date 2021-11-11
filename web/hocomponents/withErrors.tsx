@@ -29,6 +29,7 @@ export default () =>
           name: getNameFromFields(methodFields, methodId),
           id: methodId,
         }));
+        setShowErrors(false);
         setSubErrors(errorsList);
         setErrorsData(errorsList);
         setErrorsCount(size(errors));

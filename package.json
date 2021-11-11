@@ -167,6 +167,24 @@
         "icon": "images/qorus_logo_28.png"
       },
       {
+        "command": "qorus.createInterfaceFromDrafts",
+        "title": "Create new",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/create-new.svg",
+          "light": "images/icons/light/create-new.svg"
+        }
+      },
+      {
+        "command": "qorus.deleteAllDrafts",
+        "title": "Delete All Drafts",
+        "category": "Qorus",
+        "icon": {
+          "dark": "images/icons/dark/trash.svg",
+          "light": "images/icons/light/trash.svg"
+        }
+      },
+      {
         "command": "qorus.openDraft",
         "title": "Open Draft",
         "category": "Qorus",
@@ -1285,6 +1303,11 @@
           "when": "view == qorusDrafts"
         },
         {
+          "command": "qorus.deleteAllDrafts",
+          "group": "navigation",
+          "when": "view == qorusDrafts"
+        },
+        {
           "command": "qorus.views.deployAllInterfaces",
           "group": "navigation",
           "when": "view == qorusInterfaces"
@@ -1880,6 +1903,11 @@
         },
         {
           "command": "qorus.openInterfaceDrafts",
+          "when": "view == qorusDrafts && viewItem != draft && viewItem != empty",
+          "group": "inline"
+        },
+        {
+          "command": "qorus.createInterfaceFromDrafts",
           "when": "view == qorusDrafts && viewItem != draft && viewItem != empty",
           "group": "inline"
         },

@@ -424,14 +424,20 @@ class QorusWebview {
               });
               break;
             case 'get-draft':
+              const data = QorusDraftsInstance.getSingleDraftContent(
+                message.interfaceKind,
+                `${message.interfaceId}.json`
+              );
+
+              // Apply config items to draft if they exist
+              if (data.configItems) {
+                project.interface_info.iface_by_id[message.interfaceId] = data.configItems;
+              }
               this.panel.webview.postMessage({
                 action: 'get-draft-complete',
                 request_id: message.request_id,
                 ok: true,
-                data: QorusDraftsInstance.getSingleDraftContent(
-                  message.interfaceKind,
-                  `${message.interfaceId}.json`
-                ),
+                data,
               });
               break;
             case 'delete-draft':
@@ -462,7 +468,10 @@ class QorusWebview {
               QorusDraftsInstance.saveDraft(
                 message.iface_kind,
                 message.iface_id,
-                message.fileData,
+                {
+                  ...message.fileData,
+                  configItems: project.interface_info.iface_by_id[message.iface_id] || {},
+                },
                 () => {
                   this.panel.webview.postMessage({
                     action: 'save-draft-complete',

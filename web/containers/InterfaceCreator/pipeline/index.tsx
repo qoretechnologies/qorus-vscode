@@ -6,7 +6,7 @@ import set from 'lodash/set';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import Tree from 'react-d3-tree';
-import { useDebounce } from 'react-use';
+import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
@@ -233,7 +233,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
   const t = useContext(TextContext);
   const { image_path, confirmAction, callBackend, qorus_instance, saveDraft, ...init } =
     useContext(InitialContext);
-  const { maybeApplyDraft } = useContext(DraftsContext);
+  const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const pipeline = rest?.pipeline || init?.pipeline;
   const { resetAllInterfaceData } = useContext(GlobalContext);
   const changeHistory = useRef<string[]>([]);
@@ -263,6 +263,26 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     )
   );
 
+  const applyDraft = () => {
+    maybeApplyDraft(
+      'pipeline',
+      undefined,
+      ({ pipelineData: { metadata, elements }, interfaceId }: IDraftData) => {
+        // From draft
+        setIsFromDraft(true);
+        setInterfaceId(interfaceId);
+        setMetadata(metadata);
+        setElements(elements);
+      }
+    );
+  };
+
+  useUpdateEffect(() => {
+    if (draft) {
+      applyDraft();
+    }
+  }, [draft]);
+
   useMount(() => {
     setPipelineReset(() => reset);
 
@@ -280,17 +300,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
     setInterfaceId(pipeline?.iface_id || shortid.generate());
     // Apply the draft with "type" as first parameter and a custom function
-    maybeApplyDraft(
-      'pipeline',
-      undefined,
-      ({ pipelineData: { metadata, elements }, interfaceId }: IDraftData) => {
-        // From draft
-        setIsFromDraft(true);
-        setInterfaceId(interfaceId);
-        setMetadata(metadata);
-        setElements(elements);
-      }
-    );
+    applyDraft();
 
     return () => {
       setPipelineReset(null);

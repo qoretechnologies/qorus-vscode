@@ -23,7 +23,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useDebounce, useMount } from 'react-use';
+import { useDebounce, useMount, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import mapProps from 'recompose/mapProps';
 import withState from 'recompose/withState';
@@ -40,7 +40,7 @@ import FieldSelector from '../../components/FieldSelector';
 import Loader from '../../components/Loader';
 import SidePanel from '../../components/SidePanel';
 import { Messages } from '../../constants/messages';
-import { DraftsContext } from '../../context/drafts';
+import { DraftsContext, IDraftData, IDraftsContext } from '../../context/drafts';
 import { InitialContext } from '../../context/init';
 import { maybeSendOnChangeEvent } from '../../helpers/common';
 import { deleteDraft } from '../../helpers/functions';
@@ -87,12 +87,16 @@ export interface IInterfaceCreatorPanel {
   setSelectedQuery: (type: string, value?: string) => void;
   activeId?: number;
   onNameChange?: (activeId: number, newName: string, originalName?: string) => any;
-  isFormValid: (type: string) => boolean;
+  isFormValid: (type: string, interfaceIndex?: number) => boolean;
   stepOneTitle?: string;
   stepTwoTitle?: string;
   submitLabel?: string;
   onBackClick?: () => void;
-  allSelectedFields: { [type: string]: IField[] };
+  allSelectedFields: {
+    [type: string]: {
+      [interfaceIndex: number]: IField[];
+    };
+  };
   data?: any;
   onDataFinishLoading?: () => any;
   onDataFinishLoadingRecur?: (activeId: number) => any;
@@ -241,6 +245,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   interfaceIndex,
   lastStepId,
   allFields,
+  setClassConnectionsFromDraft,
   ...rest
 }) => {
   const isInitialMount = useRef(true);
@@ -249,12 +254,18 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
   const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
   const [fieldListeners, setFieldListeners] = useState([]);
   const initialData = useContext(InitialContext);
-  const { maybeApplyDraft } = useContext(DraftsContext);
+  const { maybeApplyDraft, draft } = useContext<IDraftsContext>(DraftsContext);
   const originalData = useRef(data);
 
   useEffect(() => {
     originalData.current = data;
   }, [data]);
+
+  useUpdateEffect(() => {
+    if (draft && show) {
+      maybeApplyDraft(type, null, null, setClassConnectionsFromDraft);
+    }
+  }, [draft, show]);
 
   const getClasses = () => {
     const classes = selectedFields?.find((field: IField) => field.name === 'classes');
@@ -281,7 +292,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
 
   useDebounce(
     () => {
-      if (!isEditing) {
+      if (!isEditing && type !== 'config-item') {
         (async () => {
           const hasAnyChanges = (selectedFields || []).some((field) => {
             if (field.value) {
@@ -295,7 +306,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
             return;
           }
 
-          let fileData: any = {};
+          let fileData: Omit<IDraftData, 'interfaceKind' | 'interfaceId'> = {};
 
           switch (type) {
             case 'service':
@@ -304,6 +315,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               fileData.selectedFields = allSelectedFields['service'][interfaceIndex];
               fileData.methods = allFields['service-methods'][interfaceIndex];
               fileData.selectedMethods = allSelectedFields['service-methods'][interfaceIndex];
+              fileData.isValid =
+                isFormValid('service', interfaceIndex) &&
+                isFormValid('service-methods', interfaceIndex);
               break;
             case 'mapper-code':
             case 'mapper-methods':
@@ -311,6 +325,9 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               fileData.selectedFields = allSelectedFields['mapper-code'][interfaceIndex];
               fileData.methods = allFields['mapper-methods'][interfaceIndex];
               fileData.selectedMethods = allSelectedFields['mapper-methods'][interfaceIndex];
+              fileData.isValid =
+                isFormValid('mapper-code', interfaceIndex) &&
+                isFormValid('mapper-methods', interfaceIndex);
               break;
             case 'errors':
             case 'error':
@@ -318,11 +335,15 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
               fileData.selectedFields = allSelectedFields.errors[interfaceIndex];
               fileData.methods = allFields.error[interfaceIndex];
               fileData.selectedMethods = allSelectedFields.error[interfaceIndex];
+              fileData.isValid =
+                isFormValid('error', interfaceIndex) && isFormValid('errors', interfaceIndex);
               break;
             case 'mapper':
               fileData.fields = allFields.mapper[interfaceIndex];
               fileData.selectedFields = allSelectedFields.mapper[interfaceIndex];
               fileData.diagram = rest.mapperData;
+              fileData.isValid =
+                isFormValid('mapper', interfaceIndex) && size(rest.mapperData.relations) > 0;
               break;
             case 'workflow':
               fileData.fields = allFields['workflow'][interfaceIndex];
@@ -332,18 +353,22 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
                 stepsData,
                 lastStepId,
               };
+              fileData.isValid = isFormValid('workflow', interfaceIndex) && size(steps) > 0;
               break;
             default:
               fileData.fields = allFields[type][interfaceIndex];
               fileData.selectedFields = allSelectedFields[type][interfaceIndex];
+              fileData.isValid = canSubmit();
           }
+
+          fileData.classConnections = classConnectionsData;
 
           await initialData.saveDraft(type, interfaceId, fileData);
         })();
       }
     },
     1500,
-    [selectedFields]
+    [selectedFields, classConnectionsData]
   );
 
   useEffect(() => {
@@ -456,7 +481,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           setInterfaceId(type, currentInterfaceId, interfaceIndex);
         }
         // Add draft if one exists
-        maybeApplyDraft(type);
+        maybeApplyDraft(type, null, null, setClassConnectionsFromDraft);
         // Set show
         setShow(true);
         // Fetch config items
@@ -966,7 +991,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           onSubmitSuccess(newData);
         }
         // Delete the draft for this interface
-        deleteDraft(type, interfaceId);
+        deleteDraft(type, interfaceId, false);
         // If this is config item, reset only the fields
         // local fields will be unmounted
         if (type === 'config-item') {

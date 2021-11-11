@@ -2469,6 +2469,9 @@ msgstr "Drafts are unfinished interfaces that were automatically saved for you"
 msgid "DeleteInterfaceDrafts"
 msgstr "Delete all drafts for this interface?"
 
+msgid "DeleteAllDrafts"
+msgstr "Delete all drafts? Are you sure?"
+
 msgid "DeleteDraft"
 msgstr "Are you sure you want to delete this draft?"
 

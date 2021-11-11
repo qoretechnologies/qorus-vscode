@@ -124,7 +124,7 @@ const App: FunctionComponent<IApp> = ({
   const [texts, setTexts] = useState<{ [key: string]: string }[]>(null);
   const [openedDialogs, setOpenedDialogs] = useState<{ id: string; onClose: () => void }[]>([]);
   const [contextMenu, setContextMenu] = useState<IContextMenu>(null);
-  const [draft, setDraft] = useState(null);
+  const [draft, setDraft] = useState<IDraftData>(null);
   const { setErrorsFromDraft }: any = useContext(ErrorsContext);
 
   const addDraft = (draftData: any) => {
@@ -164,7 +164,8 @@ const App: FunctionComponent<IApp> = ({
   const maybeApplyDraft = (
     interfaceKind: string,
     draftData: IDraftData,
-    customFunction?: (draft: IDraftData) => void
+    customFunction?: (draft: IDraftData) => void,
+    applyClassConnectionsFunc?: Function
   ) => {
     const shouldApplyDraft = draftData ? true : draft?.interfaceKind === interfaceKind;
     // Check if draft for this interface kind exists
@@ -178,44 +179,47 @@ const App: FunctionComponent<IApp> = ({
         selectedMethods,
         steps,
         diagram,
+        classConnections,
       } = draftData || draft;
 
       // Set the last saved draft with the interface id
-      rest.setLastDraft(interfaceId);
+      rest.setLastDraft({ interfaceId, interfaceKind });
 
       // If the custom function is provided, call it, remove the draft and stop here
       if (customFunction) {
         customFunction(draftData || draft);
-        removeDraft();
-        return;
+      } else {
+        setInterfaceId(interfaceKind, interfaceId);
+
+        if (interfaceKind === 'service') {
+          setMethodsFromDraft(selectedMethods);
+          setFieldsFromDraft('service-methods', methods, selectedMethods);
+        }
+
+        if (interfaceKind === 'mapper-code') {
+          setFunctionsFromDraft(selectedMethods);
+          setFieldsFromDraft('mapper-methods', methods, selectedMethods);
+        }
+
+        if (interfaceKind === 'errors') {
+          setErrorsFromDraft(selectedMethods);
+          setFieldsFromDraft('error', methods, selectedMethods);
+        }
+
+        if (interfaceKind === 'mapper') {
+          setMapperFromDraft(diagram);
+        }
+
+        if (steps) {
+          setStepsFromDraft(steps.steps, steps.stepsData, steps.lastStepId);
+        }
+
+        setFieldsFromDraft(interfaceKind, fields, selectedFields);
       }
 
-      setInterfaceId(interfaceKind, interfaceId);
-
-      if (interfaceKind === 'service') {
-        setMethodsFromDraft(selectedMethods);
-        setFieldsFromDraft('service-methods', methods, selectedMethods);
+      if (classConnections) {
+        applyClassConnectionsFunc(classConnections);
       }
-
-      if (interfaceKind === 'mapper-code') {
-        setFunctionsFromDraft(selectedMethods);
-        setFieldsFromDraft('mapper-methods', methods, selectedMethods);
-      }
-
-      if (interfaceKind === 'errors') {
-        setErrorsFromDraft(selectedMethods);
-        setFieldsFromDraft('error', methods, selectedMethods);
-      }
-
-      if (interfaceKind === 'mapper') {
-        setMapperFromDraft(diagram);
-      }
-
-      if (steps) {
-        setStepsFromDraft(steps.steps, steps.stepsData, steps.lastStepId);
-      }
-
-      setFieldsFromDraft(interfaceKind, fields, selectedFields);
 
       // Remove the draft
       removeDraft();

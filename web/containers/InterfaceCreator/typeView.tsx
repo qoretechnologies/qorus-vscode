@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Callout, Intent, Tooltip } from '@blueprintjs/core';
 import { cloneDeep, get, map, reduce, set, size, unset } from 'lodash';
 import React, { useContext, useState } from 'react';
-import { useDebounce } from 'react-use';
+import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
@@ -57,7 +57,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
   );
   const [targetDir, setTargetDir] = useState(initialData?.type?.target_dir || '');
   const [targetFile, setTargetFile] = useState(initialData?.type?.target_file || '');
-  const { maybeApplyDraft } = useContext(DraftsContext);
+  const { maybeApplyDraft, draft } = useContext(DraftsContext);
 
   const reset = (soft?: boolean) => {
     setInterfaceId(shortid.generate());
@@ -77,6 +77,28 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
     }
   };
 
+  const applyDraft = () => {
+    // Apply the draft with "type" as first parameter and a custom function
+    maybeApplyDraft(
+      'type',
+      undefined,
+      ({ typeData: { fields, val, targetDir, targetFile, types }, interfaceId }: IDraftData) => {
+        setInterfaceId(interfaceId);
+        setVal(val);
+        setTypes(types);
+        setTargetDir(targetDir);
+        setTargetFile(targetFile);
+        setFields(fields);
+      }
+    );
+  };
+
+  useUpdateEffect(() => {
+    if (draft) {
+      applyDraft();
+    }
+  }, [draft]);
+
   useMount(() => {
     setTypeReset(() => reset);
 
@@ -86,19 +108,7 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
         setTypes(data.data);
       })();
       setInterfaceId(shortid.generate());
-      // Apply the draft with "type" as first parameter and a custom function
-      maybeApplyDraft(
-        'type',
-        undefined,
-        ({ typeData: { fields, val, targetDir, targetFile, types }, interfaceId }: IDraftData) => {
-          setInterfaceId(interfaceId);
-          setVal(val);
-          setTypes(types);
-          setTargetDir(targetDir);
-          setTargetFile(targetFile);
-          setFields(fields);
-        }
-      );
+      applyDraft();
     }
 
     return () => {

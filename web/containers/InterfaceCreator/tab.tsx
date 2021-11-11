@@ -242,11 +242,18 @@ const Tab: React.FC<ITabProps> = ({
   };
   const [recreateDialog, setRecreateDialog] = useState<any>(null);
   const [draftsOpen, setDraftsOpen] = useState<boolean>(false);
-  const { changeTab, isSavingDraft }: any = useContext(InitialContext);
+  const { changeTab, isSavingDraft, lastDraft }: any = useContext(InitialContext);
   const { methods, setMethods, setMethodsCount }: any = useContext(MethodsContext);
   const { maybeApplyDraft, addDraft } = useContext<IDraftsContext>(DraftsContext);
   const [draftsCount, setDraftsCount] = useState<number>(0);
   const [isDraftSaved, setIsDraftSaved] = useState<boolean>(false);
+  const [localLastDraft, setLastDraft] = useState<string>(null);
+
+  useEffect(() => {
+    if (lastDraft && lastDraft.interfaceKind === type) {
+      setLastDraft(lastDraft.interfaceId);
+    }
+  }, [lastDraft]);
 
   useMount(() => {
     const recreateListener = addMessageListener(Messages.MAYBE_RECREATE_INTERFACE, (data) => {
@@ -460,17 +467,15 @@ const Tab: React.FC<ITabProps> = ({
           <div className={Classes.DIALOG_BODY}>
             <DraftsTable
               interfaceKind={type}
+              lastDraft={localLastDraft}
               onClick={(interfaceId, draftData) => {
+                setLastDraft(interfaceId);
                 setDraftsOpen(false);
                 addDraft({
                   interfaceKind: type,
                   interfaceId,
                   ...draftData,
                 });
-                changeTab('Loading');
-                setTimeout(() => {
-                  changeTab('CreateInterface', type);
-                }, 1000);
               }}
             />
           </div>

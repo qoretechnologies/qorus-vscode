@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Intent, Tooltip } from '@blueprintjs/core';
 import { isArray, omit, reduce, size } from 'lodash';
-import React, { FunctionComponent, useEffect, useState } from 'react';
-import { useDebounce } from 'react-use';
+import React, { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { useDebounce, useUpdateEffect } from 'react-use';
 import compose from 'recompose/compose';
 import styled from 'styled-components';
 import { TTranslator } from '../../App';
@@ -9,6 +9,7 @@ import Content from '../../components/Content';
 import CustomDialog from '../../components/CustomDialog';
 import StepDiagram from '../../components/Diagram';
 import { Messages } from '../../constants/messages';
+import { DraftsContext } from '../../context/drafts';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -74,9 +75,11 @@ const ServicesView: FunctionComponent<IServicesView> = ({
   resetAllInterfaceData,
   onSubmitSuccess,
   lastStepId,
+  isFormValid,
 }) => {
   const [showConfigItemsManager, setShowConfigItemsManager] = useState<boolean>(false);
   const [workflowIndex, setWorkflowIndex] = useState(size(interfaceId.workflow));
+  const { maybeApplyDraft, draft } = useContext(DraftsContext);
 
   useEffect(() => {
     if (showSteps) {
@@ -87,6 +90,12 @@ const ServicesView: FunctionComponent<IServicesView> = ({
       });
     }
   }, [showSteps]);
+
+  useUpdateEffect(() => {
+    if (draft && showSteps) {
+      maybeApplyDraft('workflow', null, null);
+    }
+  }, [draft, showSteps]);
 
   useDebounce(
     () => {
@@ -99,6 +108,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
             stepsData,
             lastStepId,
           },
+          isValid: isFormValid('workflow', workflowIndex),
         });
       }
     },

@@ -51,8 +51,10 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftItem> {
     const sortedDrafts = QorusDraftsInstance.getDraftsForInterface(label);
 
     return sortedDrafts.map((draft) => {
+      console.log(draft);
+
       return new QorusDraftItem(
-        draft.name,
+        `${draft.name} ${draft.isValid ? '✅' : '❌'}`,
         `[${timeAgo.format(draft.date)}]` as string,
         TreeItemCollapsibleState.None,
         el.label.toLowerCase(),

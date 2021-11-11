@@ -31,6 +31,7 @@ export default () =>
           name: getNameFromFields(methodFields, methodId),
           id: methodId,
         }));
+        setShowFunctions(false);
         setFunctions(funcsList);
         setFunctionsData(funcsList);
         setFunctionsCount(size(funcs));

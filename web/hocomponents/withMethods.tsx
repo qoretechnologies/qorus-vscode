@@ -36,6 +36,7 @@ export default () =>
           name: getNameFromFields(methodFields, methodId),
           id: methodId,
         }));
+        setShowMethods(false);
         setMethods(methodsList);
         setMethodsData(methodsList);
         setMethodsCount(size(methods));

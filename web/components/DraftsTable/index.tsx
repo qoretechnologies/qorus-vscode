@@ -5,7 +5,6 @@ import { useMount } from 'react-use';
 import { interfaceKindTransform } from '../../constants/interfaces';
 import { Messages } from '../../constants/messages';
 import { IDraftData } from '../../context/drafts';
-import { InitialContext } from '../../context/init';
 import { TextContext } from '../../context/text';
 import { callBackendBasic, deleteDraft } from '../../helpers/functions';
 import { StyledDialogSelectItem } from '../Field/select';
@@ -13,10 +12,9 @@ import HorizontalSpacer from '../HorizontalSpacer';
 import Spacer from '../Spacer';
 import { TimeAgo } from '../TimeAgo';
 
-export const DraftsTable = ({ interfaceKind, onClick }: any) => {
+export const DraftsTable = ({ interfaceKind, onClick, lastDraft }: any) => {
   const t = useContext(TextContext);
   // Get the last draft from the initial data context
-  const { lastDraft } = useContext(InitialContext);
   const [drafts, setDrafts] = useState<any[]>([]);
   const [query, setQuery] = useState('');
 
@@ -52,10 +50,6 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
 
   // Function that returns true or false based on whether every field in the list is valid or not
   const isValid = (draftData: IDraftData) => {
-    if (draftData.selectedFields) {
-      return draftData.selectedFields.every((field) => field.valid);
-    }
-
     return draftData.isValid;
   };
 
@@ -112,7 +106,7 @@ export const DraftsTable = ({ interfaceKind, onClick }: any) => {
                   <>
                     <HorizontalSpacer size={20} />
                     {t('Steps')}:<HorizontalSpacer size={10} />
-                    <Tag round>{size(rest.steps)}</Tag>
+                    <Tag round>{size(rest.steps.steps)}</Tag>
                   </>
                 ) : null}
                 <HorizontalSpacer size={20} />

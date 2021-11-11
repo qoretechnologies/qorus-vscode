@@ -42,8 +42,8 @@ export const DraftsView = () => {
         </h2>
       </StyledHeader>
       <Callout intent="primary">{t('DraftsDescription')}</Callout>
-      <Spacer size={10} />
-      <Tabs id="draftTabs" selectedTabId={tab} onChange={(newTabId) => setTab(newTabId)}>
+      <Spacer size={20} />
+      <Tabs id="draftTabs" selectedTabId={tab} onChange={(newTabId) => setTab(newTabId)} vertical>
         {map(categories, (count, iface) => (
           <Tab
             id={iface}

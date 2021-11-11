@@ -15,7 +15,7 @@ import {
     flattenFields,
     getLastChildIndex,
     getStaticDataFieldname,
-    hasStaticDataField,
+    hasStaticDataField
 } from '../../helpers/mapper';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';

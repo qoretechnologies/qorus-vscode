@@ -9,7 +9,7 @@ import reduce from 'lodash/reduce';
 import size from 'lodash/size';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDrop, XYCoord } from 'react-dnd';
-import { useDebounce } from 'react-use';
+import { useDebounce, useUpdateEffect } from 'react-use';
 import useMount from 'react-use/lib/useMount';
 import compose from 'recompose/compose';
 import shortid from 'shortid';
@@ -204,7 +204,7 @@ const FSMView: React.FC<IFSMViewProps> = ({
   const fsm = rest?.fsm || init?.fsm;
 
   const { resetAllInterfaceData } = useContext(GlobalContext);
-  const { maybeApplyDraft } = useContext(DraftsContext);
+  const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const [interfaceId, setInterfaceId] = useState(null);
 
   const wrapperRef = useRef(null);
@@ -378,23 +378,33 @@ const FSMView: React.FC<IFSMViewProps> = ({
     });
   };
 
+  const applyDraft = () => {
+    maybeApplyDraft(
+      'fsm',
+      undefined,
+      ({ fsmData: { metadata, states }, interfaceId }: IDraftData) => {
+        // From draft
+        //setIsFromDraft(true);
+        setInterfaceId(interfaceId);
+        setMetadata(metadata);
+        setStates(states);
+      }
+    );
+  };
+
+  useUpdateEffect(() => {
+    if (draft) {
+      applyDraft();
+    }
+  }, [draft]);
+
   useMount(() => {
     if (!embedded) {
       setFsmReset(() => reset);
       // Set interface id
       setInterfaceId(fsm?.iface_id || defaultInterfaceId || shortid.generate());
       // Apply the draft with "type" as first parameter and a custom function
-      maybeApplyDraft(
-        'fsm',
-        undefined,
-        ({ fsmData: { metadata, states }, interfaceId }: IDraftData) => {
-          // From draft
-          //setIsFromDraft(true);
-          setInterfaceId(interfaceId);
-          setMetadata(metadata);
-          setStates(states);
-        }
-      );
+      applyDraft();
     }
   });
 

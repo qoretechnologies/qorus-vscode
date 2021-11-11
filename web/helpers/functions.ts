@@ -433,7 +433,7 @@ const fetchData: (url: string, method: string, body?: { [key: string]: any }) =>
 
 export { functionOrStringExp, getType };
 
-export const deleteDraft = async (interfaceKind, interfaceId) => {
+export const deleteDraft = async (interfaceKind, interfaceId, notify?: boolean) => {
   await callBackendBasic(
     Messages.DELETE_DRAFT,
     undefined,
@@ -441,7 +441,7 @@ export const deleteDraft = async (interfaceKind, interfaceId) => {
       iface_id: interfaceId,
       iface_kind: interfaceKindTransform[interfaceKind],
     },
-    'DeletingDraft'
+    notify ? 'DeletingDraft' : undefined
   );
 };
 

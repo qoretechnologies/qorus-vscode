@@ -3,6 +3,7 @@ import * as fse from 'fs-extra';
 import { capitalize, find, size, sortBy } from 'lodash';
 import * as os from 'os';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { drafts_tree } from './QorusDraftsTree';
 
 export const getOs = () => {
@@ -37,13 +38,33 @@ class QorusDrafts {
       MACOS: 'Library/Application Support/Code/Backups',
     };
 
-    return draftFilesLocation[os];
+    return path.join(
+      draftFilesLocation[os],
+      Buffer.from(vscode.workspace.workspaceFolders[0].uri.toString()).toString('base64')
+    );
   }
 
   public getDraftsFolders() {
     // Get all the folders associated with drafts
     // folder name === interface kind
-    return readdirSync(path.join(process.env.HOME, this.getDraftsLocation()));
+    return [
+      'workflow',
+      'step',
+      'job',
+      'service',
+      'mapper-code',
+      'value-map',
+      'queue',
+      'event',
+      'class',
+      'mapper',
+      'type',
+      'pipeline',
+      'fsm',
+      'connection',
+      'group',
+      'error',
+    ].sort();
   }
 
   public getSingleDraftContent(interfaceKind: string, fileName: string) {
@@ -125,6 +146,22 @@ class QorusDrafts {
     fse
       .remove(loc)
       .then(() => {
+        drafts_tree.refresh();
+        onSuccess?.();
+      })
+      .catch((e) => {
+        onError?.(e);
+      });
+  }
+
+  public deleteAllDrafts(onSuccess?: () => void, onError?: (error: string) => void) {
+    const loc = path.join(process.env.HOME, this.getDraftsLocation());
+    fse
+      .remove(loc)
+      .then(() => {
+        mkdirSync(path.join(process.env.HOME, this.getDraftsLocation()), {
+          recursive: true,
+        });
         drafts_tree.refresh();
         onSuccess?.();
       })
