@@ -1,12 +1,8 @@
-const tago = require('javascript-time-ago');
-import * as en from 'javascript-time-ago/locale/en.json';
+import timeAgo from 'epoch-timeago';
 import { capitalize, size } from 'lodash';
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { QorusDraftsInstance } from './QorusDrafts';
 import { qorusIcons } from './QorusIcons';
-
-tago.addDefaultLocale(en);
-const timeAgo = new tago('en-US');
 
 class QorusDraftsTree implements TreeDataProvider<QorusDraftItem> {
   private onTreeDataChanged: EventEmitter<QorusDraftItem | undefined> = new EventEmitter<
@@ -55,7 +51,7 @@ class QorusDraftsTree implements TreeDataProvider<QorusDraftItem> {
 
       return new QorusDraftItem(
         `${draft.name} ${draft.isValid ? '✅' : '❌'}`,
-        `[${timeAgo.format(draft.date)}]` as string,
+        `[${timeAgo(draft.date)}]` as string,
         TreeItemCollapsibleState.None,
         el.label.toLowerCase(),
         draft.interfaceId

@@ -113,7 +113,7 @@ export class QorusProjectInterfaceInfo {
         : Object.keys(iface.specific_data) || [];
       specific_data_ids.forEach((id) => {
         const specific_data = iface.specific_data[id];
-        specific_data['orig-config-items'] = deepCopy(specific_data['config-items'] || []);
+        specific_data['orig-config-items'] = deepCopy(specific_data?.['config-items'] || []);
       });
     } else {
       iface['orig-config-items'] = deepCopy(iface['config-items'] || []);

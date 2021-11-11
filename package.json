@@ -2066,7 +2066,6 @@
     "gettext-parser": "^2.0.0",
     "hoist-non-react-statics": "^3.3.2",
     "java-parser": "^0.8.0",
-    "javascript-time-ago": "^2.3.9",
     "js-yaml": "^3.13.1",
     "markdown-it": "^11.0.0",
     "moment": "^2.24.0",
