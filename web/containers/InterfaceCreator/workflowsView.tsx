@@ -10,6 +10,7 @@ import CustomDialog from '../../components/CustomDialog';
 import StepDiagram from '../../components/Diagram';
 import { Messages } from '../../constants/messages';
 import { DraftsContext } from '../../context/drafts';
+import { deleteDraft } from '../../helpers/functions';
 import withFieldsConsumer from '../../hocomponents/withFieldsConsumer';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
 import withInitialDataConsumer from '../../hocomponents/withInitialDataConsumer';
@@ -207,7 +208,7 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                           iface_kind: 'workflow',
                           orig_data: workflow,
                           data: newData,
-                          iface_id: workflow?.iface_id || interfaceId.workflow,
+                          iface_id: workflow?.iface_id || interfaceId.workflow[workflowIndex],
                           open_file_on_success: !onSubmitSuccess,
                           no_data_return: !!onSubmitSuccess,
                         },
@@ -218,6 +219,8 @@ const ServicesView: FunctionComponent<IServicesView> = ({
                         if (onSubmitSuccess) {
                           onSubmitSuccess(newData);
                         }
+                        // Delete the draft for this interface
+                        deleteDraft('workflow', interfaceId.workflow[workflowIndex], false);
                         resetAllInterfaceData('workflow');
                       }
                     }}

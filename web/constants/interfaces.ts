@@ -17,4 +17,5 @@ export const interfaceKindTransform = {
   pipeline: 'pipeline',
   'value-map': 'value-map',
   type: 'type',
+  class: 'class',
 };

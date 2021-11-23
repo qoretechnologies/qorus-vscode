@@ -375,7 +375,7 @@ const Tab: React.FC<ITabProps> = ({
             {isEditing() ? `Edit ${getTypeName(type, t)} "${name}"` : `New ${getTypeName(type, t)}`}
           </h2>
         </div>
-        {!isEditing() && isDraftSaved ? (
+        {isDraftSaved ? (
           <Button
             minimal
             loading={isSavingDraft}

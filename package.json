@@ -1295,7 +1295,7 @@
         {
           "command": "qorus.openWebview",
           "group": "navigation",
-          "when": "view != qorusDrafts"
+          "when": "view != qorusInstances"
         },
         {
           "command": "qorus.openDrafts",
@@ -1303,14 +1303,9 @@
           "when": "view == qorusDrafts"
         },
         {
-          "command": "qorus.deleteAllDrafts",
-          "group": "navigation",
-          "when": "view == qorusDrafts"
-        },
-        {
           "command": "qorus.views.deployAllInterfaces",
           "group": "navigation",
-          "when": "view == qorusInterfaces"
+          "when": "view != qorusInstances"
         },
         {
           "command": "qorus.views.switchToCategoryView",
@@ -1320,7 +1315,7 @@
         {
           "command": "qorus.views.switchToFolderView",
           "group": "navigation",
-          "when": "view == qorusInterfaces"
+          "when": "view == qorusDrafts"
         }
       ],
       "editor/title": [

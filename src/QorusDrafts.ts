@@ -63,7 +63,7 @@ class QorusDrafts {
       'fsm',
       'connection',
       'group',
-      'error',
+      'errors',
     ].sort();
   }
 
@@ -94,7 +94,7 @@ class QorusDrafts {
     };
   }
 
-  public getDraftsForInterface(interfaceKind: string) {
+  public getDraftsForInterface(interfaceKind: string, withExisting?: boolean) {
     const drafts: any[] = [];
     try {
       const draftFiles = readdirSync(
@@ -109,7 +109,9 @@ class QorusDrafts {
         drafts.push(this.getSingleDraftContent(interfaceKind, fileName));
       });
 
-      return sortBy(drafts, (draft) => draft.date).reverse();
+      return sortBy(drafts, (draft) => draft.date)
+        .filter((draft) => (withExisting ? true : !draft.associatedInterface))
+        .reverse();
     } catch (e) {
       return [];
     }
@@ -177,6 +179,7 @@ class QorusDrafts {
     onSuccess?: () => void,
     onError?: (error: string) => void
   ) {
+    console.log(interfaceKind, interfaceId, interfaceData);
     fse
       .outputFile(
         path.join(process.env.HOME, this.getDraftsLocation(), interfaceKind, `${interfaceId}.json`),

@@ -368,7 +368,7 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
       }
     },
     1500,
-    [selectedFields, classConnectionsData]
+    [selectedFields, classConnectionsData, isEditing, type]
   );
 
   useEffect(() => {
@@ -480,8 +480,10 @@ const InterfaceCreatorPanel: FunctionComponent<IInterfaceCreatorPanel> = ({
           // Create it if this is brand new interface
           setInterfaceId(type, currentInterfaceId, interfaceIndex);
         }
-        // Add draft if one exists
-        maybeApplyDraft(type, null, null, setClassConnectionsFromDraft);
+        if (!isEditing) {
+          // Add draft if one exists
+          maybeApplyDraft(type, null, null, setClassConnectionsFromDraft);
+        }
         // Set show
         setShow(true);
         // Fetch config items

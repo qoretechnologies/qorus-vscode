@@ -446,3 +446,10 @@ export const deleteDraft = async (interfaceKind, interfaceId, notify?: boolean) 
 };
 
 export const hasValue = (value) => value && value !== '';
+export const getDraftId = (data, interfaceId) => {
+  if (data && data.yaml_file) {
+    return btoa(data.yaml_file);
+  }
+
+  return interfaceId;
+};

@@ -35,7 +35,7 @@ export default () =>
         setFunctions(funcsList);
         setFunctionsData(funcsList);
         setFunctionsCount(size(funcs));
-        setActiveFunction(funcsList[0].id || 1);
+        setActiveFunction(funcsList[0]?.id || 1);
       };
 
       useEffect(() => {
@@ -46,7 +46,7 @@ export default () =>
         } else {
           // When function count changes
           // switch to the newest function
-          setActiveFunction(functions[functions.length - 1].id);
+          setActiveFunction(functions[functions.length - 1]?.id || 0);
         }
       }, [functionsCount]);
 

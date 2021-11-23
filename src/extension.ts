@@ -293,15 +293,18 @@ export async function activate(context: vscode.ExtensionContext) {
   registerQorusExplorerCommands(context);
   registerQorusViewsCommands(context);
 
-  disposable = vscode.window.registerTreeDataProvider('qorusInstances', instance_tree);
+  disposable = vscode.window.createTreeView('qorusInstances', { treeDataProvider: instance_tree });
   context.subscriptions.push(disposable);
 
   interface_tree.setExtensionPath(context.extensionPath);
 
-  disposable = vscode.window.registerTreeDataProvider('qorusInterfaces', interface_tree);
-  context.subscriptions.push(disposable);
+  const qorusInterfaces = vscode.window.createTreeView('qorusInterfaces', {
+    treeDataProvider: interface_tree,
+  });
 
-  disposable = vscode.window.registerTreeDataProvider('qorusDrafts', drafts_tree);
+  context.subscriptions.push(qorusInterfaces);
+
+  disposable = vscode.window.createTreeView('qorusDrafts', { treeDataProvider: drafts_tree });
   context.subscriptions.push(disposable);
 
   disposable = vscode.languages.registerCodeLensProvider(

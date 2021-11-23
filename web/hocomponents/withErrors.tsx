@@ -33,7 +33,7 @@ export default () =>
         setSubErrors(errorsList);
         setErrorsData(errorsList);
         setErrorsCount(size(errors));
-        setActiveError(errorsList[0].id || 1);
+        setActiveError(errorsList[0]?.id || 1);
       };
 
       useEffect(() => {

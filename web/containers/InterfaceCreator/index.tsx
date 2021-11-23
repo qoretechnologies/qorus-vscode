@@ -145,6 +145,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({
                 type={'group'}
                 onSubmitSuccess={onSubmit}
                 data={initialData.group}
+                isEditing={!!initialData.group}
               />
             </CreatorWrapper>
           )}
@@ -154,6 +155,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({
                 type={'event'}
                 onSubmitSuccess={onSubmit}
                 data={initialData.event}
+                isEditing={!!initialData.event}
               />
             </CreatorWrapper>
           )}
@@ -163,6 +165,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({
                 type={'queue'}
                 onSubmitSuccess={onSubmit}
                 data={initialData.queue}
+                isEditing={!!initialData.queue}
               />
             </CreatorWrapper>
           )}
@@ -172,6 +175,7 @@ export const CreateInterface: FunctionComponent<ICreateInterface> = ({
                 type={'value-map'}
                 onSubmitSuccess={onSubmit}
                 data={initialData['value-map']}
+                isEditing={!!initialData['value-map']}
               />
             </CreatorWrapper>
           )}

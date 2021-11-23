@@ -117,6 +117,7 @@ const App: FunctionComponent<IApp> = ({
   setMapperFromDraft,
   setSelectedFields,
   draftData,
+  setDraftData,
   setStepsFromDraft,
   setFieldsFromDraft,
   ...rest
@@ -148,6 +149,7 @@ const App: FunctionComponent<IApp> = ({
         if (fetchedDraft.ok) {
           addDraft({ ...fetchedDraft.data });
           changeTab('CreateInterface', fetchedDraft.data.interfaceKind);
+          setDraftData(null);
         }
       })();
     }
@@ -161,15 +163,31 @@ const App: FunctionComponent<IApp> = ({
     });
   };
 
-  const maybeApplyDraft = (
-    interfaceKind: string,
+  const maybeApplyDraft = async (
+    ifaceKind: string,
     draftData: IDraftData,
+    existingInterface?: any,
     customFunction?: (draft: IDraftData) => void,
     applyClassConnectionsFunc?: Function
   ) => {
-    const shouldApplyDraft = draftData ? true : draft?.interfaceKind === interfaceKind;
+    const shouldApplyDraft = draftData ? true : draft?.interfaceKind === ifaceKind;
     // Check if draft for this interface kind exists
-    if (shouldApplyDraft) {
+    if (shouldApplyDraft || existingInterface?.yaml_file) {
+      let draftToApply = draftData || draft;
+      // Fetch the draft if the draft id is provided
+      if (existingInterface) {
+        const fetchedDraft = await callBackendBasic(Messages.GET_DRAFT, undefined, {
+          interfaceKind: ifaceKind,
+          interfaceId: btoa(existingInterface.yaml_file),
+        });
+
+        if (fetchedDraft.ok) {
+          draftToApply = fetchedDraft.data;
+        } else {
+          return;
+        }
+      }
+
       const {
         interfaceKind,
         interfaceId,
@@ -180,14 +198,14 @@ const App: FunctionComponent<IApp> = ({
         steps,
         diagram,
         classConnections,
-      } = draftData || draft;
+      } = draftToApply;
 
       // Set the last saved draft with the interface id
       rest.setLastDraft({ interfaceId, interfaceKind });
 
       // If the custom function is provided, call it, remove the draft and stop here
       if (customFunction) {
-        customFunction(draftData || draft);
+        customFunction(draftToApply);
       } else {
         setInterfaceId(interfaceKind, interfaceId);
 

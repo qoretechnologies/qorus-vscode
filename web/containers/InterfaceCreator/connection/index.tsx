@@ -14,7 +14,7 @@ import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { hasValue } from '../../../helpers/functions';
+import { deleteDraft, hasValue } from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import { addMessageListener, postMessage } from '../../../hocomponents/withMessageHandler';
 import { ActionsWrapper, FieldInputWrapper, FieldWrapper, IField } from '../panel';
@@ -144,6 +144,8 @@ export const ConnectionView = ({ onSubmitSuccess }) => {
       if (onSubmitSuccess) {
         onSubmitSuccess(data);
       }
+
+      deleteDraft('connection', interfaceId, false);
       reset();
       resetAllInterfaceData('connection');
     }

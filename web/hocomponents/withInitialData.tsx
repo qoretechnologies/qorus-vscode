@@ -283,6 +283,7 @@ export default () =>
             callBackend,
             toggleSidebar,
             draftData,
+            setDraftData,
             saveDraft,
             isSavingDraft,
             lastDraft,

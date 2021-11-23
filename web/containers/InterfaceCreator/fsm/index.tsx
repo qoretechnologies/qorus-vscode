@@ -29,6 +29,7 @@ import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
 import {
   areTypesCompatible,
+  deleteDraft,
   hasValue,
   isFSMStateValid,
   isStateIsolated,
@@ -737,6 +738,8 @@ const FSMView: React.FC<IFSMViewProps> = ({
           states,
         });
       }
+
+      deleteDraft('fsm', interfaceId, false);
       reset();
       resetAllInterfaceData('fsm');
     }

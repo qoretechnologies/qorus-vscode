@@ -11,7 +11,7 @@ import Suggest from '../../components/Field/suggest';
 import FieldLabel from '../../components/FieldLabel';
 import { Messages } from '../../constants/messages';
 import { DraftsContext, IDraftData } from '../../context/drafts';
-import { hasValue } from '../../helpers/functions';
+import { deleteDraft, hasValue } from '../../helpers/functions';
 import { flattenFields, getLastChildIndex } from '../../helpers/mapper';
 import { validateField } from '../../helpers/validations';
 import withGlobalOptionsConsumer from '../../hocomponents/withGlobalOptionsConsumer';
@@ -293,6 +293,8 @@ const TypeView = ({ initialData, t, setTypeReset, onSubmitSuccess }) => {
           },
         });
       }
+
+      deleteDraft('type', interfaceId, false);
       reset();
     }
   };

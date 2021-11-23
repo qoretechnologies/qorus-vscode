@@ -24,7 +24,12 @@ import { DraftsContext, IDraftData } from '../../../context/drafts';
 import { GlobalContext } from '../../../context/global';
 import { InitialContext } from '../../../context/init';
 import { TextContext } from '../../../context/text';
-import { checkPipelineCompatibility, hasValue } from '../../../helpers/functions';
+import {
+  checkPipelineCompatibility,
+  deleteDraft,
+  getDraftId,
+  hasValue,
+} from '../../../helpers/functions';
 import { validateField } from '../../../helpers/validations';
 import withGlobalOptionsConsumer from '../../../hocomponents/withGlobalOptionsConsumer';
 import withMessageHandler, { TPostMessage } from '../../../hocomponents/withMessageHandler';
@@ -235,6 +240,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     useContext(InitialContext);
   const { maybeApplyDraft, draft } = useContext(DraftsContext);
   const pipeline = rest?.pipeline || init?.pipeline;
+  console.log(pipeline);
   const { resetAllInterfaceData } = useContext(GlobalContext);
   const changeHistory = useRef<string[]>([]);
   const currentHistoryPosition = useRef<number>(-1);
@@ -267,6 +273,7 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
     maybeApplyDraft(
       'pipeline',
       undefined,
+      pipeline,
       ({ pipelineData: { metadata, elements }, interfaceId }: IDraftData) => {
         // From draft
         setIsFromDraft(true);
@@ -327,9 +334,9 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
 
   useDebounce(
     () => {
+      const draftId = getDraftId(pipeline, interfaceId);
       if (
-        !pipeline &&
-        interfaceId &&
+        draftId &&
         (hasValue(metadata.target_dir) ||
           hasValue(metadata.desc) ||
           hasValue(metadata.name) ||
@@ -339,12 +346,13 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
       ) {
         saveDraft(
           'pipeline',
-          interfaceId,
+          draftId,
           {
             pipelineData: {
               metadata,
               elements,
             },
+            associatedInterface: pipeline?.yaml_file,
             isValid: isDataValid(elements, false),
           },
           metadata.name
@@ -445,6 +453,8 @@ const PipelineView: React.FC<IPipelineViewProps> = ({
           children: elements[0].children,
         });
       }
+
+      deleteDraft('pipeline', interfaceId, false);
       reset();
       resetAllInterfaceData('pipeline');
     }

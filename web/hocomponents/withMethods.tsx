@@ -40,7 +40,7 @@ export default () =>
         setMethods(methodsList);
         setMethodsData(methodsList);
         setMethodsCount(size(methods));
-        setActiveMethod(methodsList[0].id || 1);
+        setActiveMethod(methodsList[0]?.id || 1);
       };
 
       useEffect(() => {
@@ -51,7 +51,7 @@ export default () =>
         } else {
           // When methods count changes
           // switch to the newest method
-          setActiveMethod(methods[methods.length - 1].id);
+          setActiveMethod(methods[methods.length - 1]?.id || 0);
         }
       }, [methodsCount]);
 
