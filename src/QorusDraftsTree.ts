@@ -88,6 +88,8 @@ class QorusDraftCategory extends TreeItem {
 }
 
 class QorusDraftItem extends TreeItem {
+  public data: any;
+
   constructor(item, interfaceKind: string) {
     // Create the label
     const name = item.name;
@@ -109,11 +111,20 @@ class QorusDraftItem extends TreeItem {
       ? qorusIcons[`get${capitalize(interfaceKind).replace('-', '').replace(' ', '')}Icon`]?.()
       : undefined;
 
+    this.data = item.data;
+
     if (interfaceKind && item.isDraft) {
       this.contextValue = 'draft';
       this.command = {
         title: 'Open Draft',
         command: 'qorus.openDraft',
+        arguments: [interfaceKind, item.interfaceId],
+      };
+    } else {
+      this.contextValue = 'interface';
+      this.command = {
+        title: 'Open Interface',
+        command: 'qorus.openInterface',
         arguments: [interfaceKind, item.interfaceId],
       };
     }

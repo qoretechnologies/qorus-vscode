@@ -2,6 +2,7 @@ import { join } from 'path';
 import { t } from 'ttag';
 import { commands, ExtensionContext, Uri, window as vswindow, workspace } from 'vscode';
 import { deployer } from './QorusDeploy';
+import { drafts_tree } from './QorusDraftsTree';
 import { interface_tree } from './QorusInterfaceTree';
 import { QorusProjectCodeInfo } from './QorusProjectCodeInfo';
 import * as msg from './qorus_message';
@@ -10,13 +11,23 @@ import { dash2Pascal } from './qorus_utils';
 export const registerQorusViewsCommands = (context: ExtensionContext) => {
   let disposable;
 
+  disposable = vswindow.createTreeView('qorusInterfaces', { treeDataProvider: drafts_tree });
+  context.subscriptions.push(disposable);
+
   // view switching commands
-  disposable = commands.registerCommand('qorus.views.switchToCategoryView', () => {
-    interface_tree.setCategoryView();
+  disposable = commands.registerCommand('qorus.views.switchToFolderView', () => {
+    interface_tree.setFolderView();
+    disposable = vswindow.createTreeView('qorusInterfaces', {
+      treeDataProvider: interface_tree,
+    });
+
+    context.subscriptions.push(disposable);
   });
-  disposable = commands.registerCommand('qorus.views.switchToFolderView', () =>
-    interface_tree.setFolderView()
-  );
+
+  disposable = commands.registerCommand('qorus.views.switchToCategoryView', () => {
+    disposable = vswindow.createTreeView('qorusInterfaces', { treeDataProvider: drafts_tree });
+    context.subscriptions.push(disposable);
+  });
 
   // delete commands
   [
@@ -52,6 +63,11 @@ export const registerQorusViewsCommands = (context: ExtensionContext) => {
     });
     context.subscriptions.push(disposable);
   });
+
+  disposable = commands.registerCommand('qorus.views.deleteInterface', (data: any) => {
+    console.log(data);
+  });
+  context.subscriptions.push(disposable);
 
   // deploy commands
   [

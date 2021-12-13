@@ -6,7 +6,6 @@ import { ActionDispatcher as creator } from './interface_creator/ActionDispatche
 import { isLangClientAvailable } from './qore_vscode';
 import { deployer } from './QorusDeploy';
 import { QorusDraftsInstance } from './QorusDrafts';
-import { drafts_tree } from './QorusDraftsTree';
 import { qorusIcons } from './QorusIcons';
 import { instance_tree } from './QorusInstanceTree';
 import { interface_tree } from './QorusInterfaceTree';
@@ -193,16 +192,6 @@ export async function activate(context: vscode.ExtensionContext) {
     });
   });
 
-  disposable = vscode.commands.registerCommand('qorus.createInter', (data) => {
-    const [interfaceKind] = data.tooltip.split('|');
-
-    vscode.window.showWarningMessage(t`DeleteInterfaceDrafts`, t`Yes`, t`No`).then((selection) => {
-      if (selection === t`Yes`) {
-        QorusDraftsInstance.deleteDraftOrDrafts(interfaceKind);
-      }
-    });
-  });
-
   context.subscriptions.push(disposable);
 
   disposable = vscode.commands.registerCommand('qorus.deleteAllDrafts', () => {
@@ -297,15 +286,6 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 
   interface_tree.setExtensionPath(context.extensionPath);
-
-  const qorusInterfaces = vscode.window.createTreeView('qorusInterfaces', {
-    treeDataProvider: interface_tree,
-  });
-
-  context.subscriptions.push(qorusInterfaces);
-
-  disposable = vscode.window.createTreeView('qorusDrafts', { treeDataProvider: drafts_tree });
-  context.subscriptions.push(disposable);
 
   disposable = vscode.languages.registerCodeLensProvider(
     [{ language: 'qore', scheme: 'file' }],
